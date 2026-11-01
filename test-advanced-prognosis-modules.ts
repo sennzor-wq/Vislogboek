@@ -513,6 +513,45 @@ assert(
   '4.7 Bestaande Poisson-vangstkans blijft correct functioneren'
 );
 
+// =====================================================================
+// DEEL 5: ONTBREKENDE EN ONVOLLEDIGE WEERDATA
+// =====================================================================
+console.log('\n--- TESTGROEP 5: Ontbrekende weerdata ---');
+
+const noWeatherProg = calculateDayPrognosis(
+  '2026-07-20',
+  [],
+  'Karper',
+  [],
+  '2026-07-20T08:00:00Z',
+  null,
+  new Date('2026-07-20T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+
+assert(
+  noWeatherProg.activityScoreAvailable === false,
+  '5.1 Zonder gemeten of verantwoord geschatte watertemperatuur wordt de activiteitsindex niet als beschikbaar gemarkeerd'
+);
+assert(
+  noWeatherProg.personalCatchChance === null,
+  '5.2 Zonder essentiële weer-/thermische gegevens wordt geen persoonlijke vangstkans getoond'
+);
+assert(
+  noWeatherProg.weatherDataQuality?.status === 'Onvoldoende',
+  '5.3 Geen uurdata resulteert in status Onvoldoende'
+);
+assert(
+  noWeatherProg.timeSlots.Ochtend.temperatureFactor.dataAvailable === false,
+  '5.4 Ontbrekende watertemperatuur wordt als onbekend gemarkeerd, niet als neutraal'
+);
+assert(
+  noWeatherProg.timeSlots.Ochtend.windFactor.dataAvailable === false &&
+  noWeatherProg.timeSlots.Ochtend.pressureFactor.dataAvailable === false &&
+  noWeatherProg.timeSlots.Ochtend.precipitationFactor.dataAvailable === false,
+  '5.5 Ontbrekende wind-, druk-, regen- en bewolkingsdata worden niet als gemeten nul/neutraal behandeld'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT MODULES: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');
