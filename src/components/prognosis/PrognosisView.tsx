@@ -1508,11 +1508,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   ))}
               </ul>
             </div>
-          </div>
-
-
 </>
-)}          {/* Gedetailleerde Analyse per Tijdvak */}
+)}
+          </div>
+          {/* Gedetailleerde Analyse per Tijdvak */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
