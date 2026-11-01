@@ -543,7 +543,16 @@ export type ViscoachTargetSpecies = 'Geen voorkeur' | FishSpecies;
 
 export const VISCOACH_SPECIES_OPTIONS: ViscoachTargetSpecies[] = [
   'Geen voorkeur',
-  ...ALL_SPECIES,
+  'Karper',
+  'Brasem',
+  'Zeelt',
+  'Voorn',
+  'Snoek',
+  'Snoekbaars',
+  'Baars',
+  'Roofblei',
+  'Meerval',
+  'Overig',
 ];
 
 export interface ViscoachSessionContext {
