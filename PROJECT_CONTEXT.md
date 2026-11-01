@@ -815,6 +815,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 ### Doorgevoerde optimalisaties in deze branch
 - De thermische extrapolatie gebruikte voor ieder uur opnieuw filters over de volledige weersreeks om 24-uurs- en 72-uursgemiddelden te berekenen. Dit is vervangen door vooraf berekende timestamps en prefix-sommen met schuivende venstergrenzen. De berekening gaat daarmee van herhaald scannen (kwadratisch gedrag) naar één lineaire doorloop, met dezelfde inclusieve tijdvensters.
 - Geldige luchtdrukmetingen worden per forecast-array één keer voorbereid en via een WeakMap hergebruikt in de druktrendberekening. Dit voorkomt dat ieder tijdvak dezelfde validatiefilter opnieuw uitvoert; er wordt geen weerdata buiten de huidige prognoseronde bewaard.
+- Geldige temperatuurvalidatieparen uit prognosesnapshots worden per snapshot-array één keer bepaald en hergebruikt voor de acht doeldagen. De snapshots blijven read-only; de cache is alleen in geheugen en wordt vrijgegeven zodra de array niet meer wordt gebruikt.
 - De windanalyse behoudt de representatieve richting voor bestaande regels, maar toont daarnaast opeenvolgende windrichtingen wanneer die binnen één tijdvak veranderen. De ruwe uurmetingen blijven ongewijzigd beschikbaar.
 - Database-initialisatie en historische seeding worden één keer per app-runtime uitgevoerd. Een gewone data-refresh voert niet opnieuw alle initiële controles en seed-acties uit. De bestaande Dexie-database en records worden niet gewist of opnieuw opgebouwd.
 
