@@ -780,7 +780,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Een prognosesnapshot bewaart de voorspelde watertemperatuur en onzekerheidsrange alleen wanneer het om een modelschatting gaat; een reeds gemeten waarde wordt niet als voorspelling geteld.
 - Bij afronding van een sessie wordt een geldige sessiemeting gekoppeld aan de snapshot, onafhankelijk van de vangstuitkomst.
 - Alleen snapshots van dezelfde lokale sessiedag, stek en met een voorspellingstijdstip vóór de meting zijn geldige temperatuurparen.
-- Het sessiemodel bevat nog geen afzonderlijk meettijdstip. Daarom wordt de sessiestart voorlopig als benaderend meettijdstip gebruikt; een latere uitbreiding kan een expliciet meettijdstip en meetdiepte vastleggen.
+- Het sessieformulier bevat een optioneel invoerveld voor de daadwerkelijk gemeten watertemperatuur (0–35 °C, stapgrootte 0,1 °C). Er is bewust geen apart meettijdstip: de sessiestart wordt gebruikt als meettijdstip voor de koppeling en evaluatie.
 - Historische sessies zonder vooraf opgeslagen temperatuurprognose leveren geen achteraf geconstrueerde validatieparen op.
 
 ### 19.3 Voorzichtige automatische correctie
@@ -797,4 +797,4 @@ Dit is een harde functionele eis, los van de VisCoach:
 - De huidige thermische fysica blijft een vereenvoudigde benadering. Biascorrectie kan een systematische lokale afwijking verminderen, maar leert nog geen volledige niet-lineaire warmte-uitwisseling.
 - Metingen op verschillende diepten worden nog niet afzonderlijk gemodelleerd. Leg bij een toekomstige meetveld-uitbreiding meetdiepte, meetmethode en exact meettijdstip vast.
 - Validatie rapporteert alleen temperatuurfouten; modelpromotie of geavanceerde seizoens-/diepteparameters vereisen meer data en afzonderlijke voorwaartse tests.
-- Controleer in de volgende ontwikkelronde ook dat sessie-opslag de functie `autoSyncSessionOutcomeToSnapshot` aanroept wanneer een sessie wordt afgerond, zodat de meting daadwerkelijk aan de snapshot wordt gekoppeld.
+- De sessie-opslag roept `autoSyncSessionOutcomeToSnapshot` aan wanneer een sessie wordt opgeslagen met een gekoppelde snapshot. De nieuwe temperatuurinvoer voedt deze bestaande koppeling; de sessiestart wordt als meettijdstip gebruikt.

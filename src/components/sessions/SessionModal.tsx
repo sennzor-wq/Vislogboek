@@ -63,6 +63,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   const [bitesCount, setBitesCount] = useState<number | undefined>(session?.bitesCount);
   const [missedCount, setMissedCount] = useState<number | undefined>(session?.missedCount);
   const [waterDepth, setWaterDepth] = useState<number | undefined>(session?.waterDepth);
+  const [waterTemperature, setWaterTemperature] = useState<number | undefined>(session?.waterTemperature ?? undefined);
   const [notes, setNotes] = useState(session?.notes || '');
   const [fetchingWeather, setFetchingWeather] = useState(false);
   const [weatherSnapshot, setWeatherSnapshot] = useState(session?.weatherSnapshot);
@@ -168,6 +169,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         bitesCount: bitesCount !== undefined ? Number(bitesCount) : undefined,
         missedCount: missedCount !== undefined ? Number(missedCount) : undefined,
         waterDepth: waterDepth !== undefined ? Number(waterDepth) : undefined,
+        waterTemperature: waterTemperature !== undefined ? Number(waterTemperature) : undefined,
         notes,
         weatherSnapshot,
         presenceObservations: selectedPresenceObs,
@@ -541,6 +543,31 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             </select>
             <p className="text-[11px] text-slate-400 leading-relaxed">
               Registreert in welke kompasrichting het aas ten opzichte van de oeverstek ligt. Wordt uitsluitend gebruikt voor een voorzichtige persoonlijke empirische nuance op deze specifieke stek na minimaal 11 voltooide sessies (≥6 met richting).
+            </p>
+          </div>
+
+          {/* Gemeten watertemperatuur (optioneel) */}
+          <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-300" htmlFor="session-water-temperature">
+              Gemeten watertemperatuur (°C) — optioneel
+            </label>
+            <input
+              id="session-water-temperature"
+              type="number"
+              min={0}
+              max={35}
+              step="0.1"
+              inputMode="decimal"
+              placeholder="Bijv. 12,5"
+              value={waterTemperature ?? ''}
+              onChange={(e) => {
+                const value = e.target.value;
+                setWaterTemperature(value === '' ? undefined : Number(value));
+              }}
+              className="w-full sm:max-w-xs bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Vul de daadwerkelijk gemeten watertemperatuur in. De starttijd van deze sessie wordt automatisch gebruikt als meettijdstip; je hoeft geen apart tijdstip in te voeren.
             </p>
           </div>
 
