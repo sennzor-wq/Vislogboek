@@ -349,7 +349,10 @@ export interface PrognosisSnapshot {
   locationName?: string;
   durationHours: number;
   technique?: string;
-  predictedActivityScore: number;  // 1.0 - 10.0
+  predictedActivityScore: number | null;  // null indien ontbrekende gegevens de index onbetrouwbaar maken
+  activityScoreAvailable?: boolean;
+  weatherDataQuality?: WeatherDataQuality;
+  // 1.0 - 10.0
   predictedCatchChance: number | null; // %
   predictedUncertaintyInterval?: [number, number] | null;
   predictedConfidence?: string;
