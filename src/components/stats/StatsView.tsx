@@ -9,7 +9,7 @@ import {
   PrognosisSnapshot,
 } from '../../types';
 import { calculateStats, StatsFilter } from '../../services/statsEngine';
-import { evaluatePrognosisPerformance, EvaluationResult } from '../../services/evaluationEngine';
+import { evaluatePrognosisPerformance, evaluateWaterTemperaturePerformance, EvaluationResult, WaterTemperatureEvaluationResult } from '../../services/evaluationEngine';
 import { db, deletePrognosisSnapshotSafely } from '../../db/db';
 import {
   BarChart3,
@@ -30,6 +30,7 @@ import {
   BookmarkPlus,
   AlertCircle,
   Trash2,
+  Thermometer,
 } from 'lucide-react';
 
 interface StatsViewProps {
@@ -53,6 +54,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
 
   const [snapshots, setSnapshots] = useState<PrognosisSnapshot[]>([]);
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
+  const [waterTemperatureEvaluation, setWaterTemperatureEvaluation] = useState<WaterTemperatureEvaluationResult | null>(null);
   const [snapshotToDelete, setSnapshotToDelete] = useState<PrognosisSnapshot | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -63,6 +65,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
       setSnapshots(list);
       const evalRes = evaluatePrognosisPerformance(list);
       setEvaluation(evalRes);
+      setWaterTemperatureEvaluation(evaluateWaterTemperaturePerformance(list));
     } catch (e) {
       console.error('Fout bij herladen prognose momentopnames:', e);
     }
@@ -256,6 +259,48 @@ export const StatsView: React.FC<StatsViewProps> = ({
         </div>
         <p className="text-[11px] text-slate-400 leading-relaxed">
           * Actieve en onbekende sessies zijn expliciet uitgesloten van vangstpercentages om schijnnauwkeurigheid te voorkomen.
+        </p>
+      </div>
+
+      {/* SOORTNEUTRALE WATERTEMPERATUURVALIDATIE */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-700/80 shadow-xl space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <Thermometer className="w-5 h-5 text-emerald-400" />
+              Watertemperatuur — modeltoetsing
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Soortneutrale vergelijking van vooraf voorspelde en later gemeten watertemperatuur.
+            </p>
+          </div>
+          <span className="text-xs text-slate-400">{waterTemperatureEvaluation?.evaluatedCount ?? 0} meting(en)</span>
+        </div>
+        {waterTemperatureEvaluation && waterTemperatureEvaluation.evaluatedCount > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-700/50">
+              <span className="text-[11px] text-slate-400 uppercase font-bold">MAE</span>
+              <div className="text-2xl font-black text-white">{waterTemperatureEvaluation.meanAbsoluteErrorC?.toFixed(2)} °C</div>
+              <span className="text-[11px] text-slate-500">Gemiddelde absolute afwijking</span>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-700/50">
+              <span className="text-[11px] text-slate-400 uppercase font-bold">RMSE</span>
+              <div className="text-2xl font-black text-white">{waterTemperatureEvaluation.rootMeanSquaredErrorC?.toFixed(2)} °C</div>
+              <span className="text-[11px] text-slate-500">Straft grotere fouten zwaarder</span>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-700/50">
+              <span className="text-[11px] text-slate-400 uppercase font-bold">Gemiddelde bias</span>
+              <div className="text-2xl font-black text-white">{waterTemperatureEvaluation.meanBiasC! > 0 ? '+' : ''}{waterTemperatureEvaluation.meanBiasC?.toFixed(2)} °C</div>
+              <span className="text-[11px] text-slate-500">Positief = model schat te warm</span>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-300">
+            Nog geen vergelijkbare voorspelling en echte meting gekoppeld. Start een sessie vanuit een vooraf opgeslagen prognose en registreer de watertemperatuur.
+          </p>
+        )}
+        <p className="text-[11px] text-slate-500">
+          Kalibratie wordt pas toegepast na minimaal 8 geldige metingen op dezelfde stek en in hetzelfde seizoen. Dit is geen Brier-score en geldt voor alle vissoorten.
         </p>
       </div>
 

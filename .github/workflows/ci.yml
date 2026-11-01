@@ -56,6 +56,9 @@ jobs:
       - name: Water thermal coupling tests
         run: bun run tsx test-water-thermal-coupling.ts
 
+      - name: Water temperature learning tests
+        run: bun run tsx test-water-temperature-learning.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 
