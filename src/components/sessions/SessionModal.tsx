@@ -9,13 +9,14 @@ import {
   COMPASS_DIRECTIONS,
 } from '../../types';
 import { getCurrentWeatherSnapshot, fetchHistoricalWeatherSnapshot } from '../../services/weatherService';
-import { createLiveSnapshotForSessionStart } from '../../services/prognosisEngine';
+import { createLiveSnapshotForSessionStart, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { Calendar, Clock, MapPin, Sparkles, Thermometer, Wind, AlertCircle, History, Compass } from 'lucide-react';
 
 interface SessionModalProps {
   session?: FishingSession | null;
   locations: FishingLocation[];
-  onSave: (sessionData: Partial<FishingSession>) => Promise<void>;
+  onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot) => Promise<void>;
+  pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
   onClose: () => void;
 }
 
@@ -23,6 +24,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   session,
   locations,
   onSave,
+  pendingPrognosisSnapshot,
   onClose,
 }) => {
   const isEditing = !!session;
@@ -208,7 +210,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         }
       }
 
-      await onSave(payload);
+      await onSave(payload, pendingPrognosisSnapshot);
       onClose();
     } catch (err: any) {
       console.error('Fout bij opslaan sessie:', err);
