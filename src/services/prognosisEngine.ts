@@ -945,7 +945,7 @@ export async function savePrognosisSnapshot(
   chosenSlot?: TimeSlot,
   conditions?: WeatherSnapshot
 ): Promise<PrognosisSnapshot> {
-  const targetSlot =
+  const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
     (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
       ? (prognosis.bestTimeSlot as TimeSlot)
@@ -979,7 +979,9 @@ export async function savePrognosisSnapshot(
     locationName,
     durationHours,
     technique,
-    predictedActivityScore: prognosis.activityScore,
+    predictedActivityScore: prognosis.activityScoreAvailable === false ? null : prognosis.activityScore,
+    activityScoreAvailable: prognosis.activityScoreAvailable !== false,
+    weatherDataQuality: prognosis.weatherDataQuality,
     predictedCatchChance: prognosis.personalCatchChance, // null indien N < 5, NOOIT gefabriceerd!
     predictedUncertaintyInterval: prognosis.catchUncertaintyInterval,
     predictedConfidence: prognosis.personalCatchConfidence,
