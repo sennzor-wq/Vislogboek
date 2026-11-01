@@ -818,6 +818,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Geldige temperatuurvalidatieparen uit prognosesnapshots worden per snapshot-array één keer bepaald en hergebruikt voor de acht doeldagen. De snapshots blijven read-only; de cache is alleen in geheugen en wordt vrijgegeven zodra de array niet meer wordt gebruikt.
 - De windanalyse behoudt de representatieve richting voor bestaande regels, maar toont daarnaast opeenvolgende windrichtingen wanneer die binnen één tijdvak veranderen. De ruwe uurmetingen blijven ongewijzigd beschikbaar.
 - Database-initialisatie en historische seeding worden één keer per app-runtime uitgevoerd. Een gewone data-refresh voert niet opnieuw alle initiële controles en seed-acties uit. De bestaande Dexie-database en records worden niet gewist of opnieuw opgebouwd.
+- Bij het opslaan van één sessie, vangst of stek wordt alleen het betreffende record in de React-state bijgewerkt. Brede refreshes blijven beschikbaar voor import, herstel en verwijderflows.
 
 ### Validatie
 - De thermische en prognoseregressietests blijven onderdeel van de bestaande CI-suite.
