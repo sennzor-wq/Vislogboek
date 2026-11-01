@@ -847,6 +847,25 @@ export function calculateDayPrognosis(
     cloudCoverPercent: dayForecasts[0]?.cloudCover ?? 50,
   });
 
+  // Tactische deelmodules hebben legacy numerieke invoer nodig. Als daarvoor een interne
+  // placeholder nodig was, wordt hun uitvoer nadrukkelijk gedegradeerd en niet als zeker advies gepresenteerd.
+  if (!hasDayWindData || !hasThermalDataForModules || !hasDayCloudData || !presTrend.known) {
+    const limitations = [
+      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen; windrichting/-kracht in dit tactische advies zijn niet betrouwbaar.'] : []),
+      ...(!hasThermalDataForModules ? ['Geen gemeten of verantwoord geschatte watertemperatuur; thermische tactische aannames zijn niet betrouwbaar.'] : []),
+      ...(!hasDayCloudData ? ['Bewolkingsgegevens ontbreken; licht-/zoncontext is niet betrouwbaar.'] : []),
+      ...(!presTrend.known ? ['Luchtdruktrend onbekend; er is geen stabiele trend aangenomen.'] : []),
+    ];
+    positioningAdvice.confidenceLevel = 'Laag';
+    positioningAdvice.missingInformation.push(...limitations);
+    positioningAdvice.rationale = 'LET OP: belangrijke weersgegevens ontbreken. Behandel de positie als algemene zoekhypothese, niet als weersgestuurd advies. ' + positioningAdvice.rationale;
+    habitatAnalysis.confidenceLevel = 'Laag';
+    habitatAnalysis.missingInformation.push(...limitations);
+    habitatAnalysis.movementHypothesis.windInfluence = 'Onbekend: onvoldoende geldige windgegevens om windgestuurde visverplaatsing te beoordelen.';
+    habitatAnalysis.environmentalInfluence.windAndWaveImpact = 'Onbekend: onvoldoende geldige windgegevens.';
+    habitatAnalysis.environmentalInfluence.lightAndSolarImpact = 'Onbekend: onvoldoende geldige bewolkingsgegevens.';
+  }
+
   // Module 1: Gestructureerd Voorvoerprogramma
   const prebaitPlan = calculatePrebaitPlan(
     dateStr,
