@@ -30,6 +30,16 @@ export default function App() {
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
   const [prefilledSnapshotId, setPrefilledSnapshotId] = useState<string | undefined>(undefined);
+  const [showAdvancedPrognosisDetails, setShowAdvancedPrognosisDetails] = useState<boolean>(() => {
+    try { return window.localStorage.getItem('vislogboek.prognosis.advancedDetails') === 'true'; }
+    catch { return false; }
+  });
+
+  const handleToggleAdvancedPrognosisDetails = (enabled: boolean) => {
+    setShowAdvancedPrognosisDetails(enabled);
+    try { window.localStorage.setItem('vislogboek.prognosis.advancedDetails', String(enabled)); }
+    catch (error) { console.warn('Prognoseweergave kon niet lokaal worden opgeslagen:', error); }
+  };
 
   const loadData = async () => {
     try {
@@ -203,7 +213,7 @@ export default function App() {
 
       <main className="flex-1 px-4 sm:px-6 py-6 pb-24 md:pb-12 max-w-6xl mx-auto w-full">
         {currentTab === 'prognosis' && (
-          <PrognosisView locations={locations} sessions={sessions} catches={catches} onStartSession={handleStartSession} />
+          <PrognosisView locations={locations} sessions={sessions} catches={catches} onStartSession={handleStartSession} showAdvancedDetails={showAdvancedPrognosisDetails} />
         )}
         {currentTab === 'sessions' && (
           <SessionsView
@@ -230,7 +240,7 @@ export default function App() {
         )}
         {currentTab === 'weather' && <WeatherView locations={locations} />}
         {currentTab === 'settings' && (
-          <SettingsView locations={locations} sessions={sessions} catches={catches} onRefreshData={loadData} />
+          <SettingsView locations={locations} sessions={sessions} catches={catches} onRefreshData={loadData} showAdvancedPrognosisDetails={showAdvancedPrognosisDetails} onToggleAdvancedPrognosisDetails={handleToggleAdvancedPrognosisDetails} />
         )}
       </main>
 
