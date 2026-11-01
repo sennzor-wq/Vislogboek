@@ -12,6 +12,7 @@ import {
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
 import { calculateDayPrognosis, savePrognosisSnapshot } from '../../services/prognosisEngine';
+import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import {
   Calendar,
@@ -91,6 +92,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const lon = selectedLoc?.longitude ?? 5.228;
 
       const weather = await getForecast(lat, lon, forceRefresh);
+      // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
+      const storedSnapshots = await db.prognosisSnapshots.toArray();
       setWeatherUpdatedAt(weather.fetchedAt);
       setIsCachedWeather(weather.isFromCache);
 
@@ -119,6 +122,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             sessionDurationHours: selectedDurationHours,
             locationId: selectedLocationId,
             location: selectedLoc,
+            waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             presenceObservation: selectedPresenceObs,
             catches,
             prebaitOptions: {
