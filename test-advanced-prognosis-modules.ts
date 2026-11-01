@@ -552,6 +552,38 @@ assert(
   '5.5 Ontbrekende wind-, druk-, regen- en bewolkingsdata worden niet als gemeten nul/neutraal behandeld'
 );
 
+const partialForecasts = Array.from({ length: 24 }, (_, hour) => ({
+  time: `2026-07-20T${String(hour).padStart(2, '0')}:00:00`,
+  temperature: 20,
+  pressure: 1015,
+  // Wind, neerslag en bewolking ontbreken bewust.
+})) as unknown as WeatherHourlyForecast[];
+
+const partialWeatherProg = calculateDayPrognosis(
+  '2026-07-20',
+  partialForecasts,
+  'Karper',
+  [],
+  '2026-07-20T08:00:00Z',
+  null,
+  new Date('2026-07-20T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+
+assert(
+  partialWeatherProg.timeSlots.Ochtend.windFactor.dataAvailable === false &&
+  partialWeatherProg.timeSlots.Ochtend.precipitationFactor.dataAvailable === false,
+  '5.6 Ontbrekende wind, neerslag en bewolking worden als onbekend behandeld bij gedeeltelijke uurdata'
+);
+assert(
+  partialWeatherProg.timeSlots.Ochtend.pressureFactor.dataAvailable === true,
+  '5.7 Een aanwezige geldige luchtdrukwaarde blijft afzonderlijk bruikbaar'
+);
+assert(
+  partialWeatherProg.personalCatchChance === null,
+  '5.8 Bij onvolledige weerdekking wordt geen persoonlijke vangstkans getoond'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT MODULES: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');
