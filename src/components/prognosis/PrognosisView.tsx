@@ -763,8 +763,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1 text-[10px] text-slate-400">
                       <div className="flex items-center justify-between">
                         <span>
-                          Wind: {activeDayProg.positioningAdvice.windContext.directionText}{' '}
-                          {activeDayProg.positioningAdvice.windContext.speedKmH} km/u
+                          {activeDayProg.positioningAdvice.windContext.speedKmH === null ? 'Windgegevens: onbekend' : `Wind: ${activeDayProg.positioningAdvice.windContext.directionText} ${activeDayProg.positioningAdvice.windContext.speedKmH} km/u`}
                           {activeDayProg.positioningAdvice.windContext.gustsKmH &&
                             ` (stoten ~${activeDayProg.positioningAdvice.windContext.gustsKmH} km/u)`}
                         </span>
