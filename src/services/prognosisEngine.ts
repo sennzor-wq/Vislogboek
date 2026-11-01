@@ -73,12 +73,13 @@ export function findPressureTrend(
   allForecasts: WeatherHourlyForecast[]
 ): { deltaHpa: number | null; trendDescription: string; known: boolean } {
   const targetDateMs = new Date(targetTimeIso).getTime();
-  if (isNaN(targetDateMs) || allForecasts.length === 0) {
+  const validPressureForecasts = allForecasts.filter((h) => Number.isFinite(h.pressure) && h.pressure >= 850 && h.pressure <= 1100);
+  if (isNaN(targetDateMs) || validPressureForecasts.length === 0) {
     return { deltaHpa: null, trendDescription: 'Druktrend onbekend (onvoldoende uurdata)', known: false };
   }
 
   // Zoek uurmeting dichtst bij target
-  const currentEntry = allForecasts.find(
+  const currentEntry = validPressureForecasts.find(
     (h) => Math.abs(new Date(h.time).getTime() - targetDateMs) < 1800000
   );
   if (!currentEntry) {
@@ -90,7 +91,7 @@ export function findPressureTrend(
   let pastEntry: WeatherHourlyForecast | null = null;
   let minDiff = Infinity;
 
-  for (const h of allForecasts) {
+  for (const h of validPressureForecasts) {
     const hMs = new Date(h.time).getTime();
     const diff = Math.abs(hMs - targetPastMs);
     if (diff < minDiff && diff <= 3 * 3600000) {
@@ -303,7 +304,7 @@ function analyzeTimeSlot(
   } else {
     precipModulator = 1.0;
     precipImpact = 'neutraal';
-    precipDetail = 'Droge omstandigheden met helder zicht.';
+    precipDetail = 'Geen duidelijke neerslag- of bewolkingsinvloed vastgesteld op basis van de beschikbare waarden.';
   }
 
   const precipitationFactor: FactorBreakdown = {
@@ -703,7 +704,7 @@ export function calculateDayPrognosis(
   const validHours=Math.min(...weatherFields.map(f=>f.count));
   const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
   const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
-  if ((!hasKnownThermalInput || weatherDataQuality.status==='Onvoldoende') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
+  if ((!hasKnownThermalInput || weatherDataQuality.status!=='Volledig') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
   // Provenance
   let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
