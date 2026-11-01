@@ -1,4 +1,4 @@
-import { analyzeBankWind } from './src/services/bankWindEngine';
+import { analyzeBankWind, COMPASS_DEGREES_MAP } from './src/services/bankWindEngine';
 import { analyzeHabitatMovement } from './src/services/habitatMovementEngine';
 import { calculatePrebaitPlan } from './src/services/prebaitEngine';
 import { calculateDayPrognosis } from './src/services/prognosisEngine';
@@ -8,6 +8,7 @@ import {
   WaterThermalAnalysis,
   WeatherHourlyForecast,
   PresenceObservation,
+  COMPASS_DIRECTIONS,
 } from './src/types';
 
 let passed = 0;
@@ -24,6 +25,21 @@ function assert(condition: boolean | undefined | null, message: string) {
 }
 
 console.log('=== TEST SUITE: VOORVOERPROGRAMMA, OEVERWIND & HABITATMODEL ===\n');
+
+console.log('--- TESTGROEP 0: Volledige kompaskeuze ---');
+assert(
+  COMPASS_DIRECTIONS.length === 8,
+  '0.1 De oeverkijkrichting biedt alle acht hoofd- en tussenwindrichtingen'
+);
+for (const [index, direction] of COMPASS_DIRECTIONS.entries()) {
+  const expectedDegrees = index * 45;
+  assert(
+    COMPASS_DEGREES_MAP[direction] === expectedDegrees,
+    `0.2 ${direction} is beschikbaar met de juiste hoek (${expectedDegrees}°)`
+  );
+}
+
+
 
 // Mock data helpers
 const createMockThermalAnalysis = (temp: number, trend: any = 'Ongeveer stabiel'): WaterThermalAnalysis => ({
