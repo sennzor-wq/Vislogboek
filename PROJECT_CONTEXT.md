@@ -798,3 +798,28 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Metingen op verschillende diepten worden nog niet afzonderlijk gemodelleerd. Leg bij een toekomstige meetveld-uitbreiding meetdiepte, meetmethode en exact meettijdstip vast.
 - Validatie rapporteert alleen temperatuurfouten; modelpromotie of geavanceerde seizoens-/diepteparameters vereisen meer data en afzonderlijke voorwaartse tests.
 - De sessie-opslag roept `autoSyncSessionOutcomeToSnapshot` aan wanneer een sessie wordt opgeslagen met een gekoppelde snapshot. De nieuwe temperatuurinvoer voedt deze bestaande koppeling; de sessiestart wordt als meettijdstip gebruikt.
+
+
+---
+
+## 20. Prestatieoptimalisatie — hergebruik van weer- en databasegegevens
+
+**Status: voorbereid op branch `perf-weather-optimization`; nog niet samengevoegd of gepubliceerd.**
+
+### Uitgangspunten
+- Optimalisatie mag de inhoudelijke prognose, onzekerheidsregels, dataprovenance of bestaande functies niet veranderen.
+- De uurlijkse weersreeks blijft leidend. Weer- en windveranderingen binnen een tijdvak mogen niet verdwijnen door daggemiddelden of één representatieve waarde.
+- Nieuwe weerdata via automatische of handmatige verversing moet een nieuwe prognoseberekening activeren.
+- Lokale IndexedDB-gegevens blijven behouden; optimalisatie mag geen sessies, vangsten, stekken, snapshots of weerhistorie herschrijven of verwijderen.
+
+### Doorgevoerde optimalisaties in deze branch
+- De thermische extrapolatie gebruikte voor ieder uur opnieuw filters over de volledige weersreeks om 24-uurs- en 72-uursgemiddelden te berekenen. Dit is vervangen door vooraf berekende timestamps en prefix-sommen met schuivende venstergrenzen. De berekening gaat daarmee van herhaald scannen (kwadratisch gedrag) naar één lineaire doorloop, met dezelfde inclusieve tijdvensters.
+- Geldige luchtdrukmetingen worden per forecast-array één keer voorbereid en via een WeakMap hergebruikt in de druktrendberekening. Dit voorkomt dat ieder tijdvak dezelfde validatiefilter opnieuw uitvoert; er wordt geen weerdata buiten de huidige prognoseronde bewaard.
+- De windanalyse behoudt de representatieve richting voor bestaande regels, maar toont daarnaast opeenvolgende windrichtingen wanneer die binnen één tijdvak veranderen. De ruwe uurmetingen blijven ongewijzigd beschikbaar.
+- Database-initialisatie en historische seeding worden één keer per app-runtime uitgevoerd. Een gewone data-refresh voert niet opnieuw alle initiële controles en seed-acties uit. De bestaande Dexie-database en records worden niet gewist of opnieuw opgebouwd.
+
+### Validatie
+- De thermische en prognoseregressietests blijven onderdeel van de bestaande CI-suite.
+- Een extra regressietest controleert dat een winddraaiing binnen één tijdvak zichtbaar blijft.
+- Typecheck en production build moeten via GitHub Actions slagen voordat de branch kan worden samengevoegd.
+- Een groene CI-run bewijst geen gemeten snelheidswinst op een fysiek toestel. Daarvoor is later een aparte, reproduceerbare performancebenchmark nodig.
