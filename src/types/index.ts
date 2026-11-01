@@ -249,7 +249,7 @@ export interface RodPositioningAdvice {
   confidenceLevel: 'Laag' | 'Matig' | 'Redelijk'; // Betrouwbaarheid van het advies (rekening houdend met ontbrekende oevergeometrie)
   windContext: {
     directionText: string;
-    speedKmH: number;
+    speedKmH: number | null;
     gustsKmH?: number;
     isStrongWind: boolean;
     isColdWind: boolean;
