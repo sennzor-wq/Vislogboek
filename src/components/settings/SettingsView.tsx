@@ -28,6 +28,8 @@ interface SettingsViewProps {
   sessions: FishingSession[];
   catches: CatchItem[];
   onRefreshData: () => Promise<void>;
+  showAdvancedPrognosisDetails: boolean;
+  onToggleAdvancedPrognosisDetails: (enabled: boolean) => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -35,6 +37,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   sessions,
   catches,
   onRefreshData,
+  showAdvancedPrognosisDetails,
+  onToggleAdvancedPrognosisDetails,
 }) => {
   const { isInstallable, isInstalled, install } = usePWAInstall();
 
@@ -251,6 +255,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
+      {/* Prognoseweergave */}
+      <div className="p-5 rounded-3xl bg-slate-800/80 border border-slate-700/80 space-y-3">
+        <div>
+          <h2 className="text-sm font-bold text-white flex items-center gap-2">
+            <Settings className="w-4 h-4 text-emerald-400" />
+            Weergave van de prognosepagina
+          </h2>
+          <p className="text-xs text-slate-400 mt-1 leading-relaxed">Kies hoeveel technische uitleg je wilt zien. De berekeningen en onderliggende gegevens blijven altijd hetzelfde.</p>
+        </div>
+        <button type="button" role="switch" aria-checked={showAdvancedPrognosisDetails}
+          onClick={() => onToggleAdvancedPrognosisDetails(!showAdvancedPrognosisDetails)}
+          className="w-full flex items-center justify-between gap-4 p-3 rounded-2xl bg-slate-900 border border-slate-700 text-left cursor-pointer hover:border-emerald-600/60 transition">
+          <span>
+            <span className="block text-sm font-semibold text-white">{showAdvancedPrognosisDetails ? "Geavanceerde weergave" : "Standaardweergave"}</span>
+            <span className="block text-[11px] text-slate-400 mt-0.5">{showAdvancedPrognosisDetails ? "Technische analyses, modeldetails en onzekerheden zijn zichtbaar." : "Praktische prognose en adviezen; technische modeluitleg is verborgen."}</span>
+          </span>
+          <span className={"relative w-11 h-6 rounded-full shrink-0 transition " + (showAdvancedPrognosisDetails ? "bg-emerald-600" : "bg-slate-700")}>
+            <span className={"absolute top-1 w-4 h-4 rounded-full bg-white transition " + (showAdvancedPrognosisDetails ? "left-6" : "left-1")} />
+          </span>
+        </button>
+      </div>
       {/* Back-up & Export Sectie */}
       <div className="p-6 rounded-3xl bg-slate-800/70 border border-slate-700/70 space-y-5">
         <div>
