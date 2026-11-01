@@ -237,8 +237,9 @@ async function runTestSuite() {
   );
   assert(
     progDay4Ahead.thermalAnalysis?.estimatedWaterTemp !== null &&
-      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 99) < 14.0,
-    `3.3 Toekomstige dag gebruikt modelschatting (~${progDay4Ahead.thermalAnalysis?.estimatedWaterTemp} °C) op basis van het koufront i.p.v. de oude 19 °C`
+      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 99) < 19.0 &&
+      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 0) > 14.0,
+    `3.3 Toekomstige dag gebruikt een geleidelijk afgekoelde modelschatting (~${progDay4Ahead.thermalAnalysis?.estimatedWaterTemp} °C) vanaf de oude 19 °C-meting, niet de meting als vaste waarde`
   );
   assert(
     progDay4Ahead.activityScore < progToday.activityScore,
@@ -246,7 +247,60 @@ async function runTestSuite() {
   );
 
   // =========================================================================
-  // DEEL 4: WATERDIEPTE PER STEK WORDT CORRECT DOOR BEREKENING MEGENOMEN
+  // DEEL 4: EEN ECHTE STEKMETING VERANKERT DE TEMPERATUURSCHATTING VOOR LATERE DAGEN
+  // =========================================================================
+  console.log('\n--- TEST 4: Eerdere lokale meting als startpunt voor toekomstige schatting ---');
+
+  const measuredAnchorSession: FishingSession = {
+    id: 'thermal-anchor-session',
+    locationId: locLokkershoek.id,
+    startTime: '2026-10-20T12:00:00',
+    outcome: 'unknown',
+    waterTemperature: 16.5,
+    createdAt: '2026-10-20T12:00:00',
+    updatedAt: '2026-10-20T12:00:00',
+  };
+  const anchoredEstimate = analyzeWaterThermalDevelopment('2026-10-21', coldSnapForecasts, {
+    location: locLokkershoek,
+    historicalSessions: [measuredAnchorSession],
+    currentDateRef: new Date('2026-10-20T12:00:00'),
+  });
+
+  assert(
+    anchoredEstimate.hasMeasuredWaterTemp === false &&
+      anchoredEstimate.measuredWaterTemp === null,
+    '4.1 Een meting van de vorige dag wordt niet als actuele meting gepresenteerd'
+  );
+  assert(
+    anchoredEstimate.estimatedWaterTemp !== null &&
+      anchoredEstimate.estimatedWaterTemp >= 15.0 &&
+      anchoredEstimate.estimatedWaterTemp <= 18.0,
+    `4.2 Toekomstige schatting blijft verankerd aan de echte 16,5 °C-meting (${anchoredEstimate.estimatedWaterTemp} °C)`
+  );
+  const anchoredRange = anchoredEstimate.estimatedRange;
+  const anchoredValue = anchoredEstimate.estimatedWaterTemp;
+  assert(
+    anchoredRange != null &&
+      anchoredValue !== null &&
+      anchoredRange[0] <= anchoredValue &&
+      anchoredRange[1] >= anchoredValue,
+    '4.3 Onzekerheidsmarge omvat de berekende watertemperatuur'
+  );
+
+  const anchorWithoutWeather = analyzeWaterThermalDevelopment('2026-10-21', [], {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 16.5,
+    currentDateRef: new Date('2026-10-20T12:00:00'),
+  });
+  assert(
+    anchorWithoutWeather.estimatedWaterTemp === 16.5 &&
+      anchorWithoutWeather.hasMeasuredWaterTemp === false &&
+      anchorWithoutWeather.estimatedRange !== null,
+    '4.4 Bij ontbrekende weerdata wordt een recente meting alleen als kortetermijnschatting met ruime marge gebruikt'
+  );
+
+  // =========================================================================
+  // DEEL 5: WATERDIEPTE PER STEK WORDT CORRECT DOOR BEREKENING MEGENOMEN
   // =========================================================================
   console.log('\n--- TEST 4: Waterdiepte per stek beïnvloedt watertemperatuur en biologische score ---');
 
@@ -288,7 +342,7 @@ async function runTestSuite() {
   );
 
   // =========================================================================
-  // DEEL 5: VERKLARENDE TEKSTEN OMTRENT WINTERRUST & LUCHTTEMPERATUUR
+  // DEEL 6: VERKLARENDE TEKSTEN OMTRENT WINTERRUST & LUCHTTEMPERATUUR
   // =========================================================================
   console.log('\n--- TEST 5: Verklarende teksten verwerpen winterrust door enkel koude lucht ---');
 

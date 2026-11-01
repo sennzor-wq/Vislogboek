@@ -28,39 +28,36 @@ export function analyzeWaterThermalDevelopment(
   const historicalSessions = options?.historicalSessions || [];
   const currentDateRef = options?.currentDateRef;
 
-  // 1. Controleer op daadwerkelijk gemeten watertemperatuur voor de actuele situatie
-  // Een meting (user-invoer of recente stekmeting) is strikt van toepassing op de actuele situatie (binnen 24 uur).
-  // Laat een actuele of oude meting niet automatisch toekomstige dagen dicteren.
+  // 1. Verzamel echte temperatuurmetingen voor exact dezelfde stek.
+  // Een oudere meting blijft bruikbaar als startpunt voor een modelschatting,
+  // maar wordt nooit als actuele meting voor een latere doeldag gepresenteerd.
   const targetDateMs = new Date(`${targetDateStr}T12:00:00`).getTime();
   const refMs = currentDateRef ? currentDateRef.getTime() : targetDateMs;
-  const diffHoursFromRef = (targetDateMs - refMs) / 3600000;
+  const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
 
-  // Is de doeldag de actuele situatie (binnen 24 uur van referentiedatum)?
-  const isActualSituation = Math.abs(diffHoursFromRef) <= 24;
+  if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
+    measurementCandidates.push({ temperature: userMeasured, timestampMs: refMs, source: 'current' });
+  }
 
-  let hasMeasured = false;
-  let measuredTemp: number | null = null;
-
-  if (typeof userMeasured === 'number' && !isNaN(userMeasured)) {
-    if (isActualSituation) {
-      hasMeasured = true;
-      measuredTemp = Math.round(userMeasured * 10) / 10;
-    }
-  } else if (location?.id) {
-    // Zoek naar recente daadwerkelijk gemeten watertemperatuur op exact dezelfde stek (< 24u)
-    const recentLocSession = historicalSessions.find((s) => {
-      if (s.locationId !== location.id) return false;
-      if (typeof s.waterTemperature !== 'number' || isNaN(s.waterTemperature)) return false;
-      const sessionDate = new Date(s.startTime).getTime();
-      const diffHours = Math.abs(targetDateMs - sessionDate) / 3600000;
-      return diffHours <= 24;
-    });
-
-    if (recentLocSession && typeof recentLocSession.waterTemperature === 'number') {
-      hasMeasured = true;
-      measuredTemp = recentLocSession.waterTemperature;
+  if (location?.id) {
+    for (const session of historicalSessions) {
+      if (session.locationId !== location.id || session.isBenchmark === true) continue;
+      if (typeof session.waterTemperature !== 'number' || !Number.isFinite(session.waterTemperature) ||
+          session.waterTemperature < 0 || session.waterTemperature > 35) continue;
+      const timestampMs = new Date(session.startTime).getTime();
+      if (!Number.isFinite(timestampMs)) continue;
+      measurementCandidates.push({ temperature: session.waterTemperature, timestampMs, source: 'session' });
     }
   }
+
+  const targetIsCurrentDate = Boolean(currentDateRef && currentDateRef.toISOString().slice(0, 10) === targetDateStr);
+  const usableAnchors = measurementCandidates
+    .filter((measurement) => measurement.timestampMs <= targetDateMs || (measurement.source === 'current' && targetIsCurrentDate))
+    .sort((a, b) => b.timestampMs - a.timestampMs);
+  const anchor = usableAnchors[0] ?? null;
+  const isActualSituation = Boolean(anchor && (targetIsCurrentDate || Math.abs(targetDateMs - anchor.timestampMs) <= 6 * 3600000));
+  const hasMeasured = isActualSituation;
+  const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(targetDateStr));
@@ -68,16 +65,19 @@ export function analyzeWaterThermalDevelopment(
 
   // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
   if (dayTemperatureForecasts.length < 6) {
+    const recentAnchorEstimate = anchor && targetDateMs >= anchor.timestampMs && targetDateMs - anchor.timestampMs <= 24 * 3600000
+      ? Math.round(anchor.temperature * 10) / 10
+      : null;
     return {
       trend: 'Onvoldoende gegevens',
       trendConfidence: 'Onvoldoende gegevens',
       hasMeasuredWaterTemp: hasMeasured,
       measuredWaterTemp: measuredTemp,
-      estimatedWaterTemp: null,
-      estimatedRange: null,
-      surfaceVsBulkNote: 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
+      estimatedWaterTemp: recentAnchorEstimate,
+      estimatedRange: recentAnchorEstimate === null ? null : [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10],
+      surfaceVsBulkNote: recentAnchorEstimate === null ? 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.' : 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.',
       inertiaFactor: 'Gemiddeld',
-      summaryRationale: 'Er zijn onvoldoende betrouwbare weersgegevens om de thermische ontwikkeling te bepalen.',
+      summaryRationale: recentAnchorEstimate === null ? 'Er zijn onvoldoende betrouwbare weersgegevens om de thermische ontwikkeling te bepalen.' : 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.',
       dataPointsAvailable: {
         past24hAvailable: false,
         past72hAvailable: false,
@@ -86,7 +86,7 @@ export function analyzeWaterThermalDevelopment(
         depthKnown: typeof location?.waterDepth === 'number',
         waterDepthMeters: location?.waterDepth,
       },
-      prognosisImpactNote: 'Geen thermische correctie toegepast wegens ontbrekende weerdata.',
+      prognosisImpactNote: recentAnchorEstimate === null ? 'Geen thermische correctie toegepast wegens ontbrekende weerdata.' : 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
     };
   }
 
@@ -219,17 +219,93 @@ export function analyzeWaterThermalDevelopment(
     surfaceVsBulkNote = 'Geringe thermische gradiënt; temperatuurverschil tussen toplaag en bodem is minimaal.';
   }
 
-  // 6. Geschatte watertemperatuur (strikt als modelschatting aangeduid, nooit gefingeerd)
+  // 6. Geschatte watertemperatuur. Als een eerdere echte meting bestaat,
+  // wordt die als beginwaarde gebruikt en stap voor stap aangepast met het weer
+  // sinds de meting. Dit is een modelschatting, geen nieuwe meting.
   let estimatedWaterTemp: number | null = null;
   let estimatedRange: [number, number] | null = null;
+  let usedMeasuredAnchor = false;
+  let measurementAgeHours: number | null = null;
 
-  if (hasMeasured && measuredTemp !== null) {
-    // Als er voor de actuele situatie gemeten is, blijft dat de onbetwiste referentie
+  if (anchor && measuredTemp !== null) {
     estimatedWaterTemp = measuredTemp;
     estimatedRange = [Math.round((measuredTemp - 0.5) * 10) / 10, Math.round((measuredTemp + 0.5) * 10) / 10];
-  } else {
-    // Modelleren via thermische traagheid en meerdaagse gemiddelden:
-    // Gewogen mix van 72u gemiddelde, 24u gemiddelde en zonnestralingsbijdrage gekoppeld aan waterdiepte
+    usedMeasuredAnchor = true;
+  } else if (anchor) {
+    const anchorAgeHours = Math.max(0, (targetDateMs - anchor.timestampMs) / 3600000);
+    measurementAgeHours = anchorAgeHours;
+    const orderedWeather = forecasts
+      .filter((h) => {
+        const t = new Date(h.time).getTime();
+        return Number.isFinite(t) && t > anchor.timestampMs && t <= targetDateMs &&
+          Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+      })
+      .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+    const expectedHours = Math.max(0, Math.floor(anchorAgeHours));
+    const coverage = expectedHours === 0 ? 1 : Math.min(1, orderedWeather.length / expectedHours);
+    // Alleen een weer-gestuurde extrapolatie als het grootste deel van de periode
+    // sinds de meting door uurlijkse data wordt afgedekt. Geen ontbrekende dagen invullen.
+    if (anchorAgeHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
+      let waterTemp = anchor.temperature;
+      const depth = typeof location?.waterDepth === 'number' && location.waterDepth > 0
+        ? location.waterDepth
+        : 2.0;
+      // Eerste-orde warmte-uitwisseling: ondiep water reageert sneller; diep water trager.
+      let timeConstantHours = depth <= 1.4 ? 54 : depth > 3.5 ? 150 : 96;
+      if (location?.waterType === 'Polder' || location?.waterType === 'Stadswater') timeConstantHours *= 0.85;
+      if (location?.waterType === 'Plas/Zandafgraving' && depth > 3.5) timeConstantHours *= 1.15;
+
+      for (let i = 0; i < orderedWeather.length; i++) {
+        const hour = orderedWeather[i];
+        const hourMs = new Date(hour.time).getTime();
+        const previousMs = i === 0 ? anchor.timestampMs : new Date(orderedWeather[i - 1].time).getTime();
+        const elapsedHours = Math.max(0, Math.min(3, (hourMs - previousMs) / 3600000));
+        if (elapsedHours === 0) continue;
+
+        const window24 = orderedWeather.filter((sample) => {
+          const sampleMs = new Date(sample.time).getTime();
+          return sampleMs <= hourMs && sampleMs >= hourMs - 24 * 3600000;
+        });
+        const window72 = orderedWeather.filter((sample) => {
+          const sampleMs = new Date(sample.time).getTime();
+          return sampleMs <= hourMs && sampleMs >= hourMs - 72 * 3600000;
+        });
+        const mean24 = window24.length ? window24.reduce((sum, sample) => sum + sample.temperature, 0) / window24.length : hour.temperature;
+        const mean72 = window72.length ? window72.reduce((sum, sample) => sum + sample.temperature, 0) / window72.length : mean24;
+
+        const cloud = Number.isFinite(hour.cloudCover) ? Math.max(0, Math.min(100, hour.cloudCover)) : null;
+        const solarAdjustment = cloud === null ? 0 : (1 - cloud / 100) * (hour.temperature > waterTemp ? 0.35 : 0.12);
+        const equilibrium = mean24 * 0.65 + mean72 * 0.35 + solarAdjustment;
+        const wind = Number.isFinite(hour.windSpeed) ? Math.max(0, hour.windSpeed) : null;
+        const mixingMultiplier = wind === null ? 1 : wind >= 20 ? 0.82 : wind >= 9 ? 0.92 : 1.08;
+        const alpha = 1 - Math.exp(-elapsedHours / (timeConstantHours * mixingMultiplier));
+        waterTemp += (equilibrium - waterTemp) * alpha;
+      }
+
+      estimatedWaterTemp = Math.round(waterTemp * 10) / 10;
+      const uncertainty = 0.45 + anchorAgeHours * 0.009 + (coverage < 0.85 ? 0.45 : 0) +
+        (typeof location?.waterDepth !== 'number' ? 0.5 : 0);
+      estimatedRange = [
+        Math.round((waterTemp - uncertainty) * 10) / 10,
+        Math.round((waterTemp + uncertainty) * 10) / 10,
+      ];
+      usedMeasuredAnchor = true;
+    } else if (anchorAgeHours <= 24) {
+      // Bij een recente meting en ontbrekende uurlijkse weerdekking: korte-termijn
+      // stabiliteitsaanname met ruime marge, expliciet lage betrouwbaarheid.
+      estimatedWaterTemp = Math.round(anchor.temperature * 10) / 10;
+      estimatedRange = [
+        Math.round((anchor.temperature - 1.0) * 10) / 10,
+        Math.round((anchor.temperature + 1.0) * 10) / 10,
+      ];
+      usedMeasuredAnchor = true;
+    }
+  }
+
+  if (estimatedWaterTemp === null) {
+    // Zonder lokale meet-anker blijft de bestaande weer-/dieptebenadering beschikbaar,
+    // maar de bandbreedte blijft ruimer omdat geen echte stekmeting de berekening verankert.
     const weightCurrent = responseWeight;
     const weightPast = 1 - weightCurrent;
     const baseAirEquilibrium = weightPast * past72Avg + weightCurrent * dayAvg;
@@ -237,12 +313,8 @@ export function analyzeWaterThermalDevelopment(
     if (isDepthKnown && solarIndication === 'Sterk (zonnig)' && depth <= 2.5) {
       solarBonus = depth <= 1.5 ? 0.8 : 0.4;
     }
-
-    // Bij windstilte minder verdampingskoeling
     const rawEstimate = baseAirEquilibrium + solarBonus;
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
-
-    // Onzekerheid neemt toe als de 72-uursreeks of de werkelijke waterdiepte ontbreekt.
     const margin = (depth > 3.0 ? 1.5 : 1.0) + (!hasPast72h ? 0.75 : 0) + (!isDepthKnown ? 0.5 : 0);
     estimatedRange = [
       Math.round((rawEstimate - margin) * 10) / 10,
@@ -254,8 +326,8 @@ export function analyzeWaterThermalDevelopment(
   let prognosisImpactNote = '';
   if (hasMeasured && measuredTemp !== null) {
     prognosisImpactNote = `Gebruikt gemeten watertemperatuur (${measuredTemp} °C) als directe biologische invoer voor de actuele situatie.`;
-  } else if (typeof userMeasured === 'number' && !isNaN(userMeasured) && !isActualSituation) {
-    prognosisImpactNote = `Toekomstige prognose gebruikt geschatte watertemperatuur (~${estimatedWaterTemp} °C) via thermische traagheid en waterdiepte; eerdere actuele meting (${userMeasured} °C) bepaalt niet de toekomstige dagen.`;
+  } else if (anchor && estimatedWaterTemp !== null && usedMeasuredAnchor) {
+    prognosisImpactNote = `Toekomstige prognose gebruikt een modelschatting (~${estimatedWaterTemp} °C), verankerd aan de laatste echte stekmeting van ${anchor.temperature.toFixed(1)} °C (${Math.round((targetDateMs - anchor.timestampMs) / 3600000)} uur eerder) en aangepast met de beschikbare weersontwikkeling.`;
   } else if (trend === 'Waarschijnlijke opwarming') {
     prognosisImpactNote = 'Opwarming stimuleert foerageergedrag, met name in ondiepe en zonbeschenen oeverzones.';
   } else if (trend === 'Waarschijnlijke afkoeling') {
