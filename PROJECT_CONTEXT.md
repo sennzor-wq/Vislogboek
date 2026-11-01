@@ -826,3 +826,27 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Een extra regressietest controleert dat een winddraaiing binnen één tijdvak zichtbaar blijft.
 - Typecheck en production build moeten via GitHub Actions slagen voordat de branch kan worden samengevoegd.
 - Een groene CI-run bewijst geen gemeten snelheidswinst op een fysiek toestel. Daarvoor is later een aparte, reproduceerbare performancebenchmark nodig.
+
+
+## 20. Prognosepagina — standaard- en geavanceerde weergave
+
+### Productdoel
+De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden begrijpelijk maken wat de prognose is, welke tijdvakken kansrijker zijn en welke praktische omstandigheden of tactische aandachtspunten relevant zijn. De pagina is geen documentatiepagina over de interne werking van het model. VisCoach is bedoeld voor de samengevoegde keuzehulp en concrete actie; de prognosepagina blijft het verdiepende overzicht van de modeluitkomst en omstandigheden.
+
+### Weergaven
+- **Standaardweergave (default):** praktische prognose, belangrijkste uitkomsten, relevante omstandigheden, korte thermische samenvatting, praktische positionering en bruikbare voer-/tijdvakadviezen. Lange technische toelichtingen, modelopbouw, gedetailleerde wind-/habitatmodulen en uitgebreide databeperkingen worden niet standaard getoond.
+- **Geavanceerde weergave:** toont de bestaande technische uitleg, uitgebreide analyses, modelmatige nuances, onzekerheden en aanvullende detailvelden.
+- De gebruiker kan de voorkeur wijzigen via Instellingen. Dezelfde voorkeur geldt ook voor de prognosepagina en blijft lokaal op het apparaat bewaard.
+
+### Technische en dataprincipes
+- Dit is uitsluitend een presentatiekeuze. Prognoseberekeningen, invoer, snapshots, modelversies, weerdata, historische sessies en lokale databasegegevens veranderen niet door de weergavekeuze.
+- Geen bestaande uitleg of onderliggende data verwijderen; technische details blijven beschikbaar in de geavanceerde weergave.
+- De standaardweergave mag onzekerheid of ontbrekende essentiële gegevens nooit verbergen wanneer die de betrouwbaarheid van de uitkomst wezenlijk beïnvloeden. Essentiële waarschuwingen en N/B-statussen blijven zichtbaar.
+- Praktisch bruikbare adviezen (zoals aanbevolen tijdvak, zoekzone, positionering en voeradvies) blijven in de standaardweergave beschikbaar; technische onderbouwing en uitgebreide scenario’s horen in de geavanceerde weergave.
+- De voorkeur wordt lokaal opgeslagen (`vislogboek.prognosis.advancedDetails`); geen nieuwe Dexie-tabel, schemawijziging of synchronisatie nodig.
+- Bij toekomstige UI-uitbreidingen moeten nieuwe uitlegvelden standaard als praktisch (kort) of technisch (geavanceerd) worden geclassificeerd. Hergebruik bestaande engines en gegevens; maak geen parallelle prognoseberekeningen.
+
+### Validatie
+- Controleer standaardweergave als eerste-laag gebruikerservaring en geavanceerde weergave op behoud van bestaande technische informatie.
+- Controleer dat wisselen tussen weergaven geen herberekening, netwerkverzoek, database-mutatie of verlies van prognose-/sessiedata veroorzaakt.
+- CI/typecheck/build valideren de code; een aparte visuele handtest blijft nodig op mobiel en desktop.
