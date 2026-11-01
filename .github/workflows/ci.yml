@@ -1,0 +1,69 @@
+name: Vislogboek Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Typecheck, tests and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript typecheck
+        run: bun run lint
+
+      # Deterministic local suites. test-core-logic.ts currently calls the
+      # live Open-Meteo API; keep it out of CI until its network calls are mocked.
+      - name: Core prognosis and thermal tests
+        run: bun run tsx test-thermal-and-prognosis.ts
+
+      - name: Brier integration tests
+        run: bun run tsx test-brier-integration.ts
+
+      - name: Forward validation and outcome-link tests
+        run: bun run tsx test-forward-validation.ts
+
+      - name: Advanced prognosis module tests
+        run: bun run tsx test-advanced-prognosis-modules.ts
+
+      - name: Rod positioning tests
+        run: bun run tsx test-rod-positioning.ts
+
+      - name: Water thermal coupling tests
+        run: bun run tsx test-water-thermal-coupling.ts
+
+      - name: Safe deletion tests
+        run: bun run tsx test-safe-deletion.ts
+
+      - name: Viscoach and backup normalization tests
+        run: bun run tsx test-viscoach-part1.ts
+
+      - name: Backup import fixture tests
+        run: bun run tsx test-backup-import.ts
+
+      - name: Production build
+        run: bun run build
