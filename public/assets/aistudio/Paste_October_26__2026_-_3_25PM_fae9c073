@@ -1,0 +1,728 @@
+# VISLOGB OEK — COMPLETE PRODUCTBLUEPRINT
+**Versie 2.0 — 26 oktober 2026**  
+**Doelplatform: Google AI Studio**  
+**Producttype: Nederlandstalige, offline-first vislogboek-PWA met persoonlijke visprognoses**
+
+## 1. Productvisie
+
+Vislogboek is een persoonlijke vislogboek-app waarmee een visser vissessies, vangsten, locaties, weersomstandigheden en vismethodes kan registreren en analyseren.
+
+De app combineert drie informatiebronnen:
+
+1. **Biologische en seizoensgebonden kennis:** hoe verschillende vissoorten zich naar verwachting gedragen onder bepaalde omstandigheden.
+2. **Weersomstandigheden:** de actuele en verwachte invloed van temperatuur, luchtdruk, wind, bewolking, neerslag en tijdstip.
+3. **Eigen historische gegevens:** geregistreerde vangsten, bevestigde nulvangsten, sessieduur, locatie, vismethode, hengels, aas en voer.
+
+Het doel is een steeds beter onderbouwde persoonlijke visprognose te ontwikkelen.
+
+De app moet niet alleen aangeven wanneer vissen mogelijk actief zijn, maar ook uitleggen waarom een bepaald moment gunstig lijkt, hoe betrouwbaar de verwachting is en wat de eigen viservaring hierover laat zien.
+
+**Belangrijk uitgangspunt:** biologische activiteit en daadwerkelijke vangstkans zijn twee verschillende zaken. Een actieve vis betekent niet automatisch dat de gebruiker die vis ook vangt.
+
+De app mag geen voorspellende nauwkeurigheid claimen die niet met voldoende gegevens is aangetoond.
+
+---
+
+## 2. Platform en technische architectuur
+
+### 2.1 Platform
+
+- Android-first, responsive webapp.
+- Installeerbare Progressive Web App (PWA), waar ondersteund.
+- Geschikt voor telefoon, tablet en desktop.
+- Nederlandstalige interface.
+- Lokale tijdzone: `Europe/Amsterdam`.
+- Standaardeenheden: kilogram, graden Celsius, km/u en hPa.
+
+### 2.2 Technische uitgangspunten
+
+Gebruik een moderne, onderhoudbare architectuur, bijvoorbeeld:
+
+- React en TypeScript.
+- Vite of een vergelijkbare geschikte buildomgeving.
+- IndexedDB voor lokale opslag, eventueel met Dexie.
+- Service worker voor offline gebruik.
+- Afzonderlijke services voor database, weer, statistieken, prognose en import/export.
+- Afzonderlijke, testbare modules voor modelberekeningen.
+
+Gebruik de mogelijkheden van Google AI Studio die daadwerkelijk beschikbaar zijn. Kies geen architectuur die afhankelijk is van niet-beschikbare functionaliteit.
+
+### 2.3 Offline-first en privacy
+
+- Geen verplichte login.
+- Geen eigen backend voor persoonlijke gegevens.
+- Geen verplichte betaalde API.
+- Geen tracking of advertenties.
+- Persoonlijke sessies, vangsten, locaties en foto's blijven standaard lokaal.
+- De app moet na installatie of eerste succesvolle laadbeurt offline bruikbaar blijven voor lokale functies.
+- Externe weersgegevens mogen via Open-Meteo worden opgehaald.
+- Leg duidelijk uit dat een externe weerdienst de benodigde locatiegegevens kan ontvangen.
+- Wanneer internet of een weerdienst niet beschikbaar is, moeten sessies en vangsten gewoon geregistreerd kunnen worden.
+- Gebruik stabiele ID's, databasemigraties en foutbestendige gegevensmutaties.
+- Sluiten en opnieuw openen van de app mag geen gegevensverlies veroorzaken.
+
+Bouw geen app die alleen een visuele demo met tijdelijke gegevens is. De functies moeten aan echte lokale opslag en echte berekeningen gekoppeld zijn.
+
+---
+
+## 3. Navigatie
+
+De hoofdschermen zijn:
+
+1. Home / Visprognose.
+2. Sessies.
+3. Locaties / Stekken.
+4. Statistieken.
+5. Weer.
+6. Instellingen.
+
+De interface moet rustig en overzichtelijk zijn, met grote aanraakdoelen en korte invoerformulieren die aan de waterkant eenvoudig te gebruiken zijn.
+
+---
+
+## 4. Home — Visprognose
+
+Dit is het belangrijkste scherm van de app.
+
+### 4.1 Instellingen voor de prognose
+
+De gebruiker moet kunnen selecteren:
+
+- Vissoort.
+- Gewenste sessieduur.
+- Locatie of visstek, indien bekend.
+- Vandaag of een van de komende zeven dagen.
+- Vernieuwen van de weersverwachting wanneer internet beschikbaar is.
+
+De soortkeuze mag niet verstopt zitten achter een algemene standaardinstelling. Het moet duidelijk zijn welke vissoort wordt gebruikt voor de prognose.
+
+Wanneer geen vissoort is geselecteerd, gebruikt de app een algemene prognose en meldt zij dat soortspecifieke factoren ontbreken.
+
+### 4.2 Resultaten
+
+Toon afzonderlijk:
+
+- Activiteitsscore van 1–10.
+- Advies: gunstig, gemiddeld of ongunstig.
+- Geschatte persoonlijke vangstkans, alleen indien verantwoord berekenbaar.
+- Beste verwachte tijdvak.
+- Alternatieve tijdvakken.
+- Belangrijkste positieve en negatieve factoren.
+- Aantal relevante eigen sessies.
+- Betrouwbaarheid en onzekerheid.
+- Herkomst van de prognose: algemene regels, eigen waarnemingen of beide.
+- Tijdstip waarop de weersgegevens voor het laatst zijn bijgewerkt.
+
+Een score van 8/10 mag nooit automatisch worden gepresenteerd als 80% vangstkans.
+
+### 4.3 Prognose per dag
+
+Toon vandaag en de komende zeven dagen in een overzicht.
+
+Per dag moet zichtbaar zijn:
+
+- Activiteitsscore.
+- Beste verwachte tijdvak.
+- Alternatieve tijdvakken indien relevant.
+- Een korte uitleg waarom die dag gunstiger of ongunstiger lijkt.
+- De invloed van weer en seizoen.
+- De invloed van eigen historische waarnemingen, indien voldoende gegevens beschikbaar zijn.
+
+De gebruiker moet elke dag kunnen openen voor een gedetailleerdere analyse.
+
+### 4.4 Uitklapbare analyse per tijdvak
+
+Ondersteun minimaal de tijdvakken:
+
+- Nacht.
+- Ochtend.
+- Middag.
+- Avond.
+
+Gebruik duidelijke lokale tijden en behandel middernacht correct.
+
+Per tijdvak toont de app:
+
+1. Verwachte biologische activiteit van de gekozen soort.
+2. Temperatuurinvloed.
+3. Luchtdruk en druktrend.
+4. Wind en windrichting indien beschikbaar.
+5. Bewolking en neerslag.
+6. Seizoen en tijdstip.
+7. Schemering en daglengte indien betrouwbare gegevens beschikbaar zijn.
+8. Invloed van eigen vergelijkbare sessies.
+9. Positieve, neutrale en negatieve factoren.
+10. Vergelijking met andere tijdvakken.
+11. Beschikbare gegevens en onzekerheid.
+
+De uitleg moet rechtstreeks uit de werkelijke modelberekening komen. Genereer geen verklarende tekst die niet overeenkomt met de gebruikte factoren en scores.
+
+Voorbeeld van de gewenste vorm, niet van een daadwerkelijke voorspelling:
+
+**Woensdag — Avond**
+
+- Activiteitsscore: 6,7/10.
+- Temperatuur: licht positief volgens het gekozen soortprofiel.
+- Luchtdruk: neutraal.
+- Wind: licht negatief.
+- Seizoenspatroon: ondersteunend.
+- Eigen vergelijkbare sessies: onvoldoende gegevens.
+- Conclusie: de avond scoort hoger dan de middag door de combinatie van de modelmatige seizoens- en tijdsfactoren.
+
+De werkelijke inhoud moet uit de echte berekening komen.
+
+---
+
+## 5. Biologisch en seizoensgebonden model
+
+Ontwikkel een transparant, configureerbaar basismodel voor verschillende vissoorten.
+
+Begin minimaal met:
+
+- Karper.
+- Brasem.
+- Snoek.
+- Baars.
+- Voorn.
+- Zeelt.
+
+De architectuur moet uitbreiding met andere vissoorten mogelijk maken.
+
+### 5.1 Factoren
+
+Gebruik waar betrouwbare gegevens en onderbouwde regels beschikbaar zijn:
+
+- Vissoort.
+- Seizoen en maand.
+- Lucht- en watertemperatuur.
+- Tijdstip van de dag.
+- Dag en nacht.
+- Schemering.
+- Luchtdruk.
+- Drukverloop.
+- Wind en windrichting.
+- Bewolking.
+- Neerslag.
+- Sessieduur.
+
+Watertemperatuur is optioneel en mag niet worden verzonnen.
+
+Daglengte, zonsopkomst en zonsondergang mogen worden berekend met een betrouwbare methode of dienst. Als dit niet beschikbaar is, moet de app de ontbrekende gegevens erkennen.
+
+### 5.2 Transparantie
+
+- Plaats soortprofielen en gewichten in een afzonderlijk configuratiebestand.
+- Documenteer de aannames per soort.
+- Maak onderscheid tussen algemeen bekende patronen, vereenvoudigde heuristieken en persoonlijk aangetoonde patronen.
+- Vermijd de suggestie dat een vereenvoudigd model alle biologische omstandigheden exact kent.
+- Laat de app geen ongefundeerde wetenschappelijke claims doen.
+
+Het biologische model moet zelfstandig bruikbaar zijn wanneer er nog weinig eigen gegevens zijn.
+
+---
+
+## 6. Geschatte vangstkans
+
+De activiteitsscore en vangstkans moeten aparte berekeningen zijn.
+
+De activiteitsscore beschrijft de verwachte activiteit op basis van biologische en weersfactoren.
+
+De vangstkans beschrijft de geschatte kans dat tijdens een bepaalde vissessie ten minste één vis van de geselecteerde soort wordt gevangen.
+
+### 6.1 Gebruik van historische sessies
+
+Gebruik waar mogelijk:
+
+- Bevestigde sessies met vangsten.
+- Bevestigde nulvangstsessies.
+- Vissoort.
+- Sessieduur.
+- Locatie.
+- Seizoen.
+- Tijdvak.
+- Weersomstandigheden.
+- Aantal hengels en vismethode indien beschikbaar.
+
+Vergelijk bij voorkeur sessies met vergelijkbare omstandigheden.
+
+### 6.2 Correcte uitkomsten
+
+Onderscheid:
+
+- Vangst geregistreerd.
+- Geen vangst, expliciet bevestigd.
+- Aanbeten maar geen gelande vis, indien afzonderlijk geregistreerd.
+- Onbekende uitkomst.
+- Actieve sessie.
+
+Onbekende en actieve sessies zijn geen nulvangsten en mogen niet als zodanig worden gebruikt.
+
+### 6.3 Betrouwbaarheid
+
+- Toon het aantal relevante sessies.
+- Toon de gebruikte berekeningsmethode.
+- Toon onzekerheid en beperkingen.
+- Geef geen misleidend nauwkeurig percentage bij onvoldoende gegevens.
+- De richtlijn van minimaal vijf bevestigde sessies mag als initiële waarschuwing worden gebruikt, maar vijf sessies betekent niet automatisch dat een percentage betrouwbaar is.
+- Houd rekening met verschillen in visduur en visgelegenheid.
+- Valideer de berekening voordat betrouwbaarheid wordt geclaimd.
+
+Als persoonlijke gegevens ontbreken, toon bijvoorbeeld:
+
+“Er zijn nog onvoldoende vergelijkbare eigen vissessies om een betrouwbare persoonlijke vangstkans te berekenen. De activiteitsscore is gebaseerd op algemene biologische en weersregels.”
+
+---
+
+## 7. Eigen vissessies als basis voor verbetering
+
+Dit is een van de belangrijkste onderdelen van Vislogboek.
+
+De app moet eigen registraties niet alleen gebruiken voor statistieken, maar deze waar mogelijk ook laten bijdragen aan toekomstige prognoses.
+
+### 7.1 Gegevens die relevant kunnen zijn
+
+- Vissoort.
+- Aantal gevangen vissen.
+- Tijdstip van iedere vangst.
+- Datum, maand en seizoen.
+- Start- en eindtijd.
+- Sessieduur.
+- Locatie en waterdiepte indien bekend.
+- Weersomstandigheden tijdens de sessie.
+- Aantal hengels.
+- Hengeltype.
+- Aas en voer.
+- Vistechniek.
+- Aanbeten, gemiste vissen en gelande vissen indien geregistreerd.
+- Foto's en notities.
+
+Gebruik uitsluitend gegevens die daadwerkelijk zijn opgeslagen. Ontbrekende velden mogen niet worden ingevuld met verzonnen waarden.
+
+### 7.2 Vergelijkbare sessies
+
+Onderzoek patronen per:
+
+- Vissoort.
+- Seizoen en maand.
+- Tijdvak.
+- Locatie.
+- Temperatuur.
+- Luchtdruk en drukverloop.
+- Wind.
+- Bewolking en neerslag.
+- Sessieduur.
+- Aantal hengels.
+- Aas, voer en techniek.
+
+Hengelaantal en sessieduur beïnvloeden de hoeveelheid visgelegenheid. Een sessie van zes uur met drie hengels is niet rechtstreeks vergelijkbaar met een sessie van twee uur met één hengel.
+
+Neem visgelegenheid mee, maar veronderstel niet dat meerdere hengels automatisch een evenredig hogere vangstkans opleveren.
+
+### 7.3 Algemene regels combineren met eigen data
+
+Gebruik twee afzonderlijke informatielagen:
+
+**Laag A — algemeen biologisch model**
+
+Bepaalt de basisverwachting op basis van vissoort, seizoen, tijdstip en weer.
+
+**Laag B — persoonlijke waarnemingen**
+
+Onderzoekt wat de gebruiker onder vergelijkbare omstandigheden daadwerkelijk heeft gevangen.
+
+Combineer deze lagen voorzichtig. Hoe meer relevante en kwalitatief goede eigen waarnemingen beschikbaar zijn, hoe beter de app kan onderzoeken of persoonlijke patronen afwijken van de algemene verwachting.
+
+Als er onvoldoende data zijn, moet het algemene model leidend blijven en moet de app de onzekerheid tonen.
+
+### 7.4 Geen schijnleren
+
+- Noem het model niet getrainde AI als het alleen uit vaste regels bestaat.
+- Pas gewichten niet automatisch aan na één of enkele sessies.
+- Bewaar indien mogelijk de prognose die vóór een sessie werd getoond.
+- Leg modelversie en relevante invoergegevens vast, zodat latere evaluatie eerlijk kan gebeuren.
+- Vergelijk voorspellingen met latere vangsten en bevestigde nulvangsten.
+- Onderzoek of de persoonlijke prognose beter presteert dan het algemene basismodel.
+- Claim pas verbetering wanneer er voldoende validatiegegevens zijn.
+- Maak inzichtelijk welke gegevens werkelijk invloed hadden op een prognose.
+
+Een nulvangst kan ook samenhangen met locatie, techniek, aas, visgedrag, vaardigheid of toeval. De app mag niet automatisch concluderen dat het weer de oorzaak was.
+
+---
+
+## 8. Sessies
+
+### 8.1 Sessie starten en stoppen
+
+- De gebruiker kan direct een nieuwe sessie starten.
+- Starttijd wordt automatisch vastgelegd.
+- De gebruiker kan de starttijd aanpassen.
+- De gebruiker kan een sessie stoppen.
+- Eindtijd wordt automatisch vastgelegd.
+- De eindtijd kan worden aangepast.
+- Meerdere actieve sessies worden ondersteund.
+- Tijdens een actieve sessie kunnen vangsten worden toegevoegd.
+- Historische sessies kunnen handmatig worden ingevoerd.
+- Sessies over middernacht worden correct verwerkt.
+- Starten, stoppen en aanpassen werkt offline.
+
+### 8.2 Sessie-uitkomst
+
+Elke sessie ondersteunt:
+
+- Actief.
+- Vangst(en) geregistreerd.
+- Geen vangst — bevestigd.
+- Onbekend / niet bevestigd.
+
+Een sessie die wordt gestopt zonder vangsten mag niet automatisch als bevestigde nulvangst worden opgeslagen zonder expliciete bevestiging.
+
+Als een vangst wordt toegevoegd aan een sessie die als nulvangst was gemarkeerd, moet de uitkomst correct worden aangepast.
+
+### 8.3 Sessievelden
+
+Gebruik waar relevant:
+
+- Stabiele sessie-ID.
+- Start- en eindtijd.
+- Berekende duur.
+- Locatie.
+- GPS-coördinaten indien beschikbaar.
+- Waterdiepte indien bekend.
+- Uitkomststatus.
+- Notities.
+- Gekoppelde weergegevens en herkomst.
+- Aantal hengels.
+- Hengeltype(s).
+- Techniek.
+- Aas en voer.
+- Aanbeten en gemiste vissen indien ondersteund.
+- Gekoppelde vangsten.
+- Foto's.
+- Aanmaak- en wijzigingstijdstippen.
+
+Maak niet alle velden verplicht. Invoer moet snel en eenvoudig blijven.
+
+---
+
+## 9. Vangsten
+
+Vangsten kunnen tijdens of na een sessie worden geregistreerd.
+
+Velden:
+
+- Vissoort.
+- Aantal vissen.
+- Datum en tijd, automatisch ingevuld maar bewerkbaar.
+- Gewicht.
+- Onderscheid tussen gewicht per vis en totaalgewicht van een groep.
+- Hengel of hengeltype indien bekend.
+- Aas en voer.
+- Techniek.
+- Notities.
+- Foto.
+- Gekoppelde sessie en locatie.
+
+Ondersteun individuele en gegroepeerde vangstregistraties.
+
+Een ontbrekend gewicht betekent onbekend, niet nul.
+
+Foto's zijn optioneel. Verwijderen van vangsten moet relaties en gekoppelde gegevens veilig afhandelen.
+
+---
+
+## 10. Locaties en stekken
+
+De gebruiker kan locaties aanmaken, aanpassen en verwijderen.
+
+Velden:
+
+- Naam.
+- Beschrijving.
+- GPS-coördinaten optioneel.
+- Waterdiepte optioneel.
+- Watertype indien gewenst.
+- Notities.
+- Gekoppelde sessies.
+- Gekoppelde vangsten.
+
+Toon statistieken per locatie.
+
+Wanneer alleen regionale weersgegevens beschikbaar zijn, presenteer deze dan niet als exacte metingen aan de stek.
+
+---
+
+## 11. Weer
+
+### 11.1 Weersverwachting
+
+Gebruik Open-Meteo of een vergelijkbare geschikte dienst.
+
+Ondersteun waar beschikbaar:
+
+- Temperatuur.
+- Luchtdruk.
+- Windrichting.
+- Windsnelheid.
+- Windstoten.
+- Bewolking.
+- Neerslag.
+- Neerslagkans.
+- Uurlijkse voorspellingen.
+- Prognoses voor maximaal zeven dagen.
+
+Gebruik uurlijkse gegevens voor de vergelijking van tijdvakken.
+
+### 11.2 Historisch weer
+
+- Koppel waar mogelijk historische weersgegevens aan locatie en sessietijd.
+- Ondersteun sessies over middernacht.
+- Cache opgehaalde gegevens.
+- Toon de herkomst en beperkingen.
+- Houd rekening met vertraging of ontbrekende data in historische weerarchieven.
+- Ondersteun handmatige watertemperatuur als optionele invoer.
+
+Weerfouten mogen sessieregistratie nooit blokkeren.
+
+### 11.3 Herkomst
+
+Onderscheid duidelijk:
+
+- Lokale of locatiegebonden uurlijkse gegevens.
+- Regionale referentiegegevens.
+- Verwachting.
+- Historische archiefgegevens.
+- Handmatige invoer.
+- Ontbrekende gegevens.
+
+---
+
+## 12. Statistieken
+
+Toon onder andere:
+
+- Totaal aantal sessies.
+- Totaal aantal gevangen vissen.
+- Gemiddeld aantal vissen per relevante sessie.
+- Totale visduur.
+- Gemiddelde sessieduur.
+- Vangsten per uur.
+- Resultaten per vissoort.
+- Resultaten per locatie.
+- Resultaten per maand en seizoen.
+- Resultaten per tijdvak.
+- Resultaten per aas en voer.
+- Resultaten per techniek.
+- Resultaten per hengeltype en hengelaantal, indien gegevens beschikbaar zijn.
+- Vergelijking van vangstsessies, bevestigde nulvangstsessies en onbekende uitkomsten.
+- Weeranalyses.
+
+Filters:
+
+- Datumbereik.
+- Locatie.
+- Vissoort.
+- Uitkomst.
+- Techniek en aas/voer indien beschikbaar.
+
+Filters moeten consistent op alle relevante cijfers worden toegepast.
+
+Sluit actieve sessies uit van afgeronde resultaatstatistieken. Vermijd deling door nul en negeer ongeldige duurwaarden.
+
+Toon bij percentages en gemiddelden altijd hoeveel sessies of vangsten eraan ten grondslag liggen. Correlatie mag niet als bewijs van oorzaak worden gepresenteerd.
+
+---
+
+## 13. Beschermde benchmark
+
+Behoud de volgende bestaande referentiesessie als beschermde benchmark.
+
+- Locatie: Lokkershoek, Culemborg, campingzijde bij het doodlopende gedeelte en de bomen.
+- Datum: 19 oktober 2026.
+- Tijd: 19:00–22:00.
+- Totaal: 8 vissen.
+- Eerste uur: 3 brasems, 1 zeelt en 1 karper van ongeveer 10 kg.
+- Later: 3 brasems.
+- Weerreferentie: regionale KNMI/De Bilt-gegevens.
+- Maximumtemperatuur: 14,9 °C.
+- Minimumtemperatuur: 7,6 °C.
+- Gemiddelde temperatuur: circa 11,5 °C.
+- Wind: circa 14 km/u.
+
+De weergegevens zijn regionaal en mogen niet als exacte metingen aan de stek worden gepresenteerd.
+
+De benchmark is een referentie en geen voldoende grote dataset om persoonlijke vangstkansen betrouwbaar te trainen.
+
+De benchmark mag niet per ongeluk worden verwijderd of overschreven door normale verwijder-, import- of herstelacties.
+
+Als de bestaande database afwijkt van deze beschrijving, behoud de werkelijke gegevens en rapporteer het verschil. Verzin geen extra vangsten.
+
+---
+
+## 14. Back-up, import en export
+
+De gebruiker moet zijn lokale gegevens veilig kunnen bewaren en herstellen.
+
+Ondersteun:
+
+- Volledige JSON-export.
+- Versienummer in het back-upformaat.
+- Export van locaties, sessies, vangsten, instellingen en relevante weerdata.
+- Prognosehistorie en foto's meenemen waar de architectuur dit ondersteunt.
+- Importpreview.
+- Samenvoegen van gegevens.
+- Vervangen van gegevens met expliciete bevestiging.
+- Automatische back-up vóór destructieve vervanging.
+- Validatie voordat gegevens worden gewijzigd.
+- Veilige foutafhandeling zonder verlies van bestaande gegevens.
+- Expliciete afhandeling van dubbele ID's.
+- Bescherming van de benchmark.
+- CSV-export voor tabulaire gegevens indien haalbaar.
+
+Als foto's niet veilig in JSON kunnen worden opgenomen, bied een ZIP-back-up of leg de beperking duidelijk uit.
+
+Demo- en testgegevens mogen niet automatisch in de normale gebruikersdatabase worden geïmporteerd.
+
+---
+
+## 15. Offline functionaliteit
+
+Zonder internet moet de gebruiker:
+
+- De eerder geladen app kunnen openen.
+- Sessies, vangsten en locaties bekijken.
+- Sessies starten, stoppen en aanpassen.
+- Vangsten registreren.
+- Lokale foto's opslaan waar mogelijk.
+- Statistieken uit lokale gegevens bekijken.
+- Prognoseberekeningen uitvoeren met gecachete weersdata.
+- Duidelijke meldingen zien als weerdata ontbreekt of verouderd is.
+- Gegevens behouden na het sluiten en opnieuw openen van de app.
+
+Het ophalen van nieuwe weersdata kan internet vereisen, maar mag de kernfunctionaliteit van het logboek niet blokkeren.
+
+---
+
+## 16. Technische kwaliteit en testen
+
+Houd de code testbaar en verdeel de logica over duidelijke modules.
+
+Aanbevolen onderdelen:
+
+- Databasemodellen en migraties.
+- Sessie- en vangstservices.
+- Locatieservice.
+- Weerservice en caching.
+- Statistiekservice.
+- Biologisch prognosemodel.
+- Persoonlijke vangstkans.
+- Prognosehistorie en evaluatie.
+- Import/export.
+
+Test minimaal:
+
+1. Sessies starten, stoppen en bewerken.
+2. Meerdere actieve sessies.
+3. Sessies over middernacht.
+4. Vangst toevoegen aan een eerder als nulvangst gemarkeerde sessie.
+5. Onderscheid tussen nulvangst en onbekende uitkomst.
+6. Ontbrekende gewichten en tijdstippen.
+7. Bescherming van de benchmark.
+8. Back-up, import en herstel bij fouten.
+9. Weer ontbreekt of is niet beschikbaar.
+10. Statistieken met filters.
+11. Activiteitsscore blijft binnen 1–10.
+12. Activiteitsscore en vangstkans blijven gescheiden.
+13. Actieve en onbekende sessies worden correct uitgesloten.
+14. Kleine steekproeven leiden niet tot schijnnauwkeurigheid.
+15. Eigen gegevens beïnvloeden de prognose wanneer relevante data aanwezig zijn.
+16. Uitleg per tijdvak komt overeen met de daadwerkelijke berekening.
+17. Offlinegedrag voor zover geautomatiseerd testbaar.
+18. Gegevens blijven behouden na heropenen.
+
+Voer tests, typecheck, lint en productiebuild uit als de gebruikte omgeving deze ondersteunt.
+
+Meld eerlijk wat wel en niet is getest. Een geslaagde build bewijst niet dat de interface, de echte weer-API en het offline gedrag op Android volledig werken.
+
+---
+
+## 17. Bouwvolgorde
+
+Bouw de applicatie als één samenhangend product, maar controleer de onderdelen in deze volgorde:
+
+1. Appstructuur, lokale database en offlinebasis.
+2. Sessies, locaties, vangsten en gegevensintegriteit.
+3. Weersverwachting, historische weerkoppeling en caching.
+4. Statistieken en filters.
+5. Biologisch model, persoonlijke vangstkans, uitleg per tijdvak en prognosehistorie.
+6. Back-up, import, export en herstel.
+7. Validatie en praktijktests.
+
+Voorkom dat alleen de eerste schermen worden gebouwd terwijl essentiële functionaliteit ontbreekt. Geef prioriteit aan echte opslag en berekeningen boven decoratieve UI.
+
+---
+
+## 18. Acceptatiecriteria
+
+De app is pas klaar voor praktisch gebruik wanneer:
+
+- De PWA op Android en desktop bruikbaar is.
+- Sessies starten en stoppen offline.
+- Vangsten offline kunnen worden geregistreerd.
+- Tijden bewerkbaar zijn.
+- Sessies over middernacht correct worden verwerkt.
+- Nulvangst, onbekende uitkomst en actieve sessie correct worden onderscheiden.
+- De beschermde benchmark behouden blijft.
+- Gegevens na opnieuw openen blijven bestaan.
+- Weerdata correct worden gekoppeld en hun herkomst tonen.
+- De gebruiker vissoort en sessieduur kan kiezen.
+- De prognose vandaag en de komende dagen toont.
+- Elk tijdvak uitlegt waarom het gunstiger of ongunstiger scoort.
+- Biologische activiteit en vangstkans afzonderlijk worden weergegeven.
+- Onvoldoende data niet leidt tot een misleidend vangstpercentage.
+- Eigen sessies en vangsten toekomstige prognoses kunnen beïnvloeden wanneer voldoende relevante gegevens beschikbaar zijn.
+- Het model eerlijk aangeeft wanneer voorspellingen nog niet gevalideerd zijn.
+- Back-up en herstel veilig werken.
+- Geen login, eigen backend of verplichte betaalde API nodig is.
+- Tests en build slagen waar de omgeving deze ondersteunt.
+- Niet-uitgevoerde browser- en Android-tests duidelijk worden vermeld.
+
+---
+
+## 19. Definitieve opdracht aan Google AI Studio
+
+Bouw een complete, werkende Vislogboek-app op basis van deze blueprint.
+
+Lees eerst de volledige specificatie en maak vervolgens een werkende implementatie.
+
+Belangrijke instructies:
+
+- Bouw geen uitsluitend visuele demo.
+- Gebruik echte lokale opslag en echte berekeningen.
+- Laat essentiële functies niet als placeholders achter.
+- Verzin geen vangsten, weerwaarden of historische gegevens.
+- Gebruik geen API's die niet daadwerkelijk beschikbaar zijn.
+- Houd persoonlijke gegevens lokaal en behoud de offline-first architectuur.
+- Gebruik een eenvoudige, robuuste architectuur die in de gekozen omgeving daadwerkelijk werkt.
+- Als een API-sleutel, hostinginstelling of externe configuratie nodig is, benoem dit duidelijk.
+- Laat lokale logboekfuncties ook zonder externe diensten functioneren.
+- Voeg tests toe voor kernlogica en gegevensintegriteit.
+- Behoud bestaande gegevens en de beschermde benchmark bij eventuele migraties.
+- Voeg geen ongevraagde functies toe die de kern onnodig complex maken.
+- Controleer de werkende interface en interacties waar de omgeving dit toestaat.
+
+Lever na afloop een samenvatting met:
+
+1. De gekozen architectuur.
+2. De belangrijkste bestanden en modules.
+3. Welke functies werkelijk werken.
+4. Welke gegevens lokaal worden opgeslagen.
+5. Hoe de prognose wordt berekend.
+6. Hoe eigen vissessies de prognose kunnen beïnvloeden.
+7. Welke tests en builds zijn uitgevoerd en hun resultaten.
+8. Welke functies nog ontbreken.
+9. Wat handmatig in een browser en op Android moet worden getest.
+10. Alle bekende beperkingen.
+
+Als niet alles in één keer kan worden voltooid, lever dan eerst een werkelijk werkende kernapp op met persistente lokale gegevens. Benoem precies wat nog ontbreekt. Verberg ontbrekende functionaliteit niet achter demoresultaten.
+
+**Einddoel:** een betrouwbaar persoonlijk vislogboek dat biologische en weersinformatie combineert met eigen waarnemingen, inzicht geeft in de beste verwachte vistijden en controleerbaar toetst of de prognoses in de praktijk kloppen.
