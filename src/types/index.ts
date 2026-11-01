@@ -337,6 +337,11 @@ export interface WaterThermalAnalysis {
     waterDepthMeters?: number;
   };
   prognosisImpactNote: string;          // Nuchtere, niet-overdreven invloed op de visprognose
+  calibration?: {
+    appliedCorrectionC: number;
+    sampleCount: number;
+    season: 'winter' | 'lente' | 'zomer' | 'herfst';
+  };
 }
 
 export interface PrognosisSnapshot {
@@ -357,6 +362,11 @@ export interface PrognosisSnapshot {
   predictedUncertaintyInterval?: [number, number] | null;
   predictedConfidence?: string;
   predictedConditions?: WeatherSnapshot;
+  // Onafhankelijke, soortneutrale temperatuurvalidatie. Alleen een vooraf voorspelde schatting telt mee.
+  predictedWaterTemperature?: number | null;
+  predictedWaterTemperatureRange?: [number, number] | null;
+  actualWaterTemperature?: number | null;
+  actualWaterTemperatureTimestamp?: string;
   source: string;
   modelVersion: string;            // bijv. 'v2.2'
   linkedSessionId?: string;
