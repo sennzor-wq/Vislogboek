@@ -92,7 +92,9 @@ export interface WeatherSnapshot {
   capturedAt: string;             // ISO
 }
 
-export interface FishingLocation {\n  waterFacingDirection?: CompassDirection;\n  habitatFeatures?: string[];
+export interface FishingLocation {
+  waterFacingDirection?: CompassDirection;
+  habitatFeatures?: string[];
   id: string;
   name: string;
   description?: string;
@@ -124,7 +126,11 @@ export interface CatchItem {
   createdAt: string;
 }
 
-export interface FishingSession {\n  prebaited?: boolean;\n  prebaitDays?: number;\n  prebaitAmountGrams?: number;\n  prebaitFeedType?: string;
+export interface FishingSession {
+  prebaited?: boolean;
+  prebaitDays?: number;
+  prebaitAmountGrams?: number;
+  prebaitFeedType?: string;
   id: string;
   locationId?: string;
   locationName?: string;
@@ -218,7 +224,10 @@ export interface DayPrognosis {
   pressureTrendInfo?: { known: boolean; deltaHpa: number | null; note: string };
   presenceInfo?: { observation: PresenceObservationType; note: string };
   thermalAnalysis?: WaterThermalAnalysis;
-  positioningAdvice?: RodPositioningAdvice;\n  bankWindAnalysis?: BankWindAnalysis;\n  habitatAnalysis?: HabitatMovementAnalysis;\n  prebaitPlan?: PrebaitProgramPlan;
+  positioningAdvice?: RodPositioningAdvice;
+  bankWindAnalysis?: BankWindAnalysis;
+  habitatAnalysis?: HabitatMovementAnalysis;
+  prebaitPlan?: PrebaitProgramPlan;
 }
 
 export interface RodPositioningAdvice {
@@ -378,7 +387,8 @@ export interface AppSettings {
   defaultSpecies: FishSpecies | 'Algemeen';
   defaultDurationHours: number;
   theme: 'dark' | 'system';
-  lastBackupDate?: string;\n  homeLocation?: HomeLocation | null;
+  lastBackupDate?: string;
+  homeLocation?: HomeLocation | null;
 }
 
 
