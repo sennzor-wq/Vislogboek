@@ -62,6 +62,9 @@ jobs:
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 
+      - name: Session snapshot commit tests
+        run: bun run tsx test-session-snapshot-commit.ts
+
       - name: Viscoach and backup normalization tests
         run: bun run tsx test-viscoach-part1.ts
 
