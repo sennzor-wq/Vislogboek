@@ -536,7 +536,7 @@ export interface HomeLocation {
   name: string;
   latitude: number | null;
   longitude: number | null;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export type ViscoachTargetSpecies = 'Geen voorkeur' | FishSpecies;
