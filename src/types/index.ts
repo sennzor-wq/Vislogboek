@@ -92,7 +92,7 @@ export interface WeatherSnapshot {
   capturedAt: string;             // ISO
 }
 
-export interface FishingLocation {
+export interface FishingLocation {\n  waterFacingDirection?: CompassDirection;\n  habitatFeatures?: string[];
   id: string;
   name: string;
   description?: string;
@@ -124,7 +124,7 @@ export interface CatchItem {
   createdAt: string;
 }
 
-export interface FishingSession {
+export interface FishingSession {\n  prebaited?: boolean;\n  prebaitDays?: number;\n  prebaitAmountGrams?: number;\n  prebaitFeedType?: string;
   id: string;
   locationId?: string;
   locationName?: string;
@@ -218,7 +218,7 @@ export interface DayPrognosis {
   pressureTrendInfo?: { known: boolean; deltaHpa: number | null; note: string };
   presenceInfo?: { observation: PresenceObservationType; note: string };
   thermalAnalysis?: WaterThermalAnalysis;
-  positioningAdvice?: RodPositioningAdvice;
+  positioningAdvice?: RodPositioningAdvice;\n  bankWindAnalysis?: BankWindAnalysis;\n  habitatAnalysis?: HabitatMovementAnalysis;\n  prebaitPlan?: PrebaitProgramPlan;
 }
 
 export interface RodPositioningAdvice {
@@ -378,5 +378,174 @@ export interface AppSettings {
   defaultSpecies: FishSpecies | 'Algemeen';
   defaultDurationHours: number;
   theme: 'dark' | 'system';
-  lastBackupDate?: string;
+  lastBackupDate?: string;\n  homeLocation?: HomeLocation | null;
+}
+
+
+/** Windrelatie ten opzichte van de oever waar de visser staat. */
+export type BankWindRelation =
+  | 'Onbekende oeveroriëntatie'
+  | 'Recht aanlandig (kopwind op de oever)'
+  | 'Schuin aanlandig (schuin op de oever)'
+  | 'Zijwind (dwars langs de oever)'
+  | 'Schuin aflandig (schuin van achteren)'
+  | 'Recht aflandig (rugwind / beschutte luwte)';
+
+export interface BankWindAnalysis {
+  isConfigured: boolean;
+  waterFacingDirection: CompassDirection | null;
+  waterFacingDegrees: number | null;
+  windOriginDirection: CompassDirection;
+  windOriginDegrees: number;
+  windDestinationDirection: CompassDirection;
+  windDestinationDegrees: number;
+  windSpeedKmH: number;
+  relation: BankWindRelation;
+  relativeAngleDegrees?: number;
+  bankAssessment: {
+    isFavorable: boolean;
+    statusLabel: string;
+    explanation: string;
+    waveAction: string;
+    driftCurrent: string;
+  };
+  rodPlacementAdvice: {
+    primaryPosition: string;
+    rationale: string;
+    castingDirectionAdvice: string;
+  };
+  missingInformation: string[];
+  fieldChecklist: string[];
+}
+
+export type HabitatType =
+  | 'Foerageerzone'
+  | 'Holding / rustzone'
+  | 'Overgangszone'
+  | 'Doorgang / transitie'
+  | 'Ondiepe opwarmzone'
+  | 'Structuurzone'
+  | 'Open water'
+  | 'Onbekend';
+
+export interface HabitatZone {
+  name: string;
+  habitatType: HabitatType | string;
+  description: string;
+  depthProfileNote: string;
+  structureNote: string;
+  whyLikely: string;
+}
+
+export interface FishMovementHypothesis {
+  likelyDirection: string;
+  migrationalTrigger: string;
+  timeOfDayDynamic: string;
+  transitRoute: string;
+  windInfluence: string;
+  seasonalPattern: string;
+}
+
+export interface HabitatMovementAnalysis {
+  primaryZone: HabitatZone;
+  alternativeZone: HabitatZone;
+  movementHypothesis: FishMovementHypothesis;
+  environmentalInfluence: {
+    temperatureImpact: string;
+    windAndWaveImpact: string;
+    pressureTrendImpact: string;
+    lightAndSolarImpact: string;
+  };
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
+  dataProvenance: {
+    measuredDataPoints: string[];
+    userObservations: string[];
+    modelInferences: string[];
+  };
+  missingInformation: string[];
+}
+
+export type PrebaitSuitability =
+  | 'Zeer zinvol'
+  | 'Matig zinvol'
+  | 'Beperkt / voorzichtig'
+  | 'Niet aanbevolen (instant vissen aanbevolen)';
+
+export interface PrebaitFeedingMoment {
+  dayOffset: number;
+  date: string;
+  dayLabel: string;
+  suggestedTime: string;
+  feedType: string;
+  amountGrams: number;
+  amountDisplay: string;
+  purpose: string;
+}
+
+export interface PrebaitProgramOptions {
+  availableDaysBefore?: number;
+  preferredFeedType?: string;
+  sessionDurationHours?: number;
+  userWaterTemp?: number | null;
+}
+
+export interface PrebaitProgramPlan {
+  suitability: PrebaitSuitability;
+  suitabilityScore: number;
+  shouldPrebait: boolean;
+  recommendedDaysBefore: number;
+  totalAmountGrams: number;
+  campaignSummary: string;
+  biologicalRationale: string;
+  temperatureFactorExplanation: string;
+  moments: PrebaitFeedingMoment[];
+  sessionDayGuidance: {
+    feedDuringSession: boolean;
+    recommendedAmountGrams: number;
+    amountDisplay: string;
+    advice: string;
+  };
+  feedCompositionAdvice: {
+    recommendedMix: string;
+    digestibilityNote: string;
+    particleSizeNote: string;
+  };
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
+  missingInformation: string[];
+  personalEvidence?: {
+    hasSufficientData: boolean;
+    totalRelevantSessions: number;
+    relevantPrebaitedSessionsCount: number;
+    catchRateWithPrebait: number | null;
+    catchRateWithoutPrebait: number | null;
+    summaryNote: string;
+  };
+}
+
+export interface HomeLocation {
+  name: string;
+  latitude: number | null;
+  longitude: number | null;
+  updatedAt: string;
+}
+
+export type ViscoachTargetSpecies = 'Geen voorkeur' | FishSpecies;
+
+export const VISCOACH_SPECIES_OPTIONS: ViscoachTargetSpecies[] = [
+  'Geen voorkeur',
+  ...ALL_SPECIES,
+];
+
+export interface ViscoachSessionContext {
+  selectedLocationId: string | null;
+  selectedLocation: FishingLocation | null;
+  homeLocation: HomeLocation | null;
+  distanceKm: number | null;
+  isWithin5Km: boolean | null;
+  targetSpecies: ViscoachTargetSpecies;
+  sessionDurationHours: number | null;
+  isCustomDuration: boolean;
+  isComplete: boolean;
+  missingFields: string[];
+  createdAt: string;
 }
