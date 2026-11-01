@@ -17,6 +17,7 @@ import {
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { BENCHMARK_SESSION_ID, db } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
+import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
 import { getForecast } from './weatherService';
 import { analyzeBankWind } from './bankWindEngine';
@@ -432,6 +433,7 @@ export interface PrognosisOptions {
   observations?: PresenceObservation[];
   prebaitOptions?: PrebaitProgramOptions;
   catches?: CatchItem[];
+  waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
 }
 
 /**
@@ -487,6 +489,26 @@ export function calculateDayPrognosis(
     historicalSessions,
     currentDateRef,
   });
+
+  // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
+  // Een echte actuele meting wordt nooit gecorrigeerd.
+  const temperatureCalibration = options?.waterTemperatureCalibration;
+  if (
+    temperatureCalibration &&
+    !thermalAnalysis.hasMeasuredWaterTemp &&
+    typeof thermalAnalysis.estimatedWaterTemp === 'number'
+  ) {
+    const correction = temperatureCalibration.appliedCorrectionC;
+    thermalAnalysis.estimatedWaterTemp = Math.round((thermalAnalysis.estimatedWaterTemp - correction) * 10) / 10;
+    if (thermalAnalysis.estimatedRange) {
+      thermalAnalysis.estimatedRange = [
+        Math.round((thermalAnalysis.estimatedRange[0] - correction) * 10) / 10,
+        Math.round((thermalAnalysis.estimatedRange[1] - correction) * 10) / 10,
+      ];
+    }
+    thermalAnalysis.calibration = temperatureCalibration;
+    thermalAnalysis.prognosisImpactNote += ` Lokale seizoenskalibratie toegepast: ${correction > 0 ? '-' : '+'}${Math.abs(correction).toFixed(1)} °C op basis van ${temperatureCalibration.sampleCount} eerdere metingen.`;
+  }
 
   const date = new Date(dateStr);
   const actualSpecies = species === 'Algemeen' ? 'Overig' : species;
@@ -1002,7 +1024,17 @@ export async function savePrognosisSnapshot(
     predictedUncertaintyInterval: prognosis.catchUncertaintyInterval,
     predictedConfidence: prognosis.personalCatchConfidence,
     predictedConditions: conditions,
-    modelVersion: 'v2.2',
+    // Alleen een voorafgaande modelschatting kan achteraf onafhankelijk worden gevalideerd.
+    predictedWaterTemperature:
+      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp &&
+      typeof prognosis.thermalAnalysis.estimatedWaterTemp === 'number'
+        ? prognosis.thermalAnalysis.estimatedWaterTemp
+        : null,
+    predictedWaterTemperatureRange:
+      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp
+        ? prognosis.thermalAnalysis.estimatedRange ?? null
+        : null,
+    modelVersion: 'v2.3-water-temperature-learning',
     source: 'Vislogboek v2.2 Prognose-Engine',
     createdAt: new Date().toISOString(),
   };
@@ -1029,7 +1061,9 @@ export async function createLiveSnapshotForSessionStart(
     const weather = await getForecast(lat, lon, false);
     const allSessions = await db.sessions.toArray();
     const allCatches = await db.catches.toArray();
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const allSnapshots = await db.prognosisSnapshots.toArray();
+    const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+    const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
 
     const prog = calculateDayPrognosis(
       todayStr,
@@ -1044,6 +1078,7 @@ export async function createLiveSnapshotForSessionStart(
         locationId: location.id,
         location,
         catches: allCatches,
+        waterTemperatureCalibration,
       }
     );
 
