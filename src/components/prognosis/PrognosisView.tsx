@@ -379,8 +379,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
         <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
           {dayPrognoses.map((day, idx) => {
             const isSelected = idx === selectedDayIndex;
-            const scoreColor =
-              day.activityScore >= 7.0
+            const scoreColor = day.activityScoreAvailable === false
+              ? 'text-slate-400 bg-slate-700/40 border-slate-600'
+              : day.activityScore >= 7.0
                 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
                 : day.activityScore >= 4.5
                 ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
@@ -406,7 +407,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div
                   className={`mt-1.5 px-2 py-0.5 rounded-lg text-xs font-black border ${scoreColor}`}
                 >
-                  {day.activityScore.toFixed(1)}
+                  {day.activityScoreAvailable === false ? 'N/B' : day.activityScore.toFixed(1)}
                 </div>
                 <span className="text-[10px] text-slate-400 mt-1 truncate max-w-full">
                   {day.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' ? 'Verstreken' : day.bestTimeSlot}
@@ -454,6 +455,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
             </div>
 
+            {activeDayProg.weatherDataQuality && (
+              <div className={`rounded-xl border p-3 text-xs ${activeDayProg.weatherDataQuality.status === 'Volledig' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-200' : activeDayProg.weatherDataQuality.status === 'Gedeeltelijk' ? 'bg-amber-950/30 border-amber-800/50 text-amber-200' : 'bg-rose-950/30 border-rose-800/50 text-rose-200'}`}>
+                <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
+                <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
+                {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
+                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Activiteitsindex en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+              </div>
+            )}
+
             {/* De 3 Gescheiden Voorspellingen Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* VOORSPELLING A: Biologische Activiteitsindex */}
@@ -465,7 +475,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
-                      {activeDayProg.activityScore.toFixed(1)}
+                      {activeDayProg.activityScoreAvailable === false ? 'N/B' : activeDayProg.activityScore.toFixed(1)}
                     </span>
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                       / 10
@@ -480,7 +490,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         : 'bg-rose-500/20 text-rose-300'
                     }`}
                   >
-                    {activeDayProg.advice} biologisch perspectief
+                    {activeDayProg.activityScoreAvailable === false ? 'Onvoldoende gegevens' : `${activeDayProg.advice} biologisch perspectief`}
                   </span>
 
                   {activeDayProg.presenceInfo && (
@@ -1475,7 +1485,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               {(['Nacht', 'Ochtend', 'Middag', 'Avond'] as TimeSlot[]).map((slot) => {
                 const analysis: TimeSlotAnalysis = activeDayProg.timeSlots[slot];
                 const isExpanded = expandedSlots[slot];
-                const isBest = activeDayProg.bestTimeSlot === slot;
+                const isBest = activeDayProg.activityScoreAvailable !== false && activeDayProg.bestTimeSlot === slot;
                 const isPast = analysis.isPast;
 
                 const slotIcon =
@@ -1534,7 +1544,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <div className="flex items-center gap-3">
                         <div className="text-right">
                           <div className="text-lg font-black text-white">
-                            {analysis.activityScore.toFixed(1)}
+                            {analysis.activityScoreAvailable === false ? 'N/B' : analysis.activityScore.toFixed(1)}
                             <span className="text-xs text-slate-400 font-normal">/10</span>
                           </div>
                         </div>
