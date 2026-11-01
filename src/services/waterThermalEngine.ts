@@ -50,11 +50,12 @@ export function analyzeWaterThermalDevelopment(
     }
   }
 
+  const targetIsCurrentDate = Boolean(currentDateRef && currentDateRef.toISOString().slice(0, 10) === targetDateStr);
   const usableAnchors = measurementCandidates
-    .filter((measurement) => measurement.timestampMs <= targetDateMs)
+    .filter((measurement) => measurement.timestampMs <= targetDateMs || (measurement.source === 'current' && targetIsCurrentDate))
     .sort((a, b) => b.timestampMs - a.timestampMs);
   const anchor = usableAnchors[0] ?? null;
-  const isActualSituation = Boolean(anchor && Math.abs(targetDateMs - anchor.timestampMs) <= 24 * 3600000);
+  const isActualSituation = Boolean(anchor && (targetIsCurrentDate || Math.abs(targetDateMs - anchor.timestampMs) <= 6 * 3600000));
   const hasMeasured = isActualSituation;
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
@@ -64,16 +65,19 @@ export function analyzeWaterThermalDevelopment(
 
   // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
   if (dayTemperatureForecasts.length < 6) {
+    const recentAnchorEstimate = anchor && targetDateMs >= anchor.timestampMs && targetDateMs - anchor.timestampMs <= 24 * 3600000
+      ? Math.round(anchor.temperature * 10) / 10
+      : null;
     return {
       trend: 'Onvoldoende gegevens',
       trendConfidence: 'Onvoldoende gegevens',
       hasMeasuredWaterTemp: hasMeasured,
       measuredWaterTemp: measuredTemp,
-      estimatedWaterTemp: null,
-      estimatedRange: null,
-      surfaceVsBulkNote: 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
+      estimatedWaterTemp: recentAnchorEstimate,
+      estimatedRange: recentAnchorEstimate === null ? null : [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10],
+      surfaceVsBulkNote: recentAnchorEstimate === null ? 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.' : 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.',
       inertiaFactor: 'Gemiddeld',
-      summaryRationale: 'Er zijn onvoldoende betrouwbare weersgegevens om de thermische ontwikkeling te bepalen.',
+      summaryRationale: recentAnchorEstimate === null ? 'Er zijn onvoldoende betrouwbare weersgegevens om de thermische ontwikkeling te bepalen.' : 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.',
       dataPointsAvailable: {
         past24hAvailable: false,
         past72hAvailable: false,
@@ -82,7 +86,7 @@ export function analyzeWaterThermalDevelopment(
         depthKnown: typeof location?.waterDepth === 'number',
         waterDepthMeters: location?.waterDepth,
       },
-      prognosisImpactNote: 'Geen thermische correctie toegepast wegens ontbrekende weerdata.',
+      prognosisImpactNote: recentAnchorEstimate === null ? 'Geen thermische correctie toegepast wegens ontbrekende weerdata.' : 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
     };
   }
 
