@@ -557,6 +557,12 @@ Een wijziging is pas klaar wanneer:
 
 ## 13. Roadmap en prioriteiten
 
+### Uitgevoerde verbetering — ontbrekende weerdata (geïmplementeerd; CI gecontroleerd)
+
+De prognoseketen moet ontbrekende weerwaarden als **onbekend** behandelen, nooit als 0, een gemiddelde standaardwaarde of een neutrale meting. De implementatie voegt veldbeschikbaarheid en dagdekking toe, valideert plausibele waarden en onderdrukt de activiteitsindex wanneer gemeten of verantwoord geschatte watertemperatuur ontbreekt. De persoonlijke vangstkans wordt alleen getoond wanneer de thermische basis bekend is en de uurlijkse weersdekking volledig genoeg is; anders blijft deze `null`. Prognosesnapshots bewaren bij een onbeschikbare activiteitsindex `null` en koppelen geen verzonnen beste tijdvak. De UI toont de dekking en welke velden ontbreken. Luchttemperatuur mag niet als watertemperatuur worden gebruikt.
+
+Dit is een gerichte uitbreiding van de bestaande prognose- en thermische engines; er wordt geen tweede engine toegevoegd. Bij ontbrekende wind- of thermische invoer wordt geen weersgestuurd hengelpositie-/oeveradvies gepresenteerd; bij ontbrekende ondersteunende context worden habitat- en tactische adviezen als laag betrouwbaar gemarkeerd. De regressietests dekken lege weerdata, gedeeltelijke velden en het niet hergebruiken van een oude watertemperatuurmeting voor een latere dag af. De Quality Gate is succesvol doorlopen op de implementatiebranch; visuele controle in Google AI Studio blijft een handmatige stap.
+
 ### Prioriteit 1 — Betrouwbaarheid van de huidige nulmeting
 - Audit prognose- en snapshotlogica.
 - Corrigeer doelsoort-/uitkomstkoppeling.

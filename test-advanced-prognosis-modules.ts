@@ -513,6 +513,92 @@ assert(
   '4.7 Bestaande Poisson-vangstkans blijft correct functioneren'
 );
 
+// =====================================================================
+// DEEL 5: ONTBREKENDE EN ONVOLLEDIGE WEERDATA
+// =====================================================================
+console.log('\n--- TESTGROEP 5: Ontbrekende weerdata ---');
+
+const noWeatherProg = calculateDayPrognosis(
+  '2026-07-20',
+  [],
+  'Karper',
+  [],
+  '2026-07-20T08:00:00Z',
+  null,
+  new Date('2026-07-20T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+
+const staleMeasuredTempProg = calculateDayPrognosis(
+  '2026-07-20',
+  [],
+  'Karper',
+  [],
+  '2026-07-18T06:00:00Z',
+  19,
+  new Date('2026-07-18T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+assert(
+  staleMeasuredTempProg.activityScoreAvailable === false,
+  '5.0 Een actuele watertemperatuurmeting wordt niet als meting hergebruikt voor een toekomstige dag buiten het geldige tijdvenster'
+);
+
+assert(
+  noWeatherProg.activityScoreAvailable === false,
+  '5.1 Zonder gemeten of verantwoord geschatte watertemperatuur wordt de activiteitsindex niet als beschikbaar gemarkeerd'
+);
+assert(
+  noWeatherProg.personalCatchChance === null,
+  '5.2 Zonder essentiële weer-/thermische gegevens wordt geen persoonlijke vangstkans getoond'
+);
+assert(
+  noWeatherProg.weatherDataQuality?.status === 'Onvoldoende',
+  '5.3 Geen uurdata resulteert in status Onvoldoende'
+);
+assert(
+  noWeatherProg.timeSlots.Ochtend.temperatureFactor.dataAvailable === false,
+  '5.4 Ontbrekende watertemperatuur wordt als onbekend gemarkeerd, niet als neutraal'
+);
+assert(
+  noWeatherProg.timeSlots.Ochtend.windFactor.dataAvailable === false &&
+  noWeatherProg.timeSlots.Ochtend.pressureFactor.dataAvailable === false &&
+  noWeatherProg.timeSlots.Ochtend.precipitationFactor.dataAvailable === false,
+  '5.5 Ontbrekende wind-, druk-, regen- en bewolkingsdata worden niet als gemeten nul/neutraal behandeld'
+);
+
+const partialForecasts = Array.from({ length: 24 }, (_, hour) => ({
+  time: `2026-07-20T${String(hour).padStart(2, '0')}:00:00`,
+  temperature: 20,
+  pressure: 1015,
+  // Wind, neerslag en bewolking ontbreken bewust.
+})) as unknown as WeatherHourlyForecast[];
+
+const partialWeatherProg = calculateDayPrognosis(
+  '2026-07-20',
+  partialForecasts,
+  'Karper',
+  [],
+  '2026-07-20T08:00:00Z',
+  null,
+  new Date('2026-07-20T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+
+assert(
+  partialWeatherProg.timeSlots.Ochtend.windFactor.dataAvailable === false &&
+  partialWeatherProg.timeSlots.Ochtend.precipitationFactor.dataAvailable === false,
+  '5.6 Ontbrekende wind, neerslag en bewolking worden als onbekend behandeld bij gedeeltelijke uurdata'
+);
+assert(
+  partialWeatherProg.timeSlots.Ochtend.pressureFactor.dataAvailable === true,
+  '5.7 Een aanwezige geldige luchtdrukwaarde blijft afzonderlijk bruikbaar'
+);
+assert(
+  partialWeatherProg.personalCatchChance === null,
+  '5.8 Bij onvolledige weerdekking wordt geen persoonlijke vangstkans getoond'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT MODULES: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');

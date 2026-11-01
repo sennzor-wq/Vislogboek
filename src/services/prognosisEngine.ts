@@ -73,12 +73,13 @@ export function findPressureTrend(
   allForecasts: WeatherHourlyForecast[]
 ): { deltaHpa: number | null; trendDescription: string; known: boolean } {
   const targetDateMs = new Date(targetTimeIso).getTime();
-  if (isNaN(targetDateMs) || allForecasts.length === 0) {
+  const validPressureForecasts = allForecasts.filter((h) => Number.isFinite(h.pressure) && h.pressure >= 850 && h.pressure <= 1100);
+  if (isNaN(targetDateMs) || validPressureForecasts.length === 0) {
     return { deltaHpa: null, trendDescription: 'Druktrend onbekend (onvoldoende uurdata)', known: false };
   }
 
   // Zoek uurmeting dichtst bij target
-  const currentEntry = allForecasts.find(
+  const currentEntry = validPressureForecasts.find(
     (h) => Math.abs(new Date(h.time).getTime() - targetDateMs) < 1800000
   );
   if (!currentEntry) {
@@ -90,7 +91,7 @@ export function findPressureTrend(
   let pastEntry: WeatherHourlyForecast | null = null;
   let minDiff = Infinity;
 
-  for (const h of allForecasts) {
+  for (const h of validPressureForecasts) {
     const hMs = new Date(h.time).getTime();
     const diff = Math.abs(hMs - targetPastMs);
     if (diff < minDiff && diff <= 3 * 3600000) {
@@ -160,25 +161,22 @@ function analyzeTimeSlot(
     }
   }
 
-  // Gemiddelde weerswaarden in dit tijdvak
-  let avgAirTemp = 13;
-  let avgPressure = 1015;
-  let avgWindSpeed = 12;
-  let dominantWindDir = 'ZW';
-  let totalPrecip = 0;
-  let avgCloud = 50;
-  let representativeTimeIso = `${targetDateStr}T${String(hoursConfig.start + 3).padStart(2, '0')}:00`;
-
-  if (forecastsInSlot.length > 0) {
-    avgAirTemp = forecastsInSlot.reduce((s, h) => s + h.temperature, 0) / forecastsInSlot.length;
-    avgPressure = forecastsInSlot.reduce((s, h) => s + h.pressure, 0) / forecastsInSlot.length;
-    avgWindSpeed = forecastsInSlot.reduce((s, h) => s + h.windSpeed, 0) / forecastsInSlot.length;
-    dominantWindDir = forecastsInSlot[0]?.windDirectionText || 'ZW';
-    totalPrecip = forecastsInSlot.reduce((s, h) => s + h.precipitation, 0);
-    avgCloud = forecastsInSlot.reduce((s, h) => s + h.cloudCover, 0) / forecastsInSlot.length;
-    representativeTimeIso = forecastsInSlot[Math.floor(forecastsInSlot.length / 2)].time;
-  }
-
+  // Ontbrekende of onplausibele waarden blijven onbekend; ze worden niet door standaardweer vervangen.
+  const inRange = (v: unknown, min: number, max: number): v is number => typeof v === 'number' && Number.isFinite(v) && v >= min && v <= max;
+  const tempSamples = forecastsInSlot.filter(h => inRange(h.temperature, -30, 55));
+  const pressureSamples = forecastsInSlot.filter(h => inRange(h.pressure, 850, 1100));
+  const windSamples = forecastsInSlot.filter(h => inRange(h.windSpeed, 0, 200) && inRange(h.windDirection, 0, 360) && typeof h.windDirectionText === 'string' && h.windDirectionText.trim().length > 0);
+  const precipSamples = forecastsInSlot.filter(h => inRange(h.precipitation, 0, 300));
+  const cloudSamples = forecastsInSlot.filter(h => inRange(h.cloudCover, 0, 100));
+  const minimumSamples = Math.max(1, Math.ceil((hoursConfig.end - hoursConfig.start) / 2));
+  const hasAirTemp = tempSamples.length >= minimumSamples, hasPressure = pressureSamples.length >= minimumSamples, hasWind = windSamples.length >= minimumSamples, hasPrecip = precipSamples.length >= minimumSamples, hasCloud = cloudSamples.length >= minimumSamples;
+  
+  const avgPressure = hasPressure ? pressureSamples.reduce((a,h)=>a+h.pressure,0)/pressureSamples.length : null;
+  const avgWindSpeed = hasWind ? windSamples.reduce((a,h)=>a+h.windSpeed,0)/windSamples.length : null;
+  const dominantWindDir = hasWind ? windSamples[Math.floor(windSamples.length/2)].windDirectionText : null;
+  const totalPrecip = hasPrecip ? precipSamples.reduce((a,h)=>a+h.precipitation,0) : null;
+  const avgCloud = hasCloud ? cloudSamples.reduce((a,h)=>a+h.cloudCover,0)/cloudSamples.length : null;
+  const representativeTimeIso = forecastsInSlot.length ? forecastsInSlot[Math.floor(forecastsInSlot.length/2)].time : targetDateStr + 'T' + String(hoursConfig.start+3).padStart(2,'0') + ':00';
   // 1. Temperatuurfactor & Fysiologische Efficiëntie E_temp
   // Onderscheid geverifieerde gemeten watertemperatuur vs. modelschatting vs. 2m-luchttemperatuur
   const hasMeasured = Boolean(
@@ -190,61 +188,29 @@ function analyzeTimeSlot(
     typeof thermalAnalysis?.estimatedWaterTemp === 'number' &&
     !isNaN(thermalAnalysis.estimatedWaterTemp);
 
-  let effectiveTemp: number;
-  let tempSource: 'gemeten' | 'geschat' | 'lucht';
-
-  if (hasMeasured) {
-    effectiveTemp = thermalAnalysis!.measuredWaterTemp!;
-    tempSource = 'gemeten';
-  } else if (hasEstimated) {
-    effectiveTemp = thermalAnalysis!.estimatedWaterTemp!;
-    tempSource = 'geschat';
-  } else if (typeof userWaterTemp === 'number' && !isNaN(userWaterTemp)) {
-    effectiveTemp = userWaterTemp;
-    tempSource = 'gemeten';
-  } else {
-    effectiveTemp = avgAirTemp;
-    tempSource = 'lucht';
-  }
-
-  const { efficiency: thermalEff, description: tempDesc, impact: tempImpact } =
-    calculateThermalEfficiency(effectiveTemp, profile);
-
-  let tempDetailText = tempDesc;
-  if (tempSource === 'gemeten') {
-    tempDetailText += ' (Gebaseerd op geverifieerde gemeten watertemperatuur).';
-  } else if (tempSource === 'geschat') {
-    const depthStr = thermalAnalysis?.dataPointsAvailable?.waterDepthMeters
-      ? ` en waterdiepte ${thermalAnalysis.dataPointsAvailable.waterDepthMeters} m`
-      : '';
-    tempDetailText += ` (Gebaseerd op geschatte watertemperatuur van ${effectiveTemp.toFixed(1)} °C via thermische traagheid${depthStr}).`;
-  } else {
-    tempDetailText +=
-      ' (Let op: gebaseerd op 2m-luchttemperatuur; werkelijke watertemperatuur kan door thermische inertie en stratificatie afwijken).';
-  }
-
-  const temperatureFactor: FactorBreakdown = {
-    score: Math.round((thermalEff * 4 - 2) * 10) / 10,
-    impact: tempImpact,
-    title: 'Temperatuur & Metabolisme',
-    detail: tempDetailText,
-  };
-
+  let effectiveTemp: number | null = null;
+  let tempSource: 'gemeten' | 'geschat' | 'onbekend' = 'onbekend';
+  if (hasMeasured) { effectiveTemp = thermalAnalysis!.measuredWaterTemp!; tempSource = 'gemeten'; }
+  else if (hasEstimated) { effectiveTemp = thermalAnalysis!.estimatedWaterTemp!; tempSource = 'geschat'; }
+  const hasKnownWaterTemp = effectiveTemp !== null;
+  const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
+  const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
+  const tempDetailText = !hasKnownWaterTemp ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.' : tempSource === 'gemeten' ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).' : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).';
+  const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Temperatuur & Metabolisme', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
   // en vangstactiviteit is onvoldoende vastgesteld.
   const pressureTrend = findPressureTrend(representativeTimeIso, allForecasts);
   const pressureModulator = 1.0;
   const pressImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
-  const pressDetail = pressureTrend.known && pressureTrend.deltaHpa !== null
-    ? `Luchtdruk ${Math.round(avgPressure)} hPa; ${pressureTrend.trendDescription}. Druktrend wordt getoond als weerscontext, maar krijgt geen automatische biologische bonus of aftrek.`
-    : `Luchtdruk ${Math.round(avgPressure)} hPa. ${pressureTrend.trendDescription}; geen biologische bonus of aftrek toegepast.`;
+  const pressDetail = !hasPressure ? 'Onbekend: onvoldoende geldige luchtdrukmetingen in dit tijdvak.' : pressureTrend.known && pressureTrend.deltaHpa !== null ? `Luchtdruk ${Math.round(avgPressure!)} hPa; ${pressureTrend.trendDescription}. Druktrend wordt getoond als weerscontext, maar krijgt geen automatische biologische bonus of aftrek.` : `Luchtdruk ${Math.round(avgPressure!)} hPa. ${pressureTrend.trendDescription}; geen biologische bonus of aftrek toegepast.`;
 
   const pressureFactor: FactorBreakdown = {
     score: 0,
     impact: pressImpact,
     title: 'Luchtdruk & Trend',
     detail: pressDetail,
+    dataAvailable: hasPressure,
   };
 
   // 3. Windfactor: kleine contextuele correctie. Windrichting is geen vaste
@@ -254,30 +220,18 @@ function analyzeTimeSlot(
   let windImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
   let windDetail = '';
 
-  if (avgWindSpeed > profile.disruptiveWindThresholdKmH) {
-    windModulator = 0.96;
-    windImpact = 'negatief';
-    windDetail = `Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is primair een praktische factor, geen bewezen afname van biologische activiteit.`;
-  } else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) {
-    windModulator = 1.01;
-    windDetail = `Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`;
-  } else if (avgWindSpeed < 4) {
-    windDetail = `Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`;
-  } else {
-    windDetail = `Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen sterke generieke biologische invloed aangenomen.`;
-  }
-
-  // Benoem de profielvoorkeur uitsluitend als context; windrichting krijgt bewust
-  // geen extra biologische scorebonus zolang dit niet empirisch gevalideerd is.
-  if (profile.preferredWindDirections.includes(dominantWindDir)) {
-    windDetail += ` De windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
-  }
-
+  if (!hasWind || avgWindSpeed === null || dominantWindDir === null) { windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.'; }
+  else if (avgWindSpeed > profile.disruptiveWindThresholdKmH) { windModulator=0.96; windImpact='negatief'; windDetail=`Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is primair een praktische factor, geen bewezen afname van biologische activiteit.`; }
+  else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) { windModulator=1.01; windDetail=`Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`; }
+  else if (avgWindSpeed < 4) { windDetail=`Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`; }
+  else { windDetail=`Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen sterke generieke biologische invloed aangenomen.`; }
+  if (hasWind && profile.preferredWindDirections.includes(dominantWindDir!)) windDetail += ` De windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
   const windFactor: FactorBreakdown = {
     score: Math.round((windModulator - 1.0) * 1000) / 10,
     impact: windImpact,
     title: 'Wind & Oppervlakte',
     detail: windDetail,
+    dataAvailable: hasWind,
   };
 
   // 4. Seizoensfactor (gedempt om dubbeltelling met temperatuur te voorkomen)
@@ -326,48 +280,47 @@ function analyzeTimeSlot(
   let precipImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
   let precipDetail = '';
 
-  if (totalPrecip >= 7.0) {
+  if (!hasPrecip && !hasCloud) { precipDetail = 'Onbekend: geen voldoende geldige neerslag- of bewolkingsgegevens.'; }
+  else if (hasPrecip && totalPrecip! >= 7.0) {
     precipModulator = 0.92;
     precipImpact = 'negatief';
-    precipDetail = `Langdurige zware neerslag (${totalPrecip.toFixed(1)} mm) kan water vertroebelen en beïnvloedt techniek.`;
-  } else if (totalPrecip > 0.2 && totalPrecip < 4.0) {
+    precipDetail = `Langdurige zware neerslag (${totalPrecip!.toFixed(1)} mm) kan water vertroebelen en beïnvloedt techniek.`;
+  } else if (hasPrecip && totalPrecip! > 0.2 && totalPrecip! < 4.0) {
     precipModulator = profile.rainPreference === 'licht_positief' ? 1.05 : 1.0;
     precipImpact = profile.rainPreference === 'licht_positief' ? 'positief' : 'neutraal';
-    precipDetail = `Lichte regen (${totalPrecip.toFixed(1)} mm) breekt het wateroppervlak en stimuleert activiteit.`;
-  } else if (avgCloud >= 70) {
+    precipDetail = `Lichte regen (${totalPrecip!.toFixed(1)} mm) breekt het wateroppervlak en stimuleert activiteit.`;
+  } else if (hasCloud && avgCloud! >= 70) {
     precipModulator = 1.03;
     precipImpact = 'positief';
-    precipDetail = `Zwaarbewolkt (${Math.round(avgCloud)}%); diffuus licht vermindert argwaan.`;
+    precipDetail = `Zwaarbewolkt (${Math.round(avgCloud!)}%); diffuus licht vermindert argwaan.`;
     if (profile.cloudPreference === 'bewolkt') {
       precipDetail += ` Gedempt licht sluit gunstig aan bij ${species}.`;
     }
-  } else if (avgCloud >= 30 && avgCloud < 70) {
+  } else if (hasCloud && avgCloud! >= 30 && avgCloud! < 70) {
     precipModulator = profile.cloudPreference === 'wisselend' ? 1.02 : 1.0;
     precipImpact = 'neutraal';
-    precipDetail = `Wisselende bewolking (${Math.round(avgCloud)}%); dynamisch lichtbeeld${profile.cloudPreference === 'wisselend' ? ` past goed bij de zichtjacht van ${species}` : ''}.`;
+    precipDetail = `Wisselende bewolking (${Math.round(avgCloud!)}%); dynamisch lichtbeeld${profile.cloudPreference === 'wisselend' ? ` past goed bij de zichtjacht van ${species}` : ''}.`;
   } else {
     precipModulator = 1.0;
     precipImpact = 'neutraal';
-    precipDetail = 'Droge omstandigheden met helder zicht.';
+    precipDetail = 'Geen duidelijke neerslag- of bewolkingsinvloed vastgesteld op basis van de beschikbare waarden.';
   }
 
   const precipitationFactor: FactorBreakdown = {
-    score: Math.round((precipModulator - 1.0) * 10 * 10) / 10,
-    impact: precipImpact,
+    score: hasPrecip || hasCloud ? Math.round((precipModulator - 1.0) * 10 * 10) / 10 : 0,
+    impact: hasPrecip || hasCloud ? precipImpact : 'neutraal',
     title: 'Bewolking & Neerslag',
     detail: precipDetail,
+    dataAvailable: hasPrecip || hasCloud,
   };
 
   // --- NON-LINEAIR BEGRENSD MODEL VOOR BIOLOGISCHE ACTIVITEITSINDEX ---
   // Temperatuur fungeert als snelheidsbepalende fysiologische factor (rate-limiting biological constraint).
   // Bij lage temperatuur is de stofwisseling fundamenteel geremd; gunstig weer kan dit niet onbeperkt compenseren.
   // Luchtdruk is neutraal gehouden; wind, seizoen en neerslag zijn bewust gedempt.
-  const envModulator =
-    0.50 * 1.0 +
-    0.10 * windModulator +
-    0.15 * seasonModulator +
-    0.20 * timeModulator +
-    0.05 * precipModulator;
+  const knownComponents = [{weight:0.50,value:1.0}, ...(hasWind?[{weight:0.10,value:windModulator}]:[]), {weight:0.15,value:seasonModulator}, {weight:0.20,value:timeModulator}, ...(hasPrecip||hasCloud?[{weight:0.05,value:precipModulator}]:[])];
+  const knownWeight = knownComponents.reduce((sum,item)=>sum+item.weight,0);
+  const envModulator = knownComponents.reduce((sum,item)=>sum+item.weight*item.value,0)/knownWeight;
 
   // Power scale on thermal efficiency: E_temp^0.85
   const metabolicCeiling = Math.pow(thermalEff, 0.85);
@@ -418,14 +371,16 @@ function analyzeTimeSlot(
   ];
 
   for (const f of allFactors) {
-    if (f.impact === 'positief') positiveFactors.push(`${f.title}: ${f.detail}`);
+    if (f.dataAvailable === false) neutralFactors.push(`${f.title}: ${f.detail}`);
+    else if (f.impact === 'positief') positiveFactors.push(`${f.title}: ${f.detail}`);
     else if (f.impact === 'negatief') negativeFactors.push(`${f.title}: ${f.detail}`);
     else neutralFactors.push(`${f.title}: ${f.detail}`);
   }
 
   // Conclusie
   let conclusion = '';
-  if (activityScore >= 8.5) {
+  if (!hasKnownWaterTemp) { conclusion = 'Activiteitsindex niet betrouwbaar te bepalen: gemeten of geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
+  else if (activityScore >= 8.5) {
     conclusion = `Zeer gunstige biologische omstandigheden (${activityScore}/10) voor ${species}. Optimale samenkomst van watertemperatuur, licht en weersomstandigheden.`;
   } else if (activityScore >= 6.8) {
     conclusion = `Gunstige omstandigheden (${activityScore}/10). Voldoende biologische stimulans voor ${species}.`;
@@ -436,7 +391,7 @@ function analyzeTimeSlot(
   } else {
     conclusion = `Lage biologische activiteit (${activityScore}/10). ${
       thermalEff < 0.4
-        ? `Lage watertemperatuur (${effectiveTemp.toFixed(1)} °C) dwingt ${species} tot een inactieve winterstand (winterrust wordt fysiologisch gestuurd door watertemperatuur, niet direct door koude luchttemperatuur).`
+        ? `Lage watertemperatuur (${effectiveTemp!.toFixed(1)} °C) dwingt ${species} tot een inactieve winterstand (winterrust wordt fysiologisch gestuurd door watertemperatuur, niet direct door koude luchttemperatuur).`
         : 'Voorwaarden zijn momenteel biologisch ongunstig.'
     }`;
   }
@@ -445,6 +400,7 @@ function analyzeTimeSlot(
     slot,
     timeRange: hoursConfig.rangeLabel,
     activityScore,
+    activityScoreAvailable: hasKnownWaterTemp,
     isPast,
     remainingHours,
     temperatureFactor,
@@ -580,12 +536,12 @@ export function calculateDayPrognosis(
   }
 
   const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
-  const dayScore =
-    Math.round((allSlotScores.reduce((sum, v) => sum + v, 0) / allSlotScores.length) * 10) / 10;
+  const dayScoreAvailable = slots.every(slot => timeSlotAnalyses[slot].activityScoreAvailable !== false);
+  const dayScore = dayScoreAvailable ? Math.round((allSlotScores.reduce((sum,v)=>sum+v,0)/allSlotScores.length)*10)/10 : 5.0;
 
   let advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig' = 'Gemiddeld';
-  if (dayScore >= 7.0) advice = 'Gunstig';
-  else if (dayScore < 4.5) advice = 'Ongunstig';
+  if (dayScoreAvailable && dayScore >= 7.0) advice = 'Gunstig';
+  else if (dayScoreAvailable && dayScore < 4.5) advice = 'Ongunstig';
 
   // --- STATISTISCHE VANGSTKANS BEREKENING (SECTIE 4) ---
   // Strikte scheiding van:
@@ -736,6 +692,18 @@ export function calculateDayPrognosis(
     );
   }
 
+  const hasKnownThermalInput = (thermalAnalysis.hasMeasuredWaterTemp && typeof thermalAnalysis.measuredWaterTemp === 'number') || (typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp));
+  const weatherFields = [
+    {name:'luchttemperatuur',count:dayForecasts.filter(h=>Number.isFinite(h.temperature)&&h.temperature>=-30&&h.temperature<=55).length},
+    {name:'luchtdruk',count:dayForecasts.filter(h=>Number.isFinite(h.pressure)&&h.pressure>=850&&h.pressure<=1100).length},
+    {name:'wind',count:dayForecasts.filter(h=>Number.isFinite(h.windSpeed)&&h.windSpeed>=0&&h.windSpeed<=200&&Number.isFinite(h.windDirection)&&h.windDirection>=0&&h.windDirection<=360).length},
+    {name:'neerslag',count:dayForecasts.filter(h=>Number.isFinite(h.precipitation)&&h.precipitation>=0&&h.precipitation<=300).length},
+    {name:'bewolking',count:dayForecasts.filter(h=>Number.isFinite(h.cloudCover)&&h.cloudCover>=0&&h.cloudCover<=100).length},
+  ];
+  const validHours=Math.min(...weatherFields.map(f=>f.count));
+  const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
+  const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
+  if ((!hasKnownThermalInput || weatherDataQuality.status!=='Volledig') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
   // Provenance
   let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
@@ -762,7 +730,8 @@ export function calculateDayPrognosis(
 
   // Samenvatting
   let summaryRationale = '';
-  if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag') {
+  if (!dayScoreAvailable) { summaryRationale='De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.'; }
+  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag') {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
   } else {
@@ -825,34 +794,29 @@ export function calculateDayPrognosis(
     targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
   });
 
-  // Gemiddelde dagwind voor oever- en habitatberekening
-  const avgWindSpeed = dayForecasts.length > 0
-    ? Math.round((dayForecasts.reduce((sum, h) => sum + (h.windSpeed || 0), 0) / dayForecasts.length) * 10) / 10
-    : 12;
-  const avgWindDeg = dayForecasts.length > 0 && typeof dayForecasts[0].windDirection === 'number'
-    ? Math.round(dayForecasts.reduce((sum, h) => sum + (h.windDirection || 0), 0) / dayForecasts.length)
-    : 225;
-  const windDirText = dayForecasts[0]?.windDirectionText || 'ZW';
-  const effectiveWaterTempForModules = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null
-    ? thermalAnalysis.measuredWaterTemp
-    : thermalAnalysis.estimatedWaterTemp ?? 14;
+  // Dagwaarden voor de tactische deelmodules; beschikbaarheid blijft apart geregistreerd.
+  const validWindForecasts = dayForecasts.filter(h => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200 && Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection <= 360);
+  const hasDayWindData = validWindForecasts.length >= 6;
+  const avgWindSpeed = hasDayWindData ? Math.round((validWindForecasts.reduce((sum,h)=>sum+h.windSpeed,0)/validWindForecasts.length)*10)/10 : 12;
+  const avgWindDeg = hasDayWindData ? Math.round(validWindForecasts.reduce((sum,h)=>sum+h.windDirection,0)/validWindForecasts.length) : 225;
+  const windDirText = hasDayWindData ? validWindForecasts[Math.floor(validWindForecasts.length/2)].windDirectionText : 'Onbekend';
+  const effectiveWaterTempForModules = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null ? thermalAnalysis.measuredWaterTemp : thermalAnalysis.estimatedWaterTemp ?? 14;
+  const hasThermalDataForModules = (thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null) || (typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp));
+  const hasDayCloudData = dayForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100).length >= 6;
   const seasonNL = date.getMonth() === 11 || date.getMonth() <= 1 ? 'Winter' : date.getMonth() >= 2 && date.getMonth() <= 4 ? 'Voorjaar' : date.getMonth() >= 5 && date.getMonth() <= 7 ? 'Zomer' : 'Herfst';
   const isColdWind = effectiveWaterTempForModules < 8 || (effectiveWaterTempForModules < 10 && (seasonNL === 'Winter' || seasonNL === 'Voorjaar'));
 
   // Module 2: Wind ten opzichte van de oever
-  const bankWindAnalysis = analyzeBankWind(
-    location,
-    avgWindDeg,
-    avgWindSpeed,
-    {
-      effectiveWaterTemp: effectiveWaterTempForModules,
-      season: seasonNL,
-      isColdWind,
-      isCoolingPeriod: thermalAnalysis.trend === 'Waarschijnlijke afkoeling',
-      isWarmingPeriod: thermalAnalysis.trend === 'Waarschijnlijke opwarming',
-      waterType: location?.waterType,
-    }
-  );
+  const bankWindAnalysis = hasDayWindData && hasThermalDataForModules
+    ? analyzeBankWind(location, avgWindDeg, avgWindSpeed, {
+        effectiveWaterTemp: effectiveWaterTempForModules,
+        season: seasonNL,
+        isColdWind,
+        isCoolingPeriod: thermalAnalysis.trend === 'Waarschijnlijke afkoeling',
+        isWarmingPeriod: thermalAnalysis.trend === 'Waarschijnlijke opwarming',
+        waterType: location?.waterType,
+      })
+    : undefined;
 
   const presTrendType: 'stijgend' | 'dalend' | 'stabiel' =
     presTrend.known && presTrend.deltaHpa !== null
@@ -878,6 +842,44 @@ export function calculateDayPrognosis(
     cloudCoverPercent: dayForecasts[0]?.cloudCover ?? 50,
   });
 
+  // Tactische deelmodules hebben legacy numerieke invoer nodig. Als daarvoor een interne
+  // placeholder nodig was, wordt hun uitvoer nadrukkelijk gedegradeerd en niet als zeker advies gepresenteerd.
+  if (!hasDayWindData || !hasThermalDataForModules || !hasDayCloudData || !presTrend.known) {
+    const limitations = [
+      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen; er wordt geen windgestuurd stekadvies gegeven.'] : []),
+      ...(!hasThermalDataForModules ? ['Geen gemeten of verantwoord geschatte watertemperatuur; thermische tactische aannames zijn niet betrouwbaar.'] : []),
+      ...(!hasDayCloudData ? ['Bewolkingsgegevens ontbreken; licht-/zoncontext is niet betrouwbaar.'] : []),
+      ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
+    ];
+    positioningAdvice.confidenceLevel = 'Laag';
+    positioningAdvice.missingInformation.push(...limitations);
+    if (!hasDayWindData || !hasThermalDataForModules) {
+      positioningAdvice.recommendedZone = 'Niet betrouwbaar te bepalen met de beschikbare weergegevens';
+      positioningAdvice.rationale = 'Er ontbreken wind- en/of thermische gegevens. Daarom geeft Vislogboek hier bewust geen weersgestuurd positioneringsadvies. Gebruik directe viswaarnemingen en de lokaal bekende stekstructuur.';
+      positioningAdvice.alternativeOption = 'Controleer ter plaatse wind, golfslag, diepteverloop en zichtbare visactiviteit voordat je een positie kiest.';
+      positioningAdvice.windContext.directionText = 'Onbekend';
+      positioningAdvice.windContext.speedKmH = null;
+      positioningAdvice.windContext.gustsKmH = undefined;
+      positioningAdvice.windContext.intraSessionNote = 'Windgegevens ontbreken; geen windtrend beschikbaar.';
+      positioningAdvice.thermalContext.waterTempNote = hasThermalDataForModules ? positioningAdvice.thermalContext.waterTempNote : 'Onbekend: geen gemeten of verantwoord geschatte watertemperatuur.';
+      positioningAdvice.windCastingGuidance = undefined;
+    }
+    habitatAnalysis.confidenceLevel = 'Laag';
+    habitatAnalysis.missingInformation.push(...limitations);
+    if (!hasDayWindData || !hasThermalDataForModules) {
+      habitatAnalysis.primaryZone.name = 'Algemene zoekzone — weerscontext onbekend';
+      habitatAnalysis.primaryZone.description = 'Er zijn onvoldoende betrouwbare wind- en/of thermische gegevens om een weersgestuurde primaire zone te kiezen.';
+      habitatAnalysis.primaryZone.whyLikely = 'Gebruik alleen directe viswaarnemingen en lokaal bekende habitatkenmerken; dit is geen weersgestuurde voorspelling.';
+      habitatAnalysis.alternativeZone.name = 'Alternatieve lokale structuurzone';
+      habitatAnalysis.alternativeZone.description = 'Controleer ter plaatse taluds, diepteovergangen, dekking en zichtbare activiteit.';
+      habitatAnalysis.movementHypothesis.likelyDirection = 'Onbekend — onvoldoende weergegevens';
+      habitatAnalysis.movementHypothesis.windInfluence = 'Onbekend: onvoldoende geldige windgegevens om windgestuurde visverplaatsing te beoordelen.';
+      habitatAnalysis.environmentalInfluence.temperatureImpact = 'Onbekend: watertemperatuur ontbreekt.';
+      habitatAnalysis.environmentalInfluence.windAndWaveImpact = 'Onbekend: onvoldoende geldige windgegevens.';
+    }
+    if (!hasDayCloudData) habitatAnalysis.environmentalInfluence.lightAndSolarImpact = 'Onbekend: onvoldoende geldige bewolkingsgegevens.';
+  }
+
   // Module 1: Gestructureerd Voorvoerprogramma
   const prebaitPlan = calculatePrebaitPlan(
     dateStr,
@@ -899,6 +901,8 @@ export function calculateDayPrognosis(
     dayName,
     species,
     activityScore: dayScore,
+    activityScoreAvailable: dayScoreAvailable,
+    weatherDataQuality,
     advice,
     bestTimeSlot: bestSlot,
     alternativeTimeSlots: alternativeSlots,
@@ -928,7 +932,7 @@ export function calculateDayPrognosis(
           ? `Gemeten watertemperatuur: ${thermalAnalysis.measuredWaterTemp} °C (directe stekmeting voor actuele situatie).`
           : thermalAnalysis.estimatedWaterTemp !== null
           ? `Watertemperatuur niet gemeten; modelschatting is ~${thermalAnalysis.estimatedWaterTemp} °C (bereik [${thermalAnalysis.estimatedRange?.[0]}–${thermalAnalysis.estimatedRange?.[1]} °C], trend: ${thermalAnalysis.trend.toLowerCase()}).`
-          : 'Geen watertemperatuur gemeten; 2m-luchttemperatuur gebruikt met verhoogde thermische onzekerheid.',
+          : 'Geen watertemperatuur gemeten of verantwoord geschat; luchttemperatuur wordt niet als vervanging gebruikt.',
     },
     pressureTrendInfo: {
       known: presTrend.known,
@@ -957,7 +961,7 @@ export async function savePrognosisSnapshot(
   chosenSlot?: TimeSlot,
   conditions?: WeatherSnapshot
 ): Promise<PrognosisSnapshot> {
-  const targetSlot =
+  const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
     (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
       ? (prognosis.bestTimeSlot as TimeSlot)
@@ -991,7 +995,9 @@ export async function savePrognosisSnapshot(
     locationName,
     durationHours,
     technique,
-    predictedActivityScore: prognosis.activityScore,
+    predictedActivityScore: prognosis.activityScoreAvailable === false ? null : prognosis.activityScore,
+    activityScoreAvailable: prognosis.activityScoreAvailable !== false,
+    weatherDataQuality: prognosis.weatherDataQuality,
     predictedCatchChance: prognosis.personalCatchChance, // null indien N < 5, NOOIT gefabriceerd!
     predictedUncertaintyInterval: prognosis.catchUncertaintyInterval,
     predictedConfidence: prognosis.personalCatchConfidence,

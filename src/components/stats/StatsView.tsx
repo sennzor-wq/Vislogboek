@@ -469,7 +469,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                             <span>Duur: {snap.durationHours}u</span>
                             <span>•</span>
                             <span className="text-slate-300">
-                              Activiteit: <strong className="text-white">{snap.predictedActivityScore}/10</strong>
+                              Activiteit: <strong className="text-white">{snap.predictedActivityScore === null ? 'Niet beschikbaar' : `${snap.predictedActivityScore}/10`}</strong>
                             </span>
                             <span>•</span>
                             <span className="text-slate-300">
