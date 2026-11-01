@@ -64,8 +64,11 @@ export function analyzeWaterThermalDevelopment(
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(targetDateStr));
+  const validTemperatureForecasts = forecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
+  const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
 
-  if (dayForecasts.length === 0 || forecasts.length < 12) {
+  // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
+  if (dayTemperatureForecasts.length < 6) {
     return {
       trend: 'Onvoldoende gegevens',
       trendConfidence: 'Onvoldoende gegevens',
@@ -89,13 +92,14 @@ export function analyzeWaterThermalDevelopment(
   }
 
   // Kenmerken van de doeldag
-  const dayTemps = dayForecasts.map((h) => h.temperature);
+  const dayTemps = dayTemperatureForecasts.map((h) => h.temperature);
   const dayMin = Math.min(...dayTemps);
   const dayMax = Math.max(...dayTemps);
   const dayAvg = dayTemps.reduce((a, b) => a + b, 0) / dayTemps.length;
-  const dayAvgWind = dayForecasts.reduce((a, b) => a + b.windSpeed, 0) / dayForecasts.length;
-  const dayAvgCloud = dayForecasts.reduce((a, b) => a + b.cloudCover, 0) / dayForecasts.length;
-  const dayTotalPrecip = dayForecasts.reduce((a, b) => a + b.precipitation, 0);
+  const validDayWind = dayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
+  const validDayCloud = dayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
+  const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
+  const dayAvgCloud = validDayCloud.length ? validDayCloud.reduce((a, b) => a + b.cloudCover, 0) / validDayCloud.length : null;
 
   // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
   const targetTimeMs = new Date(`${targetDateStr}T12:00:00`).getTime();
@@ -103,11 +107,11 @@ export function analyzeWaterThermalDevelopment(
   // Forecasts in vensters vóór de doeldag
   const past24hForecasts = forecasts.filter((h) => {
     const t = new Date(h.time).getTime();
-    return t < targetTimeMs && t >= targetTimeMs - 24 * 3600000;
+    return t < targetTimeMs && t >= targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
   const past72hForecasts = forecasts.filter((h) => {
     const t = new Date(h.time).getTime();
-    return t < targetTimeMs && t >= targetTimeMs - 72 * 3600000;
+    return t < targetTimeMs && t >= targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
 
   const hasPast24h = past24hForecasts.length >= 12;
@@ -138,23 +142,26 @@ export function analyzeWaterThermalDevelopment(
   }
 
   // Zonnestralingsindicatie (gebaseerd op bewolking overdag tussen 08:00 en 18:00)
-  const daytimeHours = dayForecasts.filter((h) => {
+  const daytimeHours = dayTemperatureForecasts.filter((h) => {
     const hour = parseInt(h.time.slice(11, 13), 10);
     return hour >= 8 && hour <= 18;
   });
-  const daytimeCloudAvg =
-    daytimeHours.length > 0
-      ? daytimeHours.reduce((s, h) => s + h.cloudCover, 0) / daytimeHours.length
-      : dayAvgCloud;
+  const daytimeCloudSamples = dayForecasts.filter((h) => {
+    const hour = parseInt(h.time.slice(11, 13), 10);
+    return hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
+  });
+  const daytimeCloudAvg = daytimeCloudSamples.length > 0 ? daytimeCloudSamples.reduce((s,h)=>s+h.cloudCover,0)/daytimeCloudSamples.length : null;
 
-  let solarIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)';
-  if (daytimeCloudAvg <= 35) solarIndication = 'Sterk (zonnig)';
+  let solarIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)' | 'Onvoldoende gegevens';
+  if (daytimeCloudAvg === null) solarIndication = 'Onvoldoende gegevens';
+  else if (daytimeCloudAvg <= 35) solarIndication = 'Sterk (zonnig)';
   else if (daytimeCloudAvg <= 70) solarIndication = 'Matig (half bewolkt)';
   else solarIndication = 'Gering (zwaarbewolkt/mist)';
 
   // Windmenging
-  let windMixing: 'Sterke menging' | 'Matige menging' | 'Rustig';
-  if (dayAvgWind >= 20) windMixing = 'Sterke menging';
+  let windMixing: 'Sterke menging' | 'Matige menging' | 'Rustig' | 'Onvoldoende gegevens';
+  if (dayAvgWind === null) windMixing = 'Onvoldoende gegevens';
+  else if (dayAvgWind >= 20) windMixing = 'Sterke menging';
   else if (dayAvgWind >= 9) windMixing = 'Matige menging';
   else windMixing = 'Rustig';
 
@@ -256,7 +263,7 @@ export function analyzeWaterThermalDevelopment(
   } else if (trend === 'Waarschijnlijke afkoeling') {
     prognosisImpactNote = 'Afkoeling kan vis aanzetten tot kortere bijtperiodes of verplaatsing naar diepere, stabielere waterlagen.';
   } else {
-    prognosisImpactNote = 'Stabiele thermische omstandigheden bieden constante foerageerpatronen zonder plotselinge omslag.';
+    prognosisImpactNote = trend === 'Ongeveer stabiel' ? 'Stabiele thermische omstandigheden bieden constante foerageerpatronen zonder plotselinge omslag.' : 'Onvoldoende gegevens voor een betrouwbare thermische duiding.';
   }
 
   return {
