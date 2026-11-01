@@ -172,6 +172,97 @@ export function evaluatePrognosisPerformance(
   };
 }
 
+export interface WaterTemperatureEvaluationResult {
+  totalSnapshots: number;
+  evaluatedCount: number;
+  pendingCount: number;
+  hasSufficientData: boolean;
+  meanAbsoluteErrorC: number | null;
+  rootMeanSquaredErrorC: number | null;
+  meanBiasC: number | null; // positief = model voorspelt gemiddeld te warm
+}
+
+export interface WaterTemperatureCalibration {
+  appliedCorrectionC: number; // wordt van de voorspelling afgetrokken
+  sampleCount: number;
+  season: 'winter' | 'lente' | 'zomer' | 'herfst';
+}
+
+function getSeasonForDate(date: string): WaterTemperatureCalibration['season'] {
+  const month = new Date(`${date}T12:00:00`).getMonth() + 1;
+  if (month === 12 || month <= 2) return 'winter';
+  if (month <= 5) return 'lente';
+  if (month <= 8) return 'zomer';
+  return 'herfst';
+}
+
+function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapshot[] {
+  return snapshots.filter((snapshot) => {
+    const predicted = snapshot.predictedWaterTemperature;
+    const actual = snapshot.actualWaterTemperature;
+    if (typeof predicted !== 'number' || !Number.isFinite(predicted) || predicted < 0 || predicted > 35) return false;
+    if (typeof actual !== 'number' || !Number.isFinite(actual) || actual < 0 || actual > 35) return false;
+    if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
+    const forecastMs = new Date(snapshot.forecastTimestamp).getTime();
+    const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
+    if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs) return false;
+    // Alleen vergelijken wanneer de voorspelling voor dezelfde lokale sessiedag gold.
+    if (snapshot.targetDate !== snapshot.actualWaterTemperatureTimestamp.slice(0, 10)) return false;
+    return true;
+  });
+}
+
+/** Temperatuurvoorspellingen worden soortneutraal getoetst; MAE/RMSE/Bias zijn geen Brier-score. */
+export function evaluateWaterTemperaturePerformance(
+  snapshots: PrognosisSnapshot[]
+): WaterTemperatureEvaluationResult {
+  const valid = validTemperaturePairs(snapshots);
+  const errors = valid.map((snapshot) => (snapshot.predictedWaterTemperature as number) - (snapshot.actualWaterTemperature as number));
+  const count = errors.length;
+  if (!count) {
+    return { totalSnapshots: snapshots.length, evaluatedCount: 0, pendingCount: snapshots.length, hasSufficientData: false, meanAbsoluteErrorC: null, rootMeanSquaredErrorC: null, meanBiasC: null };
+  }
+  const mae = errors.reduce((sum, error) => sum + Math.abs(error), 0) / count;
+  const rmse = Math.sqrt(errors.reduce((sum, error) => sum + error * error, 0) / count);
+  const bias = errors.reduce((sum, error) => sum + error, 0) / count;
+  return {
+    totalSnapshots: snapshots.length,
+    evaluatedCount: count,
+    pendingCount: snapshots.length - count,
+    hasSufficientData: count >= 5,
+    meanAbsoluteErrorC: Math.round(mae * 100) / 100,
+    rootMeanSquaredErrorC: Math.round(rmse * 100) / 100,
+    meanBiasC: Math.round(bias * 100) / 100,
+  };
+}
+
+/**
+ * Conservatieve lokale biascorrectie. Vereist minimaal 8 onafhankelijke metingen
+ * op dezelfde stek én in hetzelfde seizoen. Geen soortfilter: waterthermiek is omgevingsdata.
+ * Shrinkage voorkomt dat kleine steekproeven het model hard verschuiven.
+ */
+export function getWaterTemperatureCalibration(
+  snapshots: PrognosisSnapshot[],
+  locationId: string | undefined,
+  targetDate: string
+): WaterTemperatureCalibration | undefined {
+  if (!locationId) return undefined;
+  const season = getSeasonForDate(targetDate);
+  const valid = validTemperaturePairs(snapshots).filter((snapshot) =>
+    snapshot.locationId === locationId && getSeasonForDate(snapshot.targetDate) === season
+  );
+  if (valid.length < 8) return undefined;
+
+  const meanBias = valid.reduce(
+    (sum, snapshot) => sum + (snapshot.predictedWaterTemperature as number) - (snapshot.actualWaterTemperature as number),
+    0
+  ) / valid.length;
+  const shrinkage = valid.length / (valid.length + 8);
+  const appliedCorrectionC = Math.max(-1.5, Math.min(1.5, meanBias * shrinkage));
+  if (Math.abs(appliedCorrectionC) < 0.05) return undefined;
+  return { appliedCorrectionC: Math.round(appliedCorrectionC * 100) / 100, sampleCount: valid.length, season };
+}
+
 function initializeEmptyBins(): CalibrationBin[] {
   return [
     { rangeLabel: '0% – 20%', minProb: 0.0, maxProb: 0.2, snapshotCount: 0, averageForecastProb: null, observedCatchFraction: null, calibrationDelta: null },
@@ -219,14 +310,34 @@ export async function autoSyncSessionOutcomeToSnapshot(
     return false;
   }
 
-  // Alleen definitief voltooide sessies ('catch' of 'skunk_confirmed') komen in aanmerking voor evaluatie
-  if (session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') {
-    return false;
+  const snapshot = await db.prognosisSnapshots.get(session.snapshotId);
+  if (!snapshot) return false;
+
+  // Temperatuurvalidatie staat los van de vangstuitkomst. Een afgeronde sessie met
+  // een geldige meting kan dus thermische feedback leveren, ook als de vangststatus onbekend is.
+  let temperatureLinked = false;
+  const measuredTemp = session.waterTemperature;
+  if (
+    session.endTime &&
+    typeof measuredTemp === 'number' &&
+    Number.isFinite(measuredTemp) &&
+    measuredTemp >= 0 &&
+    measuredTemp <= 35 &&
+    typeof snapshot.predictedWaterTemperature === 'number' &&
+    snapshot.targetDate === session.startTime.slice(0, 10) &&
+    new Date(snapshot.forecastTimestamp).getTime() < new Date(session.startTime).getTime()
+  ) {
+    await db.prognosisSnapshots.update(session.snapshotId, {
+      actualWaterTemperature: measuredTemp,
+      // Het sessiemodel heeft nog geen afzonderlijk meettijdstip; starttijd is de expliciete benadering.
+      actualWaterTemperatureTimestamp: session.startTime,
+    });
+    temperatureLinked = true;
   }
 
-  const snapshot = await db.prognosisSnapshots.get(session.snapshotId);
-  if (!snapshot) {
-    return false;
+  // Alleen definitief bekende vangstuitkomsten komen in aanmerking voor Brier-evaluatie.
+  if (session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') {
+    return temperatureLinked;
   }
 
   let targetCatchesCount = 0;
