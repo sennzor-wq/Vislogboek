@@ -79,6 +79,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     Nacht: false,
   });
   const [showAssumptionsModal, setShowAssumptionsModal] = useState<boolean>(false);
+  const [showWaterFacingPicker, setShowWaterFacingPicker] = useState<boolean>(false);
 
   const selectedLoc = locations.find((l) => l.id === selectedLocationId) || locations[0];
 
@@ -1047,19 +1048,40 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           </span>
                           <button
                             type="button"
-                            onClick={() => {
-                              // Reset oeverrichting
-                              if (selectedLoc) {
-                                handleQuickSetWaterFacing(
-                                  bw.waterFacingDirection === 'West' ? 'Oost' : 'West'
-                                );
-                              }
-                            }}
+                            aria-expanded={showWaterFacingPicker}
+                            onClick={() => setShowWaterFacingPicker((open) => !open)}
                             className="text-[10px] text-blue-400 hover:text-blue-300 underline cursor-pointer"
                           >
-                            Wijzig kijkrichting
+                            {showWaterFacingPicker ? 'Keuze sluiten' : 'Wijzig kijkrichting'}
                           </button>
                         </div>
+                        {showWaterFacingPicker && (
+                          <div className="p-3 rounded-xl bg-slate-900/80 border border-blue-700/50 space-y-2">
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+                              Kies de richting waarin je vanaf de oever naar het water kijkt
+                            </span>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                              {COMPASS_DIRECTIONS.map((dir) => (
+                                <button
+                                  key={dir}
+                                  type="button"
+                                  aria-pressed={bw.waterFacingDirection === dir}
+                                  onClick={async () => {
+                                    await handleQuickSetWaterFacing(dir);
+                                    setShowWaterFacingPicker(false);
+                                  }}
+                                  className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold text-left transition cursor-pointer ${
+                                    bw.waterFacingDirection === dir
+                                      ? 'bg-blue-900/70 border-blue-400 text-white'
+                                      : 'bg-slate-800 border-slate-700 hover:border-blue-500 hover:bg-blue-950/60 text-slate-200'
+                                  }`}
+                                >
+                                  {dir} ({({ Noord: 0, Noordoost: 45, Oost: 90, Zuidoost: 135, Zuid: 180, Zuidwest: 225, West: 270, Noordwest: 315 } as Record<CompassDirection, number>)[dir]}°)
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="font-bold text-white text-xs">
                           {bw.rodPlacementAdvice.primaryPosition}
                         </div>
