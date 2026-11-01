@@ -326,8 +326,8 @@ export function analyzeWaterThermalDevelopment(
   let prognosisImpactNote = '';
   if (hasMeasured && measuredTemp !== null) {
     prognosisImpactNote = `Gebruikt gemeten watertemperatuur (${measuredTemp} °C) als directe biologische invoer voor de actuele situatie.`;
-  } else if (typeof userMeasured === 'number' && !isNaN(userMeasured) && !isActualSituation) {
-    prognosisImpactNote = `Toekomstige prognose gebruikt geschatte watertemperatuur (~${estimatedWaterTemp} °C) via thermische traagheid en waterdiepte; eerdere actuele meting (${userMeasured} °C) bepaalt niet de toekomstige dagen.`;
+  } else if (anchor && estimatedWaterTemp !== null && usedMeasuredAnchor) {
+    prognosisImpactNote = `Toekomstige prognose gebruikt een modelschatting (~${estimatedWaterTemp} °C), verankerd aan de laatste echte stekmeting van ${anchor.temperature.toFixed(1)} °C (${Math.round((targetDateMs - anchor.timestampMs) / 3600000)} uur eerder) en aangepast met de beschikbare weersontwikkeling.`;
   } else if (trend === 'Waarschijnlijke opwarming') {
     prognosisImpactNote = 'Opwarming stimuleert foerageergedrag, met name in ondiepe en zonbeschenen oeverzones.';
   } else if (trend === 'Waarschijnlijke afkoeling') {
