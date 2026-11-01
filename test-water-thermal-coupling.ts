@@ -276,10 +276,13 @@ async function runTestSuite() {
       anchoredEstimate.estimatedWaterTemp <= 18.0,
     `4.2 Toekomstige schatting blijft verankerd aan de echte 16,5 °C-meting (${anchoredEstimate.estimatedWaterTemp} °C)`
   );
+  const anchoredRange = anchoredEstimate.estimatedRange;
+  const anchoredValue = anchoredEstimate.estimatedWaterTemp;
   assert(
-    anchoredEstimate.estimatedRange !== null &&
-      anchoredEstimate.estimatedRange[0] <= anchoredEstimate.estimatedWaterTemp! &&
-      anchoredEstimate.estimatedRange[1] >= anchoredEstimate.estimatedWaterTemp!,
+    anchoredRange != null &&
+      anchoredValue !== null &&
+      anchoredRange[0] <= anchoredValue &&
+      anchoredRange[1] >= anchoredValue,
     '4.3 Onzekerheidsmarge omvat de berekende watertemperatuur'
   );
 
