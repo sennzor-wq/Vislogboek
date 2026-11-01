@@ -11,7 +11,7 @@ import {
   CatchItem,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
-import { calculateDayPrognosis, savePrognosisSnapshot } from '../../services/prognosisEngine';
+import { calculateDayPrognosis, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import {
@@ -52,7 +52,7 @@ interface PrognosisViewProps {
   locations: FishingLocation[];
   sessions: FishingSession[];
   catches?: CatchItem[];
-  onStartSession: (species?: FishSpecies, locationId?: string, snapshotId?: string) => void;
+  onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => void;
   showAdvancedDetails: boolean;
 }
 
@@ -197,29 +197,21 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       ? SPECIES_PROFILES[selectedSpecies]
       : SPECIES_PROFILES['Overig'];
 
-  const handleStartSessionFromPrognosis = async () => {
+  const handleStartSessionFromPrognosis = () => {
     if (!activeDayProg) return;
-    let snapId: string | undefined = undefined;
-    try {
-      // Voorspelling vóór sessie-aanvang automatisch onveranderlijk vastleggen
-      const snap = await savePrognosisSnapshot(
-        activeDayProg,
-        selectedDurationHours,
-        selectedLocationId,
-        selectedLoc?.name,
-        undefined,
-        activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
-          ? (activeDayProg.bestTimeSlot as TimeSlot)
-          : undefined
-      );
-      snapId = snap?.id;
-    } catch (e) {
-      console.error('Fout bij automatisch vastleggen momentopname bij sessiestart:', e);
-    }
+    // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
+    const pendingSnapshot: PendingPrognosisSnapshot = {
+      prognosis: activeDayProg,
+      durationHours: selectedDurationHours,
+      locationName: selectedLoc?.name,
+      chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+        ? (activeDayProg.bestTimeSlot as TimeSlot)
+        : undefined,
+    };
     onStartSession(
       selectedSpecies !== 'Algemeen' ? selectedSpecies : undefined,
       selectedLocationId,
-      snapId
+      pendingSnapshot
     );
   };
 
