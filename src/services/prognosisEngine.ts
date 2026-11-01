@@ -267,6 +267,12 @@ function analyzeTimeSlot(
     windDetail = `Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen sterke generieke biologische invloed aangenomen.`;
   }
 
+  // Benoem de profielvoorkeur uitsluitend als context; windrichting krijgt bewust
+  // geen extra biologische scorebonus zolang dit niet empirisch gevalideerd is.
+  if (profile.preferredWindDirections.includes(dominantWindDir)) {
+    windDetail += ` De windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
+  }
+
   const windFactor: FactorBreakdown = {
     score: Math.round((windModulator - 1.0) * 1000) / 10,
     impact: windImpact,
