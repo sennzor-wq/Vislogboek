@@ -163,12 +163,22 @@ export interface FactorBreakdown {
   impact: 'positief' | 'neutraal' | 'negatief';
   title: string;
   detail: string;
+  dataAvailable?: boolean; // false = onbekend, niet hetzelfde als neutraal
+}
+
+export interface WeatherDataQuality {
+  status: 'Volledig' | 'Gedeeltelijk' | 'Onvoldoende';
+  validHours: number;
+  expectedHours: number;
+  coveragePercent: number;
+  missingFields: string[];
 }
 
 export interface TimeSlotAnalysis {
   slot: TimeSlot;
   timeRange: string;              // bijv. "06:00 – 12:00"
-  activityScore: number;          // 1.0 – 10.0 (Biologische activiteitsindex)
+  activityScore: number;          // 1.0 – 10.0 (alleen presenteren wanneer activityScoreAvailable true is)
+  activityScoreAvailable?: boolean;
   isPast?: boolean;               // Is dit tijdvak reeds volledig verstreken?
   remainingHours?: number;        // Aantal resterende uren in dit tijdvak
   temperatureFactor: FactorBreakdown;
@@ -201,7 +211,9 @@ export interface DayPrognosis {
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
   species: FishSpecies | 'Algemeen';
-  activityScore: number;          // 1.0 - 10.0 (Biologische activiteitsindex - relatieve indicatie)
+  activityScore: number;          // 1.0 - 10.0 (alleen presenteren wanneer activityScoreAvailable true is)
+  activityScoreAvailable?: boolean;
+  weatherDataQuality?: WeatherDataQuality;
   advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig';
   bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag';
   alternativeTimeSlots: TimeSlot[];
@@ -319,8 +331,8 @@ export interface WaterThermalAnalysis {
   dataPointsAvailable: {
     past24hAvailable: boolean;
     past72hAvailable: boolean;
-    solarRadiationIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)';
-    windMixingInfluence: 'Sterke menging' | 'Matige menging' | 'Rustig';
+    solarRadiationIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)' | 'Onvoldoende gegevens';
+    windMixingInfluence: 'Sterke menging' | 'Matige menging' | 'Rustig' | 'Onvoldoende gegevens';
     depthKnown: boolean;
     waterDepthMeters?: number;
   };
