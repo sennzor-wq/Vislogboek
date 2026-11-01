@@ -529,6 +529,21 @@ const noWeatherProg = calculateDayPrognosis(
   { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
 );
 
+const staleMeasuredTempProg = calculateDayPrognosis(
+  '2026-07-20',
+  [],
+  'Karper',
+  [],
+  '2026-07-18T06:00:00Z',
+  19,
+  new Date('2026-07-18T06:00:00Z'),
+  { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
+);
+assert(
+  staleMeasuredTempProg.activityScoreAvailable === false,
+  '5.0 Een actuele watertemperatuurmeting wordt niet als meting hergebruikt voor een toekomstige dag buiten het geldige tijdvenster'
+);
+
 assert(
   noWeatherProg.activityScoreAvailable === false,
   '5.1 Zonder gemeten of verantwoord geschatte watertemperatuur wordt de activiteitsindex niet als beschikbaar gemarkeerd'
