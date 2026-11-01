@@ -586,7 +586,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     C. Beste Toekomstige Vistijd
                   </div>
 
-                  {activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (
+                  {activeDayProg.activityScoreAvailable === false ? (
+                    <div className="text-sm font-bold text-slate-300">Niet betrouwbaar te bepalen</div>
+                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (
                     <div>
                       <div className="text-xl sm:text-2xl font-black text-white">
                         {activeDayProg.bestTimeSlot}
@@ -1578,7 +1580,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                     : 'bg-slate-700 text-slate-300'
                                 }`}
                               >
-                                {analysis.temperatureFactor.impact}
+                                {analysis.temperatureFactor.dataAvailable === false ? 'onbekend' : analysis.temperatureFactor.impact}
                               </span>
                             </div>
                             <p className="text-xs text-slate-300 leading-relaxed">
@@ -1602,7 +1604,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                     : 'bg-slate-700 text-slate-300'
                                 }`}
                               >
-                                {analysis.pressureFactor.impact}
+                                {analysis.pressureFactor.dataAvailable === false ? 'onbekend' : analysis.pressureFactor.impact}
                               </span>
                             </div>
                             <p className="text-xs text-slate-300 leading-relaxed">
@@ -1626,7 +1628,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                     : 'bg-slate-700 text-slate-300'
                                 }`}
                               >
-                                {analysis.windFactor.impact}
+                                {analysis.windFactor.dataAvailable === false ? 'onbekend' : analysis.windFactor.impact}
                               </span>
                             </div>
                             <p className="text-xs text-slate-300 leading-relaxed">
@@ -1698,7 +1700,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                     : 'bg-slate-700 text-slate-300'
                                 }`}
                               >
-                                {analysis.precipitationFactor.impact}
+                                {analysis.precipitationFactor.dataAvailable === false ? 'onbekend' : analysis.precipitationFactor.impact}
                               </span>
                             </div>
                             <p className="text-xs text-slate-300 leading-relaxed">
