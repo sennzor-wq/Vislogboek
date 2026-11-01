@@ -236,7 +236,7 @@ export default function App() {
           />
         )}
         {currentTab === 'stats' && (
-          <StatsView sessions={sessions} catches={catches} locations={locations} onRefreshData={loadData} />
+          <StatsView sessions={sessions} catches={catches} locations={locations} onRefreshData={loadData} showAdvancedDetails={showAdvancedPrognosisDetails} />
         )}
         {currentTab === 'weather' && <WeatherView locations={locations} />}
         {currentTab === 'settings' && (

@@ -38,6 +38,7 @@ interface StatsViewProps {
   catches: CatchItem[];
   locations: FishingLocation[];
   onRefreshData?: () => Promise<void>;
+  showAdvancedDetails: boolean;
 }
 
 export const StatsView: React.FC<StatsViewProps> = ({
@@ -45,6 +46,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
   catches,
   locations,
   onRefreshData,
+  showAdvancedDetails,
 }) => {
   const [filter, setFilter] = useState<StatsFilter>({
     species: 'Alle',
@@ -263,6 +265,9 @@ export const StatsView: React.FC<StatsViewProps> = ({
       </div>
 
       {/* SOORTNEUTRALE WATERTEMPERATUURVALIDATIE */}
+      {showAdvancedDetails && (
+        <>
+
       <div className="p-5 sm:p-6 rounded-3xl bg-slate-900/80 border border-slate-700/80 shadow-xl space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -573,6 +578,8 @@ export const StatsView: React.FC<StatsViewProps> = ({
         )}
       </div>
 
+        </>
+      )}
       {/* Vangsten per Soort & Tijdvak Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Soortstatistieken */}
