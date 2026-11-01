@@ -768,7 +768,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 
 ## 19. Soortneutrale watertemperatuurvalidatie en lokale seizoenskalibratie
 
-**Status: geïmplementeerd op feature-branch; CI-validatie volgt via pull request.** Deze functionaliteit is een gedeelde omgevingslaag voor alle vissoorten. De thermische voorspelling zelf is niet karperspecifiek; de bestaande soortprofielen bepalen afzonderlijk wat een geschatte of gemeten watertemperatuur biologisch betekent voor Karper, Brasem, Snoek, Baars, Voorn, Zeelt, Snoekbaars, Meerval, Roofblei en Overig.
+**Status: geïmplementeerd op main; CI geslaagd op merge commit `d611f709ce7f252224e0b3f166add9d9ae437166`.** Visuele/manual test in Google AI Studio en de gepubliceerde PWA is nog niet uitgevoerd. Deze functionaliteit is een gedeelde omgevingslaag voor alle vissoorten. De thermische voorspelling zelf is niet karperspecifiek; de bestaande soortprofielen bepalen afzonderlijk wat een geschatte of gemeten watertemperatuur biologisch betekent voor Karper, Brasem, Snoek, Baars, Voorn, Zeelt, Snoekbaars, Meerval, Roofblei en Overig.
 
 ### 19.1 Scheiding van evaluaties
 - De bestaande Brier-score blijft uitsluitend de probabilistische vangstprognose toetsen aan de werkelijke vangstuitkomst.
