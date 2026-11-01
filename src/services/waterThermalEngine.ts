@@ -64,7 +64,6 @@ export function analyzeWaterThermalDevelopment(
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(targetDateStr));
-  const validTemperatureForecasts = forecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
   const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
 
   // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
@@ -82,8 +81,8 @@ export function analyzeWaterThermalDevelopment(
       dataPointsAvailable: {
         past24hAvailable: false,
         past72hAvailable: false,
-        solarRadiationIndication: 'Gering (zwaarbewolkt/mist)',
-        windMixingInfluence: 'Rustig',
+        solarRadiationIndication: 'Onvoldoende gegevens',
+        windMixingInfluence: 'Onvoldoende gegevens',
         depthKnown: typeof location?.waterDepth === 'number',
         waterDepthMeters: location?.waterDepth,
       },
@@ -99,7 +98,6 @@ export function analyzeWaterThermalDevelopment(
   const validDayWind = dayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
   const validDayCloud = dayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
   const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
-  const dayAvgCloud = validDayCloud.length ? validDayCloud.reduce((a, b) => a + b.cloudCover, 0) / validDayCloud.length : null;
 
   // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
   const targetTimeMs = new Date(`${targetDateStr}T12:00:00`).getTime();
