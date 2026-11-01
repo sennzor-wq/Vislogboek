@@ -216,7 +216,7 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
     const forecastMs = new Date(snapshot.forecastTimestamp).getTime();
     const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
-    if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs) return false;
+    if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs || measuredMs > Date.now()) return false;
     // Alleen vergelijken wanneer de voorspelling voor dezelfde lokale sessiedag gold.
     if (snapshot.targetDate !== getAmsterdamDate(snapshot.actualWaterTemperatureTimestamp)) return false;
     return true;
@@ -339,6 +339,7 @@ export async function autoSyncSessionOutcomeToSnapshot(
     new Date(snapshot.forecastTimestamp).getTime() < new Date(session.startTime).getTime()
   ) {
     await db.prognosisSnapshots.update(session.snapshotId, {
+      linkedSessionId: session.id,
       actualWaterTemperature: measuredTemp,
       // Het sessiemodel heeft nog geen afzonderlijk meettijdstip; starttijd is de expliciete benadering.
       actualWaterTemperatureTimestamp: session.startTime,
