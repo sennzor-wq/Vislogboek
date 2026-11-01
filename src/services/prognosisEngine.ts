@@ -43,6 +43,20 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+// Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
+// Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
+const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
+
+function getValidPressureForecasts(forecasts: WeatherHourlyForecast[]): WeatherHourlyForecast[] {
+  const cached = pressureForecastCache.get(forecasts);
+  if (cached) return cached;
+  const valid = forecasts.filter((h) =>
+    Number.isFinite(h.pressure) && h.pressure >= 850 && h.pressure <= 1100
+  );
+  pressureForecastCache.set(forecasts, valid);
+  return valid;
+}
+
 /**
  * Berekent het Wilson score 95% betrouwbaarheidsinterval voor een binomiaal percentage.
  * Let op: berekent de steekproefonzekerheid van de binomiale fractie, maar corrigeert niet
@@ -74,7 +88,7 @@ export function findPressureTrend(
   allForecasts: WeatherHourlyForecast[]
 ): { deltaHpa: number | null; trendDescription: string; known: boolean } {
   const targetDateMs = new Date(targetTimeIso).getTime();
-  const validPressureForecasts = allForecasts.filter((h) => Number.isFinite(h.pressure) && h.pressure >= 850 && h.pressure <= 1100);
+  const validPressureForecasts = getValidPressureForecasts(allForecasts);
   if (isNaN(targetDateMs) || validPressureForecasts.length === 0) {
     return { deltaHpa: null, trendDescription: 'Druktrend onbekend (onvoldoende uurdata)', known: false };
   }
@@ -226,7 +240,19 @@ function analyzeTimeSlot(
   else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) { windModulator=1.01; windDetail=`Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`; }
   else if (avgWindSpeed < 4) { windDetail=`Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`; }
   else { windDetail=`Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen sterke generieke biologische invloed aangenomen.`; }
-  if (hasWind && profile.preferredWindDirections.includes(dominantWindDir!)) windDetail += ` De windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
+  if (hasWind) {
+    const directionSequence = windSamples.reduce<string[]>((directions, sample) => {
+      const direction = sample.windDirectionText.trim();
+      if (directions[directions.length - 1] !== direction) directions.push(direction);
+      return directions;
+    }, []);
+    if (directionSequence.length > 1) {
+      windDetail += ` De wind draait binnen dit tijdvak: ${directionSequence.join(' → ')}; de windrichting is dus niet de hele periode gelijk.`;
+    }
+    if (profile.preferredWindDirections.includes(dominantWindDir!)) {
+      windDetail += ` De representatieve windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
+    }
+  }
   const windFactor: FactorBreakdown = {
     score: Math.round((windModulator - 1.0) * 1000) / 10,
     impact: windImpact,
