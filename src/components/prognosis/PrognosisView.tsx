@@ -507,9 +507,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   )}
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                {showAdvancedDetails && (
+<div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
                   <strong>Modelmatige indicatie:</strong> Weerspiegelt fysiologische activiteit volgens het biologische temperatuur- en omgevingsmodel van {activeDayProg.species}. Dit is geen vangstkans of gemeten biologische activiteit.
                 </div>
+)}
               </div>
 
               {/* VOORSPELLING B: Geschatte Vangstkans */}
@@ -579,9 +581,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   )}
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                {showAdvancedDetails && (
+<div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
                   Kans op minimaal één doelvis bij een geplande duur van {activeDayProg.plannedDurationHours ?? selectedDurationHours} uur (Poisson-model). Vangsttempo blijft constant; cumulatieve kans en verwachte vangstopbrengst stijgen met de duur.
                 </div>
+)}
               </div>
 
               {/* VOORSPELLING C: Beste Toekomstige Vistijd */}
@@ -620,9 +624,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   )}
                 </div>
 
-                <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
+                {showAdvancedDetails && (
+<div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
                   <strong>Toekomstgericht:</strong> Uitsluitend niet-verstreken tijdvakken worden vergeleken. Deze aanbeveling biedt geen absolute vangstgarantie.
                 </div>
+)}
               </div>
             </div>
 
@@ -1590,6 +1596,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     {/* Expanded details */}
                     {isExpanded && (
                       <div className="p-4 pt-2 border-t border-slate-700/50 bg-slate-900/40 space-y-4">
+{showAdvancedDetails && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {/* Temperatuur */}
                           <div className="p-3 rounded-xl bg-slate-800/70 border border-slate-700/50">
@@ -1736,7 +1743,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           </div>
                         </div>
 
-                        {/* Eigen historische ervaring in dit tijdvak */}
+
+)}
+                                                {/* Eigen historische ervaring in dit tijdvak */}
                         <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs">
                           <span className="font-bold text-slate-300 block mb-1">
                             Eigen Vangsthistorie in dit tijdvak ({slot}):
