@@ -557,6 +557,12 @@ Een wijziging is pas klaar wanneer:
 
 ## 13. Roadmap en prioriteiten
 
+### Uitgevoerde verbetering — ontbrekende weerdata (in ontwikkeling via PR)
+
+De prognoseketen moet ontbrekende weerwaarden als **onbekend** behandelen, nooit als 0, een gemiddelde standaardwaarde of een neutrale meting. De implementatie voegt veldbeschikbaarheid en dagdekking toe, valideert plausibele waarden en onderdrukt de activiteitsindex wanneer gemeten of verantwoord geschatte watertemperatuur ontbreekt. De persoonlijke vangstkans wordt niet getoond wanneer essentiële thermische/weergegevens ontbreken of de dataset onvoldoende dekking heeft. De UI toont de dekking en welke velden ontbreken. Luchttemperatuur mag niet als watertemperatuur worden gebruikt.
+
+Dit is een gerichte uitbreiding van de bestaande prognose- en thermische engines; er wordt geen tweede engine toegevoegd. De tactische deelmodules moeten bij ontbrekende invoer eveneens expliciet lage betrouwbaarheid en ontbrekende velden tonen. De regressietests moeten minimaal lege weerdata en gedeeltelijke velden afdekken. Deze wijziging geldt pas als afgerond nadat CI typecheck, alle bestaande tests en production build succesvol zijn.
+
 ### Prioriteit 1 — Betrouwbaarheid van de huidige nulmeting
 - Audit prognose- en snapshotlogica.
 - Corrigeer doelsoort-/uitkomstkoppeling.
