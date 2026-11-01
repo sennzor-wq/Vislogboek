@@ -762,3 +762,39 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Test in het bijzonder: startup zonder actieve sessie; startup met één actieve sessie; startup met meerdere actieve sessies; app/browser afsluiten en heropenen; sessie starten vanuit VisCoach; sessie starten vanuit Sessies; nieuwe stek toevoegen en terugkeren naar VisCoach; en behoud van bestaande vangstregistratie.
 - Voeg pas UI, navigatie of de startpagina toe wanneer de VisCoach expliciet in de ontwikkelopdracht/roadmap wordt vrijgegeven. Voorbereidende services en datamodellen mogen bestaan, maar gelden niet als de gerealiseerde VisCoach-startpagina.
 
+
+
+---
+
+## 19. Soortneutrale watertemperatuurvalidatie en lokale seizoenskalibratie
+
+**Status: geïmplementeerd op feature-branch; CI-validatie volgt via pull request.** Deze functionaliteit is een gedeelde omgevingslaag voor alle vissoorten. De thermische voorspelling zelf is niet karperspecifiek; de bestaande soortprofielen bepalen afzonderlijk wat een geschatte of gemeten watertemperatuur biologisch betekent voor Karper, Brasem, Snoek, Baars, Voorn, Zeelt, Snoekbaars, Meerval, Roofblei en Overig.
+
+### 19.1 Scheiding van evaluaties
+- De bestaande Brier-score blijft uitsluitend de probabilistische vangstprognose toetsen aan de werkelijke vangstuitkomst.
+- Watertemperatuur wordt onafhankelijk getoetst met MAE, RMSE en gemiddelde bias (voorspeld minus gemeten).
+- Temperatuurmetingen worden niet gebruikt als vangstuitkomst en temperatuurafwijkingen worden niet in de Brier-score verwerkt.
+- De evaluatie is soortneutraal: een lokale watertemperatuurmeting is omgevingsinformatie en mag niet per vissoort dubbel meetellen.
+
+### 19.2 Vooraf voorspellen en achteraf meten
+- Een prognosesnapshot bewaart de voorspelde watertemperatuur en onzekerheidsrange alleen wanneer het om een modelschatting gaat; een reeds gemeten waarde wordt niet als voorspelling geteld.
+- Bij afronding van een sessie wordt een geldige sessiemeting gekoppeld aan de snapshot, onafhankelijk van de vangstuitkomst.
+- Alleen snapshots van dezelfde lokale sessiedag, stek en met een voorspellingstijdstip vóór de meting zijn geldige temperatuurparen.
+- Het sessiemodel bevat nog geen afzonderlijk meettijdstip. Daarom wordt de sessiestart voorlopig als benaderend meettijdstip gebruikt; een latere uitbreiding kan een expliciet meettijdstip en meetdiepte vastleggen.
+- Historische sessies zonder vooraf opgeslagen temperatuurprognose leveren geen achteraf geconstrueerde validatieparen op.
+
+### 19.3 Voorzichtige automatische correctie
+- De bestaande `evaluationEngine.ts` bevat de temperatuurvalidatiematen en de berekening van lokale kalibratie; er wordt geen tweede learning- of evaluation-engine toegevoegd.
+- Correctie wordt alleen toegepast op een geschatte watertemperatuur, nooit op een echte meting.
+- Voorlopige minimumvoorwaarde: ten minste 8 geldige metingen op exact dezelfde stek en in hetzelfde seizoen.
+- De biascorrectie wordt met shrinkage afgezwakt en begrensd op maximaal 1,5 °C. Kleine datasets leiden dus niet tot grote verschuivingen.
+- Kalibratie is onafhankelijk van de gekozen doelvissoort. De soortspecifieke thermische efficiëntie wordt daarna door de bestaande prognose-engine berekend.
+- De prognoseweergave haalt snapshots één keer per verversing uit IndexedDB; de berekeningen zijn kleine lokale statistische bewerkingen. Er is geen extern AI-model, geen netwerkverzoek voor learning en geen zware ML-afhankelijkheid.
+- Nieuwe kalibratie wordt alleen toegepast op voorspellingen die daarna worden berekend; eerder opgeslagen prognoses worden niet herschreven.
+
+### 19.4 Beperkingen en volgende meetstappen
+- Acht metingen is een voorzichtige technische startgrens, geen bewijs van wetenschappelijke representativiteit. Resultaten moeten met aantallen en onzekerheid worden geïnterpreteerd.
+- De huidige thermische fysica blijft een vereenvoudigde benadering. Biascorrectie kan een systematische lokale afwijking verminderen, maar leert nog geen volledige niet-lineaire warmte-uitwisseling.
+- Metingen op verschillende diepten worden nog niet afzonderlijk gemodelleerd. Leg bij een toekomstige meetveld-uitbreiding meetdiepte, meetmethode en exact meettijdstip vast.
+- Validatie rapporteert alleen temperatuurfouten; modelpromotie of geavanceerde seizoens-/diepteparameters vereisen meer data en afzonderlijke voorwaartse tests.
+- Controleer in de volgende ontwikkelronde ook dat sessie-opslag de functie `autoSyncSessionOutcomeToSnapshot` aanroept wanneer een sessie wordt afgerond, zodat de meting daadwerkelijk aan de snapshot wordt gekoppeld.
