@@ -857,3 +857,20 @@ De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden 
 - In de standaardweergave blijven persoonlijke visresultaten, sessievergelijkingen, vangsten per vissoort en productiviteit per tijdvak zichtbaar.
 - Technische modeltoetsing van watertemperatuur, empirische Brier-score, kanskalibratie en prognosemomentopnames zijn alleen zichtbaar in de geavanceerde weergave.
 - Dit is uitsluitend presentatie: evaluatie, learning, Brier-berekening, watertemperatuurvalidatie en snapshots blijven altijd actief en ongewijzigd.
+
+
+## 21. Prognosesnapshot pas opslaan bij definitieve sessie-opslag
+
+### Probleem en gedrag
+- De knop "Start Sessie op dit moment" legde voorheen direct een snapshot vast voordat het sessieformulier werd bevestigd. Als de gebruiker het formulier sloot, bleef een niet-gekoppelde snapshot achter.
+- De prognosepagina geeft de gekozen prognose, duur, steknaam en tijdvak nu tijdelijk door aan het sessieformulier. Dit is alleen geheugenstatus; er vindt op dat moment geen IndexedDB-write plaats.
+- Pas wanneer de gebruiker het formulier opslaat als nieuwe actieve sessie, schrijft één IndexedDB-transactie de prognosesnapshot en sessie weg en koppelt beide via `session.snapshotId` en `snapshot.linkedSessionId`.
+- Als de transactie mislukt, worden zowel sessie als snapshot teruggedraaid. Bij annuleren wordt de transactie nooit gestart.
+- De bestaande route voor een gewone nieuwe sessie (zonder vooraf gekozen prognose) en de bestaande snapshot-/evaluatie-engine blijven behouden.
+- Een reeds bestaande ongekoppelde snapshot voor exact dezelfde datum, tijdvak, soort en stek mag volgens de bestaande deduplicatieregel worden hergebruikt en wordt dan aan de nieuwe sessie gekoppeld.
+
+### Validatie en grenzen
+- Nieuwe deterministische tests gebruiken fake-indexeddb en controleren dat niet-aanroepen bij annuleren geen records oplevert, dat bevestigen beide records atomair opslaat en dat een ongeldige sessie geen orphan-snapshot veroorzaakt.
+- CI voert deze tests uit naast de bestaande typecheck, tests en productiebuild.
+- Geen bestaande lokale gegevens worden gemigreerd, verwijderd of herschreven. Dit voorkomt nieuwe losse snapshots; bestaande orphan-snapshots blijven ongewijzigd.
+- Google AI Studio publiceren en visuele controle op een fysiek toestel blijven aparte handmatige stappen.

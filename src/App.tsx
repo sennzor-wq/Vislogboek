@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, initializeDatabase } from './db/db';
 import { FishingLocation, FishingSession, CatchItem, FishSpecies } from './types';
+import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
 import { PrognosisView } from './components/prognosis/PrognosisView';
 import { SessionsView } from './components/sessions/SessionsView';
@@ -29,7 +30,7 @@ export default function App() {
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
-  const [prefilledSnapshotId, setPrefilledSnapshotId] = useState<string | undefined>(undefined);
+  const [pendingPrognosisSnapshot, setPendingPrognosisSnapshot] = useState<PendingPrognosisSnapshot | undefined>(undefined);
   const [showAdvancedPrognosisDetails, setShowAdvancedPrognosisDetails] = useState<boolean>(() => {
     try { return window.localStorage.getItem('vislogboek.prognosis.advancedDetails') === 'true'; }
     catch { return false; }
@@ -76,25 +77,37 @@ export default function App() {
 
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
-  const handleStartSession = (species?: FishSpecies, locationId?: string, snapshotId?: string) => {
+  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
-    setPrefilledSnapshotId(snapshotId);
+    setPendingPrognosisSnapshot(pendingSnapshot);
     setIsStartingSession(true);
   };
 
-  const handleSaveSession = async (sessionData: Partial<FishingSession>) => {
+  const handleSaveSession = async (
+    sessionData: Partial<FishingSession>,
+    pendingSnapshot?: PendingPrognosisSnapshot
+  ) => {
     if (!sessionData.id) return;
 
-    const existing = await db.sessions.get(sessionData.id);
-    if (existing) {
-      await db.sessions.update(sessionData.id, sessionData);
+    let savedSession: FishingSession | undefined;
+    if (pendingSnapshot && sessionData.outcome === 'active') {
+      // Sessie en vooraf gekozen prognose worden atomair vastgelegd.
+      savedSession = await saveSessionWithPrognosisSnapshot(
+        sessionData as FishingSession,
+        pendingSnapshot
+      );
     } else {
-      await db.sessions.put(sessionData as FishingSession);
+      const existing = await db.sessions.get(sessionData.id);
+      if (existing) {
+        await db.sessions.update(sessionData.id, sessionData);
+      } else {
+        await db.sessions.put(sessionData as FishingSession);
+      }
+      savedSession = await db.sessions.get(sessionData.id);
     }
 
     // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
-    const savedSession = await db.sessions.get(sessionData.id);
     if (savedSession?.snapshotId) {
       await autoSyncSessionOutcomeToSnapshot(savedSession);
     }
@@ -248,14 +261,13 @@ export default function App() {
         <SessionModal
           locations={locations}
           session={
-            prefilledLocationId || prefilledSpecies || prefilledSnapshotId
+            prefilledLocationId || prefilledSpecies
               ? ({
                   id: 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
                   locationId: prefilledLocationId || locations[0]?.id,
                   targetSpecies: prefilledSpecies ? [prefilledSpecies] : ['Karper'],
                   startTime: new Date().toISOString(),
                   outcome: 'active',
-                  snapshotId: prefilledSnapshotId,
                   rodCount: 2,
                   technique: 'Feeder / Statisch',
                   baitAndFeed: 'Boilies, maden & mais',
@@ -264,15 +276,16 @@ export default function App() {
                 } as FishingSession)
               : null
           }
-          onSave={async (newSess) => {
-            await handleSaveSession(newSess);
+          pendingPrognosisSnapshot={pendingPrognosisSnapshot}
+          onSave={async (newSess, pendingSnapshot) => {
+            await handleSaveSession(newSess, pendingSnapshot);
             setCurrentTab('sessions');
             setIsStartingSession(false);
-            setPrefilledSnapshotId(undefined);
+            setPendingPrognosisSnapshot(undefined);
           }}
           onClose={() => {
             setIsStartingSession(false);
-            setPrefilledSnapshotId(undefined);
+            setPendingPrognosisSnapshot(undefined);
           }}
         />
       )}
