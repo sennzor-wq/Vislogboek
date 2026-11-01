@@ -643,7 +643,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <span className="text-slate-400">Betrouwbaarheid: {activeDayProg.thermalAnalysis.trendConfidence}</span>
               </div>
             )}
-            {showAdvancedDetails && (
+            {showAdvancedDetails && (<>
             {/* Thermische Waterontwikkeling & Traagheid (Sectie 6-10) */}
             {activeDayProg.thermalAnalysis && (
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-3">
@@ -729,7 +729,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             )}
 
 
-            )}
+            </>)}
             {/* Hengelpositionering & Visbeweging */}
             {activeDayProg.positioningAdvice && (
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-cyan-800/40 space-y-3.5 shadow-lg">
@@ -823,6 +823,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 )}
 
 {showAdvancedDetails && (
+<>
                 {/* Windrichting & Praktische Hengelpositionering (4-ledig onderscheid) */}
                 {activeDayProg.positioningAdvice.windCastingGuidance && (() => {
                   const wcg = activeDayProg.positioningAdvice.windCastingGuidance;
@@ -971,6 +972,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 })()}
 
 
+</>
 )}                {/* Expliciete Beperkingen & Ontbrekende Informatie */}
                 <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/40 text-[11px] text-slate-400 space-y-1">
                   <span className="font-semibold text-slate-300 block">
@@ -986,6 +988,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             )}
 
 {showAdvancedDetails && (
+<>
             {/* ======================================================= */}
             {/* MODULE 2: WIND TEN OPZICHTE VAN DE OEVER               */}
             {/* ======================================================= */}
@@ -1177,7 +1180,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             })()}
 
 
+</>
 )}{showAdvancedDetails && (
+<>
             {/* ======================================================= */}
             {/* MODULE 3: VISBEWEGING EN HABITATMODEL                   */}
             {/* ======================================================= */}
@@ -1321,6 +1326,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             })()}
 
 
+</>
 )}            {/* ======================================================= */}
             {/* MODULE 1: GESTRUCTUREERD VOORVOERPROGRAMMA             */}
             {/* ======================================================= */}
@@ -1477,6 +1483,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             })()}
 
 {showAdvancedDetails && (
+<>
             {/* Databeschikbaarheid & Modelonzekerheden */}
             <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-700/50 space-y-2">
               <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -1504,6 +1511,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           </div>
 
 
+</>
 )}          {/* Gedetailleerde Analyse per Tijdvak */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
