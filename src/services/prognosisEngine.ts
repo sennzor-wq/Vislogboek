@@ -1044,6 +1044,13 @@ export function calculateDayPrognosis(
   };
 }
 
+export interface PendingPrognosisSnapshot {
+  prognosis: DayPrognosis;
+  durationHours: number;
+  locationName?: string;
+  chosenSlot?: TimeSlot;
+}
+
 /**
  * Slaat een onveranderlijke (immutable) voorspellingsmomentopname op in Dexie voor latere empirische evaluatie.
  * Voorkomt dubbele snapshots door te controleren of er al een onveranderlijke momentopname voor dit tijdvak bestaat.
@@ -1115,6 +1122,34 @@ export async function savePrognosisSnapshot(
 
   await db.prognosisSnapshots.put(snapshot);
   return snapshot;
+}
+
+/**
+ * Slaat een gekozen prognose en de nieuwe actieve sessie atomair op. Totdat deze
+ * functie bij het definitief opslaan wordt aangeroepen, wordt niets in IndexedDB geschreven.
+ */
+export async function saveSessionWithPrognosisSnapshot(
+  session: FishingSession,
+  pending: PendingPrognosisSnapshot
+): Promise<FishingSession> {
+  if (!session.id || !session.startTime || session.outcome !== 'active') {
+    throw new Error('Een prognosesnapshot kan alleen samen met een nieuwe actieve sessie worden opgeslagen.');
+  }
+
+  return db.transaction('rw', db.sessions, db.prognosisSnapshots, async () => {
+    const snapshot = await savePrognosisSnapshot(
+      pending.prognosis,
+      pending.durationHours,
+      session.locationId,
+      pending.locationName,
+      session.technique,
+      pending.chosenSlot
+    );
+    const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
+    await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
+    await db.sessions.put(linkedSession);
+    return linkedSession;
+  });
 }
 
 /**
