@@ -169,7 +169,7 @@ function analyzeTimeSlot(
   const cloudSamples = forecastsInSlot.filter(h => inRange(h.cloudCover, 0, 100));
   const minimumSamples = Math.max(1, Math.ceil((hoursConfig.end - hoursConfig.start) / 2));
   const hasAirTemp = tempSamples.length >= minimumSamples, hasPressure = pressureSamples.length >= minimumSamples, hasWind = windSamples.length >= minimumSamples, hasPrecip = precipSamples.length >= minimumSamples, hasCloud = cloudSamples.length >= minimumSamples;
-  const avgAirTemp = hasAirTemp ? tempSamples.reduce((a,h)=>a+h.temperature,0)/tempSamples.length : null;
+  
   const avgPressure = hasPressure ? pressureSamples.reduce((a,h)=>a+h.pressure,0)/pressureSamples.length : null;
   const avgWindSpeed = hasWind ? windSamples.reduce((a,h)=>a+h.windSpeed,0)/windSamples.length : null;
   const dominantWindDir = hasWind ? windSamples[Math.floor(windSamples.length/2)].windDirectionText : null;
@@ -284,7 +284,7 @@ function analyzeTimeSlot(
   else if (hasPrecip && totalPrecip! >= 7.0) {
     precipModulator = 0.92;
     precipImpact = 'negatief';
-    precipDetail = `Langdurige zware neerslag (${totalPrecip.toFixed(1)} mm) kan water vertroebelen en beïnvloedt techniek.`;
+    precipDetail = `Langdurige zware neerslag (${totalPrecip!.toFixed(1)} mm) kan water vertroebelen en beïnvloedt techniek.`;
   } else if (hasPrecip && totalPrecip! > 0.2 && totalPrecip! < 4.0) {
     precipModulator = profile.rainPreference === 'licht_positief' ? 1.05 : 1.0;
     precipImpact = profile.rainPreference === 'licht_positief' ? 'positief' : 'neutraal';
@@ -292,7 +292,7 @@ function analyzeTimeSlot(
   } else if (hasCloud && avgCloud! >= 70) {
     precipModulator = 1.03;
     precipImpact = 'positief';
-    precipDetail = `Zwaarbewolkt (${Math.round(avgCloud)}%); diffuus licht vermindert argwaan.`;
+    precipDetail = `Zwaarbewolkt (${Math.round(avgCloud!)}%); diffuus licht vermindert argwaan.`;
     if (profile.cloudPreference === 'bewolkt') {
       precipDetail += ` Gedempt licht sluit gunstig aan bij ${species}.`;
     }
@@ -391,7 +391,7 @@ function analyzeTimeSlot(
   } else {
     conclusion = `Lage biologische activiteit (${activityScore}/10). ${
       thermalEff < 0.4
-        ? `Lage watertemperatuur (${effectiveTemp.toFixed(1)} °C) dwingt ${species} tot een inactieve winterstand (winterrust wordt fysiologisch gestuurd door watertemperatuur, niet direct door koude luchttemperatuur).`
+        ? `Lage watertemperatuur (${effectiveTemp!.toFixed(1)} °C) dwingt ${species} tot een inactieve winterstand (winterrust wordt fysiologisch gestuurd door watertemperatuur, niet direct door koude luchttemperatuur).`
         : 'Voorwaarden zijn momenteel biologisch ongunstig.'
     }`;
   }
