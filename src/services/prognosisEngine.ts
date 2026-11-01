@@ -794,17 +794,15 @@ export function calculateDayPrognosis(
     targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
   });
 
-  // Gemiddelde dagwind voor oever- en habitatberekening
-  const avgWindSpeed = dayForecasts.length > 0
-    ? Math.round((dayForecasts.reduce((sum, h) => sum + (h.windSpeed || 0), 0) / dayForecasts.length) * 10) / 10
-    : 12;
-  const avgWindDeg = dayForecasts.length > 0 && typeof dayForecasts[0].windDirection === 'number'
-    ? Math.round(dayForecasts.reduce((sum, h) => sum + (h.windDirection || 0), 0) / dayForecasts.length)
-    : 225;
-  const windDirText = dayForecasts[0]?.windDirectionText || 'ZW';
-  const effectiveWaterTempForModules = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null
-    ? thermalAnalysis.measuredWaterTemp
-    : thermalAnalysis.estimatedWaterTemp ?? 14;
+  // Dagwaarden voor de tactische deelmodules; beschikbaarheid blijft apart geregistreerd.
+  const validWindForecasts = dayForecasts.filter(h => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200 && Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection <= 360);
+  const hasDayWindData = validWindForecasts.length >= 6;
+  const avgWindSpeed = hasDayWindData ? Math.round((validWindForecasts.reduce((sum,h)=>sum+h.windSpeed,0)/validWindForecasts.length)*10)/10 : 12;
+  const avgWindDeg = hasDayWindData ? Math.round(validWindForecasts.reduce((sum,h)=>sum+h.windDirection,0)/validWindForecasts.length) : 225;
+  const windDirText = hasDayWindData ? validWindForecasts[Math.floor(validWindForecasts.length/2)].windDirectionText : 'Onbekend';
+  const effectiveWaterTempForModules = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null ? thermalAnalysis.measuredWaterTemp : thermalAnalysis.estimatedWaterTemp ?? 14;
+  const hasThermalDataForModules = (thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null) || (typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp));
+  const hasDayCloudData = dayForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100).length >= 6;
   const seasonNL = date.getMonth() === 11 || date.getMonth() <= 1 ? 'Winter' : date.getMonth() >= 2 && date.getMonth() <= 4 ? 'Voorjaar' : date.getMonth() >= 5 && date.getMonth() <= 7 ? 'Zomer' : 'Herfst';
   const isColdWind = effectiveWaterTempForModules < 8 || (effectiveWaterTempForModules < 10 && (seasonNL === 'Winter' || seasonNL === 'Voorjaar'));
 
