@@ -43,6 +43,7 @@ import {
   Compass,
   Navigation,
 } from 'lucide-react';
+import { COMPASS_DEGREES_MAP } from '../../services/bankWindEngine';
 import { db } from '../../db/db';
 import { CompassDirection, COMPASS_DIRECTIONS } from '../../types';
 
@@ -1076,7 +1077,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                       : 'bg-slate-800 border-slate-700 hover:border-blue-500 hover:bg-blue-950/60 text-slate-200'
                                   }`}
                                 >
-                                  {dir} ({({ Noord: 0, Noordoost: 45, Oost: 90, Zuidoost: 135, Zuid: 180, Zuidwest: 225, West: 270, Noordwest: 315 } as Record<CompassDirection, number>)[dir]}°)
+                                  {dir} ({COMPASS_DEGREES_MAP[dir]}°)
                                 </button>
                               ))}
                             </div>
