@@ -639,3 +639,31 @@ Bij twijfel geldt:
 6. Bestaande functionaliteit verbeteren vóór iets nieuws bouwen.
 7. Lokale privacy en gebruikerskeuze behouden.
 8. Eerst betrouwbaarheid van de nulmeting, daarna pas collectieve learning en schaalvergroting.
+
+
+---
+
+## 17. GitHub Actions Quality Gate
+
+**Status:** eerste CI Quality Gate toegevoegd in `.github/workflows/ci.yml`.
+
+### Doel en werking
+- Workflow start automatisch bij iedere push naar `main` en bij iedere Pull Request gericht op `main`.
+- De workflow voert een reproduceerbare dependency-installatie uit met Bun en de bestaande `bun.lock`.
+- Daarna worden TypeScript typecheck (`bun run lint`), de geselecteerde lokale regressie-/integratietests en de Vite production build uitgevoerd.
+- Een mislukte stap maakt de workflow-run rood; latere stappen worden standaard niet uitgevoerd.
+- De workflow publiceert of deployt de app niet en wijzigt geen productieomgeving.
+
+### Geselecteerde tests
+De workflow voert de bestaande scripts uit voor thermische/prognoselogica, Brier-integratie, forward validation, geavanceerde prognosemodules, hengelpositionering, thermische koppeling, veilige verwijdering, Viscoach/backup-normalisatie en backup-import.
+
+`test-core-logic.ts` is bewust nog niet opgenomen: deze suite roept momenteel de live Open-Meteo API aan. Neem deze pas op in de verplichte CI-suite nadat externe netwerkcalls zijn gemockt of geïsoleerd, zodat CI reproduceerbaar blijft. De uitsluiting betekent niet dat deze tests inhoudelijk onbelangrijk zijn; ze moeten afzonderlijk worden uitgevoerd totdat ze deterministisch zijn gemaakt.
+
+### Belangrijke beperking
+De eerste workflow controleert pushes naar `main` nadat ze zijn aangekomen. Dit voorkomt op zichzelf geen directe push of publicatie vanuit Google AI Studio. Voor verplichte blokkering van merges moet later branch protection/ruleset worden ingesteld en moeten Pull Requests de Quality Gate doorstaan. Als Google AI Studio rechtstreeks naar `main` pusht, start CI na die push; de gebruiker moet de uitslag controleren voordat in AI Studio op Publish wordt gedrukt.
+
+### CI is geen wetenschappelijke validatie
+Een groene workflow bewijst dat de geselecteerde technische checks en tests slagen. Het bewijst niet dat biologische aannames, vangstpercentages of wetenschappelijke bronnen inhoudelijk juist zijn. Die vereisen afzonderlijke bronreview en voorwaartse evaluatie met voldoende gegevens.
+
+### Definition of Done
+Bij iedere relevante wijziging moeten de workflowresultaten worden gecontroleerd. Rapporteer altijd welke tests daadwerkelijk zijn uitgevoerd, welke tests bewust zijn uitgesloten en eventuele resterende beperkingen. Voeg geen tweede prognose-, evaluatie- of learning-engine toe als onderdeel van CI.
