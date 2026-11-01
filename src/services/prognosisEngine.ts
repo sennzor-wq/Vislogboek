@@ -46,6 +46,82 @@ function clamp(val: number, min: number, max: number): number {
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
 const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
+const similarSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
+const completedSessionCache = new WeakMap<FishingSession[], FishingSession[]>();
+const comparableSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
+const catchSessionIndexCache = new WeakMap<CatchItem[], Map<string, CatchItem[]>>();
+
+function getSimilarSessions(
+  sessions: FishingSession[],
+  species: FishSpecies,
+  slot: TimeSlot
+): FishingSession[] {
+  let byKey = similarSessionCache.get(sessions);
+  if (!byKey) {
+    byKey = new Map<string, FishingSession[]>();
+    similarSessionCache.set(sessions, byKey);
+  }
+  const key = `${species}|${slot}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
+
+  const hours = TIME_SLOT_HOURS[slot];
+  const filtered = sessions.filter((session) => {
+    if (session.outcome === 'active' || session.outcome === 'unknown' || session.isBenchmark) return false;
+    const matchedSpecies =
+      session.targetSpecies?.includes(species) || (!session.targetSpecies || session.targetSpecies.length === 0);
+    if (!matchedSpecies) return false;
+    const hour = new Date(session.startTime).getHours();
+    return hour >= hours.start && hour < hours.end;
+  });
+  byKey.set(key, filtered);
+  return filtered;
+}
+
+function getCompletedSessions(sessions: FishingSession[]): FishingSession[] {
+  const cached = completedSessionCache.get(sessions);
+  if (cached) return cached;
+  const completed = sessions.filter(
+    (session) => (session.outcome === 'catch' || session.outcome === 'skunk_confirmed') && !session.isBenchmark
+  );
+  completedSessionCache.set(sessions, completed);
+  return completed;
+}
+
+function getComparableSessions(
+  sessions: FishingSession[],
+  species: FishSpecies | 'Algemeen',
+  locationId?: string
+): FishingSession[] {
+  let byKey = comparableSessionCache.get(sessions);
+  if (!byKey) {
+    byKey = new Map<string, FishingSession[]>();
+    comparableSessionCache.set(sessions, byKey);
+  }
+  const key = `${species}|${locationId ?? '*'}`;
+  const cached = byKey.get(key);
+  if (cached) return cached;
+  const filtered = getCompletedSessions(sessions).filter((session) => {
+    if (species !== 'Algemeen' && (!session.targetSpecies || !session.targetSpecies.includes(species))) return false;
+    if (locationId && session.locationId !== locationId) return false;
+    return true;
+  });
+  byKey.set(key, filtered);
+  return filtered;
+}
+
+function getCatchSessionIndex(catches: CatchItem[]): Map<string, CatchItem[]> {
+  const cached = catchSessionIndexCache.get(catches);
+  if (cached) return cached;
+  const index = new Map<string, CatchItem[]>();
+  for (const item of catches) {
+    const items = index.get(item.sessionId) ?? [];
+    items.push(item);
+    index.set(item.sessionId, items);
+  }
+  catchSessionIndexCache.set(catches, index);
+  return index;
+}
 
 function getValidPressureForecasts(forecasts: WeatherHourlyForecast[]): WeatherHourlyForecast[] {
   const cached = pressureForecastCache.get(forecasts);
@@ -355,18 +431,7 @@ function analyzeTimeSlot(
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
-  const similarSessions = historicalSessions.filter((s) => {
-    if (s.outcome === 'active' || s.outcome === 'unknown') return false;
-    if (s.isBenchmark) return false;
-
-    const matchedSpecies =
-      s.targetSpecies?.includes(species) || (!s.targetSpecies || s.targetSpecies.length === 0);
-    if (!matchedSpecies) return false;
-
-    const sDate = new Date(s.startTime);
-    const sHour = sDate.getHours();
-    return sHour >= hoursConfig.start && sHour < hoursConfig.end;
-  });
+  const similarSessions = getSimilarSessions(historicalSessions, species, slot);
 
   const relevantCount = similarSessions.length;
   const confirmedCatches = similarSessions.filter((s) => s.outcome === 'catch').length;
@@ -600,24 +665,7 @@ export function calculateDayPrognosis(
 
   // Alleen voltooide sessies met bevestigde uitkomst ('catch' of 'skunk_confirmed').
   // Actieve sessies, onbekende uitkomsten en benchmarks worden strikt uitgesloten!
-  const validCompletedSessions = historicalSessions.filter(
-    (s) =>
-      (s.outcome === 'catch' || s.outcome === 'skunk_confirmed') &&
-      !s.isBenchmark
-  );
-
-  // Filter op doelsoort en optioneel geselecteerde visstek
-  const comparableSessions = validCompletedSessions.filter((s) => {
-    if (species !== 'Algemeen') {
-      if (!s.targetSpecies || !s.targetSpecies.includes(species)) {
-        return false;
-      }
-    }
-    if (locationId && s.locationId !== locationId) {
-      return false;
-    }
-    return true;
-  });
+  const comparableSessions = getComparableSessions(historicalSessions, species, locationId);
 
   const sessionCount = comparableSessions.length;
   const successfulSessionsCount = comparableSessions.filter((s) => s.outcome === 'catch').length;
@@ -668,12 +716,11 @@ export function calculateDayPrognosis(
         continue;
       }
       if (options?.catches && options.catches.length > 0) {
-        const sessionCatches = options.catches.filter(
-          (c) =>
-            c.sessionId === s.id &&
-            (species === 'Algemeen' || c.species === species)
+        const catchIndex = getCatchSessionIndex(options.catches);
+        const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
+          (catchItem) => species === 'Algemeen' || catchItem.species === species
         );
-        const count = sessionCatches.reduce((acc, c) => acc + (c.count || 1), 0);
+        const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
         // Indien sessie 'catch' is maar er zijn geen specifieke catch items ingevoerd, reken minimaal 1
         totalTargetCatches += count > 0 ? count : 1;
       } else {
