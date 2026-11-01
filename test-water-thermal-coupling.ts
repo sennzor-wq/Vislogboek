@@ -237,8 +237,9 @@ async function runTestSuite() {
   );
   assert(
     progDay4Ahead.thermalAnalysis?.estimatedWaterTemp !== null &&
-      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 99) < 14.0,
-    `3.3 Toekomstige dag gebruikt modelschatting (~${progDay4Ahead.thermalAnalysis?.estimatedWaterTemp} °C) op basis van het koufront i.p.v. de oude 19 °C`
+      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 99) < 19.0 &&
+      (progDay4Ahead.thermalAnalysis?.estimatedWaterTemp ?? 0) > 14.0,
+    `3.3 Toekomstige dag gebruikt een geleidelijk afgekoelde modelschatting (~${progDay4Ahead.thermalAnalysis?.estimatedWaterTemp} °C) vanaf de oude 19 °C-meting, niet de meting als vaste waarde`
   );
   assert(
     progDay4Ahead.activityScore < progToday.activityScore,
