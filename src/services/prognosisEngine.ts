@@ -192,7 +192,6 @@ function analyzeTimeSlot(
   let tempSource: 'gemeten' | 'geschat' | 'onbekend' = 'onbekend';
   if (hasMeasured) { effectiveTemp = thermalAnalysis!.measuredWaterTemp!; tempSource = 'gemeten'; }
   else if (hasEstimated) { effectiveTemp = thermalAnalysis!.estimatedWaterTemp!; tempSource = 'geschat'; }
-  else if (typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp)) { effectiveTemp = userWaterTemp; tempSource = 'gemeten'; }
   const hasKnownWaterTemp = effectiveTemp !== null;
   const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
   const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
@@ -917,7 +916,7 @@ export function calculateDayPrognosis(
           ? `Gemeten watertemperatuur: ${thermalAnalysis.measuredWaterTemp} °C (directe stekmeting voor actuele situatie).`
           : thermalAnalysis.estimatedWaterTemp !== null
           ? `Watertemperatuur niet gemeten; modelschatting is ~${thermalAnalysis.estimatedWaterTemp} °C (bereik [${thermalAnalysis.estimatedRange?.[0]}–${thermalAnalysis.estimatedRange?.[1]} °C], trend: ${thermalAnalysis.trend.toLowerCase()}).`
-          : 'Geen watertemperatuur gemeten; 2m-luchttemperatuur gebruikt met verhoogde thermische onzekerheid.',
+          : 'Geen watertemperatuur gemeten of verantwoord geschat; luchttemperatuur wordt niet als vervanging gebruikt.',
     },
     pressureTrendInfo: {
       known: presTrend.known,
