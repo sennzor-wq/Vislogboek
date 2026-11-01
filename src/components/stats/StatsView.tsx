@@ -30,6 +30,7 @@ import {
   BookmarkPlus,
   AlertCircle,
   Trash2,
+  Thermometer,
 } from 'lucide-react';
 
 interface StatsViewProps {
