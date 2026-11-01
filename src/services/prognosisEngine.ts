@@ -496,6 +496,7 @@ export function calculateDayPrognosis(
   if (
     temperatureCalibration &&
     !thermalAnalysis.hasMeasuredWaterTemp &&
+    thermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
     typeof thermalAnalysis.estimatedWaterTemp === 'number'
   ) {
     const correction = temperatureCalibration.appliedCorrectionC;
