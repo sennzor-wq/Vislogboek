@@ -850,3 +850,10 @@ De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden 
 - Controleer standaardweergave als eerste-laag gebruikerservaring en geavanceerde weergave op behoud van bestaande technische informatie.
 - Controleer dat wisselen tussen weergaven geen herberekening, netwerkverzoek, database-mutatie of verlies van prognose-/sessiedata veroorzaakt.
 - CI/typecheck/build valideren de code; een aparte visuele handtest blijft nodig op mobiel en desktop.
+
+
+### Uitbreiding — Statistieken en geavanceerde weergave
+- Dezelfde centrale voorkeur voor geavanceerde prognosedetails bepaalt ook de zichtbaarheid van technische modelvalidatie op de Statistieken-pagina.
+- In de standaardweergave blijven persoonlijke visresultaten, sessievergelijkingen, vangsten per vissoort en productiviteit per tijdvak zichtbaar.
+- Technische modeltoetsing van watertemperatuur, empirische Brier-score, kanskalibratie en prognosemomentopnames zijn alleen zichtbaar in de geavanceerde weergave.
+- Dit is uitsluitend presentatie: evaluatie, learning, Brier-berekening, watertemperatuurvalidatie en snapshots blijven altijd actief en ongewijzigd.
