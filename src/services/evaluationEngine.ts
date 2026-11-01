@@ -196,6 +196,17 @@ function getSeasonForDate(date: string): WaterTemperatureCalibration['season'] {
   return 'herfst';
 }
 
+function getAmsterdamDate(isoTimestamp: string): string {
+  const date = new Date(isoTimestamp);
+  if (!Number.isFinite(date.getTime())) return '';
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Amsterdam',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
 function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapshot[] {
   return snapshots.filter((snapshot) => {
     const predicted = snapshot.predictedWaterTemperature;
@@ -207,7 +218,7 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
     if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs) return false;
     // Alleen vergelijken wanneer de voorspelling voor dezelfde lokale sessiedag gold.
-    if (snapshot.targetDate !== snapshot.actualWaterTemperatureTimestamp.slice(0, 10)) return false;
+    if (snapshot.targetDate !== getAmsterdamDate(snapshot.actualWaterTemperatureTimestamp)) return false;
     return true;
   });
 }
@@ -324,7 +335,7 @@ export async function autoSyncSessionOutcomeToSnapshot(
     measuredTemp >= 0 &&
     measuredTemp <= 35 &&
     typeof snapshot.predictedWaterTemperature === 'number' &&
-    snapshot.targetDate === session.startTime.slice(0, 10) &&
+    snapshot.targetDate === getAmsterdamDate(session.startTime) &&
     new Date(snapshot.forecastTimestamp).getTime() < new Date(session.startTime).getTime()
   ) {
     await db.prognosisSnapshots.update(session.snapshotId, {
