@@ -207,8 +207,15 @@ function getAmsterdamDate(isoTimestamp: string): string {
   }).format(date);
 }
 
+// PrognoseView berekent meerdere doeldagen met dezelfde snapshot-array. Valide
+// temperatuurparen zijn voor die hele berekeningsronde identiek en worden hergebruikt.
+const validTemperaturePairsCache = new WeakMap<PrognosisSnapshot[], PrognosisSnapshot[]>();
+
 function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapshot[] {
-  return snapshots.filter((snapshot) => {
+  const cached = validTemperaturePairsCache.get(snapshots);
+  if (cached) return cached;
+
+  const valid = snapshots.filter((snapshot) => {
     const predicted = snapshot.predictedWaterTemperature;
     const actual = snapshot.actualWaterTemperature;
     if (typeof predicted !== 'number' || !Number.isFinite(predicted) || predicted < 0 || predicted > 35) return false;
@@ -221,6 +228,8 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (snapshot.targetDate !== getAmsterdamDate(snapshot.actualWaterTemperatureTimestamp)) return false;
     return true;
   });
+  validTemperaturePairsCache.set(snapshots, valid);
+  return valid;
 }
 
 /** Temperatuurvoorspellingen worden soortneutraal getoetst; MAE/RMSE/Bias zijn geen Brier-score. */
