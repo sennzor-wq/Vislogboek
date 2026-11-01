@@ -288,7 +288,7 @@ function analyzeTimeSlot(
   } else if (hasPrecip && totalPrecip! > 0.2 && totalPrecip! < 4.0) {
     precipModulator = profile.rainPreference === 'licht_positief' ? 1.05 : 1.0;
     precipImpact = profile.rainPreference === 'licht_positief' ? 'positief' : 'neutraal';
-    precipDetail = `Lichte regen (${totalPrecip.toFixed(1)} mm) breekt het wateroppervlak en stimuleert activiteit.`;
+    precipDetail = `Lichte regen (${totalPrecip!.toFixed(1)} mm) breekt het wateroppervlak en stimuleert activiteit.`;
   } else if (hasCloud && avgCloud! >= 70) {
     precipModulator = 1.03;
     precipImpact = 'positief';
@@ -299,7 +299,7 @@ function analyzeTimeSlot(
   } else if (hasCloud && avgCloud! >= 30 && avgCloud! < 70) {
     precipModulator = profile.cloudPreference === 'wisselend' ? 1.02 : 1.0;
     precipImpact = 'neutraal';
-    precipDetail = `Wisselende bewolking (${Math.round(avgCloud)}%); dynamisch lichtbeeld${profile.cloudPreference === 'wisselend' ? ` past goed bij de zichtjacht van ${species}` : ''}.`;
+    precipDetail = `Wisselende bewolking (${Math.round(avgCloud!)}%); dynamisch lichtbeeld${profile.cloudPreference === 'wisselend' ? ` past goed bij de zichtjacht van ${species}` : ''}.`;
   } else {
     precipModulator = 1.0;
     precipImpact = 'neutraal';
@@ -692,6 +692,7 @@ export function calculateDayPrognosis(
     );
   }
 
+  const hasKnownThermalInput = (thermalAnalysis.hasMeasuredWaterTemp && typeof thermalAnalysis.measuredWaterTemp === 'number') || (typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp));
   const weatherFields = [
     {name:'luchttemperatuur',count:dayForecasts.filter(h=>Number.isFinite(h.temperature)&&h.temperature>=-30&&h.temperature<=55).length},
     {name:'luchtdruk',count:dayForecasts.filter(h=>Number.isFinite(h.pressure)&&h.pressure>=850&&h.pressure<=1100).length},
@@ -702,8 +703,9 @@ export function calculateDayPrognosis(
   const validHours=Math.min(...weatherFields.map(f=>f.count));
   const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
   const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
-  if ((!hasKnownWaterTemp || weatherDataQuality.status==='Onvoldoende') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
-  // Provenance  let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
+  if ((!hasKnownThermalInput || weatherDataQuality.status==='Onvoldoende') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
+  // Provenance
+  let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
   if (sessionCount >= 5) {
     provenance = 'Gecombineerd (model + eigen data)';
