@@ -71,6 +71,28 @@ export function normalizeRawBackup(raw: any): BackupData {
     throw new Error('Ongeldig JSON object.');
   }
 
+  // Sommige oudere exports bewaren de records onder een geneste data-container.
+  // Trek die eerst naar het canonieke niveau en behoud metadata uit de root.
+  if (raw.data && typeof raw.data === 'object') {
+    const envelope = raw;
+    raw = {
+      ...raw.data,
+      version: envelope.version ?? raw.data.version,
+      appName: envelope.appName ?? raw.data.appName ?? envelope.format,
+      exportedAt: envelope.exportedAt ?? envelope.exportDate ?? raw.data.exportedAt,
+      settings: raw.data.settings ?? envelope.settings,
+    };
+  }
+
+  // Een thuislocatie kan in oudere exports naast de data-container staan.
+  // Behoud een bestaande settingswaarde; gebruik de rootwaarde alleen als fallback.
+  if (raw.homeLocation && typeof raw.homeLocation === 'object') {
+    raw.settings = {
+      ...(raw.settings || { id: 'user_settings' }),
+      homeLocation: raw.settings?.homeLocation ?? raw.homeLocation,
+    };
+  }
+
   // Geval 1: reeds platte BackupData
   if (Array.isArray(raw.sessions) && Array.isArray(raw.locations) && Array.isArray(raw.catches)) {
     return raw as BackupData;
