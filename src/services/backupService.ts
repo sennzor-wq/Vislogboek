@@ -75,8 +75,10 @@ export function normalizeRawBackup(raw: any): BackupData {
   // Trek die eerst naar het canonieke niveau en behoud metadata uit de root.
   if (raw.data && typeof raw.data === 'object') {
     const envelope = raw;
+    const rootHomeLocation = envelope.homeLocation;
     raw = {
       ...raw.data,
+      homeLocation: raw.data.homeLocation ?? rootHomeLocation,
       version: envelope.version ?? raw.data.version,
       appName: envelope.appName ?? raw.data.appName ?? envelope.format,
       exportedAt: envelope.exportedAt ?? envelope.exportDate ?? raw.data.exportedAt,
