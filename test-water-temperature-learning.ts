@@ -58,7 +58,7 @@ assert(getWaterTemperatureCalibration(eight, 'spot-b', '2026-11-10') === undefin
   'Metingen van een andere stek worden niet gebruikt');
 const invalid = [
   ...eight,
-  makeSnapshot(8, { id: 'future-forecast', forecastTimestamp: '2026-11-09T12:00:00+01:00', targetDate: '2026-11-10', actualWaterTemperatureTimestamp: '2026-11-10T09:00:00+01:00' }),
+  makeSnapshot(8, { id: 'future-forecast', forecastTimestamp: '2026-11-10T12:00:00+01:00', targetDate: '2026-11-10', actualWaterTemperatureTimestamp: '2026-11-10T09:00:00+01:00' }),
   makeSnapshot(9, { id: 'wrong-day', targetDate: '2026-11-10', actualWaterTemperatureTimestamp: '2026-11-11T09:00:00+01:00' }),
 ];
 assert(evaluateWaterTemperaturePerformance(invalid).evaluatedCount === 8,
