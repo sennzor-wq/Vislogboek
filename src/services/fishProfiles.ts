@@ -42,6 +42,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     description: 'Warmteminnende ectotherme bodemazer. Bij lage watertemperaturen vertraagt de spijsvertering drastisch (Q10-effect). Piekactiviteit treedt pas op boven 16 °C.',
     assumptions: [
       'Stofwisseling en voedselopname nemen doorgaans af bij dalende watertemperatuur. Een vaste grens voor winterrust geldt niet universeel; acclimatisatie, formaat, conditie en watertype spelen mee.',
+      'Een lage luchttemperatuur leidt niet automatisch tot winterrust zolang de watermassa warmer blijft; beoordeel dit op basis van gemeten of geschatte watertemperatuur en thermische traagheid.',
       'Een gunstige barometer of wind kan een fysiologische watertemperatuurbeperking nooit compenseren.',
       'Watertemperatuur is een relevante fysiologische contextfactor. Een universeel optimaal bereik voor alle volwassen karpers en Nederlandse wateren is niet vastgesteld in dit profiel.',
       'Schemering en nachtelijke uren zijn in warme periodes productiever dan felle zon overdag.',
