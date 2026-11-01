@@ -807,19 +807,16 @@ export function calculateDayPrognosis(
   const isColdWind = effectiveWaterTempForModules < 8 || (effectiveWaterTempForModules < 10 && (seasonNL === 'Winter' || seasonNL === 'Voorjaar'));
 
   // Module 2: Wind ten opzichte van de oever
-  const bankWindAnalysis = analyzeBankWind(
-    location,
-    avgWindDeg,
-    avgWindSpeed,
-    {
-      effectiveWaterTemp: effectiveWaterTempForModules,
-      season: seasonNL,
-      isColdWind,
-      isCoolingPeriod: thermalAnalysis.trend === 'Waarschijnlijke afkoeling',
-      isWarmingPeriod: thermalAnalysis.trend === 'Waarschijnlijke opwarming',
-      waterType: location?.waterType,
-    }
-  );
+  const bankWindAnalysis = hasDayWindData && hasThermalDataForModules
+    ? analyzeBankWind(location, avgWindDeg, avgWindSpeed, {
+        effectiveWaterTemp: effectiveWaterTempForModules,
+        season: seasonNL,
+        isColdWind,
+        isCoolingPeriod: thermalAnalysis.trend === 'Waarschijnlijke afkoeling',
+        isWarmingPeriod: thermalAnalysis.trend === 'Waarschijnlijke opwarming',
+        waterType: location?.waterType,
+      })
+    : undefined;
 
   const presTrendType: 'stijgend' | 'dalend' | 'stabiel' =
     presTrend.known && presTrend.deltaHpa !== null
@@ -849,19 +846,38 @@ export function calculateDayPrognosis(
   // placeholder nodig was, wordt hun uitvoer nadrukkelijk gedegradeerd en niet als zeker advies gepresenteerd.
   if (!hasDayWindData || !hasThermalDataForModules || !hasDayCloudData || !presTrend.known) {
     const limitations = [
-      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen; windrichting/-kracht in dit tactische advies zijn niet betrouwbaar.'] : []),
+      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen; er wordt geen windgestuurd stekadvies gegeven.'] : []),
       ...(!hasThermalDataForModules ? ['Geen gemeten of verantwoord geschatte watertemperatuur; thermische tactische aannames zijn niet betrouwbaar.'] : []),
       ...(!hasDayCloudData ? ['Bewolkingsgegevens ontbreken; licht-/zoncontext is niet betrouwbaar.'] : []),
-      ...(!presTrend.known ? ['Luchtdruktrend onbekend; er is geen stabiele trend aangenomen.'] : []),
+      ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
     ];
     positioningAdvice.confidenceLevel = 'Laag';
     positioningAdvice.missingInformation.push(...limitations);
-    positioningAdvice.rationale = 'LET OP: belangrijke weersgegevens ontbreken. Behandel de positie als algemene zoekhypothese, niet als weersgestuurd advies. ' + positioningAdvice.rationale;
+    if (!hasDayWindData || !hasThermalDataForModules) {
+      positioningAdvice.recommendedZone = 'Niet betrouwbaar te bepalen met de beschikbare weergegevens';
+      positioningAdvice.rationale = 'Er ontbreken wind- en/of thermische gegevens. Daarom geeft Vislogboek hier bewust geen weersgestuurd positioneringsadvies. Gebruik directe viswaarnemingen en de lokaal bekende stekstructuur.';
+      positioningAdvice.alternativeOption = 'Controleer ter plaatse wind, golfslag, diepteverloop en zichtbare visactiviteit voordat je een positie kiest.';
+      positioningAdvice.windContext.directionText = 'Onbekend';
+      positioningAdvice.windContext.speedKmH = null;
+      positioningAdvice.windContext.gustsKmH = undefined;
+      positioningAdvice.windContext.intraSessionNote = 'Windgegevens ontbreken; geen windtrend beschikbaar.';
+      positioningAdvice.thermalContext.waterTempNote = hasThermalDataForModules ? positioningAdvice.thermalContext.waterTempNote : 'Onbekend: geen gemeten of verantwoord geschatte watertemperatuur.';
+      positioningAdvice.windCastingGuidance = undefined;
+    }
     habitatAnalysis.confidenceLevel = 'Laag';
     habitatAnalysis.missingInformation.push(...limitations);
-    habitatAnalysis.movementHypothesis.windInfluence = 'Onbekend: onvoldoende geldige windgegevens om windgestuurde visverplaatsing te beoordelen.';
-    habitatAnalysis.environmentalInfluence.windAndWaveImpact = 'Onbekend: onvoldoende geldige windgegevens.';
-    habitatAnalysis.environmentalInfluence.lightAndSolarImpact = 'Onbekend: onvoldoende geldige bewolkingsgegevens.';
+    if (!hasDayWindData || !hasThermalDataForModules) {
+      habitatAnalysis.primaryZone.name = 'Algemene zoekzone — weerscontext onbekend';
+      habitatAnalysis.primaryZone.description = 'Er zijn onvoldoende betrouwbare wind- en/of thermische gegevens om een weersgestuurde primaire zone te kiezen.';
+      habitatAnalysis.primaryZone.whyLikely = 'Gebruik alleen directe viswaarnemingen en lokaal bekende habitatkenmerken; dit is geen weersgestuurde voorspelling.';
+      habitatAnalysis.alternativeZone.name = 'Alternatieve lokale structuurzone';
+      habitatAnalysis.alternativeZone.description = 'Controleer ter plaatse taluds, diepteovergangen, dekking en zichtbare activiteit.';
+      habitatAnalysis.movementHypothesis.likelyDirection = 'Onbekend — onvoldoende weergegevens';
+      habitatAnalysis.movementHypothesis.windInfluence = 'Onbekend: onvoldoende geldige windgegevens om windgestuurde visverplaatsing te beoordelen.';
+      habitatAnalysis.environmentalInfluence.temperatureImpact = 'Onbekend: watertemperatuur ontbreekt.';
+      habitatAnalysis.environmentalInfluence.windAndWaveImpact = 'Onbekend: onvoldoende geldige windgegevens.';
+    }
+    if (!hasDayCloudData) habitatAnalysis.environmentalInfluence.lightAndSolarImpact = 'Onbekend: onvoldoende geldige bewolkingsgegevens.';
   }
 
   // Module 1: Gestructureerd Voorvoerprogramma
