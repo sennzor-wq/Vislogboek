@@ -366,6 +366,47 @@ async function runTestSuite() {
     '5.3 Karperprofiel-aannames stellen expliciet dat koude lucht niet gelijkstaat aan koude watermassa'
   );
 
+  // =========================================================================
+  // DEEL 7: WEERSVERLOOP BINNEN EEN TIJDVAK BLIJFT ZICHTBAAR
+  // =========================================================================
+  console.log('\n--- TEST 6: Winddraaiing binnen een tijdvak blijft behouden ---');
+
+  const shiftingWindForecasts = makeMultiDayForecasts('2026-10-20', 5, () => 14);
+  const morningWindDirections = [
+    { degrees: 225, text: 'ZW' },
+    { degrees: 225, text: 'ZW' },
+    { degrees: 247, text: 'ZW' },
+    { degrees: 270, text: 'W' },
+    { degrees: 292, text: 'W' },
+    { degrees: 315, text: 'NW' },
+  ];
+  shiftingWindForecasts.forEach((hour) => {
+    if (hour.time.startsWith('2026-10-22T')) {
+      const hourOfDay = Number(hour.time.slice(11, 13));
+      if (hourOfDay >= 6 && hourOfDay < 12) {
+        const direction = morningWindDirections[hourOfDay - 6];
+        hour.windDirection = direction.degrees;
+        hour.windDirectionText = direction.text;
+      }
+    }
+  });
+
+  const shiftingWindProg = calculateDayPrognosis(
+    '2026-10-22',
+    shiftingWindForecasts,
+    'Karper',
+    [],
+    undefined,
+    15.5,
+    new Date('2026-10-22T05:00:00'),
+    { location: locLokkershoek }
+  );
+  assert(
+    shiftingWindProg.timeSlots.Ochtend.windFactor.detail.includes('wind draait binnen dit tijdvak') &&
+      shiftingWindProg.timeSlots.Ochtend.windFactor.detail.includes('ZW → W → NW'),
+    '6.1 Windrichting die binnen één tijdvak verandert wordt expliciet behouden in de analyse'
+  );
+
   console.log(`\n==================================================`);
   console.log(`RESULTAAT TESTSUITE: ${passed} geslaagd, ${failed} gefaald`);
   console.log(`==================================================\n`);

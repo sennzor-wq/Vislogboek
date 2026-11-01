@@ -160,7 +160,20 @@ export const db = new VislogboekDatabase();
 /**
  * Zorgt ervoor dat de initiële database is ingericht en de beschermde benchmark altijd aanwezig is.
  */
-export async function initializeDatabase(): Promise<void> {
+let databaseInitializationPromise: Promise<void> | null = null;
+
+/**
+ * Database-initialisatie en historische seeding zijn eenmalig per app-runtime.
+ * Gewone data-refreshes hoeven deze controles/migratiestappen niet opnieuw uit te voeren.
+ */
+export function initializeDatabase(): Promise<void> {
+  if (!databaseInitializationPromise) {
+    databaseInitializationPromise = initializeDatabaseOnce();
+  }
+  return databaseInitializationPromise;
+}
+
+async function initializeDatabaseOnce(): Promise<void> {
   try {
     // 1. Zorg dat historische stekken aanwezig zijn (inclusief Lokkershoek Pier)
     for (const loc of HISTORICAL_LOCATIONS) {

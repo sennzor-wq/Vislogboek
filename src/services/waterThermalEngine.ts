@@ -256,23 +256,36 @@ export function analyzeWaterThermalDevelopment(
       if (location?.waterType === 'Polder' || location?.waterType === 'Stadswater') timeConstantHours *= 0.85;
       if (location?.waterType === 'Plas/Zandafgraving' && depth > 3.5) timeConstantHours *= 1.15;
 
+      // Vooraf timestamps en prefix-sommen maken 24u/72u-gemiddelden O(n) in plaats
+      // van bij ieder uur opnieuw de volledige reeks te filteren (O(n²)).
+      const weatherTimes = orderedWeather.map((sample) => new Date(sample.time).getTime());
+      const temperaturePrefix = [0];
+      for (const sample of orderedWeather) {
+        temperaturePrefix.push(temperaturePrefix[temperaturePrefix.length - 1] + sample.temperature);
+      }
+      let start24 = 0;
+      let start72 = 0;
+
       for (let i = 0; i < orderedWeather.length; i++) {
         const hour = orderedWeather[i];
-        const hourMs = new Date(hour.time).getTime();
-        const previousMs = i === 0 ? anchor.timestampMs : new Date(orderedWeather[i - 1].time).getTime();
+        const hourMs = weatherTimes[i];
+        const previousMs = i === 0 ? anchor.timestampMs : weatherTimes[i - 1];
         const elapsedHours = Math.max(0, Math.min(3, (hourMs - previousMs) / 3600000));
         if (elapsedHours === 0) continue;
 
-        const window24 = orderedWeather.filter((sample) => {
-          const sampleMs = new Date(sample.time).getTime();
-          return sampleMs <= hourMs && sampleMs >= hourMs - 24 * 3600000;
-        });
-        const window72 = orderedWeather.filter((sample) => {
-          const sampleMs = new Date(sample.time).getTime();
-          return sampleMs <= hourMs && sampleMs >= hourMs - 72 * 3600000;
-        });
-        const mean24 = window24.length ? window24.reduce((sum, sample) => sum + sample.temperature, 0) / window24.length : hour.temperature;
-        const mean72 = window72.length ? window72.reduce((sum, sample) => sum + sample.temperature, 0) / window72.length : mean24;
+        const min24 = hourMs - 24 * 3600000;
+        const min72 = hourMs - 72 * 3600000;
+        while (start24 <= i && weatherTimes[start24] < min24) start24++;
+        while (start72 <= i && weatherTimes[start72] < min72) start72++;
+
+        const count24 = i - start24 + 1;
+        const count72 = i - start72 + 1;
+        const mean24 = count24 > 0
+          ? (temperaturePrefix[i + 1] - temperaturePrefix[start24]) / count24
+          : hour.temperature;
+        const mean72 = count72 > 0
+          ? (temperaturePrefix[i + 1] - temperaturePrefix[start72]) / count72
+          : mean24;
 
         const cloud = Number.isFinite(hour.cloudCover) ? Math.max(0, Math.min(100, hour.cloudCover)) : null;
         const solarAdjustment = cloud === null ? 0 : (1 - cloud / 100) * (hour.temperature > waterTemp ? 0.35 : 0.12);

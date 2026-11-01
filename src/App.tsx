@@ -74,24 +74,33 @@ export default function App() {
   };
 
   const handleSaveSession = async (sessionData: Partial<FishingSession>) => {
-    if (sessionData.id) {
-      const existing = await db.sessions.get(sessionData.id);
-      if (existing) {
-        await db.sessions.update(sessionData.id, sessionData);
-      } else {
-        await db.sessions.put(sessionData as FishingSession);
-      }
-      // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
-      const fullSession = await db.sessions.get(sessionData.id);
-      if (fullSession?.snapshotId) {
-        await autoSyncSessionOutcomeToSnapshot(fullSession);
-      }
+    if (!sessionData.id) return;
+
+    const existing = await db.sessions.get(sessionData.id);
+    if (existing) {
+      await db.sessions.update(sessionData.id, sessionData);
+    } else {
+      await db.sessions.put(sessionData as FishingSession);
     }
-    await loadData();
+
+    // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
+    const savedSession = await db.sessions.get(sessionData.id);
+    if (savedSession?.snapshotId) {
+      await autoSyncSessionOutcomeToSnapshot(savedSession);
+    }
+
+    // Werk alleen de gewijzigde sessie bij; haal niet alle tabellen opnieuw op.
+    if (savedSession) {
+      setSessions((previous) =>
+        [...previous.filter((session) => session.id !== savedSession.id), savedSession]
+          .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+      );
+    }
   };
 
   const handleSaveCatch = async (catchData: CatchItem) => {
     await db.catches.put(catchData);
+
     // Werk automatisch sessiestatus bij naar 'catch' indien van toepassing.
     const sess = await db.sessions.get(catchData.sessionId);
     if (sess && (sess.outcome === 'skunk_confirmed' || sess.outcome === 'unknown')) {
@@ -100,16 +109,34 @@ export default function App() {
         updatedAt: new Date().toISOString(),
       });
     }
+
     const updatedSess = await db.sessions.get(catchData.sessionId);
     if (updatedSess?.snapshotId) {
       await autoSyncSessionOutcomeToSnapshot(updatedSess);
     }
-    await loadData();
+
+    // Alleen de vangst en eventueel gewijzigde sessie in React-state synchroniseren.
+    setCatches((previous) =>
+      [...previous.filter((item) => item.id !== catchData.id), catchData]
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    );
+    if (updatedSess) {
+      setSessions((previous) =>
+        [...previous.filter((session) => session.id !== updatedSess.id), updatedSess]
+          .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
+      );
+    }
   };
 
   const handleSaveLocation = async (locData: FishingLocation) => {
     await db.locations.put(locData);
-    await loadData();
+    // Locaties worden direct bijgewerkt zonder alle sessies en vangsten opnieuw te laden.
+    setLocations((previous) => {
+      const exists = previous.some((location) => location.id === locData.id);
+      return exists
+        ? previous.map((location) => location.id === locData.id ? locData : location)
+        : [...previous, locData];
+    });
   };
 
   if (loading) {
