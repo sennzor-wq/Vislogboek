@@ -5,7 +5,7 @@
  */
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, getSessionDurationHours } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
   BENCHMARK_SESSION,
@@ -72,6 +72,24 @@ function makeHourlySeries(
 
 async function run14Scenarios() {
   console.log('=== STARTING VISLOGBOEK 14-SCENARIO VERIFICATION ===\n');
+
+  const unknownDuration = getSessionDurationHours({
+    id: 'unknown-duration',
+    startTime: '2026-10-20T10:00:00Z',
+    outcome: 'unknown',
+    createdAt: '',
+    updatedAt: '',
+  });
+  const inferredDuration = getSessionDurationHours({
+    id: 'known-time-range',
+    startTime: '2026-10-20T10:00:00Z',
+    endTime: '2026-10-20T13:30:00Z',
+    outcome: 'skunk_confirmed',
+    createdAt: '',
+    updatedAt: '',
+  });
+  assert(unknownDuration === null, '0.1 Onbekende sessieduur blijft null en wordt niet als 3 uur ingevuld');
+  assert(inferredDuration === 3.5, '0.2 Geldige start- en eindtijd leveren de geregistreerde duur op');
 
   const locLokkershoek: FishingLocation = {
     id: 'spot-lokkershoek',
@@ -262,6 +280,18 @@ async function run14Scenarios() {
   assert(
     p1 < p2 && p2 < p4 && p4 < p6 && p6 <= p8,
     `12.1 Monotoon stijgende kans over duur (1u: ${p1}% < 2u: ${p2}% < 4u: ${p4}% < 6u: ${p6}% <= 8u: ${p8}%)`
+  );
+  const noPresenceBonus = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
+    { sessionDurationHours: 3 }
+  );
+  const withPresenceObservation = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
+    { sessionDurationHours: 3, presenceObservation: 'vis_springen_rollen' }
+  );
+  assert(
+    noPresenceBonus.personalCatchChance === withPresenceObservation.personalCatchChance,
+    '12.2 Viswaarnemingen geven geen ongevalideerde vaste bonus aan de persoonlijke vangstkans'
   );
 
   const progInvalid = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: -5 });

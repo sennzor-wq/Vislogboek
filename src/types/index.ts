@@ -61,7 +61,7 @@ export type TimeSlot = 'Nacht' | 'Ochtend' | 'Middag' | 'Avond';
 export type PresenceObservationType =
   | 'vis_springen_rollen'          // Vis zien springen of rollen
   | 'aasbellen_voedselactiviteit'   // Bellenplakkaten / zichtbare voedselactiviteit
-  | 'aanbeten'                     // Aanbeten / lijnzwemmers
+  | 'aanbeten'                     // Verouderde legacywaarde; nieuwe aanbeten horen in bitesCount
   | 'recente_vangst_stek'          // Recente vangst op de stek in afgelopen 24-48u
   | 'geen_waarnemingen'            // Geen activiteit waargenomen (geen bewijs van afwezigheid)
   | 'onbekend';                    // Niet geobserveerd

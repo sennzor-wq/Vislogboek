@@ -145,6 +145,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
     try {
       const loc = locations.find((l) => l.id === locationId);
+      let snapshotToSave = pendingPrognosisSnapshot;
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
 
       const parsedRods = typeof rodCount === 'number'
@@ -192,25 +193,22 @@ export const SessionModal: React.FC<SessionModalProps> = ({
           }
         }
         // Automatische momentopname bij start van een nieuwe live actieve sessie (nooit achteraf voor historische sessies!)
-        if (payload.outcome === 'active' && !payload.snapshotId && loc) {
+        if (payload.outcome === 'active' && !payload.snapshotId && !snapshotToSave && loc) {
           try {
-            const autoSnap = await createLiveSnapshotForSessionStart(
+            snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
               3,
               technique,
               payload.weatherSnapshot
-            );
-            if (autoSnap) {
-              payload.snapshotId = autoSnap.id;
-            }
+            ) ?? undefined;
           } catch (snapErr) {
-            console.error('Fout bij automatisch aanmaken pre-sessie snapshot:', snapErr);
+            console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
           }
         }
       }
 
-      await onSave(payload, pendingPrognosisSnapshot);
+      await onSave(payload, snapshotToSave);
       onClose();
     } catch (err: any) {
       console.error('Fout bij opslaan sessie:', err);
@@ -359,13 +357,12 @@ export const SessionModal: React.FC<SessionModalProps> = ({
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
               <span>Viswaarnemingen op de stek</span>
-              <span className="text-[10px] text-cyan-400">Verhoogt biologische validatie</span>
+              <span className="text-[10px] text-cyan-400">Geen automatische verhoging van de vangstkans</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {[
                 { type: 'vis_springen_rollen', label: 'Vis zien springen / rollen' },
                 { type: 'aasbellen_voedselactiviteit', label: 'Aasbellen / bodemwoeling' },
-                { type: 'aanbeten', label: 'Aanbeten / lijnzwemmers' },
                 { type: 'recente_vangst_stek', label: 'Recente vangst op deze stek' },
                 { type: 'geen_waarnemingen', label: 'Geen activiteit waargenomen' },
               ].map((item) => {
