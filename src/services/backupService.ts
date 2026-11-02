@@ -361,7 +361,7 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
   // of actieve SVG-inhoud kan laten laden in de app-origin.
   const isSafeLocalPhoto = (value: unknown): boolean =>
     typeof value === 'string' &&
-    /^data:image\\/(?!svg\\+xml)[a-z0-9.+-]+;base64,/i.test(value);
+    /^data:image\/(?!svg\+xml)[a-z0-9.+-]+;base64,/i.test(value);
 
   for (const catchRecord of data.catches as Array<CatchItem & { photoUrl?: unknown }>) {
     if (catchRecord.photoUrl !== undefined && catchRecord.photoUrl !== null &&
