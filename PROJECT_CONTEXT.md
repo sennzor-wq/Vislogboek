@@ -436,7 +436,7 @@ Toestemming moet specifiek, begrijpelijk, intrekbaar en los van de keuze voor cl
 | `src/services/evaluationEngine.ts` | Snapshot-uitkomstkoppeling, Brier-score, BSS en kalibratie | Centrale evaluatie-engine; later gecontroleerd uitbreiden |
 | `src/services/dataQualityEngine.ts` | Herkomst-/veldkwaliteitsbeoordeling | Uitbouwen tot veld- en recordkwaliteitslaag |
 | `src/services/modelConsistencyEngine.ts` | Tegenstrijdige signalen zichtbaar maken | Hergebruiken voor onzekerheid/conflicten |
-| `src/services/researchRegistry.ts` | Centrale kennis-/bronregistratie | Centrale wetenschappelijke kennislaag; register is momenteel leeg |
+| `src/services/researchRegistry.ts` | Centrale kennis-/bronregistratie | Centrale wetenschappelijke kennislaag; bevat beoordeelde bronnen met expliciete beperkingen en goedkeuringsstatus |
 | `src/services/statsEngine.ts` | Statistische verwerking | Bestaande statistiekservice hergebruiken |
 | `src/services/viscoachService.ts` | Viscoach-advies | Adviezen laten steunen op centrale engines en bronregistratie |
 | `src/services/backupService.ts` | Export/import en back-up | Behouden en uitbreiden voor migraties |
@@ -488,7 +488,7 @@ De huidige repository bevat:
 ### 11.2 Wat nog niet als gerealiseerd mag worden beschouwd
 
 Op basis van de huidige code-inspectie:
-- De Research Registry is gedefinieerd, maar de centrale lijst met wetenschappelijke registraties is momenteel leeg.
+- De Research Registry bevat inmiddels een beoordeelde algemene bron over thermische modellen van meren; deze bron is bewust niet goedgekeurd als directe voorspellingsregel.
 - De Data Quality Engine beoordeelt vooral aangeleverde status en aanwezigheid; hij kan de waarheid van een gebruikersmeting niet onafhankelijk verifiëren.
 - De Evaluation Engine berekent evaluatiematen, maar is niet op zichzelf een learning engine die modelparameters leert en gecontroleerd uitrolt.
 - Een publieke multi-user backend, accounts, cloudopslag, synchronisatie, abonnementen en gedeelde dataverwerking zijn nog niet aanwezig in de huidige lokale Dexie-architectuur.
@@ -574,6 +574,16 @@ De bestaande thermische analyse is uitgebreid zodat een echte watertemperatuurme
 De bestaande `waterThermalEngine.ts` gebruikt de meest recente bruikbare lokale meting en past daarop een eerste-orde thermische respons toe op basis van de beschikbare uurlijkse weersontwikkeling sinds die meting. Waterdiepte en watertype bepalen de thermische traagheid; wind beïnvloedt de menging en bewolking de indicatie van zoninstraling. De onzekerheidsmarge groeit met de tijd sinds de meting en onvolledige weersdekking. Bij een recente meting maar ontbrekende weerdata kan maximaal een korte-termijnschatting met ruime marge worden gebruikt; er wordt geen ontbrekende weersgeschiedenis verzonnen. Metingen van een andere stek en als benchmark gemarkeerde sessies worden niet als anker gebruikt.
 
 **Wetenschappelijke beperking:** de warmte-uitwisselingsparameters zijn vooralsnog conservatieve startaannames, geen lokaal gekalibreerde natuurkundige parameters. De implementatie is bedoeld als eerste persoonlijke modelversie. Vergelijkingen tussen latere echte metingen en eerdere modelschattingen moeten worden verzameld voordat parameters per stek/seizoen worden bijgesteld of de nauwkeurigheid wordt geclaimd. De eerste meetreeksen zijn dus leerdata voor evaluatie, niet automatisch bewijs dat het model al nauwkeurig is.
+
+### Verdere fase-3 verbeteringen — provenance, meteorologische invoer en chronologische kalibratie
+
+- PR #19 bewaart meetanker-tijdstip, leeftijd en weersdekking ook wanneer een verouderd anker of ontbrekende weerhistorie geen verantwoord temperatuurgetal oplevert.
+- PR #21 registreert de review van Piccolroaz et al. (2024) over warmtebalansmodellen voor meren. De bron beschrijft thermische traagheid en air-water-koppeling, maar is bewust niet goedgekeurd als directe vangst- of voorspellingsregel; locatie- en modelkalibratie blijven noodzakelijk.
+- PR #22 bewaart optioneel kortgolvige zonnestraling, relatieve luchtvochtigheid en dauwpunt uit Open-Meteo in weersvoorspellingen en sessiesnapshots. Deze extra inputs wijzigen nog geen thermische modelcoëfficiënten.
+- PR #23 voorkomt future leakage: lokale temperatuurkalibratie gebruikt uitsluitend geldige meetparen van doeldagen vóór de datum waarvoor de prognose wordt berekend.
+- PR #24 vereist minimaal 72 uur voorafgaande geldige weershistorie voor een weather-only watertemperatuurschatting zonder lokaal meetanker. Eén losse dag luchttemperatuur wordt niet als waterprior gebruikt.
+
+**Open fase-3 werk:** de nieuwe stralings-/vochtigheidsgegevens op een fysisch verdedigbare en gevalideerde manier in het thermische model verwerken; domeinspecifieke schattingen en onzekerheid voor overige omgevingsfactoren verbeteren; en chronologische modelprestaties blijven toetsen zodra voldoende lokale metingen beschikbaar zijn. De nieuwe meteorologische velden zijn momenteel contextdata, geen reeds gevalideerde modelcorrecties.
 
 ### Prioriteit 1 — Betrouwbaarheid van de huidige nulmeting
 - Audit prognose- en snapshotlogica.
@@ -899,5 +909,5 @@ Harde uitgangspunten:
 - Implementatieplan toegevoegd en samengevoegd via PR #12.
 - Fase 1 gegevenscorrectheid: kerncorrecties samengevoegd via PR #13; aparte opslag van sessiewaarnemingen samengevoegd via PR #15. Beide CI-runs geslaagd.
 - Fase 2 volledige back-up en herstel: afgerond via PR #17; back-up v3 omvat alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's. Legacycompatibiliteit, volledige restore/merge, validatie en round-trip CI-tests toegevoegd.
-- Fase 3 thermische provenance: PR #18 corrigeerde de classificatie van verouderde metingen en voegde provenance-/onzekerheidsmetadata toe; PR #19 bewaart meetankerleeftijd en weersdekking ook wanneer een schatting niet verantwoord is. Beide CI-runs geslaagd. Fase 3 blijft in uitvoering voor verdere domeinspecifieke schatting, chronologische evaluatie en kalibratie.
+- Fase 3 thermische modellen en provenance: PR #18 corrigeerde verouderde metingen; PR #19 bewaart meetankerherkomst en werkelijke weersdekking; PR #21 voegde beoordeelde thermische modelkennis toe; PR #22 bewaart stralings-, vochtigheids- en dauwpuntdata; PR #23 voorkomt future leakage in lokale kalibratie; PR #24 vereist 72 uur voorafgaande weerhistorie voor een schatting zonder lokaal meetanker. Alle PR's zijn samengevoegd en de volledige CI (typecheck, regressies en productiebuild) slaagde. Fase 3 blijft in uitvoering: de nieuwe warmtefluxgegevens moeten nog verantwoord in het model worden geïntegreerd en overige domeinspecifieke schattingen moeten verder worden verbeterd.
 - Fases 4 t/m 6: gepland volgens het implementatieplan.

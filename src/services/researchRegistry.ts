@@ -108,8 +108,9 @@ export interface ResearchRegistryEntry {
 /**
  * Centrale lijst met geregistreerde kennis.
  *
- * Deze lijst begint bewust leeg. Kennis wordt pas toegevoegd wanneer we
- * per onderwerp kunnen vastleggen wat de onderbouwing en beperkingen zijn.
+ * Alleen bronnen met een vastgelegde onderbouwing en expliciete beperkingen
+ * worden toegevoegd. Een registratie wordt niet automatisch goedgekeurd voor
+ * directe toepassing als voorspellingsregel.
  */
 export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
