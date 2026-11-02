@@ -112,7 +112,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       const result = await mergeImportData(pendingBackupData);
 
       setStatusMessage(
-        `Gegevens samengevoegd: ${result.addedSessions} sessie(s), ${result.addedCatches} vangst(en), ${result.addedLocations} locatie(s), ${result.addedWeatherCache} weeritem(s), ${result.addedPrognosisSnapshots} prognose(s) en ${result.addedPresenceObservations} waarneming(en) toegevoegd${result.settingsImported ? ', inclusief instellingen' : ''}. Bestaande lokale instellingen zijn behouden.`
+        `Gegevens samengevoegd: ${result.addedSessions} sessie(s), ${result.addedCatches} vangst(en), ${result.addedLocations} locatie(s), ${result.addedWeatherCache} weeritem(s), ${result.addedPrognosisSnapshots} prognose(s) en ${result.addedPresenceObservations} waarneming(en) toegevoegd${result.settingsImported ? ', inclusief instellingen' : ''}.`
       );
 
       setImportPreview(null);
