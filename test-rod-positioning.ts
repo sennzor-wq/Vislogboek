@@ -564,7 +564,8 @@ assert(
 );
 
 // 10.2 Snoek
-const advicePikeAutumn = analyzeRodPositioning('2026-10-15', fcSummerWind, 'Snoek', {
+const fcPikeAutumn = createHourlyForecasts('2026-10-15', 15, 10, 'ZW');
+const advicePikeAutumn = analyzeRodPositioning('2026-10-15', fcPikeAutumn, 'Snoek', {
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: [],
@@ -618,7 +619,8 @@ assert(
   `10.7 Zeelt in de zomer zoekt begroeiing en luwe zachte bodem ("${adviceTenchSummer.recommendedZone}")`
 );
 
-const adviceTenchCold = analyzeRodPositioning('2026-11-20', fcWinter, 'Zeelt', {
+const fcTenchCold = createHourlyForecasts('2026-11-20', 6, 15, 'NO');
+const adviceTenchCold = analyzeRodPositioning('2026-11-20', fcTenchCold, 'Zeelt', {
   location: baseLoc,
   thermalAnalysis: thermalWinter,
   historicalSessions: [],
