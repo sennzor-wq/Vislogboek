@@ -39,7 +39,8 @@ export interface EvaluationResult {
  */
 export function evaluatePrognosisPerformance(
   snapshots: PrognosisSnapshot[],
-  trainingHistory: PrognosisSnapshot[] = snapshots
+  trainingHistory: PrognosisSnapshot[] = snapshots,
+  trainingSessions: FishingSession[] = []
 ): EvaluationResult {
   const totalSnapshots = snapshots.length;
   const validEvaluated = snapshots.filter((s) => {
@@ -53,7 +54,7 @@ export function evaluatePrognosisPerformance(
   const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
     'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve sessie-uitkomsten.',
-    'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen eerdere uitkomsten van dezelfde doelsoort tellen mee; dezelfde of latere doeldagen zijn uitgesloten.',
+    'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen gekoppelde sessies van dezelfde doelsoort die vóór het prognosetijdstip zijn beëindigd tellen mee.',
     `Per voorspelling zijn minimaal ${minimumTrainingSamples} eerdere gekoppelde sessie-uitkomsten nodig voor een baseline.`,
   ];
 
@@ -95,7 +96,10 @@ export function evaluatePrognosisPerformance(
   // gekoppelde sessie-uitkomsten van dezelfde doelsoort. Dedupe op sessie-ID zodat
   // een sessie nooit meerdere keren als trainingswaarneming meetelt.
   const baselinePairs: Array<{ forecast: number; observed: number; modelForecast: number }> = [];
+  const trainingSessionsById = new Map(trainingSessions.map((session) => [session.id, session]));
   for (const pair of pairs) {
+    const forecastTimestampMs = Date.parse(pair.snapshot.forecastTimestamp);
+    if (!Number.isFinite(forecastTimestampMs)) continue;
     const seenSessions = new Set<string>();
     const priorOutcomes: number[] = [];
     for (const historical of trainingHistory) {
@@ -104,6 +108,13 @@ export function evaluatePrognosisPerformance(
       if ((historical as any).isBenchmark === true) continue;
       if (!historical.linkedSessionId || seenSessions.has(historical.linkedSessionId)) continue;
       if (historical.actualOutcome !== 'catch' && historical.actualOutcome !== 'skunk_confirmed') continue;
+      const trainingSession = trainingSessionsById.get(historical.linkedSessionId);
+      const outcomeKnownAtMs = trainingSession?.endTime ? Date.parse(trainingSession.endTime) : NaN;
+      // Een vorige doeldatum alleen is niet voldoende: een nachtsessie kan nog
+      // lopen wanneer de volgende prognose wordt gemaakt. Gebruik de uitkomst
+      // pas nadat de gekoppelde sessie aantoonbaar is beëindigd.
+      if (!Number.isFinite(outcomeKnownAtMs) || outcomeKnownAtMs >= forecastTimestampMs) continue;
+      if (trainingSession?.outcome !== historical.actualOutcome) continue;
       seenSessions.add(historical.linkedSessionId);
       priorOutcomes.push(historical.actualOutcome === 'catch' ? 1 : 0);
     }
