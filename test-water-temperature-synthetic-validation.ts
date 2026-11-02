@@ -128,9 +128,9 @@ const sessions = makeMeasuredSessions();
 const latestMeasuredWaterTemp = measuredWaterTemps[measuredWaterTemps.length - 1];
 
 // Independent synthetic reference: water temperature approaches constant ambient
-// air temperature with a 52-hour response time. This is a controlled test truth,
+// air temperature with a 65-hour response time, deliberately different from the engine's effective time constant. This is a controlled test truth,
 // not a claim that every real water body has this time constant.
-function syntheticReference(anchorC: number, ambientC: number, elapsedHours: number, tauHours = 52): number {
+function syntheticReference(anchorC: number, ambientC: number, elapsedHours: number, tauHours = 65): number {
   return ambientC + (anchorC - ambientC) * Math.exp(-elapsedHours / tauHours);
 }
 
