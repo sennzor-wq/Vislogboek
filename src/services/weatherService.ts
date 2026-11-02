@@ -273,6 +273,9 @@ export async function getCurrentWeatherSnapshot(
     if (closest) {
       return {
         temperature: closest.temperature,
+        ...(typeof closest.relativeHumidity === 'number' ? { relativeHumidity: closest.relativeHumidity } : {}),
+        ...(typeof closest.dewPoint === 'number' ? { dewPoint: closest.dewPoint } : {}),
+        ...(typeof closest.shortwaveRadiation === 'number' ? { shortwaveRadiation: closest.shortwaveRadiation } : {}),
         pressure: closest.pressure,
         pressureTrend: 'stabiel',
         windSpeed: closest.windSpeed,
