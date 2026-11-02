@@ -80,7 +80,7 @@ export async function exportDatabaseToJson(): Promise<BackupData> {
  * (met 'spots' en geneste 'catches' per sessie).
  */
 export function normalizeRawBackup(raw: any): BackupData {
-  if (!raw || typeof raw !== 'object') {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     throw new Error('Ongeldig JSON object.');
   }
 
