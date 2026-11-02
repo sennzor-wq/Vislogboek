@@ -898,5 +898,5 @@ Harde uitgangspunten:
 ### Implementatiestatus (2 november 2026)
 - Implementatieplan toegevoegd en samengevoegd via PR #12.
 - Fase 1 gegevenscorrectheid: kerncorrecties samengevoegd via PR #13; aparte opslag van sessiewaarnemingen samengevoegd via PR #15. Beide CI-runs geslaagd.
-- Fase 2 volledige back-up en herstel: nog uit te voeren.
+- Fase 2 volledige back-up en herstel: afgerond via PR #17; back-up v3 omvat alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's. Legacycompatibiliteit, volledige restore/merge, validatie en round-trip CI-tests toegevoegd.
 - Fases 3 t/m 6: gepland volgens het implementatieplan.
