@@ -65,7 +65,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
     try {
       const list = await db.prognosisSnapshots.toArray();
       setSnapshots(list);
-      const evalRes = evaluatePrognosisPerformance(list);
+      const evalRes = evaluatePrognosisPerformance(list, list, sessions);
       setEvaluation(evalRes);
       setWaterTemperatureEvaluation(evaluateWaterTemperaturePerformance(list));
     } catch (e) {
