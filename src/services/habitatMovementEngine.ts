@@ -129,10 +129,19 @@ export function analyzeHabitatMovement(
     missingInformation.push('Geen gemeten of bruikbaar geschatte watertemperatuur; thermische habitatduiding is beperkt.');
   }
   modelInferences.push(`Algemene seizoenscontext: ${season.toLowerCase()}.`);
-  if (typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && typeof windDirText === 'string' && windDirText.trim()) {
-    modelInferences.push(`Windcontext: ${avgWindSpeedKmH} km/u uit ${windDirText}.`);
+  const hasUsableWindDirection = typeof windDirText === 'string' &&
+    windDirText.trim().length > 0 &&
+    windDirText !== 'Wisselend' &&
+    windDirText !== 'Onbekend';
+  if (typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH)) {
+    modelInferences.push(hasUsableWindDirection
+      ? `Windcontext: ${avgWindSpeedKmH} km/u uit ${windDirText}.`
+      : `Windsnelheid: ${avgWindSpeedKmH} km/u; richting is wisselend of onbekend.`);
   } else {
-    missingInformation.push('Geldige windsnelheid en/of windrichting ontbreekt; windgestuurde beweging kan niet worden beoordeeld.');
+    missingInformation.push('Geldige windsnelheid ontbreekt; windgestuurde beweging kan niet worden beoordeeld.');
+  }
+  if (!hasUsableWindDirection) {
+    missingInformation.push('Windrichting is wisselend of onbekend; er wordt geen vaste windrichting aangenomen.');
   }
   if (!waterType) missingInformation.push('Watertype is niet vastgelegd; stromend en stilstaand water worden niet verondersteld.');
   if (pressureTrend === undefined || pressureTrend === null) missingInformation.push('Luchtdruktrend ontbreekt; er wordt geen druktrend verondersteld.');
@@ -373,11 +382,13 @@ export function analyzeHabitatMovement(
     ? 'Mogelijke route langs de geregistreerde rietkraag; controleer of deze structuur doorloopt.'
     : 'Geen concrete transitroute afgeleid; gebruik alleen lokaal vastgestelde diepte- of structuurverschillen.';
 
-  windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && windDirText
-    ? avgWindSpeedKmH >= 15
-      ? `Stevige wind (${avgWindSpeedKmH} km/u uit ${windDirText}) kan oppervlaktevoedsel verplaatsen; de lokale uitwerking hangt af van oevergeometrie en stroming.`
-      : `Wind ${avgWindSpeedKmH} km/u uit ${windDirText}; zonder lokale oever- en stromingsgegevens wordt geen vaste bewegingsrichting aangenomen.`
-    : 'Onbekend: windsnelheid of windrichting ontbreekt; geen windgestuurde verplaatsing aangenomen.';
+  windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH)
+    ? hasUsableWindDirection
+      ? avgWindSpeedKmH >= 15
+        ? `Stevige wind (${avgWindSpeedKmH} km/u uit ${windDirText}) kan oppervlaktevoedsel verplaatsen; de lokale uitwerking hangt af van oevergeometrie en stroming.`
+        : `Wind ${avgWindSpeedKmH} km/u uit ${windDirText}; zonder lokale oever- en stromingsgegevens wordt geen vaste bewegingsrichting aangenomen.`
+      : `Windsnelheid ${avgWindSpeedKmH} km/u; richting is wisselend of onbekend, dus geen vaste windgestuurde verplaatsing aangenomen.`
+    : 'Onbekend: windsnelheid ontbreekt; geen windgestuurde verplaatsing aangenomen.';
 
   seasonalPattern = effectiveWaterTemp === null
     ? `${season}: kalenderseizoen bekend, maar zonder watertemperatuur wordt geen thermisch gestuurd actieradius- of trekpatroon aangenomen.`
