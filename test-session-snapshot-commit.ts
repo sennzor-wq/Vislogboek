@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { db } from './src/db/db';
+import { db, syncSessionPresenceObservations } from './src/db/db';
 import { saveSessionWithPrognosisSnapshot, PendingPrognosisSnapshot } from './src/services/prognosisEngine';
 import { FishingSession } from './src/types';
 
@@ -71,6 +71,16 @@ async function run() {
   const storedObservations = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
   assert(storedObservations.length === 2,
     'Sessiewaarnemingen worden samen met sessie en prognose in de aparte waarnemingstabel opgeslagen');
+
+  const originalObservationTimestamp = storedObservations[0]?.timestamp;
+  await syncSessionPresenceObservations({
+    ...session,
+    presenceObservations: ['vis_springen_rollen'],
+    updatedAt: '2026-11-01T18:00:00.000Z',
+  });
+  const updatedObservations = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
+  assert(updatedObservations.length === 1 && updatedObservations[0].timestamp === originalObservationTimestamp,
+    'Bij aanpassen worden verwijderde waarnemingen verwijderd en bestaande registratietijdstippen behouden');
 
   const invalidSession = { ...session, id: '', snapshotId: undefined };
   let rejected = false;
