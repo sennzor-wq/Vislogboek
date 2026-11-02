@@ -145,6 +145,7 @@ export function calculatePrebaitPlan(
     missingInformation.push('Waterdiepte ontbreekt; diepteverschillen en thermische gelaagdheid zijn niet meegenomen.');
   }
   missingInformation.push('Bodemzachtheid, natuurlijke voedselbeschikbaarheid en witvisdruk zijn niet gemeten. Pas de hoeveelheid ter plaatse aan en voer niet automatisch de volledige richtlijn.');
+  missingInformation.push('Temperatuurbanden en grammen zijn conservatieve startindicaties, geen universele biologische normen. Activiteit, stekdruk en natuurlijk voedsel blijven leidend.');
 
   const feed = getSpeciesFeed(species);
   let suitability: PrebaitSuitability = 'Beperkt / voorzichtig';
@@ -305,12 +306,13 @@ export function calculatePrebaitPlan(
     return true;
   });
   const prebaitedSessions = relevantSessions.filter((s) =>
-    s.prebaited === true || Boolean(s.baitAndFeed?.toLowerCase().includes('voorvoer'))
+    s.prebaited === true || (s.prebaited === undefined && Boolean(s.baitAndFeed?.toLowerCase().includes('voorvoer')))
   );
   const nonPrebaitedSessions = relevantSessions.filter((s) =>
-    s.prebaited === false || (s.prebaited === undefined && !s.baitAndFeed?.toLowerCase().includes('voorvoer'))
+    s.prebaited === false || (s.prebaited === undefined && Boolean(s.baitAndFeed?.trim()) && !s.baitAndFeed!.toLowerCase().includes('voorvoer'))
   );
-  const hasSufficientData = relevantSessions.length >= 5 &&
+  const classifiedSessionsCount = prebaitedSessions.length + nonPrebaitedSessions.length;
+  const hasSufficientData = classifiedSessionsCount >= 5 &&
     prebaitedSessions.length >= 2 && nonPrebaitedSessions.length >= 2;
 
   if (hasSufficientData) {
@@ -320,11 +322,11 @@ export function calculatePrebaitPlan(
     const rateNonPrebait = Math.round(nonPrebaitCatches / nonPrebaitedSessions.length * 100);
     personalEvidence = {
       hasSufficientData: true,
-      totalRelevantSessions: relevantSessions.length,
+      totalRelevantSessions: classifiedSessionsCount,
       relevantPrebaitedSessionsCount: prebaitedSessions.length,
       catchRateWithPrebait: ratePrebait,
       catchRateWithoutPrebait: rateNonPrebait,
-      summaryNote: `Vergelijking op dezelfde stek en doelsoort (N=${relevantSessions.length}): met voorvoeren ${prebaitCatches}/${prebaitedSessions.length} vangstsessies (${ratePrebait}%), zonder voorvoeren ${nonPrebaitCatches}/${nonPrebaitedSessions.length} (${rateNonPrebait}%). Dit is een beschrijvende vergelijking; correlatie is geen causaal bewijs.`,
+      summaryNote: `Vergelijking op dezelfde stek en doelsoort (N=${classifiedSessionsCount} geclassificeerde sessies): met voorvoeren ${prebaitCatches}/${prebaitedSessions.length} vangstsessies (${ratePrebait}%), zonder voorvoeren ${nonPrebaitCatches}/${nonPrebaitedSessions.length} (${rateNonPrebait}%). Dit is een beschrijvende vergelijking; correlatie is geen causaal bewijs.`,
     };
   } else {
     personalEvidence = {
@@ -334,7 +336,7 @@ export function calculatePrebaitPlan(
       catchRateWithPrebait: null,
       catchRateWithoutPrebait: null,
       summaryNote: location?.id
-        ? `Nog onvoldoende vergelijkbare sessies op deze stek voor ${species.toLowerCase()}. Persoonlijke voorvoerpercentages worden pas getoond bij minimaal 5 sessies, waaronder ten minste 2 met en 2 zonder voorvoeren.`
+        ? `Nog onvoldoende vergelijkbare en als wel/niet-voorvoerd geregistreerde sessies op deze stek voor ${species.toLowerCase()}. Persoonlijke percentages verschijnen pas bij minimaal 5 geclassificeerde sessies, waaronder ten minste 2 met en 2 zonder voorvoeren.`
         : 'Persoonlijke voorvoerhistorie niet gebruikt: er is geen specifieke stek geselecteerd.',
     };
   }
