@@ -649,9 +649,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                                 </div>
                                 {rod.events && rod.events.length > 0 && (
                                   <div className="text-[11px] text-cyan-200 mt-1">
-                                    {rod.events.length} gebeurtenis(sen): {rod.events.map((event) => ({
-                                      bite: 'aanbeet', missed: 'gemist', catch: 'vangst', other: 'overig',
-                                    }[event.type] + (event.notes ? ` (${event.notes})` : '')).join(', ')}
+                                    {rod.events.length} gebeurtenis(sen): {rod.events.map((event) => `${event.type === 'bite' ? 'aanbeet' : event.type === 'missed' ? 'gemist' : event.type === 'catch' ? 'vangst' : 'overig'}${event.notes ? ` (${event.notes})` : ''}`).join(', ')}
                                   </div>
                                 )}
                               </div>
