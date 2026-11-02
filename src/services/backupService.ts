@@ -338,6 +338,7 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       }
     }
     const backupSessionIds = new Set(data.sessions.map((session) => session.id));
+    const rodNumbersBySession = new Map<string, Set<number>>();
     for (const rod of data.sessionRods) {
       if (typeof rod.sessionId !== 'string' || !backupSessionIds.has(rod.sessionId)) {
         throw new Error(`Hengeldetail ${rod.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
@@ -346,6 +347,12 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
           (rod.events !== undefined && !Array.isArray(rod.events))) {
         throw new Error(`Hengeldetail ${rod.id} bevat ongeldige hengelgegevens.`);
       }
+      const usedNumbers = rodNumbersBySession.get(rod.sessionId) || new Set<number>();
+      if (usedNumbers.has(rod.rodNumber)) {
+        throw new Error(`Sessie ${rod.sessionId} bevat dubbel hengelnummer ${rod.rodNumber}.`);
+      }
+      usedNumbers.add(rod.rodNumber);
+      rodNumbersBySession.set(rod.sessionId, usedNumbers);
     }
 
     if (data.settings && (typeof data.settings !== 'object' || data.settings.id !== 'user_settings')) {

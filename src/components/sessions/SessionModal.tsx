@@ -34,6 +34,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
   const now = new Date();
   const formatDateTimeLocal = (date: Date) => {
+    if (!Number.isFinite(date.getTime())) return '';
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
       date.getHours()
@@ -170,7 +171,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         outcome: isCompleted ? outcome : 'active',
         targetSpecies: selectedTargetSpecies,
         rodCount: parsedRods,
-        participantCount: participantCount === '' ? undefined : Math.max(1, Number(participantCount)),
+        participantCount: participantCount === '' ? undefined : Math.min(50, Math.max(1, Math.floor(Number(participantCount) || 1))),
         technique,
         baitAndFeed,
         prebaited,
@@ -439,7 +440,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Aantal deelnemers (optioneel)</label>
               <input type="number" min={1} max={50} value={participantCount}
-                onChange={(e) => setParticipantCount(e.target.value === '' ? '' : Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setParticipantCount(e.target.value === '' ? '' : Math.min(50, Math.max(1, Math.floor(Number(e.target.value) || 1))))}
                 placeholder="Bijv. 3" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
             </div>
             <div>

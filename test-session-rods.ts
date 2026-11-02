@@ -29,10 +29,10 @@ const sixRods = calculateSessionRodEffort(Array.from({ length: 6 }, (_, i) =>
 assert(sixRods.totalRodHours === 12 && sixRods.activeRodCount === 6, '3 vissers met 6 hengels levert 12 hengeluren op');
 const groupSession: FishingSession = {
   id: 'group-session', startTime: start, endTime: end, outcome: 'catch',
-  participantCount: 3, rodCount: 6, createdAt: start, updatedAt: end,
+  participantCount: 3, rodCount: 6, targetSpecies: ['Karper'], createdAt: start, updatedAt: end,
 };
-assert(groupSession.participantCount === 3 && groupSession.rodCount === 6,
-  'Groepsgrootte en totaal aantal hengels blijven metadata van één primaire sessie');
+assert(groupSession.participantCount === 3 && groupSession.rodCount === 6 && groupSession.outcome === 'catch',
+  'Groepsgrootte, totaal aantal hengels en uitkomst blijven metadata van één primaire sessie, niet per hengel');
 
 // Ongelijke tijden en overlap per hengel.
 const unequal = calculateSessionRodEffort([

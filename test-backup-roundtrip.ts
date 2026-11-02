@@ -153,6 +153,20 @@ async function run() {
   assert(legacy.weatherCache?.length === 0 && legacy.prognosisSnapshots?.length === 0 &&
     legacy.presenceObservations?.length === 0 && legacy.sessionRods?.length === 0, 'Oudere v2-backup blijft importeerbaar zonder nieuwe tabellen');
 
+  const legacyV3 = normalizeRawBackup({
+    version: 3, appName: 'Vislogboek', locations: [location], sessions: [session], catches: [],
+    weatherCache: [], prognosisSnapshots: [], presenceObservations: [],
+  });
+  assert(legacyV3.sessionRods?.length === 0, 'Oudere v3-backup blijft importeerbaar zonder hengeldetailtabel');
+
+  const orphanRodBackup = { ...backup, sessionRods: [{ ...rodDetail, sessionId: 'missing-session' }] };
+  const orphanRodImport = await inspectImportFile(JSON.stringify(orphanRodBackup));
+  assert(!orphanRodImport.preview.valid, 'Hengeldetail zonder bestaande sessierelatie wordt vóór import geweigerd');
+
+  const duplicateRodBackup = { ...backup, sessionRods: [rodDetail, { ...rodDetail, id: 'backup-roundtrip-rod-duplicate' }] };
+  const duplicateRodImport = await inspectImportFile(JSON.stringify(duplicateRodBackup));
+  assert(!duplicateRodImport.preview.valid, 'Dubbele hengelnummers binnen één sessie worden vóór import geweigerd');
+
   const future = await inspectImportFile(JSON.stringify({ version: 5, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');
   const malformed = await inspectImportFile(JSON.stringify({ version: 4, locations: [{ name: 'Geen ID' }], sessions: [], catches: [] }));
