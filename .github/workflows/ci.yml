@@ -56,6 +56,9 @@ jobs:
       - name: Advanced prognosis module tests
         run: bun run tsx test-advanced-prognosis-modules.ts
 
+      - name: Species biology evidence registry tests
+        run: bun run tsx test-research-registry.ts
+
       - name: Rod positioning tests
         run: bun run tsx test-rod-positioning.ts
 
