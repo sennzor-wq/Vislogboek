@@ -5,6 +5,8 @@ import {
   CatchItem,
   WeatherCacheEntry,
   AppSettings,
+  PresenceObservation,
+  PresenceObservationType,
 } from '../types';
 import {
   HISTORICAL_LOCATIONS,
@@ -156,6 +158,43 @@ export class VislogboekDatabase extends Dexie {
 }
 
 export const db = new VislogboekDatabase();
+
+/**
+ * Synchroniseert de sessiesamenvatting van viswaarnemingen naar de bestaande
+ * afzonderlijke waarnemingstabel. Bestaande tijdstempels blijven behouden;
+ * nieuwe waarnemingen krijgen het sessie-updatetijdstip als registratiemoment.
+ * Deze helper voert zelf geen transactie uit: de aanroeper beheert de transactie.
+ */
+export async function syncSessionPresenceObservations(session: FishingSession): Promise<void> {
+  const existing = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
+  const selectedTypes = Array.from(new Set(session.presenceObservations ?? []));
+  const selected = new Set<PresenceObservationType>(selectedTypes);
+  const existingTypes = new Set(existing.map((observation) => observation.observationType));
+
+  for (const observation of existing) {
+    if (!selected.has(observation.observationType)) {
+      await db.presenceObservations.delete(observation.id);
+    }
+  }
+
+  const locationId = session.locationId || existing[0]?.locationId;
+  if (!locationId) return;
+
+  const recordedAt = session.updatedAt || new Date().toISOString();
+  for (const observationType of selectedTypes) {
+    if (existingTypes.has(observationType)) continue;
+    const observation: PresenceObservation = {
+      id: `session-presence-${session.id}-${observationType}`,
+      locationId,
+      sessionId: session.id,
+      observationType,
+      timestamp: recordedAt,
+      notes: 'Vastgelegd via de sessieregistratie.',
+      createdAt: recordedAt,
+    };
+    await db.presenceObservations.put(observation);
+  }
+}
 
 /**
  * Zorgt ervoor dat de initiële database is ingericht en de beschermde benchmark altijd aanwezig is.
