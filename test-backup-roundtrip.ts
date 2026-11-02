@@ -91,8 +91,13 @@ async function run() {
   // Simuleer een nieuw toestel: lege database, daarna volledige restore.
   await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
     db.prognosisSnapshots, db.presenceObservations, async () => {
-      await Promise.all([db.locations.clear(), db.sessions.clear(), db.catches.clear(), db.settings.clear(),
-        db.weatherCache.clear(), db.prognosisSnapshots.clear(), db.presenceObservations.clear()]);
+      await db.locations.clear();
+      await db.sessions.clear();
+      await db.catches.clear();
+      await db.settings.clear();
+      await db.weatherCache.clear();
+      await db.prognosisSnapshots.clear();
+      await db.presenceObservations.clear();
     });
   await restoreBackupData(backup);
 
