@@ -5,6 +5,7 @@ import {
   WaterThermalAnalysis,
   ThermalTrend,
 } from '../types';
+import { deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
 
 export interface ThermalAnalysisOptions {
   location?: FishingLocation;
@@ -12,6 +13,7 @@ export interface ThermalAnalysisOptions {
   historicalSessions?: FishingSession[];
   targetHour?: number;
   currentDateRef?: Date;
+  historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
 }
 
 /**
@@ -27,6 +29,9 @@ export function analyzeWaterThermalDevelopment(
   const userMeasured = options?.userMeasuredWaterTemp;
   const historicalSessions = options?.historicalSessions || [];
   const currentDateRef = options?.currentDateRef;
+  const historicalProfile = deriveHistoricalWaterTemperatureProfile(
+    options?.historicalWaterTemperatures || [], location, targetDateStr
+  );
 
   // 1. Verzamel echte temperatuurmetingen voor exact dezelfde stek.
   // Een oudere meting blijft bruikbaar als startpunt voor een modelschatting,
@@ -96,25 +101,37 @@ export function analyzeWaterThermalDevelopment(
       trendConfidence: 'Onvoldoende gegevens',
       hasMeasuredWaterTemp: hasMeasured,
       measuredWaterTemp: measuredTemp,
-      estimatedWaterTemp: recentAnchorEstimate,
-      estimatedRange: recentAnchorEstimate === null ? null : [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10],
-      waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : 'unknown',
+      estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
+      estimatedRange: recentAnchorEstimate !== null
+        ? [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10]
+        : historicalProfile ? [historicalProfile.lowerC, historicalProfile.upperC] : null,
+      waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : historicalProfile ? 'estimated_from_history' : 'unknown',
       anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
       anchorAgeHours,
       weatherCoverageRatio,
-      uncertaintyC: recentAnchorEstimate === null ? null : 1.0,
+      uncertaintyC: recentAnchorEstimate !== null ? 1.0 : historicalProfile?.uncertaintyC ?? null,
+      historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
+      historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+      historicalWaterTemperatureSource: historicalProfile?.source ?? null,
       surfaceVsBulkNote: recentAnchorEstimate === null ? 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.' : 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.',
       inertiaFactor: 'Gemiddeld',
-      summaryRationale: recentAnchorEstimate === null ? 'Er zijn onvoldoende betrouwbare weersgegevens om de thermische ontwikkeling te bepalen.' : 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.',
+      summaryRationale: recentAnchorEstimate !== null
+        ? 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.'
+        : historicalProfile ? 'Geen actuele weerdekking; daarom wordt uitsluitend een seizoensprofiel uit echte historische watertemperatuurmetingen gebruikt.'
+        : 'Er zijn onvoldoende betrouwbare weersgegevens of historische watertemperatuurmetingen om de thermische ontwikkeling te bepalen.',
       dataPointsAvailable: {
         past24hAvailable: false,
         past72hAvailable: false,
         solarRadiationIndication: 'Onvoldoende gegevens',
         windMixingInfluence: 'Onvoldoende gegevens',
-        depthKnown: typeof location?.waterDepth === 'number',
+        depthKnown: typeof location?.waterDepth === 'number' && Number.isFinite(location.waterDepth) && location.waterDepth > 0,
         waterDepthMeters: location?.waterDepth,
+        historicalTemperatureSamples: historicalProfile?.sampleCount ?? 0,
       },
-      prognosisImpactNote: recentAnchorEstimate === null ? 'Geen thermische correctie toegepast wegens ontbrekende weerdata.' : 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
+      prognosisImpactNote: recentAnchorEstimate !== null
+        ? 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
+        : historicalProfile ? 'Historisch seizoensprofiel gebruikt; actuele weersontwikkeling ontbreekt.'
+        : 'Geen thermische correctie toegepast wegens ontbrekende weerdata.'
     };
   }
 
@@ -151,15 +168,15 @@ export function analyzeWaterThermalDevelopment(
     : past24Avg;
 
   // 4. Waterdiepte en thermische traagheid
-  const depth = location?.waterDepth ?? 2.0;
-  const isDepthKnown = typeof location?.waterDepth === 'number';
+  const depth = location?.waterDepth;
+  const isDepthKnown = typeof depth === 'number' && Number.isFinite(depth) && depth > 0;
 
   let inertiaFactor: 'Laag (snel reagerend)' | 'Gemiddeld' | 'Hoog (trage watermassa)';
   let responseWeight: number; // fractie per dag van de luchttemperatuur die doordringt
-  if (depth <= 1.4 || location?.waterType === 'Polder' || location?.waterType === 'Stadswater') {
+  if ((isDepthKnown && depth <= 1.4) || location?.waterType === 'Polder' || location?.waterType === 'Stadswater') {
     inertiaFactor = 'Laag (snel reagerend)';
     responseWeight = 0.45;
-  } else if (depth > 3.5 || location?.waterType === 'Plas/Zandafgraving') {
+  } else if ((isDepthKnown && depth > 3.5) || location?.waterType === 'Plas/Zandafgraving') {
     inertiaFactor = 'Hoog (trage watermassa)';
     responseWeight = 0.18;
   } else {
@@ -177,12 +194,36 @@ export function analyzeWaterThermalDevelopment(
     return hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
   });
   const daytimeCloudAvg = daytimeCloudSamples.length > 0 ? daytimeCloudSamples.reduce((s,h)=>s+h.cloudCover,0)/daytimeCloudSamples.length : null;
+  const daytimeRadiationSamples = dayForecasts.filter((h) => {
+    const hour = parseInt(h.time.slice(11, 13), 10);
+    return hour >= 8 && hour <= 18 && Number.isFinite(h.shortwaveRadiation) && (h.shortwaveRadiation as number) >= 0 && (h.shortwaveRadiation as number) <= 1600;
+  });
+  const averageShortwaveRadiation = daytimeRadiationSamples.length >= 4
+    ? daytimeRadiationSamples.reduce((sum, sample) => sum + (sample.shortwaveRadiation as number), 0) / daytimeRadiationSamples.length
+    : null;
 
   let solarIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)' | 'Onvoldoende gegevens';
-  if (daytimeCloudAvg === null) solarIndication = 'Onvoldoende gegevens';
+  if (averageShortwaveRadiation !== null) {
+    solarIndication = averageShortwaveRadiation >= 500 ? 'Sterk (zonnig)'
+      : averageShortwaveRadiation >= 200 ? 'Matig (half bewolkt)' : 'Gering (zwaarbewolkt/mist)';
+  } else if (daytimeCloudAvg === null) solarIndication = 'Onvoldoende gegevens';
   else if (daytimeCloudAvg <= 35) solarIndication = 'Sterk (zonnig)';
   else if (daytimeCloudAvg <= 70) solarIndication = 'Matig (half bewolkt)';
   else solarIndication = 'Gering (zwaarbewolkt/mist)';
+
+  const humiditySamples = dayForecasts.filter((h) => Number.isFinite(h.relativeHumidity) && (h.relativeHumidity as number) >= 0 && (h.relativeHumidity as number) <= 100);
+  const dewPointSamples = dayForecasts.filter((h) => Number.isFinite(h.dewPoint) && (h.dewPoint as number) >= -50 && (h.dewPoint as number) <= 50);
+  const evaporationSamples = dayForecasts.filter((h) =>
+    Number.isFinite(h.dewPoint) && Number.isFinite(h.temperature) &&
+    (h.temperature - (h.dewPoint as number)) >= 0 && (h.temperature - (h.dewPoint as number)) <= 40
+  );
+  const meanDewPointDepression = evaporationSamples.length
+    ? evaporationSamples.reduce((sum, h) => sum + h.temperature - (h.dewPoint as number), 0) / evaporationSamples.length
+    : null;
+  const evaporationPotential: 'hoog' | 'matig' | 'laag' | 'onbekend' = meanDewPointDepression === null
+    ? 'onbekend'
+    : meanDewPointDepression >= 8 && dayAvgWind !== null && dayAvgWind >= 9 ? 'hoog'
+    : meanDewPointDepression >= 4 ? 'matig' : 'laag';
 
   // Windmenging
   let windMixing: 'Sterke menging' | 'Matige menging' | 'Rustig' | 'Onvoldoende gegevens';
@@ -234,7 +275,7 @@ export function analyzeWaterThermalDevelopment(
     trendConfidence = 'Redelijk';
     summaryRationale = `Warme middag (${dayMax.toFixed(1)} °C) compenseert de nachtelijke kou (${dayMin.toFixed(1)} °C); het 24-uurs daggemiddelde (${dayAvg.toFixed(1)} °C) blijft evenwichtig.`;
     surfaceVsBulkNote = 'Overdag warmt de bovenste 20-40 cm tijdelijk op, maar straalt \'s nachts weer af naar de koude lucht. De diepere waterlaag blijft nagenoeg ongewijzigd.';
-  } else if (isSingleWarmDayLag && inertiaFactor === 'Hoog (trage watermassa)') {
+  } else if (isSingleWarmDayLag && inertiaFactor === 'Hoog (trage watermassa)' && isDepthKnown) {
     trend = 'Ongeveer stabiel';
     trendConfidence = 'Matig';
     summaryRationale = `Een opwarmende dag (${dayMax.toFixed(1)} °C) heeft door de grote waterdiepte (${depth.toFixed(1)} m) nog weinig invloed op de diepe watermassa (thermische traagheid).`;
@@ -350,13 +391,28 @@ export function analyzeWaterThermalDevelopment(
     if (isDepthKnown && solarIndication === 'Sterk (zonnig)' && depth <= 2.5) {
       solarBonus = depth <= 1.5 ? 0.8 : 0.4;
     }
-    const rawEstimate = baseAirEquilibrium + solarBonus;
+    const weatherEstimate = baseAirEquilibrium + solarBonus;
+    let rawEstimate = weatherEstimate;
+    let historyWeight = 0;
+    if (historicalProfile) {
+      // Een meting van dezelfde stek weegt zwaarder dan een profiel van vergelijkbare
+      // wateren. De bijdrage groeit geleidelijk met het aantal echte waarnemingen.
+      historyWeight = historicalProfile.source === 'same_location'
+        ? Math.min(0.65, historicalProfile.sampleCount / (historicalProfile.sampleCount + 4))
+        : Math.min(0.35, historicalProfile.sampleCount / (historicalProfile.sampleCount + 8));
+      rawEstimate = historicalProfile.baselineC * historyWeight + weatherEstimate * (1 - historyWeight);
+    }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
-    const margin = (depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0);
+    const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0),
+      historicalProfile?.uncertaintyC ?? 0);
     estimatedRange = [
-      Math.round((rawEstimate - margin) * 10) / 10,
-      Math.round((rawEstimate + margin) * 10) / 10,
+      Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
+      Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
     ];
+    if (historicalProfile) {
+      summaryRationale += ` Historisch seizoensprofiel: ${historicalProfile.baselineC.toFixed(1)} °C uit ${historicalProfile.sampleCount} echte metingen (${historicalProfile.source === 'same_location' ? 'dezelfde stek' : 'vergelijkbare wateren'}).`;
+      surfaceVsBulkNote += ' De historische referentie is een gemeten seizoensprofiel en geen actuele meting.';
+    }
   }
 
   // 7. Behoedzame invloed op visprognose (Sectie 10)
@@ -365,6 +421,8 @@ export function analyzeWaterThermalDevelopment(
     prognosisImpactNote = `Gebruikt gemeten watertemperatuur (${measuredTemp} °C) als directe biologische invoer voor de actuele situatie.`;
   } else if (anchor && estimatedWaterTemp !== null && usedMeasuredAnchor) {
     prognosisImpactNote = `Prognose gebruikt een modelschatting (~${estimatedWaterTemp} °C), verankerd aan de laatste echte stekmeting van ${anchor.temperature.toFixed(1)} °C (${Math.round((estimationTargetMs - anchor.timestampMs) / 3600000)} uur eerder) en aangepast met de beschikbare weersontwikkeling.`;
+  } else if (historicalProfile && estimatedWaterTemp !== null) {
+    prognosisImpactNote = `Modelschatting combineert weersontwikkeling met een historisch seizoensprofiel van ${historicalProfile.sampleCount} echte metingen; dit is geen actuele meting.`;
   } else if (trend === 'Waarschijnlijke opwarming') {
     prognosisImpactNote = 'Opwarming stimuleert foerageergedrag, met name in ondiepe en zonbeschenen oeverzones.';
   } else if (trend === 'Waarschijnlijke afkoeling') {
@@ -380,11 +438,14 @@ export function analyzeWaterThermalDevelopment(
     measuredWaterTemp: measuredTemp,
     estimatedWaterTemp,
     estimatedRange,
-    waterTemperatureStatus: hasMeasured ? 'measured' : anchor && usedMeasuredAnchor ? 'estimated_from_measurement' : estimatedWaterTemp !== null ? 'estimated_from_weather' : 'unknown',
+    waterTemperatureStatus: hasMeasured ? 'measured' : anchor && usedMeasuredAnchor ? 'estimated_from_measurement' : estimatedWaterTemp !== null && historicalProfile ? 'estimated_from_history' : estimatedWaterTemp !== null ? 'estimated_from_weather' : 'unknown',
     anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
     anchorAgeHours,
     weatherCoverageRatio,
     uncertaintyC: estimatedRange ? Math.round(((estimatedRange[1] - estimatedRange[0]) / 2) * 10) / 10 : null,
+    historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
+    historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+    historicalWaterTemperatureSource: historicalProfile?.source ?? null,
     surfaceVsBulkNote,
     inertiaFactor,
     summaryRationale,
@@ -392,6 +453,11 @@ export function analyzeWaterThermalDevelopment(
       past24hAvailable: hasPast24h,
       past72hAvailable: hasPast72h,
       solarRadiationIndication: solarIndication,
+      solarRadiationAvailable: daytimeRadiationSamples.length >= 4,
+      humidityAvailable: humiditySamples.length >= 6,
+      dewPointAvailable: dewPointSamples.length >= 6,
+      evaporationPotential,
+      historicalTemperatureSamples: historicalProfile?.sampleCount ?? 0,
       windMixingInfluence: windMixing,
       depthKnown: isDepthKnown,
       waterDepthMeters: isDepthKnown ? depth : undefined,
