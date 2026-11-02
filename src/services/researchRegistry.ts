@@ -203,7 +203,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
       'Deze bron ondersteunt het belang van temperatuur als context, niet de exacte numerieke parameters van de Vislogboek-profielen.'
     ],
     sourceReferences: [
-      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Frontiers in Marine Science, 7, 307. https://doi.org/10.3389/fmars.2020.00307'
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950'
     ],
     reviewedAt: '2026-11-02',
     approvedForPrediction: false,
