@@ -367,8 +367,7 @@ export function analyzeWaterThermalDevelopment(
       }
 
       estimatedWaterTemp = Math.round(waterTemp * 10) / 10;
-      const uncertainty = 0.45 + elapsedSinceAnchorHours * 0.009 + (coverage < 0.85 ? 0.45 : 0) +
-        (evaporationPotential === 'hoog' ? 0.3 : 0);
+      const uncertainty = 0.45 + elapsedSinceAnchorHours * 0.009 + (coverage < 0.85 ? 0.45 : 0);
       estimatedRange = [
         Math.round((waterTemp - uncertainty) * 10) / 10,
         Math.round((waterTemp + uncertainty) * 10) / 10,
@@ -420,7 +419,7 @@ export function analyzeWaterThermalDevelopment(
     }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
     const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
-      (evaporationPotential === 'hoog' ? 0.3 : 0) + (anchor && !isDepthKnown ? 0.5 : 0), historicalProfile?.uncertaintyC ?? 0);
+      (anchor && !isDepthKnown ? 0.5 : 0), historicalProfile?.uncertaintyC ?? 0);
     estimatedRange = [
       Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
       Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
