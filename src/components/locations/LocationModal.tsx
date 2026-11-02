@@ -18,7 +18,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [name, setName] = useState(location?.name || '');
   const [description, setDescription] = useState(location?.description || '');
   const [waterType, setWaterType] = useState<FishingLocation['waterType']>(
-    location?.waterType || 'Plas/Zandafgraving'
+    location?.waterType || 'Onbekend'
   );
   const [waterDepth, setWaterDepth] = useState<string>(
     location?.waterDepth !== undefined ? String(location.waterDepth) : ''
@@ -132,6 +132,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                 onChange={(e) => setWaterType(e.target.value as any)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
               >
+                <option value="Onbekend">Onbekend / nog niet vastgesteld</option>
                 <option value="Plas/Zandafgraving">Plas / Zandafgraving</option>
                 <option value="Kanaal">Kanaal</option>
                 <option value="Rivier">Rivier</option>
