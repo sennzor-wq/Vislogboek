@@ -152,7 +152,6 @@ export function analyzeHabitatMovement(
   const hasTrees = habitatFeatures.some((f) => f.toLowerCase().includes('boom')) || notesLower.includes('boom');
   const hasReeds = habitatFeatures.some((f) => f.toLowerCase().includes('riet')) || notesLower.includes('riet');
   const hasLilies = habitatFeatures.some((f) => f.toLowerCase().includes('lelie') || f.toLowerCase().includes('plant')) || notesLower.includes('lelie') || notesLower.includes('plant');
-  const hasSand = notesLower.includes('zand') || habitatFeatures.some((f) => f.toLowerCase().includes('zand'));
   const hasMud = notesLower.includes('modder') || notesLower.includes('slib') || habitatFeatures.some((f) => f.toLowerCase().includes('slib') || f.toLowerCase().includes('modder'));
 
   // Bepaal primaire en alternatieve zone
@@ -181,7 +180,7 @@ export function analyzeHabitatMovement(
       name: 'Actieve waarnemingszone (visvisuele hotspot)',
       habitatType: 'Foerageerzone',
       description: `Zone waar recent visactiviteit (${recentBellen ? 'aasbellen/wroeten' : 'springen/rollen'}) is waargenomen. Vis is hier fysiek aanwezig en actief in de waterlaag.`,
-      depthProfileNote: waterDepth ? `Rond het bekende dieptebereik van ~${waterDepth} m` : 'Peil het bodemverloop rond de waarneming',
+      depthProfileNote: waterDepth ? `Geregistreerde gemiddelde stekdiepte: ${waterDepth} m; diepte rond de waarneming onbekend.` : 'Peil het bodemverloop rond de waarneming',
       structureNote: hasReeds ? 'Nabij de geregistreerde rietkraag' : hasTrees ? 'Onder de geregistreerde bomen' : 'Lokale structuur ter plaatse vaststellen',
       whyLikely: 'Ondersteund door jouw eigen recente visuele waarnemingen aan het water (geen zuivere modelaanname).',
     };
@@ -265,7 +264,7 @@ export function analyzeHabitatMovement(
     };
 
     alternativeZone = {
-      name: 'Zonbeschenen ondiepte tijdens middagpiek',
+      name: 'Alternatieve ondiepe zoekzone (indien aanwezig)',
       habitatType: 'Foerageerzone',
       description: 'Een aantoonbaar ondiepere, beschutte zone kan als vergelijking dienen wanneer zoninstraling aanwezig is; lokale temperatuurverschillen zijn niet gemeten.',
       depthProfileNote: 'Ondiepere zone alleen gebruiken als die ter plaatse is vastgesteld; exacte diepte onbekend.',
@@ -275,7 +274,7 @@ export function analyzeHabitatMovement(
   } else if (isSpringWarming) {
     // Voorjaar met opwarming
     primaryZone = {
-      name: 'Ondiepe zonbeschenen voorjaarsbaai / rietkraag',
+      name: 'Ondiepe, zonbeschenen zoekzone (indien aanwezig)',
       habitatType: 'Foerageerzone',
       description: 'Ondiepe zones kunnen bij voldoende zoninstraling sneller reageren dan dieper water. Of er op deze stek zo’n zone bestaat en hoeveel zij opwarmt, is niet gemeten.',
       depthProfileNote: 'Ondiepere zone; exacte diepte en temperatuurverschil niet geregistreerd.',
@@ -284,7 +283,7 @@ export function analyzeHabitatMovement(
     };
 
     alternativeZone = {
-      name: 'Eerste taludrand aan de rand van de ondiepte',
+      name: 'Lokale diepteovergang (indien aanwezig)',
       habitatType: 'Doorgang / transitie',
       description: 'Een lokale overgang naar dieper water kan als alternatief dienen wanneer de ondiepte nog koud is; het bestaan van zo’n talud is niet geregistreerd.',
       depthProfileNote: 'Overgangszone alleen gebruiken als die ter plaatse is gepeild.',
@@ -304,7 +303,7 @@ export function analyzeHabitatMovement(
       };
     } else {
       primaryZone = {
-        name: targetSlot === 'Middag' ? 'Schaduwrijke holdingzone onder begroeiing' : 'Oevertaluds en mosselbanken',
+        name: targetSlot === 'Middag' ? 'Schaduwrijke structuurzone (indien aanwezig)' : 'Lokale oeverstructuurzone',
         habitatType: targetSlot === 'Middag' ? 'Holding / rustzone' : 'Foerageerzone',
         description: targetSlot === 'Middag'
           ? 'Bij fel licht kan aanwezige schaduw dekking bieden; alleen toepassen waar bomen, vegetatie of andere schaduw werkelijk aanwezig zijn.'
@@ -316,7 +315,7 @@ export function analyzeHabitatMovement(
     }
 
     alternativeZone = {
-      name: 'Open water overgangszone / plateaurand',
+      name: 'Open-water overgang (indien lokaal aanwezig)',
       habitatType: 'Doorgang / transitie',
       description: 'Een open-water overgang kan als alternatief worden onderzocht als dieptekaart of peiling daar aanleiding toe geeft; plateau of harde bodem is niet geregistreerd.',
       depthProfileNote: 'Geen bathymetrische gegevens; diepte ter plaatse vaststellen.',
@@ -372,7 +371,7 @@ export function analyzeHabitatMovement(
 
   transitRoute = hasReeds
     ? 'Mogelijke route langs de geregistreerde rietkraag; controleer of deze structuur doorloopt.'
-    : 'Geen concrete transitroute afgeleid; gebruik alleen lokaal vastgestelde diepte- of structuurverschillen.'
+    : 'Geen concrete transitroute afgeleid; gebruik alleen lokaal vastgestelde diepte- of structuurverschillen.';
 
   windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && windDirText
     ? avgWindSpeedKmH >= 15
