@@ -1,4 +1,4 @@
-import { analyzeRodPositioning } from './src/services/rodPositioningEngine';
+import { analyzeRodPositioning, getDirectionMeta } from './src/services/rodPositioningEngine';
 import { calculateDayPrognosis } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
@@ -949,6 +949,10 @@ assert(
   missingContextAdvice.windCastingGuidance === undefined &&
   missingContextAdvice.missingInformation.some((m) => m.toLowerCase().includes('watertype')),
   '18.3 Zonder wind, thermische basis en watertype wordt geen concreet kompasadvies verzonnen'
+);
+assert(
+  getDirectionMeta('Onbekend') === null,
+  '18.3a Een onbekende windrichting wordt niet stilzwijgend als zuidwest geïnterpreteerd'
 );
 
 const aroundNorthForecast = createHourlyForecasts('2026-07-20', 20, 8, 'N').map((hour, index) => ({
