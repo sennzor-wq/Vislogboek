@@ -99,7 +99,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const storedSnapshots = await db.prognosisSnapshots.toArray();
       const locationById = new Map(locations.map((item) => [item.id, item]));
       const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
+      const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
       for (const snapshot of storedSnapshots) {
+        if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
         if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
             !snapshot.actualWaterTemperatureTimestamp) continue;
         const sourceLocation = locationById.get(snapshot.locationId);
@@ -111,9 +113,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           waterDepth: sourceLocation?.waterDepth,
           latitude: sourceLocation?.latitude,
           longitude: sourceLocation?.longitude,
+          isBenchmark: false,
         });
       }
       for (const session of sessions) {
+        if (session.isBenchmark === true) continue;
         if (!session.locationId || typeof session.waterTemperature !== 'number') continue;
         const sourceLocation = locationById.get(session.locationId);
         historicalWaterTemperatures.push({
@@ -124,6 +128,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
           latitude: sourceLocation?.latitude,
           longitude: sourceLocation?.longitude,
+          isBenchmark: session.isBenchmark,
         });
       }
       setWeatherUpdatedAt(weather.fetchedAt);
