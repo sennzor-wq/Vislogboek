@@ -567,7 +567,7 @@ De prognoseketen moet ontbrekende weerwaarden als **onbekend** behandelen, nooit
 
 Dit is een gerichte uitbreiding van de bestaande prognose- en thermische engines; er wordt geen tweede engine toegevoegd. Bij ontbrekende wind- of thermische invoer wordt geen weersgestuurd hengelpositie-/oeveradvies gepresenteerd; bij ontbrekende ondersteunende context worden habitat- en tactische adviezen als laag betrouwbaar gemarkeerd. De regressietests dekken lege weerdata, gedeeltelijke velden en het niet hergebruiken van een oude watertemperatuurmeting voor een latere dag af. De Quality Gate is succesvol doorlopen op de implementatiebranch; visuele controle in Google AI Studio blijft een handmatige stap.
 
-### Uitbreiding — lokale watertemperatuurmetingen als thermisch anker (implementatie in review)
+### Uitbreiding — lokale watertemperatuurmetingen als thermisch anker (geïmplementeerd op main; CI geslaagd)
 
 De bestaande thermische analyse is uitgebreid zodat een echte watertemperatuurmeting van een eerdere sessie op **dezelfde stek** als startwaarde kan dienen voor een latere modelschatting. Een eerdere meting wordt niet als actuele meting gepresenteerd: de uitvoer houdt het onderscheid tussen `measuredWaterTemp` en `estimatedWaterTemp` intact.
 
@@ -899,4 +899,5 @@ Harde uitgangspunten:
 - Implementatieplan toegevoegd en samengevoegd via PR #12.
 - Fase 1 gegevenscorrectheid: kerncorrecties samengevoegd via PR #13; aparte opslag van sessiewaarnemingen samengevoegd via PR #15. Beide CI-runs geslaagd.
 - Fase 2 volledige back-up en herstel: afgerond via PR #17; back-up v3 omvat alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's. Legacycompatibiliteit, volledige restore/merge, validatie en round-trip CI-tests toegevoegd.
-- Fases 3 t/m 6: gepland volgens het implementatieplan.
+- Fase 3 thermische provenance: PR #18 corrigeerde de classificatie van verouderde metingen en voegde provenance-/onzekerheidsmetadata toe; PR #19 bewaart meetankerleeftijd en weersdekking ook wanneer een schatting niet verantwoord is. Beide CI-runs geslaagd. Fase 3 blijft in uitvoering voor verdere domeinspecifieke schatting, chronologische evaluatie en kalibratie.
+- Fases 4 t/m 6: gepland volgens het implementatieplan.
