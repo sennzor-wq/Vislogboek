@@ -142,9 +142,9 @@ Elke fase wordt op een afzonderlijke branch ontwikkeld, krijgt gerichte regressi
 
 Elke fase wordt hieronder bijgewerkt met branch/PR, gewijzigde onderdelen, testresultaten, openstaande punten en merge-status. Een punt is niet als afgerond gemarkeerd op basis van alleen code-aanwezigheid; tests en gedrag moeten dit ondersteunen.
 
-- Voorbereidende stap: in uitvoering.
-- Fase 1: gepland.
-- Fase 2: gepland.
+- Voorbereidende stap: afgerond; implementatieplan PR #12 samengevoegd. Projectcontext wordt met deze documentatie-update gesynchroniseerd.
+- Fase 1: afgerond; PR #13 (gegevenscorrectheid, doelsoortuitkomst, onbekende duur, aanwezigheid zonder kansbonus en atomische snapshots) en PR #15 (afzonderlijke opslag van sessiewaarnemingen) samengevoegd. CI geslaagd.
+- Fase 2: in voorbereiding; volledige export/import, versiebeheer, validatie en round-trip tests.
 - Fase 3: gepland.
 - Fase 4: gepland.
 - Fase 5: gepland.
