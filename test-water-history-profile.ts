@@ -23,6 +23,7 @@ const localHistory: HistoricalWaterTemperatureObservation[] = [
   { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z' },
   { locationId: 'location-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z' },
   { locationId: 'location-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z' },
+  { locationId: 'location-a', temperatureC: 34, timestamp: '2026-06-25T10:00:00Z', isBenchmark: true },
   // Same target day and future observations must never leak into the profile.
   { locationId: 'location-a', temperatureC: 30, timestamp: '2026-07-04T00:00:00Z' },
   { locationId: 'location-a', temperatureC: 31, timestamp: '2026-07-05T10:00:00Z' },
@@ -31,7 +32,7 @@ const localHistory: HistoricalWaterTemperatureObservation[] = [
 const localProfile = deriveHistoricalWaterTemperatureProfile(localHistory, target, '2026-07-04');
 assert(localProfile !== null, 'same-location profile is created from at least three earlier real measurements');
 assert(localProfile?.baselineC === 15, 'same-location profile uses the median, not the mean');
-assert(localProfile?.sampleCount === 3, 'same-day and future measurements are excluded');
+assert(localProfile?.sampleCount === 3, 'same-day, future and benchmark measurements are excluded');
 
 const nearbyTarget: FishingLocation = {
   ...target,
