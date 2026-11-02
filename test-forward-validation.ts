@@ -533,6 +533,28 @@ async function runTestSuite() {
     `3.2 Chronologische rolling baseline (${evalResult5.naiveBrierScore}) gebruikt 5 eerdere uitkomsten en toont BSS +${((evalResult5.brierSkillScore ?? 0) * 100).toFixed(1)}%`
   );
 
+  const futureTrainingOutcome: PrognosisSnapshot = {
+    id: 'future-training-outcome',
+    forecastTimestamp: '2026-10-06T07:00:00Z',
+    targetDate: '2026-10-06',
+    targetSpecies: 'Karper',
+    durationHours: 3,
+    predictedActivityScore: null,
+    predictedCatchChance: null,
+    actualOutcome: 'catch',
+    linkedSessionId: 'future-training-session',
+    source: 'test-training-history',
+    modelVersion: 'test',
+    createdAt: '2026-10-06T07:00:00Z',
+  };
+  const evaluationWithFutureHistory = evaluatePrognosisPerformance(
+    fiveEvaluatedSnapshots,
+    [...baselineTraining, futureTrainingOutcome]
+  );
+  assert(evaluationWithFutureHistory.naiveBrierScore === evalResult5.naiveBrierScore &&
+    evaluationWithFutureHistory.baselineEvaluatedCount === evalResult5.baselineEvaluatedCount,
+    '3.3 Een latere sessie-uitkomst verandert de rolling baseline voor eerdere prognosedagen niet');
+
   // Benchmarks moeten worden uitgesloten
   const snapshotsWithBenchmark: PrognosisSnapshot[] = [
     ...fiveEvaluatedSnapshots,
