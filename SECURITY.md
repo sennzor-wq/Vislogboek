@@ -37,7 +37,7 @@ The CSP must be verified against the production build, installed PWA, offline mo
 Before public release:
 
 1. Run the full CI quality gate and the backup-import security regression tests.
-2. Run a dependency audit against the committed lockfile, including transitive dependencies.
+2. Run the CI dependency audit (`bun audit`) against the committed lockfile, including transitive dependencies.
 3. Check the actual deployed HTTP headers and TLS configuration.
 4. Verify that no private backup, source archive, internal document, environment file or source map is served publicly.
 5. Test malformed and oversized backup imports, including merge and full-restore flows.
