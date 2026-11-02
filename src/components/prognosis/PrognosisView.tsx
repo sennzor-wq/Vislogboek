@@ -69,6 +69,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   const [selectedDurationHours, setSelectedDurationHours] = useState<number>(3);
   const [prebaitAvailableDays, setPrebaitAvailableDays] = useState<number>(2);
   const [prebaitFeedPreference, setPrebaitFeedPreference] = useState<string>('');
+  const [selectedTechnique, setSelectedTechnique] = useState<string>('');
   const [selectedPresenceObs, setSelectedPresenceObs] =
     useState<PresenceObservationType>('onbekend');
   const [waterTempInput, setWaterTempInput] = useState<string>('');
@@ -166,6 +167,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             prebaitOptions: {
               availableDaysBefore: prebaitAvailableDays,
               preferredFeedType: prebaitFeedPreference,
+              technique: selectedTechnique,
               sessionDurationHours: selectedDurationHours,
               userWaterTemp: validWaterTemp,
             },
@@ -197,6 +199,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     selectedPresenceObs,
     prebaitAvailableDays,
     prebaitFeedPreference,
+    selectedTechnique,
   ]);
 
   const handleQuickSetWaterFacing = async (dir: CompassDirection) => {
@@ -288,7 +291,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
         </div>
 
         {/* Filter Controls Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 pt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 pt-4">
           {/* Vissoort selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -346,6 +349,25 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               <option value={10}>10 uur</option>
               <option value={12}>12 uur (halve etmaal)</option>
               <option value={24}>24 uur (volledige etmaal)</option>
+            </select>
+          </div>
+
+          {/* Vistechniek voor het onderscheid tussen instant voer en voorvoeren */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              Vistechniek (optioneel)
+            </label>
+            <select
+              value={selectedTechnique}
+              onChange={(e) => setSelectedTechnique(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+            >
+              <option value="">Niet gekozen</option>
+              <option value="Method feeder">Method feeder</option>
+              <option value="Feeder">Feedervissen</option>
+              <option value="Karper statisch">Karper statisch</option>
+              <option value="Penvisserij">Penvisserij</option>
+              <option value="Anders">Anders</option>
             </select>
           </div>
 
@@ -1499,6 +1521,22 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       </p>
                     </div>
                   </div>
+
+                  {pp.methodFeederGuidance && (
+                    <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/50 text-cyan-100 text-[11px] leading-relaxed">
+                      <strong className="block mb-1">Method feeder — instant presentatie</strong>
+                      {pp.methodFeederGuidance}
+                    </div>
+                  )}
+
+                  {pp.missingInformation.length > 0 && (
+                    <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/40 text-amber-100 text-[11px] leading-relaxed">
+                      <strong className="block mb-1">Beperkingen van dit voeradvies</strong>
+                      <ul className="list-disc pl-4 space-y-1">
+                        {pp.missingInformation.map((item, index) => <li key={index}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
 
                   {/* Persoonlijke Logboekhistorie */}
                   {pp.personalEvidence && (
