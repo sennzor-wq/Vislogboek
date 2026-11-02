@@ -307,7 +307,7 @@ async function runTestSuite() {
   const targetCatch: CatchItem = {
     id: 'live_sess_001_target_catch',
     sessionId: liveSession1.id,
-    locationId: liveSession1.locationId,
+    locationId: 'spot-de-plas',
     species: 'Karper',
     count: 2,
     timestamp: liveSession1.startTime,
