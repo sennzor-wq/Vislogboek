@@ -171,7 +171,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     ],
     reviewedAt: '2026-11-02',
     approvedForPrediction: false,
-  },,
+  },
   {
     id: 'freshwater-fish-temperature-growth-four-species-tien-2024',
     topic: 'temperatuur-en-groei',
