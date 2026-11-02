@@ -39,7 +39,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     species: 'Karper',
     dutchName: 'Karper (Cyprinus carpio)',
     scientificName: 'Cyprinus carpio',
-    description: 'Warmteminnende ectotherme bodemazer. Bij lage watertemperaturen vertraagt de spijsvertering drastisch (Q10-effect). Piekactiviteit treedt pas op boven 16 °C.',
+    description: 'Warmteminnende ectotherme bodemazer. Bij lage watertemperaturen vertraagt de spijsvertering en neemt voedselopname af; activiteit neemt doorgaans toe bij opwarming. Er is geen vaste universele temperatuurgrens voor piekactiviteit.',
     assumptions: [
       'Stofwisseling en voedselopname nemen doorgaans af bij dalende watertemperatuur. Een vaste grens voor winterrust geldt niet universeel; acclimatisatie, formaat, conditie en watertype spelen mee.',
       'Een lage luchttemperatuur leidt niet automatisch tot winterrust zolang de watermassa warmer blijft; beoordeel dit op basis van gemeten of geschatte watertemperatuur en thermische traagheid.',
