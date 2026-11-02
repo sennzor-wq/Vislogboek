@@ -104,13 +104,13 @@ assert(
   '1.4 Op de visdag zelf wordt bijvoeren afgeraden om passieve vis niet te verzadigen'
 );
 assert(
-  coldPlan.temperatureFactorExplanation.includes('metabolisme') && coldPlan.temperatureFactorExplanation.includes('48 tot 72 uur'),
+  coldPlan.temperatureFactorExplanation.includes('voedselopname') && coldPlan.temperatureFactorExplanation.includes('vertraagd'),
   '1.5 Toelichting legt het trage metabolisme en lange darmpassage bij <6°C uit'
 );
 
 // 1.2 Gematigd koud water (8°C: voorjaar/herfst) -> Maximaal 1 dag vooraf, lichte granen
 const chillyThermal = createMockThermalAnalysis(8.0, 'Ongeveer stabiel');
-const chillyPlan = calculatePrebaitPlan('2026-03-20', 'Karper', chillyThermal, { availableDaysBefore: 3 });
+const chillyPlan = calculatePrebaitPlan('2026-03-20', 'Karper', chillyThermal, { availableDaysBefore: 3 }, [], baseLocation);
 
 assert(
   chillyPlan.shouldPrebait === true,
@@ -126,13 +126,13 @@ assert(
 );
 assert(
   chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('koolhydraten') ||
-  chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('licht verteerbare'),
+  chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('licht verteerbaar'),
   '1.9 Voersamenstelling benadrukt lichte verteerbaarheid en vermijdt zware oliën'
 );
 
 // 1.3 Optimaal warm water (19°C: zomer/pieknajaar) -> Zeer zinvol, 2-3 dagen
 const warmThermal = createMockThermalAnalysis(19.0, 'Ongeveer stabiel');
-const warmPlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 3 });
+const warmPlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 3 }, [], baseLocation);
 
 assert(
   warmPlan.shouldPrebait === true,
@@ -156,7 +156,7 @@ assert(
 );
 
 // 1.4 Respecteert de beschikbare dagen van de visser (0 dagen = instant)
-const instantPlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 0 });
+const instantPlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 0 }, [], baseLocation);
 assert(
   instantPlan.shouldPrebait === false && instantPlan.recommendedDaysBefore === 0,
   '1.15 Als de visser 0 dagen beschikbaar heeft, plant het model 0 voorvoerdagen'
@@ -224,7 +224,7 @@ const mockHistoricalSessions: FishingSession[] = [
   },
 ];
 
-const evidencePlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 2 }, mockHistoricalSessions);
+const evidencePlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 2 }, mockHistoricalSessions, baseLocation);
 assert(
   evidencePlan.personalEvidence?.hasSufficientData === true,
   '1.16 Met 5 sessies en 3 voorvoersessies is personalEvidence.hasSufficientData true'
@@ -236,6 +236,77 @@ assert(
 assert(
   evidencePlan.personalEvidence?.summaryNote.includes('correlatie is geen causaal bewijs'),
   '1.18 Logboektoelichting benadrukt expliciet dat correlatie geen causaal bewijs is'
+);
+
+
+// 1.6 Soortselectie: geen voerplan voor roofvis of algemene doelsoort.
+assert(
+  calculatePrebaitPlan('2026-07-20', 'Snoek', warmThermal, { availableDaysBefore: 2 }, [], baseLocation) === null &&
+  calculatePrebaitPlan('2026-07-20', 'Algemeen', warmThermal, { availableDaysBefore: 2 }, [], baseLocation) === null,
+  '1.19 De Voerplanner wordt alleen aangeboden voor karper, zeelt en brasem'
+);
+
+// 1.7 Method feeder blijft instant, maar sluit voorvoeren voor karper niet uit.
+const methodFeederPlan = calculatePrebaitPlan(
+  '2026-07-20',
+  'Karper',
+  warmThermal,
+  { availableDaysBefore: 2, technique: 'Method feeder', sessionDurationHours: 3 },
+  [],
+  baseLocation
+);
+assert(
+  methodFeederPlan?.shouldPrebait === true && methodFeederPlan.recommendedDaysBefore === 2,
+  '1.20 Method feeder kan naast een verantwoord voorvoerprogramma worden gebruikt'
+);
+assert(
+  methodFeederPlan?.methodFeederGuidance?.includes('instant vissen') === true &&
+  methodFeederPlan.moments[methodFeederPlan.moments.length - 1].feedType.toLowerCase().includes('instant method-feederkorf'),
+  '1.21 Method feeder wordt als instant korfvoer rond het haakaas weergegeven'
+);
+
+const coldMethodFeederPlan = calculatePrebaitPlan(
+  '2026-01-15',
+  'Karper',
+  coldThermal,
+  { availableDaysBefore: 3, technique: 'Method feeder' },
+  [],
+  baseLocation
+);
+assert(
+  coldMethodFeederPlan?.shouldPrebait === false &&
+  coldMethodFeederPlan?.sessionDayGuidance.feedDuringSession === false &&
+  coldMethodFeederPlan?.methodFeederGuidance?.includes('instant vissen') === true,
+  '1.22 Bij zeer koud water blijft method feeder een minimale instant presentatie, zonder voorvoer of extra bijvoer'
+);
+
+// 1.8 Geen temperatuur of geen bruikbaar watertype: geen concrete voerhoeveelheden.
+const unknownTemp = { ...warmThermal, hasMeasuredWaterTemp: false, measuredWaterTemp: null, estimatedWaterTemp: null };
+const unknownTempPlan = calculatePrebaitPlan('2026-07-20', 'Karper', unknownTemp, { availableDaysBefore: 2 }, [], baseLocation);
+const unknownWaterTypePlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 2 }, [], { ...baseLocation, waterType: 'Onbekend' });
+assert(
+  unknownTempPlan?.shouldPrebait === false && unknownTempPlan?.recommendedDaysBefore === 0 &&
+  unknownTempPlan?.totalAmountGrams === 0,
+  '1.23 Zonder bruikbare watertemperatuur worden geen voerhoeveelheden of voertijden verzonnen'
+);
+assert(
+  unknownWaterTypePlan?.shouldPrebait === false && unknownWaterTypePlan?.recommendedDaysBefore === 0,
+  '1.24 Zonder bekend watertype worden geen concrete voorvoerdagen gepland'
+);
+
+// 1.9 Beschikbare dagen worden begrensd door de werkelijke planningsdatum.
+const shortHorizonPlan = calculatePrebaitPlan(
+  '2026-07-22',
+  'Karper',
+  warmThermal,
+  { availableDaysBefore: 3, planningDate: '2026-07-21' },
+  [],
+  baseLocation
+);
+assert(
+  shortHorizonPlan?.recommendedDaysBefore === 1 &&
+  shortHorizonPlan.moments[0].date === '2026-07-21',
+  '1.25 Een sessie morgen krijgt geen voorvoerdagen in het verleden'
 );
 
 
@@ -480,6 +551,7 @@ const fullProg = calculateDayPrognosis(
     locationId: baseLocation.id,
     prebaitOptions: {
       availableDaysBefore: 2,
+      planningDate: '2026-07-18',
     },
   }
 );

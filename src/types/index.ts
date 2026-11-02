@@ -549,6 +549,8 @@ export interface PrebaitProgramOptions {
   preferredFeedType?: string;
   sessionDurationHours?: number;
   userWaterTemp?: number | null;
+  technique?: string;
+  planningDate?: string;
 }
 
 export interface PrebaitProgramPlan {
@@ -574,6 +576,7 @@ export interface PrebaitProgramPlan {
   };
   confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
   missingInformation: string[];
+  methodFeederGuidance?: string;
   personalEvidence?: {
     hasSufficientData: boolean;
     totalRelevantSessions: number;
