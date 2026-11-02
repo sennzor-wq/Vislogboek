@@ -4,7 +4,7 @@ import { normalizeRawBackup } from './src/services/backupService';
 import { BENCHMARK_SESSION, BENCHMARK_LOCATION, BENCHMARK_CATCHES } from './src/db/db';
 import { FishingLocation, FishingSession, CatchItem, SessionOutcome } from './src/types';
 
-const jsonPath = path.resolve('public/assets/aistudio/vislogboek-backup-2026-10-26_50803f8b.json');
+const jsonPath = path.resolve('test-fixtures/legacy/vislogboek-backup-2026-10-26.json');
 console.log('Testing file:', jsonPath);
 const fileContent = fs.readFileSync(jsonPath, 'utf-8');
 const raw = JSON.parse(fileContent);
