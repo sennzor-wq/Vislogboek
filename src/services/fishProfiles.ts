@@ -6,7 +6,7 @@ export interface SpeciesProfile {
   scientificName: string;
   description: string;
   assumptions: string[];
-  scientificReferences: string[];       // Controleerbare wetenschappelijke bronnen
+  scientificReferences: string[];       // Bronnen ondersteunen biologische context, niet automatisch de numerieke modelparameters
   // Modelinstellingen, geen universele soortgrenzen. Behandel als voorlopige
   // responsparameters totdat per soort/levensstadium/watertype een bron de exacte
   // waarden ondersteunt. De uitkomst is een relatieve modelschatting, geen gemeten activiteit.
@@ -48,6 +48,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Schemering en nachtelijke uren zijn in warme periodes productiever dan felle zon overdag.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Chen, S. et al. (2012). Effect of Water Temperature on Feeding Rhythm in Common Carp. Journal of Northeast Agricultural University (English Edition), 19(1), 57–61. https://doi.org/10.1016/S1006-8104(12)60039-7',
       'Elliott, J.M. (1994) Quantitative Ecology and the Brown Trout / Teleost Bioenergetics.',
       'Wootton, R.J. (1998) Ecology of Teleost Fishes, 2nd ed. Kluwer Academic Publishers.',
       'Hepher, B. & Pruginin, Y. (1981) Commercial Fish Farming with special reference to Fish Culture in Israel.',
@@ -80,6 +82,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Matige kabbel (10–22 km/u) brengt natuurlijk voedsel in beweging en verlaagt schuwheid.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Lammens, E.H.R.R. (1985) A test of resource partitioning in a gear-selected fish community.',
       'EIFAC Water Quality Criteria for European Freshwater Fish (FAO technical papers).',
       'Nagelkerke, L.A.J. & Sibbing, F.A. (1996) Efficiency of feeding mechanisms in Abramis brama.',
@@ -111,6 +115,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Een naderend weersfront kan meerdere omstandigheden tegelijk veranderen; een afzonderlijk positief effect van luchtdruk op jachtactiviteit is niet vastgesteld.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Casselman, J.M. (1978) Effects of water temperature on the growth and metabolism of Northern Pike (Esox lucius).',
       'Diana, J.S. (1979) The feeding pattern and daily ration of pike in Lac Ste. Anne, Alberta.',
       'Craig, J.F. (1996) Pike: Biology and Exploitation. Chapman & Hall.',
@@ -142,6 +147,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Harde storm en troebel water door hevige stortbui belemmeren het visuele jagen.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Craig, J.F. (1987) The Biology of Perch and Related Fish. Croom Helm.',
       'Le Cren, E.D. (1958) Observations on the growth of perch (Perca fluviatilis) over twenty-two years.',
       'Thorpe, J.E. (1977) Synopsis of biological data on the perch. FAO Fisheries Synopsis No. 113.',
@@ -172,6 +179,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Reageert positief op zachte westenwind met lichte kabbel; vermijdt storm.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Goldspink, C.R. (1979) The population density, growth rate and production of roach Rutilus rutilus in Tjeukemeer.',
       'Kubecka, J. (1993) Succession of fish communities in reservoirs of Central and Eastern Europe.',
     ],
@@ -201,6 +210,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Kille noordenwind en plotselinge koufronten zetten zeelt vrijwel direct stil.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Benjamin, C., Hill, J. & Ricciardi, A. (2026). Thermal effects on feeding efficiency and body condition in invasive and native benthivorous freshwater fishes. Biological Invasions, 28, 51. https://doi.org/10.1007/s10530-026-03767-w (experimentele voedselopname; beperkte overdraagbaarheid naar Nederlandse veldsituaties)',
       'Neophitou, C. (1993) Some biological data on tench (Tinca tinca L.) in Lake Pamvotis, Greece.',
       'Bryant, P. et al. (1980) Aquaculture of cyprinids: Environmental requirements and feeding of tench.',
     ],
@@ -230,6 +241,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Troebel water en stabiele luchtdruk verhogen de jachtactiviteit.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
+      'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Lappalainen, J. et al. (2003) Sander lucioperca biology and management in European freshwaters.',
       'Van Densen, W.L.T. (1985) Feeding and growth of 0+ pikeperch in relation to prey density.',
     ],
@@ -258,6 +271,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Nachtelijke uren en broeierige zwoele avonden voor een zomers buienfront zijn topuren.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Copp, G.H. et al. (2009) The biology, ecology and impact of non-native European catfish Silurus glanis.',
       'Kestemont, P. (1995) Nutrition and growth of Silurus glanis in European waters.',
     ],
@@ -286,6 +300,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Actief overdag en in de avondschemering met luide oppervlaktekolken.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Tartally, A. (2000) Data on the food of Aspius aspius in River Tisza.',
       'Pinder, A.C. (2001) Keys to larval and juvenile stages of British freshwater fishes.',
     ],
@@ -314,6 +329,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Matige temperaturen (12–18 °C) en stabiele omstandigheden vormen het nulpunt.',
     ],
     scientificReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Huet, M. (1970) Traité de Pisciculture. Éditions Ch. de Wyngaert, Bruxelles.',
       'Wootton, R.J. (1998) Ecology of Teleost Fishes. Kluwer Academic Publishers.',
     ],
