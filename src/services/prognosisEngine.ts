@@ -961,7 +961,7 @@ export function calculateDayPrognosis(
           userWaterTemp,
           ...options?.prebaitOptions,
           technique: options?.prebaitOptions?.technique ?? options?.technique,
-          planningDate: (currentDateRef ?? new Date()).toISOString().slice(0, 10),
+          planningDate: options?.prebaitOptions?.planningDate ?? (currentDateRef ?? new Date()).toISOString().slice(0, 10),
         },
         historicalSessions,
         location,
