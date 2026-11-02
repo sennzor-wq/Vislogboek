@@ -343,7 +343,16 @@ async function runBrierIntegrationTest() {
     modelVersion: 'test',
     createdAt: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
   }));
-  const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots);
+  const baselineTrainingSessions: FishingSession[] = baselineTrainingSnapshots.map((snapshot, index) => ({
+    id: snapshot.linkedSessionId!,
+    startTime: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
+    endTime: `2026-10-${String(10 + index).padStart(2, '0')}T10:00:00Z`,
+    outcome: snapshot.actualOutcome as 'catch' | 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
+    updatedAt: `2026-10-${String(10 + index).padStart(2, '0')}T10:00:00Z`,
+  }));
+  const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots, baselineTrainingSessions);
 
   // Gemiddelde Brier-score = 1.63 / 7 ≈ 0.2329 (in EvaluationResult afgerond op 3 decimalen: 0.233)
   const expectedBrierScore = 1.63 / 7;
