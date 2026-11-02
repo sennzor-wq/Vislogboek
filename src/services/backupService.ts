@@ -361,7 +361,7 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
       return `De back-up is te diep genest bij ${path}.`;
     }
     if (typeof value === 'string') {
-      const isPhoto = /(?:photoUrl|photoUrls|photos)(?:\\[|$)/i.test(path);
+      const isPhoto = /(?:photoUrl|photoUrls|photos)(?:\[|$)/i.test(path);
       const maxLength = isPhoto ? MAX_BACKUP_PHOTO_LENGTH : MAX_BACKUP_TEXT_LENGTH;
       return value.length > maxLength ? `Een tekst- of fotoveld is te groot bij ${path}.` : null;
     }
