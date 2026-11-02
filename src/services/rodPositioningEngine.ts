@@ -372,7 +372,7 @@ export const DIRECTION_META_MAP: Record<string, DirectionMeta> = {
 /**
  * Normaliseert windtekst en graden naar de 8 standaard kompasrichtingen.
  */
-export function getDirectionMeta(dirText: string, degrees?: number): DirectionMeta {
+export function getDirectionMeta(dirText: string, degrees?: number): DirectionMeta | null {
   const clean = (dirText || '').trim().toUpperCase();
   if (DIRECTION_META_MAP[clean]) {
     return DIRECTION_META_MAP[clean];
@@ -426,7 +426,7 @@ export function getDirectionMeta(dirText: string, degrees?: number): DirectionMe
     return DIRECTION_META_MAP['NW'];
   }
 
-  return DIRECTION_META_MAP['ZW'];
+  return null;
 }
 
 /**
@@ -450,8 +450,9 @@ export function buildWindCastingGuidance(
     waterType: string;
   },
   personalEvidence?: RodPositioningAdvice['personalEvidence']
-): WindCastingGuidance {
+ ): WindCastingGuidance | undefined {
   const meta = getDirectionMeta(dirText, degrees);
+  if (!meta) return undefined;
   const actualDegrees = meta.degrees;
   const oppDegrees = meta.oppositeDegrees;
 
