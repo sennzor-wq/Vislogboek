@@ -291,7 +291,7 @@ export function analyzeHabitatMovement(
     };
   } else if (isSummerWarm) {
     // Zomer
-    if (bankWind?.isConfigured && bankWind.relation.includes('aanlandig') && avgWindSpeedKmH >= 12) {
+    if (bankWind?.isConfigured && bankWind.relation.includes('aanlandig') && typeof avgWindSpeedKmH === 'number' && avgWindSpeedKmH >= 12) {
       primaryZone = {
         name: 'Aanlandige oeverzone (actieve branding & voedseldrift)',
         habitatType: 'Foerageerzone',
