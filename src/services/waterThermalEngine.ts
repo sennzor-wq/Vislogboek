@@ -220,10 +220,13 @@ export function analyzeWaterThermalDevelopment(
   const meanDewPointDepression = evaporationSamples.length
     ? evaporationSamples.reduce((sum, h) => sum + h.temperature - (h.dewPoint as number), 0) / evaporationSamples.length
     : null;
+  const meanRelativeHumidity = humiditySamples.length
+    ? humiditySamples.reduce((sum, h) => sum + (h.relativeHumidity as number), 0) / humiditySamples.length
+    : null;
   const evaporationPotential: 'hoog' | 'matig' | 'laag' | 'onbekend' = meanDewPointDepression === null
     ? 'onbekend'
-    : meanDewPointDepression >= 8 && dayAvgWind !== null && dayAvgWind >= 9 ? 'hoog'
-    : meanDewPointDepression >= 4 ? 'matig' : 'laag';
+    : meanDewPointDepression >= 8 && dayAvgWind !== null && dayAvgWind >= 9 && (meanRelativeHumidity === null || meanRelativeHumidity <= 65) ? 'hoog'
+    : meanDewPointDepression >= 4 || (meanRelativeHumidity !== null && meanRelativeHumidity <= 65 && dayAvgWind !== null && dayAvgWind >= 9) ? 'matig' : 'laag';
 
   // Windmenging
   let windMixing: 'Sterke menging' | 'Matige menging' | 'Rustig' | 'Onvoldoende gegevens';
@@ -354,7 +357,7 @@ export function analyzeWaterThermalDevelopment(
           ? Math.max(0, Math.min(1600, hour.shortwaveRadiation as number))
           : null;
         const solarAdjustment = radiation !== null
-          ? (radiation / 700) * (hour.temperature > waterTemp ? 0.35 : 0.12)
+          ? (Math.min(1, radiation / 700)) * (hour.temperature > waterTemp ? 0.35 : 0.12)
           : cloud === null ? 0 : (1 - cloud / 100) * (hour.temperature > waterTemp ? 0.35 : 0.12);
         const equilibrium = mean24 * 0.65 + mean72 * 0.35 + solarAdjustment;
         const wind = Number.isFinite(hour.windSpeed) ? Math.max(0, hour.windSpeed) : null;
@@ -404,7 +407,13 @@ export function analyzeWaterThermalDevelopment(
     const weatherEstimate = baseAirEquilibrium + solarBonus;
     let rawEstimate = weatherEstimate;
     let historyWeight = 0;
-    if (historicalProfile) {
+    if (anchor && !isDepthKnown && anchorAgeHours !== null && anchorAgeHours <= 96) {
+      // Bij onbekende diepte blijft een recente lokale meting het startpunt.
+      // De bestaande watertype-responsfactor stuurt alleen een voorzichtige
+      // aanpassing richting het weer; er wordt geen diepte aangenomen.
+      rawEstimate = anchor.temperature * (1 - responseWeight) + weatherEstimate * responseWeight;
+      usedMeasuredAnchor = true;
+    } else if (historicalProfile) {
       // Een meting van dezelfde stek weegt zwaarder dan een profiel van vergelijkbare
       // wateren. De bijdrage groeit geleidelijk met het aantal echte waarnemingen.
       historyWeight = historicalProfile.source === 'same_location'
@@ -414,7 +423,7 @@ export function analyzeWaterThermalDevelopment(
     }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
     const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
-      (evaporationPotential === 'hoog' ? 0.3 : 0), historicalProfile?.uncertaintyC ?? 0);
+      (evaporationPotential === 'hoog' ? 0.3 : 0) + (anchor && !isDepthKnown ? 0.5 : 0), historicalProfile?.uncertaintyC ?? 0);
     estimatedRange = [
       Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
       Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
