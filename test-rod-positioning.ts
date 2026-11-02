@@ -818,7 +818,8 @@ for (let i = 1; i <= 12; i++) {
   });
 }
 
-const adviceRich = analyzeRodPositioning('2026-07-20', fcZW, 'Karper', {
+const fcRich = createHourlyForecasts('2026-07-20', 22, 16, 'ZW');
+const adviceRich = analyzeRodPositioning('2026-07-20', fcRich, 'Karper', {
   location: baseLoc,
   thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
   historicalSessions: richSessions,
