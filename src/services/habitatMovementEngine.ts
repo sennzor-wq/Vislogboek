@@ -52,22 +52,24 @@ export function analyzeHabitatMovement(
     location,
     bankWind,
     thermalAnalysis,
-    targetSlot = 'Ochtend',
+    targetSlot,
     observations = [],
     sessionObservations = [],
     historicalSessions = [],
-    avgWindSpeedKmH = 12,
-    windDirText = 'ZW',
-    pressureTrend = 'stabiel',
-    cloudCoverPercent = 50,
+    avgWindSpeedKmH,
+    windDirText,
+    pressureTrend,
+    cloudCoverPercent,
   } = context;
 
   const season = getSeasonNL(dateStr);
   const effectiveWaterTemp = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null
     ? thermalAnalysis.measuredWaterTemp
-    : thermalAnalysis.estimatedWaterTemp ?? 14;
+    : typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp)
+      ? thermalAnalysis.estimatedWaterTemp
+      : null;
 
-  const waterType = location?.waterType || 'Plas/Zandafgraving';
+  const waterType = location?.waterType;
   const isFlowingWater = waterType === 'Rivier' || waterType === 'Kanaal';
   const waterDepth = location?.waterDepth;
   const habitatFeatures = location?.habitatFeatures || [];
@@ -119,15 +121,26 @@ export function analyzeHabitatMovement(
   }
 
   // Modelaannames
-  if (!thermalAnalysis.hasMeasuredWaterTemp) {
-    modelInferences.push(`Watertemperatuur geschat via thermisch evenwichtsmodel (~${effectiveWaterTemp.toFixed(1)} °C)`);
+  if (effectiveWaterTemp !== null) {
+    modelInferences.push(thermalAnalysis.hasMeasuredWaterTemp
+      ? 'Thermische analyse gebruikt de lokale watertemperatuurmeting.'
+      : `Thermische analyse gebruikt een modelschatting van ${effectiveWaterTemp.toFixed(1)} °C.`);
+  } else {
+    missingInformation.push('Geen gemeten of bruikbaar geschatte watertemperatuur; thermische habitatduiding is beperkt.');
   }
-  modelInferences.push(`Biologisch metabolisch gedrag van ${species} in het ${season.toLowerCase()}`);
-  modelInferences.push(`Winddrift en wateropstuwing berekend bij ${avgWindSpeedKmH} km/u uit ${windDirText}`);
+  modelInferences.push(`Algemene seizoenscontext: ${season.toLowerCase()}.`);
+  if (typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && typeof windDirText === 'string' && windDirText.trim()) {
+    modelInferences.push(`Windcontext: ${avgWindSpeedKmH} km/u uit ${windDirText}.`);
+  } else {
+    missingInformation.push('Geldige windsnelheid en/of windrichting ontbreekt; windgestuurde beweging kan niet worden beoordeeld.');
+  }
+  if (!waterType) missingInformation.push('Watertype is niet vastgelegd; stromend en stilstaand water worden niet verondersteld.');
+  if (pressureTrend === undefined || pressureTrend === null) missingInformation.push('Luchtdruktrend ontbreekt; er wordt geen druktrend verondersteld.');
+  if (cloudCoverPercent === undefined || cloudCoverPercent === null || !Number.isFinite(cloudCoverPercent)) missingInformation.push('Bewolkingsgegevens ontbreken; lichtcontext is onbekend.');
 
   // Ontbrekende gegevens
   if (!waterDepth) {
-    missingInformation.push('Exacte waterdiepte en bodemprofiel zijn niet vastgelegd voor deze stek (standaard aanname 2.0 m).');
+    missingInformation.push('Exacte waterdiepte en bodemprofiel zijn niet vastgelegd voor deze stek; er wordt geen standaarddiepte ingevuld.');
   }
   if (habitatFeatures.length === 0 && !locationNotes) {
     missingInformation.push('Zichtbare oeverstructuren (zoals rietkragen, overhangende bomen of lelievelden) zijn niet ingevoerd in de stekinstellingen.');
@@ -152,10 +165,12 @@ export function analyzeHabitatMovement(
   let windInfluence = '';
   let seasonalPattern = '';
 
-  const isWinterOrCold = effectiveWaterTemp < 8 || season === 'Winter';
-  const isSpringWarming = season === 'Voorjaar' && (context.thermalAnalysis.trend === 'Waarschijnlijke opwarming' || effectiveWaterTemp >= 11);
-  const isSummerWarm = season === 'Zomer' || effectiveWaterTemp >= 18;
-  const isAutumnFeeding = season === 'Herfst';
+  const isWinterOrCold = season === 'Winter' || (effectiveWaterTemp !== null && effectiveWaterTemp < 8);
+  const isSpringWarming = season === 'Voorjaar' && (
+    context.thermalAnalysis.trend === 'Waarschijnlijke opwarming' ||
+    (effectiveWaterTemp !== null && effectiveWaterTemp >= 11)
+  );
+  const isSummerWarm = season === 'Zomer' || (effectiveWaterTemp !== null && effectiveWaterTemp >= 18);
 
   // 1. ZONES BEPALEN OBV OMSTANDIGHEDEN & SOORT
   if (recentBellen || recentSpringenRollen) {
@@ -177,6 +192,26 @@ export function analyzeHabitatMovement(
       structureNote: 'Natuurlijke taludknik',
       whyLikely: 'Vissen trekken zich bij verstoring snel terug via het dichtstbijzijnde talud.',
     };
+  } else if (!waterType) {
+    const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
+    primaryZone = {
+      name: knownStructure ? 'Bekende lokale structuurzone' : 'Algemene zoekzone — watertype onbekend',
+      habitatType: knownStructure ? 'Overgangszone' : 'Foerageerzone',
+      description: knownStructure
+        ? 'Gebruik uitsluitend de geregistreerde lokale structuur als uitgangspunt; zonder watertype kan niet worden bepaald hoe stroming en watermassa de vispositie beïnvloeden.'
+        : 'Zonder bekend watertype, diepteprofiel of actuele waarneming is geen specifieke habitatzone verantwoord aan te wijzen.',
+      depthProfileNote: waterDepth ? `Geregistreerde stekdiepte: ${waterDepth} m; lokale variatie is onbekend.` : 'Diepte onbekend; peil ter plaatse.',
+      structureNote: knownStructure ? habitatFeatures.join(', ') || 'Zie steknotities' : 'Lokale structuur ter plaatse vaststellen',
+      whyLikely: 'Dit is een voorzichtige lokale zoekhypothese, geen vastgestelde vispositie.',
+    };
+    alternativeZone = {
+      name: 'Alternatieve lokale structuur',
+      habitatType: 'Doorgang / transitie',
+      description: 'Controleer ter plaatse diepteovergangen, dekking en zichtbare visactiviteit.',
+      depthProfileNote: 'Geen dieptezone afgeleid.',
+      structureNote: 'Alleen lokaal vastgestelde structuren gebruiken',
+      whyLikely: 'Alternatief om de zoekruimte te spreiden zonder watertype of bodemvorm te verzinnen.',
+    };
   } else if (isFlowingWater) {
     // Stromend water
     primaryZone = {
@@ -195,6 +230,26 @@ export function analyzeHabitatMovement(
       depthProfileNote: 'Diepste watergedeelte van het profiel',
       structureNote: 'Harde zandbodem of stenen',
       whyLikely: 'Biedt rust en constante watertemperatuur op stromend water.',
+    };
+  } else if (effectiveWaterTemp === null && season !== 'Winter') {
+    const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
+    primaryZone = {
+      name: knownStructure ? 'Lokale structuurzone — thermische context onbekend' : 'Algemene zoekzone — watertemperatuur onbekend',
+      habitatType: knownStructure ? 'Overgangszone' : 'Foerageerzone',
+      description: knownStructure
+        ? 'De geregistreerde structuur is een bruikbaar startpunt, maar zonder watertemperatuur wordt geen thermisch gestuurd diepte- of bewegingspatroon aangenomen.'
+        : 'Zonder actuele thermische informatie en lokale habitatkenmerken is geen specifieke zone te onderbouwen. Zoek systematisch en let op directe viswaarnemingen.',
+      depthProfileNote: waterDepth ? `Geregistreerde stekdiepte: ${waterDepth} m; diepteverloop onbekend.` : 'Diepte onbekend; peil ter plaatse.',
+      structureNote: knownStructure ? habitatFeatures.join(', ') || 'Zie steknotities' : 'Lokale structuur ter plaatse vaststellen',
+      whyLikely: 'De zone is gebaseerd op bekende lokale kenmerken, niet op een veronderstelde watertemperatuur.',
+    };
+    alternativeZone = {
+      name: 'Alternatieve lokale zoekzone',
+      habitatType: 'Doorgang / transitie',
+      description: 'Controleer een andere lokaal zichtbare structuur of diepteovergang; neem geen standaarddiepte aan.',
+      depthProfileNote: 'Geen dieptezone afgeleid.',
+      structureNote: 'Ter plaatse vaststellen',
+      whyLikely: 'Spreid de zoekinspanning totdat temperatuur- en habitatgegevens beschikbaar zijn.',
     };
   } else if (isWinterOrCold) {
     // Winter / Koud water (< 8°C)
@@ -288,7 +343,11 @@ export function analyzeHabitatMovement(
   }
 
   // 2. BEWEGINGSHYPOTHESE (TREKROUTES & DYNAMIEK)
-  if (targetSlot === 'Ochtend') {
+  if (!targetSlot) {
+    likelyDirection = 'Onbekend — geen specifiek vistijdvak geselecteerd';
+    migrationalTrigger = 'Geen tijdvakgebonden trigger afgeleid';
+    timeOfDayDynamic = 'Kies een concreet vistijdvak en beoordeel ter plaatse de actuele visactiviteit.';
+  } else if (targetSlot === 'Ochtend') {
     likelyDirection = 'Vissen migreren geleidelijk terug van ondiepe nachtelijke aaszones naar dieper water of schaduw';
     migrationalTrigger = 'Toenemend daglicht en opkomende zon verminderen de dekking op ondiep water';
     timeOfDayDynamic = 'Eerste uren rond zonsopkomst: hoge aaskans op de ondiepe taluds; later in de ochtend zakt de vis dieper weg';
@@ -308,12 +367,14 @@ export function analyzeHabitatMovement(
   }
 
   transitRoute = hasReeds
-    ? 'Volgt de doorlopende rietkraag en de voet van het eerste oevertalud als navigatielijn'
-    : 'Navigeert langs de knik van het bodemtalud tussen ondiep en diep water (taludtrekker)';
+    ? 'Mogelijke route langs de geregistreerde rietkraag; controleer de feitelijke doorloop ter plaatse'
+    : 'Mogelijke route langs lokaal vastgestelde diepte- of structuurverschillen; bodemverloop is niet ingemeten';
 
-  windInfluence = avgWindSpeedKmH >= 15
-    ? `Stevige wind (${avgWindSpeedKmH} km/u uit ${windDirText}) duwt prooidiertjes en warmte op; verplaatsing richting de windkant wordt gestimuleerd.`
-    : `Rustige wind (${avgWindSpeedKmH} km/u); verplaatsing wordt voornamelijk gestuurd door licht (dag/nacht) en bodemstructuur.`;
+  windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && windDirText
+    ? avgWindSpeedKmH >= 15
+      ? `Stevige wind (${avgWindSpeedKmH} km/u uit ${windDirText}) kan oppervlaktevoedsel verplaatsen; de lokale uitwerking hangt af van oevergeometrie en stroming.`
+      : `Wind ${avgWindSpeedKmH} km/u uit ${windDirText}; zonder lokale oever- en stromingsgegevens wordt geen vaste bewegingsrichting aangenomen.`
+    : 'Onbekend: windsnelheid of windrichting ontbreekt; geen windgestuurde verplaatsing aangenomen.';
 
   seasonalPattern = `${season}: ${
     isWinterOrCold
@@ -336,30 +397,18 @@ export function analyzeHabitatMovement(
 
   // Omgevingsinvloeden toelichten
   const environmentalInfluence = {
-    temperatureImpact: `Watertemperatuur (~${effectiveWaterTemp.toFixed(1)} °C) ${
-      effectiveWaterTemp < 8
-        ? 'remt het metabolisme; vis verplaatst zich traag en spaarzaam.'
-        : effectiveWaterTemp < 15
-        ? 'zorgt voor gematigd metabolisme; verplaatsing piekt in de warmste uren van de dag.'
-        : 'stimuleert actief spijsverteringsstelsel; frequente verplaatsing over foerageerroutes.'
-    }`,
-    windAndWaveImpact: `Windkracht ${avgWindSpeedKmH} km/u uit ${windDirText} ${
-      bankWind?.isConfigured
-        ? `heeft een ${bankWind.relation.toLowerCase()}e uitwerking op deze stek.`
-        : 'veroorzaakt oppervlaktedrift richting de overliggende oever.'
-    }`,
-    pressureTrendImpact: `Luchtdruk is momenteel ${pressureTrend}. ${
-      pressureTrend === 'dalend'
-        ? 'Dalende druk voor een front stimuleert tijdelijke foerageeractiviteit voordat het weer omslaat.'
-        : pressureTrend === 'stijgend'
-        ? 'Stijgende druk zorgt voor stabiliserend weer, vaak met heldere luchten en voorzichtige vis.'
-        : 'Stabiele luchtdruk zorgt voor voorspelbare, regelmatige zwemroutes.'
-    }`,
-    lightAndSolarImpact: `Bewolking is ~${cloudCoverPercent}%. ${
-      cloudCoverPercent >= 70
-        ? 'Dikke bewolking dempt het licht, waardoor vis overdag vrijer en ondieper foerageert.'
-        : 'Veel zonlicht stimuleert opwarming van ondieptes, maar jaagt vis overdag naar schaduw of dieper water.'
-    }`,
+    temperatureImpact: effectiveWaterTemp === null
+      ? 'Onbekend: geen gemeten of bruikbaar geschatte watertemperatuur.'
+      : `Watertemperatuur (${thermalAnalysis.hasMeasuredWaterTemp ? 'gemeten' : 'geschat'}: ${effectiveWaterTemp.toFixed(1)} °C) geeft thermische context; de reactie verschilt per soort, acclimatisatie en lokale watermassa.`,
+    windAndWaveImpact: typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && windDirText
+      ? `Windkracht ${avgWindSpeedKmH} km/u uit ${windDirText}${bankWind?.isConfigured ? `; oeverrelatie: ${bankWind.relation.toLowerCase()}.` : '; zonder bekende oevergeometrie is de lokale windwerking niet vastgesteld.'}`
+      : 'Onbekend: onvoldoende geldige windgegevens; geen wind- of golfwerking aangenomen.',
+    pressureTrendImpact: pressureTrend
+      ? `Luchtdruktrend: ${pressureTrend}. Deze wordt als weerscontext getoond; geen automatische biologische invloed aangenomen.`
+      : 'Onbekend: luchtdruktrend ontbreekt; geen trend verondersteld.',
+    lightAndSolarImpact: typeof cloudCoverPercent === 'number' && Number.isFinite(cloudCoverPercent)
+      ? `Bewolking: circa ${cloudCoverPercent}%. Dit beschrijft de lichtcontext; een soortspecifiek activiteitseffect is niet gekwantificeerd.`
+      : 'Onbekend: bewolkingsgegevens ontbreken; lichtcontext niet beoordeeld.',
   };
 
   const confidenceLevel =
