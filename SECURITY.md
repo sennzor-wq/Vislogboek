@@ -17,6 +17,16 @@ Weather requests are sent to Open-Meteo. Requests include the selected fishing-l
 - Review dependency advisories and update the lockfile as part of release preparation.
 - Do not expose the Vite development server to the public internet. Build and serve the production output instead.
 
+## Dependency audit baseline (2 November 2026)
+
+The first full bun audit found three advisories, all through the development/build-only chain:
+
+- vite-plugin-pwa > workbox-build > glob@11.1.0: GHSA-3g3m-2fjr-6pw4 (moderate).
+- vite-plugin-pwa > workbox-build > glob > minimatch@10.2.6: GHSA-g3hv-75wg-m249 (moderate).
+- vite-plugin-pwa > workbox-build > @rollup/plugin-node-resolve > deepmerge@4.3.1: GHSA-gcqx-w48m-w2h4 (low).
+
+The published fixes for glob and minimatch are outside the versions currently resolved by Workbox dependency ranges. The deepmerge advisory currently lists no patched release. These packages are build-time dependencies and are not part of the browser runtime bundle; nevertheless, they remain tracked findings. CI requires a clean audit of production dependencies and fails the full dependency audit on high/critical findings. Revisit this baseline when upstream Workbox/plugin releases update these constraints or a deepmerge fix becomes available.
+
 ## Required production hosting headers
 
 Configure these as HTTP response headers at the actual hosting provider. A meta tag in `index.html` is not a substitute for HSTS, `frame-ancestors`, or other response headers.
