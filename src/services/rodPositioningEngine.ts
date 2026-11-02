@@ -638,7 +638,7 @@ export function analyzeRodPositioning(
 
   let avgWindDegrees: number | undefined;
   let windDirText = 'Onbekend';
-  let windTrend: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel' = 'Stabiel';
+  let windTrend: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel' | undefined = validWind.length > 0 ? 'Stabiel' : undefined;
   let intraSessionNote: string | undefined;
 
   if (validWind.length > 0) {
