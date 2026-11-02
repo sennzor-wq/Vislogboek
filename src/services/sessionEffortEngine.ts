@@ -54,7 +54,7 @@ export function calculateSessionRodEffort(
     if (current) mergedMilliseconds += current[1] - current[0];
 
     const hours = mergedMilliseconds / 3_600_000;
-    perRodHours[String(rod.rodNumber)] = Number(hours.toFixed(4));
+    perRodHours[rod.id] = Number(hours.toFixed(4));
   }
 
   const values = Object.values(perRodHours);
