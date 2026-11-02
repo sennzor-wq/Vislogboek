@@ -126,7 +126,7 @@ assert(
 );
 assert(
   chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('koolhydraten') ||
-  chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('licht verteerbare'),
+  chillyPlan.feedCompositionAdvice.digestibilityNote.toLowerCase().includes('licht verteerbaar'),
   '1.9 Voersamenstelling benadrukt lichte verteerbaarheid en vermijdt zware oliën'
 );
 
@@ -261,7 +261,7 @@ assert(
 );
 assert(
   methodFeederPlan?.methodFeederGuidance?.includes('instant vissen') === true &&
-  methodFeederPlan.moments[methodFeederPlan.moments.length - 1].feedType.includes('instant method-feederkorf'),
+  methodFeederPlan.moments[methodFeederPlan.moments.length - 1].feedType.toLowerCase().includes('instant method-feederkorf'),
   '1.21 Method feeder wordt als instant korfvoer rond het haakaas weergegeven'
 );
 
@@ -544,13 +544,14 @@ const fullProg = calculateDayPrognosis(
   mockHistoricalSessions,
   '2026-07-20T08:00:00Z',
   19.5, // Gemeten watertemp
-  new Date('2026-07-18T06:00:00Z'),
+  new Date('2026-07-20T06:00:00Z'),
   {
     sessionDurationHours: 4,
     location: baseLocation,
     locationId: baseLocation.id,
     prebaitOptions: {
       availableDaysBefore: 2,
+      planningDate: '2026-07-18',
     },
   }
 );
