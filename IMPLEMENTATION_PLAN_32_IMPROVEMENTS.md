@@ -72,6 +72,15 @@ Elke fase wordt op een afzonderlijke branch ontwikkeld, krijgt gerichte regressi
 
 **Tests:** gemeten anker en thermische traagheid; oude meting → grotere onzekerheid; ontbrekende inputs; provenance; lokale data met kleine/grote steekproef; fallback; chronologische validatie; regressie van bestaande prognoses.
 
+**Aanvullende waterthermische uitwerking (fase 3):**
+- Een actuele lokale watertemperatuurmeting blijft leidend; historische waarden zijn uitsluitend referentie/anker en worden nooit als actuele meting getoond.
+- Historische profielen worden alleen opgebouwd uit echte, tijdgestempelde meetwaarden in sessies of geëvalueerde snapshots. Zelfde stek: minimaal 3 waarnemingen. Terugval naar hetzelfde watertype: minimaal 5 waarnemingen uit ten minste 2 locaties binnen 50 km, met dieptevergelijking wanneer beide dieptes bekend zijn. Alleen eerdere waarnemingen uit dezelfde of aangrenzende kalendermaand tellen mee.
+- Een onbekend watertype of ontbrekende diepte blijft expliciet onbekend; er wordt geen standaarddiepte van 2 meter ingevuld.
+- Gemeten kortgolvige straling krijgt voorrang op bewolking als zonne-invoer. Luchtvochtigheid, dauwpunt en wind leveren een kwalitatieve indicatie van verdampingspotentieel. Deze indicatie verandert de temperatuur niet en krijgt pas na lokale validatie een gekwantificeerde invloed op de onzekerheidsmarge. Bij een historisch profiel wordt de seizoensmediaan als starttoestand gebruikt en wordt de actuele weersafwijking ten opzichte van de voorafgaande 72 uur daarop toegepast; er wordt geen extra vrije mengcoëfficiënt toegevoegd.
+- De aanpak is KNMI-geïnformeerd, maar geen één-op-één implementatie van het operationele KNMI-model. De openbare documentatie beschrijft processen en toepassingsgebied, maar biedt geen gedocumenteerde numerieke API of volledige implementatiespecificatie. De KNMI-gerapporteerde nauwkeurigheid wordt dus niet aan Vislogboek toegeschreven.
+- Rijkswaterstaat WaterWebservices is als mogelijke bron van historische gemeten oppervlaktewatertemperaturen geregistreerd. Automatische stationselectie/import is nog niet geactiveerd: dekking van kleine regionale wateren en representativiteit van een meetstation moeten eerst per locatie worden vastgesteld.
+- Temperatuurherkomst, historisch profiel, meetanker, onzekerheid en weersdekking worden in nieuwe prognosesnapshots vastgelegd.
+
 **Acceptatie:** geen schijnmetingen of ongefundeerde kanscorrecties; bestaande modeluitvoer blijft verklaarbaar en wordt aantoonbaar getest.
 
 ### Fase 4 — groepssessies, hengelinspanning en optionele hengeldetails (punten 18–21)

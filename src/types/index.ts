@@ -104,7 +104,7 @@ export interface FishingLocation {
   latitude?: number;
   longitude?: number;
   waterDepth?: number;            // meters
-  waterType?: 'Kanaal' | 'Rivier' | 'Polder' | 'Plas/Zandafgraving' | 'Stadswater' | 'Haven' | 'Overig';
+  waterType?: 'Kanaal' | 'Rivier' | 'Polder' | 'Plas/Zandafgraving' | 'Stadswater' | 'Haven' | 'Overig' | 'Onbekend';
   notes?: string;
   isBenchmark?: boolean;          // Beschermde benchmarkstek
   createdAt: string;
@@ -335,6 +335,11 @@ export interface WaterThermalAnalysis {
     past24hAvailable: boolean;
     past72hAvailable: boolean;
     solarRadiationIndication: 'Sterk (zonnig)' | 'Matig (half bewolkt)' | 'Gering (zwaarbewolkt/mist)' | 'Onvoldoende gegevens';
+    solarRadiationAvailable?: boolean;
+    humidityAvailable?: boolean;
+    dewPointAvailable?: boolean;
+    evaporationPotential?: 'hoog' | 'matig' | 'laag' | 'onbekend';
+    historicalTemperatureSamples?: number;
     windMixingInfluence: 'Sterke menging' | 'Matige menging' | 'Rustig' | 'Onvoldoende gegevens';
     depthKnown: boolean;
     waterDepthMeters?: number;
@@ -346,11 +351,14 @@ export interface WaterThermalAnalysis {
     season: 'winter' | 'lente' | 'zomer' | 'herfst';
   };
   /** Herkomst van de watertemperatuur; een schatting wordt nooit als meting gepresenteerd. */
-  waterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_weather' | 'unknown';
+  waterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
   anchorMeasurementTimestamp?: string | null;
   anchorAgeHours?: number | null;
   weatherCoverageRatio?: number;
   uncertaintyC?: number | null;
+  historicalWaterTemperatureBaselineC?: number | null;
+  historicalWaterTemperatureSamples?: number;
+  historicalWaterTemperatureSource?: 'same_location' | 'nearby_same_type' | null;
 }
 
 export interface PrognosisSnapshot {
@@ -374,6 +382,13 @@ export interface PrognosisSnapshot {
   // Onafhankelijke, soortneutrale temperatuurvalidatie. Alleen een vooraf voorspelde schatting telt mee.
   predictedWaterTemperature?: number | null;
   predictedWaterTemperatureRange?: [number, number] | null;
+  predictedWaterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
+  predictedWaterTemperatureUncertaintyC?: number | null;
+  predictedWaterTemperatureAnchorTimestamp?: string | null;
+  predictedWaterTemperatureHistoricalBaselineC?: number | null;
+  predictedWaterTemperatureHistoricalSamples?: number;
+  predictedWaterTemperatureHistoricalSource?: 'same_location' | 'nearby_same_type' | null;
+  predictedWaterTemperatureWeatherCoverage?: number;
   actualWaterTemperature?: number | null;
   actualWaterTemperatureTimestamp?: string;
   source: string;

@@ -1,0 +1,123 @@
+import { FishingLocation } from '../types';
+
+/**
+ * Alleen echte, achteraf geregistreerde watertemperatuurmetingen mogen een
+ * historisch profiel vormen. Voorspellingen en synthetische waarden zijn uitgesloten.
+ */
+export interface HistoricalWaterTemperatureObservation {
+  locationId: string;
+  temperatureC: number;
+  timestamp: string;
+  waterType?: FishingLocation['waterType'];
+  waterDepth?: number;
+  latitude?: number;
+  longitude?: number;
+  isBenchmark?: boolean;
+}
+
+export interface HistoricalWaterTemperatureProfile {
+  baselineC: number;
+  lowerC: number;
+  upperC: number;
+  uncertaintyC: number;
+  sampleCount: number;
+  locationCount: number;
+  source: 'same_location' | 'nearby_same_type';
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function percentile(values: number[], fraction: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const position = (sorted.length - 1) * fraction;
+  const lower = Math.floor(position);
+  const upper = Math.ceil(position);
+  if (lower === upper) return sorted[lower];
+  return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
+}
+
+function monthDistance(a: number, b: number): number {
+  const direct = Math.abs(a - b);
+  return Math.min(direct, 12 - direct);
+}
+
+function distanceKm(a: { latitude?: number; longitude?: number }, b: { latitude?: number; longitude?: number }): number | null {
+  if (![a.latitude, a.longitude, b.latitude, b.longitude].every((v) => typeof v === 'number' && Number.isFinite(v))) return null;
+  const toRad = (degrees: number) => degrees * Math.PI / 180;
+  const dLat = toRad((b.latitude as number) - (a.latitude as number));
+  const dLon = toRad((b.longitude as number) - (a.longitude as number));
+  const lat1 = toRad(a.latitude as number);
+  const lat2 = toRad(b.latitude as number);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Maakt een seizoensprofiel uit echte historische metingen.
+ * Voorkeur: dezelfde stek (minimaal 3 metingen). Terugval: hetzelfde watertype
+ * binnen 50 km, vergelijkbare bekende diepte, minimaal 5 metingen van 2 stekken.
+ * Alleen metingen vóór de doeldag en uit dezelfde/naastliggende kalendermaand tellen mee.
+ */
+export function deriveHistoricalWaterTemperatureProfile(
+  observations: HistoricalWaterTemperatureObservation[],
+  location: FishingLocation | undefined,
+  targetDate: string
+): HistoricalWaterTemperatureProfile | null {
+  if (!location?.id) return null;
+  const targetTime = new Date(`${targetDate}T00:00:00`).getTime();
+  if (!Number.isFinite(targetTime)) return null;
+  const targetMonth = new Date(`${targetDate}T12:00:00`).getMonth() + 1;
+
+  const seen = new Set<string>();
+  const valid = observations.filter((observation) => {
+    if (observation.isBenchmark === true) return false;
+    const key = `${observation.locationId}|${observation.timestamp}|${observation.temperatureC}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    const measuredAt = new Date(observation.timestamp).getTime();
+    if (!Number.isFinite(measuredAt) || measuredAt >= targetTime) return false;
+    if (typeof observation.temperatureC !== 'number' || !Number.isFinite(observation.temperatureC) ||
+        observation.temperatureC < 0 || observation.temperatureC > 35) return false;
+    const measuredMonth = new Date(measuredAt).getMonth() + 1;
+    return monthDistance(targetMonth, measuredMonth) <= 1;
+  });
+
+  const sameLocation = valid.filter((observation) => observation.locationId === location.id);
+  let selected = sameLocation;
+  let source: HistoricalWaterTemperatureProfile['source'] = 'same_location';
+
+  if (selected.length < 3) {
+    if (!location.waterType || location.waterType === 'Onbekend') return null;
+    selected = valid.filter((observation) => {
+      if (observation.locationId === location.id || observation.waterType !== location.waterType) return false;
+      const distance = distanceKm(location, observation);
+      if (distance === null || distance > 50) return false;
+      if (typeof location.waterDepth === 'number' && typeof observation.waterDepth === 'number') {
+        const tolerance = Math.max(1.5, location.waterDepth * 0.5);
+        if (Math.abs(location.waterDepth - observation.waterDepth) > tolerance) return false;
+      }
+      return true;
+    });
+    const distinctLocations = new Set(selected.map((item) => item.locationId));
+    if (selected.length < 5 || distinctLocations.size < 2) return null;
+    source = 'nearby_same_type';
+  }
+
+  const values = selected.map((item) => item.temperatureC);
+  const baselineC = median(values);
+  const lowerC = percentile(values, 0.2);
+  const upperC = percentile(values, 0.8);
+  return {
+    baselineC: Math.round(baselineC * 10) / 10,
+    lowerC: Math.round(lowerC * 10) / 10,
+    upperC: Math.round(upperC * 10) / 10,
+    uncertaintyC: Math.round(Math.max(0.5, (upperC - lowerC) / 2) * 10) / 10,
+    sampleCount: selected.length,
+    locationCount: new Set(selected.map((item) => item.locationId)).size,
+    source,
+  };
+}

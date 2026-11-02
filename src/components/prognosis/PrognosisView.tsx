@@ -47,6 +47,7 @@ import {
 import { COMPASS_DEGREES_MAP } from '../../services/bankWindEngine';
 import { db } from '../../db/db';
 import { CompassDirection, COMPASS_DIRECTIONS } from '../../types';
+import { HistoricalWaterTemperatureObservation } from '../../services/waterTemperatureHistory';
 
 interface PrognosisViewProps {
   locations: FishingLocation[];
@@ -96,6 +97,40 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const weather = await getForecast(lat, lon, forceRefresh);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
+      const locationById = new Map(locations.map((item) => [item.id, item]));
+      const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
+      const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
+      for (const snapshot of storedSnapshots) {
+        if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
+        if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
+            !snapshot.actualWaterTemperatureTimestamp) continue;
+        const sourceLocation = locationById.get(snapshot.locationId);
+        historicalWaterTemperatures.push({
+          locationId: snapshot.locationId,
+          temperatureC: snapshot.actualWaterTemperature,
+          timestamp: snapshot.actualWaterTemperatureTimestamp,
+          waterType: sourceLocation?.waterType,
+          waterDepth: sourceLocation?.waterDepth,
+          latitude: sourceLocation?.latitude,
+          longitude: sourceLocation?.longitude,
+          isBenchmark: false,
+        });
+      }
+      for (const session of sessions) {
+        if (session.isBenchmark === true) continue;
+        if (!session.locationId || typeof session.waterTemperature !== 'number') continue;
+        const sourceLocation = locationById.get(session.locationId);
+        historicalWaterTemperatures.push({
+          locationId: session.locationId,
+          temperatureC: session.waterTemperature,
+          timestamp: session.startTime,
+          waterType: sourceLocation?.waterType,
+          waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
+          latitude: sourceLocation?.latitude,
+          longitude: sourceLocation?.longitude,
+          isBenchmark: session.isBenchmark,
+        });
+      }
       setWeatherUpdatedAt(weather.fetchedAt);
       setIsCachedWeather(weather.isFromCache);
 
@@ -125,6 +160,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             locationId: selectedLocationId,
             location: selectedLoc,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
+            historicalWaterTemperatures,
             presenceObservation: selectedPresenceObs,
             catches,
             prebaitOptions: {
@@ -663,7 +699,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                   <div className="p-3 rounded-xl bg-slate-800/70 border border-slate-700/60">
-                    <span className="text-[10px] text-slate-400 block font-semibold">Gemeten Watertemperatuur</span>
+                    <span className="text-[10px] text-slate-400 block font-semibold">Lokale watertemperatuurmeting</span>
                     <span className="text-sm font-bold text-white mt-0.5 block">
                       {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null
                         ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C (directe meting)`
@@ -677,10 +713,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-800/70 border border-slate-700/60">
-                    <span className="text-[10px] text-slate-400 block font-semibold">Modelschatting Watertemperatuur</span>
+                    <span className="text-[10px] text-slate-400 block font-semibold">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp ? "Watertemperatuur in model" : "Watertemperatuurschatting"}</span>
                     <span className="text-sm font-bold text-cyan-300 mt-0.5 block">
                       {activeDayProg.thermalAnalysis.estimatedWaterTemp !== null
-                        ? `~${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C`
+                        ? `${activeDayProg.thermalAnalysis.hasMeasuredWaterTemp ? '' : '~'}${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C`
                         : 'Onvoldoende data'}
                       {activeDayProg.thermalAnalysis.estimatedRange && (
                         <span className="text-xs font-normal text-slate-400 ml-1.5">
@@ -689,7 +725,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       )}
                     </span>
                     <span className="text-[10px] text-slate-400 mt-1 block">
-                      Expliciet modelschatting (thermisch evenwicht)
+                      {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp
+                        ? 'Lokale meting is leidend; model- en historische schattingen worden niet gebruikt.'
+                        : activeDayProg.thermalAnalysis.waterTemperatureStatus === 'estimated_from_history'
+                        ? 'Historische basis: ' + (activeDayProg.thermalAnalysis.historicalWaterTemperatureSamples ?? 0) + ' echte metingen, gecombineerd met weersontwikkeling.'
+                        : activeDayProg.thermalAnalysis.waterTemperatureStatus === 'estimated_from_measurement'
+                        ? 'Modelschatting vanaf de laatste lokale meting, aangepast met beschikbare weersgegevens.'
+                        : activeDayProg.thermalAnalysis.waterTemperatureStatus === 'estimated_from_weather'
+                        ? 'Weerafgeleide modelschatting; geen historische watertemperatuurmetingen beschikbaar.'
+                        : 'Geen betrouwbare watertemperatuurschatting beschikbaar.'}
                     </span>
                   </div>
 
@@ -701,7 +745,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     <span className="text-[10px] text-slate-400 mt-1 block">
                       {activeDayProg.thermalAnalysis.dataPointsAvailable.depthKnown
                         ? `Waterdiepte: ${activeDayProg.thermalAnalysis.dataPointsAvailable.waterDepthMeters} m`
-                        : 'Standaarddiepte (2.0 m) aangenomen'}
+                        : 'Waterdiepte onbekend; er is geen standaarddiepte aangenomen'}
                     </span>
                   </div>
                 </div>
