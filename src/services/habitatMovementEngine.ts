@@ -165,12 +165,14 @@ export function analyzeHabitatMovement(
   let windInfluence = '';
   let seasonalPattern = '';
 
-  const isWinterOrCold = season === 'Winter' || (effectiveWaterTemp !== null && effectiveWaterTemp < 8);
+  // Temperatuur stuurt de thermische classificatie; kalenderseizoen alleen is
+  // geen bewijs dat het water koud of warm is.
+  const isWinterOrCold = effectiveWaterTemp !== null && effectiveWaterTemp < 8;
   const isSpringWarming = season === 'Voorjaar' && (
     context.thermalAnalysis.trend === 'Waarschijnlijke opwarming' ||
     (effectiveWaterTemp !== null && effectiveWaterTemp >= 11)
   );
-  const isSummerWarm = season === 'Zomer' || (effectiveWaterTemp !== null && effectiveWaterTemp >= 18);
+  const isSummerWarm = effectiveWaterTemp !== null && effectiveWaterTemp >= 18;
 
   // 1. ZONES BEPALEN OBV OMSTANDIGHEDEN & SOORT
   if (recentBellen || recentSpringenRollen) {
@@ -215,21 +217,21 @@ export function analyzeHabitatMovement(
   } else if (isFlowingWater) {
     // Stromend water
     primaryZone = {
-      name: 'Stroomnaad & kribvak-luwte',
+      name: 'Lokale stromings- of luwteovergang',
       habitatType: 'Overgangszone',
-      description: 'De overgangszone tussen de snelle hoofdstroom en het rustige water in het kribvak of achter een oeveruitsteeksel.',
-      depthProfileNote: 'Bodemverhang aan de rand van de vaargeul',
-      structureNote: 'Kribkop, stroomnaad of steenstorttalud',
-      whyLikely: 'Voedsel dwarrelt hier natuurlijk neer terwijl de vis minimale zwemenergie verbruikt.',
+      description: 'Zoek waar de stroomsnelheid lokaal verandert of luwte ontstaat, indien zo’n overgang op deze locatie aanwezig is. Een krib, vaargeul of steenstort wordt niet verondersteld.',
+      depthProfileNote: 'Stromings- en bodemprofiel zijn niet ingemeten; controleer dit ter plaatse.',
+      structureNote: 'Alleen geregistreerde of ter plaatse zichtbare stromingsstructuren gebruiken',
+      whyLikely: 'Overgangen tussen stroming en luwte kunnen voedseltransport en energieverbruik beïnvloeden; de exacte zone is lokaal niet vastgesteld.',
     };
 
     alternativeZone = {
-      name: 'Diepe vaargeulbodem of rustkuil in de buitenbocht',
+      name: 'Mogelijke lokale luwtezone',
       habitatType: 'Holding / rustzone',
-      description: 'Diepere geul waar grotere vis rust tijdens piekstroming of fel scheepvaartverkeer.',
-      depthProfileNote: 'Diepste watergedeelte van het profiel',
-      structureNote: 'Harde zandbodem of stenen',
-      whyLikely: 'Biedt rust en constante watertemperatuur op stromend water.',
+      description: 'Vergelijk een lokaal aanwezige luwte of rustiger stromingsdeel; een buitenbocht, diepe kuil of harde bodem is niet uit de beschikbare stekgegevens af te leiden.',
+      depthProfileNote: 'Diepteverloop onbekend; peil ter plaatse.',
+      structureNote: 'Lokale luwte of structuur ter plaatse vaststellen',
+      whyLikely: 'Een rustiger stromingsdeel kan een alternatief bieden, afhankelijk van de feitelijke rivier- of kanaalgeometrie.',
     };
   } else if (effectiveWaterTemp === null) {
     const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
@@ -256,38 +258,38 @@ export function analyzeHabitatMovement(
     primaryZone = {
       name: 'Diepere beschutte rustzone (Holding Area)',
       habitatType: 'Holding / rustzone',
-      description: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) ligt het metabolisme van karper en witvis laag. Ze scholen compact samen in de diepste, meest temperatuurvaste kuilen of in de windstille luwte.`,
-      depthProfileNote: waterDepth ? `Diepere kuil (> ${waterDepth} m)` : 'Diepste bereikbare zone van het water',
-      structureNote: hasTrees ? 'Overhangende takken of beschutte oeverhoek' : 'Stille bodemkuil',
-      whyLikely: 'Thermische stabiliteit: koud water met golven onttrekt te veel energie. Vissen zoeken fysiologische rust.',
+      description: `Bij ${effectiveWaterTemp.toFixed(1)} °C kan de stofwisseling en voedselopname van ${species} lager liggen dan bij gematigde temperaturen. Een thermisch stabielere of beschutte zone is een zoekhypothese, geen vastgestelde lokale rustkuil.`,
+      depthProfileNote: waterDepth ? `Geregistreerde stekdiepte: ${waterDepth} m; een diepere zone is niet ingemeten.` : 'Diepteverloop onbekend; zoek niet automatisch de diepste zone.',
+      structureNote: hasTrees ? 'Geregistreerde overhangende bomen kunnen beschutting bieden' : 'Lokale beschutting ter plaatse vaststellen',
+      whyLikely: 'Thermische stabiliteit kan relevant zijn bij koud water; de exacte diepte en positie moeten lokaal worden vastgesteld.',
     };
 
     alternativeZone = {
       name: 'Zonbeschenen ondiepte tijdens middagpiek',
       habitatType: 'Foerageerzone',
-      description: 'Bij zonnig winterweer kan een windluwe, ondiepe oeverzone net 0.5 °C opwarmen tussen 12:00 en 15:00 uur.',
-      depthProfileNote: 'Ondiepe plaat (0.8 - 1.5 m) pal op het zuiden gericht',
-      structureNote: 'Donkere slibbodem die zonnewarmte absorbeert',
-      whyLikely: 'Soms verlaten enkele vissen de holding area voor een kort zonnebad of snack.',
+      description: 'Een aantoonbaar ondiepere, beschutte zone kan als vergelijking dienen wanneer zoninstraling aanwezig is; lokale temperatuurverschillen zijn niet gemeten.',
+      depthProfileNote: 'Ondiepere zone alleen gebruiken als die ter plaatse is vastgesteld; exacte diepte onbekend.',
+      structureNote: hasMud ? 'Geregistreerde slib-/modderbodem' : 'Bodemtype en zonexpositie ter plaatse vaststellen',
+      whyLikely: 'Dit is een alternatieve zoekhypothese; zonder lokale meting is niet bekend of de zone werkelijk warmer is.',
     };
   } else if (isSpringWarming) {
     // Voorjaar met opwarming
     primaryZone = {
       name: 'Ondiepe zonbeschenen voorjaarsbaai / rietkraag',
       habitatType: 'Foerageerzone',
-      description: 'Ondieptes (0.5 - 1.5 m) warmen door zoninstraling 1 tot 3 °C sneller op dan de rest van het water. Karper ontwaakt uit winterrust en zoekt deze warmte direct op.',
-      depthProfileNote: 'Ondiep water (< 1.5 m)',
-      structureNote: hasReeds ? 'Rietkragen en jonge waterplanten' : 'Zuidelijk gelegen oeverzone',
-      whyLikely: 'Verhoogt de lichaamstemperatuur en versnelt enzymatische vertering van voorjaarsvoedsel (muggenlarven).',
+      description: 'Ondiepe zones kunnen bij voldoende zoninstraling sneller reageren dan dieper water. Of er op deze stek zo’n zone bestaat en hoeveel zij opwarmt, is niet gemeten.',
+      depthProfileNote: 'Ondiepere zone; exacte diepte en temperatuurverschil niet geregistreerd.',
+      structureNote: hasReeds ? 'Geregistreerde rietkraag of waterplanten' : 'Zonexpositie en aanwezige oeverstructuur ter plaatse vaststellen',
+      whyLikely: 'Een ondiepere zone is een mogelijke zoekplek tijdens opwarming, geen bewezen voorkeur voor deze specifieke stek.',
     };
 
     alternativeZone = {
       name: 'Eerste taludrand aan de rand van de ondiepte',
       habitatType: 'Doorgang / transitie',
-      description: 'Het talud waar de ondiepe plaat overloopt in dieper water; dient als wachtkamer in de kille ochtenden.',
-      depthProfileNote: 'Middeldiepe overgang (1.8 - 2.5 m)',
-      structureNote: 'Taludknik',
-      whyLikely: 'Als de nacht koud was, wachten vissen hier tot de zon de plaat opwarmt.',
+      description: 'Een lokale overgang naar dieper water kan als alternatief dienen wanneer de ondiepte nog koud is; het bestaan van zo’n talud is niet geregistreerd.',
+      depthProfileNote: 'Overgangszone alleen gebruiken als die ter plaatse is gepeild.',
+      structureNote: 'Talud of diepteknik ter plaatse vaststellen',
+      whyLikely: 'Een overgang kan vissen toegang geven tot verschillende dieptes zonder een vaste diepte aan te nemen.',
     };
   } else if (isSummerWarm) {
     // Zomer
@@ -296,51 +298,52 @@ export function analyzeHabitatMovement(
         name: 'Aanlandige oeverzone (actieve branding & voedseldrift)',
         habitatType: 'Foerageerzone',
         description: `Door de wind (${avgWindSpeedKmH} km/u) wordt warm water, plankton en zwevend voedsel tegen de oever gedrukt. Golven verminderen argwaan en brengen zuurstof.`,
-        depthProfileNote: 'Bovenste taludrand vlak onder de kant (1.0 - 2.0 m)',
-        structureNote: 'Brandingrand en uitspoeling onder de oever',
-        whyLikely: 'Karper aast graag vlak in de branding waar muggenlarven en slibdiertjes losspoelen.',
+        depthProfileNote: 'Lokale oeverzone; diepte en bodemvorm zijn niet ingemeten.',
+        structureNote: 'Feitelijke brandingrand en aanwezige bodemstructuur ter plaatse controleren',
+        whyLikely: 'Wind kan oppervlaktevoedsel verplaatsen; het effect op bodemvoedsel en vispositie hangt af van diepte en lokale stroming.',
       };
     } else {
       primaryZone = {
         name: targetSlot === 'Middag' ? 'Schaduwrijke holdingzone onder begroeiing' : 'Oevertaluds en mosselbanken',
         habitatType: targetSlot === 'Middag' ? 'Holding / rustzone' : 'Foerageerzone',
         description: targetSlot === 'Middag'
-          ? 'Tijdens de felle middagzon schuilt vis onder overhangende bomen, lelies of in diepere schaduw om fel licht te mijden.'
-          : 'Tijdens schemering en nacht trekken vissen over de oevertaluds om slakjes en bodemleven te vergaren.',
-        depthProfileNote: targetSlot === 'Middag' ? 'Onder de schaduw (1.5 - 2.5 m)' : 'Flank van het talud',
-        structureNote: hasTrees ? 'Overhangende bomen' : hasLilies ? 'Lelievelden' : 'Taludrand',
-        whyLikely: 'Zomerdynamiek: rust overdag in schaduw/diepte; actief azen in de schemering en nacht.',
+          ? 'Bij fel licht kan aanwezige schaduw dekking bieden; alleen toepassen waar bomen, vegetatie of andere schaduw werkelijk aanwezig zijn.'
+          : 'Rond schemering kunnen sommige soorten langs lokale oeverstructuren foerageren; dit is geen vaste route voor iedere soort.',
+        depthProfileNote: targetSlot === 'Middag' ? 'Diepte onder de aanwezige schaduw is niet geregistreerd.' : 'Lokale diepte en taludverloop ter plaatse vaststellen.',
+        structureNote: hasTrees ? 'Geregistreerde overhangende bomen' : hasLilies ? 'Geregistreerde waterplanten' : 'Schaduw en lokale structuur ter plaatse vaststellen',
+        whyLikely: 'Licht en lokale dekking kunnen het zonegebruik beïnvloeden; de exacte stekstructuur bepaalt of dit advies toepasbaar is.',
       };
     }
 
     alternativeZone = {
       name: 'Open water overgangszone / plateaurand',
       habitatType: 'Doorgang / transitie',
-      description: 'Een onderwaterplateau of richel op ruimer water waar vis tijdens rustige windperioden cruist.',
-      depthProfileNote: 'Middeldiepe richel (2.0 - 3.0 m)',
-      structureNote: 'Harde zand- of grindplaat',
-      whyLikely: 'Zuurstofrijk en vrij van dichtgroeiende waterplanten.',
+      description: 'Een open-water overgang kan als alternatief worden onderzocht als dieptekaart of peiling daar aanleiding toe geeft; plateau of harde bodem is niet geregistreerd.',
+      depthProfileNote: 'Geen bathymetrische gegevens; diepte ter plaatse vaststellen.',
+      structureNote: 'Bodemtype en eventuele richel eerst vaststellen',
+      whyLikely: 'Dit alternatief spreidt de zoekruimte zonder een niet-geregistreerde bodemvorm aan te nemen.',
     };
   } else {
-    // Herfst (najaar)
+    // Algemene overgangszone wanneer geen specifieke thermische situatie past.
+    const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
     primaryZone = {
-      name: 'Diepere foerageerplateaus & windwaartse oevervoet',
-      habitatType: 'Foerageerzone',
-      description: 'In het najaar vreten karpers zich vol voor de winter. Ze concentreren zich op stabiele voedselrijke plateaus en langs de windkant waar het laatste zweefvuil verzamelt.',
-      depthProfileNote: 'Dieper plateau (2.0 - 3.5 m)',
-      structureNote: hasMud ? 'Rijke slibplaten met rode muggenlarven' : 'Bodemvoet van het talud',
-      whyLikely: 'Hoge voedseldichtheid en stabiele najaarstemperatuur.',
+      name: season === 'Herfst' ? 'Lokale zoekzone — najaarscontext' : 'Lokale overgangszone',
+      habitatType: 'Overgangszone',
+      description: knownStructure
+        ? `Gebruik de geregistreerde lokale structuur (${habitatFeatures.join(', ') || locationNotes}) als startpunt. Er is onvoldoende informatie om een specifieke trekroute of dieptezone aan te wijzen.`
+        : 'Zonder geregistreerde lokale structuur of bathymetrie is alleen een algemene zoekzone te geven; peil diepte en bodem ter plaatse.',
+      depthProfileNote: waterDepth ? `Geregistreerde stekdiepte: ${waterDepth} m; lokaal diepteverloop onbekend.` : 'Diepteverloop niet geregistreerd.',
+      structureNote: knownStructure ? habitatFeatures.join(', ') || 'Zie steknotities' : 'Lokale structuur ter plaatse vaststellen',
+      whyLikely: 'Een overgangszone is een werkhypothese om lokaal structuur- en diepteverschil te onderzoeken, geen voorspelde vispositie.',
     };
-
     alternativeZone = {
-      name: 'Steile taludkanten nabij afstervende vegetatie',
+      name: 'Alternatieve lokale structuurzone',
       habitatType: 'Doorgang / transitie',
-      description: 'Rietkragen en waterlelies sterven af; vissen patrouilleren langs de overgang naar de diepe kom.',
-      depthProfileNote: 'Onderkant van het talud (2.5 - 4.0 m)',
-      structureNote: 'Rietvoet of takkenpartij',
-      whyLikely: 'Insecten en slakken verlaten afstervende planten en vallen op het talud.',
+      description: 'Vergelijk een tweede daadwerkelijk aanwezige structuur of diepteovergang en let op directe viswaarnemingen.',
+      depthProfileNote: 'Geen dieptezone afgeleid.',
+      structureNote: 'Alleen lokaal vastgestelde structuren gebruiken',
+      whyLikely: 'Een tweede lokale zone biedt een controle zonder niet-geregistreerde habitatkenmerken aan te nemen.',
     };
-  }
 
   // 2. BEWEGINGSHYPOTHESE (TREKROUTES & DYNAMIEK)
   if (!targetSlot) {
@@ -367,8 +370,8 @@ export function analyzeHabitatMovement(
   }
 
   transitRoute = hasReeds
-    ? 'Mogelijke route langs de geregistreerde rietkraag; controleer de feitelijke doorloop ter plaatse'
-    : 'Mogelijke route langs lokaal vastgestelde diepte- of structuurverschillen; bodemverloop is niet ingemeten';
+    ? 'Mogelijke route langs de geregistreerde rietkraag; controleer of deze structuur doorloopt.'
+    : 'Geen concrete transitroute afgeleid; gebruik alleen lokaal vastgestelde diepte- of structuurverschillen.'
 
   windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH) && windDirText
     ? avgWindSpeedKmH >= 15
