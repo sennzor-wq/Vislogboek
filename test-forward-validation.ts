@@ -492,7 +492,29 @@ async function runTestSuite() {
     },
   ];
 
-  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots);
+  const evaluationWithoutHistory = evaluatePrognosisPerformance(fiveEvaluatedSnapshots);
+  assert(evaluationWithoutHistory.naiveBrierScore === null &&
+    evaluationWithoutHistory.brierSkillScore === null &&
+    evaluationWithoutHistory.baselineEvaluatedCount === 0,
+    '3.0 Zonder eerdere trainingshistorie wordt geen zelf-geoptimaliseerde baseline of BSS getoond');
+
+  const baselineTraining: PrognosisSnapshot[] = [
+    'catch', 'catch', 'catch', 'skunk_confirmed', 'skunk_confirmed',
+  ].map((outcome, index) => ({
+    id: `baseline-training-${index}`,
+    forecastTimestamp: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
+    targetDate: `2026-09-${String(index + 1).padStart(2, '0')}`,
+    targetSpecies: 'Karper',
+    durationHours: 3,
+    predictedActivityScore: null,
+    predictedCatchChance: null,
+    actualOutcome: outcome as 'catch' | 'skunk_confirmed',
+    linkedSessionId: `baseline-session-${index}`,
+    source: 'test-training-history',
+    modelVersion: 'test',
+    createdAt: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
+  }));
+  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, baselineTraining);
 
   // Som kwadratische fout = 0.09 + 0.16 + 0.16 + 0.04 + 0.25 = 0.70
   // Brier score = 0.70 / 5 = 0.140
@@ -501,13 +523,14 @@ async function runTestSuite() {
     `3.1 Brier-score exact berekend bij N=5 voorwaarts gekoppelde sessies (berekend: ${evalResult5.brierScore}, verwacht: 0.140)`
   );
 
-  // Naive baseline: 3 vangsten op 5 = 0.60
-  // Som naive kwadratische fout: (0.6 - 1)^2 * 3 + (0.6 - 0)^2 * 2 = 0.16 * 3 + 0.36 * 2 = 0.48 + 0.72 = 1.20
-  // Naive Brier score = 1.20 / 5 = 0.240
-  // BSS = 1 - 0.140 / 0.240 = 1 - 0.5833 = +41.7%
+  // De rolling baseline gebruikt uitsluitend de 5 eerdere trainingsuitkomsten (3/5 = 0.60).
+  // Deze voorspelt dus 0.60 voor elk van de 5 latere testgevallen.
+  // Naive Brier score = 1.20 / 5 = 0.240; BSS = 1 - 0.140 / 0.240 = +41.7%.
   assert(
-    evalResult5.naiveBrierScore === 0.24 && (evalResult5.brierSkillScore ?? 0) > 0.4,
-    `3.2 Naïeve baseline (${evalResult5.naiveBrierScore}) en Brier Skill Score (+${((evalResult5.brierSkillScore ?? 0) * 100).toFixed(1)}%) tonen superieure vaardigheid`
+    evalResult5.naiveBrierScore === 0.24 &&
+      evalResult5.baselineEvaluatedCount === 5 &&
+      (evalResult5.brierSkillScore ?? 0) > 0.4,
+    `3.2 Chronologische rolling baseline (${evalResult5.naiveBrierScore}) gebruikt 5 eerdere uitkomsten en toont BSS +${((evalResult5.brierSkillScore ?? 0) * 100).toFixed(1)}%`
   );
 
   // Benchmarks moeten worden uitgesloten
