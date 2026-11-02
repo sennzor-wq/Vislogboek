@@ -344,6 +344,7 @@ export function analyzeHabitatMovement(
       structureNote: 'Alleen lokaal vastgestelde structuren gebruiken',
       whyLikely: 'Een tweede lokale zone biedt een controle zonder niet-geregistreerde habitatkenmerken aan te nemen.',
     };
+  }
 
   // 2. BEWEGINGSHYPOTHESE (TREKROUTES & DYNAMIEK)
   if (!targetSlot) {
@@ -351,22 +352,22 @@ export function analyzeHabitatMovement(
     migrationalTrigger = 'Geen tijdvakgebonden trigger afgeleid';
     timeOfDayDynamic = 'Kies een concreet vistijdvak en beoordeel ter plaatse de actuele visactiviteit.';
   } else if (targetSlot === 'Ochtend') {
-    likelyDirection = 'Vissen migreren geleidelijk terug van ondiepe nachtelijke aaszones naar dieper water of schaduw';
-    migrationalTrigger = 'Toenemend daglicht en opkomende zon verminderen de dekking op ondiep water';
-    timeOfDayDynamic = 'Eerste uren rond zonsopkomst: hoge aaskans op de ondiepe taluds; later in de ochtend zakt de vis dieper weg';
+    likelyDirection = 'Mogelijke verplaatsing tussen rust- en foerageerzones; richting en afstand zijn niet lokaal vastgesteld.';
+    migrationalTrigger = 'Toenemend daglicht kan het gebruik van dekking en open water beïnvloeden.';
+    timeOfDayDynamic = 'Ochtendactiviteit verschilt per soort, seizoen en locatie; controleer waar vis daadwerkelijk actief is.';
   } else if (targetSlot === 'Middag') {
-    likelyDirection = 'Passieve holding in diepe rustkuilen of onder beschutte schaduw';
-    migrationalTrigger = 'Hoge lichtintensiteit en eventuele warmteopbouw in de oppervlaktelaag';
-    timeOfDayDynamic = 'Statische periode met weinig verplaatsing, tenzij een sterke bries voor golfslag en troebeling zorgt';
+    likelyDirection = 'Geen vaste middagroute aangenomen; vis kan lokaal rusten of blijven foerageren.';
+    migrationalTrigger = 'Lichtintensiteit en watertemperatuur kunnen het zonegebruik beïnvloeden.';
+    timeOfDayDynamic = 'Beoordeel lokale schaduw, watertemperatuur en directe viswaarnemingen; een algemene rustperiode wordt niet verondersteld.';
   } else if (targetSlot === 'Avond') {
-    likelyDirection = 'Vanuit dagrustzones actief optrekkend naar de oevertaluds, rietkragen en platen';
-    migrationalTrigger = 'Invallende schemering en afnemende lichtsterkte nemen de argwaan van schuwe vissen weg';
-    timeOfDayDynamic = 'Avondschemering brengt een piek in visverplaatsing: scholen verspreiden zich over foerageerroutes langs de contouren van het water';
+    likelyDirection = 'Een verplaatsing naar oeverstructuren is mogelijk, maar niet zonder lokale waarneming bevestigd.';
+    migrationalTrigger = 'Afnemende lichtsterkte kan voor sommige soorten het foerageergedrag beïnvloeden.';
+    timeOfDayDynamic = 'Schemering kan relevant zijn voor sommige soorten; een vaste activiteitspiek wordt niet aangenomen.';
   } else {
     // Nacht
-    likelyDirection = 'Vrij rondtrekkend over de ondiepere oeverzones en uitgestrekte bodemplaten';
-    migrationalTrigger = 'Volledige duisternis biedt maximale beschutting tegen roofvijanden en hengeldruk';
-    timeOfDayDynamic = 'Continue zoektocht naar bodemleven op dieptes waar overdag zelden een vis zwemt';
+    likelyDirection = 'Nachtelijke verplaatsing hangt af van soort, prooiaanbod, dekking en lokale waterstructuur.';
+    migrationalTrigger = 'Duisternis verandert licht- en predatordruk, maar de lokale reactie is niet vastgesteld.';
+    timeOfDayDynamic = 'Controleer bekende structuren en recente waarnemingen; geen vaste nachtelijke route aangenomen.';
   }
 
   transitRoute = hasReeds
