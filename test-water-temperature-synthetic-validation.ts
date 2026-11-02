@@ -178,6 +178,30 @@ assert(coolingError !== null && coolingError <= 1.5,
   'Afkoelscenario blijft binnen 1,5 °C van de onafhankelijke synthetische referentie',
   `model=${coolingResult.estimatedWaterTemp}, referentie=${coolingTruth.toFixed(2)}, fout=${coolingError?.toFixed(2)}`);
 
+// Historical-profile-only case: real earlier session measurements are available,
+// but no recent session anchor is passed to the thermal engine.
+const profileSessions = makeMeasuredSessions(
+  [13.8, 14.0, 14.1, 14.2, 14.3, 14.4],
+  [14.0, 14.0, 14.0, 14.0, 14.0, 14.0]
+);
+const profileForecast = makeForecasts('2026-06-06T13:00:00Z', '2026-06-09T23:00:00Z', 14.15);
+const profileReference = 14.15;
+const profileResult = analyzeWaterThermalDevelopment(targetDate, profileForecast, {
+  location,
+  historicalSessions: [],
+  historicalWaterTemperatures: toHistory(profileSessions),
+  currentDateRef: new Date('2026-06-09T12:00:00Z'),
+});
+const profileError = profileResult.estimatedWaterTemp === null
+  ? null
+  : Math.abs(profileResult.estimatedWaterTemp - profileReference);
+assert(profileResult.waterTemperatureStatus === 'estimated_from_history' &&
+  profileResult.historicalWaterTemperatureSamples === 6,
+  'Zes eerdere echte sessiemetingen vormen zonder actueel meetanker een historisch seizoensprofiel');
+assert(profileError !== null && profileError <= 0.5,
+  'Historisch profiel geeft bij stabiele weersreferentie de bekende synthetische watertemperatuur terug',
+  `model=${profileResult.estimatedWaterTemp}, referentie=${profileReference.toFixed(2)}, fout=${profileError?.toFixed(2)}`);
+
 // Future measurements and benchmark sessions must not alter a prior forecast.
 const futureSession: FishingSession = {
   id: 'synthetic-future-session',
