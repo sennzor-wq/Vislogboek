@@ -64,6 +64,26 @@ function getSpeciesFeed(species: 'Karper' | 'Zeelt' | 'Brasem'): {
  */
 export function calculatePrebaitPlan(
   targetDateStr: string,
+  species: 'Karper' | 'Zeelt' | 'Brasem',
+  thermalAnalysis: WaterThermalAnalysis,
+  options?: PrebaitProgramOptions,
+  historicalSessions?: FishingSession[],
+  location?: FishingLocation,
+  bankWind?: BankWindAnalysis,
+  targetSlot?: TimeSlot
+): PrebaitProgramPlan;
+export function calculatePrebaitPlan(
+  targetDateStr: string,
+  species: FishSpecies | 'Algemeen',
+  thermalAnalysis: WaterThermalAnalysis,
+  options?: PrebaitProgramOptions,
+  historicalSessions?: FishingSession[],
+  location?: FishingLocation,
+  bankWind?: BankWindAnalysis,
+  targetSlot?: TimeSlot
+): PrebaitProgramPlan | null;
+export function calculatePrebaitPlan(
+  targetDateStr: string,
   species: FishSpecies | 'Algemeen',
   thermalAnalysis: WaterThermalAnalysis,
   options: PrebaitProgramOptions = {},
