@@ -343,12 +343,11 @@ function analyzeTimeSlot(
   // Seizoensprofielen blijven zichtbaar als voorlopige achtergrondcontext.
   // Ze tellen niet mee: seizoensinvloed is deels al vervat in watertemperatuur
   // en de vaste profielgewichten zijn nog niet voldoende gevalideerd.
-  const seasonRaw = profile.seasonalWeights[season];
   const seasonFactor: FactorBreakdown = {
     score: 0,
     impact: 'neutraal',
     title: 'Seizoensritme',
-    detail: `Seizoen ${season}: voorlopig profielcontextcijfer ${seasonRaw}/10 voor ${species}. Dit cijfer is niet gevalideerd als activiteitseffect en beïnvloedt de activiteitsindex niet.`,
+    detail: `Seizoen ${season}: de seizoensnotitie voor ${species} is voorlopig. Het afzonderlijke seizoenseffect is niet voldoende gevalideerd en telt niet mee in de activiteitsindex.`,
     dataAvailable: true,
   };
 
