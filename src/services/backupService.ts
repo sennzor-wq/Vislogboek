@@ -35,7 +35,8 @@ export interface ImportPreview {
 /**
  * Exporteert de volledige IndexedDB database naar een JSON object en downloadbestand.
  */
-export async function exportDatabaseToJson(): Promise<BackupData> {
+/** Bouwt een volledige, download-onafhankelijke momentopname van alle persistente tabellen. */
+export async function collectBackupData(): Promise<BackupData> {
   const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations] =
     await Promise.all([
       db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
@@ -43,19 +44,19 @@ export async function exportDatabaseToJson(): Promise<BackupData> {
       db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(),
     ]);
 
-  const backup: BackupData = {
+  return {
     version: 3,
     appName: 'Vislogboek',
     exportedAt: new Date().toISOString(),
-    locations,
-    sessions,
-    catches,
+    locations, sessions, catches,
     settings: settings || undefined,
-    weatherCache,
-    prognosisSnapshots,
-    presenceObservations,
+    weatherCache, prognosisSnapshots, presenceObservations,
   };
+}
 
+/** Exporteert alle persistente gegevens naar een JSON-download. */
+export async function exportDatabaseToJson(): Promise<BackupData> {
+  const backup = await collectBackupData();
   const jsonString = JSON.stringify(backup, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -68,9 +69,8 @@ export async function exportDatabaseToJson(): Promise<BackupData> {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 
-  // Update instellingen met datum laatste backup
+  // Update de datum pas na het maken van de export; de volgende export bevat deze datum.
   await db.settings.update('user_settings', { lastBackupDate: new Date().toISOString() });
-
   return backup;
 }
 
@@ -440,41 +440,39 @@ export async function mergeImportData(data: BackupData): Promise<{
 /**
  * Vervangt alle gegevens na automatische veiligheidsbackup, met behoud van benchmark.
  */
-export async function replaceWithImportData(data: BackupData): Promise<void> {
-  // 1. Veiligheidsbackup maken van huidige staat
-  await exportDatabaseToJson();
-
-  // 2. Wissen en herstellen in transactie
+/** Herstelt een gevalideerde backup atomair. Veiligheidsbackup/download wordt door de UI-flow geregeld. */
+export async function restoreBackupData(data: BackupData): Promise<void> {
   await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
     db.prognosisSnapshots, db.presenceObservations, async () => {
-    await db.locations.clear();
-    await db.sessions.clear();
-    await db.catches.clear();
-    await db.settings.clear();
-    await db.weatherCache.clear();
-    await db.prognosisSnapshots.clear();
-    await db.presenceObservations.clear();
+      await db.locations.clear();
+      await db.sessions.clear();
+      await db.catches.clear();
+      await db.settings.clear();
+      await db.weatherCache.clear();
+      await db.prognosisSnapshots.clear();
+      await db.presenceObservations.clear();
 
-    // Importeer data
-    for (const loc of data.locations) {
-      await db.locations.put(loc);
-    }
-    for (const sess of data.sessions) {
-      await db.sessions.put(sess);
-    }
-    for (const c of data.catches) await db.catches.put(c);
-    if (data.settings) await db.settings.put(data.settings);
-    for (const item of data.weatherCache || []) await db.weatherCache.put(item);
-    for (const item of data.prognosisSnapshots || []) await db.prognosisSnapshots.put(item);
-    for (const item of data.presenceObservations || []) await db.presenceObservations.put(item);
+      await db.locations.bulkPut(data.locations);
+      await db.sessions.bulkPut(data.sessions);
+      await db.catches.bulkPut(data.catches);
+      if (data.settings) await db.settings.put(data.settings);
+      if (data.weatherCache?.length) await db.weatherCache.bulkPut(data.weatherCache);
+      if (data.prognosisSnapshots?.length) await db.prognosisSnapshots.bulkPut(data.prognosisSnapshots);
+      if (data.presenceObservations?.length) await db.presenceObservations.bulkPut(data.presenceObservations);
 
-    // Garandeer dat de beschermde benchmark aanwezig is!
-    await db.locations.put(BENCHMARK_LOCATION);
-    await db.sessions.put(BENCHMARK_SESSION);
-    for (const bc of BENCHMARK_CATCHES) {
-      await db.catches.put(bc);
-    }
-  });
+      // De app houdt de ingebouwde referentieset beschikbaar, zoals vóór deze backupversie.
+      if (!(await db.locations.get(BENCHMARK_LOCATION.id))) await db.locations.put(BENCHMARK_LOCATION);
+      if (!(await db.sessions.get(BENCHMARK_SESSION.id))) await db.sessions.put(BENCHMARK_SESSION);
+      for (const item of BENCHMARK_CATCHES) {
+        if (!(await db.catches.get(item.id))) await db.catches.put(item);
+      }
+    });
+}
+
+/** Vervangt alle gegevens na het downloaden van een volledige veiligheidsbackup. */
+export async function replaceWithImportData(data: BackupData): Promise<void> {
+  await exportDatabaseToJson();
+  await restoreBackupData(data);
 }
 
 /**
