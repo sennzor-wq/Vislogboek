@@ -144,7 +144,7 @@ Elke fase wordt hieronder bijgewerkt met branch/PR, gewijzigde onderdelen, testr
 
 - Voorbereidende stap: afgerond; implementatieplan PR #12 samengevoegd. Projectcontext wordt met deze documentatie-update gesynchroniseerd.
 - Fase 1: afgerond; PR #13 (gegevenscorrectheid, doelsoortuitkomst, onbekende duur, aanwezigheid zonder kansbonus en atomische snapshots) en PR #15 (afzonderlijke opslag van sessiewaarnemingen) samengevoegd. CI geslaagd.
-- Fase 2: in voorbereiding; volledige export/import, versiebeheer, validatie en round-trip tests.
+- Fase 2: afgerond; PR #17 samengevoegd. Back-up v3 exporteert en herstelt alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's; merge/replace, legacycompatibiliteit, validatie en round-trip tests zijn toegevoegd. CI (typecheck, alle regressies, round-trip-suite en productiebuild) geslaagd. Geen handmatige Android-test geclaimd.
 - Fase 3: gepland.
 - Fase 4: gepland.
 - Fase 5: gepland.
