@@ -265,6 +265,21 @@ assert(
   '1.21 Method feeder wordt als instant korfvoer rond het haakaas weergegeven'
 );
 
+const coldMethodFeederPlan = calculatePrebaitPlan(
+  '2026-01-15',
+  'Karper',
+  coldThermal,
+  { availableDaysBefore: 3, technique: 'Method feeder' },
+  [],
+  baseLocation
+);
+assert(
+  coldMethodFeederPlan?.shouldPrebait === false &&
+  coldMethodFeederPlan?.sessionDayGuidance.feedDuringSession === false &&
+  coldMethodFeederPlan?.methodFeederGuidance?.includes('instant vissen') === true,
+  '1.22 Bij zeer koud water blijft method feeder een minimale instant presentatie, zonder voorvoer of extra bijvoer'
+);
+
 // 1.8 Geen temperatuur of geen bruikbaar watertype: geen concrete voerhoeveelheden.
 const unknownTemp = { ...warmThermal, hasMeasuredWaterTemp: false, measuredWaterTemp: null, estimatedWaterTemp: null };
 const unknownTempPlan = calculatePrebaitPlan('2026-07-20', 'Karper', unknownTemp, { availableDaysBefore: 2 }, [], baseLocation);
@@ -529,7 +544,7 @@ const fullProg = calculateDayPrognosis(
   mockHistoricalSessions,
   '2026-07-20T08:00:00Z',
   19.5, // Gemeten watertemp
-  new Date('2026-07-20T06:00:00Z'),
+  new Date('2026-07-18T06:00:00Z'),
   {
     sessionDurationHours: 4,
     location: baseLocation,
