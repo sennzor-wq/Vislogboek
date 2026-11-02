@@ -352,6 +352,15 @@ async function runTestSuite() {
     noThermalData.estimatedWaterTemp === null && noThermalData.uncertaintyC === null,
     '4.8 Zonder meetanker en onvoldoende weersgegevens blijft watertemperatuur onbekend');
 
+  const oneDayOnly = analyzeWaterThermalDevelopment(
+    '2026-10-23',
+    coldSnapForecasts.filter((hour) => hour.time.startsWith('2026-10-23')),
+    { location: locLokkershoek, currentDateRef: new Date('2026-10-23T12:00:00') }
+  );
+  assert(oneDayOnly.waterTemperatureStatus === 'unknown' &&
+    oneDayOnly.estimatedWaterTemp === null && oneDayOnly.estimatedRange === null,
+    '4.9 Zonder lokaal meetanker levert één losse weersdag geen watertemperatuurschatting op');
+
   // =========================================================================
   // DEEL 5: WATERDIEPTE PER STEK WORDT CORRECT DOOR BEREKENING MEGENOMEN
   // =========================================================================
