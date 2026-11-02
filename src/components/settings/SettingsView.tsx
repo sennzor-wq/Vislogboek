@@ -112,7 +112,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       const result = await mergeImportData(pendingBackupData);
 
       setStatusMessage(
-        `Gegevens samengevoegd: ${result.addedSessions} sessie(s), ${result.addedCatches} vangst(en), ${result.addedLocations} locatie(s) toegevoegd.`
+        `Gegevens samengevoegd: ${result.addedSessions} sessie(s), ${result.addedCatches} vangst(en), ${result.addedLocations} locatie(s), ${result.addedWeatherCache} weeritem(s), ${result.addedPrognosisSnapshots} prognose(s) en ${result.addedPresenceObservations} waarneming(en) toegevoegd${result.settingsImported ? ', inclusief instellingen' : ''}. Bestaande lokale instellingen zijn behouden.`
       );
 
       setImportPreview(null);
@@ -130,7 +130,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       await replaceWithImportData(pendingBackupData);
 
       setStatusMessage(
-        'Database succesvol hersteld. Er is vóór het overschrijven automatisch een back-up gedownload van de vorige staat.'
+        'Database volledig hersteld, inclusief instellingen, weercache, prognosehistorie, waarnemingen en foto's. Er is vóór het overschrijven automatisch een volledige veiligheidsback-up gedownload.'
       );
 
       setImportPreview(null);
