@@ -5,7 +5,7 @@
  */
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, getSessionDurationHours } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
   BENCHMARK_SESSION,
@@ -72,6 +72,24 @@ function makeHourlySeries(
 
 async function run14Scenarios() {
   console.log('=== STARTING VISLOGBOEK 14-SCENARIO VERIFICATION ===\n');
+
+  const unknownDuration = getSessionDurationHours({
+    id: 'unknown-duration',
+    startTime: '2026-10-20T10:00:00Z',
+    outcome: 'unknown',
+    createdAt: '',
+    updatedAt: '',
+  });
+  const inferredDuration = getSessionDurationHours({
+    id: 'known-time-range',
+    startTime: '2026-10-20T10:00:00Z',
+    endTime: '2026-10-20T13:30:00Z',
+    outcome: 'skunk_confirmed',
+    createdAt: '',
+    updatedAt: '',
+  });
+  assert(unknownDuration === null, '0.1 Onbekende sessieduur blijft null en wordt niet als 3 uur ingevuld');
+  assert(inferredDuration === 3.5, '0.2 Geldige start- en eindtijd leveren de geregistreerde duur op');
 
   const locLokkershoek: FishingLocation = {
     id: 'spot-lokkershoek',
