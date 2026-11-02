@@ -61,9 +61,6 @@ const ongoing = calculateSessionRodEffort([
 ], start, null, new Date('2026-11-02T11:30:00Z'));
 assert(ongoing.totalRodHours === 1.5, 'Open interval van actieve sessie telt tot het opgegeven meetmoment');
 
-console.log(`Session rod effort tests: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
-
 
 const closedAt = '2026-11-02T12:00:00.000Z';
 const intervalClosure = closeOpenRodIntervals([
@@ -77,3 +74,6 @@ assert(intervalClosure[1].activeIntervals[0].endTime === '2026-11-02T10:00:00.00
   'Bestaande handmatig beëindigde hengelintervallen blijven ongewijzigd');
 assert(intervalClosure[2].activeIntervals[0].endTime === null,
   'Een interval zonder geldige starttijd wordt niet automatisch als inzet geregistreerd');
+
+console.log(`Session rod effort tests: ${passed} passed, ${failed} failed`);
+if (failed > 0) process.exit(1);

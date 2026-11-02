@@ -33,7 +33,7 @@ async function run() {
   const session: FishingSession = {
     id: 'backup-roundtrip-session', locationId: location.id, locationName: location.name,
     startTime: '2026-11-02T10:00:00.000Z', endTime: '2026-11-02T12:00:00.000Z',
-    durationMinutes: 120, outcome: 'catch', targetSpecies: ['Karper'], rodCount: 2,
+    durationMinutes: 120, outcome: 'catch', targetSpecies: ['Karper'], rodCount: 2, participantCount: 1,
     photoUrls: ['data:image/png;base64,c2Vzc2ll'],
     createdAt: '2026-11-02T10:00:00.000Z', updatedAt: '2026-11-02T12:00:00.000Z',
   };
@@ -120,6 +120,8 @@ async function run() {
     'Restore herstelt alle locaties en IDs exact');
   assert(same(sessions.sort((a,b)=>a.id.localeCompare(b.id)), backup.sessions.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle sessies en IDs exact');
+  assert(sessions.find((item) => item.id === session.id)?.participantCount === 1,
+    'Optioneel deelnemersaantal blijft behouden in backup en restore');
   assert(same(catches.sort((a,b)=>a.id.localeCompare(b.id)), backup.catches.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle vangsten en IDs exact');
   assert(same(restoredSettings, backup.settings), 'Restore herstelt instellingen exact');
