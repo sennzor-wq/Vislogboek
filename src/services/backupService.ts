@@ -437,11 +437,10 @@ export async function mergeImportData(data: BackupData): Promise<{
     addedPrognosisSnapshots, addedPresenceObservations, settingsImported };
 }
 
-/**
- * Vervangt alle gegevens na automatische veiligheidsbackup, met behoud van benchmark.
- */
 /** Herstelt een gevalideerde backup atomair. Veiligheidsbackup/download wordt door de UI-flow geregeld. */
 export async function restoreBackupData(data: BackupData): Promise<void> {
+  // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
+  const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
   await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
     db.prognosisSnapshots, db.presenceObservations, async () => {
       await db.locations.clear();
@@ -456,6 +455,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       await db.sessions.bulkPut(data.sessions);
       await db.catches.bulkPut(data.catches);
       if (data.settings) await db.settings.put(data.settings);
+      else if (fallbackSettings) await db.settings.put(fallbackSettings);
       if (data.weatherCache?.length) await db.weatherCache.bulkPut(data.weatherCache);
       if (data.prognosisSnapshots?.length) await db.prognosisSnapshots.bulkPut(data.prognosisSnapshots);
       if (data.presenceObservations?.length) await db.presenceObservations.bulkPut(data.presenceObservations);
