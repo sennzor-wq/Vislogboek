@@ -382,7 +382,7 @@ export interface PrognosisSnapshot {
   // Onafhankelijke, soortneutrale temperatuurvalidatie. Alleen een vooraf voorspelde schatting telt mee.
   predictedWaterTemperature?: number | null;
   predictedWaterTemperatureRange?: [number, number] | null;
-  predictedWaterTemperatureStatus?: 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
+  predictedWaterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
   predictedWaterTemperatureUncertaintyC?: number | null;
   predictedWaterTemperatureAnchorTimestamp?: string | null;
   predictedWaterTemperatureHistoricalBaselineC?: number | null;
