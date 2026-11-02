@@ -287,11 +287,11 @@ const unknownWaterTypePlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmTh
 assert(
   unknownTempPlan?.shouldPrebait === false && unknownTempPlan?.recommendedDaysBefore === 0 &&
   unknownTempPlan?.totalAmountGrams === 0,
-  '1.22 Zonder bruikbare watertemperatuur worden geen voerhoeveelheden of voertijden verzonnen'
+  '1.23 Zonder bruikbare watertemperatuur worden geen voerhoeveelheden of voertijden verzonnen'
 );
 assert(
   unknownWaterTypePlan?.shouldPrebait === false && unknownWaterTypePlan?.recommendedDaysBefore === 0,
-  '1.23 Zonder bekend watertype worden geen concrete voorvoerdagen gepland'
+  '1.24 Zonder bekend watertype worden geen concrete voorvoerdagen gepland'
 );
 
 // 1.9 Beschikbare dagen worden begrensd door de werkelijke planningsdatum.
@@ -306,7 +306,7 @@ const shortHorizonPlan = calculatePrebaitPlan(
 assert(
   shortHorizonPlan?.recommendedDaysBefore === 1 &&
   shortHorizonPlan.moments[0].date === '2026-07-21',
-  '1.24 Een sessie morgen krijgt geen voorvoerdagen in het verleden'
+  '1.25 Een sessie morgen krijgt geen voorvoerdagen in het verleden'
 );
 
 
