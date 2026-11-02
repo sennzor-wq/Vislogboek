@@ -350,7 +350,12 @@ export function analyzeWaterThermalDevelopment(
           : mean24;
 
         const cloud = Number.isFinite(hour.cloudCover) ? Math.max(0, Math.min(100, hour.cloudCover)) : null;
-        const solarAdjustment = cloud === null ? 0 : (1 - cloud / 100) * (hour.temperature > waterTemp ? 0.35 : 0.12);
+        const radiation = Number.isFinite(hour.shortwaveRadiation)
+          ? Math.max(0, Math.min(1600, hour.shortwaveRadiation as number))
+          : null;
+        const solarAdjustment = radiation !== null
+          ? (radiation / 700) * (hour.temperature > waterTemp ? 0.35 : 0.12)
+          : cloud === null ? 0 : (1 - cloud / 100) * (hour.temperature > waterTemp ? 0.35 : 0.12);
         const equilibrium = mean24 * 0.65 + mean72 * 0.35 + solarAdjustment;
         const wind = Number.isFinite(hour.windSpeed) ? Math.max(0, hour.windSpeed) : null;
         const mixingMultiplier = wind === null ? 1 : wind >= 20 ? 0.82 : wind >= 9 ? 0.92 : 1.08;
@@ -360,7 +365,7 @@ export function analyzeWaterThermalDevelopment(
 
       estimatedWaterTemp = Math.round(waterTemp * 10) / 10;
       const uncertainty = 0.45 + elapsedSinceAnchorHours * 0.009 + (coverage < 0.85 ? 0.45 : 0) +
-        (typeof location?.waterDepth !== 'number' ? 0.5 : 0);
+        (evaporationPotential === 'hoog' ? 0.3 : 0);
       estimatedRange = [
         Math.round((waterTemp - uncertainty) * 10) / 10,
         Math.round((waterTemp + uncertainty) * 10) / 10,
@@ -408,8 +413,8 @@ export function analyzeWaterThermalDevelopment(
       rawEstimate = historicalProfile.baselineC * historyWeight + weatherEstimate * (1 - historyWeight);
     }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
-    const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0),
-      historicalProfile?.uncertaintyC ?? 0);
+    const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
+      (evaporationPotential === 'hoog' ? 0.3 : 0), historicalProfile?.uncertaintyC ?? 0);
     estimatedRange = [
       Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
       Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
