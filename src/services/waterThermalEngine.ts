@@ -269,7 +269,7 @@ export function analyzeWaterThermalDevelopment(
     weatherCoverageRatio = coverage;
     // Alleen een weer-gestuurde extrapolatie als het grootste deel van de periode
     // sinds de meting door uurlijkse data wordt afgedekt. Geen ontbrekende dagen invullen.
-    if (anchorAgeHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
+    if (elapsedSinceAnchorHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
       let waterTemp = anchor.temperature;
       const depth = typeof location?.waterDepth === 'number' && location.waterDepth > 0
         ? location.waterDepth
@@ -320,14 +320,14 @@ export function analyzeWaterThermalDevelopment(
       }
 
       estimatedWaterTemp = Math.round(waterTemp * 10) / 10;
-      const uncertainty = 0.45 + anchorAgeHours * 0.009 + (coverage < 0.85 ? 0.45 : 0) +
+      const uncertainty = 0.45 + elapsedSinceAnchorHours * 0.009 + (coverage < 0.85 ? 0.45 : 0) +
         (typeof location?.waterDepth !== 'number' ? 0.5 : 0);
       estimatedRange = [
         Math.round((waterTemp - uncertainty) * 10) / 10,
         Math.round((waterTemp + uncertainty) * 10) / 10,
       ];
       usedMeasuredAnchor = true;
-    } else if (anchorAgeHours <= 24) {
+    } else if (elapsedSinceAnchorHours <= 24) {
       // Bij een recente meting en ontbrekende uurlijkse weerdekking: korte-termijn
       // stabiliteitsaanname met ruime marge, expliciet lage betrouwbaarheid.
       estimatedWaterTemp = Math.round(anchor.temperature * 10) / 10;
