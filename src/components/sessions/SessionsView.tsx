@@ -5,11 +5,13 @@ import {
   CatchItem,
   SessionOutcome,
   FishSpecies,
+  SessionRod,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
 import { CatchModal } from '../catches/CatchModal';
 import { deleteSessionSafely, deletePrognosisSnapshotSafely } from '../../db/db';
+import { calculateSessionRodEffort, closeOpenRodIntervals } from '../../services/sessionEffortEngine';
 import {
   Plus,
   Play,
@@ -38,7 +40,8 @@ interface SessionsViewProps {
   locations: FishingLocation[];
   onRefreshData: () => Promise<void>;
   onStartNewSession: () => void;
-  onSaveSession: (sessionData: Partial<FishingSession>) => Promise<void>;
+  onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[]) => Promise<void>;
+  sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
 }
 
@@ -49,6 +52,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   onRefreshData,
   onStartNewSession,
   onSaveSession,
+  sessionRods,
   onSaveCatch,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
@@ -212,6 +216,11 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
     const endMs = new Date(endIso).getTime();
     const diffMin = Math.max(1, Math.round((endMs - startMs) / 60000));
 
+    const rodsAtEnd = closeOpenRodIntervals(
+      sessionRods.filter((rod) => rod.sessionId === sessionId),
+      endIso
+    );
+
     await onSaveSession({
       id: sessionId,
       endTime: endIso,
@@ -219,7 +228,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
       outcome,
       notes: notes || session.notes,
       updatedAt: endIso,
-    });
+    }, undefined, rodsAtEnd);
     await onRefreshData();
   };
 
@@ -296,10 +305,11 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                         <span>Gestart om: {new Date(session.startTime).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</span>
                         <span>•</span>
                         <span className="font-bold text-emerald-300">Live duur: {liveDuration}</span>
+                        {session.participantCount && <><span>•</span><span>{session.participantCount} deelnemer(s)</span></>}
                         {session.rodCount && (
                           <>
                             <span>•</span>
-                            <span>{session.rodCount} hengel(s)</span>
+                            <span>{session.rodCount} hengel(s) totaal</span>
                           </>
                         )}
                       </div>
@@ -313,6 +323,15 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                       >
                         <Plus className="w-4 h-4" />
                         Vangst registreren
+                      </button>
+
+                      <button
+                        onClick={() => setEditingSession(session)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition border border-slate-600 cursor-pointer"
+                        title="Actieve sessie en hengeldetails bewerken"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        Bewerken
                       </button>
 
                       <button
@@ -563,10 +582,11 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           <span>{session.technique}</span>
                         </>
                       )}
+                      {session.participantCount && <><span>•</span><span>{session.participantCount} deelnemer(s)</span></>}
                       {session.rodCount && (
                         <>
                           <span>•</span>
-                          <span>{Number(session.rodCount)} hengel(s)</span>
+                          <span>{Number(session.rodCount)} hengel(s) totaal</span>
                         </>
                       )}
                     </div>
@@ -609,6 +629,37 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                 {/* Uitgebreide Sessiedetails */}
                 {isExpanded && (
                   <div className="p-4 pt-1 border-t border-slate-700/60 bg-slate-900/40 space-y-3.5">
+                    {/* Werkelijke hengelinzet; ontbrekende details worden niet uit rodCount afgeleid */}
+                    {sessionRods.some((rod) => rod.sessionId === session.id) && (() => {
+                      const rodsForSession = sessionRods.filter((rod) => rod.sessionId === session.id);
+                      const effort = calculateSessionRodEffort(rodsForSession, session.startTime, session.endTime);
+                      return (
+                        <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs text-slate-300 space-y-2">
+                          <div>
+                            <strong className="text-white">Hengeluren:</strong> {effort.totalRodHours.toFixed(2)} uur
+                            <span className="text-slate-400"> · {effort.activeRodCount} hengels met geregistreerde inzet</span>
+                            {effort.incompleteIntervalCount > 0 && <p className="text-amber-300 text-[11px] mt-1">{effort.incompleteIntervalCount} onvolledige of ongeldige interval(len) niet meegerekend.</p>}
+                          </div>
+                          <div className="space-y-1.5 border-t border-slate-700/60 pt-2">
+                            {rodsForSession.map((rod) => (
+                              <div key={rod.id} className="rounded-lg bg-slate-900/60 p-2">
+                                <div className="font-semibold text-white">Hengel {rod.rodNumber} · {(effort.perRodHours[rod.id] || 0).toFixed(2)} uur</div>
+                                <div className="text-[11px] text-slate-400">
+                                  {[rod.positionZone, rod.technique, rod.baitPresentation].filter(Boolean).join(' · ') || 'Geen positie, techniek of aas/presentatie vastgelegd'}
+                                </div>
+                                {rod.events && rod.events.length > 0 && (
+                                  <div className="text-[11px] text-cyan-200 mt-1">
+                                    {rod.events.length} gebeurtenis(sen): {rod.events.map((event) => `${event.type === 'bite' ? 'aanbeet' : event.type === 'missed' ? 'gemist' : event.type === 'catch' ? 'vangst' : 'overig'}${event.notes ? ` (${event.notes})` : ''}`).join(', ')}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-[10px] text-slate-500">Hengelgebeurtenissen zijn toeschrijvingen binnen deze sessie en worden niet als extra sessies of vangsten opgeteld.</p>
+                        </div>
+                      );
+                    })()}
+
                     {/* Weersgegevens van de sessie */}
                     {session.weatherSnapshot && (
                       <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/40 flex items-center justify-between text-xs text-slate-300 flex-wrap gap-2">
@@ -741,8 +792,9 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
         <SessionModal
           session={editingSession}
           locations={locations}
-          onSave={async (updated) => {
-            await onSaveSession(updated);
+          initialRodDetails={sessionRods.filter((rod) => rod.sessionId === editingSession.id)}
+          onSave={async (updated, _pendingSnapshot, rods) => {
+            await onSaveSession(updated, undefined, rods);
             await onRefreshData();
           }}
           onClose={() => setEditingSession(null)}

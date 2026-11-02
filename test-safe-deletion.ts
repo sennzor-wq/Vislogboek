@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { db, deleteSessionSafely, deletePrognosisSnapshotSafely } from './src/db/db';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
-import { FishingSession, PrognosisSnapshot, CatchItem } from './src/types';
+import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod } from './src/types';
 
 let passed = 0;
 let failed = 0;
@@ -139,6 +139,12 @@ async function runTestSuite() {
     createdAt: new Date().toISOString(),
   };
   await db.catches.put(catch2);
+  const rodForDeletedSession: SessionRod = {
+    id: 'rod-for-deleted-session', sessionId: sess2.id, rodNumber: 1,
+    activeIntervals: [{ id: 'rod-interval', startTime: '2026-10-30T10:00:00Z', endTime: '2026-10-30T12:00:00Z' }],
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  };
+  await db.sessionRods.put(rodForDeletedSession);
 
   // Verwijder de sessie
   const sessDeleted = await deleteSessionSafely(sess2.id);
@@ -149,6 +155,7 @@ async function runTestSuite() {
 
   const catchesInDb = await db.catches.where('sessionId').equals(sess2.id).toArray();
   assert(catchesInDb.length === 0, '2.3 Gekoppelde vangsten zijn verwijderd uit db.catches');
+  assert(await db.sessionRods.get(rodForDeletedSession.id) === undefined, '2.3a Gekoppelde hengeldetails worden mee verwijderd');
 
   const snapCascadeInDb = await db.prognosisSnapshots.get(snap2.id);
   assert(

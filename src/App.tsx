@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, initializeDatabase, syncSessionPresenceObservations } from './db/db';
-import { FishingLocation, FishingSession, CatchItem, FishSpecies } from './types';
+import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod } from './types';
 import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
 import { PrognosisView } from './components/prognosis/PrognosisView';
@@ -27,6 +27,7 @@ export default function App() {
   const [locations, setLocations] = useState<FishingLocation[]>([]);
   const [sessions, setSessions] = useState<FishingSession[]>([]);
   const [catches, setCatches] = useState<CatchItem[]>([]);
+  const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -45,14 +46,16 @@ export default function App() {
   const loadData = async () => {
     try {
       await initializeDatabase();
-      const [allLocations, allSessions, allCatches] = await Promise.all([
+      const [allLocations, allSessions, allCatches, allSessionRods] = await Promise.all([
         db.locations.toArray(),
         db.sessions.reverse().sortBy('startTime'),
         db.catches.reverse().sortBy('timestamp'),
+        db.sessionRods.toArray(),
       ]);
       setLocations(allLocations);
       setSessions(allSessions);
       setCatches(allCatches);
+      setSessionRods(allSessionRods);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
     } finally {
@@ -86,7 +89,8 @@ export default function App() {
 
   const handleSaveSession = async (
     sessionData: Partial<FishingSession>,
-    pendingSnapshot?: PendingPrognosisSnapshot
+    pendingSnapshot?: PendingPrognosisSnapshot,
+    rods?: SessionRod[]
   ) => {
     if (!sessionData.id) return;
 
@@ -95,11 +99,12 @@ export default function App() {
       // Sessie en vooraf gekozen prognose worden atomair vastgelegd.
       savedSession = await saveSessionWithPrognosisSnapshot(
         sessionData as FishingSession,
-        pendingSnapshot
+        pendingSnapshot,
+        rods
       );
     } else {
       const hasPresenceObservations = Object.prototype.hasOwnProperty.call(sessionData, 'presenceObservations');
-      await db.transaction('rw', db.sessions, db.presenceObservations, async () => {
+      await db.transaction('rw', db.sessions, db.presenceObservations, db.sessionRods, async () => {
         const existing = await db.sessions.get(sessionData.id!);
         const mergedSession = existing
           ? ({ ...existing, ...sessionData } as FishingSession)
@@ -107,6 +112,12 @@ export default function App() {
         await db.sessions.put(mergedSession);
         if (hasPresenceObservations) {
           await syncSessionPresenceObservations(mergedSession);
+        }
+        if (rods !== undefined) {
+          await db.sessionRods.where('sessionId').equals(sessionData.id!).delete();
+          if (rods.length > 0) {
+            await db.sessionRods.bulkPut(rods.map((rod) => ({ ...rod, sessionId: sessionData.id! })));
+          }
         }
       });
       savedSession = await db.sessions.get(sessionData.id);
@@ -118,6 +129,13 @@ export default function App() {
     }
 
     // Werk alleen de gewijzigde sessie bij; haal niet alle tabellen opnieuw op.
+    if (rods !== undefined) {
+      setSessionRods((previous) => [
+        ...previous.filter((rod) => rod.sessionId !== sessionData.id),
+        ...rods.map((rod) => ({ ...rod, sessionId: sessionData.id! })),
+      ]);
+    }
+
     if (savedSession) {
       setSessions((previous) =>
         [...previous.filter((session) => session.id !== savedSession.id), savedSession]
@@ -241,6 +259,7 @@ export default function App() {
             onRefreshData={loadData}
             onStartNewSession={() => handleStartSession()}
             onSaveSession={handleSaveSession}
+            sessionRods={sessionRods}
             onSaveCatch={handleSaveCatch}
           />
         )}
@@ -282,8 +301,9 @@ export default function App() {
               : null
           }
           pendingPrognosisSnapshot={pendingPrognosisSnapshot}
-          onSave={async (newSess, pendingSnapshot) => {
-            await handleSaveSession(newSess, pendingSnapshot);
+          initialRodDetails={[]}
+          onSave={async (newSess, pendingSnapshot, rods) => {
+            await handleSaveSession(newSess, pendingSnapshot, rods);
             setCurrentTab('sessions');
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);

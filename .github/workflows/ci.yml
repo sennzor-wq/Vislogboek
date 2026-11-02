@@ -80,5 +80,8 @@ jobs:
       - name: Full backup and restore round-trip tests
         run: bun run tsx test-backup-roundtrip.ts
 
+      - name: Session rod effort tests
+        run: bun run tsx test-session-rods.ts
+
       - name: Production build
         run: bun run build

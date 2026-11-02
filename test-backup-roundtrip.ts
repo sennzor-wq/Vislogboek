@@ -9,7 +9,7 @@ import {
 } from './src/services/backupService';
 import {
   FishingLocation, FishingSession, CatchItem, WeatherCacheEntry,
-  PrognosisSnapshot, PresenceObservation, AppSettings,
+  PrognosisSnapshot, PresenceObservation, AppSettings, SessionRod,
 } from './src/types';
 
 let passed = 0;
@@ -33,7 +33,7 @@ async function run() {
   const session: FishingSession = {
     id: 'backup-roundtrip-session', locationId: location.id, locationName: location.name,
     startTime: '2026-11-02T10:00:00.000Z', endTime: '2026-11-02T12:00:00.000Z',
-    durationMinutes: 120, outcome: 'catch', targetSpecies: ['Karper'], rodCount: 2,
+    durationMinutes: 120, outcome: 'catch', targetSpecies: ['Karper'], rodCount: 2, participantCount: 1,
     photoUrls: ['data:image/png;base64,c2Vzc2ll'],
     createdAt: '2026-11-02T10:00:00.000Z', updatedAt: '2026-11-02T12:00:00.000Z',
   };
@@ -60,6 +60,13 @@ async function run() {
       cloudCover: 50, precipitation: 0, source: 'handmatig', capturedAt: '2026-11-02T09:00:00.000Z' },
     source: 'test', modelVersion: 'test-v1', createdAt: '2026-11-02T09:00:00.000Z',
   };
+  const rodDetail: SessionRod = {
+    id: 'backup-roundtrip-rod-1', sessionId: session.id, rodNumber: 1,
+    positionZone: 'Rietkraag', technique: 'Method feeder', baitPresentation: '2 mm pellets',
+    activeIntervals: [{ id: 'backup-rod-interval', startTime: '2026-11-02T10:15:00.000Z', endTime: '2026-11-02T11:45:00.000Z' }],
+    events: [{ id: 'backup-rod-event', timestamp: '2026-11-02T11:00:00.000Z', type: 'bite', notes: 'Testaanbeet' }],
+    createdAt: '2026-11-02T10:00:00.000Z', updatedAt: '2026-11-02T12:00:00.000Z',
+  };
   const observation: PresenceObservation = {
     id: 'backup-roundtrip-observation', locationId: location.id, sessionId: session.id,
     observationType: 'vis_springen_rollen', timestamp: '2026-11-02T10:30:00.000Z',
@@ -73,9 +80,10 @@ async function run() {
   await db.weatherCache.put(weather);
   await db.prognosisSnapshots.put(snapshot);
   await db.presenceObservations.put(observation);
+  await db.sessionRods.put(rodDetail);
 
   const backup = await collectBackupData();
-  assert(backup.version === 3, 'Nieuwe export gebruikt backupformaat v3');
+  assert(backup.version === 4, 'Nieuwe export gebruikt backupformaat v4');
   assert(backup.locations.length === 2 && backup.sessions.length === 2,
     'Locaties en sessies uit alle records worden geëxporteerd');
   assert(backup.catches.length === BENCHMARK_CATCHES.length + 1,
@@ -84,6 +92,7 @@ async function run() {
   assert(backup.weatherCache?.length === 1, 'Weercache wordt geëxporteerd');
   assert(backup.prognosisSnapshots?.length === 1, 'Prognosehistorie wordt geëxporteerd');
   assert(backup.presenceObservations?.length === 1, 'Aanwezigheidswaarnemingen worden geëxporteerd');
+  assert(same(backup.sessionRods, [rodDetail]), 'Per-hengelgegevens, intervallen en gebeurtenissen worden geëxporteerd');
   assert(backup.sessions.find(x => x.id === session.id)?.photoUrls?.[0] === session.photoUrls?.[0],
     'Sessiefoto-data blijft behouden in JSON-export');
   assert(backup.catches.find(x => x.id === catchItem.id)?.photoUrl === catchItem.photoUrl,
@@ -91,7 +100,7 @@ async function run() {
 
   // Simuleer een nieuw toestel: lege database, daarna volledige restore.
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
@@ -99,23 +108,27 @@ async function run() {
       await db.weatherCache.clear();
       await db.prognosisSnapshots.clear();
       await db.presenceObservations.clear();
+      await db.sessionRods.clear();
     });
   await restoreBackupData(backup);
 
-  const [locations, sessions, catches, restoredSettings, weatherCache, snapshots, observations] =
+  const [locations, sessions, catches, restoredSettings, weatherCache, snapshots, observations, rods] =
     await Promise.all([db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
       db.settings.get('user_settings'), db.weatherCache.toArray(), db.prognosisSnapshots.toArray(),
-      db.presenceObservations.toArray()]);
+      db.presenceObservations.toArray(), db.sessionRods.toArray()]);
   assert(same(locations.sort((a,b)=>a.id.localeCompare(b.id)), backup.locations.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle locaties en IDs exact');
   assert(same(sessions.sort((a,b)=>a.id.localeCompare(b.id)), backup.sessions.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle sessies en IDs exact');
+  assert(sessions.find((item) => item.id === session.id)?.participantCount === 1,
+    'Optioneel deelnemersaantal blijft behouden in backup en restore');
   assert(same(catches.sort((a,b)=>a.id.localeCompare(b.id)), backup.catches.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle vangsten en IDs exact');
   assert(same(restoredSettings, backup.settings), 'Restore herstelt instellingen exact');
   assert(same(weatherCache, backup.weatherCache), 'Restore herstelt weercache exact');
   assert(same(snapshots, backup.prognosisSnapshots), 'Restore herstelt prognosesnapshots exact');
   assert(same(observations, backup.presenceObservations), 'Restore herstelt waarnemingen exact');
+  assert(same(rods, backup.sessionRods), 'Restore herstelt per-hengelrecords, intervallen en gebeurtenissen exact');
 
   // Merge moet ook alle tabellen en de instellingen meenemen, zonder dubbele records.
   await db.settings.put({ ...settings, defaultSpecies: 'Brasem' });
@@ -123,28 +136,42 @@ async function run() {
   assert(merged.addedLocations === 0 && merged.addedSessions === 0 && merged.addedCatches === 0,
     'Merge voegt bestaande locaties, sessies en vangsten niet dubbel toe');
   assert(merged.addedWeatherCache === 0 && merged.addedPrognosisSnapshots === 0 &&
-    merged.addedPresenceObservations === 0, 'Merge voegt bestaande cache, snapshots en waarnemingen niet dubbel toe');
+    merged.addedPresenceObservations === 0 && merged.addedSessionRods === 0, 'Merge voegt bestaande cache, snapshots, waarnemingen en hengeldetails niet dubbel toe');
   assert(merged.settingsImported && (await db.settings.get('user_settings'))?.defaultSpecies === 'Karper',
     'Merge neemt backupinstellingen over');
   const mergedAgain = await mergeImportData(backup);
   assert(mergedAgain.addedLocations === 0 && mergedAgain.addedSessions === 0 &&
     mergedAgain.addedCatches === 0 && mergedAgain.addedWeatherCache === 0 &&
-    mergedAgain.addedPrognosisSnapshots === 0 && mergedAgain.addedPresenceObservations === 0,
+    mergedAgain.addedPrognosisSnapshots === 0 && mergedAgain.addedPresenceObservations === 0 && mergedAgain.addedSessionRods === 0,
     'Herhaald samenvoegen blijft idempotent en maakt geen duplicaten');
 
   const imported = await inspectImportFile(JSON.stringify(backup));
-  assert(imported.preview.valid && imported.data?.version === 3,
+  assert(imported.preview.valid && imported.data?.version === 4,
     'Volledige v3-backup wordt gevalideerd vóór import');
   assert(imported.preview.weatherCacheCount === 1 && imported.preview.prognosisSnapshotsCount === 1 &&
-    imported.preview.presenceObservationsCount === 1, 'Importpreview toont aantallen van alle extra tabellen');
+    imported.preview.presenceObservationsCount === 1 && imported.preview.sessionRodsCount === 1, 'Importpreview toont aantallen van alle extra tabellen inclusief hengeldetails');
 
   const legacy = normalizeRawBackup({ version: 2, appName: 'Vislogboek', locations: [], sessions: [], catches: [] });
   assert(legacy.weatherCache?.length === 0 && legacy.prognosisSnapshots?.length === 0 &&
-    legacy.presenceObservations?.length === 0, 'Oudere v2-backup blijft importeerbaar zonder nieuwe tabellen');
+    legacy.presenceObservations?.length === 0 && legacy.sessionRods?.length === 0, 'Oudere v2-backup blijft importeerbaar zonder nieuwe tabellen');
 
-  const future = await inspectImportFile(JSON.stringify({ version: 4, locations: [], sessions: [], catches: [] }));
+  const legacyV3 = normalizeRawBackup({
+    version: 3, appName: 'Vislogboek', locations: [location], sessions: [session], catches: [],
+    weatherCache: [], prognosisSnapshots: [], presenceObservations: [],
+  });
+  assert(legacyV3.sessionRods?.length === 0, 'Oudere v3-backup blijft importeerbaar zonder hengeldetailtabel');
+
+  const orphanRodBackup = { ...backup, sessionRods: [{ ...rodDetail, sessionId: 'missing-session' }] };
+  const orphanRodImport = await inspectImportFile(JSON.stringify(orphanRodBackup));
+  assert(!orphanRodImport.preview.valid, 'Hengeldetail zonder bestaande sessierelatie wordt vóór import geweigerd');
+
+  const duplicateRodBackup = { ...backup, sessionRods: [rodDetail, { ...rodDetail, id: 'backup-roundtrip-rod-duplicate' }] };
+  const duplicateRodImport = await inspectImportFile(JSON.stringify(duplicateRodBackup));
+  assert(!duplicateRodImport.preview.valid, 'Dubbele hengelnummers binnen één sessie worden vóór import geweigerd');
+
+  const future = await inspectImportFile(JSON.stringify({ version: 5, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');
-  const malformed = await inspectImportFile(JSON.stringify({ version: 3, locations: [{ name: 'Geen ID' }], sessions: [], catches: [] }));
+  const malformed = await inspectImportFile(JSON.stringify({ version: 4, locations: [{ name: 'Geen ID' }], sessions: [], catches: [] }));
   assert(!malformed.preview.valid, 'Record zonder ID wordt vóór databasewijziging geweigerd');
 
   await db.delete();

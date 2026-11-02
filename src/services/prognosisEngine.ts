@@ -1118,13 +1118,14 @@ export async function savePrognosisSnapshot(
  */
 export async function saveSessionWithPrognosisSnapshot(
   session: FishingSession,
-  pending: PendingPrognosisSnapshot
+  pending: PendingPrognosisSnapshot,
+  rods?: import('../types').SessionRod[]
 ): Promise<FishingSession> {
   if (!session.id || !session.startTime || session.outcome !== 'active') {
     throw new Error('Een prognosesnapshot kan alleen samen met een nieuwe actieve sessie worden opgeslagen.');
   }
 
-  return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, async () => {
+  return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, db.sessionRods, async () => {
     const snapshot = await savePrognosisSnapshot(
       pending.prognosis,
       pending.durationHours,
@@ -1138,6 +1139,9 @@ export async function saveSessionWithPrognosisSnapshot(
     await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
     await db.sessions.put(linkedSession);
     await syncSessionPresenceObservations(linkedSession);
+    if (rods !== undefined && rods.length > 0) {
+      await db.sessionRods.bulkPut(rods.map((rod) => ({ ...rod, sessionId: session.id })));
+    }
     return linkedSession;
   });
 }
