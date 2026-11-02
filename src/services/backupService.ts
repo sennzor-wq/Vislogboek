@@ -337,6 +337,17 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         throw new Error(`De back-up bevat een ongeldig record in ${label} (ontbrekende ID).`);
       }
     }
+    const backupSessionIds = new Set(data.sessions.map((session) => session.id));
+    for (const rod of data.sessionRods) {
+      if (typeof rod.sessionId !== 'string' || !backupSessionIds.has(rod.sessionId)) {
+        throw new Error(`Hengeldetail ${rod.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
+      }
+      if (!Number.isInteger(rod.rodNumber) || rod.rodNumber < 1 || !Array.isArray(rod.activeIntervals) ||
+          (rod.events !== undefined && !Array.isArray(rod.events))) {
+        throw new Error(`Hengeldetail ${rod.id} bevat ongeldige hengelgegevens.`);
+      }
+    }
+
     if (data.settings && (typeof data.settings !== 'object' || data.settings.id !== 'user_settings')) {
       throw new Error('De back-up bevat ongeldige instellingen.');
     }

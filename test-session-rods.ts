@@ -1,4 +1,4 @@
-import { SessionRod } from './src/types';
+import { FishingSession, SessionRod } from './src/types';
 import { calculateSessionRodEffort } from './src/services/sessionEffortEngine';
 
 let passed = 0;
@@ -27,6 +27,12 @@ const sixRods = calculateSessionRodEffort(Array.from({ length: 6 }, (_, i) =>
   rod('group-' + i, i + 1, [interval('g-' + i, '2026-11-02T09:00:00Z', '2026-11-02T11:00:00Z')])
 ), start, end);
 assert(sixRods.totalRodHours === 12 && sixRods.activeRodCount === 6, '3 vissers met 6 hengels levert 12 hengeluren op');
+const groupSession: FishingSession = {
+  id: 'group-session', startTime: start, endTime: end, outcome: 'catch',
+  participantCount: 3, rodCount: 6, createdAt: start, updatedAt: end,
+};
+assert(groupSession.participantCount === 3 && groupSession.rodCount === 6,
+  'Groepsgrootte en totaal aantal hengels blijven metadata van één primaire sessie');
 
 // Ongelijke tijden en overlap per hengel.
 const unequal = calculateSessionRodEffort([
