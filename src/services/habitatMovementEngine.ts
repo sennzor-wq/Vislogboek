@@ -361,7 +361,7 @@ export function analyzeHabitatMovement(
   } else if (targetSlot === 'Avond') {
     likelyDirection = 'Een verplaatsing naar oeverstructuren is mogelijk, maar niet zonder lokale waarneming bevestigd.';
     migrationalTrigger = 'Afnemende lichtsterkte kan voor sommige soorten het foerageergedrag beïnvloeden.';
-    timeOfDayDynamic = 'Schemering kan relevant zijn voor sommige soorten; een vaste activiteitspiek wordt niet aangenomen.';
+    timeOfDayDynamic = 'Avondschemering kan relevant zijn voor sommige soorten; een vaste activiteitspiek wordt niet aangenomen.';
   } else {
     // Nacht
     likelyDirection = 'Nachtelijke verplaatsing hangt af van soort, prooiaanbod, dekking en lokale waterstructuur.';
