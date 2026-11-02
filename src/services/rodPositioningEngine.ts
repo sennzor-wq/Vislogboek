@@ -478,7 +478,6 @@ export function buildWindCastingGuidance(
     isColdWind,
     isCoolingPeriod,
     isWarmingPeriod,
-    avgAirTemp,
     avgWindSpeed,
     isCalmWind,
     isWarmConditions,
