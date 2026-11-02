@@ -427,7 +427,7 @@ async function runTestSuite() {
   const fiveEvaluatedSnapshots: PrognosisSnapshot[] = [
     {
       id: 's1',
-      forecastTimestamp: '',
+      forecastTimestamp: '2026-10-01T07:00:00Z',
       targetDate: '2026-10-01',
       targetSpecies: 'Karper',
       durationHours: 3,
@@ -440,7 +440,7 @@ async function runTestSuite() {
     },
     {
       id: 's2',
-      forecastTimestamp: '',
+      forecastTimestamp: '2026-10-02T07:00:00Z',
       targetDate: '2026-10-02',
       targetSpecies: 'Karper',
       durationHours: 3,
@@ -453,7 +453,7 @@ async function runTestSuite() {
     },
     {
       id: 's3',
-      forecastTimestamp: '',
+      forecastTimestamp: '2026-10-03T07:00:00Z',
       targetDate: '2026-10-03',
       targetSpecies: 'Karper',
       durationHours: 3,
@@ -466,7 +466,7 @@ async function runTestSuite() {
     },
     {
       id: 's4',
-      forecastTimestamp: '',
+      forecastTimestamp: '2026-10-04T07:00:00Z',
       targetDate: '2026-10-04',
       targetSpecies: 'Karper',
       durationHours: 3,
@@ -479,7 +479,7 @@ async function runTestSuite() {
     },
     {
       id: 's5',
-      forecastTimestamp: '',
+      forecastTimestamp: '2026-10-05T07:00:00Z',
       targetDate: '2026-10-05',
       targetSpecies: 'Karper',
       durationHours: 3,
@@ -514,7 +514,16 @@ async function runTestSuite() {
     modelVersion: 'test',
     createdAt: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
   }));
-  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, baselineTraining);
+  const baselineTrainingSessions: FishingSession[] = baselineTraining.map((snapshot, index) => ({
+    id: snapshot.linkedSessionId!,
+    startTime: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
+    endTime: `2026-09-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
+    outcome: snapshot.actualOutcome as 'catch' | 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
+    updatedAt: `2026-09-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
+  }));
+  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, baselineTraining, baselineTrainingSessions);
 
   // Som kwadratische fout = 0.09 + 0.16 + 0.16 + 0.04 + 0.25 = 0.70
   // Brier score = 0.70 / 5 = 0.140
@@ -547,9 +556,45 @@ async function runTestSuite() {
     modelVersion: 'test',
     createdAt: '2026-10-06T07:00:00Z',
   };
+  const overnightPriorOutcome: PrognosisSnapshot = {
+    id: 'overnight-prior-outcome',
+    forecastTimestamp: '2026-10-04T22:00:00Z',
+    targetDate: '2026-10-04',
+    targetSpecies: 'Karper',
+    durationHours: 8,
+    predictedActivityScore: null,
+    predictedCatchChance: null,
+    actualOutcome: 'catch',
+    linkedSessionId: 'overnight-training-session',
+    source: 'test-training-history',
+    modelVersion: 'test',
+    createdAt: '2026-10-04T22:00:00Z',
+  };
+  const futureTrainingSessions: FishingSession[] = [
+    ...baselineTrainingSessions,
+    {
+      id: 'future-training-session',
+      startTime: '2026-10-06T07:00:00Z',
+      endTime: '2026-10-06T10:00:00Z',
+      outcome: 'catch',
+      targetSpecies: ['Karper'],
+      createdAt: '2026-10-06T07:00:00Z',
+      updatedAt: '2026-10-06T10:00:00Z',
+    },
+    {
+      id: 'overnight-training-session',
+      startTime: '2026-10-04T22:00:00Z',
+      endTime: '2026-10-05T08:00:00Z',
+      outcome: 'catch',
+      targetSpecies: ['Karper'],
+      createdAt: '2026-10-04T22:00:00Z',
+      updatedAt: '2026-10-05T08:00:00Z',
+    },
+  ];
   const evaluationWithFutureHistory = evaluatePrognosisPerformance(
     fiveEvaluatedSnapshots,
-    [...baselineTraining, futureTrainingOutcome]
+    [...baselineTraining, futureTrainingOutcome, overnightPriorOutcome],
+    futureTrainingSessions
   );
   assert(evaluationWithFutureHistory.naiveBrierScore === evalResult5.naiveBrierScore &&
     evaluationWithFutureHistory.baselineEvaluatedCount === evalResult5.baselineEvaluatedCount,
