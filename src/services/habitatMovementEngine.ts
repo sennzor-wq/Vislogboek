@@ -180,17 +180,17 @@ export function analyzeHabitatMovement(
       habitatType: 'Foerageerzone',
       description: `Zone waar recent visactiviteit (${recentBellen ? 'aasbellen/wroeten' : 'springen/rollen'}) is waargenomen. Vis is hier fysiek aanwezig en actief in de waterlaag.`,
       depthProfileNote: waterDepth ? `Rond het bekende dieptebereik van ~${waterDepth} m` : 'Peil het bodemverloop rond de waarneming',
-      structureNote: hasReeds ? 'Nabij de rietkraag' : hasTrees ? 'Onder de bomen' : 'Langs het talud',
+      structureNote: hasReeds ? 'Nabij de geregistreerde rietkraag' : hasTrees ? 'Onder de geregistreerde bomen' : 'Lokale structuur ter plaatse vaststellen',
       whyLikely: 'Ondersteund door jouw eigen recente visuele waarnemingen aan het water (geen zuivere modelaanname).',
     };
 
     alternativeZone = {
-      name: 'Eerste taludovergang direct naast de waarnemingszone',
+      name: 'Direct aangrenzende zoekzone',
       habitatType: 'Doorgang / transitie',
-      description: 'Veilige uitwijkhaven naar dieper water wanneer de actieve vis argwaan krijgt door hengeldruk of daglicht.',
-      depthProfileNote: 'Overgang van het foerageervlak naar dieper rustwater',
-      structureNote: 'Natuurlijke taludknik',
-      whyLikely: 'Vissen trekken zich bij verstoring snel terug via het dichtstbijzijnde talud.',
+      description: 'Controleer de directe omgeving van de waarneming op een aangrenzende route of structuur; diepteverloop en vluchtweg zijn niet geregistreerd.',
+      depthProfileNote: 'Peil het lokale diepteverloop; geen talud aangenomen.',
+      structureNote: 'Alleen ter plaatse vastgestelde structuren gebruiken',
+      whyLikely: 'Een nabijgelegen vergelijkingszone helpt vaststellen of de activiteit lokaal geconcentreerd is.'
     };
   } else if (!waterType) {
     const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
@@ -231,7 +231,7 @@ export function analyzeHabitatMovement(
       structureNote: 'Harde zandbodem of stenen',
       whyLikely: 'Biedt rust en constante watertemperatuur op stromend water.',
     };
-  } else if (effectiveWaterTemp === null && season !== 'Winter') {
+  } else if (effectiveWaterTemp === null) {
     const knownStructure = habitatFeatures.length > 0 || locationNotes.trim().length > 0;
     primaryZone = {
       name: knownStructure ? 'Lokale structuurzone — thermische context onbekend' : 'Algemene zoekzone — watertemperatuur onbekend',
