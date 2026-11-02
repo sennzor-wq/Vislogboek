@@ -132,9 +132,11 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   };
 
   const togglePresenceObs = (type: import('../../types').PresenceObservationType) => {
-    setSelectedPresenceObs((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
+    setSelectedPresenceObs((prev) => {
+      if (prev.includes(type)) return prev.filter((item) => item !== type);
+      if (type === 'geen_waarnemingen') return [type];
+      return [...prev.filter((item) => item !== 'geen_waarnemingen'), type];
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
