@@ -344,8 +344,8 @@ export const StatsView: React.FC<StatsViewProps> = ({
                 <span className="text-[11px] text-slate-400 block mt-1">
                   {evaluation.hasSufficientData
                     ? evaluation.brierScore! < 0.18
-                      ? 'Goede kalibratie van vangstkansen'
-                      : 'Gemiddelde afwijking ten opzichte van uitkomst'
+                      ? 'Lage gemiddelde kwadratische voorspellingsfout'
+                      : 'Gemiddelde kwadratische fout ten opzichte van uitkomsten'
                     : 'Vereist minimaal 5 gerealiseerde momentopnames'}
                 </span>
               </div>
@@ -382,9 +382,11 @@ export const StatsView: React.FC<StatsViewProps> = ({
                     : 'Geen data'}
                 </span>
                 <span className="text-[11px] text-slate-400 block mt-1">
-                  {evaluation.brierSkillScore !== null && evaluation.brierSkillScore > 0
-                    ? 'Model voorspelt beter dan vaste basiskans'
-                    : 'Geen statistische meerwaarde aangetoond t.o.v. baseline'}
+                  {evaluation.brierSkillScore === null
+                    ? 'Onafhankelijke rolling baseline nog niet beschikbaar'
+                    : evaluation.brierSkillScore > 0
+                      ? 'Model voorspelt beter dan de eerdere historische baseline'
+                      : 'Geen verbetering aangetoond ten opzichte van de eerdere historische baseline'}
                 </span>
               </div>
             </div>
