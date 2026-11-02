@@ -89,7 +89,7 @@ assert(modelResult.dataPointsAvailable.depthKnown === false && modelResult.dataP
   'unknown water depth stays unknown and is not replaced by a 2m default');
 assert(modelResult.dataPointsAvailable.solarRadiationIndication === 'Sterk (zonnig)',
   'measured shortwave radiation takes precedence over a conflicting cloud-cover proxy');
-assert(modelResult.dataPointsAvailable.humidityAvailable && modelResult.dataPointsAvailable.dewPointAvailable,
+assert(modelResult.dataPointsAvailable.humidityAvailable === true && modelResult.dataPointsAvailable.dewPointAvailable === true,
   'humidity and dew point availability are exposed for the evaporation assessment');
 assert(modelResult.dataPointsAvailable.evaporationPotential === 'hoog',
   'dry-air and wind context is reflected in the evaporation-potential assessment');
