@@ -59,6 +59,9 @@ jobs:
       - name: Water temperature learning tests
         run: bun run tsx test-water-temperature-learning.ts
 
+      - name: Historical water temperature profile tests
+        run: bun run tsx test-water-history-profile.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 
