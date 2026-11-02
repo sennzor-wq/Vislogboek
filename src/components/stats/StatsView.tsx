@@ -361,7 +361,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                     : 'Geen data'}
                 </span>
                 <span className="text-[11px] text-slate-400 block mt-1">
-                  Vergelijkt model met een vaste steekproef-basiskans ({evaluation.observedCatchRate ?? '—'}%)
+                  Rolling baseline op basis van eerdere uitkomsten van dezelfde doelsoort; beschikbaar voor {evaluation.baselineEvaluatedCount} voorspelling(en).
                 </span>
               </div>
 
