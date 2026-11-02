@@ -113,7 +113,7 @@ export function analyzeWaterThermalDevelopment(
       historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
       historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
       historicalWaterTemperatureSource: historicalProfile?.source ?? null,
-      surfaceVsBulkNote: recentAnchorEstimate === null ? 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.' : 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.',
+      surfaceVsBulkNote: recentAnchorEstimate !== null ? 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.' : historicalProfile ? 'Historisch seizoensprofiel is beschikbaar, maar zonder weerdekking kan geen actuele waterstratificatie worden berekend.' : 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
       inertiaFactor: 'Gemiddeld',
       summaryRationale: recentAnchorEstimate !== null
         ? 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.'
@@ -310,12 +310,10 @@ export function analyzeWaterThermalDevelopment(
     weatherCoverageRatio = coverage;
     // Alleen een weer-gestuurde extrapolatie als het grootste deel van de periode
     // sinds de meting door uurlijkse data wordt afgedekt. Geen ontbrekende dagen invullen.
-    if (elapsedSinceAnchorHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
+    if (isDepthKnown && elapsedSinceAnchorHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
       let waterTemp = anchor.temperature;
-      const depth = typeof location?.waterDepth === 'number' && location.waterDepth > 0
-        ? location.waterDepth
-        : 2.0;
-      // Eerste-orde warmte-uitwisseling: ondiep water reageert sneller; diep water trager.
+      // Alleen een expliciet bekende waterdiepte bepaalt de thermische tijdconstante.
+      // Bij onbekende diepte wordt geen standaarddiepte verzonnen.
       let timeConstantHours = depth <= 1.4 ? 54 : depth > 3.5 ? 150 : 96;
       if (location?.waterType === 'Polder' || location?.waterType === 'Stadswater') timeConstantHours *= 0.85;
       if (location?.waterType === 'Plas/Zandafgraving' && depth > 3.5) timeConstantHours *= 1.15;
@@ -388,8 +386,15 @@ export function analyzeWaterThermalDevelopment(
     const weightPast = 1 - weightCurrent;
     const baseAirEquilibrium = weightPast * past72Avg + weightCurrent * dayAvg;
     let solarBonus = 0;
-    if (isDepthKnown && solarIndication === 'Sterk (zonnig)' && depth <= 2.5) {
-      solarBonus = depth <= 1.5 ? 0.8 : 0.4;
+    if (isDepthKnown && depth <= 2.5) {
+      if (averageShortwaveRadiation !== null) {
+        // De bestaande diepte-afhankelijke correctie wordt geschaald met gemeten
+        // kortgolvige instraling in plaats van alleen een bewolkingsproxy.
+        const radiationFactor = Math.max(0, Math.min(1, averageShortwaveRadiation / 700));
+        solarBonus = (depth <= 1.5 ? 0.8 : 0.4) * radiationFactor;
+      } else if (solarIndication === 'Sterk (zonnig)') {
+        solarBonus = depth <= 1.5 ? 0.8 : 0.4;
+      }
     }
     const weatherEstimate = baseAirEquilibrium + solarBonus;
     let rawEstimate = weatherEstimate;
@@ -413,6 +418,17 @@ export function analyzeWaterThermalDevelopment(
       summaryRationale += ` Historisch seizoensprofiel: ${historicalProfile.baselineC.toFixed(1)} °C uit ${historicalProfile.sampleCount} echte metingen (${historicalProfile.source === 'same_location' ? 'dezelfde stek' : 'vergelijkbare wateren'}).`;
       surfaceVsBulkNote += ' De historische referentie is een gemeten seizoensprofiel en geen actuele meting.';
     }
+  }
+
+  if (estimatedWaterTemp === null && historicalProfile) {
+    estimatedWaterTemp = historicalProfile.baselineC;
+    estimatedRange = [historicalProfile.lowerC, historicalProfile.upperC];
+    summaryRationale = 'Onvoldoende voorafgaande weershistorie; de temperatuur is daarom uitsluitend gebaseerd op het seizoensprofiel uit echte historische metingen.';
+    surfaceVsBulkNote = 'Historisch seizoensprofiel geeft een referentie voor dit watertype/deze stek, maar beschrijft geen actuele oppervlaktelaag of waterkolom.';
+  }
+
+  if (evaporationPotential !== 'onbekend') {
+    summaryRationale += ` Verdampingspotentieel op basis van dauwpunt en wind: ${evaporationPotential}.`;
   }
 
   // 7. Behoedzame invloed op visprognose (Sectie 10)
