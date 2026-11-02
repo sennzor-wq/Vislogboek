@@ -982,6 +982,23 @@ assert(
   '18.5 Warme lucht overschrijft geen koud gemeten water in de soortspecifieke positioneringshypothese'
 );
 
+const opposingWindForecast = createHourlyForecasts('2026-07-20', 20, 10, 'O').map((hour, index) => ({
+  ...hour,
+  windDirection: index % 2 === 0 ? 90 : 270,
+  windDirectionText: index % 2 === 0 ? 'O' : 'W',
+}));
+const opposingWindAdvice = analyzeRodPositioning('2026-07-20', opposingWindForecast, 'Karper', {
+  location: baseLoc,
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  historicalSessions: [],
+});
+assert(
+  opposingWindAdvice.windContext.directionText === 'Wisselend' &&
+  opposingWindAdvice.windCastingGuidance === undefined &&
+  !opposingWindAdvice.recommendedZone.startsWith('Algemene zoekzone'),
+  '18.6 Wisselende tegengestelde wind houdt soortadvies bruikbaar maar forceert geen gemiddelde kompasrichting'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');
