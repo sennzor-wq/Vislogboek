@@ -326,6 +326,15 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                       </button>
 
                       <button
+                        onClick={() => setEditingSession(session)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-700/70 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition border border-slate-600 cursor-pointer"
+                        title="Actieve sessie en hengeldetails bewerken"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        Bewerken
+                      </button>
+
+                      <button
                         onClick={() => setEndingSession(session)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs transition border border-slate-600 cursor-pointer"
                       >
