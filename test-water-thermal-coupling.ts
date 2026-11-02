@@ -195,11 +195,10 @@ async function runTestSuite() {
     '2.4 Herkomstmetadata markeert een actuele stekmeting expliciet als measured');
   assert(progUnmeasured.thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather',
     '2.5 Een schatting zonder lokaal meetanker wordt expliciet als weather estimate gemarkeerd');
-  assert(progUnmeasured.thermalAnalysis?.uncertaintyC !== null &&
-    progUnmeasured.thermalAnalysis?.uncertaintyC ===
-      (progUnmeasured.thermalAnalysis?.estimatedRange?.[1] ?? 0) -
-      (progUnmeasured.thermalAnalysis?.estimatedRange?.[0] ?? 0) ? false : true,
-    '2.6 Onzekerheidsinformatie is beschikbaar voor de geschatte watertemperatuur');
+  const estimatedRange = progUnmeasured.thermalAnalysis?.estimatedRange;
+  assert(Array.isArray(estimatedRange) && typeof progUnmeasured.thermalAnalysis?.uncertaintyC === 'number' &&
+    Math.abs(progUnmeasured.thermalAnalysis.uncertaintyC - (estimatedRange[1] - estimatedRange[0]) / 2) < 0.05,
+    '2.6 Onzekerheidsmarge komt overeen met de getoonde temperatuurrange');
 
   // =========================================================================
   // DEEL 3: ACTUELE SITUATIE VS TOEKOMSTIGE PROGNOSE (OUDE METING REGEERT NIET DE TOEKOMST)
@@ -329,7 +328,7 @@ async function runTestSuite() {
   assert(staleAnchorToday.waterTemperatureStatus === 'estimated_from_measurement' &&
     staleAnchorToday.anchorAgeHours === 48,
     '4.6 De oude meting wordt correct als 48-uurs anker voor een modelschatting geregistreerd');
-  assert(staleAnchorToday.anchorMeasurementTimestamp === '2026-10-21T12:00:00.000Z',
+  assert(staleAnchorToday.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString(),
     '4.7 De herkomsttijd van het lokale meetanker blijft controleerbaar');
 
   const noThermalData = analyzeWaterThermalDevelopment('2026-10-23', [], {
