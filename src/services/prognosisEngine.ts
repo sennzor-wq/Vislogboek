@@ -17,6 +17,7 @@ import {
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { BENCHMARK_SESSION_ID, db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
+import { HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
 import { getForecast } from './weatherService';
@@ -525,6 +526,7 @@ export interface PrognosisOptions {
   prebaitOptions?: PrebaitProgramOptions;
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
+  historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
 }
 
 /**
@@ -579,6 +581,7 @@ export function calculateDayPrognosis(
     userMeasuredWaterTemp: userWaterTemp,
     historicalSessions,
     currentDateRef,
+    historicalWaterTemperatures: options?.historicalWaterTemperatures,
   });
 
   // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
