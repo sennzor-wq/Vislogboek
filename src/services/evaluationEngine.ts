@@ -268,8 +268,12 @@ export function getWaterTemperatureCalibration(
 ): WaterTemperatureCalibration | undefined {
   if (!locationId) return undefined;
   const season = getSeasonForDate(targetDate);
+  // Alleen evaluaties waarvan de doeldag vóór de huidige prognosedag ligt mogen
+  // kalibreren. Anders kan een toekomstig resultaat teruglekken in een oudere voorspelling.
   const valid = validTemperaturePairs(snapshots).filter((snapshot) =>
-    snapshot.locationId === locationId && getSeasonForDate(snapshot.targetDate) === season
+    snapshot.locationId === locationId &&
+    snapshot.targetDate < targetDate &&
+    getSeasonForDate(snapshot.targetDate) === season
   );
   if (valid.length < 8) return undefined;
 
