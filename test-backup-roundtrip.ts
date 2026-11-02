@@ -89,8 +89,8 @@ async function run() {
     'Vangstfoto-data blijft behouden in JSON-export');
 
   // Simuleer een nieuw toestel: lege database, daarna volledige restore.
-  await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, async () => {
+  await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+    db.prognosisSnapshots, db.presenceObservations], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
