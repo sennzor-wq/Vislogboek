@@ -342,6 +342,12 @@ export interface WaterThermalAnalysis {
     sampleCount: number;
     season: 'winter' | 'lente' | 'zomer' | 'herfst';
   };
+  /** Herkomst van de watertemperatuur; een schatting wordt nooit als meting gepresenteerd. */
+  waterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_weather' | 'unknown';
+  anchorMeasurementTimestamp?: string | null;
+  anchorAgeHours?: number | null;
+  weatherCoverageRatio?: number;
+  uncertaintyC?: number | null;
 }
 
 export interface PrognosisSnapshot {
