@@ -12,6 +12,7 @@ export interface HistoricalWaterTemperatureObservation {
   waterDepth?: number;
   latitude?: number;
   longitude?: number;
+  isBenchmark?: boolean;
 }
 
 export interface HistoricalWaterTemperatureProfile {
@@ -73,6 +74,7 @@ export function deriveHistoricalWaterTemperatureProfile(
 
   const seen = new Set<string>();
   const valid = observations.filter((observation) => {
+    if (observation.isBenchmark === true) return false;
     const key = `${observation.locationId}|${observation.timestamp}|${observation.temperatureC}`;
     if (seen.has(key)) return false;
     seen.add(key);
