@@ -919,6 +919,50 @@ assert(
   '17.3 Stek zonder GPS meldt netjes dat coördinaten niet zijn vastgelegd'
 );
 
+// --- TESTGROEP 18: Ontbrekende gegevens en circulaire windrichting ---
+console.log('\n--- TESTGROEP 18: Ontbrekende gegevens en circulaire windrichting ---');
+
+const missingContextAdvice = analyzeRodPositioning('2026-07-20', [], 'Karper', {
+  location: { ...baseLoc, waterType: undefined, waterDepth: undefined },
+  thermalAnalysis: {
+    ...mockThermalAnalysis('Onvoldoende gegevens', 20),
+    estimatedWaterTemp: null,
+    measuredWaterTemp: null,
+    hasMeasuredWaterTemp: false,
+  },
+  historicalSessions: [],
+});
+assert(
+  missingContextAdvice.windContext.speedKmH === null &&
+  missingContextAdvice.windContext.directionText === 'Onbekend',
+  '18.1 Lege weersdata blijft onbekend en wordt niet vervangen door standaardwind'
+);
+assert(
+  missingContextAdvice.thermalContext.waterTempNote === 'Geen watertemperatuur bekend' &&
+  !missingContextAdvice.rationale.includes('14.0'),
+  '18.2 Luchttemperatuur wordt niet als watertemperatuur gebruikt en 14°C wordt niet ingevuld'
+);
+assert(
+  missingContextAdvice.windCastingGuidance === undefined &&
+  missingContextAdvice.missingInformation.some((m) => m.toLowerCase().includes('watertype')),
+  '18.3 Zonder wind, thermische basis en watertype wordt geen concreet kompasadvies verzonnen'
+);
+
+const aroundNorthForecast = createHourlyForecasts('2026-07-20', 20, 8, 'N').map((hour, index) => ({
+  ...hour,
+  windDirection: index % 2 === 0 ? 359 : 1,
+  windDirectionText: 'N',
+}));
+const aroundNorthAdvice = analyzeRodPositioning('2026-07-20', aroundNorthForecast, 'Karper', {
+  location: baseLoc,
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  historicalSessions: [],
+});
+assert(
+  aroundNorthAdvice.windCastingGuidance?.windOrigin.degrees === 0,
+  '18.4 Windrichtingen 359° en 1° krijgen correct een circulair gemiddelde rond 0° (noord)'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');
