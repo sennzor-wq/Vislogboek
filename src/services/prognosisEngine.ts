@@ -23,7 +23,7 @@ import { analyzeRodPositioning } from './rodPositioningEngine';
 import { getForecast } from './weatherService';
 import { analyzeBankWind } from './bankWindEngine';
 import { analyzeHabitatMovement } from './habitatMovementEngine';
-import { calculatePrebaitPlan } from './prebaitEngine';
+import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
 
 export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number; rangeLabel: string }> = {
@@ -950,20 +950,25 @@ export function calculateDayPrognosis(
   }
 
   // Module 1: Gestructureerd Voorvoerprogramma
-  const prebaitPlan = calculatePrebaitPlan(
-    dateStr,
-    species,
-    thermalAnalysis,
-    options?.prebaitOptions || {
-      availableDaysBefore: 2,
-      sessionDurationHours: sessionDuration,
-      userWaterTemp,
-    },
-    historicalSessions,
-    location,
-    bankWindAnalysis,
-    bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend'
-  );
+  const prebaitPlan = supportsPrebaitPlanning(species)
+    ? calculatePrebaitPlan(
+        dateStr,
+        species,
+        thermalAnalysis,
+        {
+          availableDaysBefore: 2,
+          sessionDurationHours: sessionDuration,
+          userWaterTemp,
+          ...options?.prebaitOptions,
+          technique: options?.prebaitOptions?.technique ?? options?.technique,
+          planningDate: (currentDateRef ?? new Date()).toISOString().slice(0, 10),
+        },
+        historicalSessions,
+        location,
+        bankWindAnalysis,
+        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend'
+      ) ?? undefined
+    : undefined;
 
   return {
     date: dateStr,
