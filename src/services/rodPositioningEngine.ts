@@ -662,7 +662,7 @@ export function analyzeRodPositioning(
     const directionSequence = validWind.map((h) => h.windDirectionText.trim());
     if (directionSequence[0] !== directionSequence[directionSequence.length - 1] && validWind.length > 1) {
       windTrend = 'Draaiend';
-      intraSessionNote = `Wind draait tijdens het tijdvak van ${directionSequence[0]} naar ${directionSequence[directionSequence.length - 1]}; de lokale oppervlaktebeweging kan mee veranderen.`;
+      intraSessionNote = `Wind draait van ${directionSequence[0]} naar ${directionSequence[directionSequence.length - 1]} tijdens het tijdvak; de lokale oppervlaktebeweging kan mee veranderen.`;
     } else if (speedDelta >= 6) {
       windTrend = 'Aantrekkend';
       intraSessionNote = `Wind trekt aan van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
