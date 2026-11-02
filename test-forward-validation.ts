@@ -14,6 +14,7 @@ import {
   PrognosisSnapshot,
   WeatherHourlyForecast,
   WeatherSnapshot,
+  CatchItem,
 } from './src/types';
 
 let passed = 0;
@@ -303,6 +304,16 @@ async function runTestSuite() {
 
   // 2.6 autoSyncSessionOutcomeToSnapshot werking
   const { autoSyncSessionOutcomeToSnapshot } = await import('./src/services/evaluationEngine');
+  const targetCatch: CatchItem = {
+    id: 'live_sess_001_target_catch',
+    sessionId: liveSession1.id,
+    locationId: liveSession1.locationId,
+    species: 'Karper',
+    count: 2,
+    timestamp: liveSession1.startTime,
+    createdAt: liveSession1.startTime,
+  };
+  await db.catches.put(targetCatch);
   await db.sessions.put(liveSession1);
   const syncedSuccess = await autoSyncSessionOutcomeToSnapshot(liveSession1);
   assert(
@@ -341,6 +352,65 @@ async function runTestSuite() {
   assert(
     benchmarkSync === false,
     '2.9 Benchmark-sessie wordt geweigerd voor synchronisatie naar modelvalidatie'
+  );
+
+  // 2.10 Een niet-doelsoortvangst is geen doelsoortsucces.
+  const nonTargetSnapshot: PrognosisSnapshot = {
+    id: 'snapshot_non_target_catch',
+    forecastTimestamp: '2026-10-27T10:00:00Z',
+    targetDate: '2026-10-28',
+    targetSpecies: 'Karper',
+    durationHours: 3,
+    predictedActivityScore: 6,
+    predictedCatchChance: 50,
+    source: 'test',
+    modelVersion: 'test',
+    createdAt: '2026-10-27T10:00:00Z',
+  };
+  await db.prognosisSnapshots.put(nonTargetSnapshot);
+  const nonTargetSession: FishingSession = {
+    id: 'session_non_target_catch',
+    startTime: '2026-10-28T12:00:00Z',
+    endTime: '2026-10-28T15:00:00Z',
+    outcome: 'catch',
+    targetSpecies: ['Karper'],
+    snapshotId: nonTargetSnapshot.id,
+    createdAt: '2026-10-28T12:00:00Z',
+    updatedAt: '2026-10-28T15:00:00Z',
+  };
+  await db.sessions.put(nonTargetSession);
+  await db.catches.put({
+    id: 'catch_non_target_bream',
+    sessionId: nonTargetSession.id,
+    species: 'Brasem',
+    count: 1,
+    timestamp: nonTargetSession.startTime,
+    createdAt: nonTargetSession.startTime,
+  } as CatchItem);
+  await autoSyncSessionOutcomeToSnapshot(nonTargetSession);
+  const nonTargetResult = await db.prognosisSnapshots.get(nonTargetSnapshot.id);
+  assert(
+    nonTargetResult?.actualOutcome === 'skunk_confirmed' && nonTargetResult.actualTargetCatchesCount === 0,
+    '2.10 Bijvangst wordt als nulvangst voor de voorspelde doelsoort verwerkt, niet als doelsoortsucces'
+  );
+
+  // 2.11 Een algemene vangststatus zonder soortspecifieke vangstregistratie blijft onbekend.
+  const ambiguousSnapshot: PrognosisSnapshot = {
+    ...nonTargetSnapshot,
+    id: 'snapshot_ambiguous_catch',
+  };
+  await db.prognosisSnapshots.put(ambiguousSnapshot);
+  const ambiguousSession: FishingSession = {
+    ...nonTargetSession,
+    id: 'session_ambiguous_catch',
+    snapshotId: ambiguousSnapshot.id,
+  };
+  await db.sessions.put(ambiguousSession);
+  await autoSyncSessionOutcomeToSnapshot(ambiguousSession);
+  const ambiguousResult = await db.prognosisSnapshots.get(ambiguousSnapshot.id);
+  assert(
+    ambiguousResult?.actualOutcome === 'unknown',
+    '2.11 Vangststatus zonder soortspecifieke vangstregistratie wordt niet als succes of nulvangst geraden'
   );
 
   // ==========================================
