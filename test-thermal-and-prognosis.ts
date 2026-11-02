@@ -302,7 +302,7 @@ async function run14Scenarios() {
 
   // 13. Export, import en herstel van bestaande back-ups
   console.log('\n--- SCENARIO 13: Export/Import en herstel van back-ups ---');
-  const backupJsonPath = path.resolve('public/assets/aistudio/vislogboek-backup-2026-10-26_50803f8b.json');
+  const backupJsonPath = path.resolve('test-fixtures/legacy/vislogboek-backup-2026-10-26.json');
   const rawJson = JSON.parse(fs.readFileSync(backupJsonPath, 'utf8'));
   const normalized = normalizeRawBackup(rawJson);
   assert(

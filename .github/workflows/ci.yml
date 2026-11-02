@@ -33,6 +33,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Production dependency vulnerability audit
+        run: bun audit --prod
+
+      - name: Full dependency audit (fail on high and critical)
+        run: bun audit --audit-level=high
+
       - name: TypeScript typecheck
         run: bun run lint
 
@@ -77,6 +83,9 @@ jobs:
       - name: Backup import fixture tests
         run: bun run tsx test-backup-import.ts
 
+      - name: Backup import security validation tests
+        run: bun run tsx test-security-backup-validation.ts
+
       - name: Full backup and restore round-trip tests
         run: bun run tsx test-backup-roundtrip.ts
 
@@ -85,3 +94,10 @@ jobs:
 
       - name: Production build
         run: bun run build
+
+      - name: Verify production build excludes private artifacts
+        run: |
+          if find dist -type f \( -iname '.env' -o -iname '.env.*' -o -iname '*backup*.json' -o -iname '*source*.zip' -o -iname '*aistudio*' \) | grep -q .; then
+            echo "Private artifact detected in production output"
+            exit 1
+          fi

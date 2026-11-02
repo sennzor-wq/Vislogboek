@@ -80,7 +80,7 @@ export async function exportDatabaseToJson(): Promise<BackupData> {
  * (met 'spots' en geneste 'catches' per sessie).
  */
 export function normalizeRawBackup(raw: any): BackupData {
-  if (!raw || typeof raw !== 'object') {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
     throw new Error('Ongeldig JSON object.');
   }
 
@@ -301,10 +301,139 @@ export function normalizeRawBackup(raw: any): BackupData {
 }
 
 /**
+ * Harde grenzen voor geïmporteerde back-ups. Dit beschermt de browser tegen
+ * extreem grote of pathologisch geneste JSON-bestanden.
+ */
+export const MAX_BACKUP_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+
+const BACKUP_COLLECTION_LIMITS: Record<string, number> = {
+  locations: 5_000,
+  sessions: 25_000,
+  catches: 100_000,
+  weatherCache: 10_000,
+  prognosisSnapshots: 50_000,
+  presenceObservations: 100_000,
+  sessionRods: 100_000,
+};
+
+const MAX_BACKUP_TOTAL_RECORDS = 250_000;
+const MAX_BACKUP_NESTING_DEPTH = 16;
+const MAX_BACKUP_OBJECT_KEYS = 500;
+const MAX_BACKUP_TEXT_LENGTH = 100_000;
+const MAX_BACKUP_PHOTO_LENGTH = 25 * 1024 * 1024;
+
+/** Valideert de omvang en JSON-vorm vóór records in IndexedDB kunnen belanden. */
+export function validateBackupPayloadLimits(data: BackupData): string | null {
+  const collections: Array<[string, unknown[]]> = [
+    ['locations', data.locations],
+    ['sessions', data.sessions],
+    ['catches', data.catches],
+    ['weatherCache', data.weatherCache || []],
+    ['prognosisSnapshots', data.prognosisSnapshots || []],
+    ['presenceObservations', data.presenceObservations || []],
+    ['sessionRods', data.sessionRods || []],
+  ];
+
+  let totalRecords = 0;
+  for (const [name, records] of collections) {
+    if (!Array.isArray(records)) return `De collectie ${name} is geen geldige lijst.`;
+    if (records.length > BACKUP_COLLECTION_LIMITS[name]) {
+      return `De back-up bevat te veel records in ${name} (maximum ${BACKUP_COLLECTION_LIMITS[name]}).`;
+    }
+    totalRecords += records.length;
+    for (const record of records) {
+      if (!record || typeof record !== 'object' || Array.isArray(record)) {
+        return `De back-up bevat een ongeldig record in ${name}.`;
+      }
+      const id = (record as { id?: unknown }).id;
+      if (typeof id !== 'string' || !id.trim() || id.length > 256) {
+        return `De back-up bevat een ongeldige record-ID in ${name}.`;
+      }
+    }
+  }
+
+  if (totalRecords > MAX_BACKUP_TOTAL_RECORDS) {
+    return `De back-up bevat te veel gegevens (maximum ${MAX_BACKUP_TOTAL_RECORDS} records).`;
+  }
+
+  // Vangstfoto's zijn lokaal opgeslagen data-URL's. Blokkeer externe URL's
+  // en SVG-data-URL's zodat een geïmporteerde back-up geen externe tracking
+  // of actieve SVG-inhoud kan laten laden in de app-origin.
+  const isSafeLocalPhoto = (value: unknown): boolean =>
+    typeof value === 'string' &&
+    /^data:image\/(?!svg\+xml)[a-z0-9.+-]+;base64,/i.test(value);
+
+  for (const catchRecord of data.catches as Array<CatchItem & { photoUrl?: unknown }>) {
+    if (catchRecord.photoUrl !== undefined && catchRecord.photoUrl !== null &&
+        catchRecord.photoUrl !== '' && !isSafeLocalPhoto(catchRecord.photoUrl)) {
+      return `De back-up bevat een niet-toegestane fotoverwijzing bij vangst ${catchRecord.id}.`;
+    }
+  }
+  for (const sessionRecord of data.sessions as Array<FishingSession & { photoUrls?: unknown }>) {
+    if (sessionRecord.photoUrls !== undefined) {
+      if (!Array.isArray(sessionRecord.photoUrls) ||
+          sessionRecord.photoUrls.some((photo) => !isSafeLocalPhoto(photo))) {
+        return `De back-up bevat een niet-toegestane fotolijst bij sessie ${sessionRecord.id}.`;
+      }
+    }
+  }
+
+  const inspectValue = (value: unknown, path: string, depth: number): string | null => {
+    if (depth > MAX_BACKUP_NESTING_DEPTH) {
+      return `De back-up is te diep genest bij ${path}.`;
+    }
+    if (typeof value === 'string') {
+      const isPhoto = /(?:photoUrl|photoUrls|photos)(?:\[|$)/i.test(path);
+      const maxLength = isPhoto ? MAX_BACKUP_PHOTO_LENGTH : MAX_BACKUP_TEXT_LENGTH;
+      return value.length > maxLength ? `Een tekst- of fotoveld is te groot bij ${path}.` : null;
+    }
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? null : `De back-up bevat een ongeldig getal bij ${path}.`;
+    }
+    if (value === null || typeof value === 'boolean' || typeof value === 'undefined') return null;
+    if (Array.isArray(value)) {
+      if (value.length > 100_000) return `Een lijst is te groot bij ${path}.`;
+      for (let i = 0; i < value.length; i++) {
+        const error = inspectValue(value[i], `${path}[${i}]`, depth + 1);
+        if (error) return error;
+      }
+      return null;
+    }
+    if (typeof value === 'object') {
+      const entries = Object.entries(value as Record<string, unknown>);
+      if (entries.length > MAX_BACKUP_OBJECT_KEYS) return `Een object bevat te veel velden bij ${path}.`;
+      for (const [key, child] of entries) {
+        if (key === '__proto__' || key === 'prototype' || key === 'constructor') {
+          return `De back-up bevat een niet-toegestaan veld bij ${path}.`;
+        }
+        const error = inspectValue(child, path ? `${path}.${key}` : key, depth + 1);
+        if (error) return error;
+      }
+    }
+    return null;
+  };
+
+  for (const [name, records] of collections) {
+    for (let i = 0; i < records.length; i++) {
+      const error = inspectValue(records[i], `${name}[${i}]`, 0);
+      if (error) return error;
+    }
+  }
+  if (data.settings) {
+    const settingsError = inspectValue(data.settings, 'settings', 0);
+    if (settingsError) return settingsError;
+  }
+  return null;
+}
+
+/**
  * Analyseert een JSON importbestand voordat actie wordt ondernomen.
  */
 export async function inspectImportFile(fileContent: string): Promise<{ preview: ImportPreview; data?: BackupData }> {
   try {
+    if (new Blob([fileContent]).size > MAX_BACKUP_FILE_SIZE_BYTES) {
+      throw new Error(`Back-upbestand is groter dan de maximale grootte van ${Math.round(MAX_BACKUP_FILE_SIZE_BYTES / (1024 * 1024))} MB.`);
+    }
     const raw = JSON.parse(fileContent);
     const data = normalizeRawBackup(raw);
 
@@ -337,6 +466,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         throw new Error(`De back-up bevat een ongeldig record in ${label} (ontbrekende ID).`);
       }
     }
+    const limitsError = validateBackupPayloadLimits(data);
+    if (limitsError) throw new Error(limitsError);
+
     const backupSessionIds = new Set(data.sessions.map((session) => session.id));
     const rodNumbersBySession = new Map<string, Set<number>>();
     for (const rod of data.sessionRods) {
