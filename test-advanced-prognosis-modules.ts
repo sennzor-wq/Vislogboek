@@ -514,6 +514,37 @@ assert(
   '3.10 Vermeldt eerlijk dat er geen sonarkaart of bathymetrische bodemscan is'
 );
 
+const unknownThermal = {
+  ...warmThermal,
+  hasMeasuredWaterTemp: false,
+  measuredWaterTemp: null,
+  estimatedWaterTemp: null,
+};
+const habitatUnknown = analyzeHabitatMovement('Karper', '2026-07-20', {
+  location: { ...baseLocation, waterType: undefined, waterDepth: undefined, habitatFeatures: [] },
+  thermalAnalysis: unknownThermal,
+});
+assert(
+  !habitatUnknown.primaryZone.description.includes('14.0') &&
+  !habitatUnknown.primaryZone.description.toLowerCase().includes('plas'),
+  '3.11 Onbekende watertemperatuur en watertype leveren geen verzonnen 14°C- of plasaanname op'
+);
+assert(
+  habitatUnknown.missingInformation.some((m) => m.toLowerCase().includes('watertype')) &&
+  habitatUnknown.missingInformation.some((m) => m.toLowerCase().includes('standaarddiepte') || m.toLowerCase().includes('geen standaarddiepte')),
+  '3.12 Ontbrekend watertype en diepte worden expliciet als onbekend gemeld'
+);
+const habitatObservedWithoutWeather = analyzeHabitatMovement('Karper', '2026-07-20', {
+  location: { ...baseLocation, waterType: undefined, waterDepth: undefined },
+  thermalAnalysis: unknownThermal,
+  sessionObservations: ['aasbellen_voedselactiviteit'],
+});
+assert(
+  habitatObservedWithoutWeather.primaryZone.name.includes('waarnemingszone') &&
+  habitatObservedWithoutWeather.dataProvenance.userObservations.some((o) => o.includes('aasbellen')),
+  '3.13 Directe viswaarneming blijft leidend wanneer weer, watertype en temperatuur ontbreken'
+);
+
 
 // =====================================================================
 // DEEL 4: VOLLEDIGE DAGPROGNOSE & INTEGRATIE
