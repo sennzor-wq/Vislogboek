@@ -34,8 +34,8 @@ for (let i = 0; i < 20; i++) {
   cursor.child = {};
   cursor = cursor.child;
 }
-(tooManyLocations.sessions[0] as any).extra = nested;
-assert.match(validateBackupPayloadLimits({ ...validBackup(), sessions: [tooManyLocations.sessions[0] as any] }) || '', /te diep genest/);
+(excessiveDepth.sessions[0] as any).extra = nested;
+assert.match(validateBackupPayloadLimits(excessiveDepth) || '', /te diep genest/);
 
 const dangerousKey = validBackup();
 (dangerousKey.sessions[0] as any).constructor = { polluted: true };
