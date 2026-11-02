@@ -293,7 +293,6 @@ function analyzeTimeSlot(
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
   // en vangstactiviteit is onvoldoende vastgesteld.
   const pressureTrend = findPressureTrend(representativeTimeIso, allForecasts);
-  const pressureModulator = 1.0;
   const pressImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
   const pressDetail = !hasPressure ? 'Onbekend: onvoldoende geldige luchtdrukmetingen in dit tijdvak.' : pressureTrend.known && pressureTrend.deltaHpa !== null ? `Luchtdruk ${Math.round(avgPressure!)} hPa; ${pressureTrend.trendDescription}. Druktrend wordt getoond als weerscontext, maar krijgt geen automatische biologische bonus of aftrek.` : `Luchtdruk ${Math.round(avgPressure!)} hPa. ${pressureTrend.trendDescription}; geen biologische bonus of aftrek toegepast.`;
 
