@@ -305,18 +305,21 @@ function analyzeTimeSlot(
     dataAvailable: hasPressure,
   };
 
-  // 3. Windfactor: kleine contextuele correctie. Windrichting is geen vaste
-  // soortspecifieke voorspeller; harde wind is vooral relevant voor presentatie
-  // en beetregistratie.
-  let windModulator = 1.0;
-  let windImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
+  // 3. Wind, seizoen, tijdstip, bewolking en neerslag blijven context.
+  // De bestaande profielvoorkeuren en vaste modulatoren zijn niet voldoende
+  // soortspecifiek en empirisch gevalideerd om de biologische activiteitsscore te wijzigen.
   let windDetail = '';
-
-  if (!hasWind || avgWindSpeed === null || dominantWindDir === null) { windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.'; }
-  else if (avgWindSpeed > profile.disruptiveWindThresholdKmH) { windModulator=0.96; windImpact='negatief'; windDetail=`Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is primair een praktische factor, geen bewezen afname van biologische activiteit.`; }
-  else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) { windModulator=1.01; windDetail=`Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`; }
-  else if (avgWindSpeed < 4) { windDetail=`Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`; }
-  else { windDetail=`Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen sterke generieke biologische invloed aangenomen.`; }
+  if (!hasWind || avgWindSpeed === null || dominantWindDir === null) {
+    windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.';
+  } else if (avgWindSpeed > profile.disruptiveWindThresholdKmH) {
+    windDetail = `Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is praktische context en verandert de biologische activiteitsscore niet.`;
+  } else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) {
+    windDetail = `Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`;
+  } else if (avgWindSpeed < 4) {
+    windDetail = `Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`;
+  } else {
+    windDetail = `Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen generieke biologische scorecorrectie toegepast.`;
+  }
   if (hasWind) {
     const directionSequence = windSamples.reduce<string[]>((directions, sample) => {
       const direction = sample.windDirectionText.trim();
@@ -327,108 +330,80 @@ function analyzeTimeSlot(
       windDetail += ` De wind draait binnen dit tijdvak: ${directionSequence.join(' → ')}; de windrichting is dus niet de hele periode gelijk.`;
     }
     if (profile.preferredWindDirections.includes(dominantWindDir!)) {
-      windDetail += ` De representatieve windrichting ${dominantWindDir} sluit aan bij de voorkeur van ${species}; dit is contextuele informatie en geen extra scorebonus.`;
+      windDetail += ` De representatieve windrichting ${dominantWindDir} komt overeen met een voorlopige profielnotitie voor ${species}; dit is context, geen scorebonus.`;
     }
   }
   const windFactor: FactorBreakdown = {
-    score: Math.round((windModulator - 1.0) * 1000) / 10,
-    impact: windImpact,
+    score: 0,
+    impact: 'neutraal',
     title: 'Wind & Oppervlakte',
     detail: windDetail,
     dataAvailable: hasWind,
   };
 
-  // 4. Seizoensfactor (gedempt om dubbeltelling met temperatuur te voorkomen)
+  // Seizoensprofielen blijven zichtbaar als voorlopige achtergrondcontext.
+  // Ze tellen niet mee: seizoensinvloed is deels al vervat in watertemperatuur
+  // en de vaste profielgewichten zijn nog niet voldoende gevalideerd.
   const seasonRaw = profile.seasonalWeights[season];
-  const seasonModulator = 0.92 + (seasonRaw / 10) * 0.16;
-  const seasonImpact: 'positief' | 'neutraal' | 'negatief' =
-    seasonRaw >= 8.5 ? 'positief' : seasonRaw <= 3.5 ? 'negatief' : 'neutraal';
-
   const seasonFactor: FactorBreakdown = {
-    score: Math.round((seasonModulator - 1.0) * 10 * 10) / 10,
-    impact: seasonImpact,
+    score: 0,
+    impact: 'neutraal',
     title: 'Seizoensritme',
-    detail: `Seizoen ${season} heeft een biologische achtergrondfactor van ${seasonRaw}/10 voor ${species}.`,
+    detail: `Seizoen ${season}: voorlopig profielcontextcijfer ${seasonRaw}/10 voor ${species}. Dit cijfer is niet gevalideerd als activiteitseffect en beïnvloedt de activiteitsindex niet.`,
+    dataAvailable: true,
   };
 
-  // 5. Tijdstip & Schemering
-  let timeModulator = 1.0;
-  let timeImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
-  let timeDetail = '';
-
+  // Tijdstip en schemering worden als hypothese getoond, niet als vaste bonus/malus.
   const isPreferredSlot = profile.preferredSlots.includes(slot);
-  if (isPreferredSlot) {
-    timeModulator = 1.08;
-    timeImpact = 'positief';
-    timeDetail = `${slot} sluit aan bij het natuurlijke foerageerpatroon van ${species}.`;
-  } else {
-    timeModulator = 0.94;
-    timeImpact = 'neutraal';
-    timeDetail = `${slot} is gemiddeld genomen een rustiger dagdeel voor ${species}.`;
-  }
-
-  if (profile.crepuscularBonus && (slot === 'Ochtend' || slot === 'Avond')) {
-    timeModulator = Math.min(1.15, timeModulator * 1.06);
-    timeDetail += ' Schemering biedt natuurlijk lichtvoordeel.';
-  }
-
+  const timeDetail = isPreferredSlot
+    ? `${slot} staat als voorkeursperiode in het voorlopige profiel van ${species}; de omvang van dit effect is niet gevalideerd en telt niet mee in de score.`
+    : `${slot} staat niet als voorkeursperiode in het voorlopige profiel van ${species}; dit bewijst niet dat activiteit lager is en verandert de score niet.`;
   const timeOfDayFactor: FactorBreakdown = {
-    score: Math.round((timeModulator - 1.0) * 10 * 10) / 10,
-    impact: timeImpact,
+    score: 0,
+    impact: 'neutraal',
     title: 'Tijdstip & Licht',
-    detail: timeDetail,
+    detail: profile.crepuscularBonus && (slot === 'Ochtend' || slot === 'Avond')
+      ? `${timeDetail} Schemering kan soortspecifiek relevant zijn, maar krijgt hier geen vaste numerieke bonus.`
+      : timeDetail,
+    dataAvailable: true,
   };
 
-  // 6. Bewolking & Neerslag (geen dubbele telling van regen en bewolking)
-  let precipModulator = 1.0;
-  let precipImpact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
+  // Bewolking en neerslag zijn lokale context. De huidige profielvoorkeuren
+  // zijn niet gevalideerd als kwantitatieve activiteitseffecten.
   let precipDetail = '';
-
-  if (!hasPrecip && !hasCloud) { precipDetail = 'Onbekend: geen voldoende geldige neerslag- of bewolkingsgegevens.'; }
-  else if (hasPrecip && totalPrecip! >= 7.0) {
-    precipModulator = 0.92;
-    precipImpact = 'negatief';
-    precipDetail = `Langdurige zware neerslag (${totalPrecip!.toFixed(1)} mm) kan water vertroebelen en beïnvloedt techniek.`;
-  } else if (hasPrecip && totalPrecip! > 0.2 && totalPrecip! < 4.0) {
-    precipModulator = profile.rainPreference === 'licht_positief' ? 1.05 : 1.0;
-    precipImpact = profile.rainPreference === 'licht_positief' ? 'positief' : 'neutraal';
-    precipDetail = `Lichte regen (${totalPrecip!.toFixed(1)} mm) breekt het wateroppervlak en stimuleert activiteit.`;
-  } else if (hasCloud && avgCloud! >= 70) {
-    precipModulator = 1.03;
-    precipImpact = 'positief';
-    precipDetail = `Zwaarbewolkt (${Math.round(avgCloud!)}%); diffuus licht vermindert argwaan.`;
-    if (profile.cloudPreference === 'bewolkt') {
-      precipDetail += ` Gedempt licht sluit gunstig aan bij ${species}.`;
-    }
-  } else if (hasCloud && avgCloud! >= 30 && avgCloud! < 70) {
-    precipModulator = profile.cloudPreference === 'wisselend' ? 1.02 : 1.0;
-    precipImpact = 'neutraal';
-    precipDetail = `Wisselende bewolking (${Math.round(avgCloud!)}%); dynamisch lichtbeeld${profile.cloudPreference === 'wisselend' ? ` past goed bij de zichtjacht van ${species}` : ''}.`;
+  if (!hasPrecip && !hasCloud) {
+    precipDetail = 'Onbekend: geen voldoende geldige neerslag- of bewolkingsgegevens.';
   } else {
-    precipModulator = 1.0;
-    precipImpact = 'neutraal';
-    precipDetail = 'Geen duidelijke neerslag- of bewolkingsinvloed vastgesteld op basis van de beschikbare waarden.';
+    const contextParts: string[] = [];
+    if (hasPrecip) {
+      contextParts.push(`neerslag ${totalPrecip!.toFixed(1)} mm`);
+    }
+    if (hasCloud) {
+      contextParts.push(`bewolking ${Math.round(avgCloud!)}%`);
+    }
+    precipDetail = `${contextParts.join(', ')}. Dit blijft weerscontext; zonder gevalideerde soort- en watertypegebonden relatie wordt geen biologische bonus of aftrek toegepast.`;
+    if (hasCloud && profile.cloudPreference) {
+      precipDetail += ` De profielvoorkeur voor bewolking (${profile.cloudPreference}) is voorlopig en wordt alleen beschrijvend getoond.`;
+    }
+    if (hasPrecip && profile.rainPreference) {
+      precipDetail += ` De profielvoorkeur voor regen (${profile.rainPreference}) is voorlopig en wordt alleen beschrijvend getoond.`;
+    }
   }
 
   const precipitationFactor: FactorBreakdown = {
-    score: hasPrecip || hasCloud ? Math.round((precipModulator - 1.0) * 10 * 10) / 10 : 0,
-    impact: hasPrecip || hasCloud ? precipImpact : 'neutraal',
+    score: 0,
+    impact: 'neutraal',
     title: 'Bewolking & Neerslag',
     detail: precipDetail,
     dataAvailable: hasPrecip || hasCloud,
   };
 
-  // --- NON-LINEAIR BEGRENSD MODEL VOOR BIOLOGISCHE ACTIVITEITSINDEX ---
-  // Temperatuur fungeert als snelheidsbepalende fysiologische factor (rate-limiting biological constraint).
-  // Bij lage temperatuur is de stofwisseling fundamenteel geremd; gunstig weer kan dit niet onbeperkt compenseren.
-  // Luchtdruk is neutraal gehouden; wind, seizoen en neerslag zijn bewust gedempt.
-  const knownComponents = [{weight:0.50,value:1.0}, ...(hasWind?[{weight:0.10,value:windModulator}]:[]), {weight:0.15,value:seasonModulator}, {weight:0.20,value:timeModulator}, ...(hasPrecip||hasCloud?[{weight:0.05,value:precipModulator}]:[])];
-  const knownWeight = knownComponents.reduce((sum,item)=>sum+item.weight,0);
-  const envModulator = knownComponents.reduce((sum,item)=>sum+item.weight*item.value,0)/knownWeight;
-
-  // Power scale on thermal efficiency: E_temp^0.85
+  // --- BIOLOGISCHE ACTIVITEITSINDEX ---
+  // Alleen de soortspecifieke thermische respons beïnvloedt de huidige score.
+  // Andere factoren blijven uitlegbare context totdat hun effect afzonderlijk
+  // met passende soort-, levensstadium- en watertypegegevens is gevalideerd.
   const metabolicCeiling = Math.pow(thermalEff, 0.85);
-  const rawActivityScore = 1.0 + 9.0 * metabolicCeiling * envModulator;
+  const rawActivityScore = 1.0 + 9.0 * metabolicCeiling;
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
