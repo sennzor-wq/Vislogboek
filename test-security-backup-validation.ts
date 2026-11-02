@@ -23,6 +23,12 @@ assert.throws(() => normalizeRawBackup([]), /Ongeldig JSON object/, 'Array-root 
 const photoBackup = validBackup();
 (photoBackup.catches[0] as any).photoUrl = `data:image/jpeg;base64,${'a'.repeat(150_000)}`;
 assert.equal(validateBackupPayloadLimits(photoBackup), null, 'Normale base64-foto moet worden toegestaan');
+const remotePhotoBackup = validBackup();
+(remotePhotoBackup.catches[0] as any).photoUrl = 'https://example.invalid/tracker.gif';
+assert.match(validateBackupPayloadLimits(remotePhotoBackup) || '', /niet-toegestane fotoverwijzing/);
+const svgPhotoBackup = validBackup();
+(svgPhotoBackup.catches[0] as any).photoUrl = 'data:image/svg+xml;base64,PHN2Zy8+';
+assert.match(validateBackupPayloadLimits(svgPhotoBackup) || '', /niet-toegestane fotoverwijzing/);
 
 const tooManyLocations = validBackup();
 tooManyLocations.locations = Array.from({ length: 5_001 }, (_, i) => ({ id: `loc-${i}`, name: 'Test' } as any));
