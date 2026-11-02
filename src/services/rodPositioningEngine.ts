@@ -100,7 +100,7 @@ function determineTacticalHypothesis(
 
   // SOORT: SNOEK (Visuele hinderlaagjager)
   if (species === 'Snoek') {
-    if (season === 'Winter' || effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
+    if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
       return {
         recommendedZone: 'Diepere taluds en overgangen nabij samengeschoolde prooivis',
         rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) trekken witvisscholen naar diepere kuilen; snoek volgt deze prooiconcentraties en jaagt vanuit diepere hinderlagen. Vermijdt energieverspilling in koude golfslag. (Zoekhypothese voor winterjacht).`,
@@ -170,7 +170,7 @@ function determineTacticalHypothesis(
 
   // SOORT: ZEELT (Warmteminnende planten- en modderbewoner)
   if (species === 'Zeelt') {
-    if (season === 'Winter' || effectiveWaterTemp < 11) {
+    if (effectiveWaterTemp < 11) {
       return {
         recommendedZone: 'Diepere beschutte slibzones (extreme winterrust)',
         rationale: `Onder ~11–12 °C schakelt zeelt over op een diepe inactieve spaarstand in zachte bodemlagen. Ruwe golfslag en stroming worden strikt gemeden. (Zoekhypothese voor winterpassiviteit).`,
@@ -190,7 +190,7 @@ function determineTacticalHypothesis(
 
   // SOORT: MEERVAL (Grote warmteminnende nacht- en bodemrover)
   if (species === 'Meerval') {
-    if (effectiveWaterTemp < 12 || season === 'Winter') {
+    if (effectiveWaterTemp < 12) {
       return {
         recommendedZone: 'Diepste, stromingsvrije overwinteringskuilen (rusttoestand)',
         rationale: `Meerval is sterk warmteminnend. Onder 12–14 °C vertraagt de stofwisseling drastisch en zoekt de vis diepe, rustige bodemholen op zonder actief te jagen. (Zoekhypothese voor koude rust).`,
@@ -209,7 +209,7 @@ function determineTacticalHypothesis(
 
   // SOORT: VOORN (Schoolvis in midden- en onderlaag)
   if (species === 'Voorn') {
-    if (season === 'Winter' || effectiveWaterTemp < 7) {
+    if (effectiveWaterTemp < 7) {
       return {
         recommendedZone: 'Diepere rusthavens en kuilen; zonnige middagen op ondieptes',
         rationale: `In de winter verzamelt voorn zich in dichte scholen in diepe, rustige havens of vaargeulen; bij een zonnige namiddag trekken ze kort naar ondiepere luwe oeverzones. (Zoekhypothese voor winterscholing).`,
@@ -495,7 +495,7 @@ export function buildWindCastingGuidance(
   if (isFlowingWater) {
     isWindwardFavorable = false;
     windwardAssessment = `Op stromend water (${waterType.toLowerCase()}) bepalen vaargeultaluds, stroomnaden en kribkoppen de vispositie veel sterker dan de winddrift op het wateroppervlak.`;
-  } else if (effectiveWaterTemp < 8 || season === 'Winter' || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
+  } else if (effectiveWaterTemp < 8 || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
     isWindwardFavorable = false;
     windwardAssessment = `Niet aanbevolen (koud water / afkoeling). In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind onttrekt aanlandige golfslag extra warmte aan de oever. Karper en witvis mijden deze kille golfslag en zoeken energiebesparing in de luwe oever of diepere rustkuilen.`;
   } else if (season === 'Voorjaar' && (isWarmingPeriod || avgAirTemp >= 14)) {
