@@ -225,6 +225,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
           startTime: interval.startTime ? new Date(interval.startTime).toISOString() : '',
           endTime: interval.endTime ? new Date(interval.endTime).toISOString() : null,
         })),
+        events: (rod.events || []).map((event) => ({
+          ...event,
+          timestamp: event.timestamp ? new Date(event.timestamp).toISOString() : '',
+        })),
         updatedAt: new Date().toISOString(),
       })) : [];
       await onSave(payload, snapshotToSave, normalizedRods);
@@ -485,6 +489,20 @@ export const SessionModal: React.FC<SessionModalProps> = ({
                     </div>
                   ))}
                   <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: [...item.activeIntervals, { id: `interval-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, startTime: '', endTime: null }] } : item))} className="text-cyan-300 text-[11px] underline">+ Actieve periode toevoegen</button>
+                  <div className="border-t border-slate-700 pt-2 space-y-2">
+                    <div className="text-[11px] text-slate-400">Gebeurtenissen op deze hengel (optioneel)</div>
+                    {(rod.events || []).map((event) => (
+                      <div key={event.id} className="grid grid-cols-1 sm:grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
+                        <select aria-label="Type hengelgebeurtenis" value={event.type} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, events: (item.events || []).map((x) => x.id === event.id ? { ...x, type: e.target.value as 'bite' | 'missed' | 'catch' | 'other' } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs">
+                          <option value="bite">Aanbeet</option><option value="missed">Gemist</option><option value="catch">Vangst</option><option value="other">Overig</option>
+                        </select>
+                        <input type="datetime-local" aria-label="Tijdstip gebeurtenis" value={event.timestamp ? event.timestamp.slice(0,16) : ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, events: (item.events || []).map((x) => x.id === event.id ? { ...x, timestamp: e.target.value } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                        <input value={event.notes || ''} aria-label="Toelichting gebeurtenis" onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, events: (item.events || []).map((x) => x.id === event.id ? { ...x, notes: e.target.value } : x) } : item))} placeholder="Notitie" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                        <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, events: (item.events || []).filter((x) => x.id !== event.id) } : item))} className="text-rose-300 text-xs">Verwijderen</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, events: [...(item.events || []), { id: `event-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, timestamp: new Date().toISOString(), type: 'other', notes: '' }] } : item))} className="text-cyan-300 text-[11px] underline">+ Gebeurtenis toevoegen</button>
+                  </div>
                 </div>
               ))}
               {sessionRods.length < Math.max(1, Number(rodCount) || 1) && (
