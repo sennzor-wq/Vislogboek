@@ -10,6 +10,7 @@ import {
   PrebaitProgramOptions,
   PrebaitProgramPlan,
 } from '../types';
+import { assessDataQuality } from './dataQualityEngine';
 
 const PREBAIT_SPECIES: FishSpecies[] = ['Karper', 'Zeelt', 'Brasem'];
 
@@ -88,12 +89,30 @@ export function calculatePrebaitPlan(
   const effectiveWaterTemp = measured
     ? thermalAnalysis.measuredWaterTemp as number
     : estimated ? thermalAnalysis.estimatedWaterTemp as number : null;
+  const thermalQuality = assessDataQuality({
+    name: 'Watertemperatuur',
+    value: effectiveWaterTemp,
+    status: measured ? 'measured' : estimated ? 'modelled' : 'unknown',
+    explanation: measured ? 'Gemeten op de stek.' : estimated ? 'Modelschatting; geen directe meting.' : 'Geen geldige temperatuur beschikbaar.',
+  });
+  const waterTypeQuality = assessDataQuality({
+    name: 'Watertype',
+    value: location?.waterType,
+    status: location?.waterType && location.waterType !== 'Onbekend' ? 'userReported' : 'unknown',
+    explanation: 'Gebruikersregistratie van het watertype.',
+  });
+  const depthQuality = assessDataQuality({
+    name: 'Waterdiepte',
+    value: location?.waterDepth,
+    status: typeof location?.waterDepth === 'number' && location.waterDepth > 0 ? 'userReported' : 'unknown',
+    explanation: 'Optionele gebruikersregistratie van de diepte.',
+  });
   const isMethodFeeder = /method\s*feeder/i.test(technique ?? '');
   const isFlowingWater = location?.waterType === 'Rivier' || location?.waterType === 'Kanaal';
-  const hasLocationContext = Boolean(location && location.waterType && location.waterType !== 'Onbekend');
+  const hasLocationContext = waterTypeQuality.usable;
   const missingInformation: string[] = [];
 
-  if (effectiveWaterTemp === null) {
+  if (!thermalQuality.usable) {
     missingInformation.push('Watertemperatuur ontbreekt: zonder gemeten of verantwoord geschatte watertemperatuur geeft de Voerplanner geen hoeveelheden of voertiming.');
   } else if (!measured) {
     missingInformation.push('De watertemperatuur is een modelschatting en geen meting. Behandel de hoeveelheden als extra voorzichtige startindicatie en controleer de temperatuur aan de stek.');
@@ -297,14 +316,14 @@ export function calculatePrebaitPlan(
     };
   }
 
-  if (!hasLocationContext) {
+  if (!hasLocationContext && effectiveWaterTemp !== null && effectiveWaterTemp >= 6) {
     campaignSummary = 'Geen concrete hoeveelheid of voertiming: kies eerst een stek met bekend watertype.';
     biologicalRationale = 'Zonder een bruikbare watercontext geeft de planner geen voerhoeveelheden. Gebruik directe waarnemingen en de lokale stekstructuur.';
     sessionAdvice = 'Geen concrete hoeveelheid. Leg eerst de stek en het watertype vast.';
   }
   const confidenceLevel: PrebaitProgramPlan['confidenceLevel'] =
-    measured && location?.waterType && location.waterDepth ? 'Redelijk' :
-    effectiveWaterTemp !== null ? 'Matig' : 'Laag';
+    thermalQuality.level === 'high' && waterTypeQuality.level === 'high' && depthQuality.level === 'high' ? 'Redelijk' :
+    thermalQuality.usable && waterTypeQuality.usable ? 'Matig' : 'Laag';
 
   return {
     suitability,
