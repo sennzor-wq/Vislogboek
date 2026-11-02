@@ -236,7 +236,7 @@ function determineTacticalHypothesis(
     };
   }
 
-  if (season === 'Winter' || effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
+  if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
     return {
       recommendedZone: 'Diepere rustzone of luwe oever (beschut tegen koude wind)',
       rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind (${windDirText} ${avgWindSpeed} km/u) koelt de aanlandige oever snel verder af. Vis vermijdt hier onnodig energieverlies in de golfslag en zoekt vaak stabielere diepere kuilen of de beschutte luwe oever op. (De grens van ~7–8 °C is een praktische vuistregel, geen star biologisch omslagpunt). (Zoekhypothese voor koude rust).`,
