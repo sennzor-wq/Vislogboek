@@ -674,57 +674,82 @@ export function analyzeRodPositioning(
       windTrend = 'Afnemend';
       intraSessionNote = `Wind neemt af van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
     }
-  }  // 2. Seizoen & thermische context (inclusief 24-72u historie en modelschatting)
+  }
+
+  // 2. Seizoen & thermische context (inclusief 24-72u historie en modelschatting)
   const targetDate = new Date(dateStr);
   const month = targetDate.getMonth() + 1; // 1-12
   const season = getSeasonNL(month);
 
-  const hasMeasuredTemp = typeof userWaterTemp === 'number' && !isNaN(userWaterTemp);
-  const effectiveWaterTemp = hasMeasuredTemp
-    ? userWaterTemp
-    : thermalAnalysis.estimatedWaterTemp ?? avgAirTemp;
+  const hasMeasuredTemp = typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp);
+  const estimatedWaterTemp = typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp)
+    ? thermalAnalysis.estimatedWaterTemp
+    : null;
+  const effectiveWaterTemp = hasMeasuredTemp ? userWaterTemp! : estimatedWaterTemp;
 
-  // Biologisch genuanceerde vlaggen (behandeld als vuistregels/heuristieken, niet als harde breekpunten)
+  // Ontbrekende luchttemperatuur of wind wordt niet als normale conditie ingevuld.
   const isCoolingPeriod = thermalAnalysis.trend === 'Waarschijnlijke afkoeling';
   const isWarmingPeriod = thermalAnalysis.trend === 'Waarschijnlijke opwarming';
-  const isColdWind = avgAirTemp < 8 || (avgAirTemp < 12 && season === 'Voorjaar') || isCoolingPeriod;
-  const isStrongWind = avgWindSpeed >= 20 || maxWindSpeed >= 35;
-  const isCalmWind = avgWindSpeed <= 10;
-  const isWarmConditions = effectiveWaterTemp >= 21 || avgAirTemp >= 23;
+  const isColdWind = (avgAirTemp !== null && (avgAirTemp < 8 || (avgAirTemp < 12 && season === 'Voorjaar'))) || isCoolingPeriod;
+  const isStrongWind = avgWindSpeed !== null && maxWindSpeed !== null && (avgWindSpeed >= 20 || maxWindSpeed >= 35);
+  const isCalmWind = avgWindSpeed !== null && avgWindSpeed <= 10;
+  const isWarmConditions = (effectiveWaterTemp !== null && effectiveWaterTemp >= 21) || (avgAirTemp !== null && avgAirTemp >= 23);
 
   // 3. Watertype & diepte-eigenschappen
-  const waterType = location?.waterType || 'Plas/Zandafgraving';
+  const waterType = location?.waterType;
   const isFlowingWater = waterType === 'Rivier' || waterType === 'Kanaal';
   const waterDepth = location?.waterDepth;
 
-  // 4. Bepaling van soortspecifieke tactische zoekhypothese
-  const tacticalHypothesis = determineTacticalHypothesis(species, {
-    isFlowingWater,
-    waterType,
-    waterDepth,
-    season,
-    effectiveWaterTemp,
-    avgAirTemp,
-    avgWindSpeed,
-    maxWindSpeed,
-    windDirText,
-    isColdWind,
-    isStrongWind,
-    isCalmWind,
-    isWarmConditions,
-    isWarmingPeriod,
-    targetSlot,
-    thermalTrend: thermalAnalysis.trend,
-  });
+  // 4. Alleen een soortspecifieke tactische hypothese als watertype, thermische
+  // context en de relevante weergegevens bekend zijn. Anders: bruikbaar algemeen
+  // zoekadvies op basis van werkelijk geregistreerde lokale kenmerken.
+  const canUseSpeciesHypothesis = Boolean(
+    waterType && effectiveWaterTemp !== null && avgWindSpeed !== null &&
+    maxWindSpeed !== null && avgAirTemp !== null && avgWindDegrees !== undefined
+  );
+  const tacticalHypothesis = canUseSpeciesHypothesis
+    ? determineTacticalHypothesis(species, {
+        isFlowingWater,
+        waterType: waterType!,
+        waterDepth,
+        season,
+        effectiveWaterTemp: effectiveWaterTemp!,
+        avgAirTemp: avgAirTemp!,
+        avgWindSpeed: avgWindSpeed!,
+        maxWindSpeed: maxWindSpeed!,
+        windDirText,
+        isColdWind,
+        isStrongWind,
+        isCalmWind,
+        isWarmConditions,
+        isWarmingPeriod,
+        targetSlot,
+        thermalTrend: thermalAnalysis.trend,
+      })
+    : {
+        recommendedZone: location?.habitatFeatures?.length
+          ? 'Geregistreerde lokale structuur als eerste zoekzone'
+          : 'Algemene zoekzone — aanvullende locatiegegevens nodig',
+        rationale: [
+          waterType ? `Watertype: ${waterType}.` : 'Watertype onbekend; stromend of stilstaand water wordt niet verondersteld.',
+          effectiveWaterTemp !== null ? `Watertemperatuur: ${hasMeasuredTemp ? 'gemeten' : 'geschat'} ${effectiveWaterTemp.toFixed(1)} °C.` : 'Watertemperatuur ontbreekt; luchttemperatuur wordt niet als vervanging gebruikt.',
+          avgWindSpeed !== null ? `Wind: ${avgWindSpeed} km/u.` : 'Windgegevens ontbreken; geen windgestuurde zone gekozen.',
+          location?.habitatFeatures?.length ? `Gebruik de vastgelegde kenmerken: ${location.habitatFeatures.join(', ')}.` : 'Er zijn geen concrete lokale habitatkenmerken vastgelegd.',
+          'Dit is een voorlopige zoekhypothese; controleer diepte, bodem en visactiviteit ter plaatse.',
+        ].join(' '),
+        alternativeOption: 'Vergelijk een tweede lokaal zichtbare structuur of diepteovergang; neem geen niet-geregistreerde bodemvorm aan.',
+        confidenceLevel: 'Laag' as const,
+      };
 
   // 5. Expliciete ontbrekende informatie (eerlijke modelbeperkingen, beknopt en zonder dubbele teksten)
   const missingInformation: string[] = [
     'Exacte oeverlijnoriëntatie en omtrek van het water zijn niet bekend in het systeem (GPS is een enkel punt). Onderzoek ter plekke welke oever daadwerkelijk de wind opvangt (aanlandig) of beschut ligt (aflandig).',
   ];
 
+  if (!waterType) missingInformation.push('Watertype ontbreekt; het model neemt geen plas, kanaal of rivier aan.');
   if (!waterDepth) {
     missingInformation.push(
-      'Waterdiepte en bodemprofiel zijn niet specifiek gedocumenteerd; standaard aanname van 2,0 m gehanteerd. Pas dieptetactiek ter plekke aan.'
+      'Waterdiepte en bodemprofiel zijn niet vastgelegd; er wordt geen standaarddiepte ingevuld.'
     );
   } else {
     missingInformation.push(
@@ -732,11 +757,19 @@ export function analyzeRodPositioning(
     );
   }
 
-  if (!hasMeasuredTemp) {
+  if (hasMeasuredTemp) {
+    // De lokale meting is de thermische ankerwaarde.
+  } else if (estimatedWaterTemp !== null) {
     missingInformation.push(
-      `Watertemperatuur is een modelschatting (~${effectiveWaterTemp.toFixed(1)} °C), geen directe thermometermeting op de stek.`
+      `Watertemperatuur is een modelschatting (~${estimatedWaterTemp.toFixed(1)} °C), geen directe thermometermeting op de stek.`
     );
+  } else {
+    missingInformation.push('Watertemperatuur ontbreekt; luchttemperatuur wordt niet als vervanging gebruikt.');
   }
+  if (avgWindSpeed === null || avgWindDegrees === undefined) {
+    missingInformation.push('Onvoldoende geldige windgegevens voor een wind-/werpkompasadvies.');
+  }
+  if (avgAirTemp === null) missingInformation.push('Luchttemperatuur ontbreekt; geen thermische luchthypothese toegepast.');
 
   missingInformation.push(
     'Lokale microklimaten (bomenrijen, rietkragen, bebouwing) kunnen de windrichting aan het wateroppervlak sterk afbuigen.'
@@ -826,25 +859,27 @@ export function analyzeRodPositioning(
     };
   }
 
-  const windCastingGuidance = buildWindCastingGuidance(
-    windDirText,
-    avgWindDegrees,
-    location,
-    {
-      effectiveWaterTemp,
-      season,
-      isColdWind,
-      isCoolingPeriod,
-      isWarmingPeriod,
-      avgAirTemp,
-      avgWindSpeed,
-      isCalmWind,
-      isWarmConditions,
-      isFlowingWater,
-      waterType,
-    },
-    personalEvidence
-  );
+  const windCastingGuidance = canUseSpeciesHypothesis
+    ? buildWindCastingGuidance(
+        windDirText,
+        avgWindDegrees,
+        location,
+        {
+          effectiveWaterTemp: effectiveWaterTemp!,
+          season,
+          isColdWind,
+          isCoolingPeriod,
+          isWarmingPeriod,
+          avgAirTemp: avgAirTemp!,
+          avgWindSpeed: avgWindSpeed!,
+          isCalmWind,
+          isWarmConditions,
+          isFlowingWater,
+          waterType: waterType!,
+        },
+        personalEvidence
+      )
+    : undefined;
 
   return {
     recommendedZone: tacticalHypothesis.recommendedZone,
@@ -854,7 +889,7 @@ export function analyzeRodPositioning(
     windContext: {
       directionText: windDirText,
       speedKmH: avgWindSpeed,
-      gustsKmH: maxWindSpeed > avgWindSpeed ? maxWindSpeed : undefined,
+      gustsKmH: maxWindSpeed !== null && avgWindSpeed !== null && maxWindSpeed > avgWindSpeed ? maxWindSpeed : undefined,
       isStrongWind,
       isColdWind,
       windTrend,
@@ -865,8 +900,8 @@ export function analyzeRodPositioning(
       season,
       waterTempNote: hasMeasuredTemp
         ? `Gemeten: ${userWaterTemp} °C`
-        : thermalAnalysis.estimatedWaterTemp !== null
-        ? `Geschat: ~${thermalAnalysis.estimatedWaterTemp} °C`
+        : estimatedWaterTemp !== null
+        ? `Geschat: ~${estimatedWaterTemp} °C`
         : 'Geen watertemperatuur bekend',
     },
     missingInformation,
