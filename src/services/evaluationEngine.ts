@@ -304,11 +304,26 @@ export async function linkSessionOutcomeToSnapshot(
   const snapshot = await db.prognosisSnapshots.get(snapshotId);
   if (!snapshot) return;
 
+  const targetSpeciesMatches =
+    snapshot.targetSpecies === 'Algemeen' ||
+    Boolean(session.targetSpecies?.includes(snapshot.targetSpecies as any));
+  const resolvedOutcome: FishingSession['outcome'] = !targetSpeciesMatches
+    ? 'unknown'
+    : session.outcome === 'catch'
+      ? targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed'
+      : session.outcome === 'skunk_confirmed' && targetCatchesCount === 0
+        ? 'skunk_confirmed'
+        : 'unknown';
+
   await db.prognosisSnapshots.update(snapshotId, {
     linkedSessionId: session.id,
-    actualOutcome: session.outcome,
-    actualTargetCatchesCount: targetCatchesCount,
-    evaluationNotes: `Gekoppeld aan sessie ${session.id} (${session.outcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'bevestigde nulvangst'}).`,
+    actualOutcome: resolvedOutcome,
+    actualTargetCatchesCount: resolvedOutcome === 'unknown' ? undefined : targetCatchesCount,
+    evaluationNotes: !targetSpeciesMatches
+      ? `Sessie ${session.id} niet geëvalueerd: de voorspelde doelsoort was niet als doelsoort geselecteerd in de sessie.`
+      : resolvedOutcome === 'unknown'
+        ? `Sessie ${session.id} niet geëvalueerd: de doelsoortuitkomst is niet eenduidig.`
+        : `Gekoppeld aan sessie ${session.id} (${resolvedOutcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'geen doelvis gevangen'}).`,
   });
 }
 
@@ -361,26 +376,43 @@ export async function autoSyncSessionOutcomeToSnapshot(
     return temperatureLinked;
   }
 
-  let targetCatchesCount = 0;
-  if (session.outcome === 'catch') {
-    const sessionCatches = await db.catches.where('sessionId').equals(session.id).toArray();
+  const targetSpeciesMatches =
+    snapshot.targetSpecies === 'Algemeen' ||
+    Boolean(session.targetSpecies?.includes(snapshot.targetSpecies as any));
+  const sessionCatches = await db.catches.where('sessionId').equals(session.id).toArray();
+
+  let resolvedOutcome: FishingSession['outcome'] = 'unknown';
+  let targetCatchesCount: number | undefined;
+  let evaluationReason = 'de doelsoortuitkomst is niet eenduidig';
+
+  if (!targetSpeciesMatches) {
+    evaluationReason = 'de voorspelde doelsoort was niet als doelsoort geselecteerd in de sessie';
+  } else if (session.outcome === 'skunk_confirmed' && sessionCatches.length === 0) {
+    resolvedOutcome = 'skunk_confirmed';
+    targetCatchesCount = 0;
+    evaluationReason = 'bevestigde nulvangst';
+  } else if (session.outcome === 'catch' && sessionCatches.length > 0) {
     const relevantCatches = sessionCatches.filter(
       (c) => snapshot.targetSpecies === 'Algemeen' || c.species === snapshot.targetSpecies
     );
-    const counted = relevantCatches.reduce((sum, c) => sum + (c.count || 1), 0);
-    // Indien sessie 'catch' is maar er zijn geen specifieke vangsten geregistreerd, reken minimaal 1
-    targetCatchesCount = counted > 0 ? counted : 1;
+    targetCatchesCount = relevantCatches.reduce((sum, c) => sum + (c.count || 1), 0);
+    resolvedOutcome = targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed';
+    evaluationReason = targetCatchesCount > 0
+      ? `${targetCatchesCount} doelvis(sen) geregistreerd`
+      : 'wel vangst(en) geregistreerd, maar geen vangst van de voorspelde doelsoort';
+  } else if (session.outcome === 'catch' && sessionCatches.length === 0) {
+    evaluationReason = 'sessie heeft uitkomst vangst, maar er zijn geen soortspecifieke vangstregistraties';
+  } else if (session.outcome === 'skunk_confirmed' && sessionCatches.length > 0) {
+    evaluationReason = 'sessie is als nulvangst gemarkeerd maar bevat vangstregistraties';
   }
 
   await db.prognosisSnapshots.update(session.snapshotId, {
     linkedSessionId: session.id,
-    actualOutcome: session.outcome,
-    actualTargetCatchesCount: targetCatchesCount,
-    evaluationNotes: `Automatisch gekoppeld aan sessie ${session.id} (${
-      session.outcome === 'catch'
-        ? `${targetCatchesCount} doelvis(sen) geregistreerd`
-        : 'bevestigde nulvangst'
-    }). Bijgewerkt op ${new Date().toISOString()}.`,
+    actualOutcome: resolvedOutcome,
+    actualTargetCatchesCount: resolvedOutcome === 'unknown' ? undefined : targetCatchesCount,
+    evaluationNotes: resolvedOutcome === 'unknown'
+      ? `Sessie ${session.id} niet meegenomen in Brier-evaluatie: ${evaluationReason}.`
+      : `Automatisch gekoppeld aan sessie ${session.id} (${evaluationReason}). Bijgewerkt op ${new Date().toISOString()}.`,
   });
 
   return true;
