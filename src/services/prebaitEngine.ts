@@ -28,7 +28,7 @@ function daysBetween(start: string, end: string): number {
   return Number.isFinite(a) && Number.isFinite(b) ? Math.max(0, Math.floor((b - a) / 86400000)) : 0;
 }
 
-function getSpeciesFeed(species: 'Karper' | 'Zeelt' | 'Brasem', temp: number): {
+function getSpeciesFeed(species: 'Karper' | 'Zeelt' | 'Brasem'): {
   amountFactor: number;
   mix: string;
   digestibility: string;
@@ -125,7 +125,7 @@ export function calculatePrebaitPlan(
   }
   missingInformation.push('Bodemzachtheid, natuurlijke voedselbeschikbaarheid en witvisdruk zijn niet gemeten. Pas de hoeveelheid ter plaatse aan en voer niet automatisch de volledige richtlijn.');
 
-  const feed = getSpeciesFeed(species, effectiveWaterTemp ?? 0);
+  const feed = getSpeciesFeed(species);
   let suitability: PrebaitSuitability = 'Beperkt / voorzichtig';
   let suitabilityScore = 4;
   let maxBiologicalDays = 1;
@@ -322,7 +322,7 @@ export function calculatePrebaitPlan(
     sessionAdvice = 'Geen concrete hoeveelheid. Leg eerst de stek en het watertype vast.';
   }
   const confidenceLevel: PrebaitProgramPlan['confidenceLevel'] =
-    thermalQuality.level === 'high' && waterTypeQuality.level === 'high' && depthQuality.level === 'high' ? 'Redelijk' :
+    thermalQuality.level === 'high' && waterTypeQuality.usable && depthQuality.usable ? 'Redelijk' :
     thermalQuality.usable && waterTypeQuality.usable ? 'Matig' : 'Laag';
 
   return {
