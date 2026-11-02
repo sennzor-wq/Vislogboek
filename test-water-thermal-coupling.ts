@@ -331,6 +331,19 @@ async function runTestSuite() {
   assert(staleAnchorToday.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString(),
     '4.7 De herkomsttijd van het lokale meetanker blijft controleerbaar');
 
+  const staleAnchorWithoutCoverage = analyzeWaterThermalDevelopment('2026-10-23', [], {
+    location: locLokkershoek,
+    historicalSessions: [staleSameDaySession],
+    currentDateRef: new Date('2026-10-23T12:00:00'),
+  });
+  assert(staleAnchorWithoutCoverage.waterTemperatureStatus === 'unknown' &&
+    staleAnchorWithoutCoverage.estimatedWaterTemp === null,
+    '4.7a Een oud meetanker zonder weersdekking levert geen actuele temperatuurschatting op');
+  assert(staleAnchorWithoutCoverage.anchorAgeHours === 48 &&
+    staleAnchorWithoutCoverage.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString() &&
+    staleAnchorWithoutCoverage.weatherCoverageRatio === 0,
+    '4.7b Herkomst, ouderdom en ontbrekende weersdekking blijven zichtbaar wanneer extrapolatie niet verantwoord is');
+
   const noThermalData = analyzeWaterThermalDevelopment('2026-10-23', [], {
     location: locLokkershoek,
     currentDateRef: new Date('2026-10-23T12:00:00'),
