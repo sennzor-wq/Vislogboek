@@ -145,7 +145,7 @@ Elke fase wordt hieronder bijgewerkt met branch/PR, gewijzigde onderdelen, testr
 - Voorbereidende stap: afgerond; implementatieplan PR #12 samengevoegd. Projectcontext wordt met deze documentatie-update gesynchroniseerd.
 - Fase 1: afgerond; PR #13 (gegevenscorrectheid, doelsoortuitkomst, onbekende duur, aanwezigheid zonder kansbonus en atomische snapshots) en PR #15 (afzonderlijke opslag van sessiewaarnemingen) samengevoegd. CI geslaagd.
 - Fase 2: afgerond; PR #17 samengevoegd. Back-up v3 exporteert en herstelt alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's; merge/replace, legacycompatibiliteit, validatie en round-trip tests zijn toegevoegd. CI (typecheck, alle regressies, round-trip-suite en productiebuild) geslaagd. Geen handmatige Android-test geclaimd.
-- Fase 3: in uitvoering; PR #18 samengevoegd. Correctie van verouderde watertemperatuurmetingen die ten onrechte als actueel werden geclassificeerd; expliciete provenance, meetankerleeftijd, weersdekking en onzekerheidsbreedte toegevoegd. CI geslaagd. Verdere domeinspecifieke modelverbeteringen en chronologische evaluatie volgen.
+- Fase 3: in uitvoering; PR #18 samengevoegd (verouderde metingen niet langer als actueel classificeren; provenance, meetankerleeftijd, weersdekking en onzekerheidsbreedte toevoegen) en PR #19 samengevoegd (meetankerherkomst, ouderdom en weersdekking blijven zichtbaar wanneer een schatting niet verantwoord is). Typecheck, alle regressies en productiebuild voor beide PR's geslaagd. Open: domeinspecifieke schatting zonder lokale meting, verdere modelbetrouwbaarheid en chronologische evaluatie/kalibratie.
 - Fase 4: gepland.
 - Fase 5: gepland.
 - Fase 6: gepland.
