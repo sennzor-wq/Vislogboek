@@ -80,7 +80,7 @@ export function calculatePrebaitPlan(
     sessionDurationHours = 3,
     technique,
   } = options;
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(targetDateStr) || !Number.isFinite(Date.parse(`${targetDateStr}T00:00:00Z`))) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDateStr) || !Number.isFinite(Date.parse(`${targetDateStr}T00:00:00Z`))) return null;
   const targetDate = new Date(`${targetDateStr}T12:00:00`);
   const measured = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null &&
     Number.isFinite(thermalAnalysis.measuredWaterTemp) && thermalAnalysis.measuredWaterTemp >= 0 && thermalAnalysis.measuredWaterTemp <= 35;
