@@ -146,7 +146,7 @@ export async function getForecast(
 
   // 2. Probeer Open-Meteo op te halen
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation,precipitation_probability,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&past_days=3&forecast_days=8`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,precipitation_probability,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&past_days=3&forecast_days=8`;
 
     const response = await fetch(url, { signal: AbortSignal.timeout(6000) });
     if (!response.ok) {
@@ -156,6 +156,9 @@ export async function getForecast(
     const data = await response.json();
     const hourlyTimes: string[] = data.hourly?.time || [];
     const temps: number[] = data.hourly?.temperature_2m || [];
+    const humidities: number[] = data.hourly?.relative_humidity_2m || [];
+    const dewPoints: number[] = data.hourly?.dew_point_2m || [];
+    const shortwaveRadiation: number[] = data.hourly?.shortwave_radiation || [];
     const pressures: number[] = data.hourly?.surface_pressure || [];
     const windSpeeds: number[] = data.hourly?.wind_speed_10m || [];
     const windDirs: number[] = data.hourly?.wind_direction_10m || [];
@@ -172,6 +175,9 @@ export async function getForecast(
       return [{
         time,
         temperature: temps[idx],
+        ...(Number.isFinite(humidities[idx]) && humidities[idx] >= 0 && humidities[idx] <= 100 ? { relativeHumidity: humidities[idx] } : {}),
+        ...(Number.isFinite(dewPoints[idx]) && dewPoints[idx] >= -50 && dewPoints[idx] <= 50 ? { dewPoint: dewPoints[idx] } : {}),
+        ...(Number.isFinite(shortwaveRadiation[idx]) && shortwaveRadiation[idx] >= 0 && shortwaveRadiation[idx] <= 1600 ? { shortwaveRadiation: shortwaveRadiation[idx] } : {}),
         pressure: pressures[idx],
         windSpeed: windSpeeds[idx],
         windDirection,
@@ -267,6 +273,9 @@ export async function getCurrentWeatherSnapshot(
     if (closest) {
       return {
         temperature: closest.temperature,
+        ...(typeof closest.relativeHumidity === 'number' ? { relativeHumidity: closest.relativeHumidity } : {}),
+        ...(typeof closest.dewPoint === 'number' ? { dewPoint: closest.dewPoint } : {}),
+        ...(typeof closest.shortwaveRadiation === 'number' ? { shortwaveRadiation: closest.shortwaveRadiation } : {}),
         pressure: closest.pressure,
         pressureTrend: 'stabiel',
         windSpeed: closest.windSpeed,
@@ -320,7 +329,7 @@ export async function fetchHistoricalWeatherSnapshot(
     }
 
     // 1. Probeer Open-Meteo Archive API
-    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam`;
+    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam`;
 
     let data: any = null;
     try {
@@ -355,6 +364,9 @@ export async function fetchHistoricalWeatherSnapshot(
 
     const hourlyTimes: string[] = data.hourly.time;
     const temps: number[] = data.hourly.temperature_2m || [];
+    const humidities: number[] = data.hourly.relative_humidity_2m || [];
+    const dewPoints: number[] = data.hourly.dew_point_2m || [];
+    const shortwaveRadiation: number[] = data.hourly.shortwave_radiation || [];
     const pressures: number[] = data.hourly.surface_pressure || [];
     const windSpeeds: number[] = data.hourly.wind_speed_10m || [];
     const windDirs: number[] = data.hourly.wind_direction_10m || [];
@@ -395,6 +407,9 @@ export async function fetchHistoricalWeatherSnapshot(
 
     const snapshot: WeatherSnapshot = {
       temperature: Math.round((temps[closestIdx] ?? 12) * 10) / 10,
+      ...(Number.isFinite(humidities[closestIdx]) && humidities[closestIdx] >= 0 && humidities[closestIdx] <= 100 ? { relativeHumidity: humidities[closestIdx] } : {}),
+      ...(Number.isFinite(dewPoints[closestIdx]) && dewPoints[closestIdx] >= -50 && dewPoints[closestIdx] <= 50 ? { dewPoint: dewPoints[closestIdx] } : {}),
+      ...(Number.isFinite(shortwaveRadiation[closestIdx]) && shortwaveRadiation[closestIdx] >= 0 && shortwaveRadiation[closestIdx] <= 1600 ? { shortwaveRadiation: shortwaveRadiation[closestIdx] } : {}),
       pressure: Math.round(pressures[closestIdx] ?? 1015),
       pressureTrend,
       windSpeed: Math.round(windSpeeds[closestIdx] ?? 12),

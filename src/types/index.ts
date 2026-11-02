@@ -78,6 +78,9 @@ export interface PresenceObservation {
 
 export interface WeatherSnapshot {
   temperature: number;            // °C luchttemperatuur
+  relativeHumidity?: number;       // % relatieve luchtvochtigheid, indien beschikbaar
+  dewPoint?: number;               // °C dauwpunt, indien beschikbaar
+  shortwaveRadiation?: number;     // W/m² inkomende kortgolvige straling, indien beschikbaar
   waterTemperature?: number | null;// °C watertemperatuur (alleen indien echt bekend, nooit verzonnen)
   pressure: number;               // hPa
   pressureTrend?: 'stijgend' | 'dalend' | 'stabiel';
@@ -385,6 +388,9 @@ export interface PrognosisSnapshot {
 export interface WeatherHourlyForecast {
   time: string;                   // ISO
   temperature: number;            // °C luchttemperatuur
+  relativeHumidity?: number;      // % relatieve luchtvochtigheid (forecast)
+  dewPoint?: number;              // °C dauwpunt (forecast)
+  shortwaveRadiation?: number;    // W/m² inkomende kortgolvige straling (forecast)
   pressure: number;               // hPa
   windSpeed: number;              // km/u
   windDirection: number;          // deg
