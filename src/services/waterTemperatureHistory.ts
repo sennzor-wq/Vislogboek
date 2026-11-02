@@ -71,7 +71,11 @@ export function deriveHistoricalWaterTemperatureProfile(
   if (!Number.isFinite(targetTime)) return null;
   const targetMonth = new Date(`${targetDate}T12:00:00`).getMonth() + 1;
 
+  const seen = new Set<string>();
   const valid = observations.filter((observation) => {
+    const key = `${observation.locationId}|${observation.timestamp}|${observation.temperatureC}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     const measuredAt = new Date(observation.timestamp).getTime();
     if (!Number.isFinite(measuredAt) || measuredAt >= targetTime) return false;
     if (typeof observation.temperatureC !== 'number' || !Number.isFinite(observation.temperatureC) ||
