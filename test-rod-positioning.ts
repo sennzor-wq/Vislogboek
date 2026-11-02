@@ -963,6 +963,22 @@ assert(
   '18.4 Windrichtingen 359° en 1° krijgen correct een circulair gemiddelde rond 0° (noord)'
 );
 
+const warmAirColdWaterAdvice = analyzeRodPositioning(
+  '2026-07-20',
+  createHourlyForecasts('2026-07-20', 30, 8, 'N'),
+  'Karper',
+  {
+    location: baseLoc,
+    thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 6),
+    historicalSessions: [],
+  }
+);
+assert(
+  warmAirColdWaterAdvice.rationale.includes('6.0 °C') &&
+  warmAirColdWaterAdvice.recommendedZone.toLowerCase().includes('rustzone'),
+  '18.5 Warme lucht overschrijft geen koud gemeten water in de soortspecifieke positioneringshypothese'
+);
+
 console.log('\n======================================================');
 console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);
 console.log('======================================================');
