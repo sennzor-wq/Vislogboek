@@ -288,7 +288,9 @@ export function calculatePrebaitPlan(
     suggestedTime: 'Tijdens de sessie',
     feedType: isMethodFeeder ? 'Instant method-feederkorf rond het haakaas' : recommendedMix,
     amountGrams: sessionAmount,
-    amountDisplay: sessionAmount > 0 ? `circa ${sessionAmount} gram` : 'Geen extra voer',
+    amountDisplay: sessionAmount > 0
+      ? `circa ${sessionAmount} gram`
+      : isMethodFeeder ? 'Minimale korfvulling (niet gekwantificeerd)' : 'Geen extra voer',
     purpose: isMethodFeeder
       ? 'Instant presentatie: kleine korfvulling bij iedere gerichte worp. Dit is geen vooraf aangelegde voerplek.'
       : feedDuringSession
@@ -363,7 +365,9 @@ export function calculatePrebaitPlan(
     sessionDayGuidance: {
       feedDuringSession: feedDuringSession && hasLocationContext,
       recommendedAmountGrams: sessionAmount,
-      amountDisplay: sessionAmount > 0 ? `circa ${sessionAmount} gram` : 'Geen extra voer',
+      amountDisplay: sessionAmount > 0
+        ? `circa ${sessionAmount} gram`
+        : isMethodFeeder ? 'Minimale korfvulling (niet gekwantificeerd)' : 'Geen extra voer',
       advice: sessionAdvice,
     },
     feedCompositionAdvice: { recommendedMix, digestibilityNote, particleSizeNote },
