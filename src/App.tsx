@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, initializeDatabase } from './db/db';
+import { db, initializeDatabase, syncSessionPresenceObservations } from './db/db';
 import { FishingLocation, FishingSession, CatchItem, FishSpecies } from './types';
 import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
@@ -98,12 +98,17 @@ export default function App() {
         pendingSnapshot
       );
     } else {
-      const existing = await db.sessions.get(sessionData.id);
-      if (existing) {
-        await db.sessions.update(sessionData.id, sessionData);
-      } else {
-        await db.sessions.put(sessionData as FishingSession);
-      }
+      const hasPresenceObservations = Object.prototype.hasOwnProperty.call(sessionData, 'presenceObservations');
+      await db.transaction('rw', db.sessions, db.presenceObservations, async () => {
+        const existing = await db.sessions.get(sessionData.id!);
+        const mergedSession = existing
+          ? ({ ...existing, ...sessionData } as FishingSession)
+          : (sessionData as FishingSession);
+        await db.sessions.put(mergedSession);
+        if (hasPresenceObservations) {
+          await syncSessionPresenceObservations(mergedSession);
+        }
+      });
       savedSession = await db.sessions.get(sessionData.id);
     }
 
