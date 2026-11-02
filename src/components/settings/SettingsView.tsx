@@ -130,7 +130,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       await replaceWithImportData(pendingBackupData);
 
       setStatusMessage(
-        'Database volledig hersteld, inclusief instellingen, weercache, prognosehistorie, waarnemingen en foto's. Er is vóór het overschrijven automatisch een volledige veiligheidsback-up gedownload.'
+        `Database volledig hersteld, inclusief instellingen, weercache, prognosehistorie, waarnemingen en foto's. Er is vóór het overschrijven automatisch een volledige veiligheidsback-up gedownload.`
       );
 
       setImportPreview(null);
