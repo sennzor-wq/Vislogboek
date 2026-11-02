@@ -602,29 +602,29 @@ export function analyzeRodPositioning(
   // 1. Relevante weersperiode selecteren (targetSlot of daggemiddelde)
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
 
-  let slotForecasts = dayForecasts;
-  if (targetSlot && TIME_SLOT_HOURS[targetSlot]) {
-    const config = TIME_SLOT_HOURS[targetSlot];
-    const filtered = dayForecasts.filter((h) => {
-      const hour = parseInt(h.time.slice(11, 13), 10);
-      return hour >= config.start && hour < config.end;
-    });
-    if (filtered.length > 0) {
-      slotForecasts = filtered;
-    }
-  }
+  const slotForecasts = targetSlot && TIME_SLOT_HOURS[targetSlot]
+    ? dayForecasts.filter((h) => {
+        const hour = parseInt(h.time.slice(11, 13), 10);
+        const config = TIME_SLOT_HOURS[targetSlot];
+        return hour >= config.start && hour < config.end;
+      })
+    : dayForecasts;
+  const sampleForecasts = slotForecasts;
 
   // Bereken uitsluitend gemiddelden uit geldige metingen/verwachtingen.
   // Ontbrekende waarden blijven null; luchttemperatuur vervangt nooit watertemperatuur.
-  const validWind = sampleForecasts.filter((h) =>
+  const minimumWeatherSamples = Math.max(1, Math.ceil(sampleForecasts.length * 0.5));
+  const validWindSamples = sampleForecasts.filter((h) =>
     typeof h.windSpeed === 'number' && Number.isFinite(h.windSpeed) && h.windSpeed >= 0 &&
     typeof h.windDirection === 'number' && Number.isFinite(h.windDirection) &&
     h.windDirection >= 0 && h.windDirection <= 360 &&
     typeof h.windDirectionText === 'string' && h.windDirectionText.trim().length > 0
   );
+  const validWind = validWindSamples.length >= minimumWeatherSamples ? validWindSamples : [];
   const validAirTemps = sampleForecasts
     .map((h) => h.temperature)
     .filter((v): v is number => typeof v === 'number' && Number.isFinite(v) && v >= -30 && v <= 55);
+  const usableAirTemps = validAirTemps.length >= minimumWeatherSamples ? validAirTemps : [];
 
   const avgWindSpeed = validWind.length > 0
     ? Math.round((validWind.reduce((sum, h) => sum + h.windSpeed, 0) / validWind.length) * 10) / 10
@@ -632,8 +632,8 @@ export function analyzeRodPositioning(
   const maxWindSpeed = validWind.length > 0
     ? Math.round(Math.max(...validWind.map((h) => h.windSpeed)))
     : null;
-  const avgAirTemp = validAirTemps.length > 0
-    ? Math.round((validAirTemps.reduce((sum, v) => sum + v, 0) / validAirTemps.length) * 10) / 10
+  const avgAirTemp = usableAirTemps.length > 0
+    ? Math.round((usableAirTemps.reduce((sum, v) => sum + v, 0) / usableAirTemps.length) * 10) / 10
     : null;
 
   let avgWindDegrees: number | undefined;
