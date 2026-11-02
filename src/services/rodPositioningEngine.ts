@@ -708,9 +708,9 @@ export function analyzeRodPositioning(
   // context en de relevante weergegevens bekend zijn. Anders: bruikbaar algemeen
   // zoekadvies op basis van werkelijk geregistreerde lokale kenmerken.
   const canUseSpeciesHypothesis = Boolean(
-    waterType && effectiveWaterTemp !== null && avgWindSpeed !== null &&
-    avgWindDegrees !== undefined
+    waterType && effectiveWaterTemp !== null && avgWindSpeed !== null
   );
+  const canBuildWindCastingGuidance = canUseSpeciesHypothesis && avgWindDegrees !== undefined;
   const tacticalHypothesis = canUseSpeciesHypothesis
     ? determineTacticalHypothesis(species, {
         isFlowingWater,
@@ -862,7 +862,7 @@ export function analyzeRodPositioning(
     };
   }
 
-  const windCastingGuidance = canUseSpeciesHypothesis
+  const windCastingGuidance = canBuildWindCastingGuidance
     ? buildWindCastingGuidance(
         windDirText,
         avgWindDegrees,
