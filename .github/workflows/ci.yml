@@ -33,8 +33,18 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Apply compatible dependency security fixes
+        run: bun audit fix
+
       - name: Dependency vulnerability audit
         run: bun audit
+
+      - name: Save audited lockfile for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: audited-bun-lockfile
+          path: bun.lock
+          retention-days: 3
 
       - name: TypeScript typecheck
         run: bun run lint
