@@ -528,21 +528,21 @@ export interface PrognosisOptions {
 }
 
 /**
- * Converteert de sessieduur naar uren met correcte afhandeling van durationMinutes,
- * middernachtverschillen en veilige fallback bij onvolledige invoer.
+ * Geeft de geregistreerde sessieduur in uren terug.
+ * Ontbrekende of ongeldige duur blijft onbekend (null) en wordt niet als 3 uur ingevuld.
  */
-export function getSessionDurationHours(session: FishingSession): number {
-  if (typeof session.durationMinutes === 'number' && session.durationMinutes > 0) {
+export function getSessionDurationHours(session: FishingSession): number | null {
+  if (typeof session.durationMinutes === 'number' && Number.isFinite(session.durationMinutes) && session.durationMinutes > 0) {
     return session.durationMinutes / 60;
   }
   if (session.startTime && session.endTime) {
     const diffMs = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
     const diffMins = diffMs / 60000;
-    if (diffMins > 0 && diffMins < 10080) {
+    if (Number.isFinite(diffMins) && diffMins > 0 && diffMins < 10080) {
       return diffMins / 60;
     }
   }
-  return 3; // Standaard veilige duur (3 uur) bij onvolledige registratie
+  return null;
 }
 
 /**
@@ -695,91 +695,61 @@ export function calculateDayPrognosis(
 
   const uncertaintyNotes: string[] = [];
 
-  // Minimum 5 vergelijkbare sessies vereist om schijnnauwkeurigheid te voorkomen
+  // Sessies zonder bekende duur mogen wel in sessiestatistiek staan, maar niet in de blootstellingsnoemer.
+  const durationSessions = comparableSessions.filter((s) => getSessionDurationHours(s) !== null);
+
+  // Minimum 5 vergelijkbare sessies vereist; voor het Poisson-blootstellingsmodel moeten ook
+  // minimaal 5 van die sessies een bekende, geldige duur hebben.
   if (sessionCount >= 5) {
-    // 95% Wilson Score Interval op de binomiale proportie van historische basissessies
     uncertaintyInterval = calculateWilsonInterval(successfulSessionsCount, sessionCount);
 
-    // Totale visduur in uren over alle geldige sessies (bevestigde blanks tellen volledig mee in de noemer!)
-    const totalDurationHours = comparableSessions.reduce(
-      (acc, s) => acc + getSessionDurationHours(s),
-      0
-    );
-    const avgDurationHours = sessionCount > 0 ? totalDurationHours / sessionCount : 3;
-    avgDurationMinutes = Math.round(avgDurationHours * 60);
+    if (durationSessions.length >= 5) {
+      const totalDurationHours = durationSessions.reduce(
+        (acc, s) => acc + (getSessionDurationHours(s) ?? 0),
+        0
+      );
+      const avgDurationHours = totalDurationHours / durationSessions.length;
+      avgDurationMinutes = Math.round(avgDurationHours * 60);
 
-    // Totaal aantal gevangen exemplaren van de doelsoort
-    let totalTargetCatches = 0;
-    for (const s of comparableSessions) {
-      if (s.outcome === 'skunk_confirmed') {
-        // Nulvangst: 0 vissen, maar visduur telt volledig mee in noemer
-        continue;
+      let totalTargetCatches = 0;
+      for (const s of durationSessions) {
+        if (s.outcome === 'skunk_confirmed') continue;
+        if (options?.catches && options.catches.length > 0) {
+          const catchIndex = getCatchSessionIndex(options.catches);
+          const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
+            (catchItem) => species === 'Algemeen' || catchItem.species === species
+          );
+          const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
+          totalTargetCatches += count > 0 ? count : 1;
+        } else {
+          totalTargetCatches += 1;
+        }
       }
-      if (options?.catches && options.catches.length > 0) {
-        const catchIndex = getCatchSessionIndex(options.catches);
-        const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
-          (catchItem) => species === 'Algemeen' || catchItem.species === species
-        );
-        const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
-        // Indien sessie 'catch' is maar er zijn geen specifieke catch items ingevoerd, reken minimaal 1
-        totalTargetCatches += count > 0 ? count : 1;
-      } else {
-        // Geen losse CatchItem records meegegeven; sessie heeft bevestigde uitkomst 'catch'
-        totalTargetCatches += 1;
-      }
-    }
 
-    // Directe berekening van vangsttempo lambda:
-    // lambda = totaal aantal gevangen exemplaren van de doelsoort / totale geldige visduur in uren
-    const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
-    hourlyCatchRate = Math.round(rawLambdaPerHour * 100) / 100;
+      const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
+      hourlyCatchRate = Math.round(rawLambdaPerHour * 100) / 100;
 
-    // Activiteitsmodulatie conform biologisch model (+/- 12%)
-    const actFactor = 0.88 + (dayScore / 10) * 0.24;
-    const effectiveLambda = rawLambdaPerHour * actFactor;
+      const actFactor = 0.88 + (dayScore / 10) * 0.24;
+      const effectiveLambda = rawLambdaPerHour * actFactor;
+      let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
+      durationAdjusted = clamp(durationAdjusted, 0, 0.95);
+      expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
+      catchChance = Math.round(durationAdjusted * 100);
 
-    // Duurcorrectie via Poisson exposure model:
-    // P(>= 1 vangst in duur t) = 1 - exp(-lambda_eff * t)
-    // Vangsttempo lambda blijft constant; cumulatieve kans en verwachte vangstopbrengst stijgen met t
-    let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
-    durationAdjusted = clamp(durationAdjusted, 0, 0.95);
+      if (durationSessions.length >= 30) confidence = 'Hoog';
+      else if (durationSessions.length >= 18) confidence = 'Redelijk';
+      else if (durationSessions.length >= 10) confidence = 'Matig';
+      else confidence = 'Laag';
 
-    // Bereken verwacht aantal vangsten over de geplande sessieduur: E[N] = lambda_eff * t
-    expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
-
-    // Viswaarneming invloed (+5% als vis daadwerkelijk is waargenomen)
-    // Behandeld als onbevestigde modelaanname (nog niet empirisch gevalideerd)
-    let appliedPresenceBonus = false;
-    if (
-      ['vis_springen_rollen', 'aasbellen_voedselactiviteit', 'aanbeten', 'recente_vangst_stek'].includes(
-        presenceObs
-      )
-    ) {
-      if (durationAdjusted > 0) {
-        durationAdjusted = clamp(durationAdjusted + 0.05, 0, 0.95);
-        appliedPresenceBonus = true;
-      }
-    }
-
-    catchChance = Math.round(durationAdjusted * 100);
-
-    // Betrouwbaarheidslabel
-    if (sessionCount >= 30) confidence = 'Hoog';
-    else if (sessionCount >= 18) confidence = 'Redelijk';
-    else if (sessionCount >= 10) confidence = 'Matig';
-    else confidence = 'Laag';
-
-    uncertaintyNotes.push(
-      `Het Wilson-betrouwbaarheidsinterval [${uncertaintyInterval[0]}% – ${uncertaintyInterval[1]}%] kwantificeert de binomiale steekproefvariantie van het historische sessiesucces bij N=${sessionCount}. Dit is géén betrouwbaarheidsinterval rond de Poisson-duurkans, maar toont de bandbreedte van het basissessie-succes.`
-    );
-
-    uncertaintyNotes.push(
-      `Sessieduur van ${sessionDuration} uur verwerkt via Poisson-blootstellingsmodel (totale historische visduur: ${totalDurationHours.toFixed(1)} uur, vangsttempo: ${hourlyCatchRate}/uur). Cumulatieve kans stijgt niet-lineair conform P = 1 - exp(-λ × t).`
-    );
-
-    if (appliedPresenceBonus) {
       uncertaintyNotes.push(
-        'De aanwezigheidsbonus (+5%) is een onbevestigde heuristische modelaanname op basis van een lokale waarneming op de stek. Deze aanname is nog niet empirisch gevalideerd.'
+        `Het Wilson-betrouwbaarheidsinterval [${uncertaintyInterval[0]}% – ${uncertaintyInterval[1]}%] kwantificeert de binomiale steekproefvariantie van het historische sessiesucces bij N=${sessionCount}. Dit is géén betrouwbaarheidsinterval rond de Poisson-duurkans.`
+      );
+      uncertaintyNotes.push(
+        `Poisson-blootstellingsmodel gebruikt ${durationSessions.length} sessies met bekende duur (totale geregistreerde visduur: ${totalDurationHours.toFixed(1)} uur, vangsttempo: ${hourlyCatchRate}/uur).`
+      );
+    } else {
+      uncertaintyNotes.push(
+        `Er zijn ${sessionCount} vergelijkbare sessies, maar slechts ${durationSessions.length} hebben een bekende sessieduur. Minimaal 5 sessies met bekende duur zijn nodig voor een betrouwbare blootstellingsschatting; vangsttempo en vangstkans blijven daarom onbekend.`
       );
     }
   } else {
@@ -1049,6 +1019,7 @@ export interface PendingPrognosisSnapshot {
   durationHours: number;
   locationName?: string;
   chosenSlot?: TimeSlot;
+  conditions?: WeatherSnapshot;
 }
 
 /**
@@ -1079,6 +1050,8 @@ export async function savePrognosisSnapshot(
       s.targetSlot === targetSlot &&
       s.targetSpecies === prognosis.species &&
       (locationId ? s.locationId === locationId : true) &&
+      s.durationHours === durationHours &&
+      s.technique === technique &&
       !s.linkedSessionId
   );
 
@@ -1143,7 +1116,8 @@ export async function saveSessionWithPrognosisSnapshot(
       session.locationId,
       pending.locationName,
       session.technique,
-      pending.chosenSlot
+      pending.chosenSlot,
+      pending.conditions
     );
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
     await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
@@ -1163,7 +1137,7 @@ export async function createLiveSnapshotForSessionStart(
   durationHours = 3,
   technique?: string,
   weatherSnap?: WeatherSnapshot
-): Promise<PrognosisSnapshot | null> {
+): Promise<PendingPrognosisSnapshot | null> {
   try {
     const lat = location.latitude ?? 51.961;
     const lon = location.longitude ?? 5.228;
@@ -1196,15 +1170,15 @@ export async function createLiveSnapshotForSessionStart(
         ? (prog.bestTimeSlot as TimeSlot)
         : undefined;
 
-    return await savePrognosisSnapshot(
-      prog,
+    // Nog niets naar IndexedDB schrijven: de sessie en deze snapshot worden samen
+    // door saveSessionWithPrognosisSnapshot in één transactie opgeslagen.
+    return {
+      prognosis: prog,
       durationHours,
-      location.id,
-      location.name,
-      technique,
+      locationName: location.name,
       chosenSlot,
-      weatherSnap
-    );
+      conditions: weatherSnap,
+    };
   } catch (err) {
     console.error('Fout bij automatisch genereren van live sessie-snapshot:', err);
     return null;
