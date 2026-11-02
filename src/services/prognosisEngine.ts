@@ -1024,7 +1024,7 @@ export interface PendingPrognosisSnapshot {
 
 /**
  * Slaat een onveranderlijke (immutable) voorspellingsmomentopname op in Dexie voor latere empirische evaluatie.
- * Voorkomt dubbele snapshots door te controleren of er al een onveranderlijke momentopname voor dit tijdvak bestaat.
+ * Voorkomt dubbele snapshots door datum, tijdvak, soort, locatie, sessieduur en techniek te vergelijken.
  */
 export async function savePrognosisSnapshot(
   prognosis: DayPrognosis,
@@ -1127,8 +1127,8 @@ export async function saveSessionWithPrognosisSnapshot(
 }
 
 /**
- * Genereert en bewaart automatisch een onveranderlijke voorspellingsmomentopname
- * bij de start van een live actieve vissessie.
+ * Bereidt een onveranderlijke prognosesnapshot voor bij de start van een live actieve sessie.
+ * Schrijft nog niet naar IndexedDB; de sessie en snapshot worden samen atomair opgeslagen.
  * Sluit historische of achteraf ingevoerde sessies strikt uit (geen achteraf invullen).
  */
 export async function createLiveSnapshotForSessionStart(
