@@ -277,6 +277,13 @@ console.log('SYNTHETIC_COOLING_SCENARIO=' + JSON.stringify({
   absoluteErrorC: coolingError === null ? null : Number(coolingError.toFixed(2)),
   uncertaintyRangeC: coolingResult.estimatedRange,
 }));
+console.log('SYNTHETIC_PROFILE_SCENARIO=' + JSON.stringify({
+  predictedWaterTemperatureC: profileResult.estimatedWaterTemp,
+  referenceWaterTemperatureC: Number(profileReference.toFixed(2)),
+  absoluteErrorC: profileError === null ? null : Number(profileError.toFixed(2)),
+  sampleCount: profileResult.historicalWaterTemperatureSamples,
+  uncertaintyRangeC: profileResult.estimatedRange,
+}));
 
 console.log(`Synthetic water-temperature validation: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
