@@ -324,7 +324,7 @@ export function calculatePrebaitPlan(
       relevantPrebaitedSessionsCount: prebaitedSessions.length,
       catchRateWithPrebait: ratePrebait,
       catchRateWithoutPrebait: rateNonPrebait,
-      summaryNote: `Vergelijking op dezelfde stek en doelsoort (N=${relevantSessions.length}): met voorvoeren ${prebaitCatches}/${prebaitedSessions.length} vangstsessies (${ratePrebait}%), zonder voorvoeren ${nonPrebaitCatches}/${nonPrebaitedSessions.length} (${rateNonPrebait}%). Dit is een beschrijvende vergelijking, geen bewijs dat voorvoeren de vangst veroorzaakte.`,
+      summaryNote: `Vergelijking op dezelfde stek en doelsoort (N=${relevantSessions.length}): met voorvoeren ${prebaitCatches}/${prebaitedSessions.length} vangstsessies (${ratePrebait}%), zonder voorvoeren ${nonPrebaitCatches}/${nonPrebaitedSessions.length} (${rateNonPrebait}%). Dit is een beschrijvende vergelijking; correlatie is geen causaal bewijs.`,
     };
   } else {
     personalEvidence = {
