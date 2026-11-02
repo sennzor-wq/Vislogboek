@@ -80,9 +80,10 @@ export function calculatePrebaitPlan(
     sessionDurationHours = 3,
     technique,
   } = options;
+  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(targetDateStr) || !Number.isFinite(Date.parse(`${targetDateStr}T00:00:00Z`))) return null;
   const targetDate = new Date(`${targetDateStr}T12:00:00`);
   const measured = thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null &&
-    Number.isFinite(thermalAnalysis.measuredWaterTemp);
+    Number.isFinite(thermalAnalysis.measuredWaterTemp) && thermalAnalysis.measuredWaterTemp >= 0 && thermalAnalysis.measuredWaterTemp <= 35;
   const estimated = typeof thermalAnalysis.estimatedWaterTemp === 'number' &&
     Number.isFinite(thermalAnalysis.estimatedWaterTemp) &&
     thermalAnalysis.estimatedWaterTemp >= 0 && thermalAnalysis.estimatedWaterTemp <= 35;
@@ -225,7 +226,9 @@ export function calculatePrebaitPlan(
 
   const planningDate = options.planningDate ?? toDateStr(new Date(targetDate.getTime() - Math.max(0, availableDaysBefore) * 86400000));
   const daysUntilSession = daysBetween(planningDate, targetDateStr);
-  const requestedDays = Math.max(0, Math.min(3, Math.floor(availableDaysBefore)));
+  const requestedDays = Number.isFinite(availableDaysBefore)
+    ? Math.max(0, Math.min(3, Math.floor(availableDaysBefore)))
+    : 0;
   const effectiveDays = effectiveWaterTemp !== null && suitabilityScore >= 4 && hasLocationContext
     ? Math.min(requestedDays, maxBiologicalDays, daysUntilSession)
     : 0;
