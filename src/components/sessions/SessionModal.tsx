@@ -145,6 +145,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
     try {
       const loc = locations.find((l) => l.id === locationId);
+      let snapshotToSave = pendingPrognosisSnapshot;
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
 
       const parsedRods = typeof rodCount === 'number'
@@ -192,25 +193,22 @@ export const SessionModal: React.FC<SessionModalProps> = ({
           }
         }
         // Automatische momentopname bij start van een nieuwe live actieve sessie (nooit achteraf voor historische sessies!)
-        if (payload.outcome === 'active' && !payload.snapshotId && loc) {
+        if (payload.outcome === 'active' && !payload.snapshotId && !snapshotToSave && loc) {
           try {
-            const autoSnap = await createLiveSnapshotForSessionStart(
+            snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
               3,
               technique,
               payload.weatherSnapshot
-            );
-            if (autoSnap) {
-              payload.snapshotId = autoSnap.id;
-            }
+            ) ?? undefined;
           } catch (snapErr) {
-            console.error('Fout bij automatisch aanmaken pre-sessie snapshot:', snapErr);
+            console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
           }
         }
       }
 
-      await onSave(payload, pendingPrognosisSnapshot);
+      await onSave(payload, snapshotToSave);
       onClose();
     } catch (err: any) {
       console.error('Fout bij opslaan sessie:', err);
