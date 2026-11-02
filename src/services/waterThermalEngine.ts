@@ -57,6 +57,18 @@ export function analyzeWaterThermalDevelopment(
     .filter((measurement) => measurement.timestampMs <= estimationTargetMs || (measurement.source === 'current' && targetIsCurrentDate))
     .sort((a, b) => b.timestampMs - a.timestampMs);
   const anchor = usableAnchors[0] ?? null;
+  const anchorAgeHours = anchor
+    ? Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000)
+    : null;
+  // Bewaar de volledige herkomst van het laatst bekende meetanker, ook wanneer
+  // de meting te oud is of de weersdekking onvoldoende is voor extrapolatie.
+  const weatherSinceAnchor = anchor
+    ? forecasts.filter((h) => {
+        const t = new Date(h.time).getTime();
+        return Number.isFinite(t) && t > anchor.timestampMs && t <= estimationTargetMs &&
+          Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+      }).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+    : [];
   // Een oude sessiemeting wordt niet actueel enkel omdat de prognose voor vandaag is.
   const isActualSituation = Boolean(anchor && (
     (anchor.source === 'current' && targetIsCurrentDate) ||
@@ -68,6 +80,10 @@ export function analyzeWaterThermalDevelopment(
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(targetDateStr));
   const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
+  const expectedAnchorHours = anchorAgeHours === null ? 0 : Math.max(0, Math.floor(anchorAgeHours));
+  let weatherCoverageRatio = expectedAnchorHours > 0
+    ? Math.min(1, weatherSinceAnchor.length / expectedAnchorHours)
+    : Math.min(1, dayTemperatureForecasts.length / 24);
 
   // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
   if (dayTemperatureForecasts.length < 6) {
@@ -83,9 +99,9 @@ export function analyzeWaterThermalDevelopment(
       estimatedWaterTemp: recentAnchorEstimate,
       estimatedRange: recentAnchorEstimate === null ? null : [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10],
       waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : 'unknown',
-      anchorMeasurementTimestamp: recentAnchorEstimate !== null || hasMeasured ? new Date(anchor!.timestampMs).toISOString() : null,
-      anchorAgeHours: recentAnchorEstimate !== null || hasMeasured ? recentAnchorAgeHours : null,
-      weatherCoverageRatio: Math.min(1, dayTemperatureForecasts.length / 24),
+      anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
+      anchorAgeHours,
+      weatherCoverageRatio,
       uncertaintyC: recentAnchorEstimate === null ? null : 1.0,
       surfaceVsBulkNote: recentAnchorEstimate === null ? 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.' : 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.',
       inertiaFactor: 'Gemiddeld',
@@ -244,18 +260,13 @@ export function analyzeWaterThermalDevelopment(
     estimatedRange = [Math.round((measuredTemp - 0.5) * 10) / 10, Math.round((measuredTemp + 0.5) * 10) / 10];
     usedMeasuredAnchor = true;
   } else if (anchor) {
-    const anchorAgeHours = Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000);
-    measurementAgeHours = anchorAgeHours;
-    const orderedWeather = forecasts
-      .filter((h) => {
-        const t = new Date(h.time).getTime();
-        return Number.isFinite(t) && t > anchor.timestampMs && t <= estimationTargetMs &&
-          Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
-      })
-      .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    const elapsedSinceAnchorHours = anchorAgeHours ?? 0;
+    measurementAgeHours = elapsedSinceAnchorHours;
+    const orderedWeather = weatherSinceAnchor;
 
-    const expectedHours = Math.max(0, Math.floor(anchorAgeHours));
+    const expectedHours = Math.max(0, Math.floor(elapsedSinceAnchorHours));
     const coverage = expectedHours === 0 ? 1 : Math.min(1, orderedWeather.length / expectedHours);
+    weatherCoverageRatio = coverage;
     // Alleen een weer-gestuurde extrapolatie als het grootste deel van de periode
     // sinds de meting door uurlijkse data wordt afgedekt. Geen ontbrekende dagen invullen.
     if (anchorAgeHours <= 96 && coverage >= 0.65 && orderedWeather.length >= Math.min(6, expectedHours)) {
@@ -369,9 +380,9 @@ export function analyzeWaterThermalDevelopment(
     estimatedWaterTemp,
     estimatedRange,
     waterTemperatureStatus: hasMeasured ? 'measured' : anchor && usedMeasuredAnchor ? 'estimated_from_measurement' : estimatedWaterTemp !== null ? 'estimated_from_weather' : 'unknown',
-    anchorMeasurementTimestamp: (hasMeasured || usedMeasuredAnchor) && anchor ? new Date(anchor.timestampMs).toISOString() : null,
-    anchorAgeHours: (hasMeasured || usedMeasuredAnchor) && anchor ? Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000) : null,
-    weatherCoverageRatio: Math.min(1, dayTemperatureForecasts.length / 24),
+    anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
+    anchorAgeHours,
+    weatherCoverageRatio,
     uncertaintyC: estimatedRange ? Math.round(((estimatedRange[1] - estimatedRange[0]) / 2) * 10) / 10 : null,
     surfaceVsBulkNote,
     inertiaFactor,
