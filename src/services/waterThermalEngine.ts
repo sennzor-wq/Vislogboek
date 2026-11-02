@@ -38,7 +38,17 @@ export function analyzeWaterThermalDevelopment(
   // maar wordt nooit als actuele meting voor een latere doeldag gepresenteerd.
   const targetDateMs = new Date(`${targetDateStr}T12:00:00`).getTime();
   const refMs = currentDateRef ? currentDateRef.getTime() : targetDateMs;
-  const targetIsCurrentDate = Boolean(currentDateRef && currentDateRef.toISOString().slice(0, 10) === targetDateStr);
+  // De app gebruikt Europe/Amsterdam. ISO.toISOString() vergelijkt de UTC-datum
+  // en kan rond middernacht de verkeerde lokale dag opleveren (bijv. 00:30 CEST).
+  const currentAmsterdamDate = currentDateRef
+    ? new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(currentDateRef)
+    : '';
+  const targetIsCurrentDate = Boolean(currentDateRef && currentAmsterdamDate === targetDateStr);
   // Voor vandaag rekenen we vanaf het echte huidige tijdstip, niet vanaf een vaste middagreferentie.
   const estimationTargetMs = targetIsCurrentDate && currentDateRef ? currentDateRef.getTime() : targetDateMs;
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
