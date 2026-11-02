@@ -13,7 +13,7 @@
 
 ## 1. Productvisie en missie
 
-Vislogboek wordt een betrouwbare, wetenschappelijk onderbouwde en praktisch bruikbare visapp voor **beginnende én ervaren vissers**. De app helpt een gebruiker om voor een gekozen vissoort, locatie, datum, tijdstip, sessieduur en vistechniek een zo goed mogelijk onderbouwde verwachting en concreet visadvies te krijgen.
+Vislogboek wordt een betrouwbare, wetenschappelijk onderbouwde en praktisch bruikbare visapp voor **beginnende én ervaren vissers**. De app helpt een gebruiker om voor een gekozen vissoort, locatie, gewenste start- en eindtijd en vistechniek een zo goed mogelijk onderbouwde verwachting en concreet visadvies te krijgen.
 
 De app moet niet alleen een score tonen, maar uitleggen **waarom** een advies wordt gegeven, welke gegevens en kennis eraan ten grondslag liggen, hoe sterk het bewijs is en wat onzeker of onbekend blijft.
 
@@ -210,11 +210,13 @@ Relevante gegevens zijn onder meer:
 - Locatie en exacte vispositie, met privacybewuste instellingen.
 - Start/eindtijd en effectieve visduur.
 - Doelsoort(en) en werkelijk gevangen soort(en), aantallen, gewicht/lengte indien bekend.
-- Aantal hengels, techniek, aas, voer en voorvoer.
+- Groepssessiecontext: optioneel aantal deelnemers en het totale aantal hengels dat de hele groep gebruikt. Het bestaande veld `rodCount` betekent het totale aantal hengels van de groep, niet het aantal per visser.
+- Optionele details per hengel (positie/zone, techniek, aas/presentatie en actieve tijdsintervallen) wanneer de gebruiker dit wil vastleggen.
+- Techniek, aas, voer en voorvoer.
 - Diepte en watertemperatuur (optioneel; meetmethode, diepte en tijd vastleggen).
 - Weer bij start en tijdens sessie.
-- Aanbeten, gemiste vissen, lijnzwemmers en andere signalen.
-- Waarnemingen van visactiviteit.
+- Aanbeten en gemiste vissen als afzonderlijke aantallen/gebeurtenissen, niet als visaanwezigheidswaarneming.
+- Waarnemingen van visactiviteit zoals springen/rollen, aasbellen en recente activiteit. Geen waarneming is geen bewijs van afwezigheid; oude registraties van `aanbeten` in het waarnemingstype blijven alleen voor compatibiliteit bestaan.
 - Foto's en notities als optionele ondersteuning.
 - Of gegevens live zijn ingevoerd of achteraf zijn geïmporteerd.
 
@@ -384,7 +386,9 @@ Laat betrouwbaarheid van gebruiker, kwaliteit van een individueel record en bewi
 - Dexie/IndexedDB als lokale opslag in de huidige PWA.
 - Geen verplichte account, login of cloud.
 - Data blijft op het apparaat van de gebruiker.
-- Gebruiker kan back-up exporteren en importeren.
+- Gebruiker kan een volledige, versiebeheerste back-up exporteren en importeren.
+- Volledig herstel omvat alle persistente Dexie-tabellen, instellingen, prognosesnapshots, waarnemingen, weer-cache, foto's/media, IDs en relaties. Een nieuwe telefoon moet na herstel aanvoelen alsof het oorspronkelijke apparaat is voortgezet.
+- Nieuwe persistente tabellen (coachadviezen, hengelrecords en lokale leerprofielen) moeten automatisch onderdeel worden van het backupcontract.
 - Geen lokale gegevens delen voor collectieve learning zonder afzonderlijke expliciete toestemming.
 - Duidelijke waarschuwing dat lokale browserdata verloren kan gaan bij apparaat-/browserproblemen; back-up blijft belangrijk.
 
@@ -712,15 +716,15 @@ De tekst mag dynamisch worden samengesteld uit bestaande gegevens en vooraf gesc
 Bovenaan de VisCoach staan drie compacte dropdownfilters naast elkaar:
 1. **Type vis:** de beschikbare vissoorten uit de bestaande soortendatabase/-profielen. Geen tweede, los onderhouden soortenlijst.
 2. **Stek:** een bestaande, door de gebruiker opgeslagen vislocatie/visstek.
-3. **Duur vissessie:** de gewenste geplande sessieduur.
+3. **Gewenste vistijd:** concrete gewenste start- en einddatum/tijd. De sessieduur wordt hieruit afgeleid.
 
-De keuze in deze filters vormt samen de context voor het advies. De gekozen soort, stek en duur moeten consequent worden doorgegeven aan de bestaande prognose- en advieslogica en aan de sessie die vanuit de VisCoach wordt gestart.
+De keuze in deze filters vormt samen de context voor het advies. De gekozen soort, stek en start-/eindtijd moeten consequent worden doorgegeven aan de bestaande prognose- en advieslogica en aan de sessie die vanuit de VisCoach wordt gestart.
 
 ### 18.4 Kort, gericht VisCoach-advies
 
-Na het kiezen van soort, stek en sessieduur toont de VisCoach een beknopt advies voor de gekozen dag, opgebouwd uit bestaande prognose-uitvoer en relevante bestaande deelanalyses. Het advies bevat minimaal:
+Na het kiezen van soort, stek en gewenste start-/eindtijd toont de VisCoach een beknopt advies voor het gekozen tijdvak, opgebouwd uit bestaande prognose-uitvoer en relevante bestaande deelanalyses. Vergelijk alternatieve tijdvakken alleen bij dezelfde sessieduur en benoem alleen betekenisvolle, voldoende onderbouwde verschillen. Het advies bevat minimaal:
 
-- **Beste vistijd:** welk tijdvak voor de gekozen vissoort en sessieduur het meest kansrijk lijkt, met een alternatief wanneer dat nuttig is. Baseer dit op de bestaande tijdvak-/prognose-informatie.
+- **Beste vistijd:** hoe het gekozen tijdvak zich verhoudt tot relevante alternatieven met dezelfde sessieduur. Baseer dit op de bestaande tijdvak-/prognose-informatie.
 - **Wat betekenen de omstandigheden?:** vertaal de relevante prognosefactoren naar begrijpelijke taal. Benoem concreet wat bijvoorbeeld temperatuur, windrichting/-kracht, weersverloop, seizoen, luchtdruk of andere beschikbare factoren voor de gekozen soort en stek betekenen. Neem alleen factoren op die daadwerkelijk beschikbaar en relevant zijn.
 - **Tactiek voor deze sessie:** een concrete, soort- en stekspecifieke aanpak. Gebruik daarvoor de bestaande tactische adviezen en analyses, zoals habitat-/visbewegingsanalyse, wind-/oeveranalyse, hengelpositionering en voorvoerstrategie waar relevant. Vertaal de uitkomsten naar begrijpelijke instructies: waar de vis mogelijk langs trekt, waar de hengel(s) het beste kunnen liggen, welke kant of zone interessant is en welke aanpak/voerstrategie passend is. Geef geen precieze plaatsingsclaim als lokale stekgegevens dat niet ondersteunen.
 - **Onzekerheid:** maak kort duidelijk wanneer belangrijke informatie ontbreekt of het advies daardoor minder zeker is.
@@ -758,7 +762,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Controleer vóór implementatie de bestaande `Viscoach`-componenten en `viscoachService.ts`, prognose-engine, soortprofielen, habitat-/bewegingsanalyse, hengelpositionering, wind-/oeveranalyse, voorvoerengine, locatiefunctionaliteit, sessieflow en Dexie-datamodel.
 - Breid bestaande services, types, repositories en componenten uit waar mogelijk. Maak geen tweede soortendatabase, locatieopslag, prognoseberekening, sessiebeheer of live-sessie-interface.
 - De VisCoach-presentatielaag mag prognose-uitvoer samenvatten, maar mag zelf geen afwijkende prognoses of verborgen score-aanpassingen berekenen.
-- Zorg dat filters, advies, aangemaakte sessie en opgeslagen prognose dezelfde gekozen soort, stek, datum/context en sessieduur gebruiken.
+- Zorg dat filters, advies, aangemaakte sessie en opgeslagen prognose dezelfde gekozen soort, stek en concrete start-/eindtijd gebruiken; de sessieduur volgt uit deze tijden.
 - Test in het bijzonder: startup zonder actieve sessie; startup met één actieve sessie; startup met meerdere actieve sessies; app/browser afsluiten en heropenen; sessie starten vanuit VisCoach; sessie starten vanuit Sessies; nieuwe stek toevoegen en terugkeren naar VisCoach; en behoud van bestaande vangstregistratie.
 - Voeg pas UI, navigatie of de startpagina toe wanneer de VisCoach expliciet in de ontwikkelopdracht/roadmap wordt vrijgegeven. Voorbereidende services en datamodellen mogen bestaan, maar gelden niet als de gerealiseerde VisCoach-startpagina.
 
@@ -874,3 +878,25 @@ De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden 
 - CI voert deze tests uit naast de bestaande typecheck, tests en productiebuild.
 - Geen bestaande lokale gegevens worden gemigreerd, verwijderd of herschreven. Dit voorkomt nieuwe losse snapshots; bestaande orphan-snapshots blijven ongewijzigd.
 - Google AI Studio publiceren en visuele controle op een fysiek toestel blijven aparte handmatige stappen.
+
+
+## 22. Goedgekeurde verbeteropdracht — 32 punten
+
+Op 2 november 2026 zijn de 32 verbeterpunten en de zes voorgestelde uitvoeringsfases expliciet goedgekeurd. Het uitvoeringsplan staat in `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md` en is leidend voor de concrete werkvolgorde en acceptatiecriteria.
+
+Harde uitgangspunten:
+- Bestaande offline-first architectuur en bestaande prognose-/deel-engines behouden en gericht verbeteren; geen dubbele engine bouwen.
+- Biologische activiteit, persoonlijke vangstkans, verwacht aantal en betrouwbaarheid afzonderlijk behandelen.
+- Gemeten, voorspelde, geschatte, waargenomen en onbekende waarden herkenbaar gescheiden houden.
+- Geen ontbrekende sessieduur als standaard drie uur invullen; onbekende blootstelling niet gebruiken in het Poisson-inspanningsmodel.
+- Doelsoortsucces uitsluitend baseren op soortspecifieke vangstregistratie of een ondubbelzinnige bevestigde nulvangst. Bijvangst is geen doelsoortsucces.
+- Visaanwezigheidswaarnemingen niet omzetten in ongevalideerde vaste kansbonussen. Aanbeten blijven gescheiden van viswaarnemingen.
+- Groepssessie blijft de primaire eenheid; `rodCount` is het totale aantal hengels in de groep. Per-hengeldetails zijn optioneel.
+- Volledige lokale back-up en herstel van alle persistente gegevens, media, instellingen, caches, snapshots, waarnemingen en relaties is een harde eis.
+- VisCoach gebruikt uitsluitend bestaande gevalideerde prognose- en tactische engines en wordt pas na verbetering van de onderliggende modellen volledig geïntegreerd.
+
+### Implementatiestatus (2 november 2026)
+- Implementatieplan toegevoegd en samengevoegd via PR #12.
+- Fase 1 gegevenscorrectheid: kerncorrecties samengevoegd via PR #13; aparte opslag van sessiewaarnemingen samengevoegd via PR #15. Beide CI-runs geslaagd.
+- Fase 2 volledige back-up en herstel: nog uit te voeren.
+- Fases 3 t/m 6: gepland volgens het implementatieplan.
