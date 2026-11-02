@@ -246,7 +246,7 @@ function determineTacticalHypothesis(
     };
   }
 
-  if (season === 'Voorjaar' && (isWarmingPeriod || avgAirTemp >= 14)) {
+  if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     return {
       recommendedZone: 'Ondiepe, zonovergoten oeverzone of beschutte baai uit de wind',
       rationale: `In het voorjaar warmen ondieptes en uit de wind liggende baaien het snelst op onder invloed van zon. Karper en witvis trekken naar deze opwarmende zones om voedsel te zoeken in ontwakend bodemleven. (Zoekhypothese voor voorjaarsopwarming).`,
@@ -498,7 +498,7 @@ export function buildWindCastingGuidance(
   } else if (effectiveWaterTemp < 8 || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
     isWindwardFavorable = false;
     windwardAssessment = `Niet aanbevolen (koud water / afkoeling). In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind onttrekt aanlandige golfslag extra warmte aan de oever. Karper en witvis mijden deze kille golfslag en zoeken energiebesparing in de luwe oever of diepere rustkuilen.`;
-  } else if (season === 'Voorjaar' && (isWarmingPeriod || avgAirTemp >= 14)) {
+  } else if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     isWindwardFavorable = false;
     windwardAssessment = `Geringe voorkeur. In het voorjaar warmen ondiepe, zonbeschenen oeverzones en beschutte baaien uit de wind sneller op dan een aanlandige oever met kille kabbel. Vis concentreert zich vaak in de opwarmende luwtes.`;
   } else if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
@@ -700,7 +700,7 @@ export function analyzeRodPositioning(
   const isColdWind = (avgAirTemp !== null && (avgAirTemp < 8 || (avgAirTemp < 12 && season === 'Voorjaar'))) || isCoolingPeriod;
   const isStrongWind = avgWindSpeed !== null && maxWindSpeed !== null && (avgWindSpeed >= 20 || maxWindSpeed >= 35);
   const isCalmWind = avgWindSpeed !== null && avgWindSpeed <= 10;
-  const isWarmConditions = (effectiveWaterTemp !== null && effectiveWaterTemp >= 21) || (avgAirTemp !== null && avgAirTemp >= 23);
+  const isWarmConditions = effectiveWaterTemp !== null && effectiveWaterTemp >= 21;
 
   // 3. Watertype & diepte-eigenschappen
   const waterType = location?.waterType;
