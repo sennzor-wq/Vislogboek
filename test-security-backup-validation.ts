@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   validateBackupPayloadLimits,
+  normalizeRawBackup,
   type BackupData,
 } from './src/services/backupService';
 
@@ -18,6 +19,10 @@ const validBackup = (): BackupData => ({
 });
 
 assert.equal(validateBackupPayloadLimits(validBackup()), null, 'Geldige back-up moet worden geaccepteerd');
+assert.throws(() => normalizeRawBackup([]), /Ongeldig JSON object/, 'Array-root mag geen back-up worden');
+const photoBackup = validBackup();
+(photoBackup.catches[0] as any).photoUrl = `data:image/jpeg;base64,${'a'.repeat(150_000)}`;
+assert.equal(validateBackupPayloadLimits(photoBackup), null, 'Normale base64-foto moet worden toegestaan');
 
 const tooManyLocations = validBackup();
 tooManyLocations.locations = Array.from({ length: 5_001 }, (_, i) => ({ id: `loc-${i}`, name: 'Test' } as any));
