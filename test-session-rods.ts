@@ -1,5 +1,5 @@
 import { FishingSession, SessionRod } from './src/types';
-import { calculateSessionRodEffort } from './src/services/sessionEffortEngine';
+import { calculateSessionRodEffort, closeOpenRodIntervals } from './src/services/sessionEffortEngine';
 
 let passed = 0;
 let failed = 0;
@@ -63,3 +63,17 @@ assert(ongoing.totalRodHours === 1.5, 'Open interval van actieve sessie telt tot
 
 console.log(`Session rod effort tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
+
+
+const closedAt = '2026-11-02T12:00:00.000Z';
+const intervalClosure = closeOpenRodIntervals([
+  rod('close-open', 1, [{ id: 'open-to-close', startTime: '2026-11-02T09:00:00.000Z', endTime: null }]),
+  rod('keep-closed', 2, [interval('already-closed', '2026-11-02T08:00:00.000Z', '2026-11-02T10:00:00.000Z')]),
+  rod('keep-incomplete', 3, [{ id: 'no-start', startTime: '', endTime: null }]),
+], closedAt);
+assert(intervalClosure[0].activeIntervals[0].endTime === closedAt,
+  'Bij sessieafronding wordt een gestart open hengelinterval op het werkelijke sessie-eindtijdstip gesloten');
+assert(intervalClosure[1].activeIntervals[0].endTime === '2026-11-02T10:00:00.000Z',
+  'Bestaande handmatig beëindigde hengelintervallen blijven ongewijzigd');
+assert(intervalClosure[2].activeIntervals[0].endTime === null,
+  'Een interval zonder geldige starttijd wordt niet automatisch als inzet geregistreerd');

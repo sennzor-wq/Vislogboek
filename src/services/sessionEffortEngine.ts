@@ -66,3 +66,20 @@ export function calculateSessionRodEffort(
     perRodHours,
   };
 }
+
+
+/** Sluit alleen expliciet gestarte open intervallen bij het afronden van de sessie. */
+export function closeOpenRodIntervals(rods: SessionRod[], sessionEndTime: string): SessionRod[] {
+  const end = Date.parse(sessionEndTime);
+  if (!Number.isFinite(end)) return rods;
+  return rods.map((rod) => ({
+    ...rod,
+    activeIntervals: (rod.activeIntervals || []).map((interval) => {
+      const start = Date.parse(interval.startTime);
+      return !interval.endTime && Number.isFinite(start) && start <= end
+        ? { ...interval, endTime: sessionEndTime }
+        : interval;
+    }),
+    updatedAt: sessionEndTime,
+  }));
+}
