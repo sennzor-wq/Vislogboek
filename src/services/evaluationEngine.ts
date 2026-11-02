@@ -96,7 +96,9 @@ export function evaluatePrognosisPerformance(
   // gekoppelde sessie-uitkomsten van dezelfde doelsoort. Dedupe op sessie-ID zodat
   // een sessie nooit meerdere keren als trainingswaarneming meetelt.
   const baselinePairs: Array<{ forecast: number; observed: number; modelForecast: number }> = [];
-  const trainingSessionsById = new Map(trainingSessions.map((session) => [session.id, session]));
+  const trainingSessionsById = new Map<string, FishingSession>(
+    trainingSessions.map((session): [string, FishingSession] => [session.id, session])
+  );
   for (const pair of pairs) {
     const forecastTimestampMs = Date.parse(pair.snapshot.forecastTimestamp);
     if (!Number.isFinite(forecastTimestampMs)) continue;
