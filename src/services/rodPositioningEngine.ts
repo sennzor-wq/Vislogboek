@@ -614,71 +614,67 @@ export function analyzeRodPositioning(
     }
   }
 
-  // Bereken representatieve wind- en temperatuurwaarden
-  const sampleForecasts = slotForecasts.length > 0 ? slotForecasts : dayForecasts;
+  // Bereken uitsluitend gemiddelden uit geldige metingen/verwachtingen.
+  // Ontbrekende waarden blijven null; luchttemperatuur vervangt nooit watertemperatuur.
+  const validWind = sampleForecasts.filter((h) =>
+    typeof h.windSpeed === 'number' && Number.isFinite(h.windSpeed) && h.windSpeed >= 0 &&
+    typeof h.windDirection === 'number' && Number.isFinite(h.windDirection) &&
+    h.windDirection >= 0 && h.windDirection <= 360 &&
+    typeof h.windDirectionText === 'string' && h.windDirectionText.trim().length > 0
+  );
+  const validAirTemps = sampleForecasts
+    .map((h) => h.temperature)
+    .filter((v): v is number => typeof v === 'number' && Number.isFinite(v) && v >= -30 && v <= 55);
 
-  let avgWindSpeed = 12;
-  let maxWindSpeed = 15;
+  const avgWindSpeed = validWind.length > 0
+    ? Math.round((validWind.reduce((sum, h) => sum + h.windSpeed, 0) / validWind.length) * 10) / 10
+    : null;
+  const maxWindSpeed = validWind.length > 0
+    ? Math.round(Math.max(...validWind.map((h) => h.windSpeed)))
+    : null;
+  const avgAirTemp = validAirTemps.length > 0
+    ? Math.round((validAirTemps.reduce((sum, v) => sum + v, 0) / validAirTemps.length) * 10) / 10
+    : null;
+
+  let avgWindDegrees: number | undefined;
   let windDirText = 'Onbekend';
-  let avgAirTemp = 14;
-  let avgWindDegrees: number | undefined = undefined;
   let windTrend: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel' = 'Stabiel';
-  let intraSessionNote: string | undefined = undefined;
+  let intraSessionNote: string | undefined;
 
-  if (sampleForecasts.length > 0) {
-    const totalSpeed = sampleForecasts.reduce((sum, h) => sum + (h.windSpeed || 0), 0);
-    avgWindSpeed = Math.round((totalSpeed / sampleForecasts.length) * 10) / 10;
-    maxWindSpeed = Math.round(Math.max(...sampleForecasts.map((h) => h.windSpeed || 0)));
+  if (validWind.length > 0) {
+    const radians = validWind.map((h) => h.windDirection * Math.PI / 180);
+    const sinMean = radians.reduce((sum, value) => sum + Math.sin(value), 0) / radians.length;
+    const cosMean = radians.reduce((sum, value) => sum + Math.cos(value), 0) / radians.length;
+    const resultantLength = Math.hypot(sinMean, cosMean);
 
-    const totalTemp = sampleForecasts.reduce((sum, h) => sum + (h.temperature || 0), 0);
-    avgAirTemp = Math.round((totalTemp / sampleForecasts.length) * 10) / 10;
-
-    // Modale windrichtingstekst en gemiddelde graden
-    const dirCounts: Record<string, number> = {};
-    for (const h of sampleForecasts) {
-      const dt = h.windDirectionText || 'ZW';
-      dirCounts[dt] = (dirCounts[dt] || 0) + 1;
-    }
-    let topCount = -1;
-    for (const [dir, cnt] of Object.entries(dirCounts)) {
-      if (cnt > topCount) {
-        topCount = cnt;
-        windDirText = dir;
-      }
+    if (resultantLength > 1e-6) {
+      avgWindDegrees = (Math.atan2(sinMean, cosMean) * 180 / Math.PI + 360) % 360;
+      const nearestDirection = Object.entries(DIRECTION_META_MAP)
+        .sort((a, b) => {
+          const da = Math.abs(((Number(a[1].degrees) - avgWindDegrees! + 540) % 360) - 180);
+          const db = Math.abs(((Number(b[1].degrees) - avgWindDegrees! + 540) % 360) - 180);
+          return da - db;
+        })[0];
+      windDirText = nearestDirection?.[0] ?? 'Onbekend';
+    } else {
+      windDirText = 'Wisselend';
     }
 
-    const degList = sampleForecasts
-      .map((h) => h.windDirection)
-      .filter((d) => typeof d === 'number' && !isNaN(d));
-    avgWindDegrees =
-      degList.length > 0
-        ? Math.round(degList.reduce((a, b) => a + b, 0) / degList.length)
-        : undefined;
-
-    // Analyse van weersverloop binnen het tijdvak (verandering van windkracht en richting)
-    const firstH = sampleForecasts[0];
-    const lastH = sampleForecasts[sampleForecasts.length - 1];
-    const speedStart = firstH?.windSpeed ?? avgWindSpeed;
-    const speedEnd = lastH?.windSpeed ?? avgWindSpeed;
-    const dirStart = firstH?.windDirectionText || windDirText;
-    const dirEnd = lastH?.windDirectionText || windDirText;
-    const speedDelta = speedEnd - speedStart;
-
-    if (dirStart !== dirEnd && sampleForecasts.length > 1) {
+    const firstH = validWind[0];
+    const lastH = validWind[validWind.length - 1];
+    const speedDelta = lastH.windSpeed - firstH.windSpeed;
+    const directionSequence = validWind.map((h) => h.windDirectionText.trim());
+    if (directionSequence[0] !== directionSequence[directionSequence.length - 1] && validWind.length > 1) {
       windTrend = 'Draaiend';
-      intraSessionNote = `Wind draait van ${dirStart} naar ${dirEnd}; oppervlaktewaterbeweging kan tijdens het tijdvak geleidelijk verschuiven.`;
+      intraSessionNote = `Windrichting verandert tijdens het tijdvak van ${directionSequence[0]} naar ${directionSequence[directionSequence.length - 1]}; de lokale oppervlaktebeweging kan mee veranderen.`;
     } else if (speedDelta >= 6) {
       windTrend = 'Aantrekkend';
-      intraSessionNote = `Wind trekt aan van ${speedStart} naar ${speedEnd} km/u (stoten tot ~${maxWindSpeed} km/u); watermenging en golfslag nemen toe.`;
+      intraSessionNote = `Wind trekt aan van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
     } else if (speedDelta <= -6) {
       windTrend = 'Afnemend';
-      intraSessionNote = `Wind neemt af van ${speedStart} naar ${speedEnd} km/u; oppervlaktedrift zwakt geleidelijk af.`;
-    } else {
-      windTrend = 'Stabiel';
+      intraSessionNote = `Wind neemt af van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
     }
-  }
-
-  // 2. Seizoen & thermische context (inclusief 24-72u historie en modelschatting)
+  }  // 2. Seizoen & thermische context (inclusief 24-72u historie en modelschatting)
   const targetDate = new Date(dateStr);
   const month = targetDate.getMonth() + 1; // 1-12
   const season = getSeasonNL(month);
