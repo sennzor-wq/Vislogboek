@@ -248,7 +248,16 @@ De volgende onderdelen zijn productdoelen of uitbreidingen, niet aantoonbaar vol
 
 Deze principes gelden voor alle fases.
 
-### 4.1A Visactiviteit is niet hetzelfde als vangstkans
+### 4.1 Betrouwbaarheid boven schijnzekerheid
+
+- Geen verzonnen meetwaarden of standaardwaarden die ontbrekende gegevens verbergen.
+- Een schatting moet herkenbaar zijn als schatting.
+- Een advies moet de relevante ontbrekende informatie benoemen.
+- Een klein aantal vergelijkbare sessies mag niet als sterke persoonlijke kennis worden gepresenteerd.
+- Geen precieze vislocatieclaim wanneer diepte, bodem, stekgeometrie of waarnemingen dat niet ondersteunen.
+- Een nulvangst is alleen bruikbare negatieve informatie wanneer doelsoort, methode, inspanning en sessie-uitkomst voldoende bekend zijn.
+
+#### Visactiviteit is niet hetzelfde als vangstkans
 
 VisCoach moet twee verschillende begrippen apart berekenen, opslaan, uitleggen en evalueren:
 
@@ -265,7 +274,7 @@ Toon waar relevant afzonderlijk:
 
 Een activiteitsscore wordt niet met Brier-score gevalideerd alsof het een kans op een binaire vangst is. Brier-score en calibratie horen bij duidelijk gedefinieerde binaire uitkomsten; temperatuurvoorspellingen worden afzonderlijk met MAE, RMSE en bias beoordeeld.
 
-### 4.1B Vangstinspanning en vergelijkbaarheid
+#### Vangstinspanning en vergelijkbaarheid
 
 Persoonlijke resultaten moeten rekening houden met de werkelijk geleverde visinspanning. Registreer en gebruik, voor zover betrouwbaar beschikbaar:
 - Aantal daadwerkelijk actieve hengels en de periode waarin iedere hengel actief was.
@@ -277,7 +286,7 @@ Hengeluren zijn een bruikbare blootstellingsmaat, geen perfecte causale maat voo
 
 Vergelijk sessies waar mogelijk bij gelijke of vergelijkbare doelsoort, locatie, tijdvak, methode en inspanning. Maak geplande vistijd, werkelijke sessieduur, effectieve visuren en hengeluren niet onderling uitwisselbaar.
 
-### 4.1C Uitkomsten, aanbeten en aanwezigheid afzonderlijk registreren
+#### Uitkomsten, aanbeten en aanwezigheid afzonderlijk registreren
 
 Het datamodel en de gebruikersflow moeten de volgende situaties van elkaar kunnen onderscheiden, zonder bestaande historische gegevens achteraf te verzinnen:
 
@@ -293,7 +302,7 @@ Een waarneming is geen vangst. Geen waarneming is geen bewijs dat er geen vis aa
 
 Leg observaties waar mogelijk vast met tijdstip, soort (indien bekend), type signaal, locatie/zone en zekerheid. Houd waarnemingen en vangsten als afzonderlijke gebeurtenissen of expliciet gescheiden velden. Bestaande sessies met ontbrekende informatie blijven onbekend; import of migratie mag geen bevestigde nulvangst, aanbeet of waarneming afleiden uit het ontbreken van records.
 
-### 4.1D Betrouwbaarheidsgrenzen en geleidelijke lokale personalisatie
+#### Betrouwbaarheidsgrenzen en geleidelijke lokale personalisatie
 
 Persoonlijke profielen worden per relevante combinatie van stek en doelsoort opgebouwd, maar krijgen pas invloed wanneer de gegevens daarvoor voldoende bruikbaar en vergelijkbaar zijn.
 
@@ -306,7 +315,7 @@ Persoonlijke profielen worden per relevante combinatie van stek en doelsoort opg
 
 Kwaliteit gaat boven hoeveelheid. Een kleine hoeveelheid betrouwbare, goed beschreven sessies is waardevoller dan veel onvolledige of niet-vergelijkbare records.
 
-### 4.1E Advies alleen wanneer de onderbouwing toereikend is
+#### Advies alleen wanneer de onderbouwing toereikend is
 
 De coachlaag moet vóór het tonen van een tactisch advies controleren of de benodigde invoer en relevante bestaande engine-uitvoer beschikbaar en voldoende betrouwbaar zijn.
 
@@ -315,11 +324,11 @@ De coachlaag moet vóór het tonen van een tactisch advies controleren of de ben
 - Voorvoeradvies vereist onder meer doelsoort, sessietiming, relevante stek-/watercontext en voldoende gegevens over voerstrategie; anders wordt geen stellige hoeveelheid of timing voorgeschreven.
 - Advies over aas, methode of presentatie moet aansluiten op bekende invoer en relevante bestaande logica. Ontbrekende informatie wordt niet stilzwijgend ingevuld.
 - De coach hergebruikt bestaande engines en hun kwaliteits-/consistentie-uitkomsten. Hij verzint geen eigen verborgen correcties en overschrijft geen engine-uitvoer.
-- Als de onderbouwing onvoldoende is, legt de coach uit wat ontbreekt en geeft hij alleen een lager-specifiek advies dat wel door de gegevens wordt gedragen.
+- Als de onderbouwing onvoldoende is, legt de coach uit wat ontbreekt en geeft hij alleen een minder specifiek advies dat wel door de gegevens wordt gedragen.
 
 De audit moet per adviescategorie vaststellen welke invoer, engines, kwaliteitscontroles en fallbacks daadwerkelijk bestaan voordat implementatie wordt ontworpen.
 
-### 4.1F Lokale zelfstandige werking is een harde eis
+#### Lokale zelfstandige werking is een harde eis
 
 De kern van VisCoach moet volledig zelfstandig kunnen werken binnen de bestaande lokale app-architectuur:
 - Geen centrale AI, server, account, cloudopslag of betaald abonnement nodig voor normale coachberekeningen.
@@ -327,16 +336,6 @@ De kern van VisCoach moet volledig zelfstandig kunnen werken binnen de bestaande
 - Weers- of andere externe gegevens mogen optioneel via bestaande providers worden opgehaald wanneer verbinding beschikbaar is; de coach mag niet afhankelijk worden van een cloud-AI om een advies te berekenen.
 - Offline beschikbare gegevens blijven bruikbaar en ontbrekende actuele netwerkdata worden als ontbrekend getoond, niet verzonnen.
 - Cloudback-up, synchronisatie en eventuele externe diensten blijven uitgestelde, optionele uitbreidingen en geen afhankelijkheid van een roadmapfase.
-
-
-### 4.1 Betrouwbaarheid boven schijnzekerheid
-
-- Geen verzonnen meetwaarden of standaardwaarden die ontbrekende gegevens verbergen.
-- Een schatting moet herkenbaar zijn als schatting.
-- Een advies moet de relevante ontbrekende informatie benoemen.
-- Een klein aantal vergelijkbare sessies mag niet als sterke persoonlijke kennis worden gepresenteerd.
-- Geen precieze vislocatieclaim wanneer diepte, bodem, stekgeometrie of waarnemingen dat niet ondersteunen.
-- Een nulvangst is alleen bruikbare negatieve informatie wanneer doelsoort, methode, inspanning en sessie-uitkomst voldoende bekend zijn.
 
 ### 4.2 Eén centrale analysebasis
 
@@ -817,7 +816,6 @@ Een mooie interface of een overtuigend geformuleerd advies is geen bewijs van kw
 ### 6.3 Vangstkansmodel
 - Brier-score en calibratie uitsluitend voor vooraf gedefinieerde binaire uitkomsten, zoals minimaal één doelsoort geland binnen een voldoende complete sessie.
 - Biologische activiteit apart beoordelen als relatieve/indexuitkomst; niet presenteren als gekalibreerde vangkans tenzij daarvoor een afzonderlijke, valide uitkomstdefinitie en backtest bestaan.
-- Calibratie: komen voorspelde kansen overeen met waargenomen frequenties?
 - Vergelijking met een eenvoudige basisvoorspelling.
 - Alleen sessies met voldoende bekende doelsoort, inspanning en uitkomst gebruiken.
 
