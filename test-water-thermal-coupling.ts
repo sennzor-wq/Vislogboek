@@ -195,10 +195,10 @@ async function runTestSuite() {
     '2.4 Herkomstmetadata markeert een actuele stekmeting expliciet als measured');
   assert(progUnmeasured.thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather',
     '2.5 Een schatting zonder lokaal meetanker wordt expliciet als weather estimate gemarkeerd');
-  const estimatedRange = progUnmeasured.thermalAnalysis?.estimatedRange;
-  assert(Array.isArray(estimatedRange) && typeof progUnmeasured.thermalAnalysis?.uncertaintyC === 'number' &&
-    Math.abs(progUnmeasured.thermalAnalysis.uncertaintyC - (estimatedRange[1] - estimatedRange[0]) / 2) < 0.05,
-    '2.6 Onzekerheidsmarge komt overeen met de getoonde temperatuurrange');
+  assert(progUnmeasured.thermalAnalysis?.estimatedRange === null &&
+    progUnmeasured.thermalAnalysis?.uncertaintyC === null &&
+    progUnmeasured.thermalAnalysis?.prognosisImpactNote.includes('hoge, niet-gekwantificeerde onzekerheid'),
+    '2.6 Weer-only schatting zonder lokale waterreferentie krijgt geen schijnnauwkeurige numerieke onzekerheidsmarge');
 
   // =========================================================================
   // DEEL 3: ACTUELE SITUATIE VS TOEKOMSTIGE PROGNOSE (OUDE METING REGEERT NIET DE TOEKOMST)
