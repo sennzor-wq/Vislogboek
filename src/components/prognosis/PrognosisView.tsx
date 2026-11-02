@@ -1423,11 +1423,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </span>
                   </div>
 
-                  {/* Knoppen voor beschikbare voorvoerdagen */}
+                  {/* Beschikbare voorbereidingstijd: invoer voor de berekening, geen verplicht voerschema */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs">
-                    <span className="text-slate-300 font-semibold">
-                      Jouw beschikbare tijd vooraf:
-                    </span>
+                    <div>
+                      <span className="text-slate-200 font-semibold block">Hoeveel voorbereidingstijd heb je?</span>
+                      <span className="text-slate-400 text-[10px]">Dit is je beschikbare tijd. Het advies bepaalt of vooraf voeren zinvol is.</span>
+                    </div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       {[0, 1, 2, 3].map((days) => (
                         <button
@@ -1440,94 +1441,69 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                               : 'bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-800'
                           }`}
                         >
-                          {days === 0 ? '0 dagen (instant)' : `${days} ${days === 1 ? 'dag' : 'dagen'} vooraf`}
+                          {days === 0 ? 'Instant' : `${days} ${days === 1 ? 'dag' : 'dagen'}`}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Samenvatting & Biologische Rationale */}
+                  {/* Biologische conclusie */}
                   <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
-                    <div className="font-bold text-white text-sm">
-                      {pp.campaignSummary}
-                    </div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
-                      {pp.biologicalRationale}
-                    </p>
+                    <div className="font-bold text-white text-sm">{pp.campaignSummary}</div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">{pp.biologicalRationale}</p>
                     <p className="text-emerald-300/90 text-[11px] pt-1 border-t border-slate-700/50">
                       <strong>Temperatuurinvloed:</strong> {pp.temperatureFactorExplanation}
                     </p>
                   </div>
 
-                  {/* Tijdlijn van de Voermomenten */}
+                  {/* Alleen voorafgaande voermomenten; de visdag staat in het aparte sessieadvies */}
                   <div className="space-y-2 text-xs">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Aanbevolen Voerschema ({pp.moments.length} {pp.moments.length === 1 ? 'moment' : 'momenten'})
+                      Voorvoerschema ({pp.moments.filter((m) => m.dayOffset < 0).length} voorafgaande momenten)
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {pp.moments.map((m, idx) => (
-                        <div
-                          key={idx}
-                          className={`p-3 rounded-xl border space-y-1 ${
-                            m.dayOffset === 0
-                              ? 'bg-slate-850/90 border-cyan-700/50'
-                              : 'bg-slate-800/80 border-slate-700/70'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-white text-xs">
-                              {m.dayLabel} ({m.date})
-                            </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 font-bold">
-                              {m.amountDisplay}
-                            </span>
+                    {pp.moments.some((m) => m.dayOffset < 0) ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {pp.moments.filter((m) => m.dayOffset < 0).map((m, idx) => (
+                          <div key={idx} className="p-3 rounded-xl border space-y-1 bg-slate-800/80 border-slate-700/70">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-white text-xs">{m.dayLabel} ({m.date})</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 font-bold">{m.amountDisplay}</span>
+                            </div>
+                            <div className="text-[11px] text-cyan-300 font-medium">Tijdstip: {m.suggestedTime}</div>
+                            <p className="text-[10px] text-slate-400 leading-snug pt-1 border-t border-slate-700/40">{m.purpose}</p>
                           </div>
-                          <div className="text-[11px] text-cyan-300 font-medium">
-                            Tijdstip: {m.suggestedTime}
-                          </div>
-                          <div className="text-[11px] text-slate-300">
-                            <strong>Samenstelling:</strong> {m.feedType}
-                          </div>
-                          <p className="text-[10px] text-slate-400 leading-snug pt-1 border-t border-slate-700/40">
-                            {m.purpose}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/60 text-slate-300 text-[11px] leading-relaxed">
+                        Geen voorafgaande voerbeurten aanbevolen. Richt je op een gerichte, kleine instant-presentatie tijdens het vissen.
+                      </div>
+                    )}
                   </div>
 
-                  {/* Voersamenstelling & Tactiek op Visdag */}
+                  {/* Voersamenstelling één keer tonen; sessieadvies combineert bijvoeren en techniek */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                     <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                      <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">
-                        Advies Voersamenstelling
-                      </span>
+                      <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider block">Voersamenstelling</span>
                       <p className="text-white font-semibold text-[11px]">{pp.feedCompositionAdvice.recommendedMix}</p>
                       <p className="text-slate-400 text-[10px]">{pp.feedCompositionAdvice.digestibilityNote}</p>
                       <p className="text-slate-400 text-[10px]">{pp.feedCompositionAdvice.particleSizeNote}</p>
                     </div>
-
                     <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                      <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider block">
-                        Bijvoeren op de Visdag
-                      </span>
+                      <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider block">Tijdens de vissessie</span>
                       <p className="text-white font-semibold text-[11px]">
                         {pp.sessionDayGuidance.feedDuringSession
-                          ? `Ja, spaarzaam (~${pp.sessionDayGuidance.recommendedAmountGrams}g)`
-                          : 'Nee, puur instant vissen'}
+                          ? `Spaarzaam bijvoeren (~${pp.sessionDayGuidance.recommendedAmountGrams}g)`
+                          : 'Geen extra bijvoeradvies; gericht instant vissen'}
                       </p>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">
-                        {pp.sessionDayGuidance.advice}
-                      </p>
+                      <p className="text-slate-300 text-[11px] leading-relaxed">{pp.sessionDayGuidance.advice}</p>
+                      {pp.methodFeederGuidance && (
+                        <p className="text-cyan-200 text-[11px] leading-relaxed pt-2 border-t border-slate-700/50">
+                          <strong>Method feeder:</strong> {pp.methodFeederGuidance}
+                        </p>
+                      )}
                     </div>
                   </div>
-
-                  {pp.methodFeederGuidance && (
-                    <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/50 text-cyan-100 text-[11px] leading-relaxed">
-                      <strong className="block mb-1">Method feeder — instant presentatie</strong>
-                      {pp.methodFeederGuidance}
-                    </div>
-                  )}
 
                   {pp.missingInformation.length > 0 && (
                     <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/40 text-amber-100 text-[11px] leading-relaxed">
@@ -1538,15 +1514,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   )}
 
-                  {/* Persoonlijke Logboekhistorie */}
                   {pp.personalEvidence && (
                     <div className="p-3 rounded-xl bg-slate-850 border border-slate-700/70 text-xs">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">
-                          Empirische Logboekervaring (Voorvoeren)
-                        </span>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">Eigen logboekervaring</span>
                         <span className="text-[10px] text-slate-400">
-                          {pp.personalEvidence.relevantPrebaitedSessionsCount} sessies met voorvoerhistorie
+                          {pp.personalEvidence.relevantPrebaitedSessionsCount} sessies
                         </span>
                       </div>
                       <p className="text-slate-300 text-[11px] leading-relaxed">
