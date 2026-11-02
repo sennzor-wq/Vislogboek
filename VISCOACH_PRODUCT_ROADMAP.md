@@ -172,7 +172,7 @@ Deze combinatie is een **beoogde positionering**, geen bewezen exclusiviteit. Co
 
 ## 3. Huidige stand van Vislogboek: wat is al aanwezig?
 
-De huidige repository is read-only onderzocht op 2 november 2026. De onderstaande inventarisatie onderscheidt bestaande onderdelen van producteisen en toekomstig werk. Het bestaan van een service of component betekent niet automatisch dat de volledige gebruikersflow al af is of in de praktijk is gevalideerd.
+De huidige repository is read-only onderzocht op 2 november 2026. De technische status hieronder is een momentopname en moet in de audit opnieuw worden geverifieerd; de zes aanvullende productprincipes in sectie 4 zijn ontwerpvereisten, geen bewering dat deze al in code bestaan. De onderstaande inventarisatie onderscheidt bestaande onderdelen van producteisen en toekomstig werk. Het bestaan van een service of component betekent niet automatisch dat de volledige gebruikersflow al af is of in de praktijk is gevalideerd.
 
 ### 3.1 Bestaande VisCoach-basis
 
@@ -256,6 +256,86 @@ Deze principes gelden voor alle fases.
 - Een klein aantal vergelijkbare sessies mag niet als sterke persoonlijke kennis worden gepresenteerd.
 - Geen precieze vislocatieclaim wanneer diepte, bodem, stekgeometrie of waarnemingen dat niet ondersteunen.
 - Een nulvangst is alleen bruikbare negatieve informatie wanneer doelsoort, methode, inspanning en sessie-uitkomst voldoende bekend zijn.
+
+#### Visactiviteit is niet hetzelfde als vangstkans
+
+VisCoach moet twee verschillende begrippen apart berekenen, opslaan, uitleggen en evalueren:
+
+- **Biologische visactiviteit:** hoe actief, mobiel of voedselzoekend de doelsoort naar verwachting is onder de omstandigheden. Dit is een relatieve biologische inschatting, geen bewijs dat vis op de gekozen stek aanwezig is.
+- **Vangkans:** de kans op een concreet geregistreerd vangstresultaat binnen de gekozen sessie, gegeven onder meer doelsoort, stek, tijdsvenster, methode, aas, effectieve inspanning en onzekerheid.
+
+Een hoge biologische activiteit betekent dus niet automatisch een hoge persoonlijke vangkans. Aanwezigheid van vis, bereikbaarheid van de vis, bereidheid tot azen, presentatie en vangbaarheid zijn verschillende schakels. De app mag deze niet samenvoegen tot één ondoorzichtige score.
+
+Toon waar relevant afzonderlijk:
+- Activiteitsniveau en de biologische factoren die dit ondersteunen.
+- Verwachte vangstgelegenheid/vangkans binnen de opgegeven sessie en de gebruikte aannames.
+- Lokale aanwezigheidssignalen en de ouderdom/kwaliteit daarvan.
+- Datadekking, onzekerheid en de belangrijkste ontbrekende invoer.
+
+Een activiteitsscore wordt niet met Brier-score gevalideerd alsof het een kans op een binaire vangst is. Brier-score en calibratie horen bij duidelijk gedefinieerde binaire uitkomsten; temperatuurvoorspellingen worden afzonderlijk met MAE, RMSE en bias beoordeeld.
+
+#### Vangstinspanning en vergelijkbaarheid
+
+Persoonlijke resultaten moeten rekening houden met de werkelijk geleverde visinspanning. Registreer en gebruik, voor zover betrouwbaar beschikbaar:
+- Aantal daadwerkelijk actieve hengels en de periode waarin iedere hengel actief was.
+- Werkelijke effectieve vistijd, met onderbrekingen alleen wanneer die betrouwbaar zijn vastgelegd.
+- Afgeleide hengeluren (actieve hengels × effectieve uren), naast sessieduur en vangsten per effectief visuur.
+- Doelsoort, stek, seizoen/tijdvak, methode, aas/voer en relevante omstandigheden.
+
+Hengeluren zijn een bruikbare blootstellingsmaat, geen perfecte causale maat voor vangstkans. Twee hengels op dezelfde stek zijn niet noodzakelijk twee onafhankelijke kansen. Presenteer deze maat daarom als context voor eerlijke vergelijkingen, niet als natuurkundige waarheid of automatische correctie die alle verschillen oplost.
+
+Vergelijk sessies waar mogelijk bij gelijke of vergelijkbare doelsoort, locatie, tijdvak, methode en inspanning. Maak geplande vistijd, werkelijke sessieduur, effectieve visuren en hengeluren niet onderling uitwisselbaar.
+
+#### Uitkomsten, aanbeten en aanwezigheid afzonderlijk registreren
+
+Het datamodel en de gebruikersflow moeten de volgende situaties van elkaar kunnen onderscheiden, zonder bestaande historische gegevens achteraf te verzinnen:
+
+- Doelsoort gevangen en geland.
+- Niet-doelsoort gevangen en geland.
+- Beet/aanbeet of duidelijke run, maar vis niet geland (bijvoorbeeld losschieter of gemiste aanslag).
+- Visactiviteit/aanwezigheid waargenomen, zoals bellen, rollen, springen of zichtbare vis.
+- Geen activiteit waargenomen tijdens de sessie.
+- Bevestigde nulvangst: de sessie is daadwerkelijk gevist en de uitkomst is voldoende compleet geregistreerd.
+- Onbekend/onvolledig: de gebruiker heeft de uitkomst niet bevestigd of de inspanning/registratie is onvoldoende.
+
+Een waarneming is geen vangst. Geen waarneming is geen bewijs dat er geen vis aanwezig was. Een aanbeet zonder gelande vis is geen nulactiviteit en mag niet als gelande vangst worden geteld. Een niet-doelsoortvangst is wel bewijs van visactiviteit, maar niet automatisch een succes voor de gekozen doelsoort.
+
+Leg observaties waar mogelijk vast met tijdstip, soort (indien bekend), type signaal, locatie/zone en zekerheid. Houd waarnemingen en vangsten als afzonderlijke gebeurtenissen of expliciet gescheiden velden. Bestaande sessies met ontbrekende informatie blijven onbekend; import of migratie mag geen bevestigde nulvangst, aanbeet of waarneming afleiden uit het ontbreken van records.
+
+#### Betrouwbaarheidsgrenzen en geleidelijke lokale personalisatie
+
+Persoonlijke profielen worden per relevante combinatie van stek en doelsoort opgebouwd, maar krijgen pas invloed wanneer de gegevens daarvoor voldoende bruikbaar en vergelijkbaar zijn.
+
+- Begin met de bestaande algemene biologische/prognosebasis als fallback.
+- Laat lokale gegevens geleidelijk zwaarder meewegen naarmate het aantal én de kwaliteit van vergelijkbare waarnemingen toeneemt.
+- Gebruik onzekerheidsmarges en toon aantallen/soorten bewijs; een klein aantal vangsten mag het algemene model niet domineren.
+- Houd rekening met seizoensverschillen, inspanning, methode, doelsoort, datakwaliteit en mogelijke selectievertekening.
+- Bij tegenstrijdige of schaarse data blijft de uitkomst voorzichtig en wordt de beperking zichtbaar.
+- Bepaal minimumaantallen, gewichten en shrinkage pas na de read-only audit en backtest. Leg geen arbitraire drempels vast zonder empirische onderbouwing.
+
+Kwaliteit gaat boven hoeveelheid. Een kleine hoeveelheid betrouwbare, goed beschreven sessies is waardevoller dan veel onvolledige of niet-vergelijkbare records.
+
+#### Advies alleen wanneer de onderbouwing toereikend is
+
+De coachlaag moet vóór het tonen van een tactisch advies controleren of de benodigde invoer en relevante bestaande engine-uitvoer beschikbaar en voldoende betrouwbaar zijn.
+
+- Wind-/oeveradvies mag niet zelfstandig een werprichting afleiden uit alleen windrichting. Het vereist voldoende informatie over oeveroriëntatie, positie van de visser en relevante watergeometrie.
+- Hengelpositionering vereist passende stek-/zonegegevens; ontbrekende geometrie leidt tot een voorzichtige algemene uitleg of geen positioneringsadvies.
+- Voorvoeradvies vereist onder meer doelsoort, sessietiming, relevante stek-/watercontext en voldoende gegevens over voerstrategie; anders wordt geen stellige hoeveelheid of timing voorgeschreven.
+- Advies over aas, methode of presentatie moet aansluiten op bekende invoer en relevante bestaande logica. Ontbrekende informatie wordt niet stilzwijgend ingevuld.
+- De coach hergebruikt bestaande engines en hun kwaliteits-/consistentie-uitkomsten. Hij verzint geen eigen verborgen correcties en overschrijft geen engine-uitvoer.
+- Als de onderbouwing onvoldoende is, legt de coach uit wat ontbreekt en geeft hij alleen een minder specifiek advies dat wel door de gegevens wordt gedragen.
+
+De audit moet per adviescategorie vaststellen welke invoer, engines, kwaliteitscontroles en fallbacks daadwerkelijk bestaan voordat implementatie wordt ontworpen.
+
+#### Lokale zelfstandige werking is een harde eis
+
+De kern van VisCoach moet volledig zelfstandig kunnen werken binnen de bestaande lokale app-architectuur:
+- Geen centrale AI, server, account, cloudopslag of betaald abonnement nodig voor normale coachberekeningen.
+- Bestaande lokale sessies, vangsten, stekken, instellingen en engines vormen de basis voor persoonlijke analyse.
+- Weers- of andere externe gegevens mogen optioneel via bestaande providers worden opgehaald wanneer verbinding beschikbaar is; de coach mag niet afhankelijk worden van een cloud-AI om een advies te berekenen.
+- Offline beschikbare gegevens blijven bruikbaar en ontbrekende actuele netwerkdata worden als ontbrekend getoond, niet verzonnen.
+- Cloudback-up, synchronisatie en eventuele externe diensten blijven uitgestelde, optionele uitbreidingen en geen afhankelijkheid van een roadmapfase.
 
 ### 4.2 Eén centrale analysebasis
 
@@ -633,8 +713,6 @@ Iedere update tijdens de sessie kan een nieuw, afzonderlijk adviesrecord oplever
 
 Een eerder adviesrecord of prognosemomentopname mag achteraf niet worden aangepast om het passend te maken bij het resultaat. Nieuwe informatie leidt tot een nieuw record of een expliciete evaluatieverwijzing.
 
-Een adviesrecord mag achteraf niet worden aangepast om het passend te maken bij het resultaat. Nieuwe informatie leidt tot een nieuw record of een expliciete evaluatieverwijzing.
-
 ### Technische aanpak
 - Eerst vaststellen of bestaande snapshots of tabellen delen van deze gegevens al kunnen opslaan.
 - De bestaande prognosemomentopname en haar koppeling aan de sessie/learning engine ongewijzigd behouden.
@@ -736,8 +814,8 @@ Een mooie interface of een overtuigend geformuleerd advies is geen bewijs van kw
 - Resultaten per locatie, seizoen en meetafstand waar voldoende gegevens bestaan.
 
 ### 6.3 Vangstkansmodel
-- Brier-score voor binaire vangstuitkomsten.
-- Calibratie: komen voorspelde kansen overeen met waargenomen frequenties?
+- Brier-score en calibratie uitsluitend voor vooraf gedefinieerde binaire uitkomsten, zoals minimaal één doelsoort geland binnen een voldoende complete sessie.
+- Biologische activiteit apart beoordelen als relatieve/indexuitkomst; niet presenteren als gekalibreerde vangkans tenzij daarvoor een afzonderlijke, valide uitkomstdefinitie en backtest bestaan.
 - Vergelijking met een eenvoudige basisvoorspelling.
 - Alleen sessies met voldoende bekende doelsoort, inspanning en uitkomst gebruiken.
 
@@ -750,8 +828,8 @@ Een mooie interface of een overtuigend geformuleerd advies is geen bewijs van kw
 - Worden onnodige tactische wijzigingen vermeden?
 
 ### 6.5 Praktijkresultaat
-- Doelvisvangsten per effectieve visuur.
-- Kans op minimaal één doelvis per sessie.
+- Doelvisvangsten per effectieve visuur en, waar betrouwbaar afleidbaar, per hengeluur.
+- Kans op minimaal één doelvis per sessie, met inspanning en sessieduur als expliciete context.
 - Resultaten per methode, aas, stek, seizoen en tijdvak.
 - Vergelijking van vergelijkbare sessies met en zonder opgevolgd coachadvies.
 
@@ -789,15 +867,20 @@ Voer een read-only audit uit van de huidige repository en lever een technisch on
 
 1. Datadictionary van sessies, vangsten, locaties, instellingen, prognosesnapshots, bestaande snapshotkoppelingen en waarnemingen.
 2. Exacte inventarisatie van het huidige moment waarop prognosesnapshots worden aangemaakt, de opgeslagen velden en de koppeling met sessies en learning/evaluatie. Bepaal expliciet welke coachadviesgegevens ontbreken; verander of vervang de prognosesnapshot niet.
-2. Overzicht van bestaande invoervelden en formulieren voor doelsoort, methode, aas, vistijd, positie en visactiviteit.
-3. Overzicht van alle bestaande prognose- en adviesmodules met hun invoer en uitvoer.
-4. Overzicht van bestaande VisCoach-componenten, routes, state en sessie-instap.
-5. Overzicht van de bestaande Dexie-tabellen en eventuele migratiebehoefte.
-6. Backwards-compatibility-impact op import/export.
-7. Exacte lijst van ontbrekende velden en waarom elk veld nodig is.
-8. Voorstel voor de kleinste veilige technische uitbreidingen.
-9. Testmatrix per fase en acceptatiecriteria.
-10. Risico's voor bestaande sessies, vangsten, prognoses en performance.
+3. Overzicht van bestaande invoervelden en formulieren voor doelsoort, methode, aas, vistijd, positie, actieve hengels, effectieve vistijd, aanbeten en visactiviteit/aanwezigheid.
+4. Overzicht van alle bestaande prognose- en adviesmodules met hun invoer, uitvoer, kwaliteitscontroles, afhankelijkheden en fallbacks.
+5. Overzicht van bestaande VisCoach-componenten, routes, state en sessie-instap.
+6. Overzicht van de bestaande Dexie-tabellen en eventuele migratiebehoefte.
+7. Backwards-compatibility-impact op import/export.
+8. Exacte lijst van ontbrekende velden en waarom elk veld nodig is, inclusief onderscheid tussen vangst, aanbeet, aanwezigheid, geen waarneming en onbekende uitkomst.
+9. Beoordeling van hoe werkelijke inspanning en hengeluren uit de huidige gegevens kunnen worden afgeleid; benoem onzekerheden en niet-afleidbare historische velden.
+10. Beoordeling van de huidige scheiding tussen biologische activiteit en vangkans, inclusief de juiste evaluatiemaatstaven.
+11. Voorstel voor datakwaliteits-/minimum-bewijsregels en geleidelijke lokale personalisatie; geen arbitraire drempels zonder backtest.
+12. Adviesafhankelijkheidsmatrix: per tactiek welke invoer en bestaande engine nodig zijn, en wanneer advies moet worden onderdrukt of afgezwakt.
+13. Bevestiging dat VisCoach zonder centrale AI/cloud/abonnement lokaal kan rekenen; inventariseer externe netwerkafhankelijkheden afzonderlijk.
+14. Voorstel voor de kleinste veilige technische uitbreidingen.
+15. Testmatrix per fase en acceptatiecriteria.
+16. Risico's voor bestaande sessies, vangsten, prognoses, import/export en performance.
 
 **Auditregels:**
 - Geen bestanden wijzigen.
@@ -840,8 +923,13 @@ De coach moet:
 5. De oorspronkelijke prognosemomentopname behouden voor de bestaande prognose-learning engine en daarnaast het getoonde coachadvies afzonderlijk vastleggen.
 6. Geplande vistijd en werkelijke sessie-inspanning onderscheiden en achteraf correct evalueren.
 7. Zijn oorspronkelijke en latere coachadviezen bewaren en achteraf evalueren.
-5. Aantoonbaar verbeteren waar data dat ondersteunt, en onzekerheid tonen waar dat niet zo is.
-6. Offline-first, privacygericht en gratis bruikbaar blijven voor de kernfunctionaliteit.
+8. Biologische visactiviteit en concrete vangkans gescheiden presenteren en met passende methoden evalueren.
+9. Resultaten eerlijk vergelijken met werkelijke visinspanning, inclusief actieve hengels en hengeluren waar betrouwbaar bekend.
+10. Vangsten, aanbeten, aanwezigheidssignalen, geen waargenomen activiteit en onbekende uitkomsten afzonderlijk behandelen.
+11. Lokale personalisatie geleidelijk en alleen op basis van voldoende kwalitatieve gegevens toepassen.
+12. Tactisch advies alleen geven wanneer de benodigde invoer en engine-onderbouwing aanwezig zijn.
+13. Aantoonbaar verbeteren waar data dat ondersteunt, en onzekerheid tonen waar dat niet zo is.
+14. Volledig lokaal zelfstandig, offline-first, privacygericht en gratis bruikbaar blijven voor de kernfunctionaliteit.
 
 **Het onderscheid van Vislogboek moet niet zijn dat het óók een voorspelling geeft. Het moet zijn dat het een controleerbare, persoonlijke leercyclus bouwt tussen stek, visser, omstandigheden, tactiek en resultaat.**
 
@@ -875,4 +963,4 @@ De coach moet:
 - [Datakwaliteit](https://github.com/sennzor-wq/Vislogboek/blob/main/src/services/dataQualityEngine.ts)
 - [Projectcontext – huidige VisCoach-specificatie](https://github.com/sennzor-wq/Vislogboek/blob/main/PROJECT_CONTEXT.md#18-viscoach--toekomstige-startpagina-en-sessie-instap)
 
-**Laatste inhoudelijke controle van de repository:** 2 november 2026. Controleer bestandsnamen, interfaces en implementatiestatus opnieuw voordat een fase wordt gebouwd.
+**Laatste inhoudelijke controle van de repository voor deze roadmap:** 2 november 2026. De aanvullende ontwerpprincipes zijn verwerkt op basis van de productbeslissingen; de read-only audit moet bestandsnamen, interfaces, datadekking en implementatiestatus opnieuw verifiëren voordat een fase wordt gebouwd.
