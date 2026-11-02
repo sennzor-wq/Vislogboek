@@ -356,6 +356,28 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
     return `De back-up bevat te veel gegevens (maximum ${MAX_BACKUP_TOTAL_RECORDS} records).`;
   }
 
+  // Vangstfoto's zijn lokaal opgeslagen data-URL's. Blokkeer externe URL's
+  // en SVG-data-URL's zodat een geïmporteerde back-up geen externe tracking
+  // of actieve SVG-inhoud kan laten laden in de app-origin.
+  const isSafeLocalPhoto = (value: unknown): boolean =>
+    typeof value === 'string' &&
+    /^data:image\\/(?!svg\\+xml)[a-z0-9.+-]+;base64,/i.test(value);
+
+  for (const catchRecord of data.catches as Array<CatchItem & { photoUrl?: unknown }>) {
+    if (catchRecord.photoUrl !== undefined && catchRecord.photoUrl !== null &&
+        catchRecord.photoUrl !== '' && !isSafeLocalPhoto(catchRecord.photoUrl)) {
+      return `De back-up bevat een niet-toegestane fotoverwijzing bij vangst ${catchRecord.id}.`;
+    }
+  }
+  for (const sessionRecord of data.sessions as Array<FishingSession & { photoUrls?: unknown }>) {
+    if (sessionRecord.photoUrls !== undefined) {
+      if (!Array.isArray(sessionRecord.photoUrls) ||
+          sessionRecord.photoUrls.some((photo) => !isSafeLocalPhoto(photo))) {
+        return `De back-up bevat een niet-toegestane fotolijst bij sessie ${sessionRecord.id}.`;
+      }
+    }
+  }
+
   const inspectValue = (value: unknown, path: string, depth: number): string | null => {
     if (depth > MAX_BACKUP_NESTING_DEPTH) {
       return `De back-up is te diep genest bij ${path}.`;
