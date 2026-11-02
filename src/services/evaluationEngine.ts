@@ -25,7 +25,8 @@ export interface EvaluationResult {
   statusMessage: string;
   brierScore: number | null; // [0, 1] - lager is beter (0 = perfecte deterministische precisie)
   naiveBrierScore: number | null; // Baseline op basis van gemiddelde steekproeffrequentie
-  brierSkillScore: number | null; // BSS: 1 - (BS / BS_naive). Positief betekent superieur aan naieve gok
+  brierSkillScore: number | null; // BSS: 1 - (BS / BS_naive), alleen bij onafhankelijke rolling baseline
+  baselineEvaluatedCount: number; // aantal testvoorspellingen met voldoende eerdere trainingsuitkomsten
   averageForecastProbability: number | null; // %
   observedCatchRate: number | null; // %
   calibrationBins: CalibrationBin[];
@@ -37,12 +38,10 @@ export interface EvaluationResult {
  * Sluit de benchmark uit van onafhankelijke modelvalidatie.
  */
 export function evaluatePrognosisPerformance(
-  snapshots: PrognosisSnapshot[]
+  snapshots: PrognosisSnapshot[],
+  trainingHistory: PrognosisSnapshot[] = snapshots
 ): EvaluationResult {
   const totalSnapshots = snapshots.length;
-
-  // Filter alleen snapshots met een gerealiseerde, definitieve uitkomst ('catch' of 'skunk_confirmed')
-  // Sluit benchmarks en voorspellingen zonder numerieke vangstkans (bijv. N < 5) strikt uit
   const validEvaluated = snapshots.filter((s) => {
     if (s.predictedCatchChance === null || typeof s.predictedCatchChance !== 'number') return false;
     if ((s as any).isBenchmark === true) return false;
@@ -51,17 +50,17 @@ export function evaluatePrognosisPerformance(
 
   const evaluatedCount = validEvaluated.length;
   const pendingCount = totalSnapshots - evaluatedCount;
-
+  const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
-    'Momentopnames worden vóór aanvang van een sessie vastgelegd en zijn onveranderlijk (immutable).',
-    'Voorwaartse validatie: voorspellingen zijn geregistreerd vóór sessie-aanvang, waardoor trainingsdata en testdata strikt gescheiden blijven.',
+    'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve sessie-uitkomsten.',
+    'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen eerdere uitkomsten van dezelfde doelsoort tellen mee; dezelfde of latere doeldagen zijn uitgesloten.',
+    `Per voorspelling zijn minimaal ${minimumTrainingSamples} eerdere gekoppelde sessie-uitkomsten nodig voor een baseline.`,
   ];
 
   if (evaluatedCount < 5) {
     disclaimers.push(
-      `Er zijn momenteel slechts ${evaluatedCount} geëvalueerde momentopnames. Minimaal 5 gerealiseerde sessies zijn vereist om een statistisch verantwoorde Brier-score en kalibratie te berekenen.`
+      `Er zijn momenteel slechts ${evaluatedCount} geëvalueerde momentopnames. Minimaal 5 gerealiseerde sessies zijn vereist om de Brier-score te tonen.`
     );
-
     return {
       totalSnapshots,
       evaluatedCount,
@@ -71,6 +70,7 @@ export function evaluatePrognosisPerformance(
       brierScore: null,
       naiveBrierScore: null,
       brierSkillScore: null,
+      baselineEvaluatedCount: 0,
       averageForecastProbability: null,
       observedCatchRate: null,
       calibrationBins: initializeEmptyBins(),
@@ -78,13 +78,9 @@ export function evaluatePrognosisPerformance(
     };
   }
 
-  // 1. Bereken paren (f_i, o_i)
-  // f_i = voorspelde kans [0, 1]
-  // o_i = werkelijke uitkomst (1 als catch, 0 als skunk_confirmed)
   let sumSquaredError = 0;
   let sumForecasts = 0;
   let sumObserved = 0;
-
   const pairs = validEvaluated.map((s) => {
     const f = Math.max(0, Math.min(1, (s.predictedCatchChance as number) / 100));
     const o = s.actualOutcome === 'catch' ? 1.0 : 0.0;
@@ -93,48 +89,68 @@ export function evaluatePrognosisPerformance(
     sumObserved += o;
     return { f, o, snapshot: s };
   });
-
   const brierScore = sumSquaredError / evaluatedCount;
-  const baseRate = sumObserved / evaluatedCount;
 
-  // 2. Naieve Brier Score (voorspelt altijd de gemiddelde basiskans)
-  let sumNaiveSquaredError = 0;
+  // Bereken voor iedere testvoorspelling een baseline uit uitsluitend eerdere,
+  // gekoppelde sessie-uitkomsten van dezelfde doelsoort. Dedupe op sessie-ID zodat
+  // een sessie nooit meerdere keren als trainingswaarneming meetelt.
+  const baselinePairs: Array<{ forecast: number; observed: number; modelForecast: number }> = [];
   for (const pair of pairs) {
-    sumNaiveSquaredError += Math.pow(baseRate - pair.o, 2);
+    const seenSessions = new Set<string>();
+    const priorOutcomes: number[] = [];
+    for (const historical of trainingHistory) {
+      if (historical.targetDate >= pair.snapshot.targetDate) continue;
+      if (historical.targetSpecies !== pair.snapshot.targetSpecies) continue;
+      if ((historical as any).isBenchmark === true) continue;
+      if (!historical.linkedSessionId || seenSessions.has(historical.linkedSessionId)) continue;
+      if (historical.actualOutcome !== 'catch' && historical.actualOutcome !== 'skunk_confirmed') continue;
+      seenSessions.add(historical.linkedSessionId);
+      priorOutcomes.push(historical.actualOutcome === 'catch' ? 1 : 0);
+    }
+    if (priorOutcomes.length < minimumTrainingSamples) continue;
+    const baselineProbability = priorOutcomes.reduce((sum, outcome) => sum + outcome, 0) / priorOutcomes.length;
+    baselinePairs.push({
+      forecast: baselineProbability,
+      observed: pair.o,
+      modelForecast: pair.f,
+    });
   }
-  const naiveBrierScore = sumNaiveSquaredError / evaluatedCount;
 
-  // 3. Brier Skill Score (BSS)
-  // BSS = 1 - (BS / BS_naive)
+  let naiveBrierScore: number | null = null;
   let brierSkillScore: number | null = null;
-  if (naiveBrierScore > 0.0001) {
-    brierSkillScore = Math.round((1 - brierScore / naiveBrierScore) * 1000) / 1000;
+  if (baselinePairs.length >= 5) {
+    const baselineError = baselinePairs.reduce(
+      (sum, pair) => sum + Math.pow(pair.forecast - pair.observed, 2), 0
+    ) / baselinePairs.length;
+    const modelErrorOnSameCases = baselinePairs.reduce(
+      (sum, pair) => sum + Math.pow(pair.modelForecast - pair.observed, 2), 0
+    ) / baselinePairs.length;
+    naiveBrierScore = baselineError;
+    if (baselineError > 0.0001) {
+      brierSkillScore = Math.round((1 - modelErrorOnSameCases / baselineError) * 1000) / 1000;
+    } else {
+      disclaimers.push(
+        'De rolling baseline heeft op de vergelijkbare testgevallen geen foutvariantie; BSS is daarom niet onderscheidend.'
+      );
+    }
   } else {
-    // Geen variantie in uitkomsten (bijv. alle 5 sessies waren vangsten of alle 5 waren nulsessies)
-    brierSkillScore = 0.0;
     disclaimers.push(
-      'Alle historische evaluatiesessies hadden dezelfde uitkomst; de naieve variantie is nul waardoor de BSS niet onderscheidend is.'
+      `Brier Skill Score nog niet beschikbaar: slechts ${baselinePairs.length} testvoorspelling(en) hebben minimaal ${minimumTrainingSamples} eerdere uitkomsten van dezelfde doelsoort.`
     );
   }
 
-  // 4. Kalibratie-bins (5 kwartielen/segmenten)
   const bins = initializeEmptyBins();
   for (const pair of pairs) {
     const fPercent = pair.f * 100;
-    const targetBin = bins.find((b) => fPercent >= b.minProb * 100 && (fPercent < b.maxProb * 100 || (b.maxProb === 1.0 && fPercent <= 100)));
-    if (targetBin) {
-      targetBin.snapshotCount++;
-      if (targetBin.averageForecastProb === null) {
-        targetBin.averageForecastProb = pair.f * 100;
-        targetBin.observedCatchFraction = pair.o * 100;
-      } else {
-        targetBin.averageForecastProb += pair.f * 100;
-        targetBin.observedCatchFraction = (targetBin.observedCatchFraction || 0) + pair.o * 100;
-      }
-    }
+    const targetBin = bins.find((b) =>
+      fPercent >= b.minProb * 100 &&
+      (fPercent < b.maxProb * 100 || (b.maxProb === 1.0 && fPercent <= 100))
+    );
+    if (!targetBin) continue;
+    targetBin.snapshotCount++;
+    targetBin.averageForecastProb = (targetBin.averageForecastProb ?? 0) + pair.f * 100;
+    targetBin.observedCatchFraction = (targetBin.observedCatchFraction ?? 0) + pair.o * 100;
   }
-
-  // Afronden van de bins
   for (const bin of bins) {
     if (bin.snapshotCount > 0 && bin.averageForecastProb !== null && bin.observedCatchFraction !== null) {
       bin.averageForecastProb = Math.round((bin.averageForecastProb / bin.snapshotCount) * 10) / 10;
@@ -145,15 +161,18 @@ export function evaluatePrognosisPerformance(
 
   let statusMsg = '';
   if (brierScore < 0.15) {
-    statusMsg = `Uitstekende calibratie (Brier-score: ${brierScore.toFixed(3)}). De voorspellingen volgen de werkelijkheid nauwkeurig.`;
+    statusMsg = `Lage gemiddelde voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}).`;
   } else if (brierScore < 0.25) {
-    statusMsg = `Redelijke modelprestatie (Brier-score: ${brierScore.toFixed(3)}). ${
-      brierSkillScore !== null && brierSkillScore > 0
-        ? `Model presteert beter dan een naieve gok (+${(brierSkillScore * 100).toFixed(1)}% BSS).`
-        : 'Modelprestatie ligt dicht bij de algemene basisfrequentie.'
-    }`;
+    statusMsg = `Gemiddelde voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}).`;
   } else {
-    statusMsg = `Matige kalibratie (Brier-score: ${brierScore.toFixed(3)}). Vangstkansen vertonen een afwijking ten opzichte van gerealiseerde sessies.`;
+    statusMsg = `Hogere voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}); controleer kalibratie en datakwaliteit.`;
+  }
+  if (brierSkillScore !== null) {
+    statusMsg += brierSkillScore > 0
+      ? ` Rolling baseline: model presteert beter (+${(brierSkillScore * 100).toFixed(1)}% BSS).`
+      : ` Rolling baseline: geen aangetoonde verbetering (${(brierSkillScore * 100).toFixed(1)}% BSS).`;
+  } else {
+    statusMsg += ' Onafhankelijke rolling baseline nog niet beschikbaar.';
   }
 
   return {
@@ -163,8 +182,9 @@ export function evaluatePrognosisPerformance(
     hasSufficientData: true,
     statusMessage: statusMsg,
     brierScore: Math.round(brierScore * 1000) / 1000,
-    naiveBrierScore: Math.round(naiveBrierScore * 1000) / 1000,
+    naiveBrierScore: naiveBrierScore === null ? null : Math.round(naiveBrierScore * 1000) / 1000,
     brierSkillScore,
+    baselineEvaluatedCount: baselinePairs.length,
     averageForecastProbability: Math.round((sumForecasts / evaluatedCount) * 1000) / 10,
     observedCatchRate: Math.round((sumObserved / evaluatedCount) * 1000) / 10,
     calibrationBins: bins,
