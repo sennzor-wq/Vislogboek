@@ -52,6 +52,22 @@ assert(calibration?.season === 'herfst', 'Kalibratie wordt per seizoen gescheide
 assert(calibration !== undefined && calibration.appliedCorrectionC > 0 && calibration.appliedCorrectionC < 1,
   'Biascorrectie wordt door shrinkage bewust afgezwakt');
 
+const futureSnapshots = Array.from({ length: 8 }, (_, index) =>
+  makeSnapshot(index + 10, {
+    predictedWaterTemperature: 20,
+    actualWaterTemperature: 10,
+  })
+);
+const chronologicalCalibration = getWaterTemperatureCalibration(
+  [...eight, ...futureSnapshots],
+  'spot-a',
+  '2026-10-10'
+);
+assert(chronologicalCalibration?.sampleCount === 8,
+  'Kalibratie sluit meetresultaten van dezelfde of latere doeldagen uit (geen future leakage)');
+assert(chronologicalCalibration?.appliedCorrectionC === calibration?.appliedCorrectionC,
+  'Toekomstige resultaten veranderen de kalibratie voor een eerdere prognosedatum niet');
+
 assert(getWaterTemperatureCalibration(eight.slice(0, 7), 'spot-a', '2026-10-10') === undefined,
   'Zeven metingen leiden niet tot automatische modelaanpassing');
 assert(getWaterTemperatureCalibration(eight, 'spot-b', '2026-10-10') === undefined,
