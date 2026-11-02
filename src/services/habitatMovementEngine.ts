@@ -82,7 +82,7 @@ export function analyzeHabitatMovement(
   const missingInformation: string[] = [];
 
   // Metingen
-  if (location?.latitude && location?.longitude) {
+  if (typeof location?.latitude === 'number' && Number.isFinite(location.latitude) && typeof location?.longitude === 'number' && Number.isFinite(location.longitude)) {
     measuredDataPoints.push(`GPS-coördinaten stek: ${location.latitude.toFixed(4)}° NB, ${location.longitude.toFixed(4)}° OL`);
   }
   if (thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null) {
@@ -376,15 +376,17 @@ export function analyzeHabitatMovement(
       : `Wind ${avgWindSpeedKmH} km/u uit ${windDirText}; zonder lokale oever- en stromingsgegevens wordt geen vaste bewegingsrichting aangenomen.`
     : 'Onbekend: windsnelheid of windrichting ontbreekt; geen windgestuurde verplaatsing aangenomen.';
 
-  seasonalPattern = `${season}: ${
-    isWinterOrCold
-      ? 'Minimale actieradius, vis blijft binnen enkele tientallen meters van de rustkuil.'
-      : isSpringWarming
-      ? 'Doelgerichte trek naar zonbeschenen ondieptes zodra het water opwarmt.'
-      : isSummerWarm
-      ? 'Vaste dag- en nachtpatronen tussen schaduw overdag en oeveraaskans in de schemering.'
-      : 'Intensieve zoektocht naar calorierijk voedsel over het hele bodemoppervlak.'
-  }`;
+  seasonalPattern = effectiveWaterTemp === null
+    ? `${season}: kalenderseizoen bekend, maar zonder watertemperatuur wordt geen thermisch gestuurd actieradius- of trekpatroon aangenomen.`
+    : `${season}: ${
+        isWinterOrCold
+          ? 'Koudere omstandigheden kunnen de actieradius beperken; exacte lokale rustzones zijn niet vastgesteld.'
+          : isSpringWarming
+          ? 'Opwarming kan gebruik van ondiepere zones bevorderen; lokale temperatuurverschillen zijn niet gemeten.'
+          : isSummerWarm
+          ? 'Dag-/nachtverschillen kunnen het zonegebruik beïnvloeden; lokale schaduw en temperatuur zijn niet volledig in kaart.'
+          : 'Seizoenscontext kan voedselzoekgedrag beïnvloeden; de exacte lokale route is niet vastgesteld.'
+      }`;
 
   const movementHypothesis: FishMovementHypothesis = {
     likelyDirection,
