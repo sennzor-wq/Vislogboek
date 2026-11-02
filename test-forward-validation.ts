@@ -124,8 +124,8 @@ async function runTestSuite() {
   );
 
   assert(
-    snap1.modelVersion === 'v2.3-water-temperature-learning',
-    '1.4 Modelversie expliciet geregistreerd als v2.3-water-temperature-learning'
+    snap1.modelVersion === 'v2.4-water-thermal-history',
+    '1.4 Modelversie expliciet geregistreerd als v2.4-water-thermal-history'
   );
 
   // 1.5 Duplicatenpreventie: herhaalde startactie hergebruikt hetzelfde snapshot
