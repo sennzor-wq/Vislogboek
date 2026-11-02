@@ -827,7 +827,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 
 ## 20. Prestatieoptimalisatie — hergebruik van weer- en databasegegevens
 
-**Status: voorbereid op branch `perf-weather-optimization`; nog niet samengevoegd of gepubliceerd.**
+**Status: de optimalisatie is gedeeltelijk aantoonbaar opgenomen in de huidige `main`; de oorspronkelijke branch `perf-weather-optimization` is niet als geheel samengevoegd.** Op 2 november 2026 stond deze branch 11 commits vóór en 119 commits achter `main` (diverged). Dit is een verschil in Git-geschiedenis, geen bewijs dat de wateroptimalisatie niet in de app zit.
 
 ### Uitgangspunten
 - Optimalisatie mag de inhoudelijke prognose, onzekerheidsregels, dataprovenance of bestaande functies niet veranderen.
@@ -844,6 +844,13 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Database-initialisatie en historische seeding worden één keer per app-runtime uitgevoerd. Een gewone data-refresh voert niet opnieuw alle initiële controles en seed-acties uit. De bestaande Dexie-database en records worden niet gewist of opnieuw opgebouwd.
 - Bij het opslaan van één sessie, vangst of stek wordt alleen het betreffende record in de React-state bijgewerkt. Brede refreshes blijven beschikbaar voor import, herstel en verwijderflows.
 
+### Status in de huidige `main`
+- De lineaire prefix-somberekening met schuivende venstergrenzen voor 24-/72-uursgemiddelden is aanwezig in `src/services/waterThermalEngine.ts`.
+- Caches voor luchtdrukmetingen en hergebruik van sessie-/vangstselecties zijn aanwezig in `src/services/prognosisEngine.ts`; de temperatuurvalidatieparen worden gecachet in `src/services/evaluationEngine.ts`.
+- Eenmalige database-initialisatie per app-runtime is aanwezig in `src/db/db.ts`.
+- Deze onderdelen zijn dus niet meer alleen branchwerk. De huidige `main` bevat inmiddels ook latere wijzigingen die ontbreken in de oude prestatiebranch. De resterende verschillen van die branch moeten afzonderlijk worden vergeleken; niet blind mergen.
+- De code bevestigt dat optimalisaties zijn opgenomen, maar zonder een gecontroleerde benchmark op representatieve apparaten wordt geen concrete procentuele snelheidswinst geclaimd.
+
 ### Validatie
 - De thermische en prognoseregressietests blijven onderdeel van de bestaande CI-suite.
 - Een extra regressietest controleert dat een winddraaiing binnen één tijdvak zichtbaar blijft.
@@ -851,7 +858,7 @@ Dit is een harde functionele eis, los van de VisCoach:
 - Een groene CI-run bewijst geen gemeten snelheidswinst op een fysiek toestel. Daarvoor is later een aparte, reproduceerbare performancebenchmark nodig.
 
 
-## 20. Prognosepagina — standaard- en geavanceerde weergave
+## 21. Prognosepagina — standaard- en geavanceerde weergave
 
 ### Productdoel
 De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden begrijpelijk maken wat de prognose is, welke tijdvakken kansrijker zijn en welke praktische omstandigheden of tactische aandachtspunten relevant zijn. De pagina is geen documentatiepagina over de interne werking van het model. VisCoach is bedoeld voor de samengevoegde keuzehulp en concrete actie; de prognosepagina blijft het verdiepende overzicht van de modeluitkomst en omstandigheden.
@@ -882,7 +889,7 @@ De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden 
 - Dit is uitsluitend presentatie: evaluatie, learning, Brier-berekening, watertemperatuurvalidatie en snapshots blijven altijd actief en ongewijzigd.
 
 
-## 21. Prognosesnapshot pas opslaan bij definitieve sessie-opslag
+## 22. Prognosesnapshot pas opslaan bij definitieve sessie-opslag
 
 ### Probleem en gedrag
 - De knop "Start Sessie op dit moment" legde voorheen direct een snapshot vast voordat het sessieformulier werd bevestigd. Als de gebruiker het formulier sloot, bleef een niet-gekoppelde snapshot achter.
@@ -899,7 +906,7 @@ De prognosepagina moet voor een gemiddelde of ervaren visser in enkele seconden 
 - Google AI Studio publiceren en visuele controle op een fysiek toestel blijven aparte handmatige stappen.
 
 
-## 22. Goedgekeurde verbeteropdracht — 32 punten
+## 23. Goedgekeurde verbeteropdracht — 32 punten
 
 Op 2 november 2026 zijn de 32 verbeterpunten en de zes voorgestelde uitvoeringsfases expliciet goedgekeurd. Het uitvoeringsplan staat in `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md` en is leidend voor de concrete werkvolgorde en acceptatiecriteria.
 
@@ -919,8 +926,10 @@ Harde uitgangspunten:
 - Fase 1 gegevenscorrectheid: kerncorrecties samengevoegd via PR #13; aparte opslag van sessiewaarnemingen samengevoegd via PR #15. Beide CI-runs geslaagd.
 - Fase 2 volledige back-up en herstel: afgerond via PR #17; back-up v3 omvat alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's. Legacycompatibiliteit, volledige restore/merge, validatie en round-trip CI-tests toegevoegd.
 - Fase 3 thermische modellen en provenance: afgerond en samengevoegd naar `main` via PR #27 (merge commit `390284a5bed6cfc4ade8448335fd4feae20cce2f`). PR #27 bevat synthetische thermische validatie (12 controles), expliciete onzekerheid zonder lokale waterreferentie, chronologische rolling Brier-baseline en Europe/Amsterdam-datumcorrectie. Quality Gate run #145 is volledig geslaagd: typecheck, regressie-, forward-validation-, waterthermische-, backup/restore-tests en productiebuild. Synthetische resultaten zijn uitsluitend softwarevalidatie en geen bewijs van praktijknauwkeurigheid. Echte lokale meetreeksen zijn geen voorwaarde voor fase-3-afronding; MAE/RMSE/bias en intervaldekking blijven onbekend totdat later natuurlijke meetdata beschikbaar zijn. Biologische soortprofielen blijven voorlopige relatieve modellen; KWO ondersteunt de kwalitatieve temperatuurrichting, niet universele harde drempels. RWS-import is bewust buiten scope.
-- Fase 4 groepssessies en hengelinspanning: in uitvoering via branch `phase-4/group-sessions-and-rods`, PR #30 (draft). De huidige implementatie bevat optioneel deelnemersaantal, totaal hengelaantal, per-hengelrecords met positie/techniek/aas, actieve intervallen en gebeurtenissen, een intervalgebaseerde hengelurenberekening, additieve Dexie-tabel v3 en backup v4 met v1–v3-compatibiliteit. Quality Gate run #164 (ID `41505484004`) is geslaagd na de laatste codecorrecties, inclusief typecheck, bestaande regressies, veilige verwijdering, backup round-trip, nieuwe hengelinspanningstests en productiebuild. Open intervallen worden bij sessieafronding gesloten; actieve sessies kunnen tussentijds worden bewerkt en hengeluren/gebeurtenissen zijn zichtbaar in sessiedetails. Documentatie is bijgewerkt; PR blijft open en niet gemerged.
-- Fases 5 en 6: gepland volgens het implementatieplan.
+- Fase 4 groepssessies en hengelinspanning: afgerond en samengevoegd via PR #30 op 2 november 2026 (merge commit `43541547260b8ed3a8e43c5b471f7fcaa88882d1`). De implementatie bevat optioneel deelnemersaantal, totaal hengelaantal, per-hengelrecords met positie/techniek/aas, actieve intervallen en gebeurtenissen, intervalgebaseerde hengeluren, additieve Dexie-tabel v3 en backup v4 met v1–v3-compatibiliteit. Quality Gate run #165 is volgens de PR-controle geslaagd, inclusief typecheck, regressies, veilige verwijdering, backup round-trip, hengelinspanningstests en productiebuild. Open intervallen worden bij sessieafronding gesloten; actieve sessies kunnen tussentijds worden bewerkt en hengeluren/gebeurtenissen zijn zichtbaar in sessiedetails.
+- Fase 5 tactische kwaliteitspoorten: nog niet afgerond. `dataQualityEngine` en kwaliteitscontroles in het voorvoeradvies zijn al aanwezig, maar de volledige kwaliteitscontroles en regressievalidatie van habitat-, wind-/werp- en positioneringsadvies moeten nog worden afgerond. Fallbacks en aannames in deze engines vragen expliciete beoordeling.
+- Fase 6 VisCoach-integratie: gepland; de volledige coachcyclus uit het implementatieplan is nog niet afgerond.
+- Pre-publicatiebeveiliging: afzonderlijk uitgevoerd via PR #31, samengevoegd op 2 november 2026 (merge commit `f70b796ead043ed4ec9b6e70b3e3583e57aaef1b`). Dit is een aparte beveiligingsinspanning en telt niet als een van de 32 verbeterpunten.
 
 
 ## Fase 3 — waterthermisch model: aanvullende ontwerp- en implementatieregels
