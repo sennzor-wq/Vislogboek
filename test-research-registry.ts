@@ -2,7 +2,7 @@ import { RESEARCH_REGISTRY, getResearchByTopic, getResearchBySpecies, isApproved
 import { SPECIES_PROFILES } from './src/services/fishProfiles';
 
 const thermalEntries = getResearchByTopic('watertemperatuur');
-if (thermalEntries.length !== 1) throw new Error('Expected exactly one reviewed water-temperature evidence entry.');
+if (thermalEntries.length !== 3) throw new Error('Expected the three reviewed water-temperature evidence entries.');
 const entry = thermalEntries[0];
 if (!entry.sourceReferences.some((source) => source.includes('10.1029/2023RG000816'))) {
   throw new Error('The lake thermal modelling review DOI must be retained.');
