@@ -396,8 +396,8 @@ export async function mergeImportData(data: BackupData): Promise<{
   let addedWeatherCache = 0, addedPrognosisSnapshots = 0, addedPresenceObservations = 0;
   let settingsImported = false;
 
-  await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, async () => {
+  await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+    db.prognosisSnapshots, db.presenceObservations], async () => {
     for (const loc of data.locations) {
       const existing = await db.locations.get(loc.id);
       if (!existing && !loc.isBenchmark) {
@@ -441,8 +441,8 @@ export async function mergeImportData(data: BackupData): Promise<{
 export async function restoreBackupData(data: BackupData): Promise<void> {
   // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
   const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
-  await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, async () => {
+  await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+    db.prognosisSnapshots, db.presenceObservations], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
