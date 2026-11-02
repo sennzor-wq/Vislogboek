@@ -406,20 +406,17 @@ export function analyzeWaterThermalDevelopment(
     }
     const weatherEstimate = baseAirEquilibrium + solarBonus;
     let rawEstimate = weatherEstimate;
-    let historyWeight = 0;
     if (anchor && !isDepthKnown && anchorAgeHours !== null && anchorAgeHours <= 96) {
       // Bij onbekende diepte blijft een recente lokale meting het startpunt.
-      // De bestaande watertype-responsfactor stuurt alleen een voorzichtige
-      // aanpassing richting het weer; er wordt geen diepte aangenomen.
-      rawEstimate = anchor.temperature * (1 - responseWeight) + weatherEstimate * responseWeight;
+      // De verandering in het weer sinds de voorafgaande 72 uur wordt op het
+      // meetanker toegepast; er wordt geen diepte aangenomen.
+      rawEstimate = anchor.temperature + (weatherEstimate - past72Avg);
       usedMeasuredAnchor = true;
     } else if (historicalProfile) {
-      // Een meting van dezelfde stek weegt zwaarder dan een profiel van vergelijkbare
-      // wateren. De bijdrage groeit geleidelijk met het aantal echte waarnemingen.
-      historyWeight = historicalProfile.source === 'same_location'
-        ? Math.min(0.65, historicalProfile.sampleCount / (historicalProfile.sampleCount + 4))
-        : Math.min(0.35, historicalProfile.sampleCount / (historicalProfile.sampleCount + 8));
-      rawEstimate = historicalProfile.baselineC * historyWeight + weatherEstimate * (1 - historyWeight);
+      // Het seizoensprofiel vormt de starttoestand. Alleen de afwijking van het
+      // actuele weer ten opzichte van de voorafgaande 72u-luchtgemiddelde wordt
+      // toegevoegd. Zo ontstaat geen extra, ongekalibreerde mengcoëfficiënt.
+      rawEstimate = historicalProfile.baselineC + (weatherEstimate - past72Avg);
     }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
     const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
