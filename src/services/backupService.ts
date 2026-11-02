@@ -1,5 +1,5 @@
 import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from '../db/db';
-import { FishingLocation, FishingSession, CatchItem, AppSettings } from '../types';
+import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation } from '../types';
 
 export interface BackupData {
   version: number;
@@ -9,6 +9,10 @@ export interface BackupData {
   sessions: FishingSession[];
   catches: CatchItem[];
   settings?: AppSettings;
+  /** Added in v3; optional for legacy v1/v2 imports. */
+  weatherCache?: WeatherCacheEntry[];
+  prognosisSnapshots?: PrognosisSnapshot[];
+  presenceObservations?: PresenceObservation[];
 }
 
 export interface ImportPreview {
@@ -22,6 +26,9 @@ export interface ImportPreview {
   duplicateSessionCount: number;
   duplicateLocationCount: number;
   duplicateCatchCount: number;
+  weatherCacheCount?: number;
+  prognosisSnapshotsCount?: number;
+  presenceObservationsCount?: number;
   error?: string;
 }
 
@@ -29,19 +36,24 @@ export interface ImportPreview {
  * Exporteert de volledige IndexedDB database naar een JSON object en downloadbestand.
  */
 export async function exportDatabaseToJson(): Promise<BackupData> {
-  const locations = await db.locations.toArray();
-  const sessions = await db.sessions.toArray();
-  const catches = await db.catches.toArray();
-  const settings = (await db.settings.get('user_settings')) || undefined;
+  const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations] =
+    await Promise.all([
+      db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
+      db.settings.get('user_settings'), db.weatherCache.toArray(),
+      db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(),
+    ]);
 
   const backup: BackupData = {
-    version: 2,
+    version: 3,
     appName: 'Vislogboek',
     exportedAt: new Date().toISOString(),
     locations,
     sessions,
     catches,
-    settings,
+    settings: settings || undefined,
+    weatherCache,
+    prognosisSnapshots,
+    presenceObservations,
   };
 
   const jsonString = JSON.stringify(backup, null, 2);
@@ -97,7 +109,15 @@ export function normalizeRawBackup(raw: any): BackupData {
 
   // Geval 1: reeds platte BackupData
   if (Array.isArray(raw.sessions) && Array.isArray(raw.locations) && Array.isArray(raw.catches)) {
-    return raw as BackupData;
+    return {
+      ...raw,
+      version: Number(raw.version) || 2,
+      appName: raw.appName || 'Vislogboek',
+      exportedAt: raw.exportedAt || raw.exported_at || new Date().toISOString(),
+      weatherCache: Array.isArray(raw.weatherCache) ? raw.weatherCache : [],
+      prognosisSnapshots: Array.isArray(raw.prognosisSnapshots) ? raw.prognosisSnapshots : [],
+      presenceObservations: Array.isArray(raw.presenceObservations) ? raw.presenceObservations : [],
+    } as BackupData;
   }
 
   // Geval 2: vislogboek-backup formaat met 'spots' en geneste 'catches'
@@ -271,6 +291,9 @@ export function normalizeRawBackup(raw: any): BackupData {
     sessions,
     catches,
     settings: raw.settings,
+    weatherCache: Array.isArray(raw.weatherCache) ? raw.weatherCache : [],
+    prognosisSnapshots: Array.isArray(raw.prognosisSnapshots) ? raw.prognosisSnapshots : [],
+    presenceObservations: Array.isArray(raw.presenceObservations) ? raw.presenceObservations : [],
   };
 }
 
@@ -282,7 +305,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     const raw = JSON.parse(fileContent);
     const data = normalizeRawBackup(raw);
 
-    if (!Array.isArray(data.sessions) || !Array.isArray(data.locations) || !Array.isArray(data.catches)) {
+    if (!Array.isArray(data.sessions) || !Array.isArray(data.locations) || !Array.isArray(data.catches) ||
+        !Array.isArray(data.weatherCache) || !Array.isArray(data.prognosisSnapshots) ||
+        !Array.isArray(data.presenceObservations)) {
       return {
         preview: {
           valid: false,
@@ -296,6 +321,21 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
           error: 'Het bestand bevat geen geldige Vislogboek sessie- of stekkenstructuur.',
         },
       };
+    }
+
+    if (data.version > 3) throw new Error(`Back-upversie ${data.version} is nieuwer dan deze app ondersteunt.`);
+    const collections: Array<[string, any[]]> = [
+      ['locaties', data.locations], ['sessies', data.sessions], ['vangsten', data.catches],
+      ['weercache', data.weatherCache || []], ['prognoses', data.prognosisSnapshots || []],
+      ['waarnemingen', data.presenceObservations || []],
+    ];
+    for (const [label, records] of collections) {
+      if (records.some((record) => !record || typeof record !== 'object' || typeof record.id !== 'string' || !record.id.trim())) {
+        throw new Error(`De back-up bevat een ongeldig record in ${label} (ontbrekende ID).`);
+      }
+    }
+    if (data.settings && (typeof data.settings !== 'object' || data.settings.id !== 'user_settings')) {
+      throw new Error('De back-up bevat ongeldige instellingen.');
     }
 
     const existingSessionIds = new Set(await db.sessions.toCollection().primaryKeys());
@@ -321,6 +361,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         duplicateSessionCount: dupSessions,
         duplicateLocationCount: dupLocations,
         duplicateCatchCount: dupCatches,
+        weatherCacheCount: data.weatherCache?.length || 0,
+        prognosisSnapshotsCount: data.prognosisSnapshots?.length || 0,
+        presenceObservationsCount: data.presenceObservations?.length || 0,
       },
       data,
     };
@@ -344,12 +387,17 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
 /**
  * Voegt gegevens samen met behoud van bestaande records en beschermde benchmark.
  */
-export async function mergeImportData(data: BackupData): Promise<{ addedSessions: number; addedCatches: number; addedLocations: number }> {
-  let addedLocations = 0;
-  let addedSessions = 0;
-  let addedCatches = 0;
+export async function mergeImportData(data: BackupData): Promise<{
+  addedSessions: number; addedCatches: number; addedLocations: number;
+  addedWeatherCache: number; addedPrognosisSnapshots: number; addedPresenceObservations: number;
+  settingsImported: boolean;
+}> {
+  let addedLocations = 0, addedSessions = 0, addedCatches = 0;
+  let addedWeatherCache = 0, addedPrognosisSnapshots = 0, addedPresenceObservations = 0;
+  let settingsImported = false;
 
-  await db.transaction('rw', db.locations, db.sessions, db.catches, async () => {
+  await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+    db.prognosisSnapshots, db.presenceObservations, async () => {
     for (const loc of data.locations) {
       const existing = await db.locations.get(loc.id);
       if (!existing && !loc.isBenchmark) {
@@ -368,14 +416,25 @@ export async function mergeImportData(data: BackupData): Promise<{ addedSessions
 
     for (const c of data.catches) {
       const existing = await db.catches.get(c.id);
-      if (!existing) {
-        await db.catches.put(c);
-        addedCatches++;
-      }
+      if (!existing) { await db.catches.put(c); addedCatches++; }
+    }
+    for (const item of data.weatherCache || []) {
+      if (!(await db.weatherCache.get(item.id))) { await db.weatherCache.put(item); addedWeatherCache++; }
+    }
+    for (const item of data.prognosisSnapshots || []) {
+      if (!(await db.prognosisSnapshots.get(item.id))) { await db.prognosisSnapshots.put(item); addedPrognosisSnapshots++; }
+    }
+    for (const item of data.presenceObservations || []) {
+      if (!(await db.presenceObservations.get(item.id))) { await db.presenceObservations.put(item); addedPresenceObservations++; }
+    }
+    // Merge preserves existing local preferences; settings are imported only on a fresh device.
+    if (data.settings && !(await db.settings.get(data.settings.id))) {
+      await db.settings.put(data.settings); settingsImported = true;
     }
   });
 
-  return { addedSessions, addedCatches, addedLocations };
+  return { addedSessions, addedCatches, addedLocations, addedWeatherCache,
+    addedPrognosisSnapshots, addedPresenceObservations, settingsImported };
 }
 
 /**
@@ -386,10 +445,15 @@ export async function replaceWithImportData(data: BackupData): Promise<void> {
   await exportDatabaseToJson();
 
   // 2. Wissen en herstellen in transactie
-  await db.transaction('rw', db.locations, db.sessions, db.catches, async () => {
+  await db.transaction('rw', db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+    db.prognosisSnapshots, db.presenceObservations, async () => {
     await db.locations.clear();
     await db.sessions.clear();
     await db.catches.clear();
+    await db.settings.clear();
+    await db.weatherCache.clear();
+    await db.prognosisSnapshots.clear();
+    await db.presenceObservations.clear();
 
     // Importeer data
     for (const loc of data.locations) {
@@ -398,9 +462,11 @@ export async function replaceWithImportData(data: BackupData): Promise<void> {
     for (const sess of data.sessions) {
       await db.sessions.put(sess);
     }
-    for (const c of data.catches) {
-      await db.catches.put(c);
-    }
+    for (const c of data.catches) await db.catches.put(c);
+    if (data.settings) await db.settings.put(data.settings);
+    for (const item of data.weatherCache || []) await db.weatherCache.put(item);
+    for (const item of data.prognosisSnapshots || []) await db.prognosisSnapshots.put(item);
+    for (const item of data.presenceObservations || []) await db.presenceObservations.put(item);
 
     // Garandeer dat de beschermde benchmark aanwezig is!
     await db.locations.put(BENCHMARK_LOCATION);
