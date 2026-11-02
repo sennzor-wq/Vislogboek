@@ -485,8 +485,8 @@ assert(
   `3.6 In koud winterwater (<6°C) is de primaire zone een holding/rustzone (werkelijk: ${habitatWinter.primaryZone.habitatType})`
 );
 assert(
-  habitatWinter.movementHypothesis.seasonalPattern.includes('Minimale actieradius') ||
-  habitatWinter.movementHypothesis.seasonalPattern.includes('rust'),
+  habitatWinter.movementHypothesis.seasonalPattern.includes('actieradius beperken') ||
+  habitatWinter.movementHypothesis.seasonalPattern.includes('koude omstandigheden'),
   '3.7 Seizoenspatroon vermeldt passiviteit en beperkte actieradius'
 );
 
