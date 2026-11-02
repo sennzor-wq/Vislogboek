@@ -325,7 +325,25 @@ async function runBrierIntegrationTest() {
     `4.8 Totale som van kwadratische fouten = ${accumulatedSquaredError.toFixed(2)} (Verwacht: 1.63)`
   );
 
-  const evalResult = evaluatePrognosisPerformance(linkedSnapshots);
+  // Gescheiden trainingshistorie van vóór de testperiode. Deze uitkomsten worden
+  // alleen gebruikt om de rolling baseline te bepalen en niet als testvoorspellingen gescoord.
+  const baselineTrainingSnapshots: PrognosisSnapshot[] = [
+    'catch', 'catch', 'catch', 'catch', 'skunk_confirmed', 'skunk_confirmed', 'skunk_confirmed',
+  ].map((outcome, index) => ({
+    id: `baseline-training-${index + 1}`,
+    forecastTimestamp: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
+    targetDate: `2026-10-${String(10 + index).padStart(2, '0')}`,
+    targetSpecies: 'Karper',
+    durationHours: 4,
+    predictedActivityScore: null,
+    predictedCatchChance: null,
+    actualOutcome: outcome as 'catch' | 'skunk_confirmed',
+    linkedSessionId: `baseline-session-${index + 1}`,
+    source: 'test-training-history',
+    modelVersion: 'test',
+    createdAt: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
+  }));
+  const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots);
 
   // Gemiddelde Brier-score = 1.63 / 7 ≈ 0.2329 (in EvaluationResult afgerond op 3 decimalen: 0.233)
   const expectedBrierScore = 1.63 / 7;
@@ -334,12 +352,15 @@ async function runBrierIntegrationTest() {
     `4.9 Gemiddelde Brier-score = ${evalResult.brierScore?.toFixed(4)} (Verwacht: ${(1.63 / 7).toFixed(4)} ≈ 0.2329, afgerond: 0.233)`
   );
 
-  // Naive baseline: 4 vangsten uit 7 waarnemingen -> basiskans = 4/7 ≈ 0.5714
+  // Rolling baseline: 4 vangsten uit 7 eerdere trainingssessies -> basiskans = 4/7 ≈ 0.5714.
+  // De 7 testuitkomsten worden niet gebruikt om hun eigen referentiekans te bepalen.
   // Naive Brier Score = 4 * (4/7 - 1)^2 / 7 + 3 * (4/7 - 0)^2 / 7 = 12 / 49 ≈ 0.2449
   const expectedNaiveBS = 12 / 49;
   assert(
-    evalResult.naiveBrierScore !== null && Math.abs(evalResult.naiveBrierScore - expectedNaiveBS) < 1e-3,
-    `4.10 Naïeve baseline BS_naive = ${evalResult.naiveBrierScore?.toFixed(4)} (Verwacht: ${(12 / 49).toFixed(4)} ≈ 0.2449)`
+    evalResult.naiveBrierScore !== null &&
+      evalResult.baselineEvaluatedCount === 7 &&
+      Math.abs(evalResult.naiveBrierScore - expectedNaiveBS) < 1e-3,
+    `4.10 Chronologische rolling baseline BS_naive = ${evalResult.naiveBrierScore?.toFixed(4)} op ${evalResult.baselineEvaluatedCount} testgevallen (Verwacht: ${(12 / 49).toFixed(4)} ≈ 0.2449)`
   );
 
   // Brier Skill Score: 1 - (BS / BS_naive) = 1 - ( (1.63/7) / (12/49) ) = 1 - 0.950833... = +0.049 (+4.9%)
