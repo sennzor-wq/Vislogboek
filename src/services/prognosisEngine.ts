@@ -449,12 +449,12 @@ function analyzeTimeSlot(
   let conclusion = '';
   if (!hasKnownWaterTemp) { conclusion = 'Activiteitsindex niet betrouwbaar te bepalen: gemeten of geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
   else if (activityScore >= 8.5) {
-    conclusion = `Zeer gunstige biologische omstandigheden (${activityScore}/10) voor ${species}. Optimale samenkomst van watertemperatuur, licht en weersomstandigheden.`;
+    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel. Licht en overige weersomstandigheden zijn afzonderlijke context en verhogen deze score niet.`;
   } else if (activityScore >= 6.8) {
-    conclusion = `Gunstige omstandigheden (${activityScore}/10). Voldoende biologische stimulans voor ${species}.`;
+    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel.`;
   } else if (activityScore >= 4.8) {
     conclusion = `Gemiddelde biologische activiteit (${activityScore}/10). ${
-      thermalEff < 0.5 ? 'De relatief lage temperatuur tempert de stofwisseling.' : 'Enkele omstandigheden dempen het potentieel.'
+      thermalEff < 0.5 ? 'De relatief lage temperatuur tempert de stofwisseling.' : 'De thermische respons is gematigd; overige omstandigheden worden afzonderlijk als context getoond.'
     }`;
   } else {
     conclusion = `Lage biologische activiteit (${activityScore}/10). ${
