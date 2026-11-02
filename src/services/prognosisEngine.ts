@@ -1091,8 +1091,15 @@ export async function savePrognosisSnapshot(
       prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp
         ? prognosis.thermalAnalysis.estimatedRange ?? null
         : null,
-    modelVersion: 'v2.3-water-temperature-learning',
-    source: 'Vislogboek v2.2 Prognose-Engine',
+    predictedWaterTemperatureStatus: prognosis.thermalAnalysis?.waterTemperatureStatus,
+    predictedWaterTemperatureUncertaintyC: prognosis.thermalAnalysis?.uncertaintyC ?? null,
+    predictedWaterTemperatureAnchorTimestamp: prognosis.thermalAnalysis?.anchorMeasurementTimestamp ?? null,
+    predictedWaterTemperatureHistoricalBaselineC: prognosis.thermalAnalysis?.historicalWaterTemperatureBaselineC ?? null,
+    predictedWaterTemperatureHistoricalSamples: prognosis.thermalAnalysis?.historicalWaterTemperatureSamples ?? 0,
+    predictedWaterTemperatureHistoricalSource: prognosis.thermalAnalysis?.historicalWaterTemperatureSource ?? null,
+    predictedWaterTemperatureWeatherCoverage: prognosis.thermalAnalysis?.weatherCoverageRatio,
+    modelVersion: 'v2.4-water-thermal-history',
+    source: 'Vislogboek v2.4 water thermal model',
     createdAt: new Date().toISOString(),
   };
 
