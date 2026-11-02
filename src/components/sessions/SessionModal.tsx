@@ -7,6 +7,7 @@ import {
   SessionOutcome,
   CompassDirection,
   COMPASS_DIRECTIONS,
+  SessionRod,
 } from '../../types';
 import { getCurrentWeatherSnapshot, fetchHistoricalWeatherSnapshot } from '../../services/weatherService';
 import { createLiveSnapshotForSessionStart, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
@@ -15,7 +16,8 @@ import { Calendar, Clock, MapPin, Sparkles, Thermometer, Wind, AlertCircle, Hist
 interface SessionModalProps {
   session?: FishingSession | null;
   locations: FishingLocation[];
-  onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot) => Promise<void>;
+  onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot, rods?: SessionRod[]) => Promise<void>;
+  initialRodDetails?: SessionRod[];
   pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
   onClose: () => void;
 }
@@ -25,6 +27,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   locations,
   onSave,
   pendingPrognosisSnapshot,
+  initialRodDetails = [],
   onClose,
 }) => {
   const isEditing = !!session;
@@ -48,6 +51,9 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   const [selectedTargetSpecies, setSelectedTargetSpecies] = useState<FishSpecies[]>(
     session?.targetSpecies || ['Karper']
   );
+  const [participantCount, setParticipantCount] = useState<number | string>(session?.participantCount ?? '');
+  const [sessionRods, setSessionRods] = useState<SessionRod[]>(initialRodDetails);
+  const [showRodDetails, setShowRodDetails] = useState(initialRodDetails.length > 0);
   const [rodCount, setRodCount] = useState<number | string>(
     session?.rodCount !== undefined ? Number(session.rodCount) : 2
   );
@@ -164,6 +170,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         outcome: isCompleted ? outcome : 'active',
         targetSpecies: selectedTargetSpecies,
         rodCount: parsedRods,
+        participantCount: participantCount === '' ? undefined : Math.max(1, Number(participantCount)),
         technique,
         baitAndFeed,
         prebaited,
@@ -210,7 +217,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         }
       }
 
-      await onSave(payload, snapshotToSave);
+      const normalizedRods = showRodDetails ? sessionRods.slice(0, parsedRods).map((rod) => ({ ...rod, sessionId: payload.id! })) : [];
+      await onSave(payload, snapshotToSave, normalizedRods);
       onClose();
     } catch (err: any) {
       console.error('Fout bij opslaan sessie:', err);
@@ -412,6 +420,69 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               })}
             </div>
           </div>
+
+          {/* Groepsgrootte en totale hengelinzet */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Aantal deelnemers (optioneel)</label>
+              <input type="number" min={1} max={50} value={participantCount}
+                onChange={(e) => setParticipantCount(e.target.value === '' ? '' : Math.max(1, Number(e.target.value)))}
+                placeholder="Bijv. 3" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Totaal aantal hengels</label>
+              <input type="number" min={1} value={rodCount}
+                onChange={(e) => setRodCount(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1))}
+                onBlur={() => setRodCount(typeof rodCount === 'number' && rodCount >= 1 ? rodCount : 1)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+            </div>
+            <div className="flex items-end">
+              <label className="flex items-center gap-2 text-xs text-slate-300 pb-2">
+                <input type="checkbox" checked={showRodDetails} onChange={(e) => {
+                  const enabled = e.target.checked;
+                  setShowRodDetails(enabled);
+                  if (enabled && sessionRods.length === 0) {
+                    const count = Math.max(1, Number(rodCount) || 1);
+                    setSessionRods(Array.from({ length: count }, (_, index) => ({
+                      id: `rod-${Date.now()}-${index}`, sessionId: session?.id || '', rodNumber: index + 1,
+                      activeIntervals: [], events: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+                    })));
+                  }
+                }} className="w-4 h-4" />
+                Details per hengel
+              </label>
+            </div>
+          </div>
+          {showRodDetails && (
+            <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-3">
+              <div>
+                <div className="text-xs font-bold text-white">Hengeldetails (optioneel)</div>
+                <p className="text-[11px] text-slate-400">Vul alleen de hengels en actieve periodes in die je wilt bijhouden. Onbekende inzet wordt niet geschat.</p>
+              </div>
+              {sessionRods.slice(0, Math.max(1, Number(rodCount) || 1)).map((rod, index) => (
+                <div key={rod.id} className="rounded-xl border border-slate-700 bg-slate-900/70 p-3 space-y-2">
+                  <div className="font-bold text-xs text-emerald-300">Hengel {rod.rodNumber}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input value={rod.positionZone || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, positionZone: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Positie / zone" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                    <input value={rod.technique || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, technique: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Techniek" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                    <input value={rod.baitPresentation || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, baitPresentation: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Aas / presentatie" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                  </div>
+                  <div className="text-[11px] text-slate-400">Actieve periode (optioneel; alleen volledige intervallen tellen mee)</div>
+                  {(rod.activeIntervals || []).map((interval) => (
+                    <div key={interval.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                      <input type="datetime-local" value={interval.startTime ? interval.startTime.slice(0,16) : ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.map((x) => x.id === interval.id ? { ...x, startTime: e.target.value } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                      <input type="datetime-local" value={interval.endTime ? interval.endTime.slice(0,16) : ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.map((x) => x.id === interval.id ? { ...x, endTime: e.target.value || null } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                      <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.filter((x) => x.id !== interval.id) } : item))} className="text-rose-300 text-xs">Verwijderen</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: [...item.activeIntervals, { id: `interval-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, startTime: '', endTime: null }] } : item))} className="text-cyan-300 text-[11px] underline">+ Actieve periode toevoegen</button>
+                </div>
+              ))}
+              {sessionRods.length < Math.max(1, Number(rodCount) || 1) && (
+                <button type="button" onClick={() => setSessionRods((prev) => [...prev, { id: `rod-${Date.now()}`, sessionId: session?.id || '', rodNumber: prev.length + 1, activeIntervals: [], events: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }])} className="text-cyan-300 text-xs underline">+ Hengel toevoegen</button>
+              )}
+            </div>
+          )}
 
           {/* Hengels, Techniek en Aas */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">

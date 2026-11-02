@@ -143,6 +143,8 @@ export interface FishingSession {
   outcome: SessionOutcome;
   targetSpecies?: FishSpecies[];
   rodCount?: number;
+  /** Optioneel aantal deelnemers; rodCount blijft het totale aantal hengels van de sessie. */
+  participantCount?: number;
   rodTypes?: string;
   technique?: string;
   baitAndFeed?: string;
@@ -159,6 +161,43 @@ export interface FishingSession {
   isBenchmark?: boolean;          // Beschermde benchmark!
   createdAt: string;
   updatedAt: string;
+}
+
+/** Een werkelijk actief tijdvak van één hengel. Een lege eindtijd betekent dat de interval nog loopt. */
+export interface RodActiveInterval {
+  id: string;
+  startTime: string;
+  endTime?: string | null;
+}
+
+/** Gebeurtenis die aan één hengel binnen een sessie is gekoppeld. */
+export interface SessionRodEvent {
+  id: string;
+  timestamp: string;
+  type: 'bite' | 'missed' | 'catch' | 'other';
+  notes?: string;
+}
+
+/** Optionele details van één hengel; de sessie blijft de primaire observatie-eenheid. */
+export interface SessionRod {
+  id: string;
+  sessionId: string;
+  rodNumber: number;
+  positionZone?: string;
+  technique?: string;
+  baitPresentation?: string;
+  activeIntervals: RodActiveInterval[];
+  events?: SessionRodEvent[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RodEffortSummary {
+  hasDetailData: boolean;
+  totalRodHours: number;
+  activeRodCount: number;
+  incompleteIntervalCount: number;
+  perRodHours: Record<string, number>;
 }
 
 export interface FactorBreakdown {

@@ -7,6 +7,7 @@ import {
   AppSettings,
   PresenceObservation,
   PresenceObservationType,
+  SessionRod,
 } from '../types';
 import {
   HISTORICAL_LOCATIONS,
@@ -133,6 +134,7 @@ export class VislogboekDatabase extends Dexie {
   settings!: Table<AppSettings, string>;
   prognosisSnapshots!: Table<import('../types').PrognosisSnapshot, string>;
   presenceObservations!: Table<import('../types').PresenceObservation, string>;
+  sessionRods!: Table<SessionRod, string>;
 
   constructor() {
     super('VislogboekDB');
@@ -153,6 +155,17 @@ export class VislogboekDatabase extends Dexie {
       settings: 'id',
       prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
       presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
+    });
+
+    this.version(3).stores({
+      locations: 'id, name, isBenchmark, createdAt',
+      sessions: 'id, locationId, startTime, outcome, isBenchmark, createdAt',
+      catches: 'id, sessionId, locationId, species, timestamp, createdAt',
+      weatherCache: 'id, latitude, longitude, fetchedAt',
+      settings: 'id',
+      prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
+      presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
+      sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
     });
   }
 }
@@ -302,7 +315,7 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
     throw new Error('De referentiesessie Lokkershoek is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.transaction('rw', db.sessions, db.catches, db.prognosisSnapshots, async () => {
+  await db.transaction('rw', db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, async () => {
     // 1. Verwijder gekoppelde vangsten
     await db.catches.where('sessionId').equals(sessionId).delete();
 
@@ -339,7 +352,10 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
       });
     }
 
-    // 4. Verwijder sessie zelf
+    // 4. Verwijder optionele hengeldetails van deze sessie.
+    await db.sessionRods.where('sessionId').equals(sessionId).delete();
+
+    // 5. Verwijder sessie zelf
     await db.sessions.delete(sessionId);
   });
   return true;
