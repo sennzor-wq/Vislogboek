@@ -94,3 +94,10 @@ jobs:
 
       - name: Production build
         run: bun run build
+
+      - name: Verify production build excludes private artifacts
+        run: |
+          if find dist -type f | grep -Eiq '(^|/)(\.env|.*backup.*\.json|.*source.*\.zip|.*aistudio.*); then
+            echo "Private artifact detected in production output"
+            exit 1
+          fi
