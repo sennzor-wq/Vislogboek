@@ -223,6 +223,17 @@ assert(currentMeasurement.waterTemperatureStatus === 'measured' &&
   currentMeasurement.estimatedWaterTemp === 15.3,
   'Actuele lokale meting heeft altijd voorrang op historisch profiel en model');
 
+const justAfterMidnightAmsterdam = analyzeWaterThermalDevelopment(targetDate, forecast, {
+  location,
+  userMeasuredWaterTemp: 15.6,
+  historicalSessions: sessions,
+  historicalWaterTemperatures: toHistory(sessions),
+  currentDateRef: new Date('2026-06-09T00:30:00+02:00'),
+});
+assert(justAfterMidnightAmsterdam.waterTemperatureStatus === 'measured' &&
+  justAfterMidnightAmsterdam.measuredWaterTemp === 15.6,
+  'Actuele meting rond 00:30 Nederlandse zomertijd blijft aan de juiste lokale doeldag gekoppeld');
+
 // Export a compact, deterministic series for the audit chart/report.
 const chartSeries = sessionDates.map((date, index) => ({
   date,
