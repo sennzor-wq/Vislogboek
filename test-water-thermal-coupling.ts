@@ -191,6 +191,15 @@ async function runTestSuite() {
     progMeasured.activityScore > progUnmeasured.activityScore,
     `2.3 Gemeten watertemperatuur (17.5 °C) leidt tot hogere activiteit (${progMeasured.activityScore}/10) dan de modelschatting (${progUnmeasured.activityScore}/10)`
   );
+  assert(progMeasured.thermalAnalysis?.waterTemperatureStatus === 'measured',
+    '2.4 Herkomstmetadata markeert een actuele stekmeting expliciet als measured');
+  assert(progUnmeasured.thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather',
+    '2.5 Een schatting zonder lokaal meetanker wordt expliciet als weather estimate gemarkeerd');
+  assert(progUnmeasured.thermalAnalysis?.uncertaintyC !== null &&
+    progUnmeasured.thermalAnalysis?.uncertaintyC ===
+      (progUnmeasured.thermalAnalysis?.estimatedRange?.[1] ?? 0) -
+      (progUnmeasured.thermalAnalysis?.estimatedRange?.[0] ?? 0) ? false : true,
+    '2.6 Onzekerheidsinformatie is beschikbaar voor de geschatte watertemperatuur');
 
   // =========================================================================
   // DEEL 3: ACTUELE SITUATIE VS TOEKOMSTIGE PROGNOSE (OUDE METING REGEERT NIET DE TOEKOMST)
@@ -298,6 +307,38 @@ async function runTestSuite() {
       anchorWithoutWeather.estimatedRange !== null,
     '4.4 Bij ontbrekende weerdata wordt een recente meting alleen als kortetermijnschatting met ruime marge gebruikt'
   );
+
+  // Een meting uit een eerdere sessie mag niet als actuele meting worden gelabeld
+  // alleen omdat de prognose voor vandaag wordt berekend.
+  const staleSameDaySession: FishingSession = {
+    id: 'thermal-stale-same-day',
+    locationId: locLokkershoek.id,
+    startTime: '2026-10-21T12:00:00',
+    outcome: 'unknown',
+    waterTemperature: 15.0,
+    createdAt: '2026-10-21T12:00:00',
+    updatedAt: '2026-10-21T12:00:00',
+  };
+  const staleAnchorToday = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    historicalSessions: [staleSameDaySession],
+    currentDateRef: new Date('2026-10-23T12:00:00'),
+  });
+  assert(staleAnchorToday.hasMeasuredWaterTemp === false && staleAnchorToday.measuredWaterTemp === null,
+    '4.5 Een sessiemeting van 48 uur geleden wordt vandaag niet als actuele meting gepresenteerd');
+  assert(staleAnchorToday.waterTemperatureStatus === 'estimated_from_measurement' &&
+    staleAnchorToday.anchorAgeHours === 48,
+    '4.6 De oude meting wordt correct als 48-uurs anker voor een modelschatting geregistreerd');
+  assert(staleAnchorToday.anchorMeasurementTimestamp === '2026-10-21T12:00:00.000Z',
+    '4.7 De herkomsttijd van het lokale meetanker blijft controleerbaar');
+
+  const noThermalData = analyzeWaterThermalDevelopment('2026-10-23', [], {
+    location: locLokkershoek,
+    currentDateRef: new Date('2026-10-23T12:00:00'),
+  });
+  assert(noThermalData.waterTemperatureStatus === 'unknown' &&
+    noThermalData.estimatedWaterTemp === null && noThermalData.uncertaintyC === null,
+    '4.8 Zonder meetanker en onvoldoende weersgegevens blijft watertemperatuur onbekend');
 
   // =========================================================================
   // DEEL 5: WATERDIEPTE PER STEK WORDT CORRECT DOOR BEREKENING MEGENOMEN
