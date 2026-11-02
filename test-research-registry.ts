@@ -1,4 +1,5 @@
 import { RESEARCH_REGISTRY, getResearchByTopic, getResearchBySpecies, isApprovedPredictionKnowledge } from './src/services/researchRegistry';
+import { SPECIES_PROFILES } from './src/services/fishProfiles';
 
 const thermalEntries = getResearchByTopic('watertemperatuur');
 if (thermalEntries.length !== 1) throw new Error('Expected exactly one reviewed water-temperature evidence entry.');
@@ -34,3 +35,14 @@ if (!tenchEvidence.some((item) => item.id === 'tench-temperature-feeding-efficie
   throw new Error('Tench feeding evidence must remain contextual and non-approved for prediction.');
 }
 console.log('Species biology evidence tests passed.');
+
+if (!SPECIES_PROFILES.Karper.scientificReferences.some((source) => source.includes('10.1016/S1006-8104(12)60039-7'))) {
+  throw new Error('The carp profile must link its species-specific feeding-rhythm study.');
+}
+if (!SPECIES_PROFILES.Brasem.scientificReferences.some((source) => source.includes('10.1111/jfb.15745'))) {
+  throw new Error('The bream profile must link the Dutch lake growth study with its scope limitation.');
+}
+if (!SPECIES_PROFILES.Zeelt.scientificReferences.some((source) => source.includes('10.1007/s10530-026-03767-w'))) {
+  throw new Error('The tench profile must link the limited experimental feeding study.');
+}
+console.log('Species profile source-link tests passed.');
