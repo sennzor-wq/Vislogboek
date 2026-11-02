@@ -90,6 +90,7 @@ export function calculatePrebaitPlan(
     : estimated ? thermalAnalysis.estimatedWaterTemp as number : null;
   const isMethodFeeder = /method\s*feeder/i.test(technique ?? '');
   const isFlowingWater = location?.waterType === 'Rivier' || location?.waterType === 'Kanaal';
+  const hasLocationContext = Boolean(location && location.waterType && location.waterType !== 'Onbekend');
   const missingInformation: string[] = [];
 
   if (effectiveWaterTemp === null) {
@@ -97,7 +98,7 @@ export function calculatePrebaitPlan(
   } else if (!measured) {
     missingInformation.push('De watertemperatuur is een modelschatting en geen meting. Behandel de hoeveelheden als extra voorzichtige startindicatie en controleer de temperatuur aan de stek.');
   }
-  if (!location?.waterType || location.waterType === 'Onbekend') {
+  if (!hasLocationContext) {
     missingInformation.push('Watertype ontbreekt; stroming, bodem en natuurlijke voedselbeschikbaarheid kunnen de passende hoeveelheid beïnvloeden.');
   }
   if (typeof location?.waterDepth !== 'number' || !Number.isFinite(location.waterDepth) || location.waterDepth <= 0) {
@@ -206,7 +207,7 @@ export function calculatePrebaitPlan(
   const planningDate = options.planningDate ?? toDateStr(new Date(targetDate.getTime() - Math.max(0, availableDaysBefore) * 86400000));
   const daysUntilSession = daysBetween(planningDate, targetDateStr);
   const requestedDays = Math.max(0, Math.min(3, Math.floor(availableDaysBefore)));
-  const effectiveDays = effectiveWaterTemp !== null && suitabilityScore >= 4
+  const effectiveDays = effectiveWaterTemp !== null && suitabilityScore >= 4 && hasLocationContext
     ? Math.min(requestedDays, maxBiologicalDays, daysUntilSession)
     : 0;
   const moments: PrebaitFeedingMoment[] = [];
@@ -234,10 +235,9 @@ export function calculatePrebaitPlan(
   // Method feeder is instant voer rond het haakaas. Het is geen aparte voorvoerbeurt
   // en wordt daarom niet dubbel bij het totale voorvoergewicht opgeteld.
   const duration = Number.isFinite(sessionDurationHours) ? Math.max(0.25, Math.min(24, sessionDurationHours)) : 3;
-  const sessionAmount = feedDuringSession
+  const sessionAmount = feedDuringSession && hasLocationContext
     ? Math.round((sessionAmountGrams * duration / 3) / 10) * 10
     : 0;
-  const sessionHands = Math.max(1, Math.round(sessionAmount / 120));
   moments.push({
     dayOffset: 0,
     date: targetDateStr,
@@ -297,8 +297,10 @@ export function calculatePrebaitPlan(
     };
   }
 
-  if (effectiveDays > 0 && (!location?.waterType || location.waterType === 'Onbekend')) {
-    missingInformation.push('Watertype is onbekend; de planner geeft daarom alleen een globale startindicatie en geen stekspecifieke hoeveelheid.');
+  if (!hasLocationContext) {
+    campaignSummary = 'Geen concrete hoeveelheid of voertiming: kies eerst een stek met bekend watertype.';
+    biologicalRationale = 'Zonder een bruikbare watercontext geeft de planner geen voerhoeveelheden. Gebruik directe waarnemingen en de lokale stekstructuur.';
+    sessionAdvice = 'Geen concrete hoeveelheid. Leg eerst de stek en het watertype vast.';
   }
   const confidenceLevel: PrebaitProgramPlan['confidenceLevel'] =
     measured && location?.waterType && location.waterDepth ? 'Redelijk' :
@@ -315,7 +317,7 @@ export function calculatePrebaitPlan(
     temperatureFactorExplanation,
     moments,
     sessionDayGuidance: {
-      feedDuringSession,
+      feedDuringSession: feedDuringSession && hasLocationContext,
       recommendedAmountGrams: sessionAmount,
       amountDisplay: sessionAmount > 0 ? `circa ${sessionAmount} gram` : 'Geen extra voer',
       advice: sessionAdvice,
