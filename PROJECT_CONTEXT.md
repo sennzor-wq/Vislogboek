@@ -911,3 +911,15 @@ Harde uitgangspunten:
 - Fase 2 volledige back-up en herstel: afgerond via PR #17; back-up v3 omvat alle zeven persistente Dexie-tabellen, instellingen en ingebedde foto's. Legacycompatibiliteit, volledige restore/merge, validatie en round-trip CI-tests toegevoegd.
 - Fase 3 thermische modellen en provenance: PR #18 corrigeerde verouderde metingen; PR #19 bewaart meetankerherkomst en werkelijke weersdekking; PR #21 voegde beoordeelde thermische modelkennis toe; PR #22 bewaart stralings-, vochtigheids- en dauwpuntdata; PR #23 voorkomt future leakage in lokale kalibratie; PR #24 vereist 72 uur voorafgaande weerhistorie voor een schatting zonder lokaal meetanker. Alle PR's zijn samengevoegd en de volledige CI (typecheck, regressies en productiebuild) slaagde. Fase 3 blijft in uitvoering: de nieuwe warmtefluxgegevens moeten nog verantwoord in het model worden geïntegreerd en overige domeinspecifieke schattingen moeten verder worden verbeterd.
 - Fases 4 t/m 6: gepland volgens het implementatieplan.
+
+
+## Fase 3 — waterthermisch model: aanvullende ontwerp- en implementatieregels
+
+- Lokale actuele watertemperatuurmetingen zijn altijd leidend. Een schatting mag ze niet vervangen.
+- Historische temperatuurprofielen mogen uitsluitend echte metingen gebruiken die vóór de doeldag zijn geregistreerd; modelvoorspellingen worden nooit als trainings-/referentiemeting gebruikt.
+- De profielselectie geeft voorkeur aan dezelfde stek. Een terugval naar vergelijkbare wateren vereist gelijk watertype, nabijheid, voldoende onafhankelijke locaties en vergelijkbare bekende diepte.
+- Een onbekende waterdiepte of onbekend watertype blijft onbekend; er wordt geen fictieve 2m-waterkolom aan een locatie toegekend.
+- De berekening gebruikt waar aanwezig gemeten kortgolvige straling in plaats van uitsluitend bewolking als zonne-indicatie. Dauwpunt, relatieve luchtvochtigheid en wind worden gebruikt om verdampingspotentieel en onzekerheid te duiden.
+- De implementatie is KNMI-geïnformeerd, niet het officiële KNMI-model. De KNMI-pagina beschrijft een gevalideerd model voor stilstaand zoet buitenwater, maar publiceert geen numerieke API of volledige implementatiespecificatie voor directe herimplementatie.
+- Rijkswaterstaat WaterWebservices is geregistreerd als kandidaatbron voor echte historische oppervlaktewatermetingen. Automatische stationselectie en import blijven uitgeschakeld zolang meetpuntdekking en representativiteit voor kleine regionale wateren niet zijn vastgesteld.
+- Nieuwe snapshots bewaren de herkomst, onzekerheid, historische basis, meetanker en weersdekking van de watertemperatuurschatting.
