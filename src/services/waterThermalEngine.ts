@@ -339,9 +339,10 @@ export function analyzeWaterThermalDevelopment(
     }
   }
 
-  if (estimatedWaterTemp === null) {
-    // Zonder lokale meet-anker blijft de bestaande weer-/dieptebenadering beschikbaar,
-    // maar de bandbreedte blijft ruimer omdat geen echte stekmeting de berekening verankert.
+  if (estimatedWaterTemp === null && hasPast72h) {
+    // Zonder lokaal meetanker is minimaal 72 uur geldige voorafgaande weerhistorie nodig.
+    // Een enkele doeldag of korte luchttemperatuurreeks is geen verantwoorde waterprior.
+    // Bij voldoende historie blijft dit een brede weather-driven modelschatting, geen meting.
     const weightCurrent = responseWeight;
     const weightPast = 1 - weightCurrent;
     const baseAirEquilibrium = weightPast * past72Avg + weightCurrent * dayAvg;
@@ -351,7 +352,7 @@ export function analyzeWaterThermalDevelopment(
     }
     const rawEstimate = baseAirEquilibrium + solarBonus;
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
-    const margin = (depth > 3.0 ? 1.5 : 1.0) + (!hasPast72h ? 0.75 : 0) + (!isDepthKnown ? 0.5 : 0);
+    const margin = (depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0);
     estimatedRange = [
       Math.round((rawEstimate - margin) * 10) / 10,
       Math.round((rawEstimate + margin) * 10) / 10,

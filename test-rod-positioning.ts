@@ -149,7 +149,12 @@ const histSessions: FishingSession[] = [
   },
 ];
 
-const fc1 = createHourlyForecasts('2026-07-15', 21, 16, 'ZW');
+const fc1 = [
+  ...createHourlyForecasts('2026-07-12', 21, 16, 'ZW'),
+  ...createHourlyForecasts('2026-07-13', 21, 16, 'ZW'),
+  ...createHourlyForecasts('2026-07-14', 21, 16, 'ZW'),
+  ...createHourlyForecasts('2026-07-15', 21, 16, 'ZW'),
+];
 const prog1 = calculateDayPrognosis('2026-07-15', fc1, 'Karper', histSessions, undefined, null, new Date('2026-07-15T05:00:00Z'), {
   sessionDurationHours: 4,
   locationId: 'spot-test-1',
