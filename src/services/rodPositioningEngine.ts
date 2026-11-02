@@ -43,9 +43,8 @@ function determineTacticalHypothesis(
     waterDepth?: number;
     season: 'Voorjaar' | 'Zomer' | 'Herfst' | 'Winter';
     effectiveWaterTemp: number;
-    avgAirTemp: number;
     avgWindSpeed: number;
-    maxWindSpeed: number;
+    maxWindSpeed: number | null;
     windDirText: string;
     isColdWind: boolean;
     isStrongWind: boolean;
@@ -67,7 +66,6 @@ function determineTacticalHypothesis(
     waterDepth,
     season,
     effectiveWaterTemp,
-    avgAirTemp,
     avgWindSpeed,
     maxWindSpeed,
     windDirText,
@@ -259,7 +257,7 @@ function determineTacticalHypothesis(
   if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
     return {
       recommendedZone: 'Aanlandige oeverzone (windkant) als mogelijke zoekzone',
-      rationale: `Een aanhoudende bries (${windDirText} ${avgWindSpeed} km/u${maxWindSpeed > avgWindSpeed ? `, stoten tot ~${maxWindSpeed} km/u` : ''}) stuwt warm oppervlaktewater, fytoplankton en zwevend voedsel richting de oever. Dit veroorzaakt lichte troebeling en zuurstofinbreng, wat foerageergedrag kan triggeren. Belangrijke nuance: aan de oppervlakte waait het water aanlandig, maar nabij de bodem ontstaat in dieper water vaak een compenserende retourstroom in tegengestelde richting. Behandel de windkant daarom als kansrijke zoekzone, niet als vaststaande garantie. (Zoekhypothese voor aanlandige wind).`,
+      rationale: `Een aanhoudende bries (${windDirText} ${avgWindSpeed} km/u${maxWindSpeed !== null && maxWindSpeed > avgWindSpeed ? `, stoten tot ~${maxWindSpeed} km/u` : ''}) kan oppervlaktewater en zwevend voedsel richting de oever verplaatsen. Dit veroorzaakt lichte troebeling en zuurstofinbreng, wat foerageergedrag kan triggeren. Belangrijke nuance: aan de oppervlakte waait het water aanlandig, maar nabij de bodem ontstaat in dieper water vaak een compenserende retourstroom in tegengestelde richting. Behandel de windkant daarom als kansrijke zoekzone, niet als vaststaande garantie. (Zoekhypothese voor aanlandige wind).`,
       alternativeOption:
         'Luwe oeverzone direct achter een rietkraag of een dieper talud, zeker als hevige golfslag het bodemaas verplaatst of vuil de hoofdlijn belaagt.',
       confidenceLevel: 'Matig',
@@ -269,7 +267,7 @@ function determineTacticalHypothesis(
   if (season === 'Zomer' && isCalmWind && isWarmConditions) {
     return {
       recommendedZone: 'Zuurstofrijke overgangszones, dieper water of schaduwrijke overkappingen',
-      rationale: `Bij weinig wind (${avgWindSpeed} km/u) en warme omstandigheden (~${avgAirTemp.toFixed(1)} °C) kan in stilstaand ondiep water zuurstofafname optreden. Vis zoekt vaak beschutting in diepere kuilen, bij waterplantenvelden of onder overhangende bomen. Let op: weinig wind betekent niet automatisch stilstaand water; thermische circulatie kan nabij de bodem nog steeds voor lichte waterverplaatsing zorgen. (Zoekhypothese voor warme luwte).`,
+      rationale: `Bij weinig wind (${avgWindSpeed} km/u) en warm water (~${effectiveWaterTemp.toFixed(1)} °C) kan in ondiep, stilstaand water zuurstofafname optreden. Vis zoekt vaak beschutting in diepere kuilen, bij waterplantenvelden of onder overhangende bomen. Let op: weinig wind betekent niet automatisch stilstaand water; thermische circulatie kan nabij de bodem nog steeds voor lichte waterverplaatsing zorgen. (Zoekhypothese voor warme luwte).`,
       alternativeOption:
         'Vroeg in de ochtend of laat in de avond foerageert vis vaak kort op de ondieptes wanneer het oppervlak iets afkoelt.',
       confidenceLevel: 'Matig',
@@ -445,7 +443,6 @@ export function buildWindCastingGuidance(
     isColdWind: boolean;
     isCoolingPeriod: boolean;
     isWarmingPeriod: boolean;
-    avgAirTemp: number;
     avgWindSpeed: number;
     isCalmWind: boolean;
     isWarmConditions: boolean;
@@ -712,7 +709,7 @@ export function analyzeRodPositioning(
   // zoekadvies op basis van werkelijk geregistreerde lokale kenmerken.
   const canUseSpeciesHypothesis = Boolean(
     waterType && effectiveWaterTemp !== null && avgWindSpeed !== null &&
-    maxWindSpeed !== null && avgAirTemp !== null && avgWindDegrees !== undefined
+    avgWindDegrees !== undefined
   );
   const tacticalHypothesis = canUseSpeciesHypothesis
     ? determineTacticalHypothesis(species, {
@@ -721,7 +718,6 @@ export function analyzeRodPositioning(
         waterDepth,
         season,
         effectiveWaterTemp: effectiveWaterTemp!,
-        avgAirTemp: avgAirTemp!,
         avgWindSpeed: avgWindSpeed!,
         maxWindSpeed: maxWindSpeed!,
         windDirText,
@@ -877,7 +873,6 @@ export function analyzeRodPositioning(
           isColdWind,
           isCoolingPeriod,
           isWarmingPeriod,
-          avgAirTemp: avgAirTemp!,
           avgWindSpeed: avgWindSpeed!,
           isCalmWind,
           isWarmConditions,
