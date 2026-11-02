@@ -6,6 +6,7 @@ import {
   inspectImportFile,
   mergeImportData,
   replaceWithImportData,
+  MAX_BACKUP_FILE_SIZE_BYTES,
   ImportPreview,
   BackupData,
 } from '../../services/backupService';
@@ -69,6 +70,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > MAX_BACKUP_FILE_SIZE_BYTES) {
+      setErrorMessage(`Back-upbestand is te groot. De maximale bestandsgrootte is ${Math.round(MAX_BACKUP_FILE_SIZE_BYTES / (1024 * 1024))} MB.`);
+      e.target.value = '';
+      return;
+    }
 
     setImporting(true);
     setErrorMessage(null);
