@@ -3,6 +3,7 @@ import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from './
 import {
   collectBackupData,
   restoreBackupData,
+  mergeImportData,
   inspectImportFile,
   normalizeRawBackup,
 } from './src/services/backupService';
@@ -115,6 +116,21 @@ async function run() {
   assert(same(weatherCache, backup.weatherCache), 'Restore herstelt weercache exact');
   assert(same(snapshots, backup.prognosisSnapshots), 'Restore herstelt prognosesnapshots exact');
   assert(same(observations, backup.presenceObservations), 'Restore herstelt waarnemingen exact');
+
+  // Merge moet ook alle tabellen en de instellingen meenemen, zonder dubbele records.
+  await db.settings.put({ ...settings, defaultSpecies: 'Brasem' });
+  const merged = await mergeImportData(backup);
+  assert(merged.addedLocations === 0 && merged.addedSessions === 0 && merged.addedCatches === 0,
+    'Merge voegt bestaande locaties, sessies en vangsten niet dubbel toe');
+  assert(merged.addedWeatherCache === 0 && merged.addedPrognosisSnapshots === 0 &&
+    merged.addedPresenceObservations === 0, 'Merge voegt bestaande cache, snapshots en waarnemingen niet dubbel toe');
+  assert(merged.settingsImported && (await db.settings.get('user_settings'))?.defaultSpecies === 'Karper',
+    'Merge neemt backupinstellingen over');
+  const mergedAgain = await mergeImportData(backup);
+  assert(mergedAgain.addedLocations === 0 && mergedAgain.addedSessions === 0 &&
+    mergedAgain.addedCatches === 0 && mergedAgain.addedWeatherCache === 0 &&
+    mergedAgain.addedPrognosisSnapshots === 0 && mergedAgain.addedPresenceObservations === 0,
+    'Herhaald samenvoegen blijft idempotent en maakt geen duplicaten');
 
   const imported = await inspectImportFile(JSON.stringify(backup));
   assert(imported.preview.valid && imported.data?.version === 3,
