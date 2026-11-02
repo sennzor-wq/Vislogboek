@@ -69,7 +69,12 @@ async function runTestSuite() {
     updatedAt: '',
   }));
 
-  const weatherSample = createWeatherDay(18);
+  const weatherSample = Array.from({ length: 4 }, (_, dayIndex) =>
+    createWeatherDay(18).map((hour) => ({
+      ...hour,
+      time: `2026-10-${String(25 + dayIndex).padStart(2, '0')}T${hour.time.slice(11)}`,
+    }))
+  ).flat();
   const progWithData = calculateDayPrognosis(
     '2026-10-28',
     weatherSample,
