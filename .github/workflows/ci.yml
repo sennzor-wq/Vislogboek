@@ -77,6 +77,9 @@ jobs:
       - name: Backup import fixture tests
         run: bun run tsx test-backup-import.ts
 
+      - name: Backup import security validation tests
+        run: bun run tsx test-security-backup-validation.ts
+
       - name: Full backup and restore round-trip tests
         run: bun run tsx test-backup-roundtrip.ts
 
