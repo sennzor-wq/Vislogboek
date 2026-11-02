@@ -681,11 +681,18 @@ export function analyzeRodPositioning(
   const month = targetDate.getMonth() + 1; // 1-12
   const season = getSeasonNL(month);
 
-  const hasMeasuredTemp = typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp);
+  const measuredWaterTemp = typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp)
+    ? userWaterTemp
+    : thermalAnalysis.hasMeasuredWaterTemp &&
+        typeof thermalAnalysis.measuredWaterTemp === 'number' &&
+        Number.isFinite(thermalAnalysis.measuredWaterTemp)
+      ? thermalAnalysis.measuredWaterTemp
+      : null;
+  const hasMeasuredTemp = measuredWaterTemp !== null;
   const estimatedWaterTemp = typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp)
     ? thermalAnalysis.estimatedWaterTemp
     : null;
-  const effectiveWaterTemp = hasMeasuredTemp ? userWaterTemp! : estimatedWaterTemp;
+  const effectiveWaterTemp = measuredWaterTemp ?? estimatedWaterTemp;
 
   // Ontbrekende luchttemperatuur of wind wordt niet als normale conditie ingevuld.
   const isCoolingPeriod = thermalAnalysis.trend === 'Waarschijnlijke afkoeling';
@@ -899,7 +906,7 @@ export function analyzeRodPositioning(
       trend: thermalAnalysis.trend,
       season,
       waterTempNote: hasMeasuredTemp
-        ? `Gemeten: ${userWaterTemp} °C`
+        ? `Gemeten: ${measuredWaterTemp} °C`
         : estimatedWaterTemp !== null
         ? `Geschat: ~${estimatedWaterTemp} °C`
         : 'Geen watertemperatuur bekend',
