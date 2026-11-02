@@ -47,6 +47,7 @@ import {
 import { COMPASS_DEGREES_MAP } from '../../services/bankWindEngine';
 import { db } from '../../db/db';
 import { CompassDirection, COMPASS_DIRECTIONS } from '../../types';
+import { HistoricalWaterTemperatureObservation } from '../../services/waterTemperatureHistory';
 
 interface PrognosisViewProps {
   locations: FishingLocation[];
@@ -96,6 +97,35 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const weather = await getForecast(lat, lon, forceRefresh);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
+      const locationById = new Map(locations.map((item) => [item.id, item]));
+      const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
+      for (const snapshot of storedSnapshots) {
+        if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
+            !snapshot.actualWaterTemperatureTimestamp) continue;
+        const sourceLocation = locationById.get(snapshot.locationId);
+        historicalWaterTemperatures.push({
+          locationId: snapshot.locationId,
+          temperatureC: snapshot.actualWaterTemperature,
+          timestamp: snapshot.actualWaterTemperatureTimestamp,
+          waterType: sourceLocation?.waterType,
+          waterDepth: sourceLocation?.waterDepth,
+          latitude: sourceLocation?.latitude,
+          longitude: sourceLocation?.longitude,
+        });
+      }
+      for (const session of sessions) {
+        if (!session.locationId || typeof session.waterTemperature !== 'number') continue;
+        const sourceLocation = locationById.get(session.locationId);
+        historicalWaterTemperatures.push({
+          locationId: session.locationId,
+          temperatureC: session.waterTemperature,
+          timestamp: session.startTime,
+          waterType: sourceLocation?.waterType,
+          waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
+          latitude: sourceLocation?.latitude,
+          longitude: sourceLocation?.longitude,
+        });
+      }
       setWeatherUpdatedAt(weather.fetchedAt);
       setIsCachedWeather(weather.isFromCache);
 
@@ -125,6 +155,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             locationId: selectedLocationId,
             location: selectedLoc,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
+            historicalWaterTemperatures,
             presenceObservation: selectedPresenceObs,
             catches,
             prebaitOptions: {
