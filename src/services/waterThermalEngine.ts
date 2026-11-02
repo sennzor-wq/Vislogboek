@@ -38,7 +38,17 @@ export function analyzeWaterThermalDevelopment(
   // maar wordt nooit als actuele meting voor een latere doeldag gepresenteerd.
   const targetDateMs = new Date(`${targetDateStr}T12:00:00`).getTime();
   const refMs = currentDateRef ? currentDateRef.getTime() : targetDateMs;
-  const targetIsCurrentDate = Boolean(currentDateRef && currentDateRef.toISOString().slice(0, 10) === targetDateStr);
+  // De app gebruikt Europe/Amsterdam. ISO.toISOString() vergelijkt de UTC-datum
+  // en kan rond middernacht de verkeerde lokale dag opleveren (bijv. 00:30 CEST).
+  const currentAmsterdamDate = currentDateRef
+    ? new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Amsterdam',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(currentDateRef)
+    : '';
+  const targetIsCurrentDate = Boolean(currentDateRef && currentAmsterdamDate === targetDateStr);
   // Voor vandaag rekenen we vanaf het echte huidige tijdstip, niet vanaf een vaste middagreferentie.
   const estimationTargetMs = targetIsCurrentDate && currentDateRef ? currentDateRef.getTime() : targetDateMs;
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
@@ -418,12 +428,24 @@ export function analyzeWaterThermalDevelopment(
       rawEstimate = historicalProfile.baselineC + (weatherEstimate - past72Avg);
     }
     estimatedWaterTemp = Math.round(rawEstimate * 10) / 10;
-    const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
-      (anchor && !isDepthKnown ? 0.5 : 0), historicalProfile?.uncertaintyC ?? 0);
-    estimatedRange = [
-      Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
-      Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
-    ];
+    // Zonder lokale meting/anker of historisch waterprofiel ontbreekt een
+    // onafhankelijke waterreferentie. De weerafgeleide puntwaarde blijft als
+    // indicatie beschikbaar, maar een smalle numerieke range zou schijnzekerheid
+    // geven: luchttemperatuur alleen begrenst de werkelijke watertemperatuur niet.
+    const hasWaterReference = Boolean(historicalProfile || (
+      anchor && !isDepthKnown && anchorAgeHours !== null && anchorAgeHours <= 96
+    ));
+    if (hasWaterReference) {
+      const margin = Math.max((isDepthKnown && depth > 3.0 ? 1.5 : 1.0) + (!isDepthKnown ? 0.5 : 0) +
+        (anchor && !isDepthKnown ? 0.5 : 0), historicalProfile?.uncertaintyC ?? 0);
+      estimatedRange = [
+        Math.round(Math.min(rawEstimate - margin, historicalProfile?.lowerC ?? rawEstimate - margin) * 10) / 10,
+        Math.round(Math.max(rawEstimate + margin, historicalProfile?.upperC ?? rawEstimate + margin) * 10) / 10,
+      ];
+    } else {
+      estimatedRange = null;
+      summaryRationale += ' Dit is uitsluitend een indicatieve weerafgeleide schatting: zonder lokale watermeting of historisch waterprofiel wordt geen numerieke onzekerheidsmarge getoond.';
+    }
     if (historicalProfile) {
       summaryRationale += ` Historisch seizoensprofiel: ${historicalProfile.baselineC.toFixed(1)} °C uit ${historicalProfile.sampleCount} echte metingen (${historicalProfile.source === 'same_location' ? 'dezelfde stek' : 'vergelijkbare wateren'}).`;
       surfaceVsBulkNote += ' De historische referentie is een gemeten seizoensprofiel en geen actuele meting.';
@@ -449,6 +471,8 @@ export function analyzeWaterThermalDevelopment(
     prognosisImpactNote = `Prognose gebruikt een modelschatting (~${estimatedWaterTemp} °C), verankerd aan de laatste echte stekmeting van ${anchor.temperature.toFixed(1)} °C (${Math.round((estimationTargetMs - anchor.timestampMs) / 3600000)} uur eerder) en aangepast met de beschikbare weersontwikkeling.`;
   } else if (historicalProfile && estimatedWaterTemp !== null) {
     prognosisImpactNote = `Modelschatting combineert weersontwikkeling met een historisch seizoensprofiel van ${historicalProfile.sampleCount} echte metingen; dit is geen actuele meting.`;
+  } else if (estimatedWaterTemp !== null) {
+    prognosisImpactNote = 'Indicatieve weerafgeleide watertemperatuurschatting zonder lokale waterreferentie; de absolute temperatuur heeft daarom een hoge, niet-gekwantificeerde onzekerheid.';
   } else if (trend === 'Waarschijnlijke opwarming') {
     prognosisImpactNote = 'Opwarming stimuleert foerageergedrag, met name in ondiepe en zonbeschenen oeverzones.';
   } else if (trend === 'Waarschijnlijke afkoeling') {
