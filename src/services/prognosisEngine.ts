@@ -15,7 +15,7 @@ import {
   WeatherSnapshot,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
-import { BENCHMARK_SESSION_ID, db } from '../db/db';
+import { BENCHMARK_SESSION_ID, db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
@@ -1109,7 +1109,7 @@ export async function saveSessionWithPrognosisSnapshot(
     throw new Error('Een prognosesnapshot kan alleen samen met een nieuwe actieve sessie worden opgeslagen.');
   }
 
-  return db.transaction('rw', db.sessions, db.prognosisSnapshots, async () => {
+  return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, async () => {
     const snapshot = await savePrognosisSnapshot(
       pending.prognosis,
       pending.durationHours,
@@ -1122,6 +1122,7 @@ export async function saveSessionWithPrognosisSnapshot(
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
     await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
     await db.sessions.put(linkedSession);
+    await syncSessionPresenceObservations(linkedSession);
     return linkedSession;
   });
 }
