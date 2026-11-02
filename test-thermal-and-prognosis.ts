@@ -281,6 +281,18 @@ async function run14Scenarios() {
     p1 < p2 && p2 < p4 && p4 < p6 && p6 <= p8,
     `12.1 Monotoon stijgende kans over duur (1u: ${p1}% < 2u: ${p2}% < 4u: ${p4}% < 6u: ${p6}% <= 8u: ${p8}%)`
   );
+  const noPresenceBonus = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
+    { sessionDurationHours: 3 }
+  );
+  const withPresenceObservation = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
+    { sessionDurationHours: 3, presenceObservation: 'vis_springen_rollen' }
+  );
+  assert(
+    noPresenceBonus.personalCatchChance === withPresenceObservation.personalCatchChance,
+    '12.2 Viswaarnemingen geven geen ongevalideerde vaste bonus aan de persoonlijke vangstkans'
+  );
 
   const progInvalid = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: -5 });
   assert(
