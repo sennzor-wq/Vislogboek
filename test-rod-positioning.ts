@@ -668,7 +668,7 @@ console.log('\n--- TESTGROEP 11: Geactiveerde Profielparameters in Prognose-Engi
 const carpProg = calculateDayPrognosis('2026-07-15', fc1, 'Karper', []);
 const carpWindSlot = carpProg.timeSlots.Middag.windFactor;
 assert(
-  carpWindSlot.detail.includes('sluit aan bij de voorkeur van Karper'),
+  carpWindSlot.detail.includes('voorlopige profielnotitie voor Karper'),
   '11.1 Voorkeurswindrichting (ZW) wordt actief herkend in het winddetail'
 );
 
@@ -677,8 +677,8 @@ const pikeOvercastForecast = createHourlyForecasts('2026-10-20', 12, 14, 'ZW', 8
 const pikeProg = calculateDayPrognosis('2026-10-20', pikeOvercastForecast, 'Snoek', []);
 const pikePrecipSlot = pikeProg.timeSlots.Middag.precipitationFactor;
 assert(
-  pikePrecipSlot.detail.includes('Gedempt licht sluit gunstig aan bij Snoek'),
-  '11.2 Bewolkingsvoorkeur (bewolkt) voor Snoek wordt actief benut in de toelichting'
+  pikePrecipSlot.detail.includes('profielvoorkeur voor bewolking (bewolkt) is voorlopig'),
+  '11.2 Voorlopige bewolkingsvoorkeur voor Snoek blijft zichtbaar als context'
 );
 
 assert(
