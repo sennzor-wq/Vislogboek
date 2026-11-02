@@ -32,9 +32,6 @@ export interface ImportPreview {
   error?: string;
 }
 
-/**
- * Exporteert de volledige IndexedDB database naar een JSON object en downloadbestand.
- */
 /** Bouwt een volledige, download-onafhankelijke momentopname van alle persistente tabellen. */
 export async function collectBackupData(): Promise<BackupData> {
   const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations] =
@@ -379,7 +376,7 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         duplicateSessionCount: 0,
         duplicateLocationCount: 0,
         duplicateCatchCount: 0,
-        error: `Fout bij parsen JSON: ${(err as Error).message}`,
+        error: `Back-upvalidatie mislukt: ${(err as Error).message}`,
       },
     };
   }
