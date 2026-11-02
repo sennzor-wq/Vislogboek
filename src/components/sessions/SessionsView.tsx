@@ -5,11 +5,13 @@ import {
   CatchItem,
   SessionOutcome,
   FishSpecies,
+  SessionRod,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
 import { CatchModal } from '../catches/CatchModal';
 import { deleteSessionSafely, deletePrognosisSnapshotSafely } from '../../db/db';
+import { calculateSessionRodEffort } from '../../services/sessionEffortEngine';
 import {
   Plus,
   Play,
@@ -38,7 +40,8 @@ interface SessionsViewProps {
   locations: FishingLocation[];
   onRefreshData: () => Promise<void>;
   onStartNewSession: () => void;
-  onSaveSession: (sessionData: Partial<FishingSession>) => Promise<void>;
+  onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[]) => Promise<void>;
+  sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
 }
 
@@ -49,6 +52,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   onRefreshData,
   onStartNewSession,
   onSaveSession,
+  sessionRods,
   onSaveCatch,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
@@ -609,6 +613,22 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                 {/* Uitgebreide Sessiedetails */}
                 {isExpanded && (
                   <div className="p-4 pt-1 border-t border-slate-700/60 bg-slate-900/40 space-y-3.5">
+                    {/* Werkelijke hengelinzet; ontbrekende details worden niet uit rodCount afgeleid */}
+                    {sessionRods.some((rod) => rod.sessionId === session.id) && (() => {
+                      const effort = calculateSessionRodEffort(
+                        sessionRods.filter((rod) => rod.sessionId === session.id),
+                        session.startTime,
+                        session.endTime
+                      );
+                      return (
+                        <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs text-slate-300">
+                          <strong className="text-white">Hengeluren:</strong> {effort.totalRodHours.toFixed(2)} uur
+                          <span className="text-slate-400"> · {effort.activeRodCount} hengels met geregistreerde inzet</span>
+                          {effort.incompleteIntervalCount > 0 && <p className="text-amber-300 text-[11px] mt-1">{effort.incompleteIntervalCount} onvolledige of ongeldige interval(len) niet meegerekend.</p>}
+                        </div>
+                      );
+                    })()}
+
                     {/* Weersgegevens van de sessie */}
                     {session.weatherSnapshot && (
                       <div className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/40 flex items-center justify-between text-xs text-slate-300 flex-wrap gap-2">
@@ -741,8 +761,9 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
         <SessionModal
           session={editingSession}
           locations={locations}
-          onSave={async (updated) => {
-            await onSaveSession(updated);
+          initialRodDetails={sessionRods.filter((rod) => rod.sessionId === editingSession.id)}
+          onSave={async (updated, _pendingSnapshot, rods) => {
+            await onSaveSession(updated, undefined, rods);
             await onRefreshData();
           }}
           onClose={() => setEditingSession(null)}

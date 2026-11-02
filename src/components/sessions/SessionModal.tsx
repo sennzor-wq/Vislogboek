@@ -217,7 +217,16 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         }
       }
 
-      const normalizedRods = showRodDetails ? sessionRods.slice(0, parsedRods).map((rod) => ({ ...rod, sessionId: payload.id! })) : [];
+      const normalizedRods = showRodDetails ? sessionRods.slice(0, parsedRods).map((rod) => ({
+        ...rod,
+        sessionId: payload.id!,
+        activeIntervals: rod.activeIntervals.map((interval) => ({
+          ...interval,
+          startTime: interval.startTime ? new Date(interval.startTime).toISOString() : '',
+          endTime: interval.endTime ? new Date(interval.endTime).toISOString() : null,
+        })),
+        updatedAt: new Date().toISOString(),
+      })) : [];
       await onSave(payload, snapshotToSave, normalizedRods);
       onClose();
     } catch (err: any) {
@@ -484,60 +493,53 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             </div>
           )}
 
-          {/* Hengels, Techniek en Aas */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          {/* Algemene techniek en aas van de sessie; per-hengeldetails kunnen dit verfijnen */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Aantal Hengels
-              </label>
-              <input
-                type="number"
-                min={1}
-                value={rodCount}
-                onChange={(e) => {
-                  const valStr = e.target.value;
-                  if (valStr === '') {
-                    setRodCount('');
-                  } else {
-                    const parsed = parseInt(valStr, 10);
-                    setRodCount(isNaN(parsed) ? 1 : Math.max(1, parsed));
-                  }
-                }}
-                onBlur={() => {
-                  if (typeof rodCount !== 'number' || isNaN(rodCount) || rodCount < 1) {
-                    setRodCount(1);
-                  }
-                }}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Vistechniek
-              </label>
-              <input
-                type="text"
-                placeholder="bv. Feeder, Statisch, Dobber"
-                value={technique}
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Vistechniek (algemeen)</label>
+              <input type="text" placeholder="bv. Feeder, Statisch, Dobber" value={technique}
                 onChange={(e) => setTechnique(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Aas & Voer
-              </label>
-              <input
-                type="text"
-                placeholder="bv. Boilies, maden, mais"
-                value={baitAndFeed}
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Aas & Voer (algemeen)</label>
+              <input type="text" placeholder="bv. Boilies, maden, mais" value={baitAndFeed}
                 onChange={(e) => setBaitAndFeed(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
           </div>
+
+          {/* Optionele details per hengel */}
+          {showRodDetails && (
+            <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-3">
+              <div>
+                <div className="text-xs font-bold text-white">Hengeldetails (optioneel)</div>
+                <p className="text-[11px] text-slate-400">Vul alleen de hengels en actieve periodes in die je wilt bijhouden. Onbekende inzet wordt niet geschat.</p>
+              </div>
+              {sessionRods.slice(0, Math.max(1, Number(rodCount) || 1)).map((rod) => (
+                <div key={rod.id} className="rounded-xl border border-slate-700 bg-slate-900/70 p-3 space-y-2">
+                  <div className="font-bold text-xs text-emerald-300">Hengel {rod.rodNumber}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input value={rod.positionZone || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, positionZone: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Positie / zone" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                    <input value={rod.technique || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, technique: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Techniek" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                    <input value={rod.baitPresentation || ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, baitPresentation: e.target.value, updatedAt: new Date().toISOString() } : item))} placeholder="Aas / presentatie" className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                  </div>
+                  <div className="text-[11px] text-slate-400">Actieve intervallen</div>
+                  {(rod.activeIntervals || []).map((interval) => (
+                    <div key={interval.id} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                      <input aria-label={`Hengel ${rod.rodNumber} actief vanaf`} type="datetime-local" value={interval.startTime ? interval.startTime.slice(0,16) : ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.map((x) => x.id === interval.id ? { ...x, startTime: e.target.value } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                      <input aria-label={`Hengel ${rod.rodNumber} actief tot`} type="datetime-local" value={interval.endTime ? interval.endTime.slice(0,16) : ''} onChange={(e) => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.map((x) => x.id === interval.id ? { ...x, endTime: e.target.value || null } : x) } : item))} className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-xs" />
+                      <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: item.activeIntervals.filter((x) => x.id !== interval.id) } : item))} className="text-rose-300 text-xs">Verwijderen</button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => setSessionRods((prev) => prev.map((item) => item.id === rod.id ? { ...item, activeIntervals: [...item.activeIntervals, { id: `interval-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, startTime: '', endTime: null }] } : item))} className="text-cyan-300 text-[11px] underline">+ Actieve periode toevoegen</button>
+                </div>
+              ))}
+              {sessionRods.length < Math.max(1, Number(rodCount) || 1) && (
+                <button type="button" onClick={() => setSessionRods((prev) => [...prev, { id: `rod-${Date.now()}`, sessionId: session?.id || '', rodNumber: prev.length + 1, activeIntervals: [], events: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }])} className="text-cyan-300 text-xs underline">+ Hengel toevoegen</button>
+              )}
+            </div>
+          )}
 
           {/* Voorvoeren Registratie (Optioneel) */}
           <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
