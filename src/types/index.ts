@@ -265,6 +265,7 @@ export interface RodPositioningAdvice {
     waterTempNote: string;
   };
   missingInformation: string[];    // Expliciet wat ontbreekt (oeveroriëntatie, diepteverloop, bodemstructuur)
+  methodFeederGuidance?: string;
   personalEvidence?: {
     hasSufficientData: boolean;    // >= 11 voltooide sessies op dezelfde stek én >= 6 met baitDirection
     totalCompletedSessionsOnSpot: number;
@@ -549,6 +550,8 @@ export interface PrebaitProgramOptions {
   preferredFeedType?: string;
   sessionDurationHours?: number;
   userWaterTemp?: number | null;
+  technique?: string;
+  planningDate?: string;
 }
 
 export interface PrebaitProgramPlan {
