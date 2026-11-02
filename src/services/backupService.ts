@@ -38,11 +38,12 @@ export interface ImportPreview {
 /** Bouwt een volledige, download-onafhankelijke momentopname van alle persistente tabellen. */
 export async function collectBackupData(): Promise<BackupData> {
   const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations] =
-    await Promise.all([
-      db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
-      db.settings.get('user_settings'), db.weatherCache.toArray(),
-      db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(),
-    ]);
+    await db.transaction('r', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
+      db.prognosisSnapshots, db.presenceObservations], () => Promise.all([
+        db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
+        db.settings.get('user_settings'), db.weatherCache.toArray(),
+        db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(),
+      ]));
 
   return {
     version: 3,
@@ -427,9 +428,11 @@ export async function mergeImportData(data: BackupData): Promise<{
     for (const item of data.presenceObservations || []) {
       if (!(await db.presenceObservations.get(item.id))) { await db.presenceObservations.put(item); addedPresenceObservations++; }
     }
-    // Merge preserves existing local preferences; settings are imported only on a fresh device.
-    if (data.settings && !(await db.settings.get(data.settings.id))) {
-      await db.settings.put(data.settings); settingsImported = true;
+    // The user explicitly selected import: backup settings are authoritative for this merge.
+    if (data.settings) {
+      const existingSettings = await db.settings.get(data.settings.id);
+      await db.settings.put({ ...(existingSettings || {}), ...data.settings });
+      settingsImported = true;
     }
   });
 
