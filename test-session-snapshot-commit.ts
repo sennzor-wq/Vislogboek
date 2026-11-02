@@ -47,6 +47,7 @@ async function run() {
     outcome: 'active',
     targetSpecies: ['Karper'],
     technique: 'Feeder',
+    presenceObservations: ['vis_springen_rollen', 'aasbellen_voedselactiviteit'],
     createdAt: '2026-11-01T16:55:00.000Z',
     updatedAt: '2026-11-01T16:55:00.000Z',
   };
@@ -66,6 +67,10 @@ async function run() {
   assert(storedSnapshot?.targetDate === pending.prognosis.date &&
     storedSnapshot?.targetSlot === pending.chosenSlot,
     'De gekozen prognosedatum en het tijdvak blijven behouden');
+
+  const storedObservations = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
+  assert(storedObservations.length === 2,
+    'Sessiewaarnemingen worden samen met sessie en prognose in de aparte waarnemingstabel opgeslagen');
 
   const invalidSession = { ...session, id: '', snapshotId: undefined };
   let rejected = false;
