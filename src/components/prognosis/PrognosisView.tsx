@@ -732,7 +732,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         : activeDayProg.thermalAnalysis.waterTemperatureStatus === 'estimated_from_measurement'
                         ? 'Modelschatting vanaf de laatste lokale meting, aangepast met beschikbare weersgegevens.'
                         : activeDayProg.thermalAnalysis.waterTemperatureStatus === 'estimated_from_weather'
-                        ? 'Weerafgeleide modelschatting; geen historische watertemperatuurmetingen beschikbaar.'
+                        ? activeDayProg.thermalAnalysis.estimatedRange
+                          ? 'Weerafgeleide modelschatting; geen historische watertemperatuurmetingen beschikbaar.'
+                          : 'Indicatieve weerafgeleide schatting zonder lokale waterreferentie; absolute temperatuur heeft hoge, niet-gekwantificeerde onzekerheid.'
                         : 'Geen betrouwbare watertemperatuurschatting beschikbaar.'}
                     </span>
                   </div>
