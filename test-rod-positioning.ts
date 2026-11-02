@@ -681,6 +681,26 @@ assert(
   '11.2 Bewolkingsvoorkeur (bewolkt) voor Snoek wordt actief benut in de toelichting'
 );
 
+assert(
+  pikePrecipSlot.score === 0 && pikePrecipSlot.impact === 'neutraal',
+  '11.3 Bewolking blijft context en geeft geen ongevalideerde activiteitsscorebonus'
+);
+assert(
+  pikeProg.timeSlots.Middag.seasonFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.seasonFactor.impact === 'neutraal',
+  '11.4 Voorlopige seizoensgewichten beïnvloeden de centrale activiteitsscore niet'
+);
+assert(
+  pikeProg.timeSlots.Middag.timeOfDayFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.timeOfDayFactor.impact === 'neutraal',
+  '11.5 Voorlopige tijdvakvoorkeuren beïnvloeden de centrale activiteitsscore niet'
+);
+assert(
+  pikeProg.timeSlots.Middag.windFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.windFactor.impact === 'neutraal',
+  '11.6 Wind blijft context en geeft geen ongevalideerde biologische scorecorrectie'
+);
+
 // --- TESTGROEP 12: Windrichtinginterpretatie (Herkomst vs Blaasrichting) ---
 console.log('\n--- TESTGROEP 12: Windrichtinginterpretatie (Herkomst vs Blaasrichting) ---');
 
