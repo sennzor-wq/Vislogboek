@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local credentials, certificates and private key material
+.secrets/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
