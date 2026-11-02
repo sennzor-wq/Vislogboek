@@ -111,7 +111,28 @@ export interface ResearchRegistryEntry {
  * Deze lijst begint bewust leeg. Kennis wordt pas toegevoegd wanneer we
  * per onderwerp kunnen vastleggen wat de onderbouwing en beperkingen zijn.
  */
-export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [];
+export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
+  {
+    id: 'lake-thermal-models-piccolroaz-2024',
+    topic: 'watertemperatuur',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'moderate',
+    summary: 'Meerlagige en hybride modellen beschrijven watertemperatuur als gevolg van de netto warmtebalans. Luchttemperatuur kan in vereenvoudigde modellen als proxy voor een deel van de warmte-uitwisseling dienen, maar thermische traagheid, waterdiepte/stratificatie, zonnestraling en andere warmtefluxen beïnvloeden de respons. Parameters zijn locatie- en modelafhankelijk en vragen kalibratie met waargenomen watertemperaturen.',
+    limitations: [
+      'De review behandelt uiteenlopende meren en modeltypen; uitkomsten zijn niet zonder meer overdraagbaar op iedere kleine plas, kanaal, rivier of lokale oeverzone.',
+      'Luchttemperatuur alleen is geen actuele watertemperatuurmeting en een eenvoudige air-water-relatie kan seizoensafhankelijke hysterese en lokale omstandigheden missen.',
+      'Vereenvoudigde warmte-uitwisselingsparameters moeten voor de betreffende locatie of representatieve watertypen worden gekalibreerd en chronologisch gevalideerd.',
+      'Deze omgevingskennis is geen directe, bewezen vangstkansfactor voor een vissoort.'
+    ],
+    sourceReferences: [
+      'Piccolroaz, S. et al. (2024). Lake Water Temperature Modeling in an Era of Climate Change: Data Sources, Models, and Future Prospects. Reviews of Geophysics, 62(1), e2023RG000816. https://doi.org/10.1029/2023RG000816',
+      'https://pubs.usgs.gov/publication/70251990'
+    ],
+    reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  },
+];
 
 /**
  * Zoekt alle registraties die betrekking hebben op een bepaald onderwerp.
