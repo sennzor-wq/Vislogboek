@@ -172,6 +172,78 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-02',
     approvedForPrediction: false,
   },
+  {
+    id: 'freshwater-fish-temperature-growth-four-species-tien-2024',
+    topic: 'temperatuur-en-groei',
+    species: ['Brasem', 'Baars', 'Snoekbaars', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een Nederlandse meerstudie analyseerde groeiveranderingen van brasem, baars, snoekbaars en blankvoorn in IJsselmeer en Markermeer over meerdere decennia. De auteurs bespreken voor deze soorten optimale groeitemperaturen van grofweg 20–25 °C en een relatie tussen warmere zomers en groei van jonge vis.',
+    limitations: [
+      'Groei is niet hetzelfde als acute activiteit, voedselopname, vangbaarheid of de beste vistemperatuur.',
+      'De uitkomsten zijn gebaseerd op populaties in grote Nederlandse meren en mogen niet zonder meer worden vertaald naar iedere levensfase, klein water of individuele stek.',
+      'Deze bron valideert de bestaande thermische activiteitscurves of hun exacte optimum- en breedteparameters niet.'
+    ],
+    sourceReferences: [
+      'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745'
+    ],
+    reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'fish-feeding-temperature-review-2020',
+    topic: 'temperatuur-en-voedselopname',
+    species: [],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een review beschrijft dat temperatuur stofwisseling, voedselzoekgedrag, voedselopname en vertering beïnvloedt. De richting en omvang verschillen sterk per soort, acclimatisatie, levensfase, duur en snelheid van temperatuurverandering; gematigde opwarming kan voedselopname verhogen, terwijl waarden buiten het soortspecifieke bereik die kunnen verlagen.',
+    limitations: [
+      'De review omvat uiteenlopende vissoorten en systemen; zij levert geen universele temperatuurcurve voor Nederlandse zoetwatervissen.',
+      'Voedselopname en vertering zijn niet hetzelfde als totale zwemactiviteit of kans op een hengelvangst.',
+      'Deze bron ondersteunt het belang van temperatuur als context, niet de exacte numerieke parameters van de Vislogboek-profielen.'
+    ],
+    sourceReferences: [
+      'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950'
+    ],
+    reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-temperature-feeding-rhythm-2012',
+    topic: 'dagritme-en-voedselopname',
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een experimentele studie naar gewone karper rapporteerde dagritmische voedselopname met pieken in de ochtend en avond over een breed getest temperatuurbereik. Bij lage watertemperatuur nam de totale voedselopname sterk af, terwijl het dagritme niet volledig verdween.',
+    limitations: [
+      'De onderzochte ondersoort, populatie en gecontroleerde omstandigheden zijn niet zonder meer representatief voor alle Nederlandse karperpopulaties en natuurlijke wateren.',
+      'De studie ondersteunt dat voedselopname temperatuur- en tijdsafhankelijk kan zijn, maar valideert niet de huidige vaste tijdvakbonus of de precieze profielcurves.',
+      'Een tijdstipvoorkeur mag pas als numerieke scorefactor worden gebruikt na passende soort-, seizoen- en watertypevalidatie.'
+    ],
+    sourceReferences: [
+      'Chen, S. et al. (2012). Effect of Water Temperature on Feeding Rhythm in Common Carp (Cyprinus carpio haematopterus Temminck et Schlegel). Journal of Northeast Agricultural University (English Edition), 19(1), 57–61. https://doi.org/10.1016/S1006-8104(12)60039-7'
+    ],
+    reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'tench-temperature-feeding-efficiency-2026',
+    topic: 'temperatuur-en-voedselopname',
+    species: ['Zeelt'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een experimentele vergelijking onderzocht zeelt bij 18 °C en 25 °C en vond bij zeelt een lagere maximale voedselopname bij 25 °C dan bij 18 °C. Dit onderstreept dat meer warmte niet automatisch meer voedselopname betekent.',
+    limitations: [
+      'De zeelt werd onderzocht als invasieve soort in het St. Lawrence-systeem; de uitkomst is contextgebonden en geen directe Nederlandse veldcurve.',
+      'Twee temperatuurbehandelingen vormen geen volledig thermisch optimum of tolerantieprofiel.',
+      'De studie meet voedselopname/voederefficiëntie, niet algemene activiteit of hengelvangbaarheid; niet gebruiken om de bestaande curve numeriek te herkalibreren.'
+    ],
+    sourceReferences: [
+      'Benjamin, C., Hill, J. & Ricciardi, A. (2026). Thermal effects on feeding efficiency and body condition in invasive and native benthivorous freshwater fishes. Biological Invasions, 28, 51. https://doi.org/10.1007/s10530-026-03767-w'
+    ],
+    reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  }
 ];
 
 /**

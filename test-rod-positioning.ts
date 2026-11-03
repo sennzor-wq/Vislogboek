@@ -1,4 +1,4 @@
-import { analyzeRodPositioning } from './src/services/rodPositioningEngine';
+import { analyzeRodPositioning, getDirectionMeta } from './src/services/rodPositioningEngine';
 import { calculateDayPrognosis } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
@@ -564,7 +564,8 @@ assert(
 );
 
 // 10.2 Snoek
-const advicePikeAutumn = analyzeRodPositioning('2026-10-15', fcSummerWind, 'Snoek', {
+const fcPikeAutumn = createHourlyForecasts('2026-10-15', 15, 10, 'ZW');
+const advicePikeAutumn = analyzeRodPositioning('2026-10-15', fcPikeAutumn, 'Snoek', {
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: [],
@@ -618,7 +619,8 @@ assert(
   `10.7 Zeelt in de zomer zoekt begroeiing en luwe zachte bodem ("${adviceTenchSummer.recommendedZone}")`
 );
 
-const adviceTenchCold = analyzeRodPositioning('2026-11-20', fcWinter, 'Zeelt', {
+const fcTenchCold = createHourlyForecasts('2026-11-20', 6, 15, 'NO');
+const adviceTenchCold = analyzeRodPositioning('2026-11-20', fcTenchCold, 'Zeelt', {
   location: baseLoc,
   thermalAnalysis: thermalWinter,
   historicalSessions: [],
@@ -668,7 +670,7 @@ console.log('\n--- TESTGROEP 11: Geactiveerde Profielparameters in Prognose-Engi
 const carpProg = calculateDayPrognosis('2026-07-15', fc1, 'Karper', []);
 const carpWindSlot = carpProg.timeSlots.Middag.windFactor;
 assert(
-  carpWindSlot.detail.includes('sluit aan bij de voorkeur van Karper'),
+  carpWindSlot.detail.includes('voorlopige profielnotitie voor Karper'),
   '11.1 Voorkeurswindrichting (ZW) wordt actief herkend in het winddetail'
 );
 
@@ -677,8 +679,28 @@ const pikeOvercastForecast = createHourlyForecasts('2026-10-20', 12, 14, 'ZW', 8
 const pikeProg = calculateDayPrognosis('2026-10-20', pikeOvercastForecast, 'Snoek', []);
 const pikePrecipSlot = pikeProg.timeSlots.Middag.precipitationFactor;
 assert(
-  pikePrecipSlot.detail.includes('Gedempt licht sluit gunstig aan bij Snoek'),
-  '11.2 Bewolkingsvoorkeur (bewolkt) voor Snoek wordt actief benut in de toelichting'
+  pikePrecipSlot.detail.includes('profielvoorkeur voor bewolking (bewolkt) is voorlopig'),
+  '11.2 Voorlopige bewolkingsvoorkeur voor Snoek blijft zichtbaar als context'
+);
+
+assert(
+  pikePrecipSlot.score === 0 && pikePrecipSlot.impact === 'neutraal',
+  '11.3 Bewolking blijft context en geeft geen ongevalideerde activiteitsscorebonus'
+);
+assert(
+  pikeProg.timeSlots.Middag.seasonFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.seasonFactor.impact === 'neutraal',
+  '11.4 Voorlopige seizoensgewichten beïnvloeden de centrale activiteitsscore niet'
+);
+assert(
+  pikeProg.timeSlots.Middag.timeOfDayFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.timeOfDayFactor.impact === 'neutraal',
+  '11.5 Voorlopige tijdvakvoorkeuren beïnvloeden de centrale activiteitsscore niet'
+);
+assert(
+  pikeProg.timeSlots.Middag.windFactor.score === 0 &&
+  pikeProg.timeSlots.Middag.windFactor.impact === 'neutraal',
+  '11.6 Wind blijft context en geeft geen ongevalideerde biologische scorecorrectie'
 );
 
 // --- TESTGROEP 12: Windrichtinginterpretatie (Herkomst vs Blaasrichting) ---
@@ -796,7 +818,8 @@ for (let i = 1; i <= 12; i++) {
   });
 }
 
-const adviceRich = analyzeRodPositioning('2026-07-20', fcZW, 'Karper', {
+const fcRich = createHourlyForecasts('2026-07-20', 22, 16, 'ZW');
+const adviceRich = analyzeRodPositioning('2026-07-20', fcRich, 'Karper', {
   location: baseLoc,
   thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
   historicalSessions: richSessions,
@@ -897,6 +920,87 @@ assert(
   (adviceNoGps.windCastingGuidance!.googleMapsVisual.spotGpsText?.includes('niet vastgelegd') ||
    adviceNoGps.windCastingGuidance!.googleMapsVisual.coordinatesText?.includes('niet vastgelegd')) ?? false,
   '17.3 Stek zonder GPS meldt netjes dat coördinaten niet zijn vastgelegd'
+);
+
+// --- TESTGROEP 18: Ontbrekende gegevens en circulaire windrichting ---
+console.log('\n--- TESTGROEP 18: Ontbrekende gegevens en circulaire windrichting ---');
+
+const missingContextAdvice = analyzeRodPositioning('2026-07-20', [], 'Karper', {
+  location: { ...baseLoc, waterType: undefined, waterDepth: undefined },
+  thermalAnalysis: {
+    ...mockThermalAnalysis('Onvoldoende gegevens', 20),
+    estimatedWaterTemp: null,
+    measuredWaterTemp: null,
+    hasMeasuredWaterTemp: false,
+  },
+  historicalSessions: [],
+});
+assert(
+  missingContextAdvice.windContext.speedKmH === null &&
+  missingContextAdvice.windContext.directionText === 'Onbekend',
+  '18.1 Lege weersdata blijft onbekend en wordt niet vervangen door standaardwind'
+);
+assert(
+  missingContextAdvice.thermalContext.waterTempNote === 'Geen watertemperatuur bekend' &&
+  !missingContextAdvice.rationale.includes('14.0'),
+  '18.2 Luchttemperatuur wordt niet als watertemperatuur gebruikt en 14°C wordt niet ingevuld'
+);
+assert(
+  missingContextAdvice.windCastingGuidance === undefined &&
+  missingContextAdvice.missingInformation.some((m) => m.toLowerCase().includes('watertype')),
+  '18.3 Zonder wind, thermische basis en watertype wordt geen concreet kompasadvies verzonnen'
+);
+assert(
+  getDirectionMeta('Onbekend') === null,
+  '18.3a Een onbekende windrichting wordt niet stilzwijgend als zuidwest geïnterpreteerd'
+);
+
+const aroundNorthForecast = createHourlyForecasts('2026-07-20', 20, 8, 'N').map((hour, index) => ({
+  ...hour,
+  windDirection: index % 2 === 0 ? 359 : 1,
+  windDirectionText: 'N',
+}));
+const aroundNorthAdvice = analyzeRodPositioning('2026-07-20', aroundNorthForecast, 'Karper', {
+  location: baseLoc,
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  historicalSessions: [],
+});
+assert(
+  aroundNorthAdvice.windCastingGuidance?.windOrigin.degrees === 0,
+  '18.4 Windrichtingen 359° en 1° krijgen correct een circulair gemiddelde rond 0° (noord)'
+);
+
+const warmAirColdWaterAdvice = analyzeRodPositioning(
+  '2026-07-20',
+  createHourlyForecasts('2026-07-20', 30, 8, 'N'),
+  'Karper',
+  {
+    location: baseLoc,
+    thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 6),
+    historicalSessions: [],
+  }
+);
+assert(
+  warmAirColdWaterAdvice.rationale.includes('6.0 °C') &&
+  warmAirColdWaterAdvice.recommendedZone.toLowerCase().includes('rustzone'),
+  '18.5 Warme lucht overschrijft geen koud gemeten water in de soortspecifieke positioneringshypothese'
+);
+
+const opposingWindForecast = createHourlyForecasts('2026-07-20', 20, 10, 'O').map((hour, index) => ({
+  ...hour,
+  windDirection: index % 2 === 0 ? 90 : 270,
+  windDirectionText: index % 2 === 0 ? 'O' : 'W',
+}));
+const opposingWindAdvice = analyzeRodPositioning('2026-07-20', opposingWindForecast, 'Karper', {
+  location: baseLoc,
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  historicalSessions: [],
+});
+assert(
+  opposingWindAdvice.windContext.directionText === 'Wisselend' &&
+  opposingWindAdvice.windCastingGuidance === undefined &&
+  !opposingWindAdvice.recommendedZone.startsWith('Algemene zoekzone'),
+  '18.6 Wisselende tegengestelde wind houdt soortadvies bruikbaar maar forceert geen gemiddelde kompasrichting'
 );
 
 console.log('\n======================================================');

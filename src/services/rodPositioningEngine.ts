@@ -43,9 +43,8 @@ function determineTacticalHypothesis(
     waterDepth?: number;
     season: 'Voorjaar' | 'Zomer' | 'Herfst' | 'Winter';
     effectiveWaterTemp: number;
-    avgAirTemp: number;
     avgWindSpeed: number;
-    maxWindSpeed: number;
+    maxWindSpeed: number | null;
     windDirText: string;
     isColdWind: boolean;
     isStrongWind: boolean;
@@ -67,7 +66,6 @@ function determineTacticalHypothesis(
     waterDepth,
     season,
     effectiveWaterTemp,
-    avgAirTemp,
     avgWindSpeed,
     maxWindSpeed,
     windDirText,
@@ -100,7 +98,7 @@ function determineTacticalHypothesis(
 
   // SOORT: SNOEK (Visuele hinderlaagjager)
   if (species === 'Snoek') {
-    if (season === 'Winter' || effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
+    if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
       return {
         recommendedZone: 'Diepere taluds en overgangen nabij samengeschoolde prooivis',
         rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) trekken witvisscholen naar diepere kuilen; snoek volgt deze prooiconcentraties en jaagt vanuit diepere hinderlagen. Vermijdt energieverspilling in koude golfslag. (Zoekhypothese voor winterjacht).`,
@@ -170,7 +168,7 @@ function determineTacticalHypothesis(
 
   // SOORT: ZEELT (Warmteminnende planten- en modderbewoner)
   if (species === 'Zeelt') {
-    if (season === 'Winter' || effectiveWaterTemp < 11) {
+    if (effectiveWaterTemp < 11) {
       return {
         recommendedZone: 'Diepere beschutte slibzones (extreme winterrust)',
         rationale: `Onder ~11–12 °C schakelt zeelt over op een diepe inactieve spaarstand in zachte bodemlagen. Ruwe golfslag en stroming worden strikt gemeden. (Zoekhypothese voor winterpassiviteit).`,
@@ -190,7 +188,7 @@ function determineTacticalHypothesis(
 
   // SOORT: MEERVAL (Grote warmteminnende nacht- en bodemrover)
   if (species === 'Meerval') {
-    if (effectiveWaterTemp < 12 || season === 'Winter') {
+    if (effectiveWaterTemp < 12) {
       return {
         recommendedZone: 'Diepste, stromingsvrije overwinteringskuilen (rusttoestand)',
         rationale: `Meerval is sterk warmteminnend. Onder 12–14 °C vertraagt de stofwisseling drastisch en zoekt de vis diepe, rustige bodemholen op zonder actief te jagen. (Zoekhypothese voor koude rust).`,
@@ -209,7 +207,7 @@ function determineTacticalHypothesis(
 
   // SOORT: VOORN (Schoolvis in midden- en onderlaag)
   if (species === 'Voorn') {
-    if (season === 'Winter' || effectiveWaterTemp < 7) {
+    if (effectiveWaterTemp < 7) {
       return {
         recommendedZone: 'Diepere rusthavens en kuilen; zonnige middagen op ondieptes',
         rationale: `In de winter verzamelt voorn zich in dichte scholen in diepe, rustige havens of vaargeulen; bij een zonnige namiddag trekken ze kort naar ondiepere luwe oeverzones. (Zoekhypothese voor winterscholing).`,
@@ -236,7 +234,7 @@ function determineTacticalHypothesis(
     };
   }
 
-  if (season === 'Winter' || effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
+  if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
     return {
       recommendedZone: 'Diepere rustzone of luwe oever (beschut tegen koude wind)',
       rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind (${windDirText} ${avgWindSpeed} km/u) koelt de aanlandige oever snel verder af. Vis vermijdt hier onnodig energieverlies in de golfslag en zoekt vaak stabielere diepere kuilen of de beschutte luwe oever op. (De grens van ~7–8 °C is een praktische vuistregel, geen star biologisch omslagpunt). (Zoekhypothese voor koude rust).`,
@@ -246,7 +244,7 @@ function determineTacticalHypothesis(
     };
   }
 
-  if (season === 'Voorjaar' && (isWarmingPeriod || avgAirTemp >= 14)) {
+  if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     return {
       recommendedZone: 'Ondiepe, zonovergoten oeverzone of beschutte baai uit de wind',
       rationale: `In het voorjaar warmen ondieptes en uit de wind liggende baaien het snelst op onder invloed van zon. Karper en witvis trekken naar deze opwarmende zones om voedsel te zoeken in ontwakend bodemleven. (Zoekhypothese voor voorjaarsopwarming).`,
@@ -259,7 +257,7 @@ function determineTacticalHypothesis(
   if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
     return {
       recommendedZone: 'Aanlandige oeverzone (windkant) als mogelijke zoekzone',
-      rationale: `Een aanhoudende bries (${windDirText} ${avgWindSpeed} km/u${maxWindSpeed > avgWindSpeed ? `, stoten tot ~${maxWindSpeed} km/u` : ''}) stuwt warm oppervlaktewater, fytoplankton en zwevend voedsel richting de oever. Dit veroorzaakt lichte troebeling en zuurstofinbreng, wat foerageergedrag kan triggeren. Belangrijke nuance: aan de oppervlakte waait het water aanlandig, maar nabij de bodem ontstaat in dieper water vaak een compenserende retourstroom in tegengestelde richting. Behandel de windkant daarom als kansrijke zoekzone, niet als vaststaande garantie. (Zoekhypothese voor aanlandige wind).`,
+      rationale: `Een aanhoudende bries (${windDirText} ${avgWindSpeed} km/u${maxWindSpeed !== null && maxWindSpeed > avgWindSpeed ? `, stoten tot ~${maxWindSpeed} km/u` : ''}) kan oppervlaktewater en zwevend voedsel richting de oever verplaatsen. Dit veroorzaakt lichte troebeling en zuurstofinbreng, wat foerageergedrag kan triggeren. Belangrijke nuance: aan de oppervlakte waait het water aanlandig, maar nabij de bodem ontstaat in dieper water vaak een compenserende retourstroom in tegengestelde richting. Behandel de windkant daarom als kansrijke zoekzone, niet als vaststaande garantie. (Zoekhypothese voor aanlandige wind).`,
       alternativeOption:
         'Luwe oeverzone direct achter een rietkraag of een dieper talud, zeker als hevige golfslag het bodemaas verplaatst of vuil de hoofdlijn belaagt.',
       confidenceLevel: 'Matig',
@@ -269,7 +267,7 @@ function determineTacticalHypothesis(
   if (season === 'Zomer' && isCalmWind && isWarmConditions) {
     return {
       recommendedZone: 'Zuurstofrijke overgangszones, dieper water of schaduwrijke overkappingen',
-      rationale: `Bij weinig wind (${avgWindSpeed} km/u) en warme omstandigheden (~${avgAirTemp.toFixed(1)} °C) kan in stilstaand ondiep water zuurstofafname optreden. Vis zoekt vaak beschutting in diepere kuilen, bij waterplantenvelden of onder overhangende bomen. Let op: weinig wind betekent niet automatisch stilstaand water; thermische circulatie kan nabij de bodem nog steeds voor lichte waterverplaatsing zorgen. (Zoekhypothese voor warme luwte).`,
+      rationale: `Bij weinig wind (${avgWindSpeed} km/u) en warm water (~${effectiveWaterTemp.toFixed(1)} °C) kan in ondiep, stilstaand water zuurstofafname optreden. Vis zoekt vaak beschutting in diepere kuilen, bij waterplantenvelden of onder overhangende bomen. Let op: weinig wind betekent niet automatisch stilstaand water; thermische circulatie kan nabij de bodem nog steeds voor lichte waterverplaatsing zorgen. (Zoekhypothese voor warme luwte).`,
       alternativeOption:
         'Vroeg in de ochtend of laat in de avond foerageert vis vaak kort op de ondieptes wanneer het oppervlak iets afkoelt.',
       confidenceLevel: 'Matig',
@@ -374,7 +372,7 @@ export const DIRECTION_META_MAP: Record<string, DirectionMeta> = {
 /**
  * Normaliseert windtekst en graden naar de 8 standaard kompasrichtingen.
  */
-export function getDirectionMeta(dirText: string, degrees?: number): DirectionMeta {
+export function getDirectionMeta(dirText: string, degrees?: number): DirectionMeta | null {
   const clean = (dirText || '').trim().toUpperCase();
   if (DIRECTION_META_MAP[clean]) {
     return DIRECTION_META_MAP[clean];
@@ -428,7 +426,7 @@ export function getDirectionMeta(dirText: string, degrees?: number): DirectionMe
     return DIRECTION_META_MAP['NW'];
   }
 
-  return DIRECTION_META_MAP['ZW'];
+  return null;
 }
 
 /**
@@ -445,7 +443,6 @@ export function buildWindCastingGuidance(
     isColdWind: boolean;
     isCoolingPeriod: boolean;
     isWarmingPeriod: boolean;
-    avgAirTemp: number;
     avgWindSpeed: number;
     isCalmWind: boolean;
     isWarmConditions: boolean;
@@ -453,8 +450,9 @@ export function buildWindCastingGuidance(
     waterType: string;
   },
   personalEvidence?: RodPositioningAdvice['personalEvidence']
-): WindCastingGuidance {
+ ): WindCastingGuidance | undefined {
   const meta = getDirectionMeta(dirText, degrees);
+  if (!meta) return undefined;
   const actualDegrees = meta.degrees;
   const oppDegrees = meta.oppositeDegrees;
 
@@ -481,7 +479,6 @@ export function buildWindCastingGuidance(
     isColdWind,
     isCoolingPeriod,
     isWarmingPeriod,
-    avgAirTemp,
     avgWindSpeed,
     isCalmWind,
     isWarmConditions,
@@ -495,10 +492,10 @@ export function buildWindCastingGuidance(
   if (isFlowingWater) {
     isWindwardFavorable = false;
     windwardAssessment = `Op stromend water (${waterType.toLowerCase()}) bepalen vaargeultaluds, stroomnaden en kribkoppen de vispositie veel sterker dan de winddrift op het wateroppervlak.`;
-  } else if (effectiveWaterTemp < 8 || season === 'Winter' || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
+  } else if (effectiveWaterTemp < 8 || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
     isWindwardFavorable = false;
     windwardAssessment = `Niet aanbevolen (koud water / afkoeling). In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind onttrekt aanlandige golfslag extra warmte aan de oever. Karper en witvis mijden deze kille golfslag en zoeken energiebesparing in de luwe oever of diepere rustkuilen.`;
-  } else if (season === 'Voorjaar' && (isWarmingPeriod || avgAirTemp >= 14)) {
+  } else if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     isWindwardFavorable = false;
     windwardAssessment = `Geringe voorkeur. In het voorjaar warmen ondiepe, zonbeschenen oeverzones en beschutte baaien uit de wind sneller op dan een aanlandige oever met kille kabbel. Vis concentreert zich vaak in de opwarmende luwtes.`;
   } else if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
@@ -602,79 +599,77 @@ export function analyzeRodPositioning(
   // 1. Relevante weersperiode selecteren (targetSlot of daggemiddelde)
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
 
-  let slotForecasts = dayForecasts;
-  if (targetSlot && TIME_SLOT_HOURS[targetSlot]) {
-    const config = TIME_SLOT_HOURS[targetSlot];
-    const filtered = dayForecasts.filter((h) => {
-      const hour = parseInt(h.time.slice(11, 13), 10);
-      return hour >= config.start && hour < config.end;
-    });
-    if (filtered.length > 0) {
-      slotForecasts = filtered;
-    }
-  }
+  const slotForecasts = targetSlot && TIME_SLOT_HOURS[targetSlot]
+    ? dayForecasts.filter((h) => {
+        const hour = parseInt(h.time.slice(11, 13), 10);
+        const config = TIME_SLOT_HOURS[targetSlot];
+        return hour >= config.start && hour < config.end;
+      })
+    : dayForecasts;
+  const sampleForecasts = slotForecasts;
 
-  // Bereken representatieve wind- en temperatuurwaarden
-  const sampleForecasts = slotForecasts.length > 0 ? slotForecasts : dayForecasts;
+  // Bereken uitsluitend gemiddelden uit geldige metingen/verwachtingen.
+  // Ontbrekende waarden blijven null; luchttemperatuur vervangt nooit watertemperatuur.
+  const minimumWeatherSamples = Math.max(1, Math.ceil(sampleForecasts.length * 0.5));
+  const validWindSamples = sampleForecasts.filter((h) =>
+    typeof h.windSpeed === 'number' && Number.isFinite(h.windSpeed) && h.windSpeed >= 0 &&
+    typeof h.windDirection === 'number' && Number.isFinite(h.windDirection) &&
+    h.windDirection >= 0 && h.windDirection <= 360 &&
+    typeof h.windDirectionText === 'string' && h.windDirectionText.trim().length > 0
+  );
+  const validWind = validWindSamples.length >= minimumWeatherSamples ? validWindSamples : [];
+  const validAirTemps = sampleForecasts
+    .map((h) => h.temperature)
+    .filter((v): v is number => typeof v === 'number' && Number.isFinite(v) && v >= -30 && v <= 55);
+  const usableAirTemps = validAirTemps.length >= minimumWeatherSamples ? validAirTemps : [];
 
-  let avgWindSpeed = 12;
-  let maxWindSpeed = 15;
+  const avgWindSpeed = validWind.length > 0
+    ? Math.round((validWind.reduce((sum, h) => sum + h.windSpeed, 0) / validWind.length) * 10) / 10
+    : null;
+  const maxWindSpeed = validWind.length > 0
+    ? Math.round(Math.max(...validWind.map((h) => h.windSpeed)))
+    : null;
+  const avgAirTemp = usableAirTemps.length > 0
+    ? Math.round((usableAirTemps.reduce((sum, v) => sum + v, 0) / usableAirTemps.length) * 10) / 10
+    : null;
+
+  let avgWindDegrees: number | undefined;
   let windDirText = 'Onbekend';
-  let avgAirTemp = 14;
-  let avgWindDegrees: number | undefined = undefined;
-  let windTrend: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel' = 'Stabiel';
-  let intraSessionNote: string | undefined = undefined;
+  let windTrend: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel' | undefined = validWind.length > 0 ? 'Stabiel' : undefined;
+  let intraSessionNote: string | undefined;
 
-  if (sampleForecasts.length > 0) {
-    const totalSpeed = sampleForecasts.reduce((sum, h) => sum + (h.windSpeed || 0), 0);
-    avgWindSpeed = Math.round((totalSpeed / sampleForecasts.length) * 10) / 10;
-    maxWindSpeed = Math.round(Math.max(...sampleForecasts.map((h) => h.windSpeed || 0)));
+  if (validWind.length > 0) {
+    const radians = validWind.map((h) => h.windDirection * Math.PI / 180);
+    const sinMean = radians.reduce((sum, value) => sum + Math.sin(value), 0) / radians.length;
+    const cosMean = radians.reduce((sum, value) => sum + Math.cos(value), 0) / radians.length;
+    const resultantLength = Math.hypot(sinMean, cosMean);
 
-    const totalTemp = sampleForecasts.reduce((sum, h) => sum + (h.temperature || 0), 0);
-    avgAirTemp = Math.round((totalTemp / sampleForecasts.length) * 10) / 10;
-
-    // Modale windrichtingstekst en gemiddelde graden
-    const dirCounts: Record<string, number> = {};
-    for (const h of sampleForecasts) {
-      const dt = h.windDirectionText || 'ZW';
-      dirCounts[dt] = (dirCounts[dt] || 0) + 1;
-    }
-    let topCount = -1;
-    for (const [dir, cnt] of Object.entries(dirCounts)) {
-      if (cnt > topCount) {
-        topCount = cnt;
-        windDirText = dir;
-      }
+    if (resultantLength > 1e-6) {
+      avgWindDegrees = (Math.atan2(sinMean, cosMean) * 180 / Math.PI + 360) % 360;
+      const nearestDirection = Object.entries(DIRECTION_META_MAP)
+        .sort((a, b) => {
+          const da = Math.abs(((Number(a[1].degrees) - avgWindDegrees! + 540) % 360) - 180);
+          const db = Math.abs(((Number(b[1].degrees) - avgWindDegrees! + 540) % 360) - 180);
+          return da - db;
+        })[0];
+      windDirText = nearestDirection?.[0] ?? 'Onbekend';
+    } else {
+      windDirText = 'Wisselend';
     }
 
-    const degList = sampleForecasts
-      .map((h) => h.windDirection)
-      .filter((d) => typeof d === 'number' && !isNaN(d));
-    avgWindDegrees =
-      degList.length > 0
-        ? Math.round(degList.reduce((a, b) => a + b, 0) / degList.length)
-        : undefined;
-
-    // Analyse van weersverloop binnen het tijdvak (verandering van windkracht en richting)
-    const firstH = sampleForecasts[0];
-    const lastH = sampleForecasts[sampleForecasts.length - 1];
-    const speedStart = firstH?.windSpeed ?? avgWindSpeed;
-    const speedEnd = lastH?.windSpeed ?? avgWindSpeed;
-    const dirStart = firstH?.windDirectionText || windDirText;
-    const dirEnd = lastH?.windDirectionText || windDirText;
-    const speedDelta = speedEnd - speedStart;
-
-    if (dirStart !== dirEnd && sampleForecasts.length > 1) {
+    const firstH = validWind[0];
+    const lastH = validWind[validWind.length - 1];
+    const speedDelta = lastH.windSpeed - firstH.windSpeed;
+    const directionSequence = validWind.map((h) => h.windDirectionText.trim());
+    if (directionSequence[0] !== directionSequence[directionSequence.length - 1] && validWind.length > 1) {
       windTrend = 'Draaiend';
-      intraSessionNote = `Wind draait van ${dirStart} naar ${dirEnd}; oppervlaktewaterbeweging kan tijdens het tijdvak geleidelijk verschuiven.`;
+      intraSessionNote = `Wind draait van ${directionSequence[0]} naar ${directionSequence[directionSequence.length - 1]} tijdens het tijdvak; de lokale oppervlaktebeweging kan mee veranderen.`;
     } else if (speedDelta >= 6) {
       windTrend = 'Aantrekkend';
-      intraSessionNote = `Wind trekt aan van ${speedStart} naar ${speedEnd} km/u (stoten tot ~${maxWindSpeed} km/u); watermenging en golfslag nemen toe.`;
+      intraSessionNote = `Wind trekt aan van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
     } else if (speedDelta <= -6) {
       windTrend = 'Afnemend';
-      intraSessionNote = `Wind neemt af van ${speedStart} naar ${speedEnd} km/u; oppervlaktedrift zwakt geleidelijk af.`;
-    } else {
-      windTrend = 'Stabiel';
+      intraSessionNote = `Wind neemt af van ${firstH.windSpeed} naar ${lastH.windSpeed} km/u.`;
     }
   }
 
@@ -683,52 +678,81 @@ export function analyzeRodPositioning(
   const month = targetDate.getMonth() + 1; // 1-12
   const season = getSeasonNL(month);
 
-  const hasMeasuredTemp = typeof userWaterTemp === 'number' && !isNaN(userWaterTemp);
-  const effectiveWaterTemp = hasMeasuredTemp
+  const measuredWaterTemp = typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp)
     ? userWaterTemp
-    : thermalAnalysis.estimatedWaterTemp ?? avgAirTemp;
+    : thermalAnalysis.hasMeasuredWaterTemp &&
+        typeof thermalAnalysis.measuredWaterTemp === 'number' &&
+        Number.isFinite(thermalAnalysis.measuredWaterTemp)
+      ? thermalAnalysis.measuredWaterTemp
+      : null;
+  const hasMeasuredTemp = measuredWaterTemp !== null;
+  const estimatedWaterTemp = typeof thermalAnalysis.estimatedWaterTemp === 'number' && Number.isFinite(thermalAnalysis.estimatedWaterTemp)
+    ? thermalAnalysis.estimatedWaterTemp
+    : null;
+  const effectiveWaterTemp = measuredWaterTemp ?? estimatedWaterTemp;
 
-  // Biologisch genuanceerde vlaggen (behandeld als vuistregels/heuristieken, niet als harde breekpunten)
+  // Ontbrekende luchttemperatuur of wind wordt niet als normale conditie ingevuld.
   const isCoolingPeriod = thermalAnalysis.trend === 'Waarschijnlijke afkoeling';
   const isWarmingPeriod = thermalAnalysis.trend === 'Waarschijnlijke opwarming';
-  const isColdWind = avgAirTemp < 8 || (avgAirTemp < 12 && season === 'Voorjaar') || isCoolingPeriod;
-  const isStrongWind = avgWindSpeed >= 20 || maxWindSpeed >= 35;
-  const isCalmWind = avgWindSpeed <= 10;
-  const isWarmConditions = effectiveWaterTemp >= 21 || avgAirTemp >= 23;
+  const isColdWind = (avgAirTemp !== null && (avgAirTemp < 8 || (avgAirTemp < 12 && season === 'Voorjaar'))) || isCoolingPeriod;
+  const isStrongWind = avgWindSpeed !== null && maxWindSpeed !== null && (avgWindSpeed >= 20 || maxWindSpeed >= 35);
+  const isCalmWind = avgWindSpeed !== null && avgWindSpeed <= 10;
+  const isWarmConditions = effectiveWaterTemp !== null && effectiveWaterTemp >= 21;
 
   // 3. Watertype & diepte-eigenschappen
-  const waterType = location?.waterType || 'Plas/Zandafgraving';
+  const waterType = location?.waterType;
   const isFlowingWater = waterType === 'Rivier' || waterType === 'Kanaal';
   const waterDepth = location?.waterDepth;
 
-  // 4. Bepaling van soortspecifieke tactische zoekhypothese
-  const tacticalHypothesis = determineTacticalHypothesis(species, {
-    isFlowingWater,
-    waterType,
-    waterDepth,
-    season,
-    effectiveWaterTemp,
-    avgAirTemp,
-    avgWindSpeed,
-    maxWindSpeed,
-    windDirText,
-    isColdWind,
-    isStrongWind,
-    isCalmWind,
-    isWarmConditions,
-    isWarmingPeriod,
-    targetSlot,
-    thermalTrend: thermalAnalysis.trend,
-  });
+  // 4. Alleen een soortspecifieke tactische hypothese als watertype, thermische
+  // context en de relevante weergegevens bekend zijn. Anders: bruikbaar algemeen
+  // zoekadvies op basis van werkelijk geregistreerde lokale kenmerken.
+  const canUseSpeciesHypothesis = Boolean(
+    waterType && effectiveWaterTemp !== null && avgWindSpeed !== null
+  );
+  const canBuildWindCastingGuidance = canUseSpeciesHypothesis && avgWindDegrees !== undefined;
+  const tacticalHypothesis = canUseSpeciesHypothesis
+    ? determineTacticalHypothesis(species, {
+        isFlowingWater,
+        waterType: waterType!,
+        waterDepth,
+        season,
+        effectiveWaterTemp: effectiveWaterTemp!,
+        avgWindSpeed: avgWindSpeed!,
+        maxWindSpeed: maxWindSpeed!,
+        windDirText,
+        isColdWind,
+        isStrongWind,
+        isCalmWind,
+        isWarmConditions,
+        isWarmingPeriod,
+        targetSlot,
+        thermalTrend: thermalAnalysis.trend,
+      })
+    : {
+        recommendedZone: location?.habitatFeatures?.length
+          ? 'Geregistreerde lokale structuur als eerste zoekzone'
+          : 'Algemene zoekzone — aanvullende locatiegegevens nodig',
+        rationale: [
+          waterType ? `Watertype: ${waterType}.` : 'Watertype onbekend; stromend of stilstaand water wordt niet verondersteld.',
+          effectiveWaterTemp !== null ? `Watertemperatuur: ${hasMeasuredTemp ? 'gemeten' : 'geschat'} ${effectiveWaterTemp.toFixed(1)} °C.` : 'Watertemperatuur ontbreekt; luchttemperatuur wordt niet als vervanging gebruikt.',
+          avgWindSpeed !== null ? `Wind: ${avgWindSpeed} km/u.` : 'Windgegevens ontbreken; geen windgestuurde zone gekozen.',
+          location?.habitatFeatures?.length ? `Gebruik de vastgelegde kenmerken: ${location.habitatFeatures.join(', ')}.` : 'Er zijn geen concrete lokale habitatkenmerken vastgelegd.',
+          'Dit is een voorlopige zoekhypothese; controleer diepte, bodem en visactiviteit ter plaatse.',
+        ].join(' '),
+        alternativeOption: 'Vergelijk een tweede lokaal zichtbare structuur of diepteovergang; neem geen niet-geregistreerde bodemvorm aan.',
+        confidenceLevel: 'Laag' as const,
+      };
 
   // 5. Expliciete ontbrekende informatie (eerlijke modelbeperkingen, beknopt en zonder dubbele teksten)
   const missingInformation: string[] = [
     'Exacte oeverlijnoriëntatie en omtrek van het water zijn niet bekend in het systeem (GPS is een enkel punt). Onderzoek ter plekke welke oever daadwerkelijk de wind opvangt (aanlandig) of beschut ligt (aflandig).',
   ];
 
+  if (!waterType) missingInformation.push('Watertype ontbreekt; het model neemt geen plas, kanaal of rivier aan.');
   if (!waterDepth) {
     missingInformation.push(
-      'Waterdiepte en bodemprofiel zijn niet specifiek gedocumenteerd; standaard aanname van 2,0 m gehanteerd. Pas dieptetactiek ter plekke aan.'
+      'Waterdiepte en bodemprofiel zijn niet vastgelegd; er wordt geen standaarddiepte ingevuld.'
     );
   } else {
     missingInformation.push(
@@ -736,11 +760,19 @@ export function analyzeRodPositioning(
     );
   }
 
-  if (!hasMeasuredTemp) {
+  if (hasMeasuredTemp) {
+    // De lokale meting is de thermische ankerwaarde.
+  } else if (estimatedWaterTemp !== null) {
     missingInformation.push(
-      `Watertemperatuur is een modelschatting (~${effectiveWaterTemp.toFixed(1)} °C), geen directe thermometermeting op de stek.`
+      `Watertemperatuur is een modelschatting (~${estimatedWaterTemp.toFixed(1)} °C), geen directe thermometermeting op de stek.`
     );
+  } else {
+    missingInformation.push('Watertemperatuur ontbreekt; luchttemperatuur wordt niet als vervanging gebruikt.');
   }
+  if (avgWindSpeed === null || avgWindDegrees === undefined) {
+    missingInformation.push('Onvoldoende geldige windgegevens voor een wind-/werpkompasadvies.');
+  }
+  if (avgAirTemp === null) missingInformation.push('Luchttemperatuur ontbreekt; geen thermische luchthypothese toegepast.');
 
   missingInformation.push(
     'Lokale microklimaten (bomenrijen, rietkragen, bebouwing) kunnen de windrichting aan het wateroppervlak sterk afbuigen.'
@@ -830,25 +862,26 @@ export function analyzeRodPositioning(
     };
   }
 
-  const windCastingGuidance = buildWindCastingGuidance(
-    windDirText,
-    avgWindDegrees,
-    location,
-    {
-      effectiveWaterTemp,
-      season,
-      isColdWind,
-      isCoolingPeriod,
-      isWarmingPeriod,
-      avgAirTemp,
-      avgWindSpeed,
-      isCalmWind,
-      isWarmConditions,
-      isFlowingWater,
-      waterType,
-    },
-    personalEvidence
-  );
+  const windCastingGuidance = canBuildWindCastingGuidance
+    ? buildWindCastingGuidance(
+        windDirText,
+        avgWindDegrees,
+        location,
+        {
+          effectiveWaterTemp: effectiveWaterTemp!,
+          season,
+          isColdWind,
+          isCoolingPeriod,
+          isWarmingPeriod,
+          avgWindSpeed: avgWindSpeed!,
+          isCalmWind,
+          isWarmConditions,
+          isFlowingWater,
+          waterType: waterType!,
+        },
+        personalEvidence
+      )
+    : undefined;
 
   return {
     recommendedZone: tacticalHypothesis.recommendedZone,
@@ -858,7 +891,7 @@ export function analyzeRodPositioning(
     windContext: {
       directionText: windDirText,
       speedKmH: avgWindSpeed,
-      gustsKmH: maxWindSpeed > avgWindSpeed ? maxWindSpeed : undefined,
+      gustsKmH: maxWindSpeed !== null && avgWindSpeed !== null && maxWindSpeed > avgWindSpeed ? maxWindSpeed : undefined,
       isStrongWind,
       isColdWind,
       windTrend,
@@ -868,9 +901,9 @@ export function analyzeRodPositioning(
       trend: thermalAnalysis.trend,
       season,
       waterTempNote: hasMeasuredTemp
-        ? `Gemeten: ${userWaterTemp} °C`
-        : thermalAnalysis.estimatedWaterTemp !== null
-        ? `Geschat: ~${thermalAnalysis.estimatedWaterTemp} °C`
+        ? `Gemeten: ${measuredWaterTemp} °C`
+        : estimatedWaterTemp !== null
+        ? `Geschat: ~${estimatedWaterTemp} °C`
         : 'Geen watertemperatuur bekend',
     },
     missingInformation,
