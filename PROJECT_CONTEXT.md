@@ -942,3 +942,16 @@ Harde uitgangspunten:
 - De implementatie is KNMI-geïnformeerd, niet het officiële KNMI-model. De KNMI-pagina beschrijft een gevalideerd model voor stilstaand zoet buitenwater, maar publiceert geen numerieke API of volledige implementatiespecificatie voor directe herimplementatie.
 - Rijkswaterstaat WaterWebservices is geregistreerd als kandidaatbron voor echte historische oppervlaktewatermetingen. Automatische stationselectie en import blijven uitgeschakeld zolang meetpuntdekking en representativiteit voor kleine regionale wateren niet zijn vastgesteld.
 - Nieuwe snapshots bewaren de herkomst, onzekerheid, historische basis, meetanker en weersdekking van de watertemperatuurschatting.
+
+## GIS-stekherkenning en waterprofielen
+
+Vislogboek krijgt een optionele GIS-laag die een GPS- of handmatig gekozen vispositie koppelt aan het juiste water, watersegment en beschikbare dwarsprofielen. De laag combineert ingemeten profielen met officiële Leggergegevens om onderwaterstructuur en, waar verantwoord, diepte-informatie aan de Coach te leveren. De eerste pilot richt zich op Culemborg.
+
+**Gebruiksregels:**
+- GPS is een startpunt; de gebruiker kan de daadwerkelijke vis-/voerpositie handmatig corrigeren.
+- Onderscheid altijd ingemeten waarden, officiële ontwerp-/Leggergegevens, berekende interpolaties en onbekende waarden.
+- Diepte is alleen een betrouwbare waterdiepte als bodemhoogte en actuele waterstand in een aantoonbaar passend verticaal referentiestelsel beschikbaar zijn. Ga niet uit van NAP of andere datums zonder metadata.
+- Toon bij afgeleide waarden herkomst, datum en betrouwbaarheid; presenteer interpolatie nooit als meting.
+- De GIS-laag blijft optioneel en geïsoleerd: bestaande logboek-, prognose- en Coach-functionaliteit mag hierdoor niet ongemerkt veranderen.
+
+De volledige architectuur, databronnen, matching, profielreconstructie, onzekerheidsregels, fasering en acceptatiecriteria staan in [GIS_STEKHERKENNING_BLUEPRINT.md](GIS_STEKHERKENNING_BLUEPRINT.md). Dit projectcontextdocument bevat alleen de algemene uitgangspunten; de aparte blueprint is leidend voor de technische uitwerking. **Status: ontwerp vastgelegd; implementatie nog niet gestart.**
