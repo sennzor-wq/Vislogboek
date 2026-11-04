@@ -533,3 +533,136 @@ De pilot is pas geslaagd wanneer:
 **Volgende stap na toestemming:** uitsluitend fase 0 starten: actuele repository en architectuur inspecteren, brondata formeel inventariseren en de Culemborg-pilot afbakenen.
 
 De gebruiker heeft expliciet gekozen voor de **geavanceerde** aanpak. Deze blueprint documenteert die keuze, maar geeft op zichzelf geen toestemming om de GIS-functionaliteit te implementeren.
+
+---
+## 21. Aanvullingen na technische review (4 november 2026)
+
+Deze aanvullingen scherpen de oorspronkelijke blueprint aan. De geavanceerde architectuur blijft behouden. Dit document geeft geen toestemming voor implementatie in de productieapplicatie.
+
+### 21.1 Angler position, fishing spot en positie in het dwarsprofiel
+
+Leg drie afzonderlijke posities vast:
+1. Angler position: GPS-positie van de visser/telefoon.
+2. Fishing spot: daadwerkelijke beoogde visplek, handmatig gekozen of afgeleid uit expliciet ingevoerde werprichting en afstand.
+3. Position within cross-section: positie van de fishing spot over de breedte van het dwarsprofiel.
+
+Projectie op de hartlijn levert chainage op, maar bepaalt niet vanzelf de positie over de dwarsdoorsnede. Bepaal daarom waar geometrie en profieloriëntatie dit toelaten ook de dwarse offset. Als die offset niet betrouwbaar kan worden vastgesteld, claimt de module geen diepte op de exacte visplek maar toont zij het volledige dwarsprofiel.
+
+Bewaar per positie de bron, oorspronkelijke coördinaten, GPS-nauwkeurigheid indien beschikbaar, gebruikerscorrectie, projectieafstand, chainage, dwarse offset en gebruikte geometrie-/profiel-ID's. Werprichting en afstand zijn optioneel en mogen nooit worden verondersteld.
+
+### 21.2 Watergangidentiteit en segmenttopologie
+
+Maak onderscheid tussen bronobject-ID, logisch watergang-ID (alleen indien de bronsemantiek dit ondersteunt), geometrisch segment-ID en netwerkverbindingen. Een niet-unieke broncode mag niet als primaire sleutel dienen.
+
+Segmenten mogen alleen tot één logisch watergangnetwerk worden samengevoegd wanneer bronattributen en geometrische/netwerktopologie dat ondersteunen. Nabijheid alleen is onvoldoende: kruisingen, duikers, sifons en parallelle watergangen kunnen dicht bij elkaar liggen zonder dezelfde watergang te vormen.
+
+Bewaar originele segmentgeometrie en de regels waarmee segmenten eventueel zijn gegroepeerd. Chainage moet reproduceerbaar zijn binnen een vastgelegde netwerkversie en richting. Bij onduidelijke richting of meerdere netwerkpaden wordt de positie ambigu gerapporteerd.
+
+### 21.3 Profile Matcher: expliciete kandidaatbeoordeling
+
+Verzamel eerst profielkandidaten en beoordeel ze daarna op minimaal:
+- afstand van profielgeometrie tot watergang;
+- wel/geen geometrische kruising en type kruising;
+- hoek tussen profielrichting en lokale watergangrichting;
+- profiel-lengte en plausibele dekking van beide oevers;
+- positie/chainage van de kruising;
+- aantal concurrerende watergangkandidaten;
+- geometrievaliditeit en bronkwaliteit.
+
+Een numerieke matchscore mag pas worden geïntroduceerd nadat representatieve positieve en negatieve voorbeelden handmatig zijn gelabeld. Tot die tijd gebruikt de PoC transparante statussen (matched, ambiguous, rejected, needs_review) en toont hij de bewijswaarden. Een niet-gekalibreerde score wordt nooit als waarschijnlijkheidspercentage gepresenteerd.
+
+Profielen die meerdere watergangen kruisen, een onwaarschijnlijke hoek hebben of niet aantoonbaar bij het bedoelde water horen, worden niet automatisch gekoppeld.
+
+### 21.4 Verticale referentie als harde voorwaarde
+
+Een verticale referentie is een harde voorwaarde voor numerieke actuele waterdiepte, niet slechts een confidence-factor.
+
+- Verticale CRS/datum, eenheid en eventuele transformatie moeten per bronlaag bekend en gevalideerd zijn.
+- Een horizontale transformatie naar EPSG:28992 valideert geen verticale hoogtes.
+- Bodemhoogte mag alleen met een waterstand worden gecombineerd als beide aantoonbaar dezelfde verticale referentie en compatibele eenheden gebruiken.
+- Bij onbekende of incompatibele referentie wordt geen actuele waterdiepte berekend. Toon hoogstens de bronhoogte met waarschuwing of de profielvorm indien relatieve hoogtes betrouwbaar zijn.
+- Een gemeten profiel blijft een historische momentopname; meetdatum en mogelijke onderhouds-/baggerwerkzaamheden blijven zichtbaar.
+
+Verduidelijk het Coach-contract: measured mag een direct gemeten bodemhoogte/profiel betekenen, maar niet automatisch een actuele waterdiepte. Gebruik afzonderlijke velden voor bedElevation en waterDepth, elk met eigen type, eenheid, verticale referentie, bron en datum.
+
+### 21.5 Interpolatie en extrapolatie
+
+Interpolatie is alleen toegestaan wanneer beide begrenzende profielen aan dezelfde gevalideerde watergang/netwerkroute zijn gekoppeld, de volgorde langs chainage ondubbelzinnig is, de positie binnen het interval ligt, beide profielen voldoende compleet en vergelijkbaar zijn, er geen bekende discontinuïteit/kunstwerk/onderhoudsgrens tussen ligt en verticale referenties compatibel zijn.
+
+Extrapolatie buiten het bereik van gemeten profielen wordt in de eerste pilot standaard niet als numerieke diepteschatting aangeboden. Toon de afstand tot het dichtstbijzijnde profiel en status unavailable of insufficient_coverage.
+
+Numerieke drempels voor maximale profielafstand worden niet gegokt. Ze worden na de Culemborg-inventarisatie bepaald op basis van de feitelijke afstandsverdeling, profielvariatie en validatieresultaten. Iedere drempel wordt versiebeheerd.
+
+### 21.6 Confidence: status plus bewijs, geen schijnprecisie
+
+Bewaar afzonderlijke kwaliteitsdimensies voor watergangmatch, profielmatch, meetpunt-/profielkwaliteit, meetactualiteit, dekking/interpolatieafstand, verticale referentie en positiezekerheid van de fishing spot.
+
+Een samengestelde A/B/C/D-klasse mag een harde blokkade niet overrulen. Onbekende verticale referentie blokkeert actuele waterdiepte, ook als geometrische matches goed zijn. Gebruik geen percentage dat als statistische kans kan worden gelezen tenzij dit met een representatieve validatieset is gekalibreerd. Toon begrijpelijke redenen en bewijswaarden.
+
+### 21.7 Datasetversies en actualiteit
+
+Elke import krijgt een onveranderlijke datasetversie met bronbestandsnaam en checksum, bronhouder en licentie, publicatie-/vaststellingsdatum indien bekend, importdatum, software- en transformatieversies, CRS/verticale referentie per laag, aantallen ingelezen/afgekeurde records en validatie-/uitzonderingenrapport.
+
+Nieuwe datasets vervangen historische bronversies niet stilzwijgend. Afgeleide matches en schattingen verwijzen naar exacte datasetversies. Een herimport kan resultaten veranderen; dat moet zichtbaar en reproduceerbaar zijn. Bestaande sessies en prognosesnapshots worden niet achteraf herschreven.
+
+### 21.8 Opslag- en performancebesluit op basis van benchmark
+
+Leg de opslagkeuze pas vast na een reproduceerbare benchmark met de pilotselectie. Meet minimaal omvang van bron- en pilotdata, importtijd/geheugen, querytijd voor watergang- en profielzoekopdrachten, reconstructietijd, lokale opslaggrootte, offline-/updategedrag en impact op laadtijd en interacties van de bestaande app.
+
+Laad niet alle circa 1,45 miljoen meetpunten in browsergeheugen of React-state. Verwerk GIS in een gecontroleerde preprocessing-/querylaag. De browser ontvangt alleen relevante watergangen, profielen en compacte provenance. Een ruimtelijke backend/PostGIS is een optie, geen vooraf vaststaand vereiste.
+
+### 21.9 Validatieprotocol en meetbare acceptatie
+
+Maak een handmatig gecontroleerde referentieset met:
+- stekken met één duidelijke kandidaat-watergang;
+- stekken naast parallelle/dichtbijgelegen watergangen;
+- stekken bij kruisingen, duikers of kunstwerken;
+- GPS-punten op de oever;
+- locaties met en zonder nabijgelegen meetprofielen.
+
+Leg per testgeval de bedoelde watergang, relevante segmenten, profiel-ID's en onzekerheid vast. Rapporteer minimaal het aantal correct gekoppelde stekken, ambigue/onbekende stekken, foutieve automatische matches, precisie van automatische matches, profielmatch-juistheid op de gecontroleerde subset, afstandsverdeling tot relevante profielen en aandeel locaties zonder betrouwbare numerieke diepte-uitkomst.
+
+Veilig uitgangspunt voor de pilot: geen foutieve automatische watergangkeuze in de handmatig gecontroleerde referentieset. Ambigue gevallen mogen als ambigu worden teruggegeven. Een kleine referentieset bewijst geen landelijke nauwkeurigheid; rapporteer aantallen, noemers en beperkingen.
+
+Stel numerieke foutmarges voor de diepte-engine pas vast wanneer onafhankelijke referentiemetingen met bekende datum, positie en verticale referentie beschikbaar zijn. Zonder zulke referenties valideert de PoC de geometrie- en dataketen, niet de absolute nauwkeurigheid van actuele waterdiepte.
+
+### 21.10 Aanvullende acceptatietests
+
+16. Angler position en fishing spot zijn afzonderlijke objecten en onafhankelijk aanpasbaar.
+17. Chainage en dwarse profiel-offset worden niet met elkaar verward.
+18. Een profiel dat meerdere watergangen kruist, wordt niet zonder onderbouwing automatisch toegewezen.
+19. Niet-unieke broncodes veroorzaken geen overschrijving of onbedoelde samenvoeging.
+20. Onbekende verticale referentie blokkeert actuele waterdiepte.
+21. Interpolatie vindt alleen plaats tussen geschikte profielen op dezelfde ondubbelzinnige watergangroute.
+22. Extrapolatie buiten meetbereik levert in de eerste pilot geen numerieke diepteclaim op.
+23. Elke match en schatting verwijst naar onveranderlijke datasetversies en reproduceerbare parameters.
+24. De referentieset rapporteert foutieve automatische matches afzonderlijk van ambigue/onbekende uitkomsten.
+25. Een benchmark toont dat alleen relevante pilotgegevens worden opgehaald en niet alle bronmeetpunten in browsergeheugen worden geladen.
+
+## 22. Eerstvolgende uitvoering: PoC vóór implementatie
+
+De eerstvolgende praktische stap is een geïsoleerde, reproduceerbare GIS-PoC op de vijf afgesproken Culemborgse stekken en de twee bronbestanden. Dit is data-analyse, geen applicatie-implementatie.
+
+De PoC levert:
+1. broninventaris per relevante laag, inclusief CRS, verticale referentie, velden en aantallen;
+2. kandidaat-watergangen per stek, inclusief afstanden en ambiguïteit;
+3. gekozen of handmatig te beoordelen segmenten en chainage;
+4. relevante gemeten profiel-ID's, profielposities en afstanden langs de watergang;
+5. afzonderlijke Leggerprofielen;
+6. gereconstrueerde dwarsprofielen met laagonderscheid en meetdatum;
+7. expliciete beoordeling van verticale referentie en of absolute waterdiepte berekenbaar is;
+8. uitzonderingen, ontbrekende data en onzekerheden;
+9. reproduceerbare scripts, parameters en resultatenrapport.
+
+De vijf pilotlocaties zijn:
+- Lokkershoek speelplek — 51.943588, 5.191197
+- Lokkershoek Pier — 51.944861, 5.192340
+- Kanaal schapen #1 — 51.948939, 5.189031
+- Vijver achter Kanaal schapen #1 — 51.948647, 5.189778
+- Bomedikke speeltuin — 51.954158, 5.229510
+
+De vier eerste locaties liggen relatief dicht bij elkaar. De PoC moet juist aantonen dat nabijgelegen, afzonderlijke wateren niet op basis van alleen de dichtstbijzijnde lijn worden verward. Bomedikke is een geografisch afzonderlijke controlelocatie.
+
+**PoC-beperkingen:** geen wijzigingen aan app-code, database, bestaande stekken, prognose-engine of productieopslag. Geen automatische commits of deployment. Geen actuele waterdiepte claimen zonder gevalideerde verticale referentie en passende waterstand. Resultaten worden per stek met bronverwijzingen en reproduceerbare tussenstappen opgeleverd.
+
+**Go/no-go na PoC:** pas na beoordeling van matching, profieldekking, verticale referenties, foutgevallen en benchmark wordt besloten of fase 1 van implementatie mag starten. De PoC zelf geeft geen toestemming voor implementatie.
