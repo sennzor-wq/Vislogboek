@@ -27,6 +27,17 @@ import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
 
+/** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
+export function createPrognosisInputFingerprint(value: unknown): string {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index++) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a32-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
 export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number; rangeLabel: string }> = {
   Nacht: { start: 0, end: 6, rangeLabel: '00:00 – 06:00' },
   Ochtend: { start: 6, end: 12, rangeLabel: '06:00 – 12:00' },
@@ -1259,6 +1270,7 @@ export async function createLiveSnapshotForSessionStart(
       conditions: weatherSnap,
       weatherInput: weather.hourly,
       inputContext,
+      inputFingerprint: createPrognosisInputFingerprint({ inputContext, weather: weather.hourly, technique, userWaterTemp }),
       runKind: 'session_start',
     };
   } catch (err) {
