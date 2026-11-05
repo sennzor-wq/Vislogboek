@@ -10,7 +10,7 @@ import {
   WeatherSnapshot,
   PrognosisInputContext,
 } from '../types';
-import { calculateDayPrognosis, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
+import { calculateDayPrognosis, createPrognosisInputFingerprint, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
@@ -181,15 +181,6 @@ export interface VisCoachPlan {
   durationHours: number | null;
 }
 
-function planFingerprint(value: unknown): string {
-  const input = JSON.stringify(value);
-  let hash = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `fnv1a32-${(hash >>> 0).toString(16).padStart(8, '0')}`;
-}
 
 /**
  * Bouwt een VisCoach-plan door de bestaande prognose-engine te gebruiken.
@@ -298,7 +289,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     weatherFetchedAt: weather.fetchedAt,
   };
 
-  const inputFingerprint = planFingerprint({
+  const inputFingerprint = createPrognosisInputFingerprint({
     date,
     desiredStartTime: start.toISOString(),
     desiredEndTime: end?.toISOString() ?? null,
