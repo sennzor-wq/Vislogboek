@@ -500,6 +500,8 @@ export interface PrognosisOptions {
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
+  allowUnknownSessionDuration?: boolean;
 }
 
 /**
@@ -537,10 +539,10 @@ export function calculateDayPrognosis(
   options?: PrognosisOptions
 ): DayPrognosis {
   const rawDuration = options?.sessionDurationHours;
-  const sessionDuration =
+  const sessionDuration: number | null =
     typeof rawDuration === 'number' && !isNaN(rawDuration) && rawDuration > 0
       ? Math.min(24, Math.max(0.25, rawDuration))
-      : 3;
+      : options?.allowUnknownSessionDuration ? null : 3;
   const locationId = options?.locationId;
   const location = options?.location;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
@@ -707,10 +709,14 @@ export function calculateDayPrognosis(
 
       const actFactor = 0.88 + (dayScore / 10) * 0.24;
       const effectiveLambda = rawLambdaPerHour * actFactor;
-      let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
-      durationAdjusted = clamp(durationAdjusted, 0, 0.95);
-      expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
-      catchChance = Math.round(durationAdjusted * 100);
+      if (sessionDuration !== null) {
+        let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
+        durationAdjusted = clamp(durationAdjusted, 0, 0.95);
+        expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
+        catchChance = Math.round(durationAdjusted * 100);
+      } else {
+        uncertaintyNotes.push('De gewenste sessieduur is onbekend; vangstkans en verwacht aantal vangsten worden daarom niet voor een fictieve duur berekend.');
+      }
 
       if (durationSessions.length >= 30) confidence = 'Hoog';
       else if (durationSessions.length >= 18) confidence = 'Redelijk';
@@ -939,7 +945,7 @@ export function calculateDayPrognosis(
         thermalAnalysis,
         {
           availableDaysBefore: 2,
-          sessionDurationHours: sessionDuration,
+          sessionDurationHours: sessionDuration ?? undefined,
           userWaterTemp,
           ...options?.prebaitOptions,
           technique: options?.prebaitOptions?.technique ?? options?.technique,
@@ -1006,10 +1012,16 @@ export function calculateDayPrognosis(
 
 export interface PendingPrognosisSnapshot {
   prognosis: DayPrognosis;
+  /** 0 is the explicit storage sentinel for an unknown duration. */
   durationHours: number;
+  durationKnown?: boolean;
   locationName?: string;
   chosenSlot?: TimeSlot;
   conditions?: WeatherSnapshot;
+  weatherInput?: WeatherHourlyForecast[];
+  runKind?: import('../types').PrognosisRunKind;
+  inputFingerprint?: string;
+  supersedesSnapshotId?: string;
 }
 
 /**
@@ -1023,7 +1035,13 @@ export async function savePrognosisSnapshot(
   locationName?: string,
   technique?: string,
   chosenSlot?: TimeSlot,
-  conditions?: WeatherSnapshot
+  conditions?: WeatherSnapshot,
+  metadata?: {
+    runKind?: import('../types').PrognosisRunKind;
+    weatherInput?: WeatherHourlyForecast[];
+    inputFingerprint?: string;
+    supersedesSnapshotId?: string;
+  }
 ): Promise<PrognosisSnapshot> {
   const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
@@ -1033,7 +1051,9 @@ export async function savePrognosisSnapshot(
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
-  const existingList = await db.prognosisSnapshots.toArray();
+  const existingList = metadata?.runKind === 'session_start' || metadata?.runKind === 'session_update'
+    ? []
+    : await db.prognosisSnapshots.toArray();
   const existing = existingList.find(
     (s) =>
       s.targetDate === prognosis.date &&
@@ -1060,6 +1080,12 @@ export async function savePrognosisSnapshot(
     locationId,
     locationName,
     durationHours,
+    durationKnown: metadata?.runKind ? durationHours > 0 : undefined,
+    runKind: metadata?.runKind,
+    inputFingerprint: metadata?.inputFingerprint,
+    supersedesSnapshotId: metadata?.supersedesSnapshotId,
+    prognosisData: prognosis,
+    weatherInput: metadata?.weatherInput,
     technique,
     predictedActivityScore: prognosis.activityScoreAvailable === false ? null : prognosis.activityScore,
     activityScoreAvailable: prognosis.activityScoreAvailable !== false,
@@ -1115,7 +1141,13 @@ export async function saveSessionWithPrognosisSnapshot(
       pending.locationName,
       session.technique,
       pending.chosenSlot,
-      pending.conditions
+      pending.conditions,
+      {
+        runKind: pending.runKind ?? 'session_start',
+        weatherInput: pending.weatherInput,
+        inputFingerprint: pending.inputFingerprint,
+        supersedesSnapshotId: pending.supersedesSnapshotId,
+      }
     );
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
     await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
@@ -1136,7 +1168,7 @@ export async function saveSessionWithPrognosisSnapshot(
 export async function createLiveSnapshotForSessionStart(
   location: FishingLocation,
   species: FishSpecies | 'Algemeen',
-  durationHours = 3,
+  durationHours?: number,
   technique?: string,
   weatherSnap?: WeatherSnapshot
 ): Promise<PendingPrognosisSnapshot | null> {
@@ -1160,6 +1192,7 @@ export async function createLiveSnapshotForSessionStart(
       new Date(),
       {
         sessionDurationHours: durationHours,
+        allowUnknownSessionDuration: true,
         locationId: location.id,
         location,
         catches: allCatches,
@@ -1176,10 +1209,13 @@ export async function createLiveSnapshotForSessionStart(
     // door saveSessionWithPrognosisSnapshot in één transactie opgeslagen.
     return {
       prognosis: prog,
-      durationHours,
+      durationHours: durationHours ?? 0,
+      durationKnown: typeof durationHours === 'number' && Number.isFinite(durationHours) && durationHours > 0,
       locationName: location.name,
       chosenSlot,
       conditions: weatherSnap,
+      weatherInput: weather.hourly,
+      runKind: 'session_start',
     };
   } catch (err) {
     console.error('Fout bij automatisch genereren van live sessie-snapshot:', err);
