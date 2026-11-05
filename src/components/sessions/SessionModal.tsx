@@ -160,6 +160,12 @@ export const SessionModal: React.FC<SessionModalProps> = ({
       const loc = locations.find((l) => l.id === locationId);
       let snapshotToSave = pendingPrognosisSnapshot;
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
+      const plannedEndIso = plannedEndTime ?? session?.plannedEndTime ?? null;
+      const plannedStartMs = new Date(startTime).getTime();
+      const plannedEndMs = plannedEndIso ? new Date(plannedEndIso).getTime() : NaN;
+      const calculatedPlannedDuration = Number.isFinite(plannedEndMs) && plannedEndMs > plannedStartMs
+        ? (plannedEndMs - plannedStartMs) / 3600000
+        : sessionDurationHours ?? session?.plannedDurationHours ?? null;
 
       const parsedRods = typeof rodCount === 'number'
         ? Math.max(1, Math.floor(rodCount))
@@ -172,6 +178,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         startTime: new Date(startTime).toISOString(),
         endTime: isCompleted && endTime ? new Date(endTime).toISOString() : null,
         durationMinutes: calculatedDur,
+        plannedDurationHours: calculatedPlannedDuration,
+        plannedEndTime: plannedEndIso,
         outcome: isCompleted ? outcome : 'active',
         targetSpecies: selectedTargetSpecies,
         rodCount: parsedRods,
