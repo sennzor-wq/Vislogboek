@@ -12,6 +12,8 @@ import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
 import { VisCoachView } from './components/viscoach/VisCoachView';
 import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
+import { VisCoachView } from './components/viscoach/VisCoachView';
+import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
