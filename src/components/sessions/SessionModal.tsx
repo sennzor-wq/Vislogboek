@@ -160,7 +160,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
     try {
       const loc = locations.find((l) => l.id === locationId);
-      let snapshotToSave = pendingPrognosisSnapshot;
+      let snapshotToSave = createStartSnapshot ? undefined : pendingPrognosisSnapshot;
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
       const plannedEndIso = plannedEndTime ?? session?.plannedEndTime ?? null;
       const plannedStartMs = new Date(startTime).getTime();
