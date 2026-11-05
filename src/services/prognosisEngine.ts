@@ -1208,6 +1208,7 @@ export async function createLiveSnapshotForSessionStart(
       targetDate: todayStr,
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
+      technique: technique ?? null,
       location: {
         id: location.id,
         latitude: location.latitude,
