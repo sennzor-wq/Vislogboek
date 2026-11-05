@@ -26,7 +26,7 @@ interface VisCoachViewProps {
   sessions: FishingSession[];
   catches: CatchItem[];
   plannedSessions: PlannedFishingSession[];
-  onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => void;
+  onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number) => void;
   onStartPlannedSession: (plan: PlannedFishingSession) => Promise<void>;
   onSavePlan: (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => Promise<void>;
   onCancelPlan: (planId: string) => Promise<void>;
@@ -152,7 +152,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
         catches,
       });
       // De actuele prognose en eventuele gekozen eindtijd worden atomair met de echte sessiestart opgeslagen.
-      onStartSession(species, selectedLocation.id, freshPlan.pendingSnapshot);
+      onStartSession(species, selectedLocation.id, undefined, freshPlan.durationHours ?? undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'De actuele startsituatie kon niet worden berekend.');
     } finally {
