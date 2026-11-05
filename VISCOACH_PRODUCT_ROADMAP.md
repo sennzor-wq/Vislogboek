@@ -236,7 +236,7 @@ Dit is een belangrijk fundament voor een coach die zijn eigen adviezen moet kunn
 
 De volgende onderdelen zijn productdoelen of uitbreidingen, niet aantoonbaar volledig gerealiseerde functies:
 - Een volledig geïntegreerde VisCoach-startpagina die bij het openen van de app de centrale instap is wanneer geen actieve sessie bestaat.
-- Een contextueel gegenereerde welkomstbibliotheek met minimaal 500 werkelijk verschillende, relevante varianten zoals vastgelegd in de bestaande productspecificatie.
+- Een korte contextuele introductietekst is optioneel en mag bestaande weer-/stekgegevens gebruiken. Een grote tekstenbibliotheek is geen kernvereiste voor VisCoach.
 - Een compleet, gebruiksvriendelijk advies dat de gekozen vistijd vergelijkt met relevante alternatieven en omstandigheden, tactiek, positie, wind-/kijk-/werprichting, aas/voer en onzekerheid samenbrengt in één coachplan.
 - Een persoonlijk lerend profiel per stek en vissoort dat meer doet dan algemene historische statistieken tonen.
 - Een sessiecoach die geïntegreerd is in de actieve sessiepagina en veranderingen en gebruikerswaarnemingen tijdens het vissen omzet in nieuwe tactische voorstellen.
@@ -344,7 +344,7 @@ De kern van VisCoach moet volledig zelfstandig kunnen werken binnen de bestaande
 - Geen tweede, los onderhouden vissoortendatabase.
 - Geen dubbele opslag van locaties, sessies of vangsten.
 - De coachlaag vertaalt bestaande uitkomsten naar praktische taal en mag geen verborgen score-aanpassingen uitvoeren.
-- De coach maakt geen extra intakeformulier van de sessiestart: vissoort, stek en gewenste start-/eindtijd zijn de drie primaire keuzes; aanvullende registratie blijft optioneel en gebeurt in de actieve sessie.
+- De coach maakt geen extra intakeformulier van de sessiestart: vissoort, stek en gewenste starttijd zijn de primaire keuzes; eindtijd is optioneel. Aanvullende registratie blijft optioneel en gebeurt in de bestaande actieve sessie.
 - De coach mag bestaande prognosemomentopnames niet vervangen, samenvoegen met coachadviezen of hun learning/evaluatierol veranderen.
 
 ### 4.3 Offline-first en privacy
@@ -564,7 +564,7 @@ Deze drie momenten maken het mogelijk om zowel de kwaliteit van vooruit plannen 
 
 ### Inhoud van het visplan
 
-- **Wanneer:** beoordeling van de gekozen start-/eindtijd en een relevant alternatief.
+- **Wanneer:** beoordeling van de gewenste starttijd en, als een eindtijd bekend is, de gekozen sessieduur en relevante alternatieven.
 - **Waar:** kansrijke oever, zone of positie, alleen als stekgegevens dit ondersteunen.
 - **Wind en positionering:** windrichting ten opzichte van de oever, relevante kijkrichting en aanbevolen werp-/voerichting.
 - **Hoe:** methode en presentatie, voor zover bekende context dit ondersteunt.
@@ -589,7 +589,7 @@ De bestaande `bankWindEngine.ts` en `rodPositioningEngine.ts` zijn de eerste her
 ### Technische aanpak
 
 - Een coachservice, bijvoorbeeld `visCoachEngine.ts`, fungeert als samenvoegende beslissings- en presentatielaag.
-- Invoer: doelsoort, locatie, gewenste start-/eindtijd, bestaande prognose-uitvoer, lokaal profiel en datakwaliteit.
+- Invoer: doelsoort, locatie, gewenste starttijd, optionele eindtijd, bestaande prognose-uitvoer, lokaal profiel en datakwaliteit.
 - Uitvoer als gestructureerd adviesobject, bijvoorbeeld:
   - gekozen periode en eventueel aanbevolen alternatief;
   - reden en grootte/zekerheid van het verschil;
@@ -601,7 +601,7 @@ De bestaande `bankWindEngine.ts` en `rodPositioningEngine.ts` zijn de eerste her
   - bron-/moduleverwijzingen en coachversie.
 - De coachservice roept bestaande engines aan of ontvangt hun resultaten; hij kopieert geen biologische regels en berekent geen eigen verborgen prognosescore.
 - De UI presenteert eerst de belangrijkste aanbeveling en laat technische details optioneel zien.
-- Welkomstteksten kunnen dynamisch uit gevalideerde context en beheerde tekstonderdelen worden opgebouwd. De eis van 500 varianten mag niet worden opgelost met 500 vrijwel identieke zinnen. Een neutrale tekst is verplicht als context ontbreekt.
+- Een eventuele welkomsttekst blijft ondersteunend; de kern van de pagina is het praktische visplan en de sessiebegeleiding. Ontbreekt context, dan wordt geen persoonlijke context verzonnen.
 - Bij toevoegen van een nieuwe stek wordt de bestaande locatiefunctionaliteit hergebruikt en keert de gebruiker terug naar de coach met die stek geselecteerd.
 
 ### Sessie-start en momentopnames
@@ -739,7 +739,7 @@ De bestaande **prognosemomentopname blijft behouden als zelfstandige, essentiël
 Daarnaast wordt een afzonderlijke, aanvullende **VisCoach-adviesmomentopname** voorgesteld. Deze registreert niet opnieuw de volledige prognose, maar bewaart de vertaalslag die de gebruiker daadwerkelijk heeft gezien:
 - Uniek advies-ID en coach-/modelversie.
 - Tijdstip waarop het advies is getoond.
-- Gekozen vissoort, stek en gewenste start-/eindtijd.
+- Gekozen vissoort, stek en gewenste starttijd; eindtijd optioneel.
 - Eventueel aanbevolen alternatief tijdvak en de reden voor het verschil.
 - Voorgestelde zone/oever, windcontext, kijkrichting en werp-/voerichting, voor zover onderbouwd.
 - Voorgestelde methode, presentatie, aas/voer voor zover bekend.
@@ -812,7 +812,7 @@ Een langere sessie vergroot doorgaans de gelegenheid om een vis te vangen, maar 
 ### Gewenste ervaring
 - Bij geen actieve sessie opent de VisCoach als praktische startpagina.
 - Bij een actieve sessie opent de bestaande hervat-/live-sessieflow; VisCoach is daarin geïntegreerd.
-- De gebruiker kiest vóór de sessie alleen vissoort, stek en gewenste start-/eindtijd.
+- De gebruiker kiest vóór de sessie alleen vissoort, stek en gewenste starttijd; eindtijd is optioneel.
 - De coach maakt een plan voor wanneer, waar en hoe, inclusief wind-/kijk-/werprichting waar lokale gegevens dat ondersteunen.
 - De gebruiker kan de technische Prognose-tab openen voor verdieping.
 - Start sessie opent direct de aangemaakte actieve sessie; aanvullende gegevens zoals hengels, methode, aas en voer kunnen daar optioneel worden ingevuld.
@@ -963,7 +963,7 @@ Externe kaart- of sonarbronnen kunnen later worden onderzocht als optionele invo
 
 ## 10. Eindbeeld en definitie van succes
 
-VisCoach is geslaagd wanneer de gebruiker met slechts drie primaire keuzes (vissoort, stek en gewenste start-/eindtijd) een praktisch en uitlegbaar plan krijgt dat rekening houdt met de specifieke stek, weersverloop, watertemperatuur en eigen ervaringen. Het advies helpt de gebruiker waar onderbouwd met tijdvak, zone, wind-/kijk-/werprichting, methode en aas/voer, zonder een uitgebreide verplichte intake.
+VisCoach is geslaagd wanneer de gebruiker met slechts drie primaire keuzes (vissoort, stek en gewenste starttijd; eindtijd optioneel) een praktisch en uitlegbaar plan krijgt dat rekening houdt met de specifieke stek, weersverloop, watertemperatuur en eigen ervaringen. Het advies helpt de gebruiker waar onderbouwd met tijdvak, zone, wind-/kijk-/werprichting, methode en aas/voer, zonder een uitgebreide verplichte intake.
 
 De coach moet:
 1. Per stek en soort leren wanneer er voldoende eigen gegevens zijn.
