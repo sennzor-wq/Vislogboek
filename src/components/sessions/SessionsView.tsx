@@ -6,6 +6,7 @@ import {
   SessionOutcome,
   FishSpecies,
   SessionRod,
+  CoachAdviceRecord,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
@@ -43,6 +44,7 @@ interface SessionsViewProps {
   onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[]) => Promise<void>;
   sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
+  coachAdviceRecords: CoachAdviceRecord[];
 }
 
 export const SessionsView: React.FC<SessionsViewProps> = ({
@@ -54,6 +56,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   onSaveSession,
   sessionRods,
   onSaveCatch,
+  coachAdviceRecords,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
   const [filterLocationId, setFilterLocationId] = useState<string>('Alle');
@@ -350,6 +353,38 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
+                  </div>
+
+                  {/* Laatste VisCoach-advies voor deze actieve sessie */}
+                  <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-slate-900/70 p-4 space-y-2">
+                    <div className="flex items-center gap-2 text-cyan-300">
+                      <Sparkles className="w-4 h-4" />
+                      <h3 className="text-xs font-bold uppercase tracking-wide">VisCoach</h3>
+                    </div>
+                    {coachAdviceRecords
+                      .filter((advice) => advice.sessionId === session.id)
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .slice(0, 3).length === 0 ? (
+                      <p className="text-xs text-slate-400">Er is nog geen coachadvies voor deze sessie vastgelegd. De coach beoordeelt relevante wijzigingen automatisch.</p>
+                    ) : coachAdviceRecords
+                      .filter((advice) => advice.sessionId === session.id)
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .slice(0, 3)
+                      .map((advice, index) => (
+                        <div key={advice.id} className={index > 0 ? 'border-t border-slate-700 pt-3 mt-3' : ''}>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] uppercase tracking-wide text-slate-500">
+                              {index === 0 ? 'Actueel advies' : 'Eerder advies'}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(advice.createdAt).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-sm font-bold text-white mt-1">{advice.recommendation}</p>
+                          {advice.summary && <p className="text-xs text-slate-300 mt-1">{advice.summary}</p>}
+                          {advice.rationale && <p className="text-[11px] text-slate-500 mt-1">{advice.rationale}</p>}
+                        </div>
+                      ))}
                   </div>
 
                   {/* Vangsten in deze actieve sessie */}
