@@ -210,7 +210,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               selectedTargetSpecies[0] || 'Karper',
               undefined,
               technique,
-              payload.weatherSnapshot
+              payload.weatherSnapshot,
+              payload.waterTemperature ?? null
             ) ?? undefined;
           } catch (snapErr) {
             console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
