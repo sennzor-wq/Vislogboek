@@ -481,6 +481,7 @@ export interface PrognosisInputContext {
     longitude?: number;
     isBenchmark?: boolean;
   }>;
+  historyFingerprint?: string;
   historySummary: {
     sessionCount: number;
     catchRecordCount: number;
