@@ -106,7 +106,7 @@ function isMaterialAdviceChange(
 ): boolean {
   if (!previous) return true;
   const next = buildAdviceText(prognosis);
-  return previous.recommendation !== next.recommendation;
+  return previous.recommendation !== next.recommendation || previous.summary !== next.summary;
 }
 
 export const VISCOACH_UPDATED_EVENT = 'vislogboek:viscoach-updated';
