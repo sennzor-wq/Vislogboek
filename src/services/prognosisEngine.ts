@@ -1233,6 +1233,11 @@ export async function createLiveSnapshotForSessionStart(
       observationIds: [],
       presenceObservation: 'onbekend',
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
+      historyFingerprint: createPrognosisInputFingerprint({
+        sessions: allSessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
+        catches: allCatches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weight, item.length, item.bait, item.technique]),
+        historicalWaterTemperatures,
+      }),
       historySummary: {
         sessionCount: allSessions.filter((item) => item.isBenchmark !== true).length,
         catchRecordCount: allCatches.length,
