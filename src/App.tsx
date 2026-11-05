@@ -131,7 +131,7 @@ export default function App() {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
     setPendingPrognosisSnapshot(pendingSnapshot);
-    setPrefilledSessionDurationHours(durationHours);
+    setPrefilledSessionDurationHours(durationHours ?? (pendingSnapshot?.durationKnown ? pendingSnapshot.durationHours : undefined));
     setPrefilledPlannedEndTime(plannedEndTime ?? null);
     setPrefilledPlannedSessionId(undefined);
     setIsStartingSession(true);
