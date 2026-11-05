@@ -137,28 +137,10 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
     }
   };
 
-  const handleStartNow = async () => {
+  const handleStartNow = () => {
     if (!plan || !selectedLocation || startIsFuture) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const now = new Date();
-      const selectedEnd = endTime && new Date(endTime).getTime() > now.getTime() ? endTime : null;
-      const freshPlan = await buildVisCoachPlan({
-        location: selectedLocation,
-        targetSpecies: species,
-        desiredStartTime: now.toISOString(),
-        desiredEndTime: selectedEnd,
-        sessions,
-        catches,
-      });
-      // De actuele prognose en eventuele gekozen eindtijd worden atomair met de echte sessiestart opgeslagen.
-      onStartSession(species, selectedLocation.id, undefined, freshPlan.durationHours ?? undefined);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'De actuele startsituatie kon niet worden berekend.');
-    } finally {
-      setLoading(false);
-    }
+    // SessionModal berekent bij opslaan een verse startsnapshot met de definitieve sessie-invoer.
+    onStartSession(species, selectedLocation.id, undefined, plan.durationHours ?? undefined);
   };
 
   return (
