@@ -422,6 +422,7 @@ export interface PlannedFishingSession {
   status: 'planned' | 'started' | 'cancelled' | 'overdue';
   planSnapshotId?: string;
   startedSessionId?: string;
+  startedSessionDeletedAt?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
