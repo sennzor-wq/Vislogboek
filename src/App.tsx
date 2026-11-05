@@ -437,6 +437,7 @@ export default function App() {
           onClose={() => {
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledPlannedSessionId(undefined);
           }}
         />
       )}
