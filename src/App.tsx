@@ -438,6 +438,7 @@ export default function App() {
           pendingPrognosisSnapshot={pendingPrognosisSnapshot}
           sessionDurationHours={prefilledSessionDurationHours}
           plannedEndTime={prefilledPlannedEndTime}
+          createStartSnapshot={true}
           initialRodDetails={[]}
           onSave={async (newSess, pendingSnapshot, rods) => {
             await handleSaveSession(newSess, pendingSnapshot, rods);
