@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { autoSyncSessionOutcomeToSnapshot } from './services/evaluationEngine';
 import { startWeatherAutoRefresh, WEATHER_UPDATED_EVENT } from './services/weatherService';
-import { reassessActiveSessions } from './services/sessionCoachService';
+import { reassessActiveSessions, createInitialCoachAdviceRecord, VISCOACH_UPDATED_EVENT } from './services/sessionCoachService';
 
 export default function App() {
   const isOnline = useOnlineStatus();
@@ -32,6 +32,7 @@ export default function App() {
   const [catches, setCatches] = useState<CatchItem[]>([]);
   const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
   const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
+  const [coachAdviceRecords, setCoachAdviceRecords] = useState<import('./types').CoachAdviceRecord[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
@@ -51,18 +52,20 @@ export default function App() {
   const loadData = async () => {
     try {
       await initializeDatabase();
-      const [allLocations, allSessions, allCatches, allSessionRods, allPlannedSessions] = await Promise.all([
+      const [allLocations, allSessions, allCatches, allSessionRods, allPlannedSessions, allCoachAdviceRecords] = await Promise.all([
         db.locations.toArray(),
         db.sessions.reverse().sortBy('startTime'),
         db.catches.reverse().sortBy('timestamp'),
         db.sessionRods.toArray(),
         db.plannedSessions.toArray(),
+        db.coachAdviceRecords.toArray(),
       ]);
       setLocations(allLocations);
       setSessions(allSessions);
       setCatches(allCatches);
       setSessionRods(allSessionRods);
       setPlannedSessions(allPlannedSessions);
+      setCoachAdviceRecords(allCoachAdviceRecords);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
     } finally {
