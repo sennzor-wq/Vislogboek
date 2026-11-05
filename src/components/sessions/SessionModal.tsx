@@ -21,6 +21,7 @@ interface SessionModalProps {
   pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
   sessionDurationHours?: number;
   plannedEndTime?: string | null;
+  createStartSnapshot?: boolean;
   onClose: () => void;
 }
 
@@ -31,6 +32,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   pendingPrognosisSnapshot,
   sessionDurationHours,
   plannedEndTime,
+  createStartSnapshot = false,
   initialRodDetails = [],
   onClose,
 }) => {
