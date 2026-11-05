@@ -1,4 +1,4 @@
-import { FishingLocation } from '../types';
+import { FishingLocation, FishingSession, PrognosisSnapshot } from '../types';
 
 /**
  * Alleen echte, achteraf geregistreerde watertemperatuurmetingen mogen een
@@ -13,6 +13,54 @@ export interface HistoricalWaterTemperatureObservation {
   latitude?: number;
   longitude?: number;
   isBenchmark?: boolean;
+}
+
+/**
+ * Bouwt één gedeelde lijst met echte historische metingen voor alle prognose-ingangen.
+ * Zowel de Prognosepagina als VisCoach gebruiken hiermee dezelfde meetselectie.
+ */
+export function collectHistoricalWaterTemperatureObservations(
+  sessions: FishingSession[],
+  snapshots: PrognosisSnapshot[],
+  locations: FishingLocation[]
+): HistoricalWaterTemperatureObservation[] {
+  const locationById = new Map(locations.map((location) => [location.id, location]));
+  const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
+  const observations: HistoricalWaterTemperatureObservation[] = [];
+
+  for (const snapshot of snapshots) {
+    if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
+    if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
+        !snapshot.actualWaterTemperatureTimestamp) continue;
+    const location = locationById.get(snapshot.locationId);
+    observations.push({
+      locationId: snapshot.locationId,
+      temperatureC: snapshot.actualWaterTemperature,
+      timestamp: snapshot.actualWaterTemperatureTimestamp,
+      waterType: location?.waterType,
+      waterDepth: location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
+  }
+
+  for (const session of sessions) {
+    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number') continue;
+    const location = locationById.get(session.locationId);
+    observations.push({
+      locationId: session.locationId,
+      temperatureC: session.waterTemperature,
+      timestamp: session.startTime,
+      waterType: location?.waterType,
+      waterDepth: session.waterDepth ?? location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
+  }
+
+  return observations;
 }
 
 export interface HistoricalWaterTemperatureProfile {
