@@ -400,8 +400,63 @@ export interface WaterThermalAnalysis {
   historicalWaterTemperatureSource?: 'same_location' | 'nearby_same_type' | null;
 }
 
+export type PrognosisRunKind = 'plan' | 'session_start' | 'session_update' | 'manual';
+
+export type CoachAdviceTrigger =
+  | 'session_start'
+  | 'weather_update'
+  | 'catch_recorded'
+  | 'observation_recorded'
+  | 'session_changed'
+  | 'manual_reanalysis'
+  | 'app_resume';
+
+export type CoachAdviceResponse = 'pending' | 'accepted' | 'adapted' | 'ignored';
+
+export interface PlannedFishingSession {
+  id: string;
+  locationId: string;
+  targetSpecies: FishSpecies | 'Algemeen';
+  plannedStartTime: string;
+  plannedEndTime?: string | null;
+  status: 'planned' | 'started' | 'cancelled' | 'overdue';
+  planSnapshotId?: string;
+  startedSessionId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** De vertaling van een prognose naar het concrete advies dat de gebruiker heeft gezien. */
+export interface CoachAdviceRecord {
+  id: string;
+  sessionId: string;
+  prognosisSnapshotId: string;
+  previousAdviceId?: string;
+  createdAt: string;
+  trigger: CoachAdviceTrigger;
+  summary: string;
+  recommendation: string;
+  rationale: string;
+  changedFactors: string[];
+  confidence?: string;
+  response?: CoachAdviceResponse;
+  responseAt?: string;
+  executedTactic?: string;
+  executedAt?: string;
+  coachVersion: string;
+  engineVersions?: Record<string, string>;
+}
+
 export interface PrognosisSnapshot {
   id: string;
+  runKind?: PrognosisRunKind;
+  inputFingerprint?: string;
+  supersedesSnapshotId?: string;
+  /** Volledige uitvoer van de bestaande engine; geen tweede prognoseobject. */
+  prognosisData?: DayPrognosis;
+  /** Exacte uurlijkse weersinvoer die bij deze run aan de bestaande engine is doorgegeven. */
+  weatherInput?: WeatherHourlyForecast[];
   forecastTimestamp: string;       // ISO van voorspellingstijdstip
   targetDate: string;              // YYYY-MM-DD
   targetSlot?: TimeSlot;
