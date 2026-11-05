@@ -370,6 +370,7 @@ export default function App() {
             onSaveSession={handleSaveSession}
             sessionRods={sessionRods}
             onSaveCatch={handleSaveCatch}
+            coachAdviceRecords={coachAdviceRecords}
           />
         )}
         {currentTab === 'locations' && (
