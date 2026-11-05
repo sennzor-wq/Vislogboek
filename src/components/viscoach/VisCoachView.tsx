@@ -27,7 +27,7 @@ interface VisCoachViewProps {
   catches: CatchItem[];
   plannedSessions: PlannedFishingSession[];
   onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => void;
-  onStartPlannedSession: (plan: PlannedFishingSession) => void;
+  onStartPlannedSession: (plan: PlannedFishingSession) => Promise<void>;
   onSavePlan: (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => Promise<void>;
   onCancelPlan: (planId: string) => Promise<void>;
 }
@@ -64,6 +64,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   const [plan, setPlan] = useState<VisCoachPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [savingPlan, setSavingPlan] = useState(false);
+  const [startingPlanId, setStartingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
@@ -106,6 +107,18 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
       setError(err instanceof Error ? err.message : 'Het visplan kon niet worden berekend.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleStartPlanned = async (planned: PlannedFishingSession) => {
+    setStartingPlanId(planned.id);
+    setError(null);
+    try {
+      await onStartPlannedSession(planned);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'De geplande sessie kon niet worden gestart.');
+    } finally {
+      setStartingPlanId(null);
     }
   };
 
@@ -344,8 +357,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
                 <p className="text-xs text-slate-400">{formatDateTime(item.plannedStartTime)}{item.plannedEndTime ? ` – ${formatDateTime(item.plannedEndTime)}` : ' · eindtijd onbekend'}</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => onStartPlannedSession(item)} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500">
-                  Start vissen
+                <button onClick={() => void handleStartPlanned(item)} disabled={startingPlanId !== null} className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50">
+                  {startingPlanId === item.id ? 'Voorbereiden…' : 'Start vissen'}
                 </button>
                 <button onClick={() => void onCancelPlan(item.id)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800" aria-label="Planning annuleren">
                   <XCircle className="w-4 h-4" />
