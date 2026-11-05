@@ -19,7 +19,7 @@ De kans voor Vislogboek ligt in een andere richting:
 
 De kern is niet een los AI-chatvenster of één algemeen bijtpercentage. Het onderscheid moet ontstaan uit een gesloten en controleerbare leercyclus, met een bewust eenvoudige bediening:
 
-1. Vóór het vissen kiest de gebruiker alleen de **vissoort, stek en gewenste vistijd** (start- en eindtijd).
+1. Vóór het vissen kan de gebruiker optioneel een sessie vooruit plannen, of direct kiezen voor **Nu vissen**. Voor een prognose kiest de gebruiker alleen de **vissoort, stek en gewenste starttijd**; een eindtijd is optioneel en mag ontbreken als de gebruiker nog niet weet hoelang hij vist.
 2. De bestaande prognose- en analysemodules bepalen wat op basis van de gegevens aannemelijk is.
 3. VisCoach vertaalt die uitkomsten naar een begrijpelijk plan: wanneer, waar en hoe vissen, inclusief tactische positionering ten opzichte van wind en oever.
 4. De gebruiker kan het plan volgen of bewust een ander tijdvak kiezen. Een alternatief wordt alleen nadrukkelijk aanbevolen als het verwachte verschil betekenisvol is en voldoende onderbouwd kan worden.
@@ -425,6 +425,32 @@ Dit is een auditlijst, geen besluit dat al deze velden nieuw moeten worden toege
 
 **Fase 0 is gereed wanneer:** er een gecontroleerde datadictionary is en het duidelijk is welke betrouwbare gegevens de coach kan gebruiken, zonder aannames over ontbrekende informatie.
 
+### Prognosegegevens volledig en efficiënt bewaren
+
+VisCoach moet zoveel mogelijk van de oorspronkelijke prognose bewaren om later te kunnen onderzoeken waarom een voorspelling wel of niet klopte en om modellen aantoonbaar te verbeteren. Dit betekent niet dat alle historische brondata bij iedere prognose opnieuw gekopieerd moeten worden.
+
+**Ontwerpprincipes:**
+
+1. **Onveranderlijke prognoseruns:** sla iedere relevante prognoseberekening op als een afzonderlijke, immutable run. Een latere herberekening of update maakt een nieuw record en overschrijft nooit de oorspronkelijke voorspelling.
+2. **Volledige prognose-uitkomst:** bewaar de volledige relevante `DayPrognosis`, inclusief alle beschikbare `TimeSlotAnalysis`-tijdvakken, alternatieven, factoronderbouwing, onzekerheden, water-/temperatuurinformatie en samenvatting. Bewaar dus niet alleen het gekozen of beste tijdvak.
+3. **Exacte invoer en herleidbaarheid:** leg minimaal vast wanneer de run is berekend, voor welke stek/locatie en doelsoort, welke gewenste starttijd en eventuele eindtijd zijn gebruikt, welke weersbron en ophaaltijd golden, welke model-/engineversies en parameters zijn gebruikt en welke relevante datakwaliteits- en historische samenvattingen de berekening beïnvloedden.
+4. **Bewaar de gebruikte weerinvoer:** bewaar de feitelijke weersvoorspelling die de engine voor de berekening gebruikte, of een onveranderlijke verwijzing naar een gedeelde weathersnapshot. Gebruik bij evaluatie nooit achteraf bijgewerkte actuele weersdata alsof die destijds bekend waren.
+5. **Geen onnodige kopieën:** kopieer niet de volledige historische sessie- en vangstendatabase in iedere prognoserun. Bewaar de relevante samenvattende kenmerken/aantallen en verwijs naar bestaande bronrecords waar dat veilig en reproduceerbaar kan.
+6. **Referenties in plaats van duplicatie:** sessies en coachadviezen verwijzen naar de relevante prognoserun via een ID. Een coachadvies mag de prognose niet volledig dupliceren; het bewaart alleen de eigen adviesinhoud en de verwijzing naar de prognose waarop het gebaseerd is.
+7. **Opslag en performance:** bereken een prognose één keer per run en hergebruik de opgeslagen uitkomst voor weergave en evaluatie. Laad historische data gericht, vermijd volledige database-scans bij iedere render en voeg alleen indexen toe voor aantoonbaar gebruikte zoek-/filtervelden. Houd zware evaluaties buiten de kritieke UI-renderflow.
+8. **Opslagoptimalisatie pas op bewijs:** begin met een begrijpelijk, versieerbaar objectmodel in IndexedDB/Dexie. Voeg deduplicatie, compressie of extra caches pas toe wanneer metingen aantonen dat opslagomvang of rekentijd dit nodig maken. Correcte reproduceerbaarheid gaat vóór voortijdige optimalisatie.
+9. **Backups:** alle prognoseruns, relaties en evaluatiegegevens moeten behouden blijven in backup/export en correct worden hersteld bij import. Oude backups zonder deze gegevens moeten compatibel blijven.
+
+**Belangrijke evaluatieregel:** de Brier-score mag alleen worden gebruikt voor een vooraf gedefinieerde probabilistische uitkomst, bijvoorbeeld de kans op minimaal één gelande doelvis binnen een voldoende complete, daadwerkelijk bevist sessievenster. Een relatieve activiteitsscore (bijvoorbeeld 1–10) is geen kans en mag niet rechtstreeks als Brier-invoer worden gebruikt. Biologische activiteit, aanwezigheidssignalen, aanbeten en daadwerkelijke vangst blijven afzonderlijke uitkomsten. Niet-beviste tijdvakken en onbekende sessie-uitkomsten worden niet als nulvangst gescoord.
+
+**Acceptatiecriteria voor dit onderdeel:**
+- Een opgeslagen prognose kan later exact worden herleid tot de destijds gebruikte invoer, weerdata en modelversie.
+- Alle tijdvakken en relevante onderbouwing blijven beschikbaar, ook wanneer de gebruiker maar één tijdvak kiest.
+- Een latere update verandert geen eerder opgeslagen prognose.
+- Een sessie verwijst naar de juiste prognoserun zonder volledige dubbele opslag.
+- Historische evaluatie gebruikt alleen informatie die op het moment van voorspellen beschikbaar was.
+- Opslag, berekening en UI-laadtijd worden met representatieve datasets getest; optimalisaties worden op meetresultaten gebaseerd.
+
 ---
 
 ## Fase 1 – Persoonlijk leerprofiel per stek en vissoort
@@ -483,7 +509,7 @@ Dit voorbeeld is illustratief en geen bestaande conclusie over een specifieke Vi
 
 1. **Vissoort:** bijvoorbeeld karper, brasem of alle soorten.
 2. **Stek:** een bestaande stek of een nieuwe stek via de bestaande locatiefunctionaliteit.
-3. **Gewenste vistijd:** een concrete start- en eindtijd, bijvoorbeeld 13:00–17:00. Dit vervangt de oude primaire keuze voor alleen een sessieduur.
+3. **Gewenste starttijd:** de gebruiker geeft aan vanaf wanneer hij wil vissen. Een eindtijd is optioneel. Als de gebruiker wel een eindtijd of tijdsduur weet, kan die worden ingevuld; zonder eindtijd mag VisCoach geen vaste standaardduur aannemen of de gebruiker dwingen een eindtijd te kiezen. De prognose moet dan werken met de gekozen starttijd en de beschikbare tijdvakken, en de gebruiker kan later de gewenste duur aanpassen.
 
 Aanvullende gegevens zoals aantal hengels, diepte, methode, aas, voer en presentatie zijn geen verplichte intake voor het ontvangen van een eerste advies. Ze kunnen waar relevant optioneel in de actieve sessie worden ingevuld. De coach gebruikt bekende gegevens en benoemt wat nog onbekend is; hij verzint geen invulling.
 
@@ -501,13 +527,40 @@ Aanvullende gegevens zoals aantal hengels, diepte, methode, aas, voer en present
 ### Gewenste gebruikersflow
 
 1. Als een actieve sessie bestaat, wordt de bestaande sessie hervat; VisCoach verdringt deze niet.
-2. Als geen actieve sessie bestaat, opent VisCoach als praktische startpagina.
-3. De gebruiker kiest vissoort, stek en gewenste start-/eindtijd.
-4. VisCoach toont het plan en eventueel een beter alternatief tijdvak.
+2. Als geen actieve sessie bestaat, biedt VisCoach twee gelijkwaardige instappen: **Nu vissen** en optioneel **Sessie plannen**.
+3. Bij beide routes kiest de gebruiker vissoort, stek en gewenste starttijd. Een eindtijd is optioneel.
+4. VisCoach toont de prognose en het plan voor de gekozen starttijd/periode, met eventuele relevante alternatieven.
 5. De gebruiker kan doorklikken naar de technische Prognose-tab voor verdieping.
-6. De gebruiker kiest **Start sessie** vanuit hetzelfde plan.
-7. De app maakt de sessie aan met de gekozen context en opent direct de nieuwe actieve sessiepagina. De gebruiker hoeft niet eerst naar het algemene sessieoverzicht te gaan om de sessie terug te zoeken.
-8. Aanvullende gegevens zoals hengelaantal, methode, aas, voer, diepte en feitelijke presentatie kunnen in de actieve sessie optioneel worden ingevuld.
+6. Bij **Nu vissen** start de gebruiker expliciet de sessie. Pas op dat moment wordt een actieve vissessie aangemaakt en wordt een verse, onveranderlijke startsnapshot vastgelegd.
+7. Bij **Sessie plannen** wordt alleen een afzonderlijke geplande afspraak met de bijbehorende planprognose opgeslagen. Er ontstaat géén actieve vissessie en er worden geen sessie-uren of nulvangsten geregistreerd. De gebruiker kan de planning later starten, wijzigen/verzetten of annuleren.
+8. Op het geplande moment start de sessie niet automatisch. De gebruiker bevestigt met **Start vissen**; de app maakt dan de actieve sessie aan en legt een nieuwe, actuele startsnapshot vast. De oorspronkelijke planprognose blijft apart bewaard zodat het verschil tussen de vooruitblik en de prognose bij daadwerkelijke start kan worden onderzocht.
+9. Aanvullende gegevens zoals hengelaantal, methode, aas, voer, diepte en feitelijke presentatie kunnen in de actieve sessie optioneel worden ingevuld.
+
+### Optioneel vooruit plannen en veilig sessiebeheer
+
+Een geplande vissessie is nadrukkelijk geen actieve vissessie. Dit onderscheid voorkomt vervuilde sessiedata wanneer iemand uiteindelijk niet gaat vissen of vergeet de app te openen.
+
+**Geplande sessie:**
+- Plannen is optioneel; direct starten blijft altijd mogelijk.
+- Bewaar de geplande datum/starttijd, optionele eindtijd, stek, doelsoort en verwijzing naar de prognoserun die bij het plannen is getoond.
+- Gebruik een expliciete status, bijvoorbeeld `planned`, `started` of `cancelled`. Een verstreken planning kan als `overdue`/verlopen worden getoond of als geplande afspraak blijven staan totdat de gebruiker een keuze maakt.
+- De gebruiker kan een planning wijzigen/verzetten, expliciet starten of annuleren (eventueel met reden zoals niet gegaan).
+- Een planning die niet doorgaat wordt nooit automatisch omgezet in een sessie, nulvangst of negatieve modeluitkomst.
+- Een prognose die ruim vooraf is gemaakt kan meer onzekerheid hebben. Toon dit eerlijk en bied vlak voor vertrek/verzameld startmoment een nieuwe berekening aan. De oorspronkelijke planprognose blijft onveranderd bewaard.
+
+**Actieve vissessie:**
+- Een actieve sessie ontstaat uitsluitend na een bewuste actie van de gebruiker: **Start vissen**.
+- Leg bij daadwerkelijke start een nieuwe, verse startsnapshot vast. Koppel deze aan de sessie en bewaar de eerdere planprognose afzonderlijk.
+- De gebruiker hoeft bij start geen eindtijd te weten. Starttijd is leidend; eindtijd en werkelijke duur worden pas bij stoppen vastgelegd. Eventuele verwachte duur blijft optionele planningscontext en wordt niet verward met de werkelijke sessieduur.
+- Als een gebruiker vergeet de sessie te beëindigen, toon een duidelijke herinnering/waarschuwing en bied hervatten of beëindigen aan. Beëindig of beoordeel een sessie nooit automatisch als nulvangst op basis van verstreken tijd.
+- Bij afsluiten wordt alleen de daadwerkelijk bevist periode/inspanning geëvalueerd. Tijdvakken waarin niet is gevist of waarvan de inspanning onbekend is, tellen niet als bevestigde nulvangst.
+
+**Gescheiden prognosemomenten:**
+1. **Planprognose:** wat VisCoach voorspelde toen de gebruiker vooruit plande.
+2. **Startsnapshot:** de verse prognose op het moment dat de gebruiker daadwerkelijk begon met vissen; dit is de primaire voorspelling voor de sessie-evaluatie.
+3. **Updateprognoses:** afzonderlijke nieuwe snapshots wanneer tijdens de sessie opnieuw wordt geanalyseerd. Geen enkele eerdere snapshot wordt overschreven.
+
+Deze drie momenten maken het mogelijk om zowel de kwaliteit van vooruit plannen (hoe ver van tevoren, welke onzekerheid) als de kwaliteit van de voorspelling bij daadwerkelijke sessiestart te onderzoeken.
 
 ### Inhoud van het visplan
 
