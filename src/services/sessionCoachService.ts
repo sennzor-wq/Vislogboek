@@ -21,6 +21,7 @@ export interface SessionCoachReassessmentResult {
 }
 
 const lastEvaluatedFingerprint = new Map<string, string>();
+const sessionsBeingReassessed = new Set<string>();
 
 function fingerprint(value: unknown): string {
   const input = JSON.stringify(value);
@@ -152,9 +153,15 @@ export async function reassessActiveSessions(
   const results: SessionCoachReassessmentResult[] = [];
 
   for (const session of activeSessions) {
+    if (sessionsBeingReassessed.has(session.id)) {
+      results.push({ sessionId: session.id, status: 'skipped', reason: 'Deze sessie wordt al herbeoordeeld.' });
+      continue;
+    }
+    sessionsBeingReassessed.add(session.id);
     const location = session.locationId ? locationById.get(session.locationId) : undefined;
     if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
       results.push({ sessionId: session.id, status: 'skipped', reason: 'Stek heeft geen bruikbare GPS-coördinaten.' });
+      sessionsBeingReassessed.delete(session.id);
       continue;
     }
 
@@ -175,6 +182,7 @@ export async function reassessActiveSessions(
         .slice()
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
 
+      const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, location.id, date);
       const prognosis = calculateDayPrognosis(
         date,
         weather.hourly,
@@ -192,7 +200,7 @@ export async function reassessActiveSessions(
           observations: sessionObservations,
           presenceObservation: latestObservation?.observationType ?? 'onbekend',
           historicalWaterTemperatures,
-          waterTemperatureCalibration: getWaterTemperatureCalibration(snapshots, location.id, date),
+          waterTemperatureCalibration,
         }
       );
 
@@ -201,18 +209,22 @@ export async function reassessActiveSessions(
         species,
         locationId: location.id,
         durationHours,
+        startTime: session.startTime,
         technique: session.technique ?? null,
         waterTemperature: session.waterTemperature ?? null,
+        locationContext: [location.waterType, location.waterDepth, location.waterFacingDirection, location.habitatFeatures],
         weather: weather.hourly,
-        catches: sessionCatches.map((item) => [item.id, item.timestamp, item.species, item.count]),
+        sessions: sessions.map((item) => [item.id, item.startTime, item.updatedAt, item.outcome, item.targetSpecies, item.durationMinutes, item.waterTemperature]),
+        catches: catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count]),
         observations: sessionObservations.map((item) => [item.id, item.timestamp, item.observationType]),
+        historicalWaterTemperatures,
+        waterTemperatureCalibration,
       });
 
       if (lastEvaluatedFingerprint.get(session.id) === inputFingerprint) {
         results.push({ sessionId: session.id, status: 'unchanged', reason: 'Dezelfde invoer is al beoordeeld.' });
         continue;
       }
-      lastEvaluatedFingerprint.set(session.id, inputFingerprint);
 
       const linkedSnapshots = snapshots
         .filter((snapshot) => snapshot.linkedSessionId === session.id)
@@ -237,6 +249,7 @@ export async function reassessActiveSessions(
       const changedFactors = changedSignatureFactors(previousSignature, currentSignature);
 
       if (changedFactors.length === 0) {
+        lastEvaluatedFingerprint.set(session.id, inputFingerprint);
         results.push({ sessionId: session.id, status: 'unchanged', reason: 'Geen betekenisvolle verandering in prognose of praktische analyse.' });
         continue;
       }
@@ -261,6 +274,7 @@ export async function reassessActiveSessions(
         return saved;
       });
 
+      lastEvaluatedFingerprint.set(session.id, inputFingerprint);
       const previousAdvice = (await db.coachAdviceRecords.where('sessionId').equals(session.id).toArray())
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
       let adviceId: string | undefined;
@@ -284,6 +298,8 @@ export async function reassessActiveSessions(
         status: 'skipped',
         reason: error instanceof Error ? error.message : 'Onbekende fout bij herbeoordeling.',
       });
+    } finally {
+      sessionsBeingReassessed.delete(session.id);
     }
   }
 
