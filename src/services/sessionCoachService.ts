@@ -291,6 +291,7 @@ export async function reassessActiveSessions(
         historicalSessionIds: sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
         catchRecordIds: catches.map((item) => item.id),
         observationIds: sessionObservations.map((item) => item.id),
+        presenceObservation: latestObservation?.observationType ?? 'onbekend',
         historicalWaterTemperatureSamples: historicalWaterTemperatures,
         historySummary: {
           sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
