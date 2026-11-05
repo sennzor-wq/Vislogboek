@@ -292,6 +292,25 @@ async function run14Scenarios() {
     '12.2 Onbekende sessieduur blijft null en levert geen vangstkans voor een fictieve drie uur op'
   );
 
+  const plannedDurationSession = {
+    ...tenSessions[0],
+    durationMinutes: undefined,
+    endTime: null,
+    plannedDurationHours: 4,
+  };
+  const completedDurationSession = {
+    ...plannedDurationSession,
+    durationMinutes: 90,
+  };
+  assert(
+    getSessionDurationHours(plannedDurationSession) === 4,
+    '12.3 Actieve sessie gebruikt bekende geplande duur wanneer werkelijke duur nog ontbreekt'
+  );
+  assert(
+    getSessionDurationHours(completedDurationSession) === 1.5,
+    '12.4 Werkelijke sessieduur blijft leidend boven de vooraf geplande duur'
+  );
+
   const noPresenceBonus = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
     { sessionDurationHours: 3 }
