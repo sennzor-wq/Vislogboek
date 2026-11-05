@@ -27,7 +27,7 @@ interface VisCoachViewProps {
   sessions: FishingSession[];
   catches: CatchItem[];
   plannedSessions: PlannedFishingSession[];
-  onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number) => void;
+  onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, endTime?: string | null) => void;
   onStartPlannedSession: (plan: PlannedFishingSession) => Promise<void>;
   onSavePlan: (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => Promise<void>;
   onCancelPlan: (planId: string) => Promise<void>;
