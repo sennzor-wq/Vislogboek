@@ -220,7 +220,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
-              sessionDurationHours,
+              calculatedPlannedDuration ?? sessionDurationHours,
               technique,
               payload.weatherSnapshot,
               payload.waterTemperature ?? null
