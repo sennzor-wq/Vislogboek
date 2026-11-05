@@ -531,6 +531,17 @@ export function getSessionDurationHours(session: FishingSession): number | null 
       return diffMins / 60;
     }
   }
+  if (typeof session.plannedDurationHours === 'number' && Number.isFinite(session.plannedDurationHours) &&
+      session.plannedDurationHours > 0 && session.plannedDurationHours <= 24) {
+    return session.plannedDurationHours;
+  }
+  if (session.startTime && session.plannedEndTime) {
+    const plannedDiffMs = new Date(session.plannedEndTime).getTime() - new Date(session.startTime).getTime();
+    const plannedDiffHours = plannedDiffMs / 3600000;
+    if (Number.isFinite(plannedDiffHours) && plannedDiffHours > 0 && plannedDiffHours <= 24) {
+      return plannedDiffHours;
+    }
+  }
   return null;
 }
 
