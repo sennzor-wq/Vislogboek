@@ -95,6 +95,9 @@ jobs:
       - name: Session rod effort tests
         run: bun run tsx test-session-rods.ts
 
+      - name: VisCoach session advice tests
+        run: bun run tsx test-session-coach.ts
+
       - name: Production build
         run: bun run build
 
