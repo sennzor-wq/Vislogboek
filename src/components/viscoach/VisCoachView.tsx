@@ -331,7 +331,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             </button>
             <button
               onClick={handleSavePlan}
-              disabled={savingPlan}
+              disabled={savingPlan || !!savedMessage}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-slate-600 bg-slate-900 hover:bg-slate-700 disabled:opacity-50 px-4 py-3 text-sm font-bold text-white"
             >
               <CalendarClock className="w-4 h-4" /> {savingPlan ? 'Opslaan…' : 'Sessie plannen'}
