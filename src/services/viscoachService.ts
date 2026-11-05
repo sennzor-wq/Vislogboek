@@ -206,7 +206,6 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     getForecast(input.location.latitude, input.location.longitude, false),
     db.prognosisSnapshots.toArray(),
     db.locations.toArray(),
-    db.presenceObservations.toArray(),
   ]);
   if (!weather.hourly?.length) throw new Error('Er is geen weersverwachting beschikbaar voor deze stek.');
 
