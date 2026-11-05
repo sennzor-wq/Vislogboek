@@ -123,10 +123,28 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
     }
   };
 
-  const handleStartNow = () => {
+  const handleStartNow = async () => {
     if (!plan || !selectedLocation || startIsFuture) return;
-    // De echte sessiestart maakt in SessionModal een verse startsnapshot met de dan actuele gegevens.
-    onStartSession(species, selectedLocation.id);
+    setLoading(true);
+    setError(null);
+    try {
+      const now = new Date();
+      const selectedEnd = endTime && new Date(endTime).getTime() > now.getTime() ? endTime : null;
+      const freshPlan = await buildVisCoachPlan({
+        location: selectedLocation,
+        targetSpecies: species,
+        desiredStartTime: now.toISOString(),
+        desiredEndTime: selectedEnd,
+        sessions,
+        catches,
+      });
+      // De actuele prognose en eventuele gekozen eindtijd worden atomair met de echte sessiestart opgeslagen.
+      onStartSession(species, selectedLocation.id, freshPlan.pendingSnapshot);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'De actuele startsituatie kon niet worden berekend.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -293,7 +311,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
           <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <button
               onClick={handleStartNow}
-              disabled={startIsFuture}
+              disabled={startIsFuture || loading}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed px-4 py-3 text-sm font-bold text-white"
             >
               <Play className="w-4 h-4" /> Start vissen
