@@ -969,7 +969,7 @@ De coach moet:
 1. Per stek en soort leren wanneer er voldoende eigen gegevens zijn.
 2. Een bruikbaar plan maken voor tijd, positie, wind-/kijk-/werprichting, methode en aas/voer.
 3. De gebruiker vanuit het advies direct naar een nieuwe actieve sessie brengen, waar extra gegevens optioneel kunnen worden ingevuld.
-4. Tijdens de sessie geïntegreerd betekenisvolle veranderingen en waarnemingen verwerken, handmatig of via optionele herinneringen.
+4. Tijdens de sessie automatisch relevante veranderingen en waarnemingen verwerken via bestaande gegevensstromen; handmatige heranalyse blijft aanvullend beschikbaar en herinneringen zijn optioneel.
 5. De oorspronkelijke prognosemomentopname behouden voor de bestaande prognose-learning engine en daarnaast het getoonde coachadvies afzonderlijk vastleggen.
 6. Geplande vistijd en werkelijke sessie-inspanning onderscheiden en achteraf correct evalueren.
 7. Zijn oorspronkelijke en latere coachadviezen bewaren en achteraf evalueren.
