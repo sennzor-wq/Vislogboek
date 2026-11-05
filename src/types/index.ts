@@ -265,7 +265,7 @@ export interface DayPrognosis {
   catchUncertaintyInterval?: [number, number] | null; // 95% Wilson-interval bijv. [38, 96]%
   relevantSessionCount: number;
   averageRelevantSessionDurationMin?: number;
-  plannedDurationHours?: number;       // Ingestelde geplande sessieduur in uren
+  plannedDurationHours?: number | null; // null wanneer de gebruiker geen eindtijd/duur heeft opgegeven
   expectedCatches?: number | null;     // Verwacht aantal vangsten (E[N] = lambda * t) bij voldoende data
   hourlyCatchRate?: number | null;     // Geschat vangsttempo per uur (lambda) bij voldoende data
   baseRate?: number | null;           // Algemene historische basisfrequentie van doelsoort
@@ -463,7 +463,8 @@ export interface PrognosisSnapshot {
   targetSpecies: FishSpecies | 'Algemeen';
   locationId?: string;
   locationName?: string;
-  durationHours: number;
+  durationHours: number; // 0 betekent expliciet onbekend; nooit als sessieduur interpreteren
+  durationKnown?: boolean;
   technique?: string;
   predictedActivityScore: number | null;  // null indien ontbrekende gegevens de index onbetrouwbaar maken
   activityScoreAvailable?: boolean;
