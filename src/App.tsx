@@ -110,6 +110,7 @@ export default function App() {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
     setPendingPrognosisSnapshot(pendingSnapshot);
+    setPrefilledPlannedSessionId(undefined);
     setIsStartingSession(true);
   };
 
@@ -168,6 +169,19 @@ export default function App() {
         }
       });
       savedSession = await db.sessions.get(sessionData.id);
+    }
+
+    if (prefilledPlannedSessionId && savedSession?.outcome === 'active') {
+      const updatedAt = new Date().toISOString();
+      await db.plannedSessions.update(prefilledPlannedSessionId, {
+        status: 'started',
+        startedSessionId: savedSession.id,
+        updatedAt,
+      });
+      setPlannedSessions((previous) => previous.map((item) => item.id === prefilledPlannedSessionId
+        ? { ...item, status: 'started', startedSessionId: savedSession!.id, updatedAt }
+        : item));
+      setPrefilledPlannedSessionId(undefined);
     }
 
     // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
