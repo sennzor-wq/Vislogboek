@@ -99,6 +99,16 @@ export default function App() {
     return () => window.removeEventListener(WEATHER_UPDATED_EVENT, handleWeatherUpdated);
   }, []);
 
+  useEffect(() => {
+    const handleVisCoachUpdated = () => {
+      void db.coachAdviceRecords.toArray().then(setCoachAdviceRecords).catch((error) => {
+        console.error('VisCoach-advieshistorie kon niet worden bijgewerkt:', error);
+      });
+    };
+    window.addEventListener(VISCOACH_UPDATED_EVENT, handleVisCoachUpdated);
+    return () => window.removeEventListener(VISCOACH_UPDATED_EVENT, handleVisCoachUpdated);
+  }, []);
+
   // Na openen/herladen wordt iedere actieve sessie met de laatst beschikbare gegevens gecontroleerd.
   useEffect(() => {
     if (loading) return;
@@ -191,6 +201,13 @@ export default function App() {
         ? { ...item, status: 'started', startedSessionId: savedSession!.id, updatedAt }
         : item));
       setPrefilledPlannedSessionId(undefined);
+    }
+
+    if (pendingSnapshot && savedSession?.outcome === 'active' && savedSession.snapshotId) {
+      const startSnapshot = await db.prognosisSnapshots.get(savedSession.snapshotId);
+      if (startSnapshot) {
+        await createInitialCoachAdviceRecord(savedSession, startSnapshot);
+      }
     }
 
     // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
