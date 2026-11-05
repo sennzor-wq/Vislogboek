@@ -333,7 +333,7 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
     throw new Error('De referentiesessie Lokkershoek is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.transaction('rw', db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, async () => {
+  await db.transaction('rw', [db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
     // 1. Verwijder gekoppelde vangsten
     await db.catches.where('sessionId').equals(sessionId).delete();
 
