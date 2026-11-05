@@ -19,6 +19,7 @@ interface SessionModalProps {
   onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot, rods?: SessionRod[]) => Promise<void>;
   initialRodDetails?: SessionRod[];
   pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
+  sessionDurationHours?: number;
   onClose: () => void;
 }
 
@@ -27,6 +28,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   locations,
   onSave,
   pendingPrognosisSnapshot,
+  sessionDurationHours,
   initialRodDetails = [],
   onClose,
 }) => {
@@ -208,7 +210,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
-              undefined,
+              sessionDurationHours,
               technique,
               payload.weatherSnapshot,
               payload.waterTemperature ?? null
