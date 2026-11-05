@@ -146,7 +146,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
       : undefined;
     // SessionModal berekent bij opslaan een verse startsnapshot met de definitieve sessie-invoer.
     onStartSession(species, selectedLocation.id, undefined,
-      remainingDuration && remainingDuration <= 24 ? remainingDuration : undefined);
+      remainingDuration && remainingDuration <= 24 ? remainingDuration : undefined,
+      plan.desiredEndTime);
   };
 
   return (
