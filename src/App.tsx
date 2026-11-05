@@ -104,6 +104,12 @@ export default function App() {
     });
   }, [loading]);
 
+  useEffect(() => {
+    if (!loading && sessions.some((session) => session.outcome === 'active')) {
+      setCurrentTab('sessions');
+    }
+  }, [loading]);
+
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
   const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => {
@@ -390,6 +396,7 @@ export default function App() {
             setCurrentTab('sessions');
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledPlannedSessionId(undefined);
           }}
           onClose={() => {
             setIsStartingSession(false);
