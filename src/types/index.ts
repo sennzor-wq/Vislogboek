@@ -470,6 +470,7 @@ export interface PrognosisInputContext {
   historicalSessionIds: string[];
   catchRecordIds: string[];
   observationIds: string[];
+  presenceObservation?: string | null;
   historicalWaterTemperatureSamples: Array<{
     locationId: string;
     temperatureC: number;
