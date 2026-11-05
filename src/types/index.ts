@@ -461,7 +461,7 @@ export interface PrognosisInputContext {
     longitude?: number;
     waterType?: string;
     waterDepth?: number;
-    bankOrientation?: CompassDirection | null;
+    waterFacingDirection?: CompassDirection | null;
     habitatFeatures?: string[];
   };
   historicalSessionIds: string[];
