@@ -59,6 +59,17 @@ async function run() {
     predictedConditions: { temperature: 10, pressure: 1015, windSpeed: 8, windDirection: 180,
       cloudCover: 50, precipitation: 0, source: 'handmatig', capturedAt: '2026-11-02T09:00:00.000Z' },
     source: 'test', modelVersion: 'test-v1', createdAt: '2026-11-02T09:00:00.000Z',
+    runKind: 'session_start',
+    durationKnown: true,
+    inputContext: {
+      calculatedAt: '2026-11-02T09:00:00.000Z', timezone: 'Europe/Amsterdam',
+      targetDate: '2026-11-02', targetSpecies: 'Karper', sessionDurationHours: 2,
+      location: { id: location.id, latitude: 51.9, longitude: 5.2, waterType: 'Kanaal', waterDepth: 2.5 },
+      historicalSessionIds: [session.id], catchRecordIds: [catchItem.id], observationIds: [],
+      historicalWaterTemperatureSamples: [],
+      historySummary: { sessionCount: 1, catchRecordCount: 1, observationCount: 0, historicalWaterTemperatureSampleCount: 0 },
+      weatherFetchedAt: '2026-11-02T08:55:00.000Z',
+    },
   };
   const rodDetail: SessionRod = {
     id: 'backup-roundtrip-rod-1', sessionId: session.id, rodNumber: 1,
