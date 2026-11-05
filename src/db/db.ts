@@ -8,6 +8,8 @@ import {
   PresenceObservation,
   PresenceObservationType,
   SessionRod,
+  PlannedFishingSession,
+  CoachAdviceRecord,
 } from '../types';
 import {
   HISTORICAL_LOCATIONS,
@@ -135,6 +137,8 @@ export class VislogboekDatabase extends Dexie {
   prognosisSnapshots!: Table<import('../types').PrognosisSnapshot, string>;
   presenceObservations!: Table<import('../types').PresenceObservation, string>;
   sessionRods!: Table<SessionRod, string>;
+  plannedSessions!: Table<PlannedFishingSession, string>;
+  coachAdviceRecords!: Table<CoachAdviceRecord, string>;
 
   constructor() {
     super('VislogboekDB');
@@ -166,6 +170,20 @@ export class VislogboekDatabase extends Dexie {
       prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
       presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
       sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
+    });
+
+    // v4: geplande sessies en afzonderlijke, onveranderlijke VisCoach-advieshistorie.
+    this.version(4).stores({
+      locations: 'id, name, isBenchmark, createdAt',
+      sessions: 'id, locationId, startTime, outcome, isBenchmark, createdAt',
+      catches: 'id, sessionId, locationId, species, timestamp, createdAt',
+      weatherCache: 'id, latitude, longitude, fetchedAt',
+      settings: 'id',
+      prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
+      presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
+      sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
+      plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, createdAt',
+      coachAdviceRecords: 'id, sessionId, prognosisSnapshotId, previousAdviceId, createdAt, trigger',
     });
   }
 }
