@@ -1051,7 +1051,7 @@ export async function savePrognosisSnapshot(
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
-  const existingList = metadata?.runKind === 'session_start' || metadata?.runKind === 'session_update'
+  const existingList = metadata?.runKind
     ? []
     : await db.prognosisSnapshots.toArray();
   const existing = existingList.find(
