@@ -621,7 +621,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
   // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
   const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
