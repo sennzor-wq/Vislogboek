@@ -17,7 +17,7 @@ import {
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { BENCHMARK_SESSION_ID, db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
-import { HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
+import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
 import { getForecast } from './weatherService';
@@ -1185,37 +1185,11 @@ export async function createLiveSnapshotForSessionStart(
     ]);
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
-    const locationById = new Map(allLocations.map((item) => [item.id, item]));
-    const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
-    for (const snapshot of allSnapshots) {
-      if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
-          !snapshot.actualWaterTemperatureTimestamp) continue;
-      const sourceLocation = locationById.get(snapshot.locationId);
-      historicalWaterTemperatures.push({
-        locationId: snapshot.locationId,
-        temperatureC: snapshot.actualWaterTemperature,
-        timestamp: snapshot.actualWaterTemperatureTimestamp,
-        waterType: sourceLocation?.waterType,
-        waterDepth: sourceLocation?.waterDepth,
-        latitude: sourceLocation?.latitude,
-        longitude: sourceLocation?.longitude,
-        isBenchmark: false,
-      });
-    }
-    for (const session of allSessions) {
-      if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number') continue;
-      const sourceLocation = locationById.get(session.locationId);
-      historicalWaterTemperatures.push({
-        locationId: session.locationId,
-        temperatureC: session.waterTemperature,
-        timestamp: session.startTime,
-        waterType: sourceLocation?.waterType,
-        waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
-        latitude: sourceLocation?.latitude,
-        longitude: sourceLocation?.longitude,
-        isBenchmark: session.isBenchmark,
-      });
-    }
+    const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
+      allSessions,
+      allSnapshots,
+      allLocations
+    );
 
     const prog = calculateDayPrognosis(
       todayStr,
