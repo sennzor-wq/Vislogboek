@@ -140,6 +140,8 @@ export interface FishingSession {
   startTime: string;              // ISO
   endTime?: string | null;        // ISO (indien gestopt)
   durationMinutes?: number;       // Berekend, correct over middernacht
+  plannedDurationHours?: number | null; // Vooraf opgegeven duur; wordt niet als werkelijke inspanning gebruikt
+  plannedEndTime?: string | null;       // Optionele geplande eindtijd, los van de werkelijke eindtijd
   outcome: SessionOutcome;
   targetSpecies?: FishSpecies[];
   rodCount?: number;
