@@ -10,7 +10,7 @@ import {
 import { calculateDayPrognosis, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
-import { HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
+import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 
 export interface SessionCoachReassessmentResult {
   sessionId: string;
@@ -49,47 +49,6 @@ function changedSignatureFactors(
   current: Record<string, string | number | null>
 ): string[] {
   return Object.keys(current).filter((key) => previous[key] !== current[key]);
-}
-
-function buildHistoricalWaterTemperatures(
-  sessions: FishingSession[],
-  snapshots: PrognosisSnapshot[],
-  locations: FishingLocation[]
-): HistoricalWaterTemperatureObservation[] {
-  const locationById = new Map(locations.map((location) => [location.id, location]));
-  const result: HistoricalWaterTemperatureObservation[] = [];
-
-  for (const snapshot of snapshots) {
-    if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
-        !snapshot.actualWaterTemperatureTimestamp) continue;
-    const location = locationById.get(snapshot.locationId);
-    result.push({
-      locationId: snapshot.locationId,
-      temperatureC: snapshot.actualWaterTemperature,
-      timestamp: snapshot.actualWaterTemperatureTimestamp,
-      waterType: location?.waterType,
-      waterDepth: location?.waterDepth,
-      latitude: location?.latitude,
-      longitude: location?.longitude,
-      isBenchmark: false,
-    });
-  }
-
-  for (const session of sessions) {
-    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number') continue;
-    const location = locationById.get(session.locationId);
-    result.push({
-      locationId: session.locationId,
-      temperatureC: session.waterTemperature,
-      timestamp: session.startTime,
-      waterType: location?.waterType,
-      waterDepth: session.waterDepth ?? location?.waterDepth,
-      latitude: location?.latitude,
-      longitude: location?.longitude,
-      isBenchmark: session.isBenchmark,
-    });
-  }
-  return result;
 }
 
 function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommendation: string; rationale: string } {
@@ -167,7 +126,7 @@ export async function reassessActiveSessions(
   if (activeSessions.length === 0) return [];
 
   const locationById = new Map(locations.map((location) => [location.id, location]));
-  const historicalWaterTemperatures = buildHistoricalWaterTemperatures(sessions, snapshots, locations);
+  const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(sessions, snapshots, locations);
   const results: SessionCoachReassessmentResult[] = [];
 
   for (const session of activeSessions) {
