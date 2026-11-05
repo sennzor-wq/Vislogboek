@@ -1,14 +1,14 @@
 # Vislogboek — blueprint GIS-waterkaart en geavanceerde stekherkenning
 
-**Status:** ontwerp ter goedkeuring; implementatie niet gestart  
-**Versie:** 1.0  
-**Datum:** 3 november 2026  
+**Status:** GIS-onderzoeksfase afgerond; functionele kennisbasis vastgesteld; applicatie-implementatie niet gestart  
+**Versie:** 1.1  
+**Datum:** 5 november 2026  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Doelgebied eerste pilot:** Culemborg  
 **Productonderdeel:** Vislogboek Coach  
 **Documenttype:** afzonderlijke technische/product-blueprint
 
-> **Statusregel:** dit document beschrijft de gewenste architectuur en het uitvoeringsplan. Het is geen bewijs dat GIS-import, waterherkenning, profielmatching, diepteberekening of Coach-integratie al in de applicatie aanwezig zijn. De actuele code blijft leidend voor wat daadwerkelijk is geïmplementeerd.
+> **Statusregel:** het onafhankelijke GIS-onderzoek voor de functionele dieptebepaling is afgerond. De beschikbare GIS-inventarisatie en fase-2-resultaten bieden voldoende basis voor een algemene, indicatieve dieptebepaling. Ontbrekende of locatiespecifieke dieptes kunnen door de gebruiker handmatig worden aangeleverd. Dit document beschrijft daarnaast een mogelijke technische architectuur; het bewijst niet dat GIS-import, automatische waterherkenning, profielmatching of Coach-integratie al in de applicatie aanwezig zijn. De actuele code blijft leidend voor wat daadwerkelijk is geïmplementeerd.
 
 ---
 
@@ -525,12 +525,12 @@ De pilot is pas geslaagd wanneer:
 
 ## 20. Document- en implementatiestatus
 
-**Blueprintstatus:** ontwerp ter goedkeuring.  
-**Implementatiestatus:** niet gestart.  
-**Codewijzigingen:** geen onderdeel van deze blueprint-commit.  
+**Blueprintstatus:** bijgewerkt met de afgeronde GIS-onderzoeksfase en de vastgestelde functionele uitgangspunten.  
+**GIS-onderzoeksstatus:** afgerond voor het doel van een algemene, indicatieve waterdieptebepaling.  
+**Implementatiestatus:** automatische GIS-import, waterherkenning, profielmatching en Coach-integratie zijn niet door dit onderzoek geïmplementeerd.  
+**Codewijzigingen:** geen onderdeel van deze blueprint-update.  
 **Databasewijzigingen:** niet uitgevoerd.  
-**Branch/PR voor implementatie:** niet aangemaakt.  
-**Volgende stap na toestemming:** uitsluitend fase 0 starten: actuele repository en architectuur inspecteren, brondata formeel inventariseren en de Culemborg-pilot afbakenen.
+**Vervolg:** ontbrekende of locatiespecifieke dieptes kunnen tijdens gebruik handmatig door de gebruiker worden aangeleverd. Verdere brondata-analyse is optioneel en geen voorwaarde om de Vis Coach met diepte-informatie te laten werken.
 
 De gebruiker heeft expliciet gekozen voor de **geavanceerde** aanpak. Deze blueprint documenteert die keuze, maar geeft op zichzelf geen toestemming om de GIS-functionaliteit te implementeren.
 
@@ -639,30 +639,78 @@ Stel numerieke foutmarges voor de diepte-engine pas vast wanneer onafhankelijke 
 24. De referentieset rapporteert foutieve automatische matches afzonderlijk van ambigue/onbekende uitkomsten.
 25. Een benchmark toont dat alleen relevante pilotgegevens worden opgehaald en niet alle bronmeetpunten in browsergeheugen worden geladen.
 
-## 22. Eerstvolgende uitvoering: PoC vóór implementatie
+## 22. GIS-onderzoeksfase afgerond: functionele basis voor dieptebepaling
 
-De eerstvolgende praktische stap is een geïsoleerde, reproduceerbare GIS-PoC op de vijf afgesproken Culemborgse stekken en de twee bronbestanden. Dit is data-analyse, geen applicatie-implementatie.
+De onafhankelijke GIS-onderzoeksfase voor de Vislogboek Coach is op 5 november 2026 afgesloten. Het doel van deze fase was te bepalen of de beschikbare geografische gegevens voldoende aanknopingspunten bieden om bij visstekken een bruikbare algemene waterdiepte-indicatie te geven. Dat doel is op functioneel niveau bereikt.
 
-De PoC levert:
-1. broninventaris per relevante laag, inclusief CRS, verticale referentie, velden en aantallen;
-2. kandidaat-watergangen per stek, inclusief afstanden en ambiguïteit;
-3. gekozen of handmatig te beoordelen segmenten en chainage;
-4. relevante gemeten profiel-ID's, profielposities en afstanden langs de watergang;
-5. afzonderlijke Leggerprofielen;
-6. gereconstrueerde dwarsprofielen met laagonderscheid en meetdatum;
-7. expliciete beoordeling van verticale referentie en of absolute waterdiepte berekenbaar is;
-8. uitzonderingen, ontbrekende data en onzekerheden;
-9. reproduceerbare scripts, parameters en resultatenrapport.
+De fase-2-analyse heeft de volgende basis opgeleverd:
+- een inventarisatie van de beschikbare Legger-watergangen en ingemeten dwarsprofielen in het onderzochte pilotgebied;
+- een geometrische toets van profiel-watergangrelaties, met onderscheid tussen sterke koppelingen, twijfelgevallen en niet-gekoppelde profielen;
+- historische bodemhoogtes en afgeleide dieptes op profielen waar een waterspiegelwaarde beschikbaar is;
+- inzicht in de beperkingen van de gegevens, waaronder ontbrekende verbindingen, profieldekking, meetleeftijd, knooppunten en het onderscheid tussen vaste bodem en baggerlaag;
+- een praktische methode om diepte-informatie als bandbreedte en met bron-/kwaliteitsvermelding te gebruiken.
 
-De vijf pilotlocaties zijn:
-- Lokkershoek speelplek — 51.943588, 5.191197
-- Lokkershoek Pier — 51.944861, 5.192340
-- Kanaal schapen #1 — 51.948939, 5.189031
-- Vijver achter Kanaal schapen #1 — 51.948647, 5.189778
-- Bomedikke speeltuin — 51.954158, 5.229510
+De onderzochte selectie omvatte 100 Legger-segmenten, 73 unieke profielen uit de fase-2-inventarisatie en 18 GPS-punten. Binnen die selectie zijn 52 profielkoppelingen als geometrisch sterk beoordeeld, 13 als handmatig te controleren en 8 als niet gekoppeld. Deze aantallen en conclusies gelden voor de onderzochte selectie en vormen geen verklaring dat de volledige Legger of alle beschikbare meetgegevens landelijk zijn verwerkt.
 
-De vier eerste locaties liggen relatief dicht bij elkaar. De PoC moet juist aantonen dat nabijgelegen, afzonderlijke wateren niet op basis van alleen de dichtstbijzijnde lijn worden verward. Bomedikke is een geografisch afzonderlijke controlelocatie.
+### 22.1 Functionele conclusie
 
-**PoC-beperkingen:** geen wijzigingen aan app-code, database, bestaande stekken, prognose-engine of productieopslag. Geen automatische commits of deployment. Geen actuele waterdiepte claimen zonder gevalideerde verticale referentie en passende waterstand. Resultaten worden per stek met bronverwijzingen en reproduceerbare tussenstappen opgeleverd.
+Er is voldoende kennis om de Vis Coach een **algemene, indicatieve waterdiepte** te laten bepalen op basis van beschikbare profielmetingen, watergangcontext en eventueel aanvullende gebruikersinformatie. De Coach hoeft daarvoor niet te wachten op een volledige landelijke GIS-import of een volledige reconstructie van alle oorspronkelijke meetpunten.
 
-**Go/no-go na PoC:** pas na beoordeling van matching, profieldekking, verticale referenties, foutgevallen en benchmark wordt besloten of fase 1 van implementatie mag starten. De PoC zelf geeft geen toestemming voor implementatie.
+De diepte-uitkomst wordt niet als één gegarandeerd exact getal gepresenteerd. Gebruik waar mogelijk:
+- een bandbreedte in meters;
+- meetjaar en afstand tot het gebruikte profiel;
+- bronsoort en herkomst;
+- een begrijpelijke kwaliteitsindicatie;
+- een expliciete melding wanneer gegevens ontbreken of meerdere watergangen mogelijk zijn.
+
+De volgende onderscheidingen blijven verplicht:
+1. **Gemeten:** waarde rechtstreeks afkomstig uit een meetprofiel, met meetdatum en referentie.
+2. **Berekend:** bijvoorbeeld het verschil tussen gemeten waterspiegel en laagste vaste bodem op dat profiel.
+3. **Afgeleid/indicatief:** bandbreedte gebaseerd op geschikte nabijgelegen profielen of dezelfde watergang.
+4. **Handmatig aangeleverd:** diepte die de gebruiker zelf op de visplek meet en doorgeeft, met datum, locatie/positie en meetmethode indien bekend.
+5. **Onbekend:** onvoldoende basis voor een verantwoorde indicatie; geen waarde invullen of verzinnen.
+
+Historische profielmetingen zijn geen actuele dieptemetingen op de exacte aaspositie. De berekende diepte tot de vaste bodem is bovendien niet hetzelfde als de diepte tot de bovenkant van de bagger- of sliblaag. Zonder passende actuele waterstand en gevalideerde verticale referentie mag een NAP-bodemhoogte niet als actuele waterdiepte worden gepresenteerd.
+
+### 22.2 Handmatige metingen als aanvulling
+
+Wanneer de gebruiker op een vislocatie zelf de waterdiepte meet, kan hij die meting rechtstreeks aan de Coach doorgeven. De Coach gebruikt deze informatie als locatiespecifieke aanvulling op de algemene GIS-indicatie.
+
+Leg bij voorkeur vast:
+- vislocatie en exacte meetpositie (oeverpositie of aas-/voerpositie);
+- gemeten diepte in meters;
+- meetdatum en bij voorkeur tijdstip;
+- meetmethode (bijvoorbeeld peilstok, dieptemeter of lood);
+- of de meting tot de vaste bodem of tot de bovenkant van slib/bagger is gedaan;
+- eventuele bijzonderheden, zoals zachte bodem of een afwijkende waterstand.
+
+Een handmatige meting wordt als afzonderlijke bron opgeslagen/gepresenteerd en overschrijft de historische GIS-brondata niet. Bij meerdere metingen kan de Coach een lokaal dieptebeeld en een bandbreedte opbouwen. Oudere handmatige metingen blijven voorzien van hun meetdatum.
+
+### 22.3 Wat hiermee wordt afgesloten
+
+De volgende onderdelen van het GIS-onderzoek worden als afgerond beschouwd voor de huidige productdoelstelling:
+- het vaststellen van de bruikbaarheid van de beschikbare GIS- en profielinformatie;
+- het vaststellen van de belangrijkste beperkingen en onzekerheden;
+- het bepalen van een generieke werkwijze voor indicatieve waterdiepte;
+- het vastleggen van hoe handmatige veldmetingen ontbrekende of locatiespecifieke informatie aanvullen.
+
+Er is **geen verplicht vervolgonderzoek** nodig voordat de Vis Coach deze functionele aanpak kan hanteren.
+
+### 22.4 Wat niet wordt geclaimd of automatisch uitgevoerd
+
+Deze afsluiting betekent niet dat:
+- de volledige GPKG en GDB integraal zijn verwerkt;
+- alle Legger-netwerkverbindingen of kunstwerken bekend zijn;
+- voor iedere visstek een actuele exacte diepte bekend is;
+- alle dwarsprofielen of Z-meetpunten zijn gereconstrueerd;
+- automatische GIS-import, kaartweergave, watermatcher, profielmatcher of database-integratie al in de app bestaan.
+
+Aanvullende bronanalyse, volledige verwerking van de bronbestanden of automatische GIS-functionaliteit kan later als afzonderlijk verbetertraject worden opgepakt, maar is optioneel en geen blokkade voor het gebruik van algemene diepte-indicaties en handmatig aangeleverde metingen.
+
+### 22.5 Afrondingsbesluit
+
+**GIS-hoofdstuk: AFGEROND voor de huidige functionele doelstelling.**
+
+De Vis Coach mag beschikbare GIS-kennis gebruiken om een algemene, indicatieve waterdiepte te bepalen. Waar lokale nauwkeurigheid ontbreekt, kan de gebruiker zelf gemeten dieptes aanleveren. De Coach houdt beide bronnen herkenbaar gescheiden, vermeldt meetdatum en onzekerheid en geeft bij onvoldoende gegevens eerlijk aan dat de diepte onbekend is.
+
+Deze afronding betreft het onderzoek en de functionele kennisbasis. Zij vormt geen toestemming voor wijzigingen aan de applicatiecode, repository-implementatie of database.
