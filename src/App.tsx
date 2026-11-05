@@ -282,7 +282,7 @@ export default function App() {
       <header className="sticky top-0 z-30 bg-slate-900/90 border-b border-slate-800/80 backdrop-blur-md px-4 sm:px-6 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div
-            onClick={() => setCurrentTab('prognosis')}
+            onClick={() => setCurrentTab('viscoach')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-0.5 shadow-lg shadow-emerald-950/60 group-hover:scale-105 transition">
@@ -321,6 +321,18 @@ export default function App() {
       </header>
 
       <main className="flex-1 px-4 sm:px-6 py-6 pb-24 md:pb-12 max-w-6xl mx-auto w-full">
+        {currentTab === 'viscoach' && (
+          <VisCoachView
+            locations={locations}
+            sessions={sessions}
+            catches={catches}
+            plannedSessions={plannedSessions}
+            onStartSession={handleStartSession}
+            onStartPlannedSession={handleStartPlannedSession}
+            onSavePlan={handleSavePlannedSession}
+            onCancelPlan={handleCancelPlannedSession}
+          />
+        )}
         {currentTab === 'prognosis' && (
           <PrognosisView locations={locations} sessions={sessions} catches={catches} onStartSession={handleStartSession} showAdvancedDetails={showAdvancedPrognosisDetails} />
         )}
