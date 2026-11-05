@@ -4,7 +4,15 @@ import {
   HomeLocation,
   ViscoachTargetSpecies,
   ViscoachSessionContext,
+  FishSpecies,
+  PlannedFishingSession,
+  CatchItem,
+  WeatherSnapshot,
 } from '../types';
+import { calculateDayPrognosis, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
+import { getForecast } from './weatherService';
+import { getWaterTemperatureCalibration } from './evaluationEngine';
+import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 
 /**
  * Berekent de afstand in kilometers tussen twee GPS-coördinaten via de Haversine-formule.
@@ -152,4 +160,184 @@ export function buildViscoachSessionContext(options: {
     missingFields,
     createdAt: new Date().toISOString(),
   };
+}
+
+
+export interface VisCoachPlanInput {
+  location: FishingLocation;
+  targetSpecies: FishSpecies | 'Algemeen';
+  desiredStartTime: string;
+  desiredEndTime?: string | null;
+  sessions: import('../types').FishingSession[];
+  catches: CatchItem[];
+}
+
+export interface VisCoachPlan {
+  prognosis: import('../types').DayPrognosis;
+  pendingSnapshot: PendingPrognosisSnapshot;
+  desiredStartTime: string;
+  desiredEndTime: string | null;
+  durationHours: number | null;
+}
+
+function planFingerprint(value: unknown): string {
+  const input = JSON.stringify(value);
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a32-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+/**
+ * Bouwt een VisCoach-plan door de bestaande prognose-engine te gebruiken.
+ * Deze functie bevat geen eigen biologische of tactische berekening.
+ */
+export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCoachPlan> {
+  const start = new Date(input.desiredStartTime);
+  if (!Number.isFinite(start.getTime())) throw new Error('Kies een geldige gewenste starttijd.');
+  const end = input.desiredEndTime ? new Date(input.desiredEndTime) : null;
+  if (end && (!Number.isFinite(end.getTime()) || end.getTime() <= start.getTime())) {
+    throw new Error('De gewenste eindtijd moet na de starttijd liggen.');
+  }
+  if (typeof input.location.latitude !== 'number' || typeof input.location.longitude !== 'number') {
+    throw new Error('Deze stek heeft nog geen GPS-coördinaten. Voeg de locatiegegevens toe voordat een weersafhankelijk plan wordt berekend.');
+  }
+
+  const durationHours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+  const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
+  const [weather, snapshots, locations] = await Promise.all([
+    getForecast(input.location.latitude, input.location.longitude, false),
+    db.prognosisSnapshots.toArray(),
+    db.locations.toArray(),
+  ]);
+  if (!weather.hourly?.length) throw new Error('Er is geen weersverwachting beschikbaar voor deze stek.');
+
+  const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
+    input.sessions,
+    snapshots,
+    locations
+  );
+  const now = new Date();
+  const prognosis = calculateDayPrognosis(
+    date,
+    weather.hourly,
+    input.targetSpecies,
+    input.sessions,
+    weather.fetchedAt,
+    null,
+    now,
+    {
+      sessionDurationHours: durationHours ?? undefined,
+      allowUnknownSessionDuration: true,
+      locationId: input.location.id,
+      location: input.location,
+      catches: input.catches,
+      historicalWaterTemperatures,
+      waterTemperatureCalibration: getWaterTemperatureCalibration(snapshots, input.location.id, date),
+      prebaitOptions: {
+        sessionDurationHours: durationHours ?? undefined,
+        planningDate: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now),
+      },
+    }
+  );
+
+  const startHour = weather.hourly.reduce((closest, item) =>
+    Math.abs(new Date(item.time).getTime() - start.getTime()) <
+    Math.abs(new Date(closest.time).getTime() - start.getTime()) ? item : closest
+  );
+  const conditions: WeatherSnapshot = {
+    temperature: startHour.temperature,
+    pressure: startHour.pressure,
+    windSpeed: startHour.windSpeed,
+    windDirection: startHour.windDirection,
+    windDirectionText: startHour.windDirectionText,
+    cloudCover: startHour.cloudCover,
+    precipitation: startHour.precipitation,
+    precipitationProbability: startHour.precipitationProbability,
+    weatherCode: startHour.weatherCode,
+    source: 'open-meteo',
+    capturedAt: weather.fetchedAt,
+    waterTemperature: null,
+  };
+
+  const inputFingerprint = planFingerprint({
+    date,
+    desiredStartTime: start.toISOString(),
+    desiredEndTime: end?.toISOString() ?? null,
+    species: input.targetSpecies,
+    locationId: input.location.id,
+    weather: weather.hourly,
+    sessions: input.sessions.map((session) => [session.id, session.updatedAt, session.outcome]),
+    catches: input.catches.map((item) => [item.id, item.timestamp, item.species, item.count]),
+  });
+
+  const pendingSnapshot: PendingPrognosisSnapshot = {
+    prognosis,
+    durationHours: durationHours ?? 0,
+    durationKnown: durationHours !== null,
+    locationName: input.location.name,
+    chosenSlot: prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag'
+      ? undefined
+      : prognosis.bestTimeSlot,
+    conditions,
+    weatherInput: weather.hourly,
+    runKind: 'session_start',
+    inputFingerprint,
+  };
+
+  return {
+    prognosis,
+    pendingSnapshot,
+    desiredStartTime: start.toISOString(),
+    desiredEndTime: end?.toISOString() ?? null,
+    durationHours,
+  };
+}
+
+/** Slaat een vooruit geplande afspraak en de getoonde planprognose atomair op. */
+export async function saveVisCoachPlan(
+  plan: VisCoachPlan,
+  location: FishingLocation,
+  targetSpecies: FishSpecies | 'Algemeen'
+): Promise<PlannedFishingSession> {
+  const now = new Date().toISOString();
+  const id = `planned-session-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return db.transaction('rw', db.plannedSessions, db.prognosisSnapshots, async () => {
+    const snapshot = await savePrognosisSnapshot(
+      plan.prognosis,
+      plan.durationHours ?? 0,
+      location.id,
+      location.name,
+      undefined,
+      plan.pendingSnapshot.chosenSlot,
+      plan.pendingSnapshot.conditions,
+      {
+        runKind: 'plan',
+        weatherInput: plan.pendingSnapshot.weatherInput,
+        inputFingerprint: plan.pendingSnapshot.inputFingerprint,
+      }
+    );
+    const planned: PlannedFishingSession = {
+      id,
+      locationId: location.id,
+      targetSpecies,
+      plannedStartTime: plan.desiredStartTime,
+      plannedEndTime: plan.desiredEndTime,
+      status: 'planned',
+      planSnapshotId: snapshot.id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await db.plannedSessions.put(planned);
+    return planned;
+  });
+}
+
+export async function cancelVisCoachPlan(planId: string): Promise<void> {
+  await db.plannedSessions.update(planId, {
+    status: 'cancelled',
+    updatedAt: new Date().toISOString(),
+  });
 }
