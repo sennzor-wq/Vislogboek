@@ -149,7 +149,7 @@ export async function reassessActiveSessions(
     db.presenceObservations.toArray(),
   ]);
 
-  const activeSessions = sessions.filter((session) => session.outcome === 'active');
+  const activeSessions = sessions.filter((session) => session.outcome === 'active' && (!sessionId || session.id === sessionId));
   if (activeSessions.length === 0) return [];
 
   const locationById = new Map(locations.map((location) => [location.id, location]));
