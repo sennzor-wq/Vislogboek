@@ -480,6 +480,28 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     if (limitsError) throw new Error(limitsError);
 
     const backupSessionIds = new Set(data.sessions.map((session) => session.id));
+    const backupLocationIds = new Set(data.locations.map((location) => location.id));
+    const backupSnapshotIds = new Set((data.prognosisSnapshots || []).map((snapshot) => snapshot.id));
+    for (const planned of data.plannedSessions || []) {
+      if (!backupLocationIds.has(planned.locationId) || !Number.isFinite(new Date(planned.plannedStartTime).getTime()) ||
+          !['planned', 'started', 'cancelled', 'overdue'].includes(planned.status)) {
+        throw new Error(`Geplande sessie ${planned.id} bevat een ongeldige locatie, starttijd of status.`);
+      }
+      if (planned.planSnapshotId && !backupSnapshotIds.has(planned.planSnapshotId)) {
+        throw new Error(`Geplande sessie ${planned.id} verwijst naar een prognosesnapshot die niet in de back-up aanwezig is.`);
+      }
+      if (planned.startedSessionId && !backupSessionIds.has(planned.startedSessionId)) {
+        throw new Error(`Geplande sessie ${planned.id} verwijst naar een actieve sessie die niet in de back-up aanwezig is.`);
+      }
+    }
+    for (const advice of data.coachAdviceRecords || []) {
+      if (!backupSessionIds.has(advice.sessionId) || !backupSnapshotIds.has(advice.prognosisSnapshotId)) {
+        throw new Error(`Coachadvies ${advice.id} verwijst naar een sessie of prognosesnapshot die niet in de back-up aanwezig is.`);
+      }
+      if (advice.previousAdviceId && !(data.coachAdviceRecords || []).some((item) => item.id === advice.previousAdviceId)) {
+        throw new Error(`Coachadvies ${advice.id} verwijst naar een eerder advies dat niet in de back-up aanwezig is.`);
+      }
+    }
     const rodNumbersBySession = new Map<string, Set<number>>();
     for (const rod of data.sessionRods) {
       if (typeof rod.sessionId !== 'string' || !backupSessionIds.has(rod.sessionId)) {
