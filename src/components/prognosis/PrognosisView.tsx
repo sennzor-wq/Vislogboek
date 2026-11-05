@@ -229,6 +229,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       targetDate: activeDayProg.date,
       targetSpecies: selectedSpecies,
       sessionDurationHours: selectedDurationHours,
+      technique: selectedTechnique ?? null,
       location: {
         id: selectedLoc.id,
         latitude: selectedLoc.latitude,
@@ -256,7 +257,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       durationKnown: true,
       weatherInput: hourlyForecast,
       inputContext,
-      inputFingerprint: createPrognosisInputFingerprint({ inputContext, weather: hourlyForecast, technique: undefined }),
+      inputFingerprint: createPrognosisInputFingerprint({ inputContext, weather: hourlyForecast, technique: selectedTechnique ?? null }),
       runKind: 'session_start',
       locationName: selectedLoc.name,
       chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
