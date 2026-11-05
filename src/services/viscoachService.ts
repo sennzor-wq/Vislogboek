@@ -267,6 +267,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     targetDate: date,
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
+    technique: null,
     location: {
       id: input.location.id,
       latitude: input.location.latitude,
