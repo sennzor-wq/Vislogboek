@@ -22,6 +22,7 @@ export interface SessionCoachReassessmentResult {
 
 const lastEvaluatedFingerprint = new Map<string, string>();
 const sessionsBeingReassessed = new Set<string>();
+const pendingWeatherChanges = new Map<string, { signature: string; confirmations: number }>();
 
 function fingerprint(value: unknown): string {
   const input = JSON.stringify(value);
@@ -254,10 +255,30 @@ export async function reassessActiveSessions(
       const changedFactors = changedSignatureFactors(previousSignature, currentSignature);
 
       if (changedFactors.length === 0) {
+        pendingWeatherChanges.delete(session.id);
         lastEvaluatedFingerprint.set(session.id, inputFingerprint);
         results.push({ sessionId: session.id, status: 'unchanged', reason: 'Geen betekenisvolle verandering in prognose of praktische analyse.' });
         continue;
       }
+
+      // Een weersupdate moet dezelfde praktische wijziging bij een volgende, afwijkende invoer bevestigen.
+      // Gebruikerswaarnemingen, sessiewijzigingen, handmatige controles en app-hervatten worden direct verwerkt.
+      if (trigger === 'weather_update') {
+        const signatureKey = JSON.stringify(currentSignature);
+        const candidate = pendingWeatherChanges.get(session.id);
+        const confirmations = candidate?.signature === signatureKey ? candidate.confirmations + 1 : 1;
+        pendingWeatherChanges.set(session.id, { signature: signatureKey, confirmations });
+        lastEvaluatedFingerprint.set(session.id, inputFingerprint);
+        if (confirmations < 2) {
+          results.push({
+            sessionId: session.id,
+            status: 'unchanged',
+            reason: 'Mogelijke wijziging wordt bij een volgende afwijkende weersupdate bevestigd om onnodig wisselend advies te voorkomen.',
+          });
+          continue;
+        }
+      }
+      pendingWeatherChanges.delete(session.id);
 
       const snapshot = await db.transaction('rw', db.prognosisSnapshots, db.coachAdviceRecords, async () => {
         const saved = await savePrognosisSnapshot(
