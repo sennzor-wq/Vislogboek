@@ -176,7 +176,6 @@ export async function reassessActiveSessions(
       const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
       const species = session.targetSpecies?.[0] ?? 'Algemeen';
       const durationHours = getSessionDurationHours(session);
-      const sessionCatches = catches.filter((item) => item.sessionId === session.id);
       const sessionObservations = observations.filter((item) => item.sessionId === session.id);
       const latestObservation = sessionObservations
         .slice()
@@ -232,11 +231,13 @@ export async function reassessActiveSessions(
       const previousSnapshot = linkedSnapshots[0] ??
         snapshots.find((snapshot) => snapshot.id === session.snapshotId);
       if (!previousSnapshot) {
+        lastEvaluatedFingerprint.set(session.id, inputFingerprint);
         results.push({ sessionId: session.id, status: 'skipped', reason: 'Geen oorspronkelijke sessieprognose om mee te vergelijken.' });
         continue;
       }
 
       if (!previousSnapshot.prognosisData) {
+        lastEvaluatedFingerprint.set(session.id, inputFingerprint);
         results.push({
           sessionId: session.id,
           status: 'skipped',
