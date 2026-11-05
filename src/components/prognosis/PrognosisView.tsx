@@ -244,7 +244,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       historySummary: {
         sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
         catchRecordCount: catches.length,
-        observationCount: storedObservations.length,
+        observationCount: 0,
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
       weatherFetchedAt: weatherUpdatedAt || undefined,
