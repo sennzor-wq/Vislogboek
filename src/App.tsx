@@ -34,6 +34,7 @@ export default function App() {
   const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
   const [coachAdviceRecords, setCoachAdviceRecords] = useState<import('./types').CoachAdviceRecord[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
+  const [prefilledSessionId, setPrefilledSessionId] = useState<string | undefined>(undefined);
   const [prefilledSessionDurationHours, setPrefilledSessionDurationHours] = useState<number | undefined>(undefined);
   const [prefilledPlannedEndTime, setPrefilledPlannedEndTime] = useState<string | null>(null);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
@@ -130,6 +131,7 @@ export default function App() {
   const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, plannedEndTime?: string | null) => {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
+    setPrefilledSessionId(`session_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`);
     setPendingPrognosisSnapshot(pendingSnapshot);
     setPrefilledSessionDurationHours(durationHours ?? (pendingSnapshot?.durationKnown ? pendingSnapshot.durationHours : undefined));
     setPrefilledPlannedEndTime(plannedEndTime ?? null);
@@ -150,6 +152,7 @@ export default function App() {
       : undefined;
     setPrefilledSpecies(species);
     setPrefilledLocationId(planned.locationId);
+    setPrefilledSessionId(`session_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`);
     setPendingPrognosisSnapshot(undefined);
     setPrefilledSessionDurationHours(plannedDuration && plannedDuration > 0 && plannedDuration <= 24
       ? plannedDuration
@@ -422,7 +425,7 @@ export default function App() {
           session={
             prefilledLocationId || prefilledSpecies
               ? ({
-                  id: 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                  id: prefilledSessionId || 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
                   locationId: prefilledLocationId || locations[0]?.id,
                   targetSpecies: prefilledSpecies ? [prefilledSpecies] : ['Karper'],
                   startTime: new Date().toISOString(),
@@ -448,6 +451,7 @@ export default function App() {
             setPrefilledSessionDurationHours(undefined);
             setPrefilledPlannedEndTime(null);
             setPrefilledPlannedSessionId(undefined);
+            setPrefilledSessionId(undefined);
           }}
           onClose={() => {
             setIsStartingSession(false);
