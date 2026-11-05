@@ -214,10 +214,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   const handleStartSessionFromPrognosis = async () => {
     if (!activeDayProg || !selectedLoc) return;
     // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
-    const [storedSnapshots, storedObservations] = await Promise.all([
-      db.prognosisSnapshots.toArray(),
-      db.presenceObservations.toArray(),
-    ]);
+    const storedSnapshots = await db.prognosisSnapshots.toArray();
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       sessions,
       storedSnapshots,
