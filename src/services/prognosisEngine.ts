@@ -13,6 +13,7 @@ import {
   CatchItem,
   HistoricalCatchRateInfo,
   WeatherSnapshot,
+  PrognosisInputContext,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { BENCHMARK_SESSION_ID, db, syncSessionPresenceObservations } from '../db/db';
@@ -1019,6 +1020,7 @@ export interface PendingPrognosisSnapshot {
   chosenSlot?: TimeSlot;
   conditions?: WeatherSnapshot;
   weatherInput?: WeatherHourlyForecast[];
+  inputContext?: PrognosisInputContext;
   runKind?: import('../types').PrognosisRunKind;
   inputFingerprint?: string;
   supersedesSnapshotId?: string;
@@ -1039,6 +1041,7 @@ export async function savePrognosisSnapshot(
   metadata?: {
     runKind?: import('../types').PrognosisRunKind;
     weatherInput?: WeatherHourlyForecast[];
+    inputContext?: PrognosisInputContext;
     inputFingerprint?: string;
     supersedesSnapshotId?: string;
   }
@@ -1086,6 +1089,7 @@ export async function savePrognosisSnapshot(
     supersedesSnapshotId: metadata?.supersedesSnapshotId,
     prognosisData: prognosis,
     weatherInput: metadata?.weatherInput,
+    inputContext: metadata?.inputContext,
     technique,
     predictedActivityScore: prognosis.activityScoreAvailable === false ? null : prognosis.activityScore,
     activityScoreAvailable: prognosis.activityScoreAvailable !== false,
@@ -1145,6 +1149,7 @@ export async function saveSessionWithPrognosisSnapshot(
       {
         runKind: pending.runKind ?? 'session_start',
         weatherInput: pending.weatherInput,
+        inputContext: pending.inputContext,
         inputFingerprint: pending.inputFingerprint,
         supersedesSnapshotId: pending.supersedesSnapshotId,
       }
@@ -1177,14 +1182,42 @@ export async function createLiveSnapshotForSessionStart(
     const lat = location.latitude ?? 51.961;
     const lon = location.longitude ?? 5.228;
     const weather = await getForecast(lat, lon, false);
-    const [allSessions, allCatches, allSnapshots, allLocations] = await Promise.all([
+    const [allSessions, allCatches, allSnapshots, allLocations, allObservations] = await Promise.all([
       db.sessions.toArray(),
       db.catches.toArray(),
       db.prognosisSnapshots.toArray(),
       db.locations.toArray(),
+      db.presenceObservations.toArray(),
     ]);
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
+    const inputContext: PrognosisInputContext = {
+      calculatedAt: new Date().toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
+      targetDate: todayStr,
+      targetSpecies: species,
+      sessionDurationHours: durationHours ?? null,
+      location: {
+        id: location.id,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        waterType: location.waterType,
+        waterDepth: location.waterDepth,
+        waterFacingDirection: location.waterFacingDirection,
+        habitatFeatures: location.habitatFeatures,
+      },
+      historicalSessionIds: allSessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
+      catchRecordIds: allCatches.map((item) => item.id),
+      observationIds: allObservations.map((item) => item.id),
+      historicalWaterTemperatureSamples: historicalWaterTemperatures,
+      historySummary: {
+        sessionCount: allSessions.filter((item) => item.isBenchmark !== true).length,
+        catchRecordCount: allCatches.length,
+        observationCount: allObservations.length,
+        historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
+      },
+      weatherFetchedAt: weather.fetchedAt,
+    };
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       allSessions,
       allSnapshots,
@@ -1225,6 +1258,7 @@ export async function createLiveSnapshotForSessionStart(
       chosenSlot,
       conditions: weatherSnap,
       weatherInput: weather.hourly,
+      inputContext,
       runKind: 'session_start',
     };
   } catch (err) {
