@@ -18,7 +18,8 @@ import {
   Fish,
 } from 'lucide-react';
 import { autoSyncSessionOutcomeToSnapshot } from './services/evaluationEngine';
-import { startWeatherAutoRefresh } from './services/weatherService';
+import { startWeatherAutoRefresh, WEATHER_UPDATED_EVENT } from './services/weatherService';
+import { reassessActiveSessions } from './services/sessionCoachService';
 
 export default function App() {
   const isOnline = useOnlineStatus();
@@ -77,6 +78,25 @@ export default function App() {
     if (!isOnline || locations.length === 0) return;
     return startWeatherAutoRefresh(locations);
   }, [weatherLocationKey, isOnline]);
+
+  // De VisCoach-coördinator reageert op dezelfde weerupdate als de bestaande Prognosepagina.
+  useEffect(() => {
+    const handleWeatherUpdated = () => {
+      void reassessActiveSessions('weather_update').catch((error) => {
+        console.error('VisCoach kon actieve sessies niet herbeoordelen na een weerupdate:', error);
+      });
+    };
+    window.addEventListener(WEATHER_UPDATED_EVENT, handleWeatherUpdated);
+    return () => window.removeEventListener(WEATHER_UPDATED_EVENT, handleWeatherUpdated);
+  }, []);
+
+  // Na openen/herladen wordt iedere actieve sessie met de laatst beschikbare gegevens gecontroleerd.
+  useEffect(() => {
+    if (loading) return;
+    void reassessActiveSessions('app_resume').catch((error) => {
+      console.error('VisCoach kon actieve sessies niet hervatten:', error);
+    });
+  }, [loading]);
 
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
@@ -141,6 +161,11 @@ export default function App() {
         [...previous.filter((session) => session.id !== savedSession.id), savedSession]
           .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
       );
+      if (savedSession.outcome === 'active') {
+        void reassessActiveSessions('session_changed').catch((error) => {
+          console.error('VisCoach kon de gewijzigde sessie niet herbeoordelen:', error);
+        });
+      }
     }
   };
 
@@ -171,6 +196,11 @@ export default function App() {
         [...previous.filter((session) => session.id !== updatedSess.id), updatedSess]
           .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
       );
+      if (updatedSess.outcome === 'active') {
+        void reassessActiveSessions('catch_recorded').catch((error) => {
+          console.error('VisCoach kon de sessie na een vangst niet herbeoordelen:', error);
+        });
+      }
     }
   };
 
