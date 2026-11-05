@@ -1212,6 +1212,11 @@ export async function createLiveSnapshotForSessionStart(
     ]);
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
+    const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
+      allSessions,
+      allSnapshots,
+      allLocations
+    );
     const inputContext: PrognosisInputContext = {
       calculatedAt: new Date().toISOString(),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
@@ -1235,7 +1240,7 @@ export async function createLiveSnapshotForSessionStart(
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
       historyFingerprint: createPrognosisInputFingerprint({
         sessions: allSessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-        catches: allCatches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weight, item.length, item.bait, item.technique]),
+        catches: allCatches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
         historicalWaterTemperatures,
       }),
       historySummary: {
@@ -1246,12 +1251,6 @@ export async function createLiveSnapshotForSessionStart(
       },
       weatherFetchedAt: weather.fetchedAt,
     };
-    const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
-      allSessions,
-      allSnapshots,
-      allLocations
-    );
-
     const prog = calculateDayPrognosis(
       todayStr,
       weather.hourly,
