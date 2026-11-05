@@ -455,6 +455,7 @@ export interface PrognosisInputContext {
   targetDate: string;
   targetSpecies: FishSpecies | 'Algemeen';
   sessionDurationHours: number | null;
+  technique?: string | null;
   location: {
     id: string;
     latitude?: number;
