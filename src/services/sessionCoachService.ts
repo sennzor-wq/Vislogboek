@@ -138,7 +138,8 @@ export async function createInitialCoachAdviceRecord(
  * Deze service berekent zelf geen biologische score of tactische regels.
  */
 export async function reassessActiveSessions(
-  trigger: CoachAdviceTrigger = 'weather_update'
+  trigger: CoachAdviceTrigger = 'weather_update',
+  sessionId?: string
 ): Promise<SessionCoachReassessmentResult[]> {
   const [sessions, locations, catches, snapshots, observations] = await Promise.all([
     db.sessions.toArray(),
