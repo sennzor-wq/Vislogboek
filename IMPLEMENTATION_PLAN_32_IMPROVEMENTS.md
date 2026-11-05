@@ -27,7 +27,7 @@ Elke fase wordt op een afzonderlijke branch ontwikkeld, krijgt gerichte regressi
 ### Voorbereidende stap — documentatie en baseline
 
 - Dit plan vastleggen als projectdocument.
-- `PROJECT_CONTEXT.md` en de VisCoach-roadmap synchroniseren: concrete start- en eindtijd als coachinput; groepssessies en totale hengels; volledige lokale back-up; betrouwbaarheids- en provenance-regels.
+- `PROJECT_CONTEXT.md` en de VisCoach-roadmap synchroniseren: gewenste starttijd als verplichte coachinput en eindtijd optioneel; groepssessies en totale hengels; volledige lokale back-up; betrouwbaarheids- en provenance-regels.
 - Huidige test- en buildstatus op de actuele basis vastleggen.
 - Per fase relevante bestaande tests en codepaden inventariseren.
 
@@ -111,19 +111,40 @@ Elke fase wordt op een afzonderlijke branch ontwikkeld, krijgt gerichte regressi
 
 ### Fase 6 — VisCoach als geïntegreerde coachlaag (punten 27–32)
 
-- Eerst afhankelijkheden van bestaande VisCoach-modal/service vaststellen; bruikbare onderdelen hergebruiken.
-- Geen tweede prognose- of biologische engine.
-- Instap: doelsoort, stek, gewenste start- en eindtijd; alternatieve tijdvakken vergelijken bij gelijke duur.
-- Coachplan combineert bestaande prognose, activiteit, betrouwbare persoonlijke kans indien beschikbaar, wind/oever/positionering en tactiek met bron- en onzekerheidsinformatie.
-- Plan start een sessie; actieve sessie biedt handmatige heranalyse en optionele herinneringen.
-- Oorspronkelijke prognose en eerste coachadvies blijven onveranderlijk; nieuw advies wordt als aparte tijdgestempelde versie opgeslagen.
-- Gepland en werkelijk gevist tijdvak afzonderlijk bewaren.
-- Na afloop prognose, adviezen, uitgevoerde aanpak en uitkomst afzonderlijk evalueren.
-- Alle nieuwe persistente gegevens opnemen in back-up/restore.
+**Bindende architectuur:** VisCoach is de gebruiksvriendelijke interface boven op bestaande gegevens, UI-componenten, services en engines. Er wordt geen tweede prognose-, biologische, tactische, sessie- of vangstengine gebouwd. Ontbrekende functionaliteit wordt toegevoegd aan de bestaande laag die daarvoor verantwoordelijk is.
 
-**Tests:** intake en tijdvakvergelijking; plan → sessie; actieve coach; heranalyse maakt nieuwe versie; originele snapshots blijven onveranderd; geplande versus werkelijke tijden; offline gebruik; backup/restore; volledige regressie.
+#### 6A — Documentatie, contracten en bestaande onderdelen
+- Bestaande VisCoach-modal/service, prognosepagina, actieve sessie-interface, weerupdates, prognose-engine, tactische modules, Dexie-tabellen en backupservice als uitgangspunt nemen.
+- De VisCoach-presentatielaag gebruikt bestaande componenten en berekeningsuitvoer; alleen ontbrekende VisCoach-specifieke presentatie wordt nieuw gebouwd.
+- Verplichte keuzes: doelsoort, stek en gewenste starttijd. Eindtijd is optioneel; onbekende duur blijft onbekend.
+- Eén gedeeld sessie-/prognosecontextcontract voor plan, startsnapshot, actieve sessie en latere evaluatie.
 
-**Acceptatie:** volledige coachcyclus werkt lokaal en gebruikt de bestaande gevalideerde engines.
+#### 6B — Backend en dynamische sessiecoördinatie
+- Eén sessiegebonden coachcoördinator toevoegen. Deze is geen prognose-engine: zij reageert op bestaande weer-, sessie-, vangst-, waarnemings- en meetupdates, roept de bestaande prognose-/analysemodules aan en vergelijkt hun uitkomsten.
+- Bij daadwerkelijke sessiestart automatisch de volledige beschikbare uitvoer en exacte relevante invoer van de bestaande prognoseberekening als onveranderlijke startsnapshot bewaren.
+- Tijdens de sessie alleen bij betekenisvolle gecombineerde veranderingen een update-snapshot en/of afzonderlijk coachadvies opslaan. Een data-refresh op zichzelf is geen aanleiding.
+- Geen arbitraire vaste weersdrempels; betekenis wordt beoordeeld aan de hand van bestaande modeluitvoer, praktische adviesimpact, datakwaliteit en conservatieve hysterese/idempotentie.
+- Coachadviesrecords verwijzen naar prognosesnapshot, sessie en eventueel het vorige advies; zij dupliceren de volledige prognose niet.
+- Automatische verwerking tijdens gebruik en herbeoordeling bij terugkeer/heropenen. Geen continue achtergrondverwerking beloven wanneer de PWA volledig gesloten is.
+- Handmatige heranalyse blijft aanvullend; herinneringen blijven optioneel.
+
+#### 6C — Gebruiksvriendelijke VisCoach-interface
+- Een compacte VisCoach-start-/planervaring bouwen met hergebruik van bestaande UI-componenten, stek-/soortgegevens, prognose-uitvoer en tactische resultaten.
+- De interface toont praktische aanbevelingen, relevante redenen en onzekerheid; technische details blijven optioneel.
+- VisCoach integreert in de bestaande actieve sessie-interface. De bestaande sessie-, vangst- en hengelregistratie blijft de primaire invoer; geen tweede live-sessie-interface.
+- De gebruiker houdt de controle over het uitvoeren van voorstellen. Geen automatische sessieafsluiting of tactiekuitvoering.
+- De bestaande sessie-instap buiten VisCoach en ondersteuning voor meerdere actieve sessies blijven behouden.
+
+#### 6D — Integratie en validatie
+- Plan → bewuste sessiestart → startsnapshot → automatische sessieherbeoordeling → betekenisvol nieuw advies → uitvoering → evaluatie.
+- Backup/restore van alle nieuwe persistente records en relaties.
+- Veilige verwijdering testen: coachadvies volgt de expliciete sessieverwijdering; planningshistorie blijft behouden; snapshots met plan-/adviesverwijzingen worden beschermd.
+- Offlinegedrag, heropenen, dubbele events, herhaalde identieke weerdata, kleine fluctuaties en gecombineerde relevante veranderingen testen.
+- Bestaande sessies, vangsten, prognoses, import/export en alle huidige instaproutes regressietesten.
+
+**Tests:** bestaande engines worden aangeroepen in plaats van gedupliceerd; startprognose blijft onveranderlijk; betekenisvolle update-snapshot; advies zonder onnodige duplicaten; provenance en vorige adviesreferentie; optionele eindtijd; plan versus actieve sessie; PWA heropenen/offline; backup round-trip; volledige regressie en productiebuild.
+
+**Acceptatie:** VisCoach is een gebruiksvriendelijke geïntegreerde interface op bestaande Vislogboek-functionaliteit; dynamische sessiebegeleiding gebruikt dezelfde bestaande gegevensstromen en engines; alle nieuwe adviezen zijn herleidbaar en alleen betekenisvolle veranderingen veroorzaken nieuwe registraties.
 
 ## Test- en releasebeleid
 

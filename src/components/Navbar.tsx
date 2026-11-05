@@ -9,7 +9,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-export type TabType = 'prognosis' | 'sessions' | 'locations' | 'stats' | 'weather' | 'settings';
+export type TabType = 'viscoach' | 'prognosis' | 'sessions' | 'locations' | 'stats' | 'weather' | 'settings';
 
 interface NavbarProps {
   currentTab: TabType;
@@ -23,6 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeSessionCount,
 }) => {
   const tabs = [
+    { id: 'viscoach' as TabType, label: 'VisCoach', icon: Sparkles },
     { id: 'prognosis' as TabType, label: 'Visprognose', icon: Compass },
     { id: 'sessions' as TabType, label: 'Sessies', icon: Clock, badge: activeSessionCount },
     { id: 'locations' as TabType, label: 'Stekken', icon: MapPin },
@@ -61,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Bottom Fixed Bar (< md) met grote touch targets */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 border-t border-slate-800 backdrop-blur-lg px-2 py-1.5 pb-safe shadow-2xl">
-        <div className="grid grid-cols-6 items-center">
+        <div className="grid grid-cols-7 items-center">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = currentTab === tab.id;

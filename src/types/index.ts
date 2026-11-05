@@ -140,6 +140,8 @@ export interface FishingSession {
   startTime: string;              // ISO
   endTime?: string | null;        // ISO (indien gestopt)
   durationMinutes?: number;       // Berekend, correct over middernacht
+  plannedDurationHours?: number | null; // Vooraf opgegeven duur; wordt niet als werkelijke inspanning gebruikt
+  plannedEndTime?: string | null;       // Optionele geplande eindtijd, los van de werkelijke eindtijd
   outcome: SessionOutcome;
   targetSpecies?: FishSpecies[];
   rodCount?: number;
@@ -265,7 +267,7 @@ export interface DayPrognosis {
   catchUncertaintyInterval?: [number, number] | null; // 95% Wilson-interval bijv. [38, 96]%
   relevantSessionCount: number;
   averageRelevantSessionDurationMin?: number;
-  plannedDurationHours?: number;       // Ingestelde geplande sessieduur in uren
+  plannedDurationHours?: number | null; // null wanneer de gebruiker geen eindtijd/duur heeft opgegeven
   expectedCatches?: number | null;     // Verwacht aantal vangsten (E[N] = lambda * t) bij voldoende data
   hourlyCatchRate?: number | null;     // Geschat vangsttempo per uur (lambda) bij voldoende data
   baseRate?: number | null;           // Algemene historische basisfrequentie van doelsoort
@@ -400,15 +402,113 @@ export interface WaterThermalAnalysis {
   historicalWaterTemperatureSource?: 'same_location' | 'nearby_same_type' | null;
 }
 
+export type PrognosisRunKind = 'plan' | 'session_start' | 'session_update' | 'manual';
+
+export type CoachAdviceTrigger =
+  | 'session_start'
+  | 'weather_update'
+  | 'catch_recorded'
+  | 'observation_recorded'
+  | 'session_changed'
+  | 'manual_reanalysis'
+  | 'app_resume';
+
+export type CoachAdviceResponse = 'pending' | 'accepted' | 'adapted' | 'ignored';
+
+export interface PlannedFishingSession {
+  id: string;
+  locationId: string;
+  targetSpecies: FishSpecies | 'Algemeen';
+  plannedStartTime: string;
+  plannedEndTime?: string | null;
+  status: 'planned' | 'started' | 'cancelled' | 'overdue';
+  planSnapshotId?: string;
+  startedSessionId?: string;
+  startedSessionDeletedAt?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** De vertaling van een prognose naar het concrete advies dat de gebruiker heeft gezien. */
+export interface CoachAdviceRecord {
+  id: string;
+  sessionId: string;
+  prognosisSnapshotId: string;
+  previousAdviceId?: string;
+  createdAt: string;
+  trigger: CoachAdviceTrigger;
+  summary: string;
+  recommendation: string;
+  rationale: string;
+  changedFactors: string[];
+  confidence?: string;
+  response?: CoachAdviceResponse;
+  responseAt?: string;
+  executedTactic?: string;
+  executedAt?: string;
+  coachVersion: string;
+  engineVersions?: Record<string, string>;
+}
+
+export interface PrognosisInputContext {
+  calculatedAt: string;
+  timezone: string;
+  targetDate: string;
+  targetSpecies: FishSpecies | 'Algemeen';
+  sessionDurationHours: number | null;
+  technique?: string | null;
+  location: {
+    id: string;
+    latitude?: number;
+    longitude?: number;
+    waterType?: string;
+    waterDepth?: number;
+    waterFacingDirection?: CompassDirection | null;
+    habitatFeatures?: string[];
+  };
+  historicalSessionIds: string[];
+  catchRecordIds: string[];
+  observationIds: string[];
+  presenceObservation?: string | null;
+  historicalWaterTemperatureSamples: Array<{
+    locationId: string;
+    temperatureC: number;
+    timestamp: string;
+    waterType?: string;
+    waterDepth?: number;
+    latitude?: number;
+    longitude?: number;
+    isBenchmark?: boolean;
+  }>;
+  historyFingerprint?: string;
+  historySummary: {
+    sessionCount: number;
+    catchRecordCount: number;
+    observationCount: number;
+    historicalWaterTemperatureSampleCount: number;
+  };
+  weatherFetchedAt?: string;
+}
+
 export interface PrognosisSnapshot {
   id: string;
+  runKind?: PrognosisRunKind;
+  inputFingerprint?: string;
+  inputContext?: PrognosisInputContext;
+  supersedesSnapshotId?: string;
+  /** Volledige uitvoer van de bestaande engine; geen tweede prognoseobject. */
+  prognosisData?: DayPrognosis;
+  /** Exacte uurlijkse weersinvoer die bij deze run aan de bestaande engine is doorgegeven. */
+  weatherInput?: WeatherHourlyForecast[];
   forecastTimestamp: string;       // ISO van voorspellingstijdstip
   targetDate: string;              // YYYY-MM-DD
   targetSlot?: TimeSlot;
   targetSpecies: FishSpecies | 'Algemeen';
   locationId?: string;
   locationName?: string;
-  durationHours: number;
+  durationHours: number; // 0 betekent expliciet onbekend; nooit als sessieduur interpreteren
+  durationKnown?: boolean;
   technique?: string;
   predictedActivityScore: number | null;  // null indien ontbrekende gegevens de index onbetrouwbaar maken
   activityScoreAvailable?: boolean;

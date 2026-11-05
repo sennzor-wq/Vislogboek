@@ -1,5 +1,5 @@
 import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from '../db/db';
-import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod } from '../types';
+import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
 
 export interface BackupData {
   version: number;
@@ -15,6 +15,9 @@ export interface BackupData {
   presenceObservations?: PresenceObservation[];
   /** Added in v4; optional for legacy v1-v3 imports. */
   sessionRods?: SessionRod[];
+  /** Added in v5; optional for legacy v1-v4 imports. */
+  plannedSessions?: PlannedFishingSession[];
+  coachAdviceRecords?: CoachAdviceRecord[];
 }
 
 export interface ImportPreview {
@@ -32,26 +35,29 @@ export interface ImportPreview {
   prognosisSnapshotsCount?: number;
   presenceObservationsCount?: number;
   sessionRodsCount?: number;
+  plannedSessionsCount?: number;
+  coachAdviceRecordsCount?: number;
   error?: string;
 }
 
 /** Bouwt een volledige, download-onafhankelijke momentopname van alle persistente tabellen. */
 export async function collectBackupData(): Promise<BackupData> {
-  const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations, sessionRods] =
+  const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords] =
     await db.transaction('r', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-      db.prognosisSnapshots, db.presenceObservations, db.sessionRods], () => Promise.all([
+      db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], () => Promise.all([
         db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
         db.settings.get('user_settings'), db.weatherCache.toArray(),
         db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(), db.sessionRods.toArray(),
+        db.plannedSessions.toArray(), db.coachAdviceRecords.toArray(),
       ]));
 
   return {
-    version: 4,
+    version: 5,
     appName: 'Vislogboek',
     exportedAt: new Date().toISOString(),
     locations, sessions, catches,
     settings: settings || undefined,
-    weatherCache, prognosisSnapshots, presenceObservations, sessionRods,
+    weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords,
   };
 }
 
@@ -119,6 +125,8 @@ export function normalizeRawBackup(raw: any): BackupData {
       prognosisSnapshots: Array.isArray(raw.prognosisSnapshots) ? raw.prognosisSnapshots : [],
       presenceObservations: Array.isArray(raw.presenceObservations) ? raw.presenceObservations : [],
       sessionRods: Array.isArray(raw.sessionRods) ? raw.sessionRods : [],
+      plannedSessions: Array.isArray(raw.plannedSessions) ? raw.plannedSessions : [],
+      coachAdviceRecords: Array.isArray(raw.coachAdviceRecords) ? raw.coachAdviceRecords : [],
     } as BackupData;
   }
 
@@ -439,7 +447,8 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
 
     if (!Array.isArray(data.sessions) || !Array.isArray(data.locations) || !Array.isArray(data.catches) ||
         !Array.isArray(data.weatherCache) || !Array.isArray(data.prognosisSnapshots) ||
-        !Array.isArray(data.presenceObservations) || !Array.isArray(data.sessionRods)) {
+        !Array.isArray(data.presenceObservations) || !Array.isArray(data.sessionRods) ||
+        !Array.isArray(data.plannedSessions) || !Array.isArray(data.coachAdviceRecords)) {
       return {
         preview: {
           valid: false,
@@ -455,11 +464,12 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       };
     }
 
-    if (data.version > 4) throw new Error(`Back-upversie ${data.version} is nieuwer dan deze app ondersteunt.`);
+    if (data.version > 5) throw new Error(`Back-upversie ${data.version} is nieuwer dan deze app ondersteunt.`);
     const collections: Array<[string, any[]]> = [
       ['locaties', data.locations], ['sessies', data.sessions], ['vangsten', data.catches],
       ['weercache', data.weatherCache || []], ['prognoses', data.prognosisSnapshots || []],
       ['waarnemingen', data.presenceObservations || []], ['hengeldetails', data.sessionRods || []],
+      ['geplande sessies', data.plannedSessions || []], ['coachadviezen', data.coachAdviceRecords || []],
     ];
     for (const [label, records] of collections) {
       if (records.some((record) => !record || typeof record !== 'object' || typeof record.id !== 'string' || !record.id.trim())) {
@@ -470,6 +480,28 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     if (limitsError) throw new Error(limitsError);
 
     const backupSessionIds = new Set(data.sessions.map((session) => session.id));
+    const backupLocationIds = new Set(data.locations.map((location) => location.id));
+    const backupSnapshotIds = new Set((data.prognosisSnapshots || []).map((snapshot) => snapshot.id));
+    for (const planned of data.plannedSessions || []) {
+      if (!backupLocationIds.has(planned.locationId) || !Number.isFinite(new Date(planned.plannedStartTime).getTime()) ||
+          !['planned', 'started', 'cancelled', 'overdue'].includes(planned.status)) {
+        throw new Error(`Geplande sessie ${planned.id} bevat een ongeldige locatie, starttijd of status.`);
+      }
+      if (planned.planSnapshotId && !backupSnapshotIds.has(planned.planSnapshotId)) {
+        throw new Error(`Geplande sessie ${planned.id} verwijst naar een prognosesnapshot die niet in de back-up aanwezig is.`);
+      }
+      if (planned.startedSessionId && !backupSessionIds.has(planned.startedSessionId)) {
+        throw new Error(`Geplande sessie ${planned.id} verwijst naar een actieve sessie die niet in de back-up aanwezig is.`);
+      }
+    }
+    for (const advice of data.coachAdviceRecords || []) {
+      if (!backupSessionIds.has(advice.sessionId) || !backupSnapshotIds.has(advice.prognosisSnapshotId)) {
+        throw new Error(`Coachadvies ${advice.id} verwijst naar een sessie of prognosesnapshot die niet in de back-up aanwezig is.`);
+      }
+      if (advice.previousAdviceId && !(data.coachAdviceRecords || []).some((item) => item.id === advice.previousAdviceId)) {
+        throw new Error(`Coachadvies ${advice.id} verwijst naar een eerder advies dat niet in de back-up aanwezig is.`);
+      }
+    }
     const rodNumbersBySession = new Map<string, Set<number>>();
     for (const rod of data.sessionRods) {
       if (typeof rod.sessionId !== 'string' || !backupSessionIds.has(rod.sessionId)) {
@@ -518,6 +550,8 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         prognosisSnapshotsCount: data.prognosisSnapshots?.length || 0,
         presenceObservationsCount: data.presenceObservations?.length || 0,
         sessionRodsCount: data.sessionRods?.length || 0,
+        plannedSessionsCount: data.plannedSessions?.length || 0,
+        coachAdviceRecordsCount: data.coachAdviceRecords?.length || 0,
       },
       data,
     };
@@ -544,14 +578,16 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
 export async function mergeImportData(data: BackupData): Promise<{
   addedSessions: number; addedCatches: number; addedLocations: number;
   addedWeatherCache: number; addedPrognosisSnapshots: number; addedPresenceObservations: number; addedSessionRods: number;
+  addedPlannedSessions: number; addedCoachAdviceRecords: number;
   settingsImported: boolean;
 }> {
   let addedLocations = 0, addedSessions = 0, addedCatches = 0;
   let addedWeatherCache = 0, addedPrognosisSnapshots = 0, addedPresenceObservations = 0, addedSessionRods = 0;
+  let addedPlannedSessions = 0, addedCoachAdviceRecords = 0;
   let settingsImported = false;
 
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
     for (const loc of data.locations) {
       const existing = await db.locations.get(loc.id);
       if (!existing && !loc.isBenchmark) {
@@ -584,6 +620,12 @@ export async function mergeImportData(data: BackupData): Promise<{
     for (const item of data.sessionRods || []) {
       if (!(await db.sessionRods.get(item.id))) { await db.sessionRods.put(item); addedSessionRods++; }
     }
+    for (const item of data.plannedSessions || []) {
+      if (!(await db.plannedSessions.get(item.id))) { await db.plannedSessions.put(item); addedPlannedSessions++; }
+    }
+    for (const item of data.coachAdviceRecords || []) {
+      if (!(await db.coachAdviceRecords.get(item.id))) { await db.coachAdviceRecords.put(item); addedCoachAdviceRecords++; }
+    }
     // The user explicitly selected import: backup settings are authoritative for this merge.
     if (data.settings) {
       const existingSettings = await db.settings.get(data.settings.id);
@@ -593,7 +635,7 @@ export async function mergeImportData(data: BackupData): Promise<{
   });
 
   return { addedSessions, addedCatches, addedLocations, addedWeatherCache,
-    addedPrognosisSnapshots, addedPresenceObservations, addedSessionRods, settingsImported };
+    addedPrognosisSnapshots, addedPresenceObservations, addedSessionRods, addedPlannedSessions, addedCoachAdviceRecords, settingsImported };
 }
 
 /** Herstelt een gevalideerde backup atomair. Veiligheidsbackup/download wordt door de UI-flow geregeld. */
@@ -601,7 +643,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
   // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
   const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
@@ -610,6 +652,8 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       await db.prognosisSnapshots.clear();
       await db.presenceObservations.clear();
       await db.sessionRods.clear();
+      await db.plannedSessions.clear();
+      await db.coachAdviceRecords.clear();
 
       await db.locations.bulkPut(data.locations);
       await db.sessions.bulkPut(data.sessions);
@@ -620,6 +664,8 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       if (data.prognosisSnapshots?.length) await db.prognosisSnapshots.bulkPut(data.prognosisSnapshots);
       if (data.presenceObservations?.length) await db.presenceObservations.bulkPut(data.presenceObservations);
       if (data.sessionRods?.length) await db.sessionRods.bulkPut(data.sessionRods);
+      if (data.plannedSessions?.length) await db.plannedSessions.bulkPut(data.plannedSessions);
+      if (data.coachAdviceRecords?.length) await db.coachAdviceRecords.bulkPut(data.coachAdviceRecords);
 
       // De app houdt de ingebouwde referentieset beschikbaar, zoals vóór deze backupversie.
       if (!(await db.locations.get(BENCHMARK_LOCATION.id))) await db.locations.put(BENCHMARK_LOCATION);

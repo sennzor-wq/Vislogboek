@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import { db, deleteSessionSafely, deletePrognosisSnapshotSafely } from './src/db/db';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
-import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod } from './src/types';
+import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod, PlannedFishingSession, CoachAdviceRecord } from './src/types';
 
 let passed = 0;
 let failed = 0;
@@ -146,6 +146,48 @@ async function runTestSuite() {
   };
   await db.sessionRods.put(rodForDeletedSession);
 
+  const planSnapshot: PrognosisSnapshot = {
+    id: 'plan-snapshot-for-deleted-session',
+    forecastTimestamp: '2026-10-30T08:00:00Z',
+    targetDate: '2026-10-30',
+    targetSpecies: 'Karper',
+    durationHours: 4,
+    durationKnown: true,
+    predictedActivityScore: 6.5,
+    predictedCatchChance: 50,
+    source: 'viscoach-plan',
+    modelVersion: 'v2.2',
+    createdAt: new Date().toISOString(),
+    runKind: 'plan',
+  };
+  await db.prognosisSnapshots.put(planSnapshot);
+  const plannedRecord: PlannedFishingSession = {
+    id: 'planned-record-linked-to-deleted-session',
+    locationId: 'spot-het-kanaal',
+    targetSpecies: 'Karper',
+    plannedStartTime: '2026-10-30T10:00:00Z',
+    plannedEndTime: '2026-10-30T14:00:00Z',
+    status: 'started',
+    planSnapshotId: planSnapshot.id,
+    startedSessionId: sess2.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  await db.plannedSessions.put(plannedRecord);
+  const adviceRecord: CoachAdviceRecord = {
+    id: 'advice-linked-to-deleted-session',
+    sessionId: sess2.id,
+    prognosisSnapshotId: snap2.id,
+    createdAt: new Date().toISOString(),
+    trigger: 'session_start',
+    summary: 'Startadvies',
+    recommendation: 'Vis op de gekozen zone',
+    rationale: 'Testreden',
+    changedFactors: [],
+    coachVersion: 'test-v1',
+  };
+  await db.coachAdviceRecords.put(adviceRecord);
+
   // Verwijder de sessie
   const sessDeleted = await deleteSessionSafely(sess2.id);
   assert(sessDeleted === true, '2.1 deleteSessionSafely retourneert true bij succes');
@@ -162,6 +204,15 @@ async function runTestSuite() {
     snapCascadeInDb === undefined,
     '2.4 Gekoppelde momentopname (via session.snapshotId) is eveneens definitief verwijderd'
   );
+  assert(await db.coachAdviceRecords.get(adviceRecord.id) === undefined, '2.4a Coachadviezen worden bij expliciete sessieverwijdering meegenomen');
+  const planAfterSessionDelete = await db.plannedSessions.get(plannedRecord.id);
+  assert(
+    planAfterSessionDelete !== undefined &&
+      planAfterSessionDelete.startedSessionId === undefined &&
+      !!planAfterSessionDelete.startedSessionDeletedAt,
+    '2.4b Geplande sessie blijft bewaard en alleen de verwijzing naar de verwijderde sessie wordt losgemaakt'
+  );
+  assert(await db.prognosisSnapshots.get(planSnapshot.id) !== undefined, '2.4c De oorspronkelijke planprognose blijft behouden');
 
   // Idempotente sessie verwijdering
   const deleteSessAgain = await deleteSessionSafely(sess2.id);
@@ -205,6 +256,27 @@ async function runTestSuite() {
     snapStillExists !== undefined,
     '3.1 Verwijderen van sessie zonder snapshotId raakt niet-gekoppelde momentopnames niet'
   );
+
+  const planProtectingSnapshot: PlannedFishingSession = {
+    id: 'plan-protecting-snapshot',
+    locationId: 'spot-de-plas',
+    targetSpecies: 'Snoek',
+    plannedStartTime: '2026-10-31T10:00:00Z',
+    status: 'planned',
+    planSnapshotId: snapUnrelated.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  await db.plannedSessions.put(planProtectingSnapshot);
+  let snapshotDeleteBlocked = false;
+  try {
+    await deletePrognosisSnapshotSafely(snapUnrelated.id);
+  } catch {
+    snapshotDeleteBlocked = true;
+  }
+  assert(snapshotDeleteBlocked, '3.1a Een planverwijzing beschermt de bijbehorende prognosesnapshot tegen losse verwijdering');
+  assert(await db.prognosisSnapshots.get(snapUnrelated.id) !== undefined, '3.1b Beschermde planprognose blijft behouden');
+  await db.plannedSessions.delete(planProtectingSnapshot.id);
 
   // 3.2 Sessie met snapshotId naar reeds ontbrekende snapshot (gebroken koppeling)
   const sessBrokenSnap: FishingSession = {

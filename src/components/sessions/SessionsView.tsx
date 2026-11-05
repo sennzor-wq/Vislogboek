@@ -6,6 +6,7 @@ import {
   SessionOutcome,
   FishSpecies,
   SessionRod,
+  CoachAdviceRecord,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
@@ -34,6 +35,26 @@ import {
   ChevronUp,
 } from 'lucide-react';
 
+const COACH_FACTOR_LABELS: Record<string, string> = {
+  advice: 'prognoseadvies',
+  bestTimeSlot: 'tijdvak',
+  recommendedZone: 'viszone',
+  bankWindRelation: 'wind en oever',
+  bankWindPosition: 'hengelpositie',
+  habitatZone: 'habitat',
+  prebaitSuitability: 'voorvoerstrategie',
+};
+
+const COACH_TRIGGER_LABELS: Record<string, string> = {
+  session_start: 'sessiestart',
+  weather_update: 'weersupdate',
+  catch_recorded: 'vangstregistratie',
+  observation_recorded: 'waarneming',
+  session_changed: 'sessiewijziging',
+  manual_reanalysis: 'handmatige controle',
+  app_resume: 'app hervat',
+};
+
 interface SessionsViewProps {
   sessions: FishingSession[];
   catches: CatchItem[];
@@ -43,6 +64,8 @@ interface SessionsViewProps {
   onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[]) => Promise<void>;
   sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
+  coachAdviceRecords: CoachAdviceRecord[];
+  onManualReassessment: (sessionId: string) => Promise<void>;
 }
 
 export const SessionsView: React.FC<SessionsViewProps> = ({
@@ -54,6 +77,8 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   onSaveSession,
   sessionRods,
   onSaveCatch,
+  coachAdviceRecords,
+  onManualReassessment,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
   const [filterLocationId, setFilterLocationId] = useState<string>('Alle');
@@ -350,6 +375,54 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
+                  </div>
+
+                  {/* Laatste VisCoach-advies voor deze actieve sessie */}
+                  <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-slate-900/70 p-4 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-cyan-300">
+                        <Sparkles className="w-4 h-4" />
+                        <h3 className="text-xs font-bold uppercase tracking-wide">VisCoach</h3>
+                      </div>
+                      <button
+                        onClick={() => void onManualReassessment(session.id)}
+                        className="text-[10px] font-bold text-cyan-300 hover:text-white"
+                      >
+                        Opnieuw beoordelen
+                      </button>
+                    </div>
+                    {coachAdviceRecords
+                      .filter((advice) => advice.sessionId === session.id)
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .slice(0, 3).length === 0 ? (
+                      <p className="text-xs text-slate-400">Er is nog geen coachadvies voor deze sessie vastgelegd. De coach beoordeelt relevante wijzigingen automatisch.</p>
+                    ) : coachAdviceRecords
+                      .filter((advice) => advice.sessionId === session.id)
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .slice(0, 3)
+                      .map((advice, index) => (
+                        <div key={advice.id} className={index > 0 ? 'border-t border-slate-700 pt-3 mt-3' : ''}>
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-[10px] uppercase tracking-wide text-slate-500">
+                              {index === 0 ? 'Actueel advies' : 'Eerder advies'}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {new Date(advice.createdAt).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="text-sm font-bold text-white mt-1">{advice.recommendation}</p>
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
+                          </p>
+                          {advice.changedFactors.length > 0 && (
+                            <p className="text-[10px] text-cyan-300 mt-1">
+                              Gewijzigd: {advice.changedFactors.map((factor) => COACH_FACTOR_LABELS[factor] || factor).join(', ')}
+                            </p>
+                          )}
+                          {advice.summary && <p className="text-xs text-slate-300 mt-1">{advice.summary}</p>}
+                          {advice.rationale && <p className="text-[11px] text-slate-500 mt-1">{advice.rationale}</p>}
+                        </div>
+                      ))}
                   </div>
 
                   {/* Vangsten in deze actieve sessie */}
@@ -888,6 +961,14 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                       Er is geen gekoppelde prognosemomentopname aan deze sessie verbonden.
                     </p>
                   )}
+                </div>
+                <div className="pt-2 border-t border-slate-800 space-y-1">
+                  <p className="text-[11px] text-amber-200">
+                    {coachAdviceRecords.filter((advice) => advice.sessionId === sessionToDelete.id).length} coachadviesrecord(s) van deze sessie worden eveneens verwijderd.
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    Een eventuele geplande sessie blijft als historie bestaan; alleen de koppeling naar deze verwijderde sessie wordt losgemaakt.
+                  </p>
                 </div>
               </div>
 

@@ -19,6 +19,9 @@ interface SessionModalProps {
   onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot, rods?: SessionRod[]) => Promise<void>;
   initialRodDetails?: SessionRod[];
   pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
+  sessionDurationHours?: number;
+  plannedEndTime?: string | null;
+  createStartSnapshot?: boolean;
   onClose: () => void;
 }
 
@@ -27,6 +30,9 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   locations,
   onSave,
   pendingPrognosisSnapshot,
+  sessionDurationHours,
+  plannedEndTime,
+  createStartSnapshot = false,
   initialRodDetails = [],
   onClose,
 }) => {
@@ -154,8 +160,20 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
     try {
       const loc = locations.find((l) => l.id === locationId);
-      let snapshotToSave = pendingPrognosisSnapshot;
+      let snapshotToSave = createStartSnapshot ? undefined : pendingPrognosisSnapshot;
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
+      const plannedEndIso = plannedEndTime ?? session?.plannedEndTime ?? null;
+      const plannedStartMs = new Date(startTime).getTime();
+      const plannedEndMs = plannedEndIso ? new Date(plannedEndIso).getTime() : NaN;
+      const calculatedPlannedDuration = plannedEndIso
+        ? (Number.isFinite(plannedEndMs) && plannedEndMs > plannedStartMs &&
+            plannedEndMs - plannedStartMs <= 24 * 3600000
+            ? (plannedEndMs - plannedStartMs) / 3600000
+            : null)
+        : sessionDurationHours ?? session?.plannedDurationHours ?? null;
+      const snapshotDurationHours = plannedEndIso
+        ? calculatedPlannedDuration ?? undefined
+        : sessionDurationHours ?? session?.plannedDurationHours ?? undefined;
 
       const parsedRods = typeof rodCount === 'number'
         ? Math.max(1, Math.floor(rodCount))
@@ -168,6 +186,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         startTime: new Date(startTime).toISOString(),
         endTime: isCompleted && endTime ? new Date(endTime).toISOString() : null,
         durationMinutes: calculatedDur,
+        plannedDurationHours: calculatedPlannedDuration,
+        plannedEndTime: plannedEndIso,
         outcome: isCompleted ? outcome : 'active',
         targetSpecies: selectedTargetSpecies,
         rodCount: parsedRods,
@@ -208,9 +228,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
-              3,
+              snapshotDurationHours,
               technique,
-              payload.weatherSnapshot
+              payload.weatherSnapshot,
+              payload.waterTemperature ?? null
             ) ?? undefined;
           } catch (snapErr) {
             console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, initializeDatabase, syncSessionPresenceObservations } from './db/db';
-import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod } from './types';
+import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod, PlannedFishingSession } from './types';
 import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
 import { PrognosisView } from './components/prognosis/PrognosisView';
@@ -10,6 +10,8 @@ import { StatsView } from './components/stats/StatsView';
 import { WeatherView } from './components/weather/WeatherView';
 import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
+import { VisCoachView } from './components/viscoach/VisCoachView';
+import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -18,16 +20,23 @@ import {
   Fish,
 } from 'lucide-react';
 import { autoSyncSessionOutcomeToSnapshot } from './services/evaluationEngine';
-import { startWeatherAutoRefresh } from './services/weatherService';
+import { startWeatherAutoRefresh, WEATHER_UPDATED_EVENT } from './services/weatherService';
+import { reassessActiveSessions, createInitialCoachAdviceRecord, VISCOACH_UPDATED_EVENT } from './services/sessionCoachService';
 
 export default function App() {
   const isOnline = useOnlineStatus();
-  const [currentTab, setCurrentTab] = useState<TabType>('prognosis');
+  const [currentTab, setCurrentTab] = useState<TabType>('viscoach');
   const [loading, setLoading] = useState<boolean>(true);
   const [locations, setLocations] = useState<FishingLocation[]>([]);
   const [sessions, setSessions] = useState<FishingSession[]>([]);
   const [catches, setCatches] = useState<CatchItem[]>([]);
   const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
+  const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
+  const [coachAdviceRecords, setCoachAdviceRecords] = useState<import('./types').CoachAdviceRecord[]>([]);
+  const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
+  const [prefilledSessionId, setPrefilledSessionId] = useState<string | undefined>(undefined);
+  const [prefilledSessionDurationHours, setPrefilledSessionDurationHours] = useState<number | undefined>(undefined);
+  const [prefilledPlannedEndTime, setPrefilledPlannedEndTime] = useState<string | null>(null);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -46,16 +55,20 @@ export default function App() {
   const loadData = async () => {
     try {
       await initializeDatabase();
-      const [allLocations, allSessions, allCatches, allSessionRods] = await Promise.all([
+      const [allLocations, allSessions, allCatches, allSessionRods, allPlannedSessions, allCoachAdviceRecords] = await Promise.all([
         db.locations.toArray(),
         db.sessions.reverse().sortBy('startTime'),
         db.catches.reverse().sortBy('timestamp'),
         db.sessionRods.toArray(),
+        db.plannedSessions.toArray(),
+        db.coachAdviceRecords.toArray(),
       ]);
       setLocations(allLocations);
       setSessions(allSessions);
       setCatches(allCatches);
       setSessionRods(allSessionRods);
+      setPlannedSessions(allPlannedSessions);
+      setCoachAdviceRecords(allCoachAdviceRecords);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
     } finally {
@@ -78,13 +91,93 @@ export default function App() {
     return startWeatherAutoRefresh(locations);
   }, [weatherLocationKey, isOnline]);
 
+  // De VisCoach-coördinator reageert op dezelfde weerupdate als de bestaande Prognosepagina.
+  useEffect(() => {
+    const handleWeatherUpdated = () => {
+      void reassessActiveSessions('weather_update').catch((error) => {
+        console.error('VisCoach kon actieve sessies niet herbeoordelen na een weerupdate:', error);
+      });
+    };
+    window.addEventListener(WEATHER_UPDATED_EVENT, handleWeatherUpdated);
+    return () => window.removeEventListener(WEATHER_UPDATED_EVENT, handleWeatherUpdated);
+  }, []);
+
+  useEffect(() => {
+    const handleVisCoachUpdated = () => {
+      void db.coachAdviceRecords.toArray().then(setCoachAdviceRecords).catch((error) => {
+        console.error('VisCoach-advieshistorie kon niet worden bijgewerkt:', error);
+      });
+    };
+    window.addEventListener(VISCOACH_UPDATED_EVENT, handleVisCoachUpdated);
+    return () => window.removeEventListener(VISCOACH_UPDATED_EVENT, handleVisCoachUpdated);
+  }, []);
+
+  // Na openen/herladen wordt iedere actieve sessie met de laatst beschikbare gegevens gecontroleerd.
+  useEffect(() => {
+    if (loading) return;
+    void reassessActiveSessions('app_resume').catch((error) => {
+      console.error('VisCoach kon actieve sessies niet hervatten:', error);
+    });
+  }, [loading]);
+
+  useEffect(() => {
+    if (!loading && sessions.some((session) => session.outcome === 'active')) {
+      setCurrentTab('sessions');
+    }
+  }, [loading]);
+
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
-  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => {
+  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, plannedEndTime?: string | null) => {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
+    setPrefilledSessionId(`session_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`);
     setPendingPrognosisSnapshot(pendingSnapshot);
+    setPrefilledSessionDurationHours(durationHours ?? (pendingSnapshot?.durationKnown ? pendingSnapshot.durationHours : undefined));
+    setPrefilledPlannedEndTime(plannedEndTime ?? null);
+    setPrefilledPlannedSessionId(undefined);
     setIsStartingSession(true);
+  };
+
+  const handleStartPlannedSession = async (planned: PlannedFishingSession) => {
+    const location = locations.find((item) => item.id === planned.locationId);
+    if (!location) throw new Error('De stek van deze geplande sessie bestaat niet meer.');
+    const species: FishSpecies = planned.targetSpecies === 'Algemeen' ? 'Overig' : planned.targetSpecies;
+    const now = new Date();
+    const plannedEnd = planned.plannedEndTime && new Date(planned.plannedEndTime).getTime() > now.getTime()
+      ? planned.plannedEndTime
+      : null;
+    const plannedDuration = plannedEnd
+      ? (new Date(plannedEnd).getTime() - now.getTime()) / 3600000
+      : undefined;
+    setPrefilledSpecies(species);
+    setPrefilledLocationId(planned.locationId);
+    setPrefilledSessionId(`session_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`);
+    setPendingPrognosisSnapshot(undefined);
+    setPrefilledSessionDurationHours(plannedDuration && plannedDuration > 0 && plannedDuration <= 24
+      ? plannedDuration
+      : undefined);
+    setPrefilledPlannedEndTime(plannedEnd);
+    setPrefilledPlannedSessionId(planned.id);
+    setIsStartingSession(true);
+  };
+
+  const handleManualReassessment = async (sessionId: string) => {
+    await reassessActiveSessions('manual_reanalysis', sessionId);
+    setCoachAdviceRecords(await db.coachAdviceRecords.toArray());
+  };
+
+  const handleSavePlannedSession = async (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => {
+    const saved = await saveVisCoachPlan(plan, location, species);
+    setPlannedSessions((previous) => [...previous.filter((item) => item.id !== saved.id), saved]
+      .sort((a, b) => new Date(a.plannedStartTime).getTime() - new Date(b.plannedStartTime).getTime()));
+  };
+
+  const handleCancelPlannedSession = async (planId: string) => {
+    await cancelVisCoachPlan(planId);
+    setPlannedSessions((previous) => previous.map((item) => item.id === planId
+      ? { ...item, status: 'cancelled', updatedAt: new Date().toISOString() }
+      : item));
   };
 
   const handleSaveSession = async (
@@ -123,6 +216,26 @@ export default function App() {
       savedSession = await db.sessions.get(sessionData.id);
     }
 
+    if (prefilledPlannedSessionId && savedSession?.outcome === 'active') {
+      const updatedAt = new Date().toISOString();
+      await db.plannedSessions.update(prefilledPlannedSessionId, {
+        status: 'started',
+        startedSessionId: savedSession.id,
+        updatedAt,
+      });
+      setPlannedSessions((previous) => previous.map((item) => item.id === prefilledPlannedSessionId
+        ? { ...item, status: 'started', startedSessionId: savedSession!.id, updatedAt }
+        : item));
+      setPrefilledPlannedSessionId(undefined);
+    }
+
+    if (pendingSnapshot && savedSession?.outcome === 'active' && savedSession.snapshotId) {
+      const startSnapshot = await db.prognosisSnapshots.get(savedSession.snapshotId);
+      if (startSnapshot) {
+        await createInitialCoachAdviceRecord(savedSession, startSnapshot);
+      }
+    }
+
     // Automatische uitkomstkoppeling naar de voorwaarts opgeslagen momentopname.
     if (savedSession?.snapshotId) {
       await autoSyncSessionOutcomeToSnapshot(savedSession);
@@ -141,6 +254,12 @@ export default function App() {
         [...previous.filter((session) => session.id !== savedSession.id), savedSession]
           .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
       );
+      if (savedSession.outcome === 'active') setCurrentTab('sessions');
+      if (savedSession.outcome === 'active' && !pendingSnapshot) {
+        void reassessActiveSessions('session_changed').catch((error) => {
+          console.error('VisCoach kon de gewijzigde sessie niet herbeoordelen:', error);
+        });
+      }
     }
   };
 
@@ -171,6 +290,11 @@ export default function App() {
         [...previous.filter((session) => session.id !== updatedSess.id), updatedSess]
           .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
       );
+      if (updatedSess.outcome === 'active') {
+        void reassessActiveSessions('catch_recorded').catch((error) => {
+          console.error('VisCoach kon de sessie na een vangst niet herbeoordelen:', error);
+        });
+      }
     }
   };
 
@@ -209,7 +333,7 @@ export default function App() {
       <header className="sticky top-0 z-30 bg-slate-900/90 border-b border-slate-800/80 backdrop-blur-md px-4 sm:px-6 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div
-            onClick={() => setCurrentTab('prognosis')}
+            onClick={() => setCurrentTab('viscoach')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-0.5 shadow-lg shadow-emerald-950/60 group-hover:scale-105 transition">
@@ -248,6 +372,18 @@ export default function App() {
       </header>
 
       <main className="flex-1 px-4 sm:px-6 py-6 pb-24 md:pb-12 max-w-6xl mx-auto w-full">
+        {currentTab === 'viscoach' && (
+          <VisCoachView
+            locations={locations}
+            sessions={sessions}
+            catches={catches}
+            plannedSessions={plannedSessions}
+            onStartSession={handleStartSession}
+            onStartPlannedSession={handleStartPlannedSession}
+            onSavePlan={handleSavePlannedSession}
+            onCancelPlan={handleCancelPlannedSession}
+          />
+        )}
         {currentTab === 'prognosis' && (
           <PrognosisView locations={locations} sessions={sessions} catches={catches} onStartSession={handleStartSession} showAdvancedDetails={showAdvancedPrognosisDetails} />
         )}
@@ -261,6 +397,8 @@ export default function App() {
             onSaveSession={handleSaveSession}
             sessionRods={sessionRods}
             onSaveCatch={handleSaveCatch}
+            coachAdviceRecords={coachAdviceRecords}
+            onManualReassessment={handleManualReassessment}
           />
         )}
         {currentTab === 'locations' && (
@@ -287,7 +425,7 @@ export default function App() {
           session={
             prefilledLocationId || prefilledSpecies
               ? ({
-                  id: 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                  id: prefilledSessionId || 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
                   locationId: prefilledLocationId || locations[0]?.id,
                   targetSpecies: prefilledSpecies ? [prefilledSpecies] : ['Karper'],
                   startTime: new Date().toISOString(),
@@ -301,16 +439,27 @@ export default function App() {
               : null
           }
           pendingPrognosisSnapshot={pendingPrognosisSnapshot}
+          sessionDurationHours={prefilledSessionDurationHours}
+          plannedEndTime={prefilledPlannedEndTime}
+          createStartSnapshot={true}
           initialRodDetails={[]}
           onSave={async (newSess, pendingSnapshot, rods) => {
             await handleSaveSession(newSess, pendingSnapshot, rods);
             setCurrentTab('sessions');
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledSessionDurationHours(undefined);
+            setPrefilledPlannedEndTime(null);
+            setPrefilledPlannedSessionId(undefined);
+            setPrefilledSessionId(undefined);
           }}
           onClose={() => {
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledSessionDurationHours(undefined);
+            setPrefilledPlannedEndTime(null);
+            setPrefilledPlannedSessionId(undefined);
+            setPrefilledSessionId(undefined);
           }}
         />
       )}
