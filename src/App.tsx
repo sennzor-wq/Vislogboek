@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, initializeDatabase, syncSessionPresenceObservations } from './db/db';
-import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod } from './types';
+import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod, PlannedFishingSession } from './types';
 import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
 import { PrognosisView } from './components/prognosis/PrognosisView';
@@ -10,6 +10,8 @@ import { StatsView } from './components/stats/StatsView';
 import { WeatherView } from './components/weather/WeatherView';
 import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
+import { VisCoachView } from './components/viscoach/VisCoachView';
+import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -23,12 +25,14 @@ import { reassessActiveSessions } from './services/sessionCoachService';
 
 export default function App() {
   const isOnline = useOnlineStatus();
-  const [currentTab, setCurrentTab] = useState<TabType>('prognosis');
+  const [currentTab, setCurrentTab] = useState<TabType>('viscoach');
   const [loading, setLoading] = useState<boolean>(true);
   const [locations, setLocations] = useState<FishingLocation[]>([]);
   const [sessions, setSessions] = useState<FishingSession[]>([]);
   const [catches, setCatches] = useState<CatchItem[]>([]);
   const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
+  const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
+  const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -47,16 +51,18 @@ export default function App() {
   const loadData = async () => {
     try {
       await initializeDatabase();
-      const [allLocations, allSessions, allCatches, allSessionRods] = await Promise.all([
+      const [allLocations, allSessions, allCatches, allSessionRods, allPlannedSessions] = await Promise.all([
         db.locations.toArray(),
         db.sessions.reverse().sortBy('startTime'),
         db.catches.reverse().sortBy('timestamp'),
         db.sessionRods.toArray(),
+        db.plannedSessions.toArray(),
       ]);
       setLocations(allLocations);
       setSessions(allSessions);
       setCatches(allCatches);
       setSessionRods(allSessionRods);
+      setPlannedSessions(allPlannedSessions);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
     } finally {
