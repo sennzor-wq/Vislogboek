@@ -206,6 +206,9 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   }
 
   const durationHours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+  if (durationHours !== null && (durationHours <= 0 || durationHours > 24)) {
+    throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
+  }
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
   const [weather, snapshots, locations] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
@@ -247,6 +250,9 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     Math.abs(new Date(item.time).getTime() - start.getTime()) <
     Math.abs(new Date(closest.time).getTime() - start.getTime()) ? item : closest
   );
+  if (Math.abs(new Date(startHour.time).getTime() - start.getTime()) > 90 * 60 * 1000) {
+    throw new Error('Voor dit tijdstip is geen voldoende nabije weersverwachting beschikbaar.');
+  }
   const conditions: WeatherSnapshot = {
     temperature: startHour.temperature,
     pressure: startHour.pressure,
