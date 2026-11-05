@@ -296,6 +296,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   };
 
   const inputFingerprint = createPrognosisInputFingerprint({
+    inputContext,
     date,
     desiredStartTime: start.toISOString(),
     desiredEndTime: end?.toISOString() ?? null,
