@@ -782,7 +782,7 @@ De coördinator:
 5. Bepaalt of de gecombineerde verandering praktisch betekenisvol is.
 6. Slaat alleen dan een update-snapshot en/of nieuw coachadvies op.
 
-Een technische weer-refresh is niet automatisch een nieuwe prognose of een nieuw advies. Kleine afzonderlijke fluctuaties leiden niet tot onnodige wijzigingen. Een combinatie van factoren kan relevant zijn wanneer bestaande analyse-uitvoer daardoor wezenlijk verandert. Gebruik conservatieve hysterese, cooldown en idempotentie; numerieke drempels worden niet willekeurig gekozen maar onderbouwd met bestaande modeluitvoer en tests.
+Een technische weer-refresh is niet automatisch een nieuwe prognose of een nieuw advies. Kleine afzonderlijke fluctuaties leiden niet tot onnodige wijzigingen. Een combinatie van factoren kan relevant zijn wanneer bestaande analyse-uitvoer daardoor wezenlijk verandert. Een kandidaatwijziging door alleen een weersupdate wordt bij een volgende afwijkende weerinvoer bevestigd; directe gebruikerswaarnemingen, sessiewijzigingen, handmatige controles en app-hervatten worden direct beoordeeld. Gebruik idempotentie en onderbouw eventuele numerieke biologische/tactische drempels met bestaande modeluitvoer en tests.
 
 Een nieuwe prognosesnapshot kan worden opgeslagen als de prognose betekenisvol is veranderd, ook wanneer de praktische tactiek gelijk blijft. Een nieuw coachadvies wordt alleen opgeslagen wanneer de aanbeveling of relevante uitleg wezenlijk verandert. Elke registratie blijft onveranderlijk.
 
