@@ -1236,7 +1236,7 @@ export async function createLiveSnapshotForSessionStart(
       historySummary: {
         sessionCount: allSessions.filter((item) => item.isBenchmark !== true).length,
         catchRecordCount: allCatches.length,
-        observationCount: allObservations.length,
+        observationCount: 0,
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
       weatherFetchedAt: weather.fetchedAt,
