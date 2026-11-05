@@ -10,6 +10,7 @@ import {
   PresenceObservationType,
   CatchItem,
   WeatherHourlyForecast,
+  PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
 import { calculateDayPrognosis, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
@@ -210,16 +211,53 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       ? SPECIES_PROFILES[selectedSpecies]
       : SPECIES_PROFILES['Overig'];
 
-  const handleStartSessionFromPrognosis = () => {
-    if (!activeDayProg) return;
+  const handleStartSessionFromPrognosis = async () => {
+    if (!activeDayProg || !selectedLoc) return;
     // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
+    const [storedSnapshots, storedObservations] = await Promise.all([
+      db.prognosisSnapshots.toArray(),
+      db.presenceObservations.toArray(),
+    ]);
+    const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
+      sessions,
+      storedSnapshots,
+      locations
+    );
+    const inputContext: PrognosisInputContext = {
+      calculatedAt: new Date().toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
+      targetDate: activeDayProg.date,
+      targetSpecies: selectedSpecies,
+      sessionDurationHours: selectedDurationHours,
+      location: {
+        id: selectedLoc.id,
+        latitude: selectedLoc.latitude,
+        longitude: selectedLoc.longitude,
+        waterType: selectedLoc.waterType,
+        waterDepth: selectedLoc.waterDepth,
+        waterFacingDirection: selectedLoc.waterFacingDirection,
+        habitatFeatures: selectedLoc.habitatFeatures,
+      },
+      historicalSessionIds: sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
+      catchRecordIds: catches.map((item) => item.id),
+      observationIds: storedObservations.map((item) => item.id),
+      historicalWaterTemperatureSamples: historicalWaterTemperatures,
+      historySummary: {
+        sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
+        catchRecordCount: catches.length,
+        observationCount: storedObservations.length,
+        historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
+      },
+      weatherFetchedAt: weatherUpdatedAt || undefined,
+    };
     const pendingSnapshot: PendingPrognosisSnapshot = {
       prognosis: activeDayProg,
       durationHours: selectedDurationHours,
       durationKnown: true,
       weatherInput: hourlyForecast,
+      inputContext,
       runKind: 'session_start',
-      locationName: selectedLoc?.name,
+      locationName: selectedLoc.name,
       chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
         ? (activeDayProg.bestTimeSlot as TimeSlot)
         : undefined,
