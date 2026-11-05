@@ -139,8 +139,14 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
 
   const handleStartNow = () => {
     if (!plan || !selectedLocation || startIsFuture) return;
+    const now = Date.now();
+    const endTimestamp = plan.desiredEndTime ? new Date(plan.desiredEndTime).getTime() : NaN;
+    const remainingDuration = Number.isFinite(endTimestamp) && endTimestamp > now
+      ? (endTimestamp - now) / 3600000
+      : undefined;
     // SessionModal berekent bij opslaan een verse startsnapshot met de definitieve sessie-invoer.
-    onStartSession(species, selectedLocation.id, undefined, plan.durationHours ?? undefined);
+    onStartSession(species, selectedLocation.id, undefined,
+      remainingDuration && remainingDuration <= 24 ? remainingDuration : undefined);
   };
 
   return (
