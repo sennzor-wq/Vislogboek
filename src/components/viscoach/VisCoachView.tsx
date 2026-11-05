@@ -10,7 +10,6 @@ import { PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { buildVisCoachPlan, VisCoachPlan } from '../../services/viscoachService';
 import {
   CalendarClock,
-  CheckCircle2,
   Clock,
   Fish,
   MapPin,
@@ -126,7 +125,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
 
   const handleStartNow = () => {
     if (!plan || !selectedLocation || startIsFuture) return;
-    onStartSession(species, selectedLocation.id, plan.pendingSnapshot);
+    // De echte sessiestart maakt in SessionModal een verse startsnapshot met de dan actuele gegevens.
+    onStartSession(species, selectedLocation.id);
   };
 
   return (
