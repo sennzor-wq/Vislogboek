@@ -35,6 +35,8 @@ export default function App() {
   const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
   const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
+  const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
+  const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -64,6 +66,7 @@ export default function App() {
       setSessions(allSessions);
       setCatches(allCatches);
       setSessionRods(allSessionRods);
+      setPlannedSessions(allPlannedSessions);
       setPlannedSessions(allPlannedSessions);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
