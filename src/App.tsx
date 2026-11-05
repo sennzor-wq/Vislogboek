@@ -452,6 +452,7 @@ export default function App() {
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
             setPrefilledSessionDurationHours(undefined);
+            setPrefilledPlannedEndTime(null);
             setPrefilledPlannedSessionId(undefined);
           }}
         />
