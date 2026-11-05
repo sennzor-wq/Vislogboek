@@ -45,6 +45,7 @@ interface SessionsViewProps {
   sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
   coachAdviceRecords: CoachAdviceRecord[];
+  onManualReassessment: (sessionId: string) => Promise<void>;
 }
 
 export const SessionsView: React.FC<SessionsViewProps> = ({
@@ -57,6 +58,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   sessionRods,
   onSaveCatch,
   coachAdviceRecords,
+  onManualReassessment,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
   const [filterLocationId, setFilterLocationId] = useState<string>('Alle');
@@ -357,9 +359,17 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
 
                   {/* Laatste VisCoach-advies voor deze actieve sessie */}
                   <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-slate-900/70 p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-cyan-300">
-                      <Sparkles className="w-4 h-4" />
-                      <h3 className="text-xs font-bold uppercase tracking-wide">VisCoach</h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-cyan-300">
+                        <Sparkles className="w-4 h-4" />
+                        <h3 className="text-xs font-bold uppercase tracking-wide">VisCoach</h3>
+                      </div>
+                      <button
+                        onClick={() => void onManualReassessment(session.id)}
+                        className="text-[10px] font-bold text-cyan-300 hover:text-white"
+                      >
+                        Opnieuw beoordelen
+                      </button>
                     </div>
                     {coachAdviceRecords
                       .filter((advice) => advice.sessionId === session.id)
