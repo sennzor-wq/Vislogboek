@@ -202,7 +202,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
   }
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
-  const [weather, snapshots, locations, observations] = await Promise.all([
+  const [weather, snapshots, locations] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
     db.prognosisSnapshots.toArray(),
     db.locations.toArray(),
