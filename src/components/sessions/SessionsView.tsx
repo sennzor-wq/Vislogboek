@@ -962,6 +962,14 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                     </p>
                   )}
                 </div>
+                <div className="pt-2 border-t border-slate-800 space-y-1">
+                  <p className="text-[11px] text-amber-200">
+                    {coachAdviceRecords.filter((advice) => advice.sessionId === sessionToDelete.id).length} coachadviesrecord(s) van deze sessie worden eveneens verwijderd.
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    Een eventuele geplande sessie blijft als historie bestaan; alleen de koppeling naar deze verwijderde sessie wordt losgemaakt.
+                  </p>
+                </div>
               </div>
 
               <p className="text-[11px] text-rose-400/90 font-medium">
