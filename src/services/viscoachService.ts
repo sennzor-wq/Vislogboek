@@ -283,7 +283,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     historicalWaterTemperatureSamples: historicalWaterTemperatures,
     historyFingerprint: createPrognosisInputFingerprint({
       sessions: input.sessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-      catches: input.catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weight, item.length, item.bait, item.technique]),
+      catches: input.catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
       historicalWaterTemperatures,
     }),
     historySummary: {
