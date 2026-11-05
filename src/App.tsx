@@ -35,6 +35,7 @@ export default function App() {
   const [coachAdviceRecords, setCoachAdviceRecords] = useState<import('./types').CoachAdviceRecord[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [prefilledSessionDurationHours, setPrefilledSessionDurationHours] = useState<number | undefined>(undefined);
+  const [prefilledPlannedEndTime, setPrefilledPlannedEndTime] = useState<string | null>(null);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -126,11 +127,12 @@ export default function App() {
 
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
-  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number) => {
+  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, plannedEndTime?: string | null) => {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
     setPendingPrognosisSnapshot(pendingSnapshot);
     setPrefilledSessionDurationHours(durationHours);
+    setPrefilledPlannedEndTime(plannedEndTime ?? null);
     setPrefilledPlannedSessionId(undefined);
     setIsStartingSession(true);
   };
@@ -152,6 +154,7 @@ export default function App() {
     setPrefilledSessionDurationHours(plannedDuration && plannedDuration > 0 && plannedDuration <= 24
       ? plannedDuration
       : undefined);
+    setPrefilledPlannedEndTime(plannedEnd);
     setPrefilledPlannedSessionId(planned.id);
     setIsStartingSession(true);
   };
@@ -434,6 +437,7 @@ export default function App() {
           }
           pendingPrognosisSnapshot={pendingPrognosisSnapshot}
           sessionDurationHours={prefilledSessionDurationHours}
+          plannedEndTime={prefilledPlannedEndTime}
           initialRodDetails={[]}
           onSave={async (newSess, pendingSnapshot, rods) => {
             await handleSaveSession(newSess, pendingSnapshot, rods);
@@ -441,6 +445,7 @@ export default function App() {
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
             setPrefilledSessionDurationHours(undefined);
+            setPrefilledPlannedEndTime(null);
             setPrefilledPlannedSessionId(undefined);
           }}
           onClose={() => {
