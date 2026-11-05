@@ -5,14 +5,12 @@ import {
   DayPrognosis,
   FishingLocation,
   FishingSession,
-  HistoricalWaterTemperatureObservation,
-  PresenceObservation,
   PrognosisSnapshot,
-  WeatherHourlyForecast,
 } from '../types';
 import { calculateDayPrognosis, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
+import { HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
 
 export interface SessionCoachReassessmentResult {
   sessionId: string;
