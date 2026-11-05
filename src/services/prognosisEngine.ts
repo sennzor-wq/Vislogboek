@@ -1204,7 +1204,7 @@ export async function createLiveSnapshotForSessionStart(
     const lat = location.latitude ?? 51.961;
     const lon = location.longitude ?? 5.228;
     const weather = await getForecast(lat, lon, false);
-    const [allSessions, allCatches, allSnapshots, allLocations, allObservations] = await Promise.all([
+    const [allSessions, allCatches, allSnapshots, allLocations] = await Promise.all([
       db.sessions.toArray(),
       db.catches.toArray(),
       db.prognosisSnapshots.toArray(),
