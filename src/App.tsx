@@ -34,6 +34,7 @@ export default function App() {
   const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
   const [coachAdviceRecords, setCoachAdviceRecords] = useState<import('./types').CoachAdviceRecord[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
+  const [prefilledSessionDurationHours, setPrefilledSessionDurationHours] = useState<number | undefined>(undefined);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
   const [prefilledSpecies, setPrefilledSpecies] = useState<FishSpecies | undefined>(undefined);
   const [prefilledLocationId, setPrefilledLocationId] = useState<string | undefined>(undefined);
@@ -125,10 +126,11 @@ export default function App() {
 
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
 
-  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot) => {
+  const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number) => {
     setPrefilledSpecies(species);
     setPrefilledLocationId(locationId);
     setPendingPrognosisSnapshot(pendingSnapshot);
+    setPrefilledSessionDurationHours(durationHours);
     setPrefilledPlannedSessionId(undefined);
     setIsStartingSession(true);
   };
@@ -151,7 +153,8 @@ export default function App() {
     });
     setPrefilledSpecies(species);
     setPrefilledLocationId(planned.locationId);
-    setPendingPrognosisSnapshot(freshPlan.pendingSnapshot);
+    setPendingPrognosisSnapshot(undefined);
+    setPrefilledSessionDurationHours(freshPlan.durationHours ?? undefined);
     setPrefilledPlannedSessionId(planned.id);
     setIsStartingSession(true);
   };
@@ -433,12 +436,14 @@ export default function App() {
               : null
           }
           pendingPrognosisSnapshot={pendingPrognosisSnapshot}
+          sessionDurationHours={prefilledSessionDurationHours}
           initialRodDetails={[]}
           onSave={async (newSess, pendingSnapshot, rods) => {
             await handleSaveSession(newSess, pendingSnapshot, rods);
             setCurrentTab('sessions');
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledSessionDurationHours(undefined);
             setPrefilledPlannedSessionId(undefined);
           }}
           onClose={() => {
