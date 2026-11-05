@@ -107,6 +107,28 @@ function isMaterialAdviceChange(
   return previous.recommendation !== next.recommendation;
 }
 
+export const VISCOACH_UPDATED_EVENT = 'vislogboek:viscoach-updated';
+
+function notifyVisCoachUpdated(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(VISCOACH_UPDATED_EVENT));
+  }
+}
+
+/** Bewaart het eerste coachadvies op basis van de volledige startsnapshot. */
+export async function createInitialCoachAdviceRecord(
+  session: FishingSession,
+  snapshot: PrognosisSnapshot
+): Promise<CoachAdviceRecord | null> {
+  if (!snapshot.prognosisData || snapshot.linkedSessionId !== session.id) return null;
+  const existing = await db.coachAdviceRecords.where('sessionId').equals(session.id).first();
+  if (existing) return existing;
+  const advice = createAdviceRecord(session, snapshot, snapshot.prognosisData, undefined, 'session_start', []);
+  await db.coachAdviceRecords.put(advice);
+  notifyVisCoachUpdated();
+  return advice;
+}
+
 /**
  * Herbeoordeelt actieve sessies met de bestaande weerbron en prognose-engine.
  * Deze service berekent zelf geen biologische score of tactische regels.
@@ -246,6 +268,7 @@ export async function reassessActiveSessions(
         const advice = createAdviceRecord(session, snapshot, prognosis, previousAdvice, trigger, changedFactors);
         await db.coachAdviceRecords.put(advice);
         adviceId = advice.id;
+        notifyVisCoachUpdated();
       }
 
       results.push({
