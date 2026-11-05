@@ -64,7 +64,7 @@ async function run() {
   assert(first?.trigger === 'session_start', 'Eerste advies is herkenbaar als sessiestartadvies');
   assert(first?.prognosisSnapshotId === snapshot.id, 'Coachadvies verwijst naar de volledige startsnapshot');
   assert(second?.id === first?.id && stored.length === 1, 'Herhaald opslaan maakt geen dubbele startadviezen');
-  assert(first?.recommendation.length > 0 && first?.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
+  assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
 
   await db.delete();
   console.log(`Session coach tests: ${passed} geslaagd, ${failed} gefaald`);
