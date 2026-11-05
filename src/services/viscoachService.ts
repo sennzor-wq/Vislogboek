@@ -284,7 +284,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     historySummary: {
       sessionCount: input.sessions.filter((item) => item.isBenchmark !== true).length,
       catchRecordCount: input.catches.length,
-      observationCount: observations.length,
+      observationCount: 0,
       historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
     },
     weatherFetchedAt: weather.fetchedAt,
