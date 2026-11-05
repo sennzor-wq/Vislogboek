@@ -182,7 +182,7 @@ export class VislogboekDatabase extends Dexie {
       prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
       presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
       sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
-      plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, createdAt',
+      plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, planSnapshotId, createdAt',
       coachAdviceRecords: 'id, sessionId, prognosisSnapshotId, previousAdviceId, createdAt, trigger',
     });
   }
