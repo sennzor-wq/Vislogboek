@@ -1170,17 +1170,52 @@ export async function createLiveSnapshotForSessionStart(
   species: FishSpecies | 'Algemeen',
   durationHours?: number,
   technique?: string,
-  weatherSnap?: WeatherSnapshot
+  weatherSnap?: WeatherSnapshot,
+  userWaterTemp?: number | null
 ): Promise<PendingPrognosisSnapshot | null> {
   try {
     const lat = location.latitude ?? 51.961;
     const lon = location.longitude ?? 5.228;
     const weather = await getForecast(lat, lon, false);
-    const allSessions = await db.sessions.toArray();
-    const allCatches = await db.catches.toArray();
-    const allSnapshots = await db.prognosisSnapshots.toArray();
+    const [allSessions, allCatches, allSnapshots, allLocations] = await Promise.all([
+      db.sessions.toArray(),
+      db.catches.toArray(),
+      db.prognosisSnapshots.toArray(),
+      db.locations.toArray(),
+    ]);
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
+    const locationById = new Map(allLocations.map((item) => [item.id, item]));
+    const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
+    for (const snapshot of allSnapshots) {
+      if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
+          !snapshot.actualWaterTemperatureTimestamp) continue;
+      const sourceLocation = locationById.get(snapshot.locationId);
+      historicalWaterTemperatures.push({
+        locationId: snapshot.locationId,
+        temperatureC: snapshot.actualWaterTemperature,
+        timestamp: snapshot.actualWaterTemperatureTimestamp,
+        waterType: sourceLocation?.waterType,
+        waterDepth: sourceLocation?.waterDepth,
+        latitude: sourceLocation?.latitude,
+        longitude: sourceLocation?.longitude,
+        isBenchmark: false,
+      });
+    }
+    for (const session of allSessions) {
+      if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number') continue;
+      const sourceLocation = locationById.get(session.locationId);
+      historicalWaterTemperatures.push({
+        locationId: session.locationId,
+        temperatureC: session.waterTemperature,
+        timestamp: session.startTime,
+        waterType: sourceLocation?.waterType,
+        waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
+        latitude: sourceLocation?.latitude,
+        longitude: sourceLocation?.longitude,
+        isBenchmark: session.isBenchmark,
+      });
+    }
 
     const prog = calculateDayPrognosis(
       todayStr,
@@ -1188,7 +1223,7 @@ export async function createLiveSnapshotForSessionStart(
       species,
       allSessions,
       weather.fetchedAt,
-      null,
+      userWaterTemp ?? null,
       new Date(),
       {
         sessionDurationHours: durationHours,
@@ -1196,6 +1231,7 @@ export async function createLiveSnapshotForSessionStart(
         locationId: location.id,
         location,
         catches: allCatches,
+        historicalWaterTemperatures,
         waterTemperatureCalibration,
       }
     );
