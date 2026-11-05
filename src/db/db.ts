@@ -333,7 +333,7 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
     throw new Error('De referentiesessie Lokkershoek is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.transaction('rw', db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, async () => {
+  await db.transaction('rw', db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, async () => {
     // 1. Verwijder gekoppelde vangsten
     await db.catches.where('sessionId').equals(sessionId).delete();
 
@@ -370,10 +370,24 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
       });
     }
 
-    // 4. Verwijder optionele hengeldetails van deze sessie.
+    // 4. Verwijder coachadviezen alleen als expliciet onderdeel van het verwijderen van deze sessie.
+    await db.coachAdviceRecords.where('sessionId').equals(sessionId).delete();
+
+    // Een geplande afspraak blijft als historie bestaan; alleen de verwijzing naar de verwijderde sessie vervalt.
+    const linkedPlans = await db.plannedSessions.where('startedSessionId').equals(sessionId).toArray();
+    const deletedAt = new Date().toISOString();
+    for (const plan of linkedPlans) {
+      await db.plannedSessions.update(plan.id, {
+        startedSessionId: undefined,
+        startedSessionDeletedAt: deletedAt,
+        updatedAt: deletedAt,
+      });
+    }
+
+    // 5. Verwijder optionele hengeldetails van deze sessie.
     await db.sessionRods.where('sessionId').equals(sessionId).delete();
 
-    // 5. Verwijder sessie zelf
+    // 6. Verwijder sessie zelf
     await db.sessions.delete(sessionId);
   });
   return true;
@@ -393,7 +407,13 @@ export async function deletePrognosisSnapshotSafely(snapshotId: string): Promise
     throw new Error('Deze prognosemomentopname is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.transaction('rw', db.sessions, db.prognosisSnapshots, async () => {
+  await db.transaction('rw', db.sessions, db.prognosisSnapshots, db.plannedSessions, db.coachAdviceRecords, async () => {
+    const planReferences = await db.plannedSessions.where('planSnapshotId').equals(snapshotId).count();
+    const adviceReferences = await db.coachAdviceRecords.where('prognosisSnapshotId').equals(snapshotId).count();
+    if (planReferences > 0 || adviceReferences > 0) {
+      throw new Error('Deze prognosesnapshot is nog gekoppeld aan een VisCoach-plan of coachadvies. Verwijder eerst de bijbehorende registratie om de historie niet onbedoeld te verbreken.');
+    }
+
     // 1. Zoek alle sessies die via snapshotId naar deze momentopname verwijzen
     const referringSessions = await db.sessions.filter((s) => s.snapshotId === snapshotId).toArray();
     for (const sess of referringSessions) {
