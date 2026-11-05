@@ -676,7 +676,7 @@ Een nieuwe weersmeting of forecast-refresh is op zichzelf geen reden om een nieu
 - Een nieuwe snapshot kan nodig zijn om een betekenisvol gewijzigde prognose vast te leggen, ook wanneer het praktische advies hetzelfde blijft.
 - Een nieuw coachadvies wordt alleen opgeslagen wanneer de aanbevolen aanpak of de uitleg wezenlijk verandert.
 - Een waarneming of vangst kan herbeoordeling activeren, maar wordt niet automatisch als bewijs voor afwezigheid of als vangst van de doelsoort geïnterpreteerd.
-- Gebruik conservatieve hysterese/cooldown en idempotente verwerking om heen-en-weer wisselen en dubbele records te voorkomen. Numerieke drempels worden niet willekeurig gekozen; ze worden met bestaande modeluitvoer, domeinreview en tests onderbouwd.
+- Gebruik conservatieve hysterese en idempotente verwerking om heen-en-weer wisselen en dubbele records te voorkomen. Een kandidaatwijziging door alleen een weersupdate wordt bij een volgende afwijkende weerinvoer bevestigd; directe gebruikerswaarnemingen, sessiewijzigingen, handmatige controles en app-hervatten worden direct beoordeeld. Numerieke biologische/tactische drempels worden niet willekeurig gekozen; ze worden met bestaande modeluitvoer, domeinreview en tests onderbouwd.
 - Luchtdruk, wind of temperatuur krijgen geen nieuwe biologische scorewerking alleen omdat zij in een update veranderen. De bestaande modelregels en hun onzekerheden blijven leidend.
 
 ### Onveranderlijke historie en herleidbaarheid
