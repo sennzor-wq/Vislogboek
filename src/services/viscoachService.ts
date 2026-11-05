@@ -8,6 +8,7 @@ import {
   PlannedFishingSession,
   CatchItem,
   WeatherSnapshot,
+  PrognosisInputContext,
 } from '../types';
 import { calculateDayPrognosis, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
@@ -210,10 +211,11 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
   }
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
-  const [weather, snapshots, locations] = await Promise.all([
+  const [weather, snapshots, locations, observations] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
     db.prognosisSnapshots.toArray(),
     db.locations.toArray(),
+    db.presenceObservations.toArray(),
   ]);
   if (!weather.hourly?.length) throw new Error('Er is geen weersverwachting beschikbaar voor deze stek.');
 
@@ -268,6 +270,34 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     waterTemperature: null,
   };
 
+  const inputContext: PrognosisInputContext = {
+    calculatedAt: new Date().toISOString(),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
+    targetDate: date,
+    targetSpecies: input.targetSpecies,
+    sessionDurationHours: durationHours,
+    location: {
+      id: input.location.id,
+      latitude: input.location.latitude,
+      longitude: input.location.longitude,
+      waterType: input.location.waterType,
+      waterDepth: input.location.waterDepth,
+      waterFacingDirection: input.location.waterFacingDirection,
+      habitatFeatures: input.location.habitatFeatures,
+    },
+    historicalSessionIds: input.sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
+    catchRecordIds: input.catches.map((item) => item.id),
+    observationIds: observations.map((item) => item.id),
+    historicalWaterTemperatureSamples: historicalWaterTemperatures,
+    historySummary: {
+      sessionCount: input.sessions.filter((item) => item.isBenchmark !== true).length,
+      catchRecordCount: input.catches.length,
+      observationCount: observations.length,
+      historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
+    },
+    weatherFetchedAt: weather.fetchedAt,
+  };
+
   const inputFingerprint = planFingerprint({
     date,
     desiredStartTime: start.toISOString(),
@@ -289,6 +319,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
       : prognosis.bestTimeSlot,
     conditions,
     weatherInput: weather.hourly,
+    inputContext,
     runKind: 'session_start',
     inputFingerprint,
   };
@@ -322,6 +353,7 @@ export async function saveVisCoachPlan(
       {
         runKind: 'plan',
         weatherInput: plan.pendingSnapshot.weatherInput,
+        inputContext: plan.pendingSnapshot.inputContext,
         inputFingerprint: plan.pendingSnapshot.inputFingerprint,
       }
     );
