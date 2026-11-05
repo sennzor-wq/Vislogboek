@@ -6,6 +6,7 @@ import {
   FishingLocation,
   FishingSession,
   PrognosisSnapshot,
+  PrognosisInputContext,
 } from '../types';
 import { calculateDayPrognosis, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
@@ -280,6 +281,34 @@ export async function reassessActiveSessions(
       }
       pendingWeatherChanges.delete(session.id);
 
+      const inputContext: PrognosisInputContext = {
+        calculatedAt: now.toISOString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
+        targetDate: date,
+        targetSpecies: species,
+        sessionDurationHours: durationHours,
+        location: {
+          id: location.id,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          waterType: location.waterType,
+          waterDepth: location.waterDepth,
+          waterFacingDirection: location.waterFacingDirection,
+          habitatFeatures: location.habitatFeatures,
+        },
+        historicalSessionIds: sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
+        catchRecordIds: catches.map((item) => item.id),
+        observationIds: sessionObservations.map((item) => item.id),
+        historicalWaterTemperatureSamples: historicalWaterTemperatures,
+        historySummary: {
+          sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
+          catchRecordCount: catches.length,
+          observationCount: sessionObservations.length,
+          historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
+        },
+        weatherFetchedAt: weather.fetchedAt,
+      };
+
       const snapshot = await db.transaction('rw', db.prognosisSnapshots, db.coachAdviceRecords, async () => {
         const saved = await savePrognosisSnapshot(
           prognosis,
@@ -292,6 +321,7 @@ export async function reassessActiveSessions(
           {
             runKind: 'session_update',
             weatherInput: weather.hourly,
+            inputContext,
             inputFingerprint,
             supersedesSnapshotId: previousSnapshot.id,
           }
