@@ -803,6 +803,8 @@ Handmatige heranalyse blijft beschikbaar als aanvullende gebruikersactie. Herinn
 
 - Controleer en hergebruik bestaande componenten, services, engines, types en Dexie-tabellen voordat iets nieuws wordt gemaakt.
 - Nieuwe persistente gegevens worden alleen toegevoegd wanneer de bestaande modellen onvoldoende informatie kunnen bewaren.
+- Bij expliciete sessieverwijdering worden de bijbehorende coachadviezen verwijderd en blijft een gekoppelde geplande afspraak als historie bestaan; alleen de verwijzing naar de verwijderde sessie wordt losgemaakt.
+- Een prognosesnapshot die nog door een plan of coachadvies wordt gebruikt, kan niet afzonderlijk worden verwijderd. Zo blijven verwijzingen en advieshistorie intact.
 - Databasewijzigingen zijn additief en krijgen migratietests.
 - Alle nieuwe persistente records en relaties worden opgenomen in backup/export/import/restore; oudere back-ups blijven compatibel.
 - Bestaande sessies, vangsten, prognoses, navigatie en sessiestart buiten VisCoach blijven werken.
