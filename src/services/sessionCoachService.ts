@@ -36,7 +36,6 @@ function prognosisSignature(prognosis: DayPrognosis): Record<string, string | nu
   return {
     advice: prognosis.advice,
     bestTimeSlot: prognosis.bestTimeSlot,
-    activityBand: prognosis.activityScoreAvailable === false ? null : Math.round(prognosis.activityScore),
     recommendedZone: prognosis.positioningAdvice?.recommendedZone ?? null,
     bankWindRelation: prognosis.bankWindAnalysis?.relation ?? null,
     bankWindPosition: prognosis.bankWindAnalysis?.rodPlacementAdvice.primaryPosition ?? null,
@@ -244,18 +243,15 @@ export async function reassessActiveSessions(
         continue;
       }
 
-      const previousSignature = previousSnapshot.prognosisData
-        ? prognosisSignature(previousSnapshot.prognosisData)
-        : {
-            advice: previousSnapshot.predictedActivityScore === null ? 'Onbekend' : String(Math.round(previousSnapshot.predictedActivityScore)),
-            bestTimeSlot: previousSnapshot.targetSlot ?? 'Onbekend',
-            activityBand: previousSnapshot.predictedActivityScore === null ? null : Math.round(previousSnapshot.predictedActivityScore),
-            recommendedZone: null,
-            bankWindRelation: null,
-            bankWindPosition: null,
-            habitatZone: null,
-            prebaitSuitability: null,
-          };
+      if (!previousSnapshot.prognosisData) {
+        results.push({
+          sessionId: session.id,
+          status: 'skipped',
+          reason: 'De oorspronkelijke snapshot bevat nog geen volledige prognose-uitvoer; een betrouwbare vergelijking is niet mogelijk.',
+        });
+        continue;
+      }
+      const previousSignature = prognosisSignature(previousSnapshot.prognosisData);
       const currentSignature = prognosisSignature(prognosis);
       const changedFactors = changedSignatureFactors(previousSignature, currentSignature);
 
