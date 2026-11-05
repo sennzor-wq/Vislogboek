@@ -4,6 +4,7 @@ import {
   FishingLocation,
   FishingSession,
   FishSpecies,
+  ALL_SPECIES,
   PlannedFishingSession,
 } from '../../types';
 import { PendingPrognosisSnapshot } from '../../services/prognosisEngine';
@@ -190,7 +191,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
               onChange={(event) => { setSpecies(event.target.value as FishSpecies); invalidatePlan(); }}
               className="w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-3 text-sm text-white focus:border-emerald-400 focus:outline-none"
             >
-              {['Karper', 'Brasem', 'Zeelt', 'Voorn', 'Snoek', 'Snoekbaars', 'Baars', 'Roofblei', 'Meerval', 'Overig'].map((item) => (
+              {ALL_SPECIES.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
