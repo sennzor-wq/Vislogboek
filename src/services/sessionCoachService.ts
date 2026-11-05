@@ -8,7 +8,7 @@ import {
   PrognosisSnapshot,
   PrognosisInputContext,
 } from '../types';
-import { calculateDayPrognosis, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
+import { calculateDayPrognosis, createPrognosisInputFingerprint, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
@@ -25,15 +25,6 @@ const lastEvaluatedFingerprint = new Map<string, string>();
 const sessionsBeingReassessed = new Set<string>();
 const pendingWeatherChanges = new Map<string, { signature: string; confirmations: number }>();
 
-function fingerprint(value: unknown): string {
-  const input = JSON.stringify(value);
-  let hash = 2166136261;
-  for (let index = 0; index < input.length; index++) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `fnv1a32-${(hash >>> 0).toString(16).padStart(8, '0')}`;
-}
 
 function prognosisSignature(prognosis: DayPrognosis): Record<string, string | number | null> {
   return {
@@ -209,7 +200,7 @@ export async function reassessActiveSessions(
         }
       );
 
-      const inputFingerprint = fingerprint({
+      const inputFingerprint = createPrognosisInputFingerprint({
         date,
         species,
         locationId: location.id,
