@@ -1209,7 +1209,6 @@ export async function createLiveSnapshotForSessionStart(
       db.catches.toArray(),
       db.prognosisSnapshots.toArray(),
       db.locations.toArray(),
-      db.presenceObservations.toArray(),
     ]);
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
