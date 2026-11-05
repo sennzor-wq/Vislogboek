@@ -35,6 +35,26 @@ import {
   ChevronUp,
 } from 'lucide-react';
 
+const COACH_FACTOR_LABELS: Record<string, string> = {
+  advice: 'prognoseadvies',
+  bestTimeSlot: 'tijdvak',
+  recommendedZone: 'viszone',
+  bankWindRelation: 'wind en oever',
+  bankWindPosition: 'hengelpositie',
+  habitatZone: 'habitat',
+  prebaitSuitability: 'voorvoerstrategie',
+};
+
+const COACH_TRIGGER_LABELS: Record<string, string> = {
+  session_start: 'sessiestart',
+  weather_update: 'weersupdate',
+  catch_recorded: 'vangstregistratie',
+  observation_recorded: 'waarneming',
+  session_changed: 'sessiewijziging',
+  manual_reanalysis: 'handmatige controle',
+  app_resume: 'app hervat',
+};
+
 interface SessionsViewProps {
   sessions: FishingSession[];
   catches: CatchItem[];
@@ -391,6 +411,14 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                             </span>
                           </div>
                           <p className="text-sm font-bold text-white mt-1">{advice.recommendation}</p>
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
+                          </p>
+                          {advice.changedFactors.length > 0 && (
+                            <p className="text-[10px] text-cyan-300 mt-1">
+                              Gewijzigd: {advice.changedFactors.map((factor) => COACH_FACTOR_LABELS[factor] || factor).join(', ')}
+                            </p>
+                          )}
                           {advice.summary && <p className="text-xs text-slate-300 mt-1">{advice.summary}</p>}
                           {advice.rationale && <p className="text-[11px] text-slate-500 mt-1">{advice.rationale}</p>}
                         </div>
