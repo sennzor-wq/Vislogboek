@@ -113,6 +113,27 @@ export default function App() {
     setIsStartingSession(true);
   };
 
+  const handleStartPlannedSession = (planned: PlannedFishingSession) => {
+    setPrefilledSpecies(planned.targetSpecies === 'Algemeen' ? undefined : planned.targetSpecies);
+    setPrefilledLocationId(planned.locationId);
+    setPendingPrognosisSnapshot(undefined);
+    setPrefilledPlannedSessionId(planned.id);
+    setIsStartingSession(true);
+  };
+
+  const handleSavePlannedSession = async (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => {
+    const saved = await saveVisCoachPlan(plan, location, species);
+    setPlannedSessions((previous) => [...previous.filter((item) => item.id !== saved.id), saved]
+      .sort((a, b) => new Date(a.plannedStartTime).getTime() - new Date(b.plannedStartTime).getTime()));
+  };
+
+  const handleCancelPlannedSession = async (planId: string) => {
+    await cancelVisCoachPlan(planId);
+    setPlannedSessions((previous) => previous.map((item) => item.id === planId
+      ? { ...item, status: 'cancelled', updatedAt: new Date().toISOString() }
+      : item));
+  };
+
   const handleSaveSession = async (
     sessionData: Partial<FishingSession>,
     pendingSnapshot?: PendingPrognosisSnapshot,
