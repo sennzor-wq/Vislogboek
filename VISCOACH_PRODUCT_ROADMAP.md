@@ -24,8 +24,8 @@ De kern is niet een los AI-chatvenster of één algemeen bijtpercentage. Het ond
 3. VisCoach vertaalt die uitkomsten naar een begrijpelijk plan: wanneer, waar en hoe vissen, inclusief tactische positionering ten opzichte van wind en oever.
 4. De gebruiker kan het plan volgen of bewust een ander tijdvak kiezen. Een alternatief wordt alleen nadrukkelijk aanbevolen als het verwachte verschil betekenisvol is en voldoende onderbouwd kan worden.
 5. Met één actie start de gebruiker vanuit het plan een sessie. De app opent direct de nieuwe actieve sessie; aanvullende gegevens zoals hengels, methode, aas en voer kunnen daar optioneel worden ingevuld.
-6. Tijdens de sessie is VisCoach geïntegreerd in de actieve sessiepagina. De visser kan zelf een nieuwe analyse aanvragen en kan optioneel herinneringen instellen voor een update.
-7. De coach verwerkt relevante nieuwe omstandigheden, vangsten en observaties in een nieuw advies, zonder het oorspronkelijke advies of de oorspronkelijke prognose te overschrijven.
+6. Tijdens de sessie is VisCoach geïntegreerd in de bestaande actieve sessie-interface. De sessiegebonden coachcoördinator volgt automatisch relevante wijzigingen via bestaande gegevensstromen en laat bij betekenisvolle veranderingen de bestaande prognose- en analysemodules opnieuw beoordelen. Handmatige heranalyse blijft beschikbaar; herinneringen zijn optioneel.
+7. Alleen wanneer de gecombineerde verandering praktisch relevant is, wordt een nieuwe prognosesnapshot en/of een afzonderlijk coachadvies vastgelegd. Kleine fluctuaties veroorzaken geen onnodige adviezen. Oorspronkelijke prognoses en eerdere adviezen blijven onveranderlijk.
 8. Na afloop worden prognose, coachadvies, werkelijk uitgevoerde aanpak en sessieresultaat afzonderlijk geëvalueerd.
 9. Alleen betrouwbare en voldoende vergelijkbare gegevens worden gebruikt om toekomstige prognoses en adviezen te verbeteren.
 
@@ -192,7 +192,7 @@ De bestaande modal ondersteunt onder meer:
 - Een nieuwe stek vanuit de VisCoach toevoegen, met duplicaatcontrole.
 - Doorgaan naar de prognose of een sessie starten.
 
-De beoogde nieuwe instap reduceert de verplichte keuzes tot drie: vissoort, stek en concrete gewenste start- en eindtijd. Thuislocatie en afstand mogen ondersteunende context blijven, maar mogen geen extra verplichte intakevragen worden.
+De beoogde nieuwe instap reduceert de verplichte keuzes tot drie: vissoort, stek en gewenste starttijd. De eindtijd is optioneel; zonder eindtijd wordt geen standaardduur verzonnen. Thuislocatie en afstand mogen ondersteunende context blijven, maar mogen geen extra verplichte intakevragen worden.
 
 De huidige `viscoachService.ts` bouwt een contextobject met stek, thuislocatie, afstand, doelsoort, sessieduur en ontbrekende velden. De service bevat op zichzelf nog geen volledig persoonlijk lerend stekmodel of een complete beslissingsmotor voor tactisch advies.
 
@@ -632,93 +632,89 @@ De technische audit moet eerst vaststellen welke prognosevelden de huidige snaps
 
 ## Fase 3 – Adaptieve VisCoach tijdens de sessie
 
-**Doel:** de coach blijft niet hangen in de voorspelling die vóór vertrek is gemaakt. Hij is geïntegreerd in de actieve sessiepagina en kan relevante veranderingen en waarnemingen tijdens de sessie meenemen.
+**Doel:** VisCoach blijft tijdens een actieve sessie actueel door bestaande gegevensstromen en prognose-/analysemodules te hergebruiken. De gebruiker hoeft niet voortdurend zelf een nieuwe analyse aan te vragen.
 
-### Gebruikerservaring tijdens de actieve sessie
+### Gebruikerservaring
 
-- De gebruiker blijft op de gewone actieve sessiepagina; VisCoach is daar als herkenbaar onderdeel geïntegreerd.
-- De pagina toont het oorspronkelijke visplan, de relevante actuele omstandigheden en het laatst gegeven coachadvies.
-- De gebruiker kan vanuit dezelfde pagina vangsten en sessiegegevens registreren en een nieuwe VisCoach-analyse aanvragen.
-- Er is geen verplichte aparte VisCoach-pagina waar de gebruiker voortdurend naartoe moet navigeren.
-- De coach geeft voorstellen; de gebruiker houdt altijd de controle en voert wijzigingen zelf uit.
+- VisCoach is als herkenbaar, compact onderdeel geïntegreerd in de bestaande actieve sessie-interface.
+- De bestaande sessiepagina blijft de centrale plek voor sessiegegevens, vangsten, hengels en waarnemingen. Er wordt geen tweede live-sessie- of vangstinterface gebouwd.
+- De interface toont het oorspronkelijke plan, het laatst geldende coachadvies en alleen relevante veranderingen.
+- De gebruiker houdt de controle: de coach doet voorstellen, maar verplaatst geen hengels, wijzigt geen sessiegegevens en voert geen tactiek automatisch uit.
+- De gebruiker kan altijd handmatig een heranalyse aanvragen. Eventuele herinneringen zijn aanvullend en optioneel, niet de primaire update-mechaniek.
 
-### Updates: handmatig en optioneel op herinneringsinterval
+### Bestaande gegevensstromen als bron
 
-Twee routes zijn gewenst:
+De adaptieve sessiecoach gebruikt geen eigen weerophaalservice of tweede prognoseketen. De bestaande bronnen blijven leidend:
 
-1. **Handmatige update:** de gebruiker kan op ieder moment zelf op een knop drukken om een nieuwe analyse aan te vragen.
-2. **Optionele herinnering:** de gebruiker kan instellen of en wanneer de app vraagt om een update, bijvoorbeeld na 30, 60 of 90 minuten of via een eigen interval. De gebruiker kan automatische herinneringen ook uitschakelen. Een herinnering is een uitnodiging om informatie te actualiseren, geen automatische wijziging van het advies.
+- De bestaande `weatherService` haalt weersverwachtingen op, gebruikt de bestaande lokale cache en publiceert de bestaande update-event(s).
+- De bestaande prognoseweergave reageert al op de weerupdate en gebruikt de bestaande `prognosisEngine` en deelanalyses.
+- Nieuwe vangsten, sessiegegevens, hengelwijzigingen, waarnemingen en gemeten watertemperaturen komen binnen via de bestaande invoer- en opslagfuncties.
+- Bij opnieuw zichtbaar worden of heropenen van de app controleert de sessiecoördinator of de actieve sessie met de meest recente beschikbare gegevens moet worden herbeoordeeld.
 
-Een praktische standaard kan 60 minuten zijn, maar dit is een productkeuze die bij gebruikerstests moet worden gevalideerd. De app mag niet ongevraagd pushberichten afdwingen. Op mobiele/PWA-platforms moeten de mogelijkheden en beperkingen van meldingen vooraf technisch worden onderzocht; een herinnering binnen de open app is niet hetzelfde als een gegarandeerde achtergrond-push.
+De precieze event- en opslagkoppelingen worden bij implementatie op de actuele code gecontroleerd. De PWA kan niet garanderen dat periodieke verwerking doorgaat wanneer de app volledig gesloten is. Bij heropenen wordt achterstallige beoordeling hervat met de meest recente beschikbare gegevens.
 
-### Snelle observaties en sessie-input
+### Nieuwe verantwoordelijkheid: sessiegebonden coachcoördinator
 
-De update moet weinig invoer vragen. Gebruik waar mogelijk eenvoudige acties en reeds bekende sessiegegevens. Relevante observaties kunnen zijn:
-- Vangst geregistreerd.
-- Bellen.
-- Springende vis.
-- Rollende vis.
-- Vis daadwerkelijk gezien.
-- Aanbeet of gemiste aanbeet.
-- Geen activiteit waargenomen.
-- Aanpak gewijzigd, bijvoorbeeld aas/voer/methode of hengelpositie.
-- Andere relevante waarneming.
+Er wordt één aanvullende service/coördinator gebouwd. Deze is nadrukkelijk **geen prognose-engine, biologische engine of tactische engine**. De verantwoordelijkheid is uitsluitend:
 
-Niet alle vragen zijn verplicht bij iedere update. Onbekende informatie blijft onbekend. Een vangst, een waarneming en het niet waarnemen van activiteit zijn verschillende soorten informatie. "Geen activiteit gezien" bewijst niet dat er geen vis aanwezig is.
+1. Reageren op relevante bestaande data-updates voor actieve sessies.
+2. De actuele sessiecontext verzamelen.
+3. De bestaande prognose-engine en relevante bestaande deelanalyses opnieuw laten rekenen wanneer de invoer werkelijk is gewijzigd.
+4. De nieuwe uitkomsten vergelijken met de vorige sessiesnapshot en het laatst gegeven advies.
+5. Bepalen of de gecombineerde wijziging betekenisvol is voor de praktische aanpak.
+6. Alleen dan een nieuwe onveranderlijke snapshot en/of een nieuw coachadvies vastleggen.
+7. Dubbele verwerking, herhaalde adviezen en onnodig wisselende aanbevelingen voorkomen.
 
-### Hoe een update nieuw advies oplevert
+De prognosepagina en VisCoach gebruiken dezelfde bestaande prognoseberekening en dezelfde gezaghebbende engines. De coördinator mag geen alternatieve score, verborgen biologische correctie of tweede interpretatie van dezelfde factoren introduceren.
 
-1. De app legt het update-moment vast en verzamelt de meest recente sessiecontext, weers-/tijdvakgegevens, vangsten en expliciet ingevoerde observaties.
-2. De coach beoordeelt welke informatie daadwerkelijk veranderd is sinds het vorige advies.
-3. Kleine of onzekere veranderingen leiden hooguit tot een korte statusmelding, niet automatisch tot een tactiekwijziging.
-4. Een relevante verandering kan aanleiding zijn om het bestaande plan opnieuw te beoordelen.
-5. Een sterke verandering of betekenisvolle waarneming kan een concreet nieuw tactisch voorstel opleveren.
-6. Het nieuwe advies vermeldt wat veranderde, waarom dat relevant is en hoe zeker de conclusie is.
-7. De gebruiker accepteert, negeert of stelt het voorstel zelf bij. De coach voert geen fysieke of sessiewijziging automatisch uit.
+### Betekenisvolle verandering en adviesdrempel
 
-Voorbeeld: na een uur zonder vangst en zonder zichtbare activiteit mag de coach dat als beperkt negatief signaal benoemen, maar niet concluderen dat de stek leeg is. Als daarna bellen of rollende vis wordt waargenomen, is dat een nieuw aanwezigheidssignaal dat de beoordeling kan veranderen.
+Een nieuwe weersmeting of forecast-refresh is op zichzelf geen reden om een nieuwe snapshot of advies te maken. De beoordeling kijkt naar het gecombineerde effect van relevante invoerverschillen en de resulterende prognose-/tactiekuitvoer.
 
-### Wat bestaat al?
+- Een kleine losse schommeling, zoals een beperkte temperatuur- of windfluctuatie, leidt niet automatisch tot een nieuw advies.
+- Een combinatie van veranderingen kan wel relevant zijn wanneer de bestaande analyses daardoor tot een wezenlijk andere praktische aanbeveling komen.
+- Een nieuwe snapshot kan nodig zijn om een betekenisvol gewijzigde prognose vast te leggen, ook wanneer het praktische advies hetzelfde blijft.
+- Een nieuw coachadvies wordt alleen opgeslagen wanneer de aanbevolen aanpak of de uitleg wezenlijk verandert.
+- Een waarneming of vangst kan herbeoordeling activeren, maar wordt niet automatisch als bewijs voor afwezigheid of als vangst van de doelsoort geïnterpreteerd.
+- Gebruik conservatieve hysterese/cooldown en idempotente verwerking om heen-en-weer wisselen en dubbele records te voorkomen. Numerieke drempels worden niet willekeurig gekozen; ze worden met bestaande modeluitvoer, domeinreview en tests onderbouwd.
+- Luchtdruk, wind of temperatuur krijgen geen nieuwe biologische scorewerking alleen omdat zij in een update veranderen. De bestaande modelregels en hun onzekerheden blijven leidend.
 
-- Actieve sessies en bestaande live-sessie-interface.
-- Vangstregistratie.
-- Weersgegevens en tijdvakprognoses.
-- Wind-, thermische, habitat- en positioneringsanalyses.
-- Bestaande sessie- en prognosesnapshotkoppeling.
+### Onveranderlijke historie en herleidbaarheid
 
-### Wat ontbreekt?
+- De volledige prognosesnapshot bij daadwerkelijke sessiestart blijft behouden als oorspronkelijke sessieprognose.
+- Een latere betekenisvolle prognosewijziging wordt als afzonderlijke update-snapshot opgeslagen; eerdere snapshots worden nooit overschreven.
+- Het coachadvies wordt afzonderlijk vastgelegd en verwijst naar de prognosesnapshot waarop het steunt. De coachadviesregistratie dupliceert niet de volledige prognose.
+- Elk nieuw advies verwijst waar mogelijk naar het vorige advies en bevat minimaal tijdstip, sessie-ID, gebruikte prognosesnapshot-ID, relevante gewijzigde invoer, reden, aanbeveling, onzekerheid en coach-/engineversies.
+- Handmatige heranalyse, automatische data-update, gebruikerswaarneming en herinnering blijven als verschillende triggers herkenbaar.
+- Acceptatie, afwijken of negeren van een advies en de werkelijk uitgevoerde tactiek worden afzonderlijk geregistreerd wanneer de gebruiker die informatie al vastlegt of eenvoudig kan aangeven.
 
-- Een geïntegreerd VisCoach-gedeelte op de actieve sessiepagina.
-- Een eenvoudige, gestructureerde registratie van visactiviteit en relevante observaties tijdens de sessie.
-- Handmatige heranalyse en optionele herinneringsinstellingen.
-- Een mechanisme om advieswijzigingen te doseren en onnodige tactische wisselingen te voorkomen.
-- Registratie van de vraag of een advies is opgevolgd en wat er daarna gebeurde.
+### Wat bestaat al en wat wordt toegevoegd?
 
-### Technische aanpak
+**Bestaand en te hergebruiken:** actieve sessies, live-sessie-interface, vangstregistratie, waarnemingen, weerservice/cache, weerupdate-event, prognose-engine, thermische-, wind-, habitat-, positionerings- en voorvoeranalyses, datakwaliteit en prognosesnapshots.
 
-- Een `sessionCoachEngine.ts` kan actuele sessiecontext, observaties, tijdvakprognose en het oorspronkelijke coachplan combineren.
-- Gebruik bestaande weers- en prognosemodules; herbereken niet zelfstandig een tweede vangstkans.
-- Bewaar oorspronkelijke prognosemomentopname en coachadviesmomentopname ongewijzigd.
-- Iedere latere analyse/advieswijziging wordt een afzonderlijk, tijdgestempeld coachadviesrecord dat verwijst naar de sessie en zo nodig naar de prognosecontext waarop het steunt.
-- Houd een onderscheid tussen herinnering, door gebruiker aangevraagde analyse, waarneming en nieuw advies.
-- Vermijd notificaties bij iedere kleine weersschommeling en onderzoek PWA-/Android-meldingsbeperkingen voordat achtergrondmeldingen worden beloofd.
-- Advies bevat reden, bewijsbasis, onzekerheid en eventueel een expliciete actie die de gebruiker zelf kan uitvoeren.
-- De gebruiker beslist zelf of hij het advies uitvoert.
+**Gerichte uitbreidingen:** sessiegebonden coachcoördinator, ontbrekende provenance-/snapshotvelden waar nodig, afzonderlijke coachadviesrecords en de koppeling met bestaande update-events en sessieopslag. De exacte minimale uitbreiding wordt bepaald op basis van de actuele types, Dexie-tabellen en backupservice.
+
+### Offline- en lifecyclegedrag
+
+- Tijdens gebruik reageert de coördinator op relevante updates van bestaande services en opslag.
+- Bij terugkeer naar de app wordt de actieve sessie met de meest recente beschikbare gegevens gecontroleerd.
+- Offline wordt de laatst beschikbare context gebruikt; verouderde of ontbrekende gegevens worden herkenbaar gemaakt.
+- De sessie wordt nooit automatisch beëindigd of als nulvangst beoordeeld.
+- Er wordt geen achtergrondverwerking beloofd wanneer de PWA volledig gesloten is.
 
 ### Bewijs en acceptatiecriteria
 
-- Scenario-tests voor winddraaiing, temperatuurverandering, neerslag, vangsten, waarnemingen en uitblijven van activiteit.
-- Handmatige update werkt zonder verplichte extra vragenlijst.
-- Herinneringen kunnen worden uitgeschakeld en interval kan worden ingesteld.
-- Kleine veranderingen veroorzaken geen onnodig nieuw tactisch advies.
-- Waarnemingen worden niet als vangst of bewezen afwezigheid verwerkt.
-- Geen advies tot verplaatsen zonder voldoende lokale context.
-- De coach overschrijft het oorspronkelijke plan of eerdere adviezen niet.
-- De gebruiker kan zien waarom een advies veranderde en of dit advies is opgevolgd.
-- De actieve sessie blijft de centrale plek voor sessie-invoer en VisCoach.
-- Offline gedrag blijft voorspelbaar met de laatst beschikbare gegevens.
+- Scenario-tests voor afzonderlijke kleine fluctuaties, gecombineerde weersveranderingen, winddraaiing, temperatuurverandering, neerslag, vangsten, waarnemingen en gewijzigde tactiek.
+- Bestaande forecast-update triggert herbeoordeling van actieve sessies zonder een tweede forecast-service.
+- Herhaalde identieke updates leveren geen dubbele snapshots of adviezen op.
+- Kleine of niet-praktische veranderingen veroorzaken geen nieuw tactisch advies.
+- Een betekenisvolle prognosewijziging kan een update-snapshot opleveren zonder onnodig nieuw advies.
+- Een tactisch gewijzigd advies bevat een controleerbare reden en verwijst naar de juiste prognose- en advieshistorie.
+- De startprognose en eerdere adviezen blijven onveranderd.
+- Heropenen na offline/periode gesloten app hervat de beoordeling met beschikbare gegevens.
+- Geen ongefundeerd advies tot verplaatsen of een biologische kanscorrectie op basis van één factor.
 
-**Fase 3 is gereed wanneer:** de coach binnen de actieve sessie relevante veranderingen kan signaleren, op verzoek of na een optionele herinnering een controleerbaar voorstel kan doen en niet onnodig vaak van tactiek wisselt.
+**Fase 3 is gereed wanneer:** actieve sessies automatisch op relevante bestaande gegevenswijzigingen worden herbeoordeeld, alleen betekenisvolle veranderingen tot nieuwe registraties leiden en ieder advies volledig herleidbaar blijft zonder dubbele engines of onnodige gebruikershandelingen.
 
 ---
 
@@ -820,7 +816,7 @@ Een langere sessie vergroot doorgaans de gelegenheid om een vis te vangen, maar 
 - De coach maakt een plan voor wanneer, waar en hoe, inclusief wind-/kijk-/werprichting waar lokale gegevens dat ondersteunen.
 - De gebruiker kan de technische Prognose-tab openen voor verdieping.
 - Start sessie opent direct de aangemaakte actieve sessie; aanvullende gegevens zoals hengels, methode, aas en voer kunnen daar optioneel worden ingevuld.
-- Tijdens de sessie kan de gebruiker handmatig een update aanvragen of optionele herinneringen instellen.
+- Tijdens de sessie verwerkt de coach automatisch relevante updates uit bestaande gegevensstromen. Handmatige heranalyse blijft beschikbaar; herinneringen zijn optioneel.
 - Geplande vistijd en daadwerkelijke sessieperiode/-duur worden apart bewaard.
 - Na afloop worden prognose, coachadvies, uitvoering en resultaat afzonderlijk geëvalueerd.
 - De volgende sessie kan profiteren van de nieuwe lokale gegevens.
@@ -903,50 +899,51 @@ Praktijkresultaten zijn gevoelig voor veel factoren. Een eenvoudige voor/na-verg
 |---|---|---|
 | P0 | Data-audit en datakwaliteit | Zonder betrouwbare invoer kan het model verkeerd leren |
 | P1 | Persoonlijk stek-/soortprofiel | Dit levert de lokale kennisbasis |
-| P2 | VisCoach vóór de sessie | Maakt de bestaande analyses bruikbaar voor de visser |
-| P3 | Adaptieve sessiecoach | Breidt advies uit naar de daadwerkelijke vissessie |
-| P4 | Coachadvies evalueren | Maakt aantoonbaar welke adviezen waarde toevoegen |
-| P5 | Complete productervaring | Integreert alles en borgt gebruikskwaliteit |
+| P2 | VisCoach-architectuur en geïntegreerde ervaring | Brengt bestaande analyses samen in een eenvoudige gebruikersinterface |
+| P3 | Dynamische sessiecoach | Herbeoordeelt actieve sessies via bestaande gegevensstromen en engines |
+| P4 | Coachadvies vastleggen en evalueren | Maakt adviezen, uitvoering en resultaten herleidbaar |
+| P5 | Productafwerking en validatie | Borgt samenhang, toegankelijkheid, offlinegedrag en gebruikskwaliteit |
 
-De UI-startpagina mag parallel als ontwerp worden uitgewerkt, maar de definitieve advieslogica moet op de bestaande engines en datakwaliteit steunen. De adaptieve sessiecoach moet pas worden gebouwd wanneer de sessiecontext en waarnemingen betrouwbaar kunnen worden vastgelegd.
-
----
-
-## 8. Eerste concrete ontwikkelopdracht: read-only technische audit
-
-De eerste stap na goedkeuring van deze roadmap is nadrukkelijk **geen implementatie**.
-
-Voer een read-only audit uit van de huidige repository en lever een technisch ontwerp op met:
-
-1. Datadictionary van sessies, vangsten, locaties, instellingen, prognosesnapshots, bestaande snapshotkoppelingen en waarnemingen.
-2. Exacte inventarisatie van het huidige moment waarop prognosesnapshots worden aangemaakt, de opgeslagen velden en de koppeling met sessies en learning/evaluatie. Bepaal expliciet welke coachadviesgegevens ontbreken; verander of vervang de prognosesnapshot niet.
-3. Overzicht van bestaande invoervelden en formulieren voor doelsoort, methode, aas, vistijd, positie, actieve hengels, effectieve vistijd, aanbeten en visactiviteit/aanwezigheid.
-4. Overzicht van alle bestaande prognose- en adviesmodules met hun invoer, uitvoer, kwaliteitscontroles, afhankelijkheden en fallbacks.
-5. Overzicht van bestaande VisCoach-componenten, routes, state en sessie-instap.
-6. Overzicht van de bestaande Dexie-tabellen en eventuele migratiebehoefte.
-7. Backwards-compatibility-impact op import/export.
-8. Exacte lijst van ontbrekende velden en waarom elk veld nodig is, inclusief onderscheid tussen vangst, aanbeet, aanwezigheid, geen waarneming en onbekende uitkomst.
-9. Beoordeling van hoe werkelijke inspanning en hengeluren uit de huidige gegevens kunnen worden afgeleid; benoem onzekerheden en niet-afleidbare historische velden.
-10. Beoordeling van de huidige scheiding tussen biologische activiteit en vangkans, inclusief de juiste evaluatiemaatstaven.
-11. Voorstel voor datakwaliteits-/minimum-bewijsregels en geleidelijke lokale personalisatie; geen arbitraire drempels zonder backtest.
-12. Adviesafhankelijkheidsmatrix: per tactiek welke invoer en bestaande engine nodig zijn, en wanneer advies moet worden onderdrukt of afgezwakt.
-13. Bevestiging dat VisCoach zonder centrale AI/cloud/abonnement lokaal kan rekenen; inventariseer externe netwerkafhankelijkheden afzonderlijk.
-14. Voorstel voor de kleinste veilige technische uitbreidingen.
-15. Testmatrix per fase en acceptatiecriteria.
-16. Risico's voor bestaande sessies, vangsten, prognoses, import/export en performance.
-
-**Auditregels:**
-- Geen bestanden wijzigen.
-- Geen code formatteren of refactoren.
-- Geen database- of gebruikersdata wijzigen.
-- Geen branch, commit of pull request maken tijdens de audit.
-- Niet aannemen dat een functie ontbreekt voordat de huidige code is onderzocht.
-- Lever per bevinding bewijs in de vorm van bestandsnaam, relevante functie/type en wat daar daadwerkelijk gebeurt.
-- Maak onderscheid tussen bewezen implementatie, gedeeltelijke implementatie, documentatie-eis en nog niet geverifieerd gedrag.
-
-Pas na beoordeling van de audit wordt een afzonderlijk implementatieplan opgesteld en per fase vrijgegeven.
+De VisCoach-interface en de technische coachlaag worden als één productfase ontworpen, maar met gescheiden verantwoordelijkheden gebouwd. De interface hergebruikt bestaande UI-componenten en gegevenspresentaties. De sessiecoördinator gebruikt bestaande engines en gegevensstromen; ontbrekende functionaliteit wordt toegevoegd aan de bestaande service-, model-, opslag- of UI-laag waar die verantwoordelijkheid thuishoort. De adaptieve sessielogica wordt vanaf het begin meegenomen in het ontwerp en gefaseerd geïmplementeerd; zij wordt niet uitgesteld tot na de interface.
 
 ---
+
+## 8. Technische ontwerp- en implementatiebasis
+
+De read-only technische audit is uitgevoerd op de bestaande repository. De architectuurrichting hieronder is door de gebruiker goedgekeurd en is vanaf dit punt leidend voor de VisCoach-implementatie.
+
+### Bindende architectuur
+
+1. **VisCoach is de gebruikersinterface en samenbrengende coachervaring.** De pagina hergebruikt bestaande UI-componenten, dataweergaven, formulieren en navigatie waar die passend zijn. Alleen ontbrekende VisCoach-specifieke presentatiecomponenten worden toegevoegd.
+2. **Bestaande engines blijven gezaghebbend.** De bestaande prognose-, temperatuur-, wind-/oever-, habitat-/bewegings-, positionerings-, voorvoer-, datakwaliteits- en evaluatiemodules blijven de enige eigenaar van hun berekeningen en domeinregels.
+3. **De coachservice is een coördinator, geen nieuwe voorspellende engine.** Zij verzamelt context, roept bestaande berekeningen aan, vergelijkt resultaten en bepaalt of een betekenisvolle sessiewijziging een nieuwe registratie of een nieuw advies rechtvaardigt.
+4. **De actieve sessie blijft de primaire sessie-interface.** VisCoach wordt daarin geïntegreerd; er komt geen tweede live-sessie- of vangstregistratie.
+5. **Bestaande gegevensstromen zijn de bron voor dynamische updates.** Weerupdates, vangsten, waarnemingen, temperatuurmetingen en sessiewijzigingen activeren waar relevant een herbeoordeling. Er wordt geen tweede weerophaal- of prognoseketen gebouwd.
+6. **Geen ruis.** Een technische data-refresh is niet automatisch een nieuwe prognose- of adviesregistratie. Alleen betekenisvolle gecombineerde veranderingen leiden tot nieuwe snapshots/adviezen. Eerdere registraties blijven onveranderlijk.
+7. **Herleidbaarheid.** Coachadviesrecords verwijzen naar de relevante prognosesnapshot en vorige adviesversie. Ze kopiëren niet de volledige prognose.
+8. **Minimale gebruikersinteractie.** Automatische verwerking is de standaard waar de app actief is; handmatige heranalyse is aanvullend en herinneringen zijn optioneel. De gebruiker houdt controle over het uitvoeren van tactische voorstellen.
+9. **Offline-first.** De kern blijft lokaal. Een volledig gesloten PWA kan geen continue achtergrondverwerking garanderen; bij opnieuw openen wordt de sessie met de meest recente beschikbare gegevens bijgewerkt.
+10. **Kleine, controleerbare uitbreidingen.** Nieuwe gegevens worden toegevoegd aan de bestaande datamodellen, Dexie-opslag en backupcontracten. Geen dubbele database, soortlijst, locatieopslag of sessiebeheer.
+
+### Uitvoeringsvolgorde binnen de resterende VisCoach-fase
+
+- **6A – Documentatie en datacontracten:** architectuur, bestaande componenten, gebeurtenissen, snapshot-/adviesrelaties en acceptatiecriteria eenduidig vastleggen.
+- **6B – Backend en sessiecoördinatie:** minimale datamodellen/migraties, onveranderlijke advieshistorie, bestaande eventkoppelingen, betekenisvolle wijzigingsdetectie en tests.
+- **6C – Gebruikersinterface:** VisCoach-start-/planervaring en integratie in de bestaande actieve sessie-interface, met hergebruik van bestaande componenten.
+- **6D – Integratie en validatie:** end-to-end, offline/heropenen, backup/restore, regressies en praktijktest.
+
+De volgorde mag intern in kleine pull requests worden verdeeld. De VisCoach-interface wordt niet geblokkeerd door onnodige backend-abstracties; omgekeerd mag de UI geen eigen berekeningen of beslisregels bevatten.
+
+### Verplichte technische controles tijdens implementatie
+
+- Bestaande prognosesnapshotvelden en de sessiekoppeling blijven behouden; uitbreidingen zijn additief.
+- Planprognose, startsnapshot en betekenisvolle update-snapshots blijven onderscheidbaar.
+- Onbekende eindtijd/duur blijft onbekend; geen standaardduur introduceren voor VisCoach.
+- De bestaande backupversies blijven importeerbaar en nieuwe persistente records worden volledig geëxporteerd/hersteld.
+- Meerdere actieve sessies en bestaande instaproutes blijven ondersteund.
+- Geen automatische sessieafsluiting of automatische tactiekuitvoering.
+- Geen willekeurige numerieke drempels voor weersverandering zonder onderbouwing en regressietests.
+- Tests bewijzen alleen technisch gedrag; zij bewijzen niet automatisch biologische juistheid of praktijknauwkeurigheid.
 
 ## 9. Niet-doelen: wat VisCoach voorlopig niet hoeft te bouwen
 
