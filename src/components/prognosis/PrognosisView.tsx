@@ -48,7 +48,7 @@ import {
 import { COMPASS_DEGREES_MAP } from '../../services/bankWindEngine';
 import { db } from '../../db/db';
 import { CompassDirection, COMPASS_DIRECTIONS } from '../../types';
-import { HistoricalWaterTemperatureObservation } from '../../services/waterTemperatureHistory';
+import { collectHistoricalWaterTemperatureObservations } from '../../services/waterTemperatureHistory';
 
 interface PrognosisViewProps {
   locations: FishingLocation[];
@@ -101,40 +101,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
-      const locationById = new Map(locations.map((item) => [item.id, item]));
-      const historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = [];
-      const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
-      for (const snapshot of storedSnapshots) {
-        if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
-        if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
-            !snapshot.actualWaterTemperatureTimestamp) continue;
-        const sourceLocation = locationById.get(snapshot.locationId);
-        historicalWaterTemperatures.push({
-          locationId: snapshot.locationId,
-          temperatureC: snapshot.actualWaterTemperature,
-          timestamp: snapshot.actualWaterTemperatureTimestamp,
-          waterType: sourceLocation?.waterType,
-          waterDepth: sourceLocation?.waterDepth,
-          latitude: sourceLocation?.latitude,
-          longitude: sourceLocation?.longitude,
-          isBenchmark: false,
-        });
-      }
-      for (const session of sessions) {
-        if (session.isBenchmark === true) continue;
-        if (!session.locationId || typeof session.waterTemperature !== 'number') continue;
-        const sourceLocation = locationById.get(session.locationId);
-        historicalWaterTemperatures.push({
-          locationId: session.locationId,
-          temperatureC: session.waterTemperature,
-          timestamp: session.startTime,
-          waterType: sourceLocation?.waterType,
-          waterDepth: session.waterDepth ?? sourceLocation?.waterDepth,
-          latitude: sourceLocation?.latitude,
-          longitude: sourceLocation?.longitude,
-          isBenchmark: session.isBenchmark,
-        });
-      }
+      const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
+        sessions,
+        storedSnapshots,
+        locations
+      );
       setWeatherUpdatedAt(weather.fetchedAt);
       setIsCachedWeather(weather.isFromCache);
 
