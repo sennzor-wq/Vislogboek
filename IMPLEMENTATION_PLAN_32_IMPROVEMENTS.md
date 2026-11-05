@@ -138,6 +138,7 @@ Elke fase wordt op een afzonderlijke branch ontwikkeld, krijgt gerichte regressi
 #### 6D — Integratie en validatie
 - Plan → bewuste sessiestart → startsnapshot → automatische sessieherbeoordeling → betekenisvol nieuw advies → uitvoering → evaluatie.
 - Backup/restore van alle nieuwe persistente records en relaties.
+- Veilige verwijdering testen: coachadvies volgt de expliciete sessieverwijdering; planningshistorie blijft behouden; snapshots met plan-/adviesverwijzingen worden beschermd.
 - Offlinegedrag, heropenen, dubbele events, herhaalde identieke weerdata, kleine fluctuaties en gecombineerde relevante veranderingen testen.
 - Bestaande sessies, vangsten, prognoses, import/export en alle huidige instaproutes regressietesten.
 
