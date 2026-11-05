@@ -1,6 +1,6 @@
 # VisCoach – product roadmap en technisch ontwikkelplan
 
-**Documentstatus:** productvoorstel / ontwerp, nog niet geïmplementeerd  
+**Documentstatus:** goedgekeurde productarchitectuur; eerste geïntegreerde implementatiemijlpaal samengevoegd in `main`; resterende roadmapfases zijn nog in ontwikkeling  
 **Onderzoeks- en peildatum:** 2 november 2026  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Doel:** de VisCoach ontwikkelen tot de onderscheidende, persoonlijke advies- en begeleidingslaag van Vislogboek.
