@@ -9,6 +9,7 @@ import {
   TimeSlotAnalysis,
   PresenceObservationType,
   CatchItem,
+  WeatherHourlyForecast,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
 import { calculateDayPrognosis, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
@@ -76,6 +77,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [dayPrognoses, setDayPrognoses] = useState<DayPrognosis[]>([]);
+  const [hourlyForecast, setHourlyForecast] = useState<WeatherHourlyForecast[]>([]);
   const [weatherUpdatedAt, setWeatherUpdatedAt] = useState<string>('');
   const [isCachedWeather, setIsCachedWeather] = useState<boolean>(false);
   const [expandedSlots, setExpandedSlots] = useState<Record<TimeSlot, boolean>>({
@@ -96,6 +98,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const lon = selectedLoc?.longitude ?? 5.228;
 
       const weather = await getForecast(lat, lon, forceRefresh);
+      setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
       const locationById = new Map(locations.map((item) => [item.id, item]));
@@ -242,6 +245,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     const pendingSnapshot: PendingPrognosisSnapshot = {
       prognosis: activeDayProg,
       durationHours: selectedDurationHours,
+      durationKnown: true,
+      weatherInput: hourlyForecast,
+      runKind: 'session_start',
       locationName: selectedLoc?.name,
       chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
         ? (activeDayProg.bestTimeSlot as TimeSlot)
