@@ -257,6 +257,27 @@ async function runTestSuite() {
     '3.1 Verwijderen van sessie zonder snapshotId raakt niet-gekoppelde momentopnames niet'
   );
 
+  const planProtectingSnapshot: PlannedFishingSession = {
+    id: 'plan-protecting-snapshot',
+    locationId: 'spot-de-plas',
+    targetSpecies: 'Snoek',
+    plannedStartTime: '2026-10-31T10:00:00Z',
+    status: 'planned',
+    planSnapshotId: snapUnrelated.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  await db.plannedSessions.put(planProtectingSnapshot);
+  let snapshotDeleteBlocked = false;
+  try {
+    await deletePrognosisSnapshotSafely(snapUnrelated.id);
+  } catch {
+    snapshotDeleteBlocked = true;
+  }
+  assert(snapshotDeleteBlocked, '3.1a Een planverwijzing beschermt de bijbehorende prognosesnapshot tegen losse verwijdering');
+  assert(await db.prognosisSnapshots.get(snapUnrelated.id) !== undefined, '3.1b Beschermde planprognose blijft behouden');
+  await db.plannedSessions.delete(planProtectingSnapshot.id);
+
   // 3.2 Sessie met snapshotId naar reeds ontbrekende snapshot (gebroken koppeling)
   const sessBrokenSnap: FishingSession = {
     id: 'sess_broken_snap_004',
