@@ -156,6 +156,11 @@ export default function App() {
     setIsStartingSession(true);
   };
 
+  const handleManualReassessment = async (sessionId: string) => {
+    await reassessActiveSessions('manual_reanalysis', sessionId);
+    setCoachAdviceRecords(await db.coachAdviceRecords.toArray());
+  };
+
   const handleSavePlannedSession = async (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => {
     const saved = await saveVisCoachPlan(plan, location, species);
     setPlannedSessions((previous) => [...previous.filter((item) => item.id !== saved.id), saved]
@@ -387,6 +392,7 @@ export default function App() {
             sessionRods={sessionRods}
             onSaveCatch={handleSaveCatch}
             coachAdviceRecords={coachAdviceRecords}
+            onManualReassessment={handleManualReassessment}
           />
         )}
         {currentTab === 'locations' && (
