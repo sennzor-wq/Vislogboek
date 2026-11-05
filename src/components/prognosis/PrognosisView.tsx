@@ -13,7 +13,7 @@ import {
   PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
-import { calculateDayPrognosis, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
+import { calculateDayPrognosis, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import {
@@ -256,6 +256,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       durationKnown: true,
       weatherInput: hourlyForecast,
       inputContext,
+      inputFingerprint: createPrognosisInputFingerprint({ inputContext, weather: hourlyForecast, technique: undefined }),
       runKind: 'session_start',
       locationName: selectedLoc.name,
       chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
