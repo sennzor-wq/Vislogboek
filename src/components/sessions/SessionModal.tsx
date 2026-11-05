@@ -163,9 +163,15 @@ export const SessionModal: React.FC<SessionModalProps> = ({
       const plannedEndIso = plannedEndTime ?? session?.plannedEndTime ?? null;
       const plannedStartMs = new Date(startTime).getTime();
       const plannedEndMs = plannedEndIso ? new Date(plannedEndIso).getTime() : NaN;
-      const calculatedPlannedDuration = Number.isFinite(plannedEndMs) && plannedEndMs > plannedStartMs
-        ? (plannedEndMs - plannedStartMs) / 3600000
+      const calculatedPlannedDuration = plannedEndIso
+        ? (Number.isFinite(plannedEndMs) && plannedEndMs > plannedStartMs &&
+            plannedEndMs - plannedStartMs <= 24 * 3600000
+            ? (plannedEndMs - plannedStartMs) / 3600000
+            : null)
         : sessionDurationHours ?? session?.plannedDurationHours ?? null;
+      const snapshotDurationHours = plannedEndIso
+        ? calculatedPlannedDuration ?? undefined
+        : sessionDurationHours ?? session?.plannedDurationHours ?? undefined;
 
       const parsedRods = typeof rodCount === 'number'
         ? Math.max(1, Math.floor(rodCount))
@@ -220,7 +226,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
               selectedTargetSpecies[0] || 'Karper',
-              calculatedPlannedDuration ?? sessionDurationHours,
+              snapshotDurationHours,
               technique,
               payload.weatherSnapshot,
               payload.waterTemperature ?? null
