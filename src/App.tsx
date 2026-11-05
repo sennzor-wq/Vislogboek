@@ -459,6 +459,7 @@ export default function App() {
             setPrefilledSessionDurationHours(undefined);
             setPrefilledPlannedEndTime(null);
             setPrefilledPlannedSessionId(undefined);
+            setPrefilledSessionId(undefined);
           }}
         />
       )}
