@@ -12,8 +12,6 @@ import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
 import { VisCoachView } from './components/viscoach/VisCoachView';
 import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
-import { VisCoachView } from './components/viscoach/VisCoachView';
-import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -33,8 +31,6 @@ export default function App() {
   const [sessions, setSessions] = useState<FishingSession[]>([]);
   const [catches, setCatches] = useState<CatchItem[]>([]);
   const [sessionRods, setSessionRods] = useState<SessionRod[]>([]);
-  const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
-  const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [plannedSessions, setPlannedSessions] = useState<PlannedFishingSession[]>([]);
   const [prefilledPlannedSessionId, setPrefilledPlannedSessionId] = useState<string | undefined>(undefined);
   const [isStartingSession, setIsStartingSession] = useState<boolean>(false);
@@ -66,7 +62,6 @@ export default function App() {
       setSessions(allSessions);
       setCatches(allCatches);
       setSessionRods(allSessionRods);
-      setPlannedSessions(allPlannedSessions);
       setPlannedSessions(allPlannedSessions);
     } catch (err) {
       console.error('Fout bij laden van Vislogboek data:', err);
