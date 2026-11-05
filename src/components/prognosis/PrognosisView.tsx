@@ -238,7 +238,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       },
       historicalSessionIds: sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
       catchRecordIds: catches.map((item) => item.id),
-      observationIds: storedObservations.map((item) => item.id),
+      observationIds: [],
+      presenceObservation: selectedPresenceObs,
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
       historySummary: {
         sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
