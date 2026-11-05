@@ -122,10 +122,13 @@ export async function createInitialCoachAdviceRecord(
   snapshot: PrognosisSnapshot
 ): Promise<CoachAdviceRecord | null> {
   if (!snapshot.prognosisData || snapshot.linkedSessionId !== session.id) return null;
-  const existing = await db.coachAdviceRecords.where('sessionId').equals(session.id).first();
-  if (existing) return existing;
-  const advice = createAdviceRecord(session, snapshot, snapshot.prognosisData, undefined, 'session_start', []);
-  await db.coachAdviceRecords.put(advice);
+  const advice = await db.transaction('rw', db.coachAdviceRecords, async () => {
+    const existing = await db.coachAdviceRecords.where('sessionId').equals(session.id).first();
+    if (existing) return existing;
+    const created = createAdviceRecord(session, snapshot, snapshot.prognosisData!, undefined, 'session_start', []);
+    await db.coachAdviceRecords.put(created);
+    return created;
+  });
   notifyVisCoachUpdated();
   return advice;
 }
