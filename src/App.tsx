@@ -11,7 +11,7 @@ import { WeatherView } from './components/weather/WeatherView';
 import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
 import { VisCoachView } from './components/viscoach/VisCoachView';
-import { VisCoachPlan, buildVisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
+import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -143,18 +143,15 @@ export default function App() {
     const plannedEnd = planned.plannedEndTime && new Date(planned.plannedEndTime).getTime() > now.getTime()
       ? planned.plannedEndTime
       : null;
-    const freshPlan = await buildVisCoachPlan({
-      location,
-      targetSpecies: species,
-      desiredStartTime: now.toISOString(),
-      desiredEndTime: plannedEnd,
-      sessions,
-      catches,
-    });
+    const plannedDuration = plannedEnd
+      ? (new Date(plannedEnd).getTime() - now.getTime()) / 3600000
+      : undefined;
     setPrefilledSpecies(species);
     setPrefilledLocationId(planned.locationId);
     setPendingPrognosisSnapshot(undefined);
-    setPrefilledSessionDurationHours(freshPlan.durationHours ?? undefined);
+    setPrefilledSessionDurationHours(plannedDuration && plannedDuration > 0 && plannedDuration <= 24
+      ? plannedDuration
+      : undefined);
     setPrefilledPlannedSessionId(planned.id);
     setIsStartingSession(true);
   };
@@ -449,6 +446,7 @@ export default function App() {
           onClose={() => {
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);
+            setPrefilledSessionDurationHours(undefined);
             setPrefilledPlannedSessionId(undefined);
           }}
         />
