@@ -161,7 +161,7 @@ export default function App() {
         [...previous.filter((session) => session.id !== savedSession.id), savedSession]
           .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
       );
-      if (savedSession.outcome === 'active') {
+      if (savedSession.outcome === 'active' && !pendingSnapshot) {
         void reassessActiveSessions('session_changed').catch((error) => {
           console.error('VisCoach kon de gewijzigde sessie niet herbeoordelen:', error);
         });
