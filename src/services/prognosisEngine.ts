@@ -1230,7 +1230,8 @@ export async function createLiveSnapshotForSessionStart(
       },
       historicalSessionIds: allSessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
       catchRecordIds: allCatches.map((item) => item.id),
-      observationIds: allObservations.map((item) => item.id),
+      observationIds: [],
+      presenceObservation: 'onbekend',
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
       historySummary: {
         sessionCount: allSessions.filter((item) => item.isBenchmark !== true).length,
