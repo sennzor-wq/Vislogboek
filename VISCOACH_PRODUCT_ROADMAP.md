@@ -924,6 +924,7 @@ De read-only technische audit is uitgevoerd op de bestaande repository. De archi
 8. **Minimale gebruikersinteractie.** Automatische verwerking is de standaard waar de app actief is; handmatige heranalyse is aanvullend en herinneringen zijn optioneel. De gebruiker houdt controle over het uitvoeren van tactische voorstellen.
 9. **Offline-first.** De kern blijft lokaal. Een volledig gesloten PWA kan geen continue achtergrondverwerking garanderen; bij opnieuw openen wordt de sessie met de meest recente beschikbare gegevens bijgewerkt.
 10. **Kleine, controleerbare uitbreidingen.** Nieuwe gegevens worden toegevoegd aan de bestaande datamodellen, Dexie-opslag en backupcontracten. Geen dubbele database, soortlijst, locatieopslag of sessiebeheer.
+11. **Veilige verwijdering.** Expliciete sessieverwijdering verwijdert de bijbehorende coachadviezen, maar behoudt gekoppelde planningshistorie en maakt alleen de verwijzing naar de verwijderde sessie los. Een prognosesnapshot die nog door een plan of advies wordt gebruikt, kan niet afzonderlijk worden verwijderd.
 
 ### Uitvoeringsvolgorde binnen de resterende VisCoach-fase
 
