@@ -295,7 +295,7 @@ export async function reassessActiveSessions(
         historicalWaterTemperatureSamples: historicalWaterTemperatures,
         historyFingerprint: createPrognosisInputFingerprint({
           sessions: sessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-          catches: catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weight, item.length, item.bait, item.technique]),
+          catches: catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
           observations: sessionObservations.map((item) => [item.id, item.timestamp, item.observationType]),
           historicalWaterTemperatures,
         }),
