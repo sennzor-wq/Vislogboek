@@ -11,7 +11,7 @@ import { WeatherView } from './components/weather/WeatherView';
 import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
 import { VisCoachView } from './components/viscoach/VisCoachView';
-import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
+import { VisCoachPlan, buildVisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -133,10 +133,25 @@ export default function App() {
     setIsStartingSession(true);
   };
 
-  const handleStartPlannedSession = (planned: PlannedFishingSession) => {
-    setPrefilledSpecies(planned.targetSpecies === 'Algemeen' ? undefined : planned.targetSpecies);
+  const handleStartPlannedSession = async (planned: PlannedFishingSession) => {
+    const location = locations.find((item) => item.id === planned.locationId);
+    if (!location) throw new Error('De stek van deze geplande sessie bestaat niet meer.');
+    const species: FishSpecies = planned.targetSpecies === 'Algemeen' ? 'Overig' : planned.targetSpecies;
+    const now = new Date();
+    const plannedEnd = planned.plannedEndTime && new Date(planned.plannedEndTime).getTime() > now.getTime()
+      ? planned.plannedEndTime
+      : null;
+    const freshPlan = await buildVisCoachPlan({
+      location,
+      targetSpecies: species,
+      desiredStartTime: now.toISOString(),
+      desiredEndTime: plannedEnd,
+      sessions,
+      catches,
+    });
+    setPrefilledSpecies(species);
     setPrefilledLocationId(planned.locationId);
-    setPendingPrognosisSnapshot(undefined);
+    setPendingPrognosisSnapshot(freshPlan.pendingSnapshot);
     setPrefilledPlannedSessionId(planned.id);
     setIsStartingSession(true);
   };
