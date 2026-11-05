@@ -449,10 +449,48 @@ export interface CoachAdviceRecord {
   engineVersions?: Record<string, string>;
 }
 
+export interface PrognosisInputContext {
+  calculatedAt: string;
+  timezone: string;
+  targetDate: string;
+  targetSpecies: FishSpecies | 'Algemeen';
+  sessionDurationHours: number | null;
+  location: {
+    id: string;
+    latitude?: number;
+    longitude?: number;
+    waterType?: string;
+    waterDepth?: number;
+    bankOrientation?: CompassDirection | null;
+    habitatFeatures?: string[];
+  };
+  historicalSessionIds: string[];
+  catchRecordIds: string[];
+  observationIds: string[];
+  historicalWaterTemperatureSamples: Array<{
+    locationId: string;
+    temperatureC: number;
+    timestamp: string;
+    waterType?: string;
+    waterDepth?: number;
+    latitude?: number;
+    longitude?: number;
+    isBenchmark?: boolean;
+  }>;
+  historySummary: {
+    sessionCount: number;
+    catchRecordCount: number;
+    observationCount: number;
+    historicalWaterTemperatureSampleCount: number;
+  };
+  weatherFetchedAt?: string;
+}
+
 export interface PrognosisSnapshot {
   id: string;
   runKind?: PrognosisRunKind;
   inputFingerprint?: string;
+  inputContext?: PrognosisInputContext;
   supersedesSnapshotId?: string;
   /** Volledige uitvoer van de bestaande engine; geen tweede prognoseobject. */
   prognosisData?: DayPrognosis;
