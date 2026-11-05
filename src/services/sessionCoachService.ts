@@ -278,6 +278,7 @@ export async function reassessActiveSessions(
         targetDate: date,
         targetSpecies: species,
         sessionDurationHours: durationHours,
+        technique: session.technique ?? null,
         location: {
           id: location.id,
           latitude: location.latitude,
