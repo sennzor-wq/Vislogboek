@@ -58,7 +58,7 @@ async function run() {
     durationHours: 2, predictedActivityScore: 6, predictedCatchChance: 42,
     predictedConditions: { temperature: 10, pressure: 1015, windSpeed: 8, windDirection: 180,
       cloudCover: 50, precipitation: 0, source: 'handmatig', capturedAt: '2026-11-02T09:00:00.000Z' },
-    source: 'test', modelVersion: 'test-v1', createdAt: '2026-11-02T09:00:00.000Z',
+    source: 'test', modelVersion: 'test-v1', engineVersions: { prognosis: '1.0.0', waterThermal: '1.0.0' }, createdAt: '2026-11-02T09:00:00.000Z',
     runKind: 'session_start',
     durationKnown: true,
     inputContext: {
