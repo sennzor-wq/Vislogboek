@@ -203,6 +203,36 @@ async function run() {
   const duplicateRodImport = await inspectImportFile(JSON.stringify(duplicateRodBackup));
   assert(!duplicateRodImport.preview.valid, 'Dubbele hengelnummers binnen één sessie worden vóór import geweigerd');
 
+  const orphanCatch = await inspectImportFile(JSON.stringify({
+    ...backup, catches: [{ ...catchItem, sessionId: 'missing-session' }],
+  }));
+  assert(!orphanCatch.preview.valid, 'Vangst zonder bestaande sessierelatie wordt vóór import geweigerd');
+
+  const orphanSessionLocation = await inspectImportFile(JSON.stringify({
+    ...backup, sessions: [session, { ...session, id: 'orphan-location-session', locationId: 'missing-location' }],
+  }));
+  assert(!orphanSessionLocation.preview.valid, 'Sessie met ontbrekende stekreferentie wordt vóór import geweigerd');
+
+  const orphanSessionSnapshot = await inspectImportFile(JSON.stringify({
+    ...backup, sessions: [{ ...session, snapshotId: 'missing-snapshot' }],
+  }));
+  assert(!orphanSessionSnapshot.preview.valid, 'Sessie met ontbrekende snapshotreferentie wordt vóór import geweigerd');
+
+  const orphanSnapshotSession = await inspectImportFile(JSON.stringify({
+    ...backup, prognosisSnapshots: [{ ...snapshot, linkedSessionId: 'missing-session' }],
+  }));
+  assert(!orphanSnapshotSession.preview.valid, 'Snapshot met ontbrekende sessiereferentie wordt vóór import geweigerd');
+
+  const orphanObservation = await inspectImportFile(JSON.stringify({
+    ...backup, presenceObservations: [{ ...observation, sessionId: 'missing-session' }],
+  }));
+  assert(!orphanObservation.preview.valid, 'Waarneming met ontbrekende sessiereferentie wordt vóór import geweigerd');
+
+  const duplicateCatchId = await inspectImportFile(JSON.stringify({
+    ...backup, catches: [catchItem, { ...catchItem }],
+  }));
+  assert(!duplicateCatchId.preview.valid, 'Dubbele record-IDs binnen één back-uptabel worden vóór import geweigerd');
+
   const future = await inspectImportFile(JSON.stringify({ version: 6, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');
   const malformed = await inspectImportFile(JSON.stringify({ version: 5, locations: [{ name: 'Geen ID' }], sessions: [], catches: [] }));
