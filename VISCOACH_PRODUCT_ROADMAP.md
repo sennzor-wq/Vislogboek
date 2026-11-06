@@ -1103,3 +1103,5 @@ In de branch zijn de volgende technische aanpassingen aangebracht; samenvoeging 
 - P2: afzonderlijke, testbare onderhouds- en validatieverbeteringen.
 
 De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules blijven de enige gezaghebbende implementaties voor hun domein.
+
+8. Persoonlijke voorvoerhistorie gebruikt dezelfde soortspecifieke bewijsregel: alleen een bekende vangstregistratie van de doelsoort telt als vangstsucces; expliciete bevestigde nulvangsten blijven geldig. De bestaande vangstrecords worden doorgegeven aan `prebaitEngine.ts`.
