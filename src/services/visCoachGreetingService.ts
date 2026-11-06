@@ -321,26 +321,32 @@ function getCategory(context: WelcomeGreetingContext): WelcomeGreetingCategory {
 
 export function selectWelcomeGreeting(
   context: WelcomeGreetingContext,
-  previousGreetingId?: string | null
+  recentGreetingIds: string[] = []
 ): WelcomeGreeting {
   const category = getCategory(context);
   const candidates = GREETINGS[category];
   const now = context.date || new Date();
   const dayOfYear = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
   const historySeed = context.daysSinceLastSession ?? 0;
-  let index = (dayOfYear + historySeed + (context.weather?.weatherCode ?? 0)) % candidates.length;
-  let id = `${category}-${index + 1}`;
-  if (id === previousGreetingId) {
-    index = (index + 1) % candidates.length;
-    id = `${category}-${index + 1}`;
+  const startIndex = (dayOfYear + historySeed + (context.weather?.weatherCode ?? 0)) % candidates.length;
+
+  // Loop door de categorie heen en sla recent getoonde teksten over.
+  let index = startIndex;
+  for (let offset = 0; offset < candidates.length; offset += 1) {
+    const candidateIndex = (startIndex + offset) % candidates.length;
+    const candidateId = category + '-' + (candidateIndex + 1);
+    if (!recentGreetingIds.includes(candidateId)) {
+      index = candidateIndex;
+      break;
+    }
   }
+
   let text = candidates[index];
   if (category === 'long-break') {
     text = text.replaceAll('{days}', String(context.daysSinceLastSession ?? 0));
   }
-  return { id, category, text };
+  return { id: category + '-' + (index + 1), category, text };
 }
-
 export function getGreetingLibrarySize(): number {
   return Object.values(GREETINGS).reduce((total, entries) => total + entries.length, 0);
 }
