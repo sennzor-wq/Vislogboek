@@ -851,6 +851,7 @@ const adviceRich = analyzeRodPositioning('2026-07-20', fcRich, 'Karper', {
   location: baseLoc,
   thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
   historicalSessions: richSessions,
+  historicalCatches: makeKnownCarpCatches(richSessions),
 });
 const wcgRich = adviceRich.windCastingGuidance!;
 
