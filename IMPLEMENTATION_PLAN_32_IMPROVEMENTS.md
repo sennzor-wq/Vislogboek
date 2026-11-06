@@ -185,3 +185,17 @@ Elke fase wordt hieronder bijgewerkt met branch/PR, gewijzigde onderdelen, testr
 - Dit betekent niet dat de wateroptimalisatie ontbreekt in de huidige app. In de huidige `main` zijn de prefix-somoptimalisatie voor 24-/72-uursvensters in `waterThermalEngine.ts`, hergebruik van druk-/sessie-/vangstgegevens via caches in `prognosisEngine.ts`, temperatuurvalidatiecache in `evaluationEngine.ts` en eenmalige database-initialisatie aantoonbaar aanwezig.
 - De branch bevat daarnaast oudere versies van bestanden die sindsdien op `main` verder zijn gewijzigd. De resterende branch-diff moet afzonderlijk worden beoordeeld; de branch mag niet als geheel worden gemerged of als ontbrekende functionaliteit worden beschouwd zonder die vergelijking.
 - Een groene CI-run of codevergelijking bewijst op zichzelf geen gemeten snelheidswinst op een fysiek toestel. Daarvoor blijft een reproduceerbare benchmark nodig.
+
+
+## Status voorbereidende stap / Fase 0 — afgerond op 6 november 2026
+
+De read-only audit en datadictionary zijn vastgelegd in [`FASE0_DATA_DICTIONARY_AND_BASELINE.md`](FASE0_DATA_DICTIONARY_AND_BASELINE.md).
+
+- Baseline: `main` commit `65f56c4a7408d874defa415212b74cd165f01147`.
+- Quality Gate: [run #42273675118](https://github.com/sennzor-wq/Vislogboek/actions/runs/42273675118), volledig geslaagd op de baselinecommit.
+- Geïnventariseerd: TypeScript-domeintypen, Dexie schema v4, tien persistente tabellen, JSON-backup v5, import-/restorepaden, bestaande services, UI-koppelingen en testdekking.
+- Datadictionary beschrijft veldbron, optioneel/verplicht, betrouwbaarheid en verantwoord analysegebruik. Ontbrekende waarden blijven onbekend; geplande en werkelijke inspanning blijven gescheiden.
+- Geen applicatiecode of databasegegevens gewijzigd. De audit kon de IndexedDB-inhoud van een gebruikersapparaat niet uitlezen.
+- Resterende aandachtspunten zijn expliciet geregistreerd in de audit; ze zijn geen reden om de nulmeting of testresultaten te overschatten.
+
+**Acceptatie voorbereidende stap/Fase 0:** documentatie en codecontract zijn geïnventariseerd; datadictionary en baseline zijn vastgelegd; CI is geslaagd; er is geen applicatiegedrag gewijzigd. Fase 0 is hiermee gereed.
