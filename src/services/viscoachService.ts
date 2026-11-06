@@ -14,6 +14,7 @@ import { calculateDayPrognosis, createPrognosisInputFingerprint, PendingPrognosi
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
+import { TIME_SLOT_HOURS } from './prognosisEngine';
 
 /**
  * Berekent de afstand in kilometers tussen twee GPS-coördinaten via de Haversine-formule.
@@ -179,8 +180,31 @@ export interface VisCoachPlan {
   desiredStartTime: string;
   desiredEndTime: string | null;
   durationHours: number | null;
+  selectedTimeSlot?: import('../types').TimeSlot;
 }
 
+export function resolveSelectedTimeSlot(start: Date, end: Date | null): import('../types').TimeSlot | undefined {
+  const parts = (date: Date) => {
+    const values = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).formatToParts(date);
+    const hour = Number(values.find((part) => part.type === 'hour')?.value);
+    const minute = Number(values.find((part) => part.type === 'minute')?.value);
+    return { date: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(date), minutes: hour * 60 + minute };
+  };
+  const startParts = parts(start);
+  const endParts = end ? parts(end) : null;
+  const endsAtMidnightNextDay = Boolean(endParts && endParts.date !== startParts.date && endParts.minutes === 0);
+  if (endParts && endParts.date !== startParts.date && !endsAtMidnightNextDay) return undefined;
+  const slots = Object.entries(TIME_SLOT_HOURS) as Array<[import('../types').TimeSlot, { start: number; end: number }] >;
+  const slot = slots.find(([, range]) => {
+    const startMinute = range.start * 60;
+    const endMinute = range.end * 60;
+    return startParts.minutes >= startMinute &&
+      (endParts ? (endsAtMidnightNextDay ? endMinute === 24 * 60 : endParts.minutes <= endMinute && endParts.minutes > startParts.minutes) : true);
+  });
+  return slot?.[0];
+}
 
 /**
  * Bouwt een VisCoach-plan door de bestaande prognose-engine te gebruiken.
@@ -307,14 +331,15 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     catches: input.catches.map((item) => [item.id, item.timestamp, item.species, item.count]),
   });
 
+  const selectedTimeSlot = resolveSelectedTimeSlot(start, end);
   const pendingSnapshot: PendingPrognosisSnapshot = {
     prognosis,
     durationHours: durationHours ?? 0,
     durationKnown: durationHours !== null,
     locationName: input.location.name,
-    chosenSlot: prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag'
-      ? undefined
-      : prognosis.bestTimeSlot,
+    chosenSlot: selectedTimeSlot,
+    targetWindowStart: start.toISOString(),
+    targetWindowEnd: end?.toISOString() ?? null,
     conditions,
     weatherInput: weather.hourly,
     inputContext,
@@ -328,6 +353,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     desiredStartTime: start.toISOString(),
     desiredEndTime: end?.toISOString() ?? null,
     durationHours,
+    selectedTimeSlot,
   };
 }
 
@@ -353,6 +379,8 @@ export async function saveVisCoachPlan(
         weatherInput: plan.pendingSnapshot.weatherInput,
         inputContext: plan.pendingSnapshot.inputContext,
         inputFingerprint: plan.pendingSnapshot.inputFingerprint,
+        targetWindowStart: plan.pendingSnapshot.targetWindowStart,
+        targetWindowEnd: plan.pendingSnapshot.targetWindowEnd,
       }
     );
     const planned: PlannedFishingSession = {

@@ -126,6 +126,12 @@ export interface CatchItem {
   technique?: string;
   notes?: string;
   photoUrl?: string;              // Base64 data URL
+  /** Kwaliteitsvlaggen voor legacy-import; false betekent dat de waarde niet uit de bron bekend was. */
+  legacyImportQuality?: {
+    speciesKnown: boolean;
+    countKnown: boolean;
+    timestampKnown: boolean;
+  };
   createdAt: string;
 }
 
@@ -154,6 +160,10 @@ export interface FishingSession {
   missedCount?: number;           // gemiste vissen
   waterDepth?: number;
   waterTemperature?: number | null; // Gemeten watertemperatuur in °C (optioneel, nooit 0 indien onbekend)
+  waterTemperatureMeasuredAt?: string; // Exact meetmoment; ontbrekend betekent niet bruikbaar voor temperatuurvalidatie
+  waterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
+  waterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  waterTemperatureMeasurementDepthM?: number;
   baitDirection?: CompassDirection | null; // Richting van aasaanbieding (optioneel, nooit verplicht)
   notes?: string;
   weatherSnapshot?: WeatherSnapshot;
@@ -163,6 +173,15 @@ export interface FishingSession {
   isBenchmark?: boolean;          // Beschermde benchmark!
   createdAt: string;
   updatedAt: string;
+  /** Kwaliteitsvlaggen voor legacy-import; false betekent dat de waarde niet uit de bron bekend was. */
+  legacyImportQuality?: {
+    startDateKnown: boolean;
+    startTimeKnown: boolean;
+    endTimeKnown: boolean;
+    durationKnown: boolean;
+    targetSpeciesKnown: boolean;
+    weatherSnapshotKnown: boolean;
+  };
 }
 
 /** Een werkelijk actief tijdvak van één hengel. Een lege eindtijd betekent dat de interval nog loopt. */
@@ -252,6 +271,7 @@ export interface HistoricalCatchRateInfo {
 }
 
 export interface DayPrognosis {
+  dataQualityReport?: import('../services/dataQualityEngine').DataQualityReport;
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
   species: FishSpecies | 'Algemeen';
@@ -259,7 +279,7 @@ export interface DayPrognosis {
   activityScoreAvailable?: boolean;
   weatherDataQuality?: WeatherDataQuality;
   advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig';
-  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag';
+  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid';
   alternativeTimeSlots: TimeSlot[];
   summaryRationale: string;
   personalCatchChance: number | null; // % kans op >= 1 vangst van doelsoort tijdens sessie
@@ -509,6 +529,8 @@ export interface PrognosisSnapshot {
   locationName?: string;
   durationHours: number; // 0 betekent expliciet onbekend; nooit als sessieduur interpreteren
   durationKnown?: boolean;
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   technique?: string;
   predictedActivityScore: number | null;  // null indien ontbrekende gegevens de index onbetrouwbaar maken
   activityScoreAvailable?: boolean;
@@ -530,6 +552,9 @@ export interface PrognosisSnapshot {
   predictedWaterTemperatureWeatherCoverage?: number;
   actualWaterTemperature?: number | null;
   actualWaterTemperatureTimestamp?: string;
+  actualWaterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
+  actualWaterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  actualWaterTemperatureMeasurementDepthM?: number;
   source: string;
   modelVersion: string;            // bijv. 'v2.2'
   linkedSessionId?: string;

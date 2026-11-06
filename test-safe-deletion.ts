@@ -307,21 +307,30 @@ async function runTestSuite() {
   await db.prognosisSnapshots.clear();
 
   const sixSnapshots: PrognosisSnapshot[] = [
-    { id: 's_eval_1', forecastTimestamp: '', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, actualOutcome: 'catch', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_2', forecastTimestamp: '', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'catch', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_3', forecastTimestamp: '', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'skunk_confirmed', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_4', forecastTimestamp: '', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 5, predictedCatchChance: 20, actualOutcome: 'skunk_confirmed', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_5', forecastTimestamp: '', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 50, actualOutcome: 'catch', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_6', forecastTimestamp: '', targetDate: '2026-10-06', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, actualOutcome: 'catch', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_1', forecastTimestamp: '2026-10-01T07:00:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, actualOutcome: 'catch', linkedSessionId: 's_eval_session_1', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_2', forecastTimestamp: '2026-10-02T07:00:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'catch', linkedSessionId: 's_eval_session_2', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_3', forecastTimestamp: '2026-10-03T07:00:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_3', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_4', forecastTimestamp: '2026-10-04T07:00:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 5, predictedCatchChance: 20, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_4', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_5', forecastTimestamp: '2026-10-05T07:00:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 50, actualOutcome: 'catch', linkedSessionId: 's_eval_session_5', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_6', forecastTimestamp: '2026-10-06T07:00:00Z', targetDate: '2026-10-06', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, actualOutcome: 'catch', linkedSessionId: 's_eval_session_6', source: '', modelVersion: 'v2.2', createdAt: '' },
   ];
-
+  const evaluationSessions: FishingSession[] = sixSnapshots.map((snapshot, index) => ({
+    id: snapshot.linkedSessionId!,
+    startTime: `2026-10-0${index + 1}T08:00:00Z`,
+    endTime: `2026-10-0${index + 1}T11:00:00Z`,
+    outcome: snapshot.actualOutcome as 'catch' | 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: `2026-10-0${index + 1}T08:00:00Z`,
+    updatedAt: `2026-10-0${index + 1}T11:00:00Z`,
+  }));
+  await db.sessions.bulkPut(evaluationSessions);
   for (const s of sixSnapshots) {
     await db.prognosisSnapshots.put(s);
   }
 
   // Initial calculation with 6 snapshots
   const all6 = await db.prognosisSnapshots.toArray();
-  const eval6 = evaluatePrognosisPerformance(all6);
+  const eval6 = evaluatePrognosisPerformance(all6, all6, evaluationSessions);
   assert(
     eval6.evaluatedCount === 6 && eval6.hasSufficientData === true,
     `4.1 Initiële evaluatie met 6 snapshots: evaluatedCount=${eval6.evaluatedCount}, hasSufficientData=true`
@@ -330,7 +339,7 @@ async function runTestSuite() {
   // Verwijder 1 snapshot: s_eval_6 (f=0.8, o=1.0)
   await deletePrognosisSnapshotSafely('s_eval_6');
   const all5 = await db.prognosisSnapshots.toArray();
-  const eval5 = evaluatePrognosisPerformance(all5);
+  const eval5 = evaluatePrognosisPerformance(all5, all5, evaluationSessions);
 
   assert(
     eval5.evaluatedCount === 5 && eval5.totalSnapshots === 5,
@@ -355,7 +364,7 @@ async function runTestSuite() {
   // Verwijder nog 1 snapshot -> nu N=4 (<5 drempel)
   await deletePrognosisSnapshotSafely('s_eval_5');
   const all4 = await db.prognosisSnapshots.toArray();
-  const eval4 = evaluatePrognosisPerformance(all4);
+  const eval4 = evaluatePrognosisPerformance(all4, all4, evaluationSessions);
 
   assert(
     eval4.evaluatedCount === 4 && eval4.hasSufficientData === false,

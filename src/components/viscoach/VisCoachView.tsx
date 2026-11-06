@@ -253,8 +253,9 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="rounded-2xl bg-slate-900/80 p-4">
               <Clock className="w-5 h-5 text-sky-300 mb-2" />
-              <p className="text-[11px] uppercase tracking-wide text-slate-500">Beste tijdvak</p>
-              <p className="text-base font-bold text-white">{plan.prognosis.bestTimeSlot}</p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500">Tijdvak van je plan</p>
+              <p className="text-base font-bold text-white">{plan.selectedTimeSlot ?? (plan.desiredEndTime ? 'Meerdere tijdvakken' : 'Starttijd vastgelegd')}</p>
+              <p className="text-[10px] text-slate-500 mt-1">Dagprognose: {plan.prognosis.bestTimeSlot}</p>
             </div>
             <div className="rounded-2xl bg-slate-900/80 p-4">
               <Fish className="w-5 h-5 text-emerald-300 mb-2" />

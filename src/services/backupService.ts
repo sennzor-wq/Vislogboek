@@ -131,6 +131,7 @@ export function normalizeRawBackup(raw: any): BackupData {
   }
 
   // Geval 2: vislogboek-backup formaat met 'spots' en geneste 'catches'
+  const importedAt = new Date().toISOString();
   const locations: FishingLocation[] = [];
   const rawSpots = Array.isArray(raw.spots) ? raw.spots : (Array.isArray(raw.locations) ? raw.locations : []);
   for (const sp of rawSpots) {
@@ -164,77 +165,81 @@ export function normalizeRawBackup(raw: any): BackupData {
     const rawCatches = Array.isArray(s.catches) ? s.catches : [];
     const sessionCatches: CatchItem[] = [];
 
-    // Verwerk vangsten van deze sessie
+    // Verwerk vangsten zonder ontbrekende soort, aantallen of tijdstippen te verzinnen.
     for (const c of rawCatches) {
+      const speciesKnown = typeof c.species === 'string' && c.species.trim().length > 0;
+      const countKnown = typeof c.count === 'number' && Number.isFinite(c.count) && c.count > 0;
+      const timestamp = c.timestamp || (c.time && s.date ? `${s.date}T${c.time}:00` : null);
+      const timestampKnown = typeof timestamp === 'string' && Number.isFinite(Date.parse(timestamp));
       const catchItem: CatchItem = {
         id: c.id,
         sessionId: s.id,
-        species: c.species || 'Karper',
-        count: typeof c.count === 'number' ? c.count : 1,
+        species: speciesKnown ? c.species : 'Overig',
+        count: countKnown ? c.count : 0,
         weightKg: typeof c.weight_kg === 'number' ? c.weight_kg : (typeof c.weightKg === 'number' ? c.weightKg : null),
         lengthCm: typeof c.length_cm === 'number' ? c.length_cm : (typeof c.lengthCm === 'number' ? c.lengthCm : null),
-        timestamp: c.time ? `${s.date}T${c.time}:00` : (c.timestamp || `${s.date}T12:00:00`),
+        timestamp: timestampKnown ? timestamp : (s.date ? `${s.date}T00:00:00` : importedAt),
         bait: c.bait || undefined,
         technique: c.technique || s.technique || undefined,
         rod: c.rod || undefined,
         notes: c.notes || undefined,
         photoUrl: Array.isArray(c.photos) && c.photos[0] ? c.photos[0] : (c.photoUrl || undefined),
-        createdAt: s.created_at || s.createdAt || new Date().toISOString(),
+        legacyImportQuality: { speciesKnown, countKnown, timestampKnown },
+        createdAt: s.created_at || s.createdAt || importedAt,
       };
       catches.push(catchItem);
       sessionCatches.push(catchItem);
     }
 
-    // Bepaal sessieduur
-    let durationMinutes = 180;
-    if (s.start_time && s.end_time) {
+    // Bepaal alleen de werkelijk bekende sessieduur.
+    let durationMinutes: number | undefined;
+    if (typeof s.durationMinutes === 'number' && Number.isFinite(s.durationMinutes) && s.durationMinutes > 0) {
+      durationMinutes = s.durationMinutes;
+    } else if (s.start_time && s.end_time) {
       const [sh, sm] = s.start_time.split(':').map(Number);
       const [eh, em] = s.end_time.split(':').map(Number);
-      if (!isNaN(sh) && !isNaN(sm) && !isNaN(eh) && !isNaN(em)) {
-        durationMinutes = (eh * 60 + em) - (sh * 60 + sm);
-        if (durationMinutes < 0) durationMinutes += 24 * 60; // over middernacht
+      if ([sh, sm, eh, em].every(Number.isFinite) && sh >= 0 && sh < 24 && eh >= 0 && eh < 24 && sm >= 0 && sm < 60 && em >= 0 && em < 60) {
+        const calculated = (eh * 60 + em) - (sh * 60 + sm);
+        const wrapped = calculated < 0 ? calculated + 24 * 60 : calculated;
+        if (wrapped > 0 && wrapped <= 7 * 24 * 60) durationMinutes = wrapped;
       }
-    } else if (typeof s.durationMinutes === 'number') {
-      durationMinutes = s.durationMinutes;
     }
 
-    // Bepaal uitkomst (vangst, bevestigde nulvangst, actief)
+    // Een oude status 'completed' bewijst niet dat expliciet nulvangst is geregistreerd.
     let outcome: 'catch' | 'skunk_confirmed' | 'unknown' | 'active' = 'unknown';
     if (sessionCatches.length > 0) {
       outcome = 'catch';
-    } else if (s.status === 'completed' || s.outcome === 'skunk_confirmed') {
+    } else if (s.outcome === 'skunk_confirmed') {
       outcome = 'skunk_confirmed';
     } else if (s.status === 'active' || s.outcome === 'active') {
       outcome = 'active';
     }
 
-    // Doelvissoorten
-    const targetSpeciesSet = new Set<string>();
-    sessionCatches.forEach((c) => targetSpeciesSet.add(c.species));
-    if (targetSpeciesSet.size === 0) {
-      if (typeof s.technique === 'string' && s.technique.toLowerCase().includes('karper')) {
-        targetSpeciesSet.add('Karper');
-      } else {
-        targetSpeciesSet.add('Karper');
-      }
-    }
+    // Doelsoort is niet hetzelfde als de gevangen soort. Alleen expliciete doelsoortinvoer behouden.
+    const rawTargetSpecies = Array.isArray(s.targetSpecies) ? s.targetSpecies
+      : Array.isArray(s.target_species) ? s.target_species : [];
+    const targetSpecies = rawTargetSpecies.filter((species: unknown) => typeof species === 'string') as NonNullable<FishingSession['targetSpecies']>;
 
-    // Weermoment indien aanwezig
+    // Legacyweer alleen overnemen wanneer alle vereiste waarden en het meettijdstip bekend zijn.
     let weatherSnapshot = s.weatherSnapshot;
     if (!weatherSnapshot && Array.isArray(s.weather_moments) && s.weather_moments.length > 0) {
-      const wm = s.weather_moments[0]?.data;
-      if (wm) {
+      const moment = s.weather_moments[0];
+      const wm = moment?.data;
+      const direction = wm?.wind_direction_degrees ?? wm?.wind_direction_deg;
+      const capturedAt = moment?.captured_at || moment?.capturedAt || moment?.timestamp || wm?.captured_at || wm?.timestamp;
+      const values = [wm?.temperature_avg_c, wm?.pressure_hpa, wm?.wind_speed_kmh, direction, wm?.cloud_cover, wm?.precipitation_mm];
+      if (values.every((value) => typeof value === 'number' && Number.isFinite(value)) &&
+          typeof capturedAt === 'string' && Number.isFinite(Date.parse(capturedAt))) {
         weatherSnapshot = {
-          temperature: wm.temperature_avg_c ?? 11.5,
-          pressure: Math.round(wm.pressure_hpa ?? 1026),
-          pressureTrend: 'stabiel',
-          windSpeed: Math.round(wm.wind_speed_kmh ?? 14),
-          windDirection: 90,
-          windDirectionText: wm.wind_direction ?? 'O',
-          cloudCover: Math.round(wm.cloud_cover ?? 100),
-          precipitation: wm.precipitation_mm ?? 0.5,
-          source: s.weather_moments[0]?.source?.includes('Regionale') ? 'knmi-regionaal' : 'open-meteo-historisch',
-          capturedAt: s.created_at || new Date().toISOString(),
+          temperature: wm.temperature_avg_c,
+          pressure: wm.pressure_hpa,
+          windSpeed: wm.wind_speed_kmh,
+          windDirection: direction,
+          windDirectionText: typeof wm.wind_direction === 'string' ? wm.wind_direction : undefined,
+          cloudCover: wm.cloud_cover,
+          precipitation: wm.precipitation_mm,
+          source: moment?.source?.includes('Regionale') ? 'knmi-regionaal' : 'open-meteo-historisch',
+          capturedAt,
         };
       }
     }
@@ -258,11 +263,19 @@ export function normalizeRawBackup(raw: any): BackupData {
       id: s.id,
       locationId: isLokkershoek19 ? 'spot-mvp1g19d-dfemr2' : (s.spot_id || undefined), // Gekoppeld aan Lokkershoek Pier
       locationName: isLokkershoek19 ? 'Lokkershoek Pier' : (s.spot_name || s.location?.label || 'Onbekende stek'),
-      startTime: s.start_time ? `${s.date}T${s.start_time}:00` : (s.startTime || `${s.date}T12:00:00`),
-      endTime: s.end_time ? `${s.end_date || s.date}T${s.end_time}:00` : (s.endTime || `${s.date}T17:00:00`),
+      startTime: s.start_time && s.date ? `${s.date}T${s.start_time}:00` : (s.startTime || (s.date ? `${s.date}T00:00:00` : importedAt)),
+      endTime: s.end_time && (s.end_date || s.date) ? `${s.end_date || s.date}T${s.end_time}:00` : (s.endTime || null),
       durationMinutes,
       outcome,
-      targetSpecies: Array.from(targetSpeciesSet) as any,
+      targetSpecies,
+      legacyImportQuality: {
+        startDateKnown: Boolean((typeof s.date === 'string' && Number.isFinite(Date.parse(s.date))) || (typeof s.startTime === 'string' && Number.isFinite(Date.parse(s.startTime)))),
+        startTimeKnown: Boolean((s.start_time && s.date) || (typeof s.startTime === 'string' && Number.isFinite(Date.parse(s.startTime)) && /T\d{2}:\d{2}/.test(s.startTime))),
+        endTimeKnown: Boolean((s.end_time && (s.end_date || s.date)) || (typeof s.endTime === 'string' && Number.isFinite(Date.parse(s.endTime)))),
+        durationKnown: typeof durationMinutes === 'number',
+        targetSpeciesKnown: targetSpecies.length > 0,
+        weatherSnapshotKnown: Boolean(weatherSnapshot),
+      },
       technique: s.technique || undefined,
       rodCount: s.rods ? parseInt(s.rods, 10) : (s.rodCount ?? undefined),
       baitAndFeed: baitAndFeedParts.length > 0 ? baitAndFeedParts.join(' | ') : undefined,
@@ -276,11 +289,27 @@ export function normalizeRawBackup(raw: any): BackupData {
           : typeof s.water_temperature === 'number'
           ? s.water_temperature
           : null,
+      waterTemperatureMeasuredAt:
+        typeof s.waterTemperatureMeasuredAt === 'string' && Number.isFinite(Date.parse(s.waterTemperatureMeasuredAt))
+          ? s.waterTemperatureMeasuredAt
+          : undefined,
+      waterTemperatureMeasurementSource:
+        s.waterTemperatureMeasurementSource === 'manual' || s.waterTemperatureMeasurementSource === 'imported' || s.waterTemperatureMeasurementSource === 'unknown'
+          ? s.waterTemperatureMeasurementSource
+          : undefined,
+      waterTemperatureMeasurementMethod:
+        s.waterTemperatureMeasurementMethod === 'thermometer' || s.waterTemperatureMeasurementMethod === 'probe' || s.waterTemperatureMeasurementMethod === 'other' || s.waterTemperatureMeasurementMethod === 'unknown'
+          ? s.waterTemperatureMeasurementMethod
+          : undefined,
+      waterTemperatureMeasurementDepthM:
+        typeof s.waterTemperatureMeasurementDepthM === 'number' && Number.isFinite(s.waterTemperatureMeasurementDepthM) && s.waterTemperatureMeasurementDepthM >= 0
+          ? s.waterTemperatureMeasurementDepthM
+          : undefined,
       baitDirection: s.baitDirection || s.bait_direction || undefined,
       weatherSnapshot,
       isBenchmark: isBench,
-      createdAt: s.created_at || s.createdAt || new Date().toISOString(),
-      updatedAt: s.updated_at || s.updatedAt || new Date().toISOString(),
+      createdAt: s.created_at || s.createdAt || importedAt,
+      updatedAt: s.updated_at || s.updatedAt || importedAt,
     });
   }
 

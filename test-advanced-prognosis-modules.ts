@@ -5,6 +5,7 @@ import { calculateDayPrognosis } from './src/services/prognosisEngine';
 import {
   FishingLocation,
   FishingSession,
+  CatchItem,
   WaterThermalAnalysis,
   WeatherHourlyForecast,
   PresenceObservation,
@@ -224,7 +225,19 @@ const mockHistoricalSessions: FishingSession[] = [
   },
 ];
 
-const evidencePlan = calculatePrebaitPlan('2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 2 }, mockHistoricalSessions, baseLocation);
+const mockHistoricalCatches: CatchItem[] = ['s1', 's2', 's4', 's5'].map((sessionId, index) => ({
+  id: `prebait-catch-${index}`,
+  sessionId,
+  species: 'Karper',
+  count: 1,
+  timestamp: `2026-06-${String(index + 1).padStart(2, '0')}T12:00:00Z`,
+  createdAt: `2026-06-${String(index + 1).padStart(2, '0')}T12:00:00Z`,
+}));
+
+const evidencePlan = calculatePrebaitPlan(
+  '2026-07-20', 'Karper', warmThermal, { availableDaysBefore: 2 },
+  mockHistoricalSessions, baseLocation, undefined, undefined, mockHistoricalCatches
+);
 assert(
   evidencePlan.personalEvidence?.hasSufficientData === true,
   '1.16 Met 5 sessies en 3 voorvoersessies is personalEvidence.hasSufficientData true'
@@ -584,6 +597,7 @@ const fullProg = calculateDayPrognosis(
       availableDaysBefore: 2,
       planningDate: '2026-07-18',
     },
+    catches: mockHistoricalCatches,
   }
 );
 

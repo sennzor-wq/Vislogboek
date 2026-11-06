@@ -26,6 +26,7 @@ import { analyzeBankWind } from './bankWindEngine';
 import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
+import { createDataQualityReport } from './dataQualityEngine';
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -59,36 +60,26 @@ function clamp(val: number, min: number, max: number): number {
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
 const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
-const similarSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
 const completedSessionCache = new WeakMap<FishingSession[], FishingSession[]>();
 const comparableSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
 const catchSessionIndexCache = new WeakMap<CatchItem[], Map<string, CatchItem[]>>();
 
 function getSimilarSessions(
   sessions: FishingSession[],
+  catches: CatchItem[],
   species: FishSpecies,
   slot: TimeSlot
 ): FishingSession[] {
-  let byKey = similarSessionCache.get(sessions);
-  if (!byKey) {
-    byKey = new Map<string, FishingSession[]>();
-    similarSessionCache.set(sessions, byKey);
-  }
-  const key = `${species}|${slot}`;
-  const cached = byKey.get(key);
-  if (cached) return cached;
-
   const hours = TIME_SLOT_HOURS[slot];
-  const filtered = sessions.filter((session) => {
-    if (session.outcome === 'active' || session.outcome === 'unknown' || session.isBenchmark) return false;
-    const matchedSpecies =
-      session.targetSpecies?.includes(species) || (!session.targetSpecies || session.targetSpecies.length === 0);
-    if (!matchedSpecies) return false;
+  return sessions.filter((session) => {
+    if (session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') return false;
+    if (session.isBenchmark || session.legacyImportQuality?.startTimeKnown === false) return false;
+    if (!session.targetSpecies?.includes(species)) return false;
     const hour = new Date(session.startTime).getHours();
-    return hour >= hours.start && hour < hours.end;
+    if (!Number.isFinite(hour) || hour < hours.start || hour >= hours.end) return false;
+    if (session.outcome === 'skunk_confirmed') return true;
+    return catches.some((item) => item.sessionId === session.id && item.species === species && item.legacyImportQuality?.speciesKnown !== false);
   });
-  byKey.set(key, filtered);
-  return filtered;
 }
 
 function getCompletedSessions(sessions: FishingSession[]): FishingSession[] {
@@ -234,6 +225,7 @@ function analyzeTimeSlot(
   profile: SpeciesProfile,
   date: Date,
   historicalSessions: FishingSession[],
+  historicalCatches: CatchItem[],
   currentDateRef: Date,
   userWaterTemp?: number | null,
   presenceObs?: PresenceObservationType,
@@ -417,7 +409,7 @@ function analyzeTimeSlot(
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
-  const similarSessions = getSimilarSessions(historicalSessions, species, slot);
+  const similarSessions = getSimilarSessions(historicalSessions, historicalCatches, species, slot);
 
   const relevantCount = similarSessions.length;
   const confirmedCatches = similarSessions.filter((s) => s.outcome === 'catch').length;
@@ -524,22 +516,13 @@ export function getSessionDurationHours(session: FishingSession): number | null 
   if (typeof session.durationMinutes === 'number' && Number.isFinite(session.durationMinutes) && session.durationMinutes > 0) {
     return session.durationMinutes / 60;
   }
+  if (session.legacyImportQuality?.startTimeKnown === false ||
+      session.legacyImportQuality?.endTimeKnown === false) return null;
   if (session.startTime && session.endTime) {
     const diffMs = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
     const diffMins = diffMs / 60000;
     if (Number.isFinite(diffMins) && diffMins > 0 && diffMins < 10080) {
       return diffMins / 60;
-    }
-  }
-  if (typeof session.plannedDurationHours === 'number' && Number.isFinite(session.plannedDurationHours) &&
-      session.plannedDurationHours > 0 && session.plannedDurationHours <= 24) {
-    return session.plannedDurationHours;
-  }
-  if (session.startTime && session.plannedEndTime) {
-    const plannedDiffMs = new Date(session.plannedEndTime).getTime() - new Date(session.startTime).getTime();
-    const plannedDiffHours = plannedDiffMs / 3600000;
-    if (Number.isFinite(plannedDiffHours) && plannedDiffHours > 0 && plannedDiffHours <= 24) {
-      return plannedDiffHours;
     }
   }
   return null;
@@ -629,6 +612,7 @@ export function calculateDayPrognosis(
       profile,
       date,
       historicalSessions,
+      options?.catches ?? [],
       slotReferenceDate,
       userWaterTemp,
       presenceObs,
@@ -639,15 +623,27 @@ export function calculateDayPrognosis(
   // Beste toekomstige tijdvak
   const futureOrActiveSlots = slots.filter((slot) => !timeSlotAnalyses[slot].isPast);
 
-  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' = 'Geen toekomstig tijdvak meer vandaag';
+  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid' = 'Geen toekomstig tijdvak meer vandaag';
   let alternativeSlots: TimeSlot[] = [];
 
   if (futureOrActiveSlots.length > 0) {
     const sortedFuture = [...futureOrActiveSlots].sort(
       (a, b) => timeSlotAnalyses[b].activityScore - timeSlotAnalyses[a].activityScore
     );
-    bestSlot = sortedFuture[0];
-    alternativeSlots = sortedFuture.slice(1);
+    const availableScores = sortedFuture
+      .filter((slot) => timeSlotAnalyses[slot].activityScoreAvailable !== false)
+      .map((slot) => timeSlotAnalyses[slot].activityScore);
+    const hasMeaningfulDifference = availableScores.length > 1 &&
+      Math.max(...availableScores) - Math.min(...availableScores) >= 0.1;
+    if (sortedFuture.length === 1 && availableScores.length === 1) {
+      bestSlot = sortedFuture[0];
+    } else if (hasMeaningfulDifference) {
+      bestSlot = sortedFuture[0];
+      alternativeSlots = sortedFuture.slice(1);
+    } else {
+      bestSlot = 'Geen betekenisvol onderscheid';
+      alternativeSlots = [];
+    }
   }
 
   const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
@@ -666,10 +662,20 @@ export function calculateDayPrognosis(
 
   // Alleen voltooide sessies met bevestigde uitkomst ('catch' of 'skunk_confirmed').
   // Actieve sessies, onbekende uitkomsten en benchmarks worden strikt uitgesloten!
-  const comparableSessions = getComparableSessions(historicalSessions, species, locationId);
+  const rawComparableSessions = getComparableSessions(historicalSessions, species, locationId);
+  const catchIndex: Map<string, CatchItem[]> = options?.catches ? getCatchSessionIndex(options.catches) : new Map<string, CatchItem[]>();
+  const hasKnownTargetCatch = (session: FishingSession) =>
+    (catchIndex.get(session.id) ?? []).some((item) =>
+      (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false))
+    );
+  // Een generieke sessie-uitkomst 'catch' is alleen een doelsoortsucces wanneer
+  // een vangstrecord van die doelsoort aanwezig is. Anders blijft de uitkomst onbekend.
+  const comparableSessions = rawComparableSessions.filter((session) =>
+    session.outcome === 'skunk_confirmed' || (session.outcome === 'catch' && hasKnownTargetCatch(session))
+  );
 
   const sessionCount = comparableSessions.length;
-  const successfulSessionsCount = comparableSessions.filter((s) => s.outcome === 'catch').length;
+  const successfulSessionsCount = comparableSessions.filter((session) => session.outcome === 'catch').length;
   const historicalSuccessRate =
     sessionCount > 0 ? Math.round((successfulSessionsCount / sessionCount) * 100) : null;
 
@@ -696,35 +702,37 @@ export function calculateDayPrognosis(
 
   const uncertaintyNotes: string[] = [];
 
-  // Sessies zonder bekende duur mogen wel in sessiestatistiek staan, maar niet in de blootstellingsnoemer.
-  const durationSessions = comparableSessions.filter((s) => getSessionDurationHours(s) !== null);
+  // Sessies zonder werkelijk bekende duur mogen niet als blootstelling meetellen.
+  const durationSessions = comparableSessions.filter((session) => getSessionDurationHours(session) !== null);
+  const poissonSessions = durationSessions.filter((session) =>
+    session.outcome === 'skunk_confirmed' ||
+    (catchIndex.get(session.id) ?? []).some((item) =>
+      (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false)) &&
+      item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
+    )
+  );
 
-  // Minimum 5 vergelijkbare sessies vereist; voor het Poisson-blootstellingsmodel moeten ook
-  // minimaal 5 van die sessies een bekende, geldige duur hebben.
+  // Minimaal vijf vergelijkbare sessies en vijf sessies met bekende werkelijke duur
+  // én bruikbare vangstaantallen zijn nodig voor het Poisson-blootstellingsmodel.
   if (sessionCount >= 5) {
     uncertaintyInterval = calculateWilsonInterval(successfulSessionsCount, sessionCount);
 
-    if (durationSessions.length >= 5) {
-      const totalDurationHours = durationSessions.reduce(
+    if (poissonSessions.length >= 5) {
+      const totalDurationHours = poissonSessions.reduce(
         (acc, s) => acc + (getSessionDurationHours(s) ?? 0),
         0
       );
-      const avgDurationHours = totalDurationHours / durationSessions.length;
+      const avgDurationHours = totalDurationHours / poissonSessions.length;
       avgDurationMinutes = Math.round(avgDurationHours * 60);
 
       let totalTargetCatches = 0;
-      for (const s of durationSessions) {
-        if (s.outcome === 'skunk_confirmed') continue;
-        if (options?.catches && options.catches.length > 0) {
-          const catchIndex = getCatchSessionIndex(options.catches);
-          const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
-            (catchItem) => species === 'Algemeen' || catchItem.species === species
-          );
-          const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
-          totalTargetCatches += count > 0 ? count : 1;
-        } else {
-          totalTargetCatches += 1;
-        }
+      for (const session of poissonSessions) {
+        if (session.outcome === 'skunk_confirmed') continue;
+        const sessionCatches = (catchIndex.get(session.id) ?? []).filter((item) =>
+          (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false)) &&
+          item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
+        );
+        totalTargetCatches += sessionCatches.reduce((sum, item) => sum + item.count, 0);
       }
 
       const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
@@ -774,7 +782,41 @@ export function calculateDayPrognosis(
   const validHours=Math.min(...weatherFields.map(f=>f.count));
   const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
   const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
-  if ((!hasKnownThermalInput || weatherDataQuality.status!=='Volledig') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
+  const dataQualityReport = createDataQualityReport([
+    {
+      name: 'Watertemperatuur',
+      value: thermalAnalysis.hasMeasuredWaterTemp ? thermalAnalysis.measuredWaterTemp : thermalAnalysis.estimatedWaterTemp,
+      status: thermalAnalysis.hasMeasuredWaterTemp ? 'userReported' : hasKnownThermalInput ? 'modelled' : 'unknown',
+      source: thermalAnalysis.hasMeasuredWaterTemp ? 'Gebruikersmeting' : thermalAnalysis.waterTemperatureStatus ?? 'onbekend',
+      observedAt: thermalAnalysis.anchorMeasurementTimestamp ?? undefined,
+      explanation: 'Een modelschatting blijft onderscheiden van een directe gebruikersmeting.',
+    },
+    {
+      name: 'Weersverwachting',
+      value: validHours,
+      status: validHours > 0 ? 'forecast' : 'unknown',
+      source: 'Open-Meteo',
+      observedAt: weatherUpdatedAt,
+      explanation: `${validHours} van 24 verwachte uurwaarden per kernveld zijn beschikbaar.`,
+    },
+    {
+      name: 'Vergelijkbare sessiehistorie',
+      value: sessionCount,
+      status: sessionCount > 0 ? 'userReported' : 'unknown',
+      source: 'Eigen sessielogboek',
+      explanation: 'Alleen sessies met bekende doelsoortuitkomst worden voor persoonlijke analyse geselecteerd.',
+    },
+  ]);
+  const temperatureQualityUsable = dataQualityReport.results.find((item) => item.name === 'Watertemperatuur')?.usable === true;
+  const forecastQualityUsable = dataQualityReport.results.find((item) => item.name === 'Weersverwachting')?.usable === true;
+  if ((!temperatureQualityUsable || !forecastQualityUsable || weatherDataQuality.status !== 'Volledig') && catchChance !== null) {
+    catchChance = null;
+    expectedCatches = null;
+    hourlyCatchRate = null;
+    confidence = 'Onvoldoende gegevens';
+    uncertaintyInterval = null;
+    uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: de centrale datakwaliteitscontrole markeert de thermische of weersinvoer als onbruikbaar of onvolledig.');
+  }
   // Provenance
   let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
@@ -802,7 +844,7 @@ export function calculateDayPrognosis(
   // Samenvatting
   let summaryRationale = '';
   if (!dayScoreAvailable) { summaryRationale='De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.'; }
-  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag') {
+  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid') {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
   } else {
@@ -862,7 +904,8 @@ export function calculateDayPrognosis(
     userWaterTemp,
     thermalAnalysis,
     historicalSessions,
-    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
+    historicalCatches: options?.catches ?? [],
+    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : undefined,
   });
 
   // Dagwaarden voor de tactische deelmodules; ontbrekende waarden blijven onbekend.
@@ -977,7 +1020,8 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend'
+        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : 'Ochtend',
+        options?.catches ?? []
       ) ?? undefined
     : undefined;
 
@@ -988,6 +1032,7 @@ export function calculateDayPrognosis(
     activityScore: dayScore,
     activityScoreAvailable: dayScoreAvailable,
     weatherDataQuality,
+    dataQualityReport,
     advice,
     bestTimeSlot: bestSlot,
     alternativeTimeSlots: alternativeSlots,
@@ -1040,6 +1085,8 @@ export interface PendingPrognosisSnapshot {
   durationKnown?: boolean;
   locationName?: string;
   chosenSlot?: TimeSlot;
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   conditions?: WeatherSnapshot;
   weatherInput?: WeatherHourlyForecast[];
   inputContext?: PrognosisInputContext;
@@ -1066,13 +1113,15 @@ export async function savePrognosisSnapshot(
     inputContext?: PrognosisInputContext;
     inputFingerprint?: string;
     supersedesSnapshotId?: string;
+    targetWindowStart?: string;
+    targetWindowEnd?: string | null;
   }
 ): Promise<PrognosisSnapshot> {
   const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
-    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
       ? (prognosis.bestTimeSlot as TimeSlot)
-      : 'Ochtend');
+      : undefined);
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
@@ -1106,6 +1155,8 @@ export async function savePrognosisSnapshot(
     locationName,
     durationHours,
     durationKnown: metadata?.runKind ? durationHours > 0 : undefined,
+    targetWindowStart: metadata?.targetWindowStart,
+    targetWindowEnd: metadata?.targetWindowEnd,
     runKind: metadata?.runKind,
     inputFingerprint: metadata?.inputFingerprint,
     supersedesSnapshotId: metadata?.supersedesSnapshotId,
@@ -1271,7 +1322,7 @@ export async function createLiveSnapshotForSessionStart(
     );
 
     const chosenSlot =
-      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
         : undefined;
 
