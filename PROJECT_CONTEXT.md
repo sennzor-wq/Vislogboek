@@ -1014,7 +1014,8 @@ Deze sectie vult de bestaande product- en architectuurafspraken aan op basis van
 
 De bestaande `FishingSession` en `CatchItem` krijgen optionele `dataQuality`-metadata. Deze metadata is alleen vereist voor geconverteerde legacyrecords en is additief:
 
-- Sessie: `importedFromLegacy`, `sourceFormat`, `startTimeKnown`, `endTimeKnown`, `durationKnown`, `targetSpeciesKnown`, `outcomeConfirmed`, `weatherKnown`.
+- Sessie: `importedFromLegacy`, `sourceFormat`, `startTimeKnown`, `endTimeKnown`, `durationKnown`, `targetSpeciesKnown`, `outcomeConfirmed`, `weatherKnown`, `weatherComplete`, `weatherFieldsKnown`.
+- Een onvolledige historische weerswaarneming blijft apart behouden in `legacyWeatherSnapshot: Partial<WeatherSnapshot>`; deze wordt niet als volledige `weatherSnapshot` aan prognoseberekeningen aangeboden.
 - Vangst: `importedFromLegacy`, `speciesKnown`, `countKnown`, `timestampKnown`.
 
 De velden zijn geen vervanging voor de feitelijke sessie- of vangstgegevens. Ze maken zichtbaar welke waarden in de bron aanwezig waren en welke alleen als compatibiliteitswaarde zijn behouden. Nieuwe, normaal ingevoerde records hoeven deze legacy-markeringen niet te dragen.
