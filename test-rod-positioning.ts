@@ -80,6 +80,16 @@ const mockThermalAnalysis = (trend: any, temp: number): WaterThermalAnalysis => 
   prognosisImpactNote: 'Normale thermische invloed.',
 });
 
+const makeKnownCarpCatches = (sessions: FishingSession[]): CatchItem[] =>
+  sessions.filter((session) => session.outcome === 'catch').map((session, index) => ({
+    id: `known-carp-catch-${session.id}`,
+    sessionId: session.id,
+    species: 'Karper',
+    count: 1,
+    timestamp: session.startTime,
+    createdAt: session.startTime,
+  }));
+
 // --- TESTGROEP 1: Onafhankelijkheid van Vangstprognose & Activiteitsindex ---
 console.log('--- TESTGROEP 1: Onafhankelijkheid van Vangstprognose & Activiteitsindex ---');
 
@@ -277,6 +287,7 @@ for (let i = 0; i < 8; i++) {
     locationId: 'spot-test-1',
     startTime: `2026-05-0${i + 1}T10:00:00Z`,
     outcome: i % 2 === 0 ? 'catch' : 'skunk_confirmed',
+    targetSpecies: ['Karper'],
     baitDirection: 'Zuidwest',
     createdAt: '2026-05-01T10:00:00Z',
     updatedAt: '2026-05-01T10:00:00Z',
@@ -287,6 +298,7 @@ const adviceFew = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', {
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: fewSessions,
+  historicalCatches: makeKnownCarpCatches(fewSessions),
 });
 
 assert(
@@ -306,6 +318,7 @@ for (let i = 0; i < 12; i++) {
     locationId: 'spot-test-1',
     startTime: `2026-05-${i < 9 ? '0' + (i + 1) : i + 1}T10:00:00Z`,
     outcome: i % 3 === 0 ? 'catch' : 'skunk_confirmed',
+    targetSpecies: ['Karper'],
     baitDirection: i < 3 ? 'West' : undefined,
     createdAt: '2026-05-01T10:00:00Z',
     updatedAt: '2026-05-01T10:00:00Z',
@@ -316,6 +329,7 @@ const adviceElevenFewDir = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Ka
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: elevenFewDir,
+  historicalCatches: makeKnownCarpCatches(elevenFewDir),
 });
 
 assert(
@@ -337,6 +351,7 @@ for (let i = 0; i < 14; i++) {
     locationId: 'spot-test-1',
     startTime: `2026-05-${i < 9 ? '0' + (i + 1) : i + 1}T10:00:00Z`,
     outcome,
+    targetSpecies: ['Karper'],
     baitDirection: dir,
     createdAt: '2026-05-01T10:00:00Z',
     updatedAt: '2026-05-01T10:00:00Z',
@@ -347,6 +362,7 @@ const adviceFull = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', {
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: elevenWithDir,
+  historicalCatches: makeKnownCarpCatches(elevenWithDir),
 });
 
 assert(
@@ -390,6 +406,7 @@ const adviceMixed = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', 
   location: baseLoc,
   thermalAnalysis: thermalSummer,
   historicalSessions: mixedSessions,
+  historicalCatches: makeKnownCarpCatches(mixedSessions),
 });
 
 assert(
