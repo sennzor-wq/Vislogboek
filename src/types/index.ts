@@ -129,6 +129,8 @@ export interface ImportedSessionDataQuality {
   targetSpeciesKnown?: boolean;
   outcomeConfirmed?: boolean;
   weatherKnown?: boolean;
+  weatherComplete?: boolean;
+  weatherFieldsKnown?: string[];
 }
 
 export interface CatchItem {
@@ -181,6 +183,8 @@ export interface FishingSession {
   baitDirection?: CompassDirection | null; // Richting van aasaanbieding (optioneel, nooit verplicht)
   notes?: string;
   weatherSnapshot?: WeatherSnapshot;
+  /** Gedeeltelijke, werkelijk aanwezige legacy-weervelden; niet geschikt als volledige WeatherSnapshot. */
+  legacyWeatherSnapshot?: Partial<WeatherSnapshot>;
   photoUrls?: string[];
   presenceObservations?: PresenceObservationType[];
   snapshotId?: string;            // Gekoppelde voorspellingsmomentopname
