@@ -11,6 +11,7 @@ import { WeatherView } from './components/weather/WeatherView';
 import { SettingsView } from './components/settings/SettingsView';
 import { SessionModal } from './components/sessions/SessionModal';
 import { VisCoachView } from './components/viscoach/VisCoachView';
+import { VisCoachWelcomeModal } from './components/viscoach/VisCoachWelcomeModal';
 import { VisCoachPlan, saveVisCoachPlan, cancelVisCoachPlan } from './services/viscoachService';
 import { PWAInstallButton } from './components/PWAInstallButton';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
@@ -26,6 +27,7 @@ import { reassessActiveSessions, createInitialCoachAdviceRecord, VISCOACH_UPDATE
 export default function App() {
   const isOnline = useOnlineStatus();
   const [currentTab, setCurrentTab] = useState<TabType>('viscoach');
+  const [showVisCoachWelcome, setShowVisCoachWelcome] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(true);
   const [locations, setLocations] = useState<FishingLocation[]>([]);
   const [sessions, setSessions] = useState<FishingSession[]>([]);
@@ -127,6 +129,11 @@ export default function App() {
   }, [loading]);
 
   const activeSessions = sessions.filter((s) => s.outcome === 'active');
+
+  const handleSelectTab = (tab: TabType) => {
+    setCurrentTab(tab);
+    if (tab === 'viscoach') setShowVisCoachWelcome(true);
+  };
 
   const handleStartSession = (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, plannedEndTime?: string | null) => {
     setPrefilledSpecies(species);
@@ -333,7 +340,7 @@ export default function App() {
       <header className="sticky top-0 z-30 bg-slate-900/90 border-b border-slate-800/80 backdrop-blur-md px-4 sm:px-6 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div
-            onClick={() => setCurrentTab('viscoach')}
+            onClick={() => handleSelectTab('viscoach')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-0.5 shadow-lg shadow-emerald-950/60 group-hover:scale-105 transition">
@@ -347,7 +354,7 @@ export default function App() {
             </div>
           </div>
 
-          <Navbar currentTab={currentTab} onSelectTab={setCurrentTab} activeSessionCount={activeSessions.length} />
+          <Navbar currentTab={currentTab} onSelectTab={handleSelectTab} activeSessionCount={activeSessions.length} />
 
           <div className="flex items-center gap-2.5">
             {activeSessions.length > 0 && (
@@ -418,6 +425,27 @@ export default function App() {
           <SettingsView locations={locations} sessions={sessions} catches={catches} onRefreshData={loadData} showAdvancedPrognosisDetails={showAdvancedPrognosisDetails} onToggleAdvancedPrognosisDetails={handleToggleAdvancedPrognosisDetails} />
         )}
       </main>
+
+      <VisCoachWelcomeModal
+        isOpen={showVisCoachWelcome}
+        locations={locations}
+        sessions={sessions}
+        catches={catches}
+        activeSessions={activeSessions}
+        onClose={() => setShowVisCoachWelcome(false)}
+        onOpenPlan={() => {
+          setCurrentTab('viscoach');
+          setShowVisCoachWelcome(false);
+        }}
+        onResumeSession={() => {
+          setCurrentTab('sessions');
+          setShowVisCoachWelcome(false);
+        }}
+        onOpenLocations={() => {
+          setCurrentTab('locations');
+          setShowVisCoachWelcome(false);
+        }}
+      />
 
       {isStartingSession && (
         <SessionModal
