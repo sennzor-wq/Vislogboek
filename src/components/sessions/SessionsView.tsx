@@ -322,7 +322,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
             {activeSessions.map((session) => {
               const sessionCatches = catches.filter((c) => c.sessionId === session.id);
               const totalFish = sessionCatches.reduce((sum, c) => sum + getKnownCatchCount(c), 0);
-              const liveDuration = calculateLiveDuration(session.startTime);
+              const liveDuration = session.legacyImportQuality?.startTimeKnown === false ? 'Onbekend' : calculateLiveDuration(session.startTime);
 
               return (
                 <div
