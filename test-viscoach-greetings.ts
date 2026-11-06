@@ -48,7 +48,10 @@ const catchContext: WelcomeGreetingContext = { date: fixedDate, previousSessionO
 assert.equal(selectWelcomeGreeting(catchContext).category, 'previous-catch', 'Een geregistreerde vangst kan in de begroeting worden verwerkt.');
 
 const first = selectWelcomeGreeting(dryContext);
-const next = selectWelcomeGreeting(dryContext, first.id);
-assert.notEqual(next.id, first.id, 'Directe herhaling wordt waar mogelijk vermeden.');
+const next = selectWelcomeGreeting(dryContext, [first.id]);
+assert.notEqual(next.id, first.id, 'Een recent getoonde begroeting wordt overgeslagen.');
+const third = selectWelcomeGreeting(dryContext, [first.id, next.id]);
+assert.notEqual(third.id, first.id, 'Ook meerdere recente begroetingen worden overgeslagen.');
+assert.notEqual(third.id, next.id, 'De selectie doorloopt de categorie om variatie te behouden.');
 
 console.log('VisCoach-welkomstteksten: alle tests geslaagd.');
