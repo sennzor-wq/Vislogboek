@@ -211,7 +211,7 @@ async function runBrierIntegrationTest() {
     const snapId = `test_brier_snap_${tc.testNumber}`;
     const snapshot: PrognosisSnapshot = {
       id: snapId,
-      forecastTimestamp: tc.weather.capturedAt,
+      forecastTimestamp: new Date(new Date(tc.startTime).getTime() - 60 * 60 * 1000).toISOString(),
       targetDate: tc.startTime.slice(0, 10),
       targetSpecies: 'Karper',
       locationId: LOKKERSHOEK_PIER_ID,
