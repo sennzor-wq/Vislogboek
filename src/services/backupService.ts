@@ -270,6 +270,10 @@ export function normalizeRawBackup(raw: any): BackupData {
       }
     }
 
+    const weatherFieldsKnown = Object.entries(legacyWeatherSnapshot ?? weatherSnapshot ?? {})
+      .filter(([key, value]) => key !== 'source' && key !== 'capturedAt' && value !== undefined && value !== null)
+      .map(([key]) => key);
+
     const isBench = s.id === 'ref-2026-10-19-lokkershoek' || s.id === BENCHMARK_SESSION.id ? false : (s.isBenchmark === true);
 
     const baitAndFeedParts = [
@@ -302,11 +306,9 @@ export function normalizeRawBackup(raw: any): BackupData {
         durationKnown: typeof durationMinutes === 'number',
         targetSpeciesKnown: targetSpecies.length > 0,
         outcomeConfirmed: outcome === 'catch' || outcome === 'skunk_confirmed',
-        weatherKnown: Boolean(weatherSnapshot || legacyWeatherSnapshot),
+        weatherKnown: weatherFieldsKnown.length > 0,
         weatherComplete: Boolean(weatherSnapshot),
-        weatherFieldsKnown: Object.entries(legacyWeatherSnapshot ?? weatherSnapshot ?? {})
-          .filter(([key, value]) => key !== 'source' && key !== 'capturedAt' && value !== undefined && value !== null)
-          .map(([key]) => key),
+        weatherFieldsKnown,
       },
       technique: s.technique || undefined,
       rodCount: s.rods ? parseInt(s.rods, 10) : (s.rodCount ?? undefined),
