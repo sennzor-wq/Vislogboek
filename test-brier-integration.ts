@@ -355,6 +355,16 @@ async function runBrierIntegrationTest() {
   const recordedSessions = await db.sessions.toArray();
   const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots, [...baselineTrainingSessions, ...recordedSessions]);
 
+  const fiveSessionResult = evaluatePrognosisPerformance(
+    linkedSnapshots.slice(0, 5),
+    baselineTrainingSnapshots,
+    [...baselineTrainingSessions, ...recordedSessions]
+  );
+  assert(fiveSessionResult.evaluatedCount === 5 && fiveSessionResult.hasSufficientData === true &&
+    fiveSessionResult.statusMessage.includes('Voorlopige indicatie') &&
+    fiveSessionResult.disclaimers.some((item) => item.startsWith('VOORLOPIG:')),
+    'Precies vijf sessies tonen alleen een expliciet voorlopige Brier-indicatie');
+
   const duplicateAndOrphanResult = evaluatePrognosisPerformance(
     [
       ...linkedSnapshots,
@@ -414,6 +424,11 @@ async function runBrierIntegrationTest() {
   assert(
     !evalResult.statusMessage.includes('Nog niet gevalideerd'),
     `5.4 Melding dat data onvoldoende is wegens N < 5 is verdwenen (Status: "${evalResult.statusMessage}")`
+  );
+  assert(
+    evalResult.statusMessage.startsWith('Voorlopige indicatie') &&
+      evalResult.disclaimers.some((item) => item.startsWith('VOORLOPIG:')),
+    'Een berekende Brier-score blijft expliciet voorlopig, ook boven de technische minimumgrens'
   );
   assert(
     evalResult.calibrationBins.length === 5,
