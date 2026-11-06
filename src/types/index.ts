@@ -557,6 +557,8 @@ export interface PrognosisSnapshot {
   actualWaterTemperatureMeasurementDepthM?: number;
   source: string;
   modelVersion: string;            // bijv. 'v2.2'
+  /** Versies van alle bestaande engines die deze prognose hebben beïnvloed. */
+  engineVersions?: Record<string, string>;
   linkedSessionId?: string;
   actualOutcome?: SessionOutcome;
   actualTargetCatchesCount?: number;
