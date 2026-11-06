@@ -183,7 +183,7 @@ export interface VisCoachPlan {
   selectedTimeSlot?: import('../types').TimeSlot;
 }
 
-function resolveSelectedTimeSlot(start: Date, end: Date | null): import('../types').TimeSlot | undefined {
+export function resolveSelectedTimeSlot(start: Date, end: Date | null): import('../types').TimeSlot | undefined {
   const parts = (date: Date) => {
     const values = new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
