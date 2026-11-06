@@ -668,7 +668,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                   {activeDayProg.activityScoreAvailable === false ? (
                     <div className="text-sm font-bold text-slate-300">Niet betrouwbaar te bepalen</div>
-                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (
+                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && activeDayProg.bestTimeSlot !== 'Geen betekenisvol onderscheid' ? (
                     <div>
                       <div className="text-xl sm:text-2xl font-black text-white">
                         {activeDayProg.bestTimeSlot}
@@ -681,6 +681,13 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           Alternatief: {activeDayProg.alternativeTimeSlots.join(', ')}
                         </div>
                       )}
+                    </div>
+                  ) : activeDayProg.bestTimeSlot === 'Geen betekenisvol onderscheid' ? (
+                    <div>
+                      <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                        De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige activiteitsindex. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
+                      </p>
                     </div>
                   ) : (
                     <div>
