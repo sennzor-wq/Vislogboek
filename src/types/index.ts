@@ -271,6 +271,7 @@ export interface HistoricalCatchRateInfo {
 }
 
 export interface DayPrognosis {
+  dataQualityReport?: import('../services/dataQualityEngine').DataQualityReport;
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
   species: FishSpecies | 'Algemeen';
