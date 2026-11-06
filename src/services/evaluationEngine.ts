@@ -43,17 +43,50 @@ export function evaluatePrognosisPerformance(
   trainingSessions: FishingSession[] = []
 ): EvaluationResult {
   const totalSnapshots = snapshots.length;
-  const validEvaluated = snapshots.filter((s) => {
-    if (s.predictedCatchChance === null || typeof s.predictedCatchChance !== 'number') return false;
-    if ((s as any).isBenchmark === true) return false;
-    return s.actualOutcome === 'catch' || s.actualOutcome === 'skunk_confirmed';
+  const sessionsById = new Map<string, FishingSession>(
+    trainingSessions.map((session): [string, FishingSession] => [session.id, session])
+  );
+  const eligibleSnapshots = snapshots.filter((snapshot) => {
+    if (snapshot.predictedCatchChance === null || typeof snapshot.predictedCatchChance !== 'number') return false;
+    if (!Number.isFinite(snapshot.predictedCatchChance) || snapshot.predictedCatchChance < 0 || snapshot.predictedCatchChance > 100) return false;
+    if ((snapshot as any).isBenchmark === true || !snapshot.linkedSessionId) return false;
+    if (snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed') return false;
+    const linkedSession = sessionsById.get(snapshot.linkedSessionId);
+    if (!linkedSession?.endTime || linkedSession.outcome !== snapshot.actualOutcome) return false;
+    const forecastMs = Date.parse(snapshot.forecastTimestamp);
+    const sessionStartMs = Date.parse(linkedSession.startTime);
+    const sessionEndMs = Date.parse(linkedSession.endTime);
+    return Number.isFinite(forecastMs) &&
+      Number.isFinite(sessionStartMs) &&
+      Number.isFinite(sessionEndMs) &&
+      forecastMs < sessionStartMs &&
+      sessionEndMs > sessionStartMs;
   });
 
+  // Eén sessie kan meerdere snapshots hebben (bijv. startadvies en tussentijdse
+  // herberekeningen). Voor dezelfde doelsoort telt alleen de vroegste vooraf
+  // vastgelegde voorspelling mee; latere snapshots zijn geen onafhankelijke sessies.
+  const earliestBySessionAndSpecies = new Map<string, PrognosisSnapshot>();
+  for (const snapshot of eligibleSnapshots) {
+    const key = `${snapshot.linkedSessionId}|${snapshot.targetSpecies}`;
+    const current = earliestBySessionAndSpecies.get(key);
+    if (!current || Date.parse(snapshot.forecastTimestamp) < Date.parse(current.forecastTimestamp)) {
+      earliestBySessionAndSpecies.set(key, snapshot);
+    }
+  }
+  const validEvaluated = Array.from(earliestBySessionAndSpecies.values());
+  const excludedCount = totalSnapshots - snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length - eligibleSnapshots.length;
+  const duplicateCount = eligibleSnapshots.length - validEvaluated.length;
+
   const evaluatedCount = validEvaluated.length;
-  const pendingCount = totalSnapshots - evaluatedCount;
+  const pendingCount = snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length;
   const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
-    'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve sessie-uitkomsten.',
+    'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve, aan een afgeronde sessie gekoppelde uitkomsten.',
+    'Alleen voorspellingen die vóór de werkelijke sessiestart zijn vastgelegd en waarvan de gekoppelde sessie aantoonbaar is afgerond, tellen mee.',
+    'Per gekoppelde sessie en doelsoort telt uitsluitend de vroegste vooraf vastgelegde voorspelling mee; latere herberekeningen zijn geen onafhankelijke waarnemingen.',
+    `${excludedCount} momentopname(s) uitgesloten wegens ontbrekende/ongeldige koppeling, sessie-uitkomst of voorspellingstijd.`,
+    `${duplicateCount} dubbele momentopname(s) uitgesloten omdat dezelfde sessie en doelsoort al meetellen.`,
     'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen gekoppelde sessies van dezelfde doelsoort die vóór het prognosetijdstip zijn beëindigd tellen mee.',
     `Per voorspelling zijn minimaal ${minimumTrainingSamples} eerdere gekoppelde sessie-uitkomsten nodig voor een baseline.`,
   ];
@@ -254,6 +287,8 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (typeof predicted !== 'number' || !Number.isFinite(predicted) || predicted < 0 || predicted > 35) return false;
     if (typeof actual !== 'number' || !Number.isFinite(actual) || actual < 0 || actual > 35) return false;
     if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
+    if (snapshot.actualWaterTemperatureMeasurementSource !== 'manual' && snapshot.actualWaterTemperatureMeasurementSource !== 'imported') return false;
+    if (snapshot.actualWaterTemperatureMeasurementMethod !== 'thermometer' && snapshot.actualWaterTemperatureMeasurementMethod !== 'probe' && snapshot.actualWaterTemperatureMeasurementMethod !== 'other') return false;
     const forecastMs = new Date(snapshot.forecastTimestamp).getTime();
     const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
     if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs || measuredMs > Date.now()) return false;
@@ -402,14 +437,22 @@ export async function autoSyncSessionOutcomeToSnapshot(
     measuredTemp >= 0 &&
     measuredTemp <= 35 &&
     typeof snapshot.predictedWaterTemperature === 'number' &&
-    snapshot.targetDate === getAmsterdamDate(session.startTime) &&
-    new Date(snapshot.forecastTimestamp).getTime() < new Date(session.startTime).getTime()
+    session.waterTemperatureMeasuredAt &&
+    (session.waterTemperatureMeasurementSource === 'manual' || session.waterTemperatureMeasurementSource === 'imported') &&
+    (session.waterTemperatureMeasurementMethod === 'thermometer' || session.waterTemperatureMeasurementMethod === 'probe' || session.waterTemperatureMeasurementMethod === 'other') &&
+    Number.isFinite(new Date(session.waterTemperatureMeasuredAt).getTime()) &&
+    new Date(session.waterTemperatureMeasuredAt).getTime() <= Date.now() &&
+    new Date(session.waterTemperatureMeasuredAt).getTime() <= new Date(session.endTime).getTime() &&
+    snapshot.targetDate === getAmsterdamDate(session.waterTemperatureMeasuredAt) &&
+    new Date(snapshot.forecastTimestamp).getTime() < new Date(session.waterTemperatureMeasuredAt).getTime()
   ) {
     await db.prognosisSnapshots.update(session.snapshotId, {
       linkedSessionId: session.id,
       actualWaterTemperature: measuredTemp,
-      // Het sessiemodel heeft nog geen afzonderlijk meettijdstip; starttijd is de expliciete benadering.
-      actualWaterTemperatureTimestamp: session.startTime,
+      actualWaterTemperatureTimestamp: session.waterTemperatureMeasuredAt,
+      actualWaterTemperatureMeasurementSource: session.waterTemperatureMeasurementSource,
+      actualWaterTemperatureMeasurementMethod: session.waterTemperatureMeasurementMethod,
+      actualWaterTemperatureMeasurementDepthM: session.waterTemperatureMeasurementDepthM,
     });
     temperatureLinked = true;
   }

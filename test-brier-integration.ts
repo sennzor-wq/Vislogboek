@@ -211,7 +211,7 @@ async function runBrierIntegrationTest() {
     const snapId = `test_brier_snap_${tc.testNumber}`;
     const snapshot: PrognosisSnapshot = {
       id: snapId,
-      forecastTimestamp: tc.weather.capturedAt,
+      forecastTimestamp: new Date(new Date(tc.startTime).getTime() - 60 * 60 * 1000).toISOString(),
       targetDate: tc.startTime.slice(0, 10),
       targetSpecies: 'Karper',
       locationId: LOKKERSHOEK_PIER_ID,
@@ -352,7 +352,23 @@ async function runBrierIntegrationTest() {
     createdAt: `2026-10-${String(10 + index).padStart(2, '0')}T07:00:00Z`,
     updatedAt: `2026-10-${String(10 + index).padStart(2, '0')}T10:00:00Z`,
   }));
-  const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots, baselineTrainingSessions);
+  const recordedSessions = await db.sessions.toArray();
+  const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots, [...baselineTrainingSessions, ...recordedSessions]);
+
+  const duplicateAndOrphanResult = evaluatePrognosisPerformance(
+    [
+      ...linkedSnapshots,
+      { ...linkedSnapshots[0], id: 'test_brier_duplicate_same_session' },
+      { ...linkedSnapshots[0], id: 'test_brier_orphan', linkedSessionId: undefined },
+    ],
+    baselineTrainingSnapshots,
+    [...baselineTrainingSessions, ...recordedSessions]
+  );
+  assert(duplicateAndOrphanResult.evaluatedCount === 7,
+    'Brier-evaluatie telt dezelfde sessie/soort maar één keer en sluit een niet-gekoppelde snapshot uit');
+  assert(duplicateAndOrphanResult.disclaimers.some((item) => item.includes('1 dubbele')) &&
+    duplicateAndOrphanResult.disclaimers.some((item) => item.includes('1 momentopname')),
+    'Brier-evaluatie rapporteert uitgesloten duplicaten en niet-gekoppelde snapshots');
 
   // Gemiddelde Brier-score = 1.63 / 7 ≈ 0.2329 (in EvaluationResult afgerond op 3 decimalen: 0.233)
   const expectedBrierScore = 1.63 / 7;

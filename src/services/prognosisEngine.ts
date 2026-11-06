@@ -26,6 +26,7 @@ import { analyzeBankWind } from './bankWindEngine';
 import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
+import { createDataQualityReport } from './dataQualityEngine';
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -622,15 +623,27 @@ export function calculateDayPrognosis(
   // Beste toekomstige tijdvak
   const futureOrActiveSlots = slots.filter((slot) => !timeSlotAnalyses[slot].isPast);
 
-  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' = 'Geen toekomstig tijdvak meer vandaag';
+  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid' = 'Geen toekomstig tijdvak meer vandaag';
   let alternativeSlots: TimeSlot[] = [];
 
   if (futureOrActiveSlots.length > 0) {
     const sortedFuture = [...futureOrActiveSlots].sort(
       (a, b) => timeSlotAnalyses[b].activityScore - timeSlotAnalyses[a].activityScore
     );
-    bestSlot = sortedFuture[0];
-    alternativeSlots = sortedFuture.slice(1);
+    const availableScores = sortedFuture
+      .filter((slot) => timeSlotAnalyses[slot].activityScoreAvailable !== false)
+      .map((slot) => timeSlotAnalyses[slot].activityScore);
+    const hasMeaningfulDifference = availableScores.length > 1 &&
+      Math.max(...availableScores) - Math.min(...availableScores) >= 0.1;
+    if (sortedFuture.length === 1 && availableScores.length === 1) {
+      bestSlot = sortedFuture[0];
+    } else if (hasMeaningfulDifference) {
+      bestSlot = sortedFuture[0];
+      alternativeSlots = sortedFuture.slice(1);
+    } else {
+      bestSlot = 'Geen betekenisvol onderscheid';
+      alternativeSlots = [];
+    }
   }
 
   const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
@@ -769,7 +782,41 @@ export function calculateDayPrognosis(
   const validHours=Math.min(...weatherFields.map(f=>f.count));
   const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
   const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
-  if ((!hasKnownThermalInput || weatherDataQuality.status!=='Volledig') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
+  const dataQualityReport = createDataQualityReport([
+    {
+      name: 'Watertemperatuur',
+      value: thermalAnalysis.hasMeasuredWaterTemp ? thermalAnalysis.measuredWaterTemp : thermalAnalysis.estimatedWaterTemp,
+      status: thermalAnalysis.hasMeasuredWaterTemp ? 'userReported' : hasKnownThermalInput ? 'modelled' : 'unknown',
+      source: thermalAnalysis.hasMeasuredWaterTemp ? 'Gebruikersmeting' : thermalAnalysis.waterTemperatureStatus ?? 'onbekend',
+      observedAt: thermalAnalysis.anchorMeasurementTimestamp ?? undefined,
+      explanation: 'Een modelschatting blijft onderscheiden van een directe gebruikersmeting.',
+    },
+    {
+      name: 'Weersverwachting',
+      value: validHours,
+      status: validHours > 0 ? 'forecast' : 'unknown',
+      source: 'Open-Meteo',
+      observedAt: weatherUpdatedAt,
+      explanation: `${validHours} van 24 verwachte uurwaarden per kernveld zijn beschikbaar.`,
+    },
+    {
+      name: 'Vergelijkbare sessiehistorie',
+      value: sessionCount,
+      status: sessionCount > 0 ? 'userReported' : 'unknown',
+      source: 'Eigen sessielogboek',
+      explanation: 'Alleen sessies met bekende doelsoortuitkomst worden voor persoonlijke analyse geselecteerd.',
+    },
+  ]);
+  const temperatureQualityUsable = dataQualityReport.results.find((item) => item.name === 'Watertemperatuur')?.usable === true;
+  const forecastQualityUsable = dataQualityReport.results.find((item) => item.name === 'Weersverwachting')?.usable === true;
+  if ((!temperatureQualityUsable || !forecastQualityUsable || weatherDataQuality.status !== 'Volledig') && catchChance !== null) {
+    catchChance = null;
+    expectedCatches = null;
+    hourlyCatchRate = null;
+    confidence = 'Onvoldoende gegevens';
+    uncertaintyInterval = null;
+    uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: de centrale datakwaliteitscontrole markeert de thermische of weersinvoer als onbruikbaar of onvolledig.');
+  }
   // Provenance
   let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
@@ -797,7 +844,7 @@ export function calculateDayPrognosis(
   // Samenvatting
   let summaryRationale = '';
   if (!dayScoreAvailable) { summaryRationale='De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.'; }
-  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag') {
+  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid') {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
   } else {
@@ -858,7 +905,7 @@ export function calculateDayPrognosis(
     thermalAnalysis,
     historicalSessions,
     historicalCatches: options?.catches ?? [],
-    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
+    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : undefined,
   });
 
   // Dagwaarden voor de tactische deelmodules; ontbrekende waarden blijven onbekend.
@@ -973,7 +1020,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend',
+        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : 'Ochtend',
         options?.catches ?? []
       ) ?? undefined
     : undefined;
@@ -985,6 +1032,7 @@ export function calculateDayPrognosis(
     activityScore: dayScore,
     activityScoreAvailable: dayScoreAvailable,
     weatherDataQuality,
+    dataQualityReport,
     advice,
     bestTimeSlot: bestSlot,
     alternativeTimeSlots: alternativeSlots,
@@ -1037,6 +1085,8 @@ export interface PendingPrognosisSnapshot {
   durationKnown?: boolean;
   locationName?: string;
   chosenSlot?: TimeSlot;
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   conditions?: WeatherSnapshot;
   weatherInput?: WeatherHourlyForecast[];
   inputContext?: PrognosisInputContext;
@@ -1063,13 +1113,15 @@ export async function savePrognosisSnapshot(
     inputContext?: PrognosisInputContext;
     inputFingerprint?: string;
     supersedesSnapshotId?: string;
+    targetWindowStart?: string;
+    targetWindowEnd?: string | null;
   }
 ): Promise<PrognosisSnapshot> {
   const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
-    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
       ? (prognosis.bestTimeSlot as TimeSlot)
-      : 'Ochtend');
+      : undefined);
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
@@ -1103,6 +1155,8 @@ export async function savePrognosisSnapshot(
     locationName,
     durationHours,
     durationKnown: metadata?.runKind ? durationHours > 0 : undefined,
+    targetWindowStart: metadata?.targetWindowStart,
+    targetWindowEnd: metadata?.targetWindowEnd,
     runKind: metadata?.runKind,
     inputFingerprint: metadata?.inputFingerprint,
     supersedesSnapshotId: metadata?.supersedesSnapshotId,
@@ -1268,7 +1322,7 @@ export async function createLiveSnapshotForSessionStart(
     );
 
     const chosenSlot =
-      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
         : undefined;
 

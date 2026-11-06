@@ -79,6 +79,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   const [missedCount, setMissedCount] = useState<number | undefined>(session?.missedCount);
   const [waterDepth, setWaterDepth] = useState<number | undefined>(session?.waterDepth);
   const [waterTemperature, setWaterTemperature] = useState<number | undefined>(session?.waterTemperature ?? undefined);
+  const [waterTemperatureMeasuredAt, setWaterTemperatureMeasuredAt] = useState<string>(session?.waterTemperatureMeasuredAt ? formatDateTimeLocal(new Date(session.waterTemperatureMeasuredAt)) : '');
+  const [waterTemperatureMeasurementSource, setWaterTemperatureMeasurementSource] = useState<'manual' | 'imported' | 'unknown'>(session?.waterTemperatureMeasurementSource ?? 'manual');
+  const [waterTemperatureMeasurementMethod, setWaterTemperatureMeasurementMethod] = useState<'thermometer' | 'probe' | 'other' | 'unknown'>(session?.waterTemperatureMeasurementMethod ?? 'unknown');
+  const [waterTemperatureMeasurementDepthM, setWaterTemperatureMeasurementDepthM] = useState<number | undefined>(session?.waterTemperatureMeasurementDepthM);
   const [notes, setNotes] = useState(session?.notes || '');
   const [fetchingWeather, setFetchingWeather] = useState(false);
   const [weatherSnapshot, setWeatherSnapshot] = useState(session?.weatherSnapshot);
@@ -203,6 +207,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         missedCount: missedCount !== undefined ? Number(missedCount) : undefined,
         waterDepth: waterDepth !== undefined ? Number(waterDepth) : undefined,
         waterTemperature: waterTemperature !== undefined ? Number(waterTemperature) : undefined,
+        waterTemperatureMeasuredAt: waterTemperature !== undefined && waterTemperatureMeasuredAt ? new Date(waterTemperatureMeasuredAt).toISOString() : undefined,
+        waterTemperatureMeasurementSource: waterTemperature !== undefined ? waterTemperatureMeasurementSource : undefined,
+        waterTemperatureMeasurementMethod: waterTemperature !== undefined ? waterTemperatureMeasurementMethod : undefined,
+        waterTemperatureMeasurementDepthM: waterTemperature !== undefined && waterTemperatureMeasurementDepthM !== undefined ? Number(waterTemperatureMeasurementDepthM) : undefined,
         notes,
         weatherSnapshot,
         presenceObservations: selectedPresenceObs,
@@ -648,8 +656,44 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               }}
               className="w-full sm:max-w-xs bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <label className="block text-xs text-slate-300">
+                Meetdatum en -tijd
+                <input type="datetime-local" value={waterTemperatureMeasuredAt}
+                  onChange={(e) => setWaterTemperatureMeasuredAt(e.target.value)}
+                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+              </label>
+              <label className="block text-xs text-slate-300">
+                Meetmethode
+                <select value={waterTemperatureMeasurementMethod}
+                  onChange={(e) => setWaterTemperatureMeasurementMethod(e.target.value as typeof waterTemperatureMeasurementMethod)}
+                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  <option value="unknown">Onbekend</option>
+                  <option value="thermometer">Thermometer</option>
+                  <option value="probe">Meetprobe / sonde</option>
+                  <option value="other">Anders</option>
+                </select>
+              </label>
+              <label className="block text-xs text-slate-300">
+                Meetdiepte in meter (optioneel)
+                <input type="number" min={0} max={100} step="0.1" value={waterTemperatureMeasurementDepthM ?? ''}
+                  onChange={(e) => setWaterTemperatureMeasurementDepthM(e.target.value === '' ? undefined : Number(e.target.value))}
+                  placeholder="Bijv. 0,5"
+                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+              </label>
+              <label className="block text-xs text-slate-300">
+                Herkomst
+                <select value={waterTemperatureMeasurementSource}
+                  onChange={(e) => setWaterTemperatureMeasurementSource(e.target.value as typeof waterTemperatureMeasurementSource)}
+                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                  <option value="manual">Handmatig ingevoerd</option>
+                  <option value="imported">Geïmporteerd</option>
+                  <option value="unknown">Onbekend</option>
+                </select>
+              </label>
+            </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Vul de daadwerkelijk gemeten watertemperatuur in. De starttijd van deze sessie wordt automatisch gebruikt als meettijdstip; je hoeft geen apart tijdstip in te voeren.
+              Het meettijdstip wordt niet meer afgeleid van de sessiestart. Alleen met een expliciet meettijdstip en bekende herkomst en methode kan deze meting worden gebruikt voor temperatuurvalidatie. Oude metingen blijven behouden, maar tellen zonder deze gegevens niet mee.
             </p>
           </div>
 

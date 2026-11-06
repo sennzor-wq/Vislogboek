@@ -29,6 +29,8 @@ function makeSnapshot(index: number, overrides: Partial<PrognosisSnapshot> = {})
     predictedWaterTemperature: 12,
     actualWaterTemperature: 11,
     actualWaterTemperatureTimestamp: `${date}T09:00:00+02:00`,
+    actualWaterTemperatureMeasurementSource: 'manual',
+    actualWaterTemperatureMeasurementMethod: 'thermometer',
     linkedSessionId: `session-${index}`,
     source: 'test',
     modelVersion: 'test',
@@ -79,6 +81,13 @@ const invalid = [
 ];
 assert(evaluateWaterTemperaturePerformance(invalid).evaluatedCount === 8,
   'Toekomstige voorspellingen en metingen van een andere dag worden uitgesloten');
+const missingMeasurementMetadata = [
+  ...eight,
+  makeSnapshot(10, { id: 'missing-method', actualWaterTemperatureMeasurementMethod: 'unknown' }),
+  makeSnapshot(11, { id: 'missing-source', actualWaterTemperatureMeasurementSource: 'unknown' }),
+];
+assert(evaluateWaterTemperaturePerformance(missingMeasurementMetadata).evaluatedCount === 8,
+  'Metingen zonder bekende methode of herkomst worden niet als validatiepaar gebruikt');
 
 console.log(`Watertemperatuur learning tests: ${passed} geslaagd, ${failed} gefaald`);
 if (failed > 0) process.exit(1);
