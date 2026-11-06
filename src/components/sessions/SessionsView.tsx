@@ -407,29 +407,26 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                         Opnieuw beoordelen
                       </button>
                     </div>
-                    {coachAdviceRecords
-                      .filter((advice) => advice.sessionId === session.id)
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                      .slice(0, 3).length === 0 ? (
-                      <p className="text-xs text-slate-400">Er is nog geen coachadvies voor deze sessie vastgelegd. De coach beoordeelt relevante wijzigingen automatisch.</p>
-                    ) : coachAdviceRecords
-                      .filter((advice) => advice.sessionId === session.id)
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                      .slice(0, 3)
-                      .map((advice, index) => (
-                        <div key={advice.id} className={index > 0 ? 'border-t border-slate-700 pt-3 mt-3' : ''}>
+                    {(() => {
+                      const sessionAdvice = coachAdviceRecords
+                        .filter((advice) => advice.sessionId === session.id)
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                      const startAdvice = sessionAdvice.find((advice) => advice.trigger === 'session_start');
+                      const interimAdvice = sessionAdvice
+                        .filter((advice) => advice.trigger !== 'session_start')
+                        .slice(0, 3);
+
+                      const renderAdvice = (advice: CoachAdviceRecord) => (
+                        <div key={advice.id}>
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-[10px] uppercase tracking-wide text-slate-500">
-                              {index === 0 ? 'Actueel advies' : 'Eerder advies'}
+                              {new Date(advice.createdAt).toLocaleString('nl-NL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                             </span>
                             <span className="text-[10px] text-slate-500">
-                              {new Date(advice.createdAt).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                              Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
                             </span>
                           </div>
                           <p className="text-sm font-bold text-white mt-1">{advice.recommendation}</p>
-                          <p className="text-[10px] text-slate-500 mt-1">
-                            Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
-                          </p>
                           {advice.changedFactors.length > 0 && (
                             <p className="text-[10px] text-cyan-300 mt-1">
                               Gewijzigd: {advice.changedFactors.map((factor) => COACH_FACTOR_LABELS[factor] || factor).join(', ')}
@@ -438,7 +435,48 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           {advice.summary && <p className="text-xs text-slate-300 mt-1">{advice.summary}</p>}
                           {advice.rationale && <p className="text-[11px] text-slate-500 mt-1">{advice.rationale}</p>}
                         </div>
-                      ))}
+                      );
+
+                      return (
+                        <>
+                          {startAdvice ? (
+                            <div>
+                              <h4 className="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Startadvies</h4>
+                              {renderAdvice(startAdvice)}
+                            </div>
+                          ) : (
+                            <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-3">
+                              <p className="text-xs text-amber-200">
+                                {session.snapshotId
+                                  ? 'De prognosemomentopname is opgeslagen, maar het startadviesrecord ontbreekt. Het startadvies kan daarom niet in de advieshistorie worden getoond.'
+                                  : 'Er is geen prognosemomentopname aan deze sessie gekoppeld. Daardoor is ook geen startadviesrecord vastgelegd. De sessie is wel gestart, maar VisCoach kan wijzigingen niet vergelijken met een oorspronkelijke sessieprognose.'}
+                              </p>
+                            </div>
+                          )}
+
+                          <div className="border-t border-slate-700 pt-3">
+                            <h4 className="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Tussentijds coachadvies</h4>
+                            {interimAdvice.length > 0 ? (
+                              <div className="space-y-3">
+                                {interimAdvice.map((advice) => (
+                                  <div key={advice.id} className="border-t border-slate-700/70 first:border-0 first:pt-0 pt-3">
+                                    {renderAdvice(advice)}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : startAdvice ? (
+                              <p className="text-xs text-slate-400">
+                                Er is nog geen tussentijds coachadvies vastgelegd. Het startadvies blijft het uitgangspunt. De coach beoordeelt relevante wijzigingen automatisch.
+                              </p>
+                            ) : (
+                              <p className="text-xs text-slate-400">
+                                Er is nog geen tussentijds coachadvies vastgelegd.
+                              </p>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {/* Vangsten in deze actieve sessie */}
