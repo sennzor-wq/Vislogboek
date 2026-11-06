@@ -1,5 +1,5 @@
 import { FishingSession, CatchItem, SessionOutcome, FishSpecies } from '../types';
-import { getAmsterdamHour } from './dateTime';
+import { getAmsterdamHour } from '../utils/dateTime';
 
 export interface StatsFilter {
   dateFrom?: string;
