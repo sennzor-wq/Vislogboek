@@ -1031,28 +1031,26 @@ Deze wijziging herschrijft geen bestaande IndexedDB-records. Gegevens die in een
 
 ### 16.6 Verificatie en resterende auditpunten
 
-De branch bevat een gerichte regressietest `test-audit-data-integrity.ts` en het npm-script `test:audit-data-integrity`. De test, TypeScript-controle en productiebuild moeten nog daadwerkelijk worden uitgevoerd; het bestaan van de test is geen geslaagde Quality Gate.
+P0 is gemerged via PR #39 en P1 via PR #40. De GitHub Quality Gate is voor beide definitieve merge-heads geslaagd, inclusief dependency-audits, TypeScript-typecheck, deterministische tests en productiebuild.
 
-Nog niet in deze herstelstap afgerond:
-- geselecteerd start-/eindtijdvenster correct koppelen aan het opgeslagen tijdvak;
-- echte tijdsafhankelijke onderbouwing voor verschillen tussen tijdvakken, of expliciet geen onderscheid tonen;
-- afzonderlijk meettijdstip, meetdiepte en meetmethode voor watertemperatuur;
-- deduplicatie en strengere linkvalidatie in de Brier-evaluatie;
+P0 heeft de legacy-import, soortspecifieke bewijsregels, werkelijke sessieduur en onbekende vangstuitkomsten gecorrigeerd. P1 heeft tijdvakselectie, water-temperatuurmeetmetadata, Brier-deduplicatie/linkvalidatie en de integratie van de bestaande `dataQualityEngine` afgerond.
+
+Resterende P2-aandachtspunten:
 - centrale tijdzone-/DST-regels en regressietests;
-- volledige backup-referentiële-integriteit en end-to-end datakwaliteitsrapportage.
+- volledige backup-referentiële-integriteit tussen vangsten, sessies, snapshots, adviezen en hengelrecords;
+- granulariteit en herleidbaarheid van model-/engineversies;
+- Brier-uitkomsten bij kleine aantallen nadrukkelijk als voorlopig presenteren.
 
-Deze punten blijven op de herstelroadmap staan. Er worden geen nieuwe parallelle prognose-, weer-, evaluatie- of datakwaliteitsengines toegevoegd.
+De bestaande prognose-, weer-, evaluatie- en datakwaliteitsengines blijven de enige gezaghebbende implementaties voor hun domein. Er zijn geen parallelle engines toegevoegd.
 
-Aanvullend: de persoonlijke voorvoerhistorie in `prebaitEngine.ts` volgt dezelfde bewijsregel. Een sessie met algemene uitkomst `catch` telt voor een soortspecifieke voorvoervergelijking alleen mee als er een vangstrecord van die doelsoort bestaat. Expliciet bevestigde nulvangsten blijven bruikbaar. De VisCoach-prognosecoördinator geeft de bestaande vangstrecords door aan deze analyse; er is geen tweede vangsthistorie of aparte database toegevoegd.
-
-Ook het persoonlijke hengelpositioneringsprofiel in `rodPositioningEngine.ts` gebruikt deze bewijsregel: alleen sessies op dezelfde stek en voor de gekozen doelsoort tellen mee; een sessie met uitkomst `catch` vereist een bekende vangstregistratie van die soort. Expliciet bevestigde nulvangsten blijven geldige negatieve waarnemingen. De bestaande prognosecoördinator geeft de vangstrecords door aan deze module.
+De soortspecifieke bewijsregel blijft ook gelden voor persoonlijke voorvoerhistorie in `prebaitEngine.ts` en hengelpositionering in `rodPositioningEngine.ts`: een `catch` telt alleen voor de geselecteerde doelsoort als een bekende vangstregistratie van die soort bestaat; expliciet bevestigde nulvangsten blijven geldige negatieve waarnemingen.
 
 
 ---
 
 ## P1 implementation update — 6 november 2026
 
-Status: implemented on branch `audit/p1-prognosis-integrity`; not merged to `main`. GitHub Quality Gate verification is pending.
+Status: merged to `main` via PR #40 on 6 November 2026. The final GitHub Quality Gate passed.
 
 The P1 implementation adds the following integrity rules:
 
