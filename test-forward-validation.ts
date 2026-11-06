@@ -441,7 +441,10 @@ async function runTestSuite() {
       durationHours: 3,
       predictedActivityScore: 7,
       predictedCatchChance: 70, // f = 0.7
-      actualOutcome: 'catch',   // o = 1.0 -> (0.7 - 1)^2 = 0.09
+      actualOutcome: 'catch',
+      linkedSessionId: 'evaluation-session-5',
+      linkedSessionId: 'evaluation-session-3',
+      linkedSessionId: 'evaluation-session-1',   // o = 1.0 -> (0.7 - 1)^2 = 0.09
       source: '',
       modelVersion: 'v2.2',
       createdAt: '',
@@ -454,7 +457,9 @@ async function runTestSuite() {
       durationHours: 3,
       predictedActivityScore: 6,
       predictedCatchChance: 40, // f = 0.4
-      actualOutcome: 'skunk_confirmed', // o = 0.0 -> (0.4 - 0)^2 = 0.16
+      actualOutcome: 'skunk_confirmed',
+      linkedSessionId: 'evaluation-session-4',
+      linkedSessionId: 'evaluation-session-2', // o = 0.0 -> (0.4 - 0)^2 = 0.16
       source: '',
       modelVersion: 'v2.2',
       createdAt: '',
@@ -500,7 +505,16 @@ async function runTestSuite() {
     },
   ];
 
-  const evaluationWithoutHistory = evaluatePrognosisPerformance(fiveEvaluatedSnapshots);
+  const fiveEvaluationSessions: FishingSession[] = fiveEvaluatedSnapshots.map((snapshot, index) => ({
+    id: snapshot.linkedSessionId!,
+    startTime: `2026-10-0${index + 1}T08:00:00Z`,
+    endTime: `2026-10-0${index + 1}T11:00:00Z`,
+    outcome: snapshot.actualOutcome as 'catch' | 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: `2026-10-0${index + 1}T08:00:00Z`,
+    updatedAt: `2026-10-0${index + 1}T11:00:00Z`,
+  }));
+  const evaluationWithoutHistory = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, fiveEvaluatedSnapshots, fiveEvaluationSessions);
   assert(evaluationWithoutHistory.naiveBrierScore === null &&
     evaluationWithoutHistory.brierSkillScore === null &&
     evaluationWithoutHistory.baselineEvaluatedCount === 0,
@@ -531,7 +545,7 @@ async function runTestSuite() {
     createdAt: `2026-09-${String(index + 1).padStart(2, '0')}T07:00:00Z`,
     updatedAt: `2026-09-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
   }));
-  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, baselineTraining, baselineTrainingSessions);
+  const evalResult5 = evaluatePrognosisPerformance(fiveEvaluatedSnapshots, baselineTraining, [...baselineTrainingSessions, ...fiveEvaluationSessions]);
 
   // Som kwadratische fout = 0.09 + 0.16 + 0.16 + 0.04 + 0.25 = 0.70
   // Brier score = 0.70 / 5 = 0.140
@@ -602,7 +616,7 @@ async function runTestSuite() {
   const evaluationWithFutureHistory = evaluatePrognosisPerformance(
     fiveEvaluatedSnapshots,
     [...baselineTraining, futureTrainingOutcome, overnightPriorOutcome],
-    futureTrainingSessions
+    [...futureTrainingSessions, ...fiveEvaluationSessions]
   );
   assert(evaluationWithFutureHistory.naiveBrierScore === evalResult5.naiveBrierScore &&
     evaluationWithFutureHistory.baselineEvaluatedCount === evalResult5.baselineEvaluatedCount,
@@ -627,7 +641,7 @@ async function runTestSuite() {
     } as any,
   ];
 
-  const evalBenchmark = evaluatePrognosisPerformance(snapshotsWithBenchmark);
+  const evalBenchmark = evaluatePrognosisPerformance(snapshotsWithBenchmark, snapshotsWithBenchmark, fiveEvaluationSessions);
   assert(
     evalBenchmark.evaluatedCount === 5,
     `3.3 Benchmark momentopname (isBenchmark: true) wordt strikt uitgesloten van modelvalidatie (evaluatedCount: ${evalBenchmark.evaluatedCount})`
@@ -651,7 +665,7 @@ async function runTestSuite() {
     },
   ];
 
-  const evalNullChance = evaluatePrognosisPerformance(snapshotsWithNullChance);
+  const evalNullChance = evaluatePrognosisPerformance(snapshotsWithNullChance, snapshotsWithNullChance, fiveEvaluationSessions);
   assert(
     evalNullChance.evaluatedCount === 5,
     '3.4 Momentopnames zonder geldige statistische vangstkans (null) worden niet in Brier-score meegenomen'
