@@ -28,8 +28,8 @@ export const CatchModal: React.FC<CatchModalProps> = ({
   };
 
   const [species, setSpecies] = useState<FishSpecies | ''>(
-    catchItem && catchItem.legacyImportQuality?.speciesKnown !== false
-      ? catchItem.species
+    catchItem
+      ? catchItem.legacyImportQuality?.speciesKnown === false ? '' : catchItem.species
       : activeSession?.targetSpecies?.[0] || ''
   );
   const [count, setCount] = useState<number>(
