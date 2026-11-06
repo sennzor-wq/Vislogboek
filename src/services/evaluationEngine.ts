@@ -75,11 +75,11 @@ export function evaluatePrognosisPerformance(
     }
   }
   const validEvaluated = Array.from(earliestBySessionAndSpecies.values());
-  const excludedCount = totalSnapshots - eligibleSnapshots.length;
+  const excludedCount = totalSnapshots - snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length - eligibleSnapshots.length;
   const duplicateCount = eligibleSnapshots.length - validEvaluated.length;
 
   const evaluatedCount = validEvaluated.length;
-  const pendingCount = totalSnapshots - evaluatedCount;
+  const pendingCount = snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length;
   const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
     'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve, aan een afgeronde sessie gekoppelde uitkomsten.',
