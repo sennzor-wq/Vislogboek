@@ -653,7 +653,7 @@ export function calculateDayPrognosis(
   const catchIndex = options?.catches ? getCatchSessionIndex(options.catches) : new Map();
   const hasKnownTargetCatch = (session: FishingSession) =>
     (catchIndex.get(session.id) ?? []).some((item) =>
-      (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false
+      (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false))
     );
   // Een generieke sessie-uitkomst 'catch' is alleen een doelsoortsucces wanneer
   // een vangstrecord van die doelsoort aanwezig is. Anders blijft de uitkomst onbekend.
@@ -694,7 +694,7 @@ export function calculateDayPrognosis(
   const poissonSessions = durationSessions.filter((session) =>
     session.outcome === 'skunk_confirmed' ||
     (catchIndex.get(session.id) ?? []).some((item) =>
-      (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false &&
+      (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false)) &&
       item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
     )
   );
@@ -709,14 +709,14 @@ export function calculateDayPrognosis(
         (acc, s) => acc + (getSessionDurationHours(s) ?? 0),
         0
       );
-      const avgDurationHours = totalDurationHours / durationSessions.length;
+      const avgDurationHours = totalDurationHours / poissonSessions.length;
       avgDurationMinutes = Math.round(avgDurationHours * 60);
 
       let totalTargetCatches = 0;
       for (const session of poissonSessions) {
         if (session.outcome === 'skunk_confirmed') continue;
         const sessionCatches = (catchIndex.get(session.id) ?? []).filter((item) =>
-          (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false &&
+          (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false)) &&
           item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
         );
         totalTargetCatches += sessionCatches.reduce((sum, item) => sum + item.count, 0);
