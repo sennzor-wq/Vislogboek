@@ -519,10 +519,10 @@ export interface PrognosisOptions {
 }
 
 /**
- * Geeft de geregistreerde sessieduur in uren terug.
- * Ontbrekende of ongeldige duur blijft onbekend (null) en wordt niet als 3 uur ingevuld.
+ * Geeft uitsluitend werkelijk geregistreerde sessieduur terug.
+ * Deze functie is leidend voor historische blootstellings- en vangsttempo-berekeningen.
  */
-export function getSessionDurationHours(session: FishingSession): number | null {
+export function getActualSessionDurationHours(session: FishingSession): number | null {
   if (typeof session.durationMinutes === 'number' && Number.isFinite(session.durationMinutes) && session.durationMinutes > 0) {
     return session.durationMinutes / 60;
   }
@@ -533,7 +533,28 @@ export function getSessionDurationHours(session: FishingSession): number | null 
       return diffMins / 60;
     }
   }
-  // Geplande duur/eindtijd is geen gerealiseerde blootstelling en wordt hier bewust genegeerd.
+  return null;
+}
+
+/**
+ * Geeft de duur voor planning/live-coaching terug.
+ * Bij een actieve sessie mag de vooraf geplande duur worden gebruikt om de prognosehorizon
+ * te bepalen; deze helper mag niet worden gebruikt voor historische blootstellingsstatistiek.
+ */
+export function getSessionDurationHours(session: FishingSession): number | null {
+  const actualDuration = getActualSessionDurationHours(session);
+  if (actualDuration !== null) return actualDuration;
+  if (typeof session.plannedDurationHours === 'number' && Number.isFinite(session.plannedDurationHours) &&
+      session.plannedDurationHours > 0 && session.plannedDurationHours <= 24) {
+    return session.plannedDurationHours;
+  }
+  if (session.startTime && session.plannedEndTime) {
+    const plannedDiffMs = new Date(session.plannedEndTime).getTime() - new Date(session.startTime).getTime();
+    const plannedDiffHours = plannedDiffMs / 3600000;
+    if (Number.isFinite(plannedDiffHours) && plannedDiffHours > 0 && plannedDiffHours <= 24) {
+      return plannedDiffHours;
+    }
+  }
   return null;
 }
 
@@ -691,7 +712,7 @@ export function calculateDayPrognosis(
   const uncertaintyNotes: string[] = [];
 
   // Sessies zonder bekende duur mogen wel in sessiestatistiek staan, maar niet in de blootstellingsnoemer.
-  const durationSessions = comparableSessions.filter((s) => getSessionDurationHours(s) !== null);
+  const durationSessions = comparableSessions.filter((s) => getActualSessionDurationHours(s) !== null);
 
   // Minimum 5 vergelijkbare sessies vereist; voor het Poisson-blootstellingsmodel moeten ook
   // minimaal 5 van die sessies een bekende, geldige duur hebben.
@@ -700,7 +721,7 @@ export function calculateDayPrognosis(
 
     if (durationSessions.length >= 5) {
       const totalDurationHours = durationSessions.reduce(
-        (acc, s) => acc + (getSessionDurationHours(s) ?? 0),
+        (acc, s) => acc + (getActualSessionDurationHours(s) ?? 0),
         0
       );
       const avgDurationHours = totalDurationHours / durationSessions.length;
