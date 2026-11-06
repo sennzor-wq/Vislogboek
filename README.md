@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Vislogboek — interne documentatie
 
-# Run and deploy your AI Studio app
+Deze branch bevat de interne projectdocumentatie en technische blauwdrukken van Vislogboek.
 
-This contains everything you need to run your app locally.
+## Documenten
 
-View your app in AI Studio: https://ai.studio/apps/3c1a6cc2-0db1-4d6e-9fb6-31a08944a22f
+- [Projectcontext](PROJECT_CONTEXT.md) — architectuur, technische afspraken en actuele projectstatus.
+- [VisCoach-roadmap](VISCOACH_PRODUCT_ROADMAP.md) — productrichting, fasering en acceptatiecriteria.
+- [GIS-stekherkenning](GIS_STEKHERKENNING_BLUEPRINT.md) — technische blauwdruk voor geografische stekherkenning.
+- [Verbeterplan](IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md) — verzameld verbeter- en implementatieplan.
 
-## Run Locally
+## Werkafspraken
 
-**Prerequisites:**  Node.js
+1. Dit is de documentatiebranch; app-code en buildbestanden horen thuis in `main` van de app-repository.
+2. Houd projectcontext en roadmap actueel wanneer architectuur- of productbesluiten wijzigen.
+3. Wijzig technische blauwdrukken pas nadat de betreffende richting is besproken of goedgekeurd.
+4. Documenteer status als gepland, in uitvoering, geïmplementeerd of vervallen. Maak onderscheid tussen gemergede code en open PR's.
+5. Geen secrets, persoonlijke backups of productiegegevens in deze branch.
 
+## Huidige stand — 6 november 2026
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- P0 dataintegriteit: uitgewerkt en getest in app-PR #39; nog niet gemerged bij het maken van deze documentatiesnapshot.
+- P1 prognose- en evaluatie-integriteit: uitgewerkt en getest in app-PR #40; nog niet gemerged bij het maken van deze documentatiesnapshot.
+- Deze documentatiebranch is een veilige tussenstap binnen dezelfde GitHub-repository. Een aparte private repository kan later worden aangemaakt en gevuld vanuit deze branch.
