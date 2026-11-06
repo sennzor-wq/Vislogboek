@@ -972,7 +972,8 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend'
+        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend',
+        options?.catches ?? []
       ) ?? undefined
     : undefined;
 
