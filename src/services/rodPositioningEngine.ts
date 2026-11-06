@@ -12,6 +12,7 @@ import {
   RodPositioningAdvice,
   WindCastingGuidance,
 } from '../types';
+import { getAmsterdamMonth } from '../utils/dateTime';
 import { TIME_SLOT_HOURS } from './prognosisEngine';
 
 export interface RodPositioningOptions {
@@ -676,8 +677,7 @@ export function analyzeRodPositioning(
   }
 
   // 2. Seizoen & thermische context (inclusief 24-72u historie en modelschatting)
-  const targetDate = new Date(dateStr);
-  const month = targetDate.getMonth() + 1; // 1-12
+  const month = getAmsterdamMonth(dateStr) ?? 1; // 1-12
   const season = getSeasonNL(month);
 
   const measuredWaterTemp = typeof userWaterTemp === 'number' && Number.isFinite(userWaterTemp)
