@@ -46,6 +46,7 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
   onOpenLocations,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
   const [weather, setWeather] = useState<WeatherHourlyForecast | null>(null);
   const [greeting, setGreeting] = useState<WelcomeGreeting>(() => selectWelcomeGreeting({}));
 
@@ -53,8 +54,11 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
     .filter((session) => session.outcome !== 'active' && Number.isFinite(new Date(session.startTime).getTime()))
     .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())[0] || null, [sessions]);
 
-  const daysSinceLastSession = latestCompletedSession
-    ? Math.max(0, Math.floor((Date.now() - new Date(latestCompletedSession.endTime || latestCompletedSession.startTime).getTime()) / 86400000))
+  const lastSessionTimestamp = latestCompletedSession
+    ? new Date(latestCompletedSession.endTime || latestCompletedSession.startTime).getTime()
+    : NaN;
+  const daysSinceLastSession = Number.isFinite(lastSessionTimestamp)
+    ? Math.max(0, Math.floor((Date.now() - lastSessionTimestamp) / 86400000))
     : null;
 
   const hasRecordedCatch = latestCompletedSession
@@ -110,6 +114,10 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
   }, [isOpen, locations, daysSinceLastSession, latestCompletedSession?.id, latestCompletedSession?.outcome, hasRecordedCatch]);
 
   useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -120,7 +128,7 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== 'Tab' || !dialogRef.current) return;
@@ -145,7 +153,7 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
