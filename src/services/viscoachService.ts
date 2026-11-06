@@ -194,13 +194,14 @@ export function resolveSelectedTimeSlot(start: Date, end: Date | null): import('
   };
   const startParts = parts(start);
   const endParts = end ? parts(end) : null;
-  if (endParts && endParts.date !== startParts.date) return undefined;
+  const endsAtMidnightNextDay = Boolean(endParts && endParts.date !== startParts.date && endParts.minutes === 0);
+  if (endParts && endParts.date !== startParts.date && !endsAtMidnightNextDay) return undefined;
   const slots = Object.entries(TIME_SLOT_HOURS) as Array<[import('../types').TimeSlot, { start: number; end: number }] >;
   const slot = slots.find(([, range]) => {
     const startMinute = range.start * 60;
     const endMinute = range.end * 60;
     return startParts.minutes >= startMinute &&
-      (endParts ? endParts.minutes <= endMinute && endParts.minutes > startParts.minutes : true);
+      (endParts ? (endsAtMidnightNextDay ? endMinute === 24 * 60 : endParts.minutes <= endMinute && endParts.minutes > startParts.minutes) : true);
   });
   return slot?.[0];
 }
