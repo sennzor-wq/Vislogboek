@@ -551,6 +551,9 @@ export interface PrognosisSnapshot {
   predictedWaterTemperatureWeatherCoverage?: number;
   actualWaterTemperature?: number | null;
   actualWaterTemperatureTimestamp?: string;
+  actualWaterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
+  actualWaterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  actualWaterTemperatureMeasurementDepthM?: number;
   source: string;
   modelVersion: string;            // bijv. 'v2.2'
   linkedSessionId?: string;
