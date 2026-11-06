@@ -43,7 +43,7 @@ function getAmsterdamWallParts(date: Date): number[] {
  * spring-forward wall times are rejected instead of silently shifted.
  */
 function parseAmsterdamLocalDateTime(value: string): Date | null {
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::(\\d{2})(?:\\.(\\d{1,3}))?)?$/.exec(value);
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\\.(\d{1,3}))?)?$/.exec(value);
   if (!match) return null;
 
   const [year, month, day, hour, minute, second, fraction] = match.slice(1).map((part, index) =>
@@ -78,7 +78,7 @@ function parseAmsterdamLocalDateTime(value: string): Date | null {
 
 function parseValidDate(value: Date | string): Date | null {
   if (value instanceof Date) return Number.isFinite(value.getTime()) ? value : null;
-  if (/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(?::\\d{2}(?:\\.\\d{1,3})?)?$/.test(value)) {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\\.\d{1,3})?)?$/.test(value)) {
     return parseAmsterdamLocalDateTime(value);
   }
   const date = new Date(value);
