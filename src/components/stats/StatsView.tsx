@@ -315,7 +315,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
           <div>
             <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-cyan-400" />
-              Modelvalidatie & Empirische Brier-score (v2.2)
+              Brier-score & modelvergelijking (voorlopige evaluatie)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
               Toetst of voorspelde vangstkansen daadwerkelijk overeenkomen met gerealiseerde sessies.
@@ -343,10 +343,8 @@ export const StatsView: React.FC<StatsViewProps> = ({
                 </div>
                 <span className="text-[11px] text-slate-400 block mt-1">
                   {evaluation.hasSufficientData
-                    ? evaluation.brierScore! < 0.18
-                      ? 'Lage gemiddelde kwadratische voorspellingsfout'
-                      : 'Gemiddelde kwadratische fout ten opzichte van uitkomsten'
-                    : 'Vereist minimaal 5 gerealiseerde momentopnames'}
+                    ? `Voorlopige score op basis van ${evaluation.evaluatedCount} onafhankelijke sessies; geen bewijs van robuuste validatie.`
+                    : 'Vereist minimaal 5 geldige, onafhankelijke sessies; daaronder wordt geen score getoond.'}
                 </span>
               </div>
 
@@ -372,9 +370,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                 </span>
                 <span
                   className={`text-2xl sm:text-3xl font-black ${
-                    evaluation.brierSkillScore !== null && evaluation.brierSkillScore > 0
-                      ? 'text-emerald-400'
-                      : 'text-amber-400'
+                    'text-amber-300'
                   }`}
                 >
                   {evaluation.brierSkillScore !== null
@@ -385,8 +381,8 @@ export const StatsView: React.FC<StatsViewProps> = ({
                   {evaluation.brierSkillScore === null
                     ? 'Onafhankelijke rolling baseline nog niet beschikbaar'
                     : evaluation.brierSkillScore > 0
-                      ? 'Model voorspelt beter dan de eerdere historische baseline'
-                      : 'Geen verbetering aangetoond ten opzichte van de eerdere historische baseline'}
+                      ? 'Voorlopig lagere fout dan de rolling baseline in deze testgevallen; geen bewijs van structurele verbetering.'
+                      : 'Voorlopig geen lagere fout dan de rolling baseline in deze testgevallen.'}
                 </span>
               </div>
             </div>
