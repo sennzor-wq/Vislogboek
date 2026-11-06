@@ -233,27 +233,40 @@ export function normalizeRawBackup(raw: any): BackupData {
       typeof value === 'string' && ALL_SPECIES.includes(value as any)
     );
 
-    // Historisch weer wordt alleen overgenomen als alle verplichte velden werkelijk aanwezig zijn.
+    // Bewaar alle werkelijk aanwezige legacy-weervelden. Maak alleen een volledige
+    // WeatherSnapshot wanneer de verplichte numerieke velden in de bron aanwezig zijn.
     let weatherSnapshot = s.weatherSnapshot;
+    let legacyWeatherSnapshot: Partial<import('../types').WeatherSnapshot> | undefined;
     if (!weatherSnapshot && Array.isArray(s.weather_moments) && s.weather_moments.length > 0) {
-      const wm = s.weather_moments[0]?.data;
-      const requiredWeatherValues = [
-        wm?.temperature_avg_c, wm?.pressure_hpa, wm?.wind_speed_kmh,
-        wm?.wind_direction_deg, wm?.cloud_cover, wm?.precipitation_mm,
-      ];
-      if (requiredWeatherValues.every((value) => typeof value === 'number' && Number.isFinite(value))) {
-        weatherSnapshot = {
-          temperature: wm.temperature_avg_c,
-          pressure: wm.pressure_hpa,
-          pressureTrend: undefined,
-          windSpeed: wm.wind_speed_kmh,
-          windDirection: wm.wind_direction_deg,
-          windDirectionText: wm.wind_direction,
-          cloudCover: wm.cloud_cover,
-          precipitation: wm.precipitation_mm,
-          source: s.weather_moments[0]?.source?.includes('Regionale') ? 'knmi-regionaal' : 'open-meteo-historisch',
-          capturedAt: s.weather_moments[0]?.captured_at || s.created_at || s.createdAt || new Date().toISOString(),
+      const weatherMoment = s.weather_moments[0];
+      const wm = weatherMoment?.data;
+      if (wm && typeof wm === 'object') {
+        const source = weatherMoment?.source?.includes('Regionale') ? 'knmi-regionaal' : 'open-meteo-historisch';
+        const capturedAt = weatherMoment?.timestamp || weatherMoment?.captured_at || s.created_at || s.createdAt || new Date().toISOString();
+        legacyWeatherSnapshot = {
+          temperature: typeof wm.temperature_avg_c === 'number' && Number.isFinite(wm.temperature_avg_c) ? wm.temperature_avg_c : undefined,
+          pressure: typeof wm.pressure_hpa === 'number' && Number.isFinite(wm.pressure_hpa) ? wm.pressure_hpa : undefined,
+          windSpeed: typeof wm.wind_speed_kmh === 'number' && Number.isFinite(wm.wind_speed_kmh) ? wm.wind_speed_kmh : undefined,
+          windDirection: typeof wm.wind_direction_deg === 'number' && Number.isFinite(wm.wind_direction_deg) ? wm.wind_direction_deg : undefined,
+          windDirectionText: typeof wm.wind_direction === 'string' ? wm.wind_direction : undefined,
+          cloudCover: typeof wm.cloud_cover === 'number' && Number.isFinite(wm.cloud_cover) ? wm.cloud_cover : undefined,
+          precipitation: typeof wm.precipitation_mm === 'number' && Number.isFinite(wm.precipitation_mm) ? wm.precipitation_mm : undefined,
+          precipitationProbability: typeof wm.precipitation_chance === 'number' && Number.isFinite(wm.precipitation_chance) ? wm.precipitation_chance : undefined,
+          source,
+          capturedAt,
         };
+        const requiredWeatherFields = [
+          legacyWeatherSnapshot.temperature,
+          legacyWeatherSnapshot.pressure,
+          legacyWeatherSnapshot.windSpeed,
+          legacyWeatherSnapshot.windDirection,
+          legacyWeatherSnapshot.cloudCover,
+          legacyWeatherSnapshot.precipitation,
+        ];
+        if (requiredWeatherFields.every((value) => typeof value === 'number' && Number.isFinite(value))) {
+          weatherSnapshot = legacyWeatherSnapshot as import('../types').WeatherSnapshot;
+          legacyWeatherSnapshot = undefined;
+        }
       }
     }
 
@@ -289,7 +302,11 @@ export function normalizeRawBackup(raw: any): BackupData {
         durationKnown: typeof durationMinutes === 'number',
         targetSpeciesKnown: targetSpecies.length > 0,
         outcomeConfirmed: outcome === 'catch' || outcome === 'skunk_confirmed',
-        weatherKnown: Boolean(weatherSnapshot),
+        weatherKnown: Boolean(weatherSnapshot || legacyWeatherSnapshot),
+        weatherComplete: Boolean(weatherSnapshot),
+        weatherFieldsKnown: Object.entries(legacyWeatherSnapshot ?? weatherSnapshot ?? {})
+          .filter(([, value]) => value !== undefined && value !== null)
+          .map(([key]) => key),
       },
       technique: s.technique || undefined,
       rodCount: s.rods ? parseInt(s.rods, 10) : (s.rodCount ?? undefined),
@@ -306,6 +323,7 @@ export function normalizeRawBackup(raw: any): BackupData {
           : null,
       baitDirection: s.baitDirection || s.bait_direction || undefined,
       weatherSnapshot,
+      legacyWeatherSnapshot,
       isBenchmark: isBench,
       createdAt: s.created_at || s.createdAt || new Date().toISOString(),
       updatedAt: s.updated_at || s.updatedAt || new Date().toISOString(),
