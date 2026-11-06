@@ -1044,3 +1044,5 @@ Nog niet in deze herstelstap afgerond:
 Deze punten blijven op de herstelroadmap staan. Er worden geen nieuwe parallelle prognose-, weer-, evaluatie- of datakwaliteitsengines toegevoegd.
 
 Aanvullend: de persoonlijke voorvoerhistorie in `prebaitEngine.ts` volgt dezelfde bewijsregel. Een sessie met algemene uitkomst `catch` telt voor een soortspecifieke voorvoervergelijking alleen mee als er een vangstrecord van die doelsoort bestaat. Expliciet bevestigde nulvangsten blijven bruikbaar. De VisCoach-prognosecoördinator geeft de bestaande vangstrecords door aan deze analyse; er is geen tweede vangsthistorie of aparte database toegevoegd.
+
+Ook het persoonlijke hengelpositioneringsprofiel in `rodPositioningEngine.ts` gebruikt deze bewijsregel: alleen sessies op dezelfde stek en voor de gekozen doelsoort tellen mee; een sessie met uitkomst `catch` vereist een bekende vangstregistratie van die soort. Expliciet bevestigde nulvangsten blijven geldige negatieve waarnemingen. De bestaande prognosecoördinator geeft de vangstrecords door aan deze module.
