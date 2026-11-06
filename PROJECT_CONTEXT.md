@@ -1046,3 +1046,21 @@ Deze punten blijven op de herstelroadmap staan. Er worden geen nieuwe parallelle
 Aanvullend: de persoonlijke voorvoerhistorie in `prebaitEngine.ts` volgt dezelfde bewijsregel. Een sessie met algemene uitkomst `catch` telt voor een soortspecifieke voorvoervergelijking alleen mee als er een vangstrecord van die doelsoort bestaat. Expliciet bevestigde nulvangsten blijven bruikbaar. De VisCoach-prognosecoördinator geeft de bestaande vangstrecords door aan deze analyse; er is geen tweede vangsthistorie of aparte database toegevoegd.
 
 Ook het persoonlijke hengelpositioneringsprofiel in `rodPositioningEngine.ts` gebruikt deze bewijsregel: alleen sessies op dezelfde stek en voor de gekozen doelsoort tellen mee; een sessie met uitkomst `catch` vereist een bekende vangstregistratie van die soort. Expliciet bevestigde nulvangsten blijven geldige negatieve waarnemingen. De bestaande prognosecoördinator geeft de vangstrecords door aan deze module.
+
+
+---
+
+## P1 implementation update — 6 november 2026
+
+Status: implemented on branch `audit/p1-prognosis-integrity`; not merged to `main`. GitHub Quality Gate verification is pending.
+
+The P1 implementation adds the following integrity rules:
+
+- Time-slot activity scores are not presented as a ranked recommendation when the available future slots have no meaningful score difference. If exactly one valid future slot remains, that slot may still be identified.
+- VisCoach stores the exact requested start/end window in the prognosis snapshot. A single `targetSlot` is assigned only when the requested interval fits wholly inside one defined time slot; a window spanning multiple slots is not forced into one.
+- Prognosis snapshots without a meaningful or explicitly selected slot no longer silently fall back to `Ochtend`.
+- Water-temperature session records can store measurement timestamp, source, method and optional measurement depth. Temperature evaluation requires an explicit valid timestamp, known source and known method; legacy values without these fields remain stored but are not treated as independently timed validation measurements.
+- Brier evaluation requires a valid probability, a linked completed session with a matching outcome, and a forecast timestamp before the actual session start. Only the earliest eligible snapshot per linked session and target species is scored; duplicate and invalid finalized snapshots are excluded and disclosed.
+- The existing `dataQualityEngine` is integrated into prognosis input assessment. Its report is exposed in the prognosis result and is used alongside forecast coverage to prevent personal catch probabilities from being shown when required inputs are unusable.
+
+These changes do not introduce a second prognosis engine, do not rewrite existing IndexedDB records, and do not infer missing measurement metadata for historical sessions. Existing temperature values without trustworthy measurement metadata remain available for journal/history use but are excluded from temperature validation.
