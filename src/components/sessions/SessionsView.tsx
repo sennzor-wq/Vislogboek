@@ -433,7 +433,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               <p className="text-xs text-amber-200">
                                 {session.snapshotId
                                   ? 'De prognosemomentopname is opgeslagen, maar het startadviesrecord ontbreekt. Het startadvies kan daarom niet in de advieshistorie worden getoond.'
-                                  : 'Het opslaan van de prognosemomentopname is niet gelukt. Daardoor is ook geen startadviesrecord vastgelegd. De sessie is wel gestart, maar VisCoach kan wijzigingen niet vergelijken met een oorspronkelijke sessieprognose.'}
+                                  : 'Er is geen prognosemomentopname aan deze sessie gekoppeld. Daardoor is ook geen startadviesrecord vastgelegd. De sessie is wel gestart, maar VisCoach kan wijzigingen niet vergelijken met een oorspronkelijke sessieprognose.'}
                               </p>
                             </div>
                           )}
