@@ -635,7 +635,9 @@ export function calculateDayPrognosis(
       .map((slot) => timeSlotAnalyses[slot].activityScore);
     const hasMeaningfulDifference = availableScores.length > 1 &&
       Math.max(...availableScores) - Math.min(...availableScores) >= 0.1;
-    if (hasMeaningfulDifference) {
+    if (sortedFuture.length === 1 && availableScores.length === 1) {
+      bestSlot = sortedFuture[0];
+    } else if (hasMeaningfulDifference) {
       bestSlot = sortedFuture[0];
       alternativeSlots = sortedFuture.slice(1);
     } else {
