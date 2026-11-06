@@ -19,6 +19,9 @@ Deze branch bevat de interne projectdocumentatie en technische blauwdrukken van 
 
 ## Huidige stand — 6 november 2026
 
-- P0 dataintegriteit: uitgewerkt en getest in app-PR #39; nog niet gemerged bij het maken van deze documentatiesnapshot.
-- P1 prognose- en evaluatie-integriteit: uitgewerkt en getest in app-PR #40; nog niet gemerged bij het maken van deze documentatiesnapshot.
-- Deze documentatiebranch is een veilige tussenstap binnen dezelfde GitHub-repository. Een aparte private repository kan later worden aangemaakt en gevuld vanuit deze branch.
+- PR #36 — welkomstmodal en contextgestuurde begroetingen: gemerged.
+- PR #37 — onderscheid tussen startadvies en tussentijds coachadvies: gemerged.
+- PR #39 — P0 dataintegriteit: gemerged na geslaagde Quality Gate.
+- PR #40 — P1 prognose- en evaluatie-integriteit: gemerged na geslaagde Quality Gate.
+- PR #41 — interne documentatie uit de app-root verwijderen: gemerged na geslaagde Quality Gate.
+- Deze documentatiebranch is een aparte, docs-only branch binnen dezelfde GitHub-repository. Er is via de beschikbare GitHub-koppeling geen nieuwe repository aangemaakt; de documenten zijn wel buiten `main` veiliggesteld.
