@@ -857,6 +857,7 @@ export function calculateDayPrognosis(
     userWaterTemp,
     thermalAnalysis,
     historicalSessions,
+    historicalCatches: options?.catches ?? [],
     targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
   });
 
