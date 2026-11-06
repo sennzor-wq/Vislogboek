@@ -111,6 +111,26 @@ export interface FishingLocation {
   updatedAt: string;
 }
 
+/** Herkomst- en volledigheidsmarkeringen voor records die uit oudere back-upformaten zijn geconverteerd. */
+export interface ImportedCatchDataQuality {
+  importedFromLegacy?: boolean;
+  speciesKnown?: boolean;
+  countKnown?: boolean;
+  timestampKnown?: boolean;
+}
+
+/** Herkomst- en volledigheidsmarkeringen voor sessies uit oudere back-upformaten. */
+export interface ImportedSessionDataQuality {
+  importedFromLegacy?: boolean;
+  sourceFormat?: string;
+  startTimeKnown?: boolean;
+  endTimeKnown?: boolean;
+  durationKnown?: boolean;
+  targetSpeciesKnown?: boolean;
+  outcomeConfirmed?: boolean;
+  weatherKnown?: boolean;
+}
+
 export interface CatchItem {
   id: string;
   sessionId: string;
@@ -127,6 +147,8 @@ export interface CatchItem {
   notes?: string;
   photoUrl?: string;              // Base64 data URL
   createdAt: string;
+  /** Alleen aanwezig bij geconverteerde legacyrecords; onbekende velden blijven expliciet gemarkeerd. */
+  dataQuality?: ImportedCatchDataQuality;
 }
 
 export interface FishingSession {
@@ -134,6 +156,8 @@ export interface FishingSession {
   prebaitDays?: number;
   prebaitAmountGrams?: number;
   prebaitFeedType?: string;
+  /** Alleen aanwezig bij geconverteerde legacyrecords; voorkomt dat placeholders als echte historie meetellen. */
+  dataQuality?: ImportedSessionDataQuality;
   id: string;
   locationId?: string;
   locationName?: string;
