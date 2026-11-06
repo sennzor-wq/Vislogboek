@@ -28,6 +28,27 @@ const imported = normalizeRawBackup({
       catches: [],
     },
     {
+      id: 'legacy-partial-weather',
+      date: '2026-10-03',
+      status: 'completed',
+      outcome: 'skunk_confirmed',
+      targetSpecies: ['Karper'],
+      weather_moments: [{
+        timestamp: '2026-10-03T18:00:00.000Z',
+        source: 'Regionale daggegevens (referentie)',
+        data: {
+          temperature_avg_c: 11.5,
+          pressure_hpa: 1026.1,
+          wind_speed_kmh: 14,
+          wind_direction: 'O',
+          cloud_cover: 100,
+          precipitation_mm: 0.5,
+        },
+      }],
+      created_at: '2026-10-03T20:00:00.000Z',
+      catches: [],
+    },
+    {
       id: 'legacy-cross-midnight',
       date: '2026-10-03',
       end_date: '2026-10-04',
@@ -66,6 +87,14 @@ assert.ok(explicitBlank);
 assert.equal(explicitBlank.outcome, 'skunk_confirmed');
 assert.equal(explicitBlank.durationMinutes, 180);
 assert.equal(explicitBlank.dataQuality?.outcomeConfirmed, true);
+
+const partialWeather = imported.sessions.find((session) => session.id === 'legacy-partial-weather');
+assert.ok(partialWeather);
+assert.equal(partialWeather.weatherSnapshot, undefined, 'partial weather is not promoted to a complete snapshot');
+assert.equal(partialWeather.legacyWeatherSnapshot?.temperature, 11.5, 'known historical weather values are preserved');
+assert.equal(partialWeather.legacyWeatherSnapshot?.windDirection, undefined, 'missing wind direction degrees stay unknown');
+assert.equal(partialWeather.dataQuality?.weatherKnown, true);
+assert.equal(partialWeather.dataQuality?.weatherComplete, false);
 
 const crossMidnight = imported.sessions.find((session) => session.id === 'legacy-cross-midnight');
 assert.ok(crossMidnight);
