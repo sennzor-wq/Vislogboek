@@ -7,6 +7,7 @@ import {
   evaluatePrognosisPerformance,
   linkSessionOutcomeToSnapshot,
 } from './src/services/evaluationEngine';
+import { resolveSelectedTimeSlot } from './src/services/viscoachService';
 import { BENCHMARK_SESSION_ID } from './src/db/db';
 import {
   DayPrognosis,
@@ -297,6 +298,15 @@ async function runTestSuite() {
     evalActive.evaluatedCount === 0 && evalActive.hasSufficientData === false,
     '2.4 Actieve en onbekende sessies worden strikt uitgesloten van evaluatie (evaluatedCount === 0)'
   );
+
+  assert(resolveSelectedTimeSlot(new Date('2026-10-20T07:30:00+02:00'), new Date('2026-10-20T10:30:00+02:00')) === 'Ochtend',
+    '2.4a Een sessievenster dat volledig in de ochtend valt, wordt aan Ochtend gekoppeld');
+  assert(resolveSelectedTimeSlot(new Date('2026-10-20T11:00:00+02:00'), new Date('2026-10-20T13:00:00+02:00')) === undefined,
+    '2.4b Een sessievenster dat meerdere tijdvakken kruist, krijgt geen geforceerd enkel tijdvak');
+  assert(resolveSelectedTimeSlot(new Date('2026-10-20T19:00:00+02:00'), new Date('2026-10-20T22:00:00+02:00')) === 'Avond',
+    '2.4c Een sessievenster dat volledig in de avond valt, wordt aan Avond gekoppeld');
+  assert(resolveSelectedTimeSlot(new Date('2026-10-20T23:00:00+02:00'), new Date('2026-10-21T01:00:00+02:00')) === undefined,
+    '2.4d Een sessie over meerdere tijdvakken en middernacht krijgt geen onjuiste tijdvaktoewijzing');
 
   // Geen achteraf gegenereerde snapshots voor historische sessies
   const historicalSessionNoSnapshot: FishingSession = {
