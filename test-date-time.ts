@@ -21,6 +21,12 @@ assert(getAmsterdamHour('2026-11-05T23:30:00.000Z') === 0,
   'Hour extraction uses Amsterdam local time rather than the runtime timezone');
 assert(getAmsterdamMonth('2026-01-31') === 1,
   'Date-only values retain their calendar month');
+assert(getAmsterdamHour('2026-09-01T12:00:00') === 12,
+  'Timezone-less legacy timestamps are interpreted as Amsterdam wall time');
+assert(getAmsterdamHour('2026-03-29T02:30:00') === null,
+  'A nonexistent local time during spring DST is rejected instead of shifted');
+assert(getAmsterdamHour('2026-10-25T02:30:00') === 2,
+  'An ambiguous local time during autumn DST is resolved deterministically');
 assert(getAmsterdamDateKey(new Date('2026-11-05T23:30:00.000Z')) === '2026-11-06',
   'Date objects use the same Amsterdam date interpretation as ISO timestamps');
 
