@@ -430,13 +430,27 @@ export async function autoSyncSessionOutcomeToSnapshot(
     evaluationReason = 'bevestigde nulvangst';
   } else if (session.outcome === 'catch' && sessionCatches.length > 0) {
     const relevantCatches = sessionCatches.filter(
-      (c) => snapshot.targetSpecies === 'Algemeen' || c.species === snapshot.targetSpecies
+      (c) => snapshot.targetSpecies === 'Algemeen' ||
+        (c.species === snapshot.targetSpecies && c.legacyImportQuality?.speciesKnown !== false)
     );
-    targetCatchesCount = relevantCatches.reduce((sum, c) => sum + (c.count || 1), 0);
-    resolvedOutcome = targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed';
-    evaluationReason = targetCatchesCount > 0
-      ? `${targetCatchesCount} doelvis(sen) geregistreerd`
-      : 'wel vangst(en) geregistreerd, maar geen vangst van de voorspelde doelsoort';
+    // Een andere soort vangen bewijst niet dat de voorspelde doelsoort niet is gevangen.
+    // Zonder doelsoortrecord blijft de doelsoortuitkomst daarom onbekend, geen nulvangst.
+    if (relevantCatches.length > 0) {
+      resolvedOutcome = 'catch';
+      const countsKnown = relevantCatches.every((c) =>
+        c.legacyImportQuality?.countKnown !== false && Number.isFinite(c.count) && c.count > 0
+      );
+      targetCatchesCount = countsKnown
+        ? relevantCatches.reduce((sum, c) => sum + c.count, 0)
+        : undefined;
+      evaluationReason = countsKnown
+        ? `${targetCatchesCount} doelvis(sen) geregistreerd`
+        : 'doelsoortvangst geregistreerd; het exacte aantal is onbekend';
+    } else {
+      resolvedOutcome = 'unknown';
+      targetCatchesCount = undefined;
+      evaluationReason = 'wel vangst(en) geregistreerd, maar geen vangstrecord van de voorspelde doelsoort';
+    }
   } else if (session.outcome === 'catch' && sessionCatches.length === 0) {
     evaluationReason = 'sessie heeft uitkomst vangst, maar er zijn geen soortspecifieke vangstregistraties';
   } else if (session.outcome === 'skunk_confirmed' && sessionCatches.length > 0) {
