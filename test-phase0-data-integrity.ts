@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import assert from 'node:assert/strict';
 import { normalizeRawBackup } from './src/services/backupService';
-import { getSessionDurationHours } from './src/services/prognosisEngine';
+import { getSessionDurationHours, getActualSessionDurationHours } from './src/services/prognosisEngine';
 import type { FishingSession } from './src/types';
 
 const imported = normalizeRawBackup({
@@ -72,7 +72,8 @@ const plannedOnly: FishingSession = {
   createdAt: '2026-10-04T17:00:00.000Z',
   updatedAt: '2026-10-04T17:00:00.000Z',
 };
-assert.equal(getSessionDurationHours(plannedOnly), null, 'planned duration is not actual fishing exposure');
+assert.equal(getSessionDurationHours(plannedOnly), 3, 'planning helper retains the live-session horizon');
+assert.equal(getActualSessionDurationHours(plannedOnly), null, 'planned duration is not actual fishing exposure');
 
 const actualDuration: FishingSession = {
   ...plannedOnly,
