@@ -91,6 +91,12 @@ export function evaluatePrognosisPerformance(
     `Per voorspelling zijn minimaal ${minimumTrainingSamples} eerdere gekoppelde sessie-uitkomsten nodig voor een baseline.`,
   ];
 
+  if (evaluatedCount >= 5) {
+    disclaimers.push(
+      `VOORLOPIG: de Brier-uitkomst is gebaseerd op ${evaluatedCount} onafhankelijke sessies. Dit is een beschrijvende eerste indicatie en geen bewijs van robuuste modelvalidatie of generaliseerbaarheid.`
+    );
+  }
+
   if (evaluatedCount < 5) {
     disclaimers.push(
       `Er zijn momenteel slechts ${evaluatedCount} geëvalueerde momentopnames. Minimaal 5 gerealiseerde sessies zijn vereist om de Brier-score te tonen.`
@@ -205,18 +211,18 @@ export function evaluatePrognosisPerformance(
     }
   }
 
-  let statusMsg = '';
+  let statusMsg = `Voorlopige indicatie op basis van ${evaluatedCount} onafhankelijke sessies; geen bewijs van robuuste validatie. `;
   if (brierScore < 0.15) {
-    statusMsg = `Lage gemiddelde voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}).`;
+    statusMsg += `Lage gemiddelde voorspellingsfout in deze steekproef (Brier-score: ${brierScore.toFixed(3)}).`;
   } else if (brierScore < 0.25) {
-    statusMsg = `Gemiddelde voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}).`;
+    statusMsg += `Gemiddelde voorspellingsfout in deze steekproef (Brier-score: ${brierScore.toFixed(3)}).`;
   } else {
-    statusMsg = `Hogere voorspellingsfout (Brier-score: ${brierScore.toFixed(3)}); controleer kalibratie en datakwaliteit.`;
+    statusMsg += `Hogere voorspellingsfout in deze steekproef (Brier-score: ${brierScore.toFixed(3)}); controleer kalibratie en datakwaliteit.`;
   }
   if (brierSkillScore !== null) {
     statusMsg += brierSkillScore > 0
-      ? ` Rolling baseline: model presteert beter (+${(brierSkillScore * 100).toFixed(1)}% BSS).`
-      : ` Rolling baseline: geen aangetoonde verbetering (${(brierSkillScore * 100).toFixed(1)}% BSS).`;
+      ? ` Voorlopige rolling-baselinevergelijking: lagere fout dan de baseline in deze testgevallen (+${(brierSkillScore * 100).toFixed(1)}% BSS); dit bewijst geen structurele verbetering.`
+      : ` Voorlopige rolling-baselinevergelijking: geen lagere fout dan de baseline in deze testgevallen (${(brierSkillScore * 100).toFixed(1)}% BSS).`;
   } else {
     statusMsg += ' Onafhankelijke rolling baseline nog niet beschikbaar.';
   }
