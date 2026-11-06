@@ -1043,7 +1043,9 @@ De prognosehistorie moet:
 - een geregistreerde vangst van uitsluitend andere soorten als nulvangst voor de geselecteerde doelsoort behandelen, mits de sessie zelf een bevestigde uitkomst heeft;
 - een vangststatus zonder bruikbare vangstrecords uitsluiten;
 - onbekende vangstaantallen niet als één vis tellen;
-- geplande duur/eindtijd niet gebruiken als werkelijke blootstelling;
+- `getActualSessionDurationHours()` gebruiken voor historische werkelijke blootstelling;
+- `getSessionDurationHours()` uitsluitend gebruiken voor planning/live-coaching, waar de geplande horizon nodig kan zijn;
+- geplande duur/eindtijd nooit als werkelijke blootstelling interpreteren;
 - het bestaande hengelurenmodel op basis van actieve intervallen behouden.
 
 De algemene soortselectie (`Algemeen`) blijft onderscheiden van de concrete soort `Overig`; een generieke prognose mag niet per ongeluk als uitsluitend `Overig` worden geëvalueerd.
