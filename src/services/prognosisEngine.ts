@@ -26,6 +26,7 @@ import { analyzeBankWind } from './bankWindEngine';
 import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
+import { createDataQualityReport } from './dataQualityEngine';
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -779,7 +780,41 @@ export function calculateDayPrognosis(
   const validHours=Math.min(...weatherFields.map(f=>f.count));
   const missingFields=weatherFields.filter(f=>f.count<12).map(f=>f.name);
   const weatherDataQuality={status:validHours>=18&&missingFields.length===0?'Volledig' as const:validHours>=6?'Gedeeltelijk' as const:'Onvoldoende' as const,validHours,expectedHours:24,coveragePercent:Math.round(validHours/24*100),missingFields};
-  if ((!hasKnownThermalInput || weatherDataQuality.status!=='Volledig') && catchChance!==null) { catchChance=null; expectedCatches=null; hourlyCatchRate=null; confidence='Onvoldoende gegevens'; uncertaintyInterval=null; uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: essentiële thermische of weersgegevens ontbreken of zijn onvolledig.'); }
+  const dataQualityReport = createDataQualityReport([
+    {
+      name: 'Watertemperatuur',
+      value: thermalAnalysis.hasMeasuredWaterTemp ? thermalAnalysis.measuredWaterTemp : thermalAnalysis.estimatedWaterTemp,
+      status: thermalAnalysis.hasMeasuredWaterTemp ? 'userReported' : hasKnownThermalInput ? 'modelled' : 'unknown',
+      source: thermalAnalysis.hasMeasuredWaterTemp ? 'Gebruikersmeting' : thermalAnalysis.waterTemperatureStatus ?? 'onbekend',
+      observedAt: thermalAnalysis.anchorMeasurementTimestamp ?? undefined,
+      explanation: 'Een modelschatting blijft onderscheiden van een directe gebruikersmeting.',
+    },
+    {
+      name: 'Weersverwachting',
+      value: validHours,
+      status: validHours > 0 ? 'forecast' : 'unknown',
+      source: 'Open-Meteo',
+      observedAt: weatherUpdatedAt,
+      explanation: `${validHours} van 24 verwachte uurwaarden per kernveld zijn beschikbaar.`,
+    },
+    {
+      name: 'Vergelijkbare sessiehistorie',
+      value: sessionCount,
+      status: sessionCount > 0 ? 'userReported' : 'unknown',
+      source: 'Eigen sessielogboek',
+      explanation: 'Alleen sessies met bekende doelsoortuitkomst worden voor persoonlijke analyse geselecteerd.',
+    },
+  ]);
+  const temperatureQualityUsable = dataQualityReport.results.find((item) => item.name === 'Watertemperatuur')?.usable === true;
+  const forecastQualityUsable = dataQualityReport.results.find((item) => item.name === 'Weersverwachting')?.usable === true;
+  if ((!temperatureQualityUsable || !forecastQualityUsable || weatherDataQuality.status !== 'Volledig') && catchChance !== null) {
+    catchChance = null;
+    expectedCatches = null;
+    hourlyCatchRate = null;
+    confidence = 'Onvoldoende gegevens';
+    uncertaintyInterval = null;
+    uncertaintyNotes.push('Persoonlijke vangstkans niet getoond: de centrale datakwaliteitscontrole markeert de thermische of weersinvoer als onbruikbaar of onvolledig.');
+  }
   // Provenance
   let provenance: 'Algemene biologische regels' | 'Eigen waarnemingen' | 'Gecombineerd (model + eigen data)' | 'Algemene aannames' =
     'Algemene biologische regels';
@@ -995,6 +1030,7 @@ export function calculateDayPrognosis(
     activityScore: dayScore,
     activityScoreAvailable: dayScoreAvailable,
     weatherDataQuality,
+    dataQualityReport,
     advice,
     bestTimeSlot: bestSlot,
     alternativeTimeSlots: alternativeSlots,
