@@ -11,6 +11,7 @@ import {
   FishMovementHypothesis,
   HabitatMovementAnalysis,
 } from '../types';
+import { getAmsterdamMonth } from '../utils/dateTime';
 
 export interface HabitatMovementContext {
   location?: FishingLocation;
@@ -30,8 +31,7 @@ export interface HabitatMovementContext {
  * Bepaalt het meteorologisch seizoen voor habitatinschatting.
  */
 function getSeasonNL(dateStr?: string): 'Voorjaar' | 'Zomer' | 'Herfst' | 'Winter' {
-  const d = dateStr ? new Date(dateStr) : new Date();
-  const month = d.getMonth() + 1;
+  const month = getAmsterdamMonth(dateStr ?? new Date()) ?? 1;
   if (month === 12 || month === 1 || month === 2) return 'Winter';
   if (month >= 3 && month <= 5) return 'Voorjaar';
   if (month >= 6 && month <= 8) return 'Zomer';
