@@ -1100,7 +1100,9 @@ In de branch zijn de volgende technische aanpassingen aangebracht; samenvoeging 
 
 - P0: afgerond en gemerged via PR #39.
 - P1: afgerond en gemerged via PR #40.
-- P2: resterende, afzonderlijk te testen onderhouds- en validatieverbeteringen.
+- P2: volledig afgerond en gemerged via PR #42, #43, #45 en #46 op 6 november 2026; de Quality Gates zijn geslaagd.
+
+P2 borgt de centrale Amsterdamse tijdzone/DST-afhandeling, relationele backupvalidatie vóór importmutaties, granulariteit van model-/engineversies in snapshots en coachadviezen, en voorlopige Brier-rapportage met expliciete beperkingen bij kleine steekproeven.
 
 De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules blijven de enige gezaghebbende implementaties voor hun domein.
 
