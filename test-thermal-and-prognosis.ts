@@ -295,8 +295,8 @@ async function run14Scenarios() {
   );
   const temperatureQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Watertemperatuur');
   const forecastQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Weersverwachting');
-  assert(temperatureQuality?.usable === false && forecastQuality?.usable === true,
-    '12.2a Centrale datakwaliteitscontrole onderscheidt ontbrekende watertemperatuur van beschikbare weersverwachting');
+  assert(temperatureQuality?.status === 'modelled' && forecastQuality?.status === 'forecast',
+    '12.2a Centrale datakwaliteitscontrole onderscheidt thermische modelschatting van weersverwachting');
   const equalSlotPrognosis = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
