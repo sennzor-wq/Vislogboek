@@ -344,11 +344,15 @@ export async function linkSessionOutcomeToSnapshot(
   const targetSpeciesMatches =
     snapshot.targetSpecies === 'Algemeen' ||
     Boolean(session.targetSpecies?.includes(snapshot.targetSpecies as any));
-  const resolvedOutcome: FishingSession['outcome'] = !targetSpeciesMatches
+  const sessionCatches = await db.catches.where('sessionId').equals(session.id).toArray();
+  const hasOnlyOtherSpeciesCatches = snapshot.targetSpecies !== 'Algemeen' &&
+    sessionCatches.some((item) => item.species !== snapshot.targetSpecies || item.legacyImportQuality?.speciesKnown === false) &&
+    !sessionCatches.some((item) => item.species === snapshot.targetSpecies && item.legacyImportQuality?.speciesKnown !== false);
+  const resolvedOutcome: FishingSession['outcome'] = !targetSpeciesMatches || hasOnlyOtherSpeciesCatches
     ? 'unknown'
-    : session.outcome === 'catch'
-      ? targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed'
-      : session.outcome === 'skunk_confirmed' && targetCatchesCount === 0
+    : session.outcome === 'catch' && targetCatchesCount > 0
+      ? 'catch'
+      : session.outcome === 'skunk_confirmed' && targetCatchesCount === 0 && sessionCatches.length === 0
         ? 'skunk_confirmed'
         : 'unknown';
 
@@ -358,9 +362,11 @@ export async function linkSessionOutcomeToSnapshot(
     actualTargetCatchesCount: resolvedOutcome === 'unknown' ? undefined : targetCatchesCount,
     evaluationNotes: !targetSpeciesMatches
       ? `Sessie ${session.id} niet geëvalueerd: de voorspelde doelsoort was niet als doelsoort geselecteerd in de sessie.`
-      : resolvedOutcome === 'unknown'
-        ? `Sessie ${session.id} niet geëvalueerd: de doelsoortuitkomst is niet eenduidig.`
-        : `Gekoppeld aan sessie ${session.id} (${resolvedOutcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'geen doelvis gevangen'}).`,
+      : hasOnlyOtherSpeciesCatches
+        ? `Sessie ${session.id} niet geëvalueerd: er is een andere soort geregistreerd, maar geen vangstrecord van de voorspelde doelsoort.`
+        : resolvedOutcome === 'unknown'
+          ? `Sessie ${session.id} niet geëvalueerd: de doelsoortuitkomst is niet eenduidig.`
+          : `Gekoppeld aan sessie ${session.id} (${resolvedOutcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'geen doelvis gevangen'}).`,
   });
 }
 
