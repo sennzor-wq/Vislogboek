@@ -990,3 +990,55 @@ Vislogboek krijgt een optionele GIS-laag die een GPS- of handmatig gekozen vispo
 - De GIS-laag blijft optioneel en geïsoleerd: bestaande logboek-, prognose- en Coach-functionaliteit mag hierdoor niet ongemerkt veranderen.
 
 De volledige architectuur, databronnen, matching, profielreconstructie, onzekerheidsregels, fasering en acceptatiecriteria staan in [GIS_STEKHERKENNING_BLUEPRINT.md](GIS_STEKHERKENNING_BLUEPRINT.md). Dit projectcontextdocument bevat alleen de algemene uitgangspunten; de aparte blueprint is leidend voor de technische uitwerking. **Status: GIS-onderzoeksfase voor de huidige functionele doelstelling afgerond (5 november 2026); de beschikbare bronnen zijn voldoende voor algemene indicatieve diepte-informatie.** Dit is geen claim dat op iedere exacte voerplek een actuele diepte bekend is. Historische profielwaarden blijven tijdgebonden referenties; handmatige veldmetingen kunnen als afzonderlijke, gedateerde bron worden toegevoegd. De GIS-appimplementatie is nog niet gestart en valt buiten de 32 verbeterpunten.
+
+ 
+## 16. Technische audit en herstelstatus — 6 november 2026
+
+Deze sectie legt de uitkomst vast van de read-only audit en de daaropvolgende herstelbranch. Zij vult de eerdere ontwerpprincipes aan en beschrijft uitsluitend wijzigingen die aantoonbaar in de branch `audit/p0-data-integrity` zijn aangebracht. Een wijziging is pas onderdeel van de stabiele productbasis nadat de PR is gecontroleerd en samengevoegd.
+
+### 16.1 Dataintegriteit bij legacy-import
+
+De legacy-normalisatie mag ontbrekende bronwaarden niet meer omzetten in aannemelijke standaardwaarden. De import moet onbekend expliciet bewaren.
+
+- Ontbrekende sessieduur blijft `undefined`; er wordt geen standaardduur van 180 minuten gebruikt.
+- Een ontbrekende starttijd wordt niet meer als 12:00 geïnterpreteerd. Een datum-only placeholder blijft door `legacyImportQuality.startTimeKnown = false` herkenbaar als onbekend en mag niet voor tijdvak- of inspanningsanalyse worden gebruikt.
+- Een ontbrekende eindtijd blijft `null`; er wordt geen eindtijd van 17:00 aangemaakt.
+- Een sessie met legacy-status `completed` en zonder vangstregistraties wordt `unknown`, tenzij de bron expliciet `skunk_confirmed` bevat. Afwezigheid van vangstregels is geen bewijs van een bevestigde nulvangst.
+- Doelsoorten worden uitsluitend overgenomen uit expliciete doelsoortvelden. Gevangen soorten worden niet als doelsoorten gereconstrueerd.
+- Een vangstrecord zonder bekende soort, aantal of tijdstip krijgt een expliciete kwaliteitsvlag. De technische placeholders `Overig`, `0` en een datum-/importtijd zijn geen waarnemingen en moeten in analyses als onbekend worden behandeld.
+- Legacyweer wordt alleen als snapshot overgenomen als alle vereiste numerieke velden én een echt tijdstip beschikbaar zijn. Ontbrekende temperatuur, druk, wind, richting, bewolking of neerslag worden niet ingevuld met vaste waarden.
+
+De nieuwe optionele `legacyImportQuality`-metadata op sessies en vangsten is backward-compatible: bestaande records zonder deze metadata blijven volgens hun bestaande velden behandeld. `false` betekent expliciet onbekend; een ontbrekende vlag betekent dat de bestaande recordvorm geen legacy-onbekend markeerde.
+
+### 16.2 Historische doelsoortuitkomsten
+
+- Een sessie met algemene uitkomst `catch` is alleen een succes voor een specifieke doelsoort als een vangstrecord van die soort bestaat.
+- Een sessie waarin een andere soort is gevangen, wordt niet automatisch als doelsoortsucces of bevestigde doelsoortnulvangst beschouwd; zonder passende doelsoortregistratie blijft de uitkomst voor die voorspelling onbekend.
+- De tijdvakgeschiedenis vereist een expliciete doelsoortselectie en een soortspecifiek vangstrecord voor een succes. Legacy-sessies zonder bekende starttijd worden niet aan een tijdvak gekoppeld.
+- Het Poisson-vangsttempo telt uitsluitend geregistreerde, bekende aantallen van de geselecteerde doelsoort. De fallback die een ontbrekend aantal of ontbrekend vangstrecord als één vis telde, is verwijderd.
+
+### 16.3 Werkelijke versus geplande inspanning
+
+`getSessionDurationHours()` gebruikt alleen werkelijk geregistreerde duur (`durationMinutes`) of een werkelijk start-/eindtijdpaar. `plannedDurationHours` en `plannedEndTime` mogen niet als gerealiseerde blootstelling of vangsttempo-noemer worden gebruikt. De bestaande berekening van hengeluren uit werkelijk geregistreerde hengelintervallen blijft een afzonderlijke, leidende maat voor hengelinspanning.
+
+### 16.4 Evaluatie en veilige uitkomstkoppeling
+
+Een vangst van een andere soort mag een soortspecifieke voorspelling niet in `skunk_confirmed` veranderen. Wanneer geen vangstrecord van de voorspelde doelsoort aanwezig is, blijft de uitkomst onbekend en wordt deze niet als nulvangst in de Brier-score opgenomen.
+
+### 16.5 Reeds eerder geïmporteerde gegevens
+
+Deze wijziging herschrijft geen bestaande IndexedDB-records. Gegevens die in een eerdere appversie al met standaardwaarden zijn geïmporteerd, kunnen niet betrouwbaar automatisch worden hersteld: de oorspronkelijke broninformatie is niet altijd meer te onderscheiden van echte invoer. Re-import vanuit de oorspronkelijke, ongewijzigde legacy-back-up is de veiligste route. Bewaar eerst een export van de huidige database en controleer de importpreview; overschrijf of verwijder geen bestaande data zonder afzonderlijke controle.
+
+### 16.6 Verificatie en resterende auditpunten
+
+De branch bevat een gerichte regressietest `test-audit-data-integrity.ts` en het npm-script `test:audit-data-integrity`. De test, TypeScript-controle en productiebuild moeten nog daadwerkelijk worden uitgevoerd; het bestaan van de test is geen geslaagde Quality Gate.
+
+Nog niet in deze herstelstap afgerond:
+- geselecteerd start-/eindtijdvenster correct koppelen aan het opgeslagen tijdvak;
+- echte tijdsafhankelijke onderbouwing voor verschillen tussen tijdvakken, of expliciet geen onderscheid tonen;
+- afzonderlijk meettijdstip, meetdiepte en meetmethode voor watertemperatuur;
+- deduplicatie en strengere linkvalidatie in de Brier-evaluatie;
+- centrale tijdzone-/DST-regels en regressietests;
+- volledige backup-referentiële-integriteit en end-to-end datakwaliteitsrapportage.
+
+Deze punten blijven op de herstelroadmap staan. Er worden geen nieuwe parallelle prognose-, weer-, evaluatie- of datakwaliteitsengines toegevoegd.
