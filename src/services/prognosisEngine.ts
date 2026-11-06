@@ -650,7 +650,7 @@ export function calculateDayPrognosis(
   // Alleen voltooide sessies met bevestigde uitkomst ('catch' of 'skunk_confirmed').
   // Actieve sessies, onbekende uitkomsten en benchmarks worden strikt uitgesloten!
   const rawComparableSessions = getComparableSessions(historicalSessions, species, locationId);
-  const catchIndex = options?.catches ? getCatchSessionIndex(options.catches) : new Map();
+  const catchIndex: Map<string, CatchItem[]> = options?.catches ? getCatchSessionIndex(options.catches) : new Map<string, CatchItem[]>();
   const hasKnownTargetCatch = (session: FishingSession) =>
     (catchIndex.get(session.id) ?? []).some((item) =>
       (species === 'Algemeen' || (item.species === species && item.legacyImportQuality?.speciesKnown !== false))
