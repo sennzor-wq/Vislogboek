@@ -168,7 +168,8 @@ export function normalizeRawBackup(raw: any): BackupData {
     for (const c of rawCatches) {
       const speciesKnown = typeof c.species === 'string' && ALL_SPECIES.includes(c.species as any);
       const countKnown = typeof c.count === 'number' && Number.isFinite(c.count) && c.count > 0;
-      const timestampKnown = Boolean(c.timestamp || (c.time && s.date));
+      const sourceCatchTimestamp = c.timestamp || (c.time && s.date ? `${s.date}T${c.time}:00` : undefined);
+      const timestampKnown = Boolean(sourceCatchTimestamp && Number.isFinite(new Date(sourceCatchTimestamp).getTime()));
       const catchItem: CatchItem = {
         id: c.id,
         sessionId: s.id,
@@ -197,18 +198,20 @@ export function normalizeRawBackup(raw: any): BackupData {
     }
 
     // Bepaal alleen werkelijke duur uit expliciete gegevens; onbekend blijft undefined.
+    const sourceStartTime = s.startTime || (s.start_time && s.date ? `${s.date}T${s.start_time}:00` : undefined);
+    const sourceEndTime = s.endTime || (s.end_time && (s.end_date || s.date) ? `${s.end_date || s.date}T${s.end_time}:00` : undefined);
+    const startTimeKnown = Boolean(sourceStartTime && Number.isFinite(new Date(sourceStartTime).getTime()));
+    const endTimeKnown = Boolean(sourceEndTime && Number.isFinite(new Date(sourceEndTime).getTime()));
     let durationMinutes: number | undefined;
-    const startClock = typeof s.start_time === 'string' ? s.start_time : undefined;
-    const endClock = typeof s.end_time === 'string' ? s.end_time : undefined;
-    if (startClock && endClock) {
-      const [sh, sm] = startClock.split(':').map(Number);
-      const [eh, em] = endClock.split(':').map(Number);
-      if ([sh, sm, eh, em].every(Number.isFinite)) {
-        let calculated = (eh * 60 + em) - (sh * 60 + sm);
-        if (calculated < 0) calculated += 24 * 60;
-        if (calculated > 0 && calculated <= 7 * 24 * 60) durationMinutes = calculated;
+    if (startTimeKnown && endTimeKnown) {
+      const diffMinutes = (new Date(sourceEndTime!).getTime() - new Date(sourceStartTime!).getTime()) / 60000;
+      if (Number.isFinite(diffMinutes) && diffMinutes > 0 && diffMinutes <= 7 * 24 * 60) {
+        durationMinutes = diffMinutes;
       }
-    } else if (typeof s.durationMinutes === 'number' && Number.isFinite(s.durationMinutes) && s.durationMinutes > 0) {
+    }
+    if (durationMinutes === undefined &&
+        typeof s.durationMinutes === 'number' && Number.isFinite(s.durationMinutes) &&
+        s.durationMinutes > 0 && s.durationMinutes <= 7 * 24 * 60) {
       durationMinutes = s.durationMinutes;
     }
 
@@ -281,8 +284,8 @@ export function normalizeRawBackup(raw: any): BackupData {
       dataQuality: {
         importedFromLegacy: true,
         sourceFormat: typeof raw.format === 'string' ? raw.format : 'legacy-nested-v2',
-        startTimeKnown: Boolean(s.startTime || (s.start_time && s.date)),
-        endTimeKnown: Boolean(s.endTime || (s.end_time && (s.end_date || s.date))),
+        startTimeKnown,
+        endTimeKnown,
         durationKnown: typeof durationMinutes === 'number',
         targetSpeciesKnown: targetSpecies.length > 0,
         outcomeConfirmed: outcome === 'catch' || outcome === 'skunk_confirmed',
