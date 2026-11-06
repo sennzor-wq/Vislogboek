@@ -1053,3 +1053,53 @@ De coach moet:
 - [Projectcontext – huidige VisCoach-specificatie](https://github.com/sennzor-wq/Vislogboek/blob/main/PROJECT_CONTEXT.md#18-viscoach--toekomstige-startpagina-en-sessie-instap)
 
 **Laatste inhoudelijke controle van de repository voor deze roadmap:** 2 november 2026. De aanvullende ontwerpprincipes zijn verwerkt op basis van de productbeslissingen; de read-only audit moet bestandsnamen, interfaces, datadekking en implementatiestatus opnieuw verifiëren voordat een fase wordt gebouwd.
+
+ 
+## Fase 0 — Herstel dataintegriteit en prognosevalidatie (audit 6 november 2026)
+
+**Doel:** eerst voorkomen dat onvolledige historische invoer als betrouwbare waarneming wordt gebruikt. De logboekhistorie blijft behouden; geschiktheid wordt per analyse bepaald.
+
+### P0 — herstelbranch `audit/p0-data-integrity`
+
+In de branch zijn de volgende technische aanpassingen aangebracht; samenvoeging en Quality Gate zijn nog niet bevestigd:
+
+1. Legacy-import vult ontbrekende duur, eindtijd, doelsoort, vangstaantal en weerwaarden niet meer aan met aannemelijke defaults.
+2. Oude sessies met status `completed` en zonder vangstregistraties worden niet automatisch als bevestigde nulvangst aangemerkt.
+3. Legacy-sessie- en vangstrecords bewaren expliciete kwaliteitsvlaggen voor ontbrekende starttijd, eindtijd, duur, doelsoort, weermoment, vangstsoort, aantal en tijdstip.
+4. Historische doelsoortsuccessen vereisen een vangstregistratie van de voorspelde soort. Een andere gevangen soort wordt niet als doelsoortsucces of doelsoortnulvangst geïnterpreteerd.
+5. Het Poisson-model telt uitsluitend bekende, geregistreerde aantallen van de doelsoort; een ontbrekend vangstrecord of aantal wordt niet meer als één vis geteld.
+6. Werkelijke sessieduur komt uitsluitend uit werkelijk geregistreerde duur of een werkelijk start-/eindtijdpaar. Geplande duur is geen gerealiseerde visinspanning.
+7. Bij automatische snapshotkoppeling blijft een ontbrekende doelsoortvangst onbekend, niet automatisch een bevestigde nulvangst.
+
+**Acceptatiecriteria**
+- Een legacy-import met ontbrekende velden introduceert geen schijnmetingen of schijnvangsten.
+- Een voltooide sessie zonder expliciete nulvangstregistratie blijft onbekend.
+- Een vangst van Brasem telt niet als Karpervangst wanneer Karper de voorspelde doelsoort is.
+- Een geplande sessieduur wordt niet gebruikt als werkelijke blootstelling.
+- Bestaande volledige backuprecords blijven ongewijzigd round-trippen.
+- Regressietests, typecheck en productiebuild slagen voordat de branch kan worden samengevoegd.
+
+**Belangrijke beperking:** reeds eerder geïmporteerde records in IndexedDB worden niet automatisch gerepareerd. Wanneer zij eerder met standaardwaarden zijn opgeslagen, kan de oorspronkelijke herkomst niet betrouwbaar worden afgeleid. Herstel vanuit de oorspronkelijke legacy-back-up vereist eerst een actuele veiligheidskopie en een gecontroleerde import.
+
+### P1 — prognosekeuze en meetherkomst
+
+1. VisCoach moet het door de gebruiker gekozen startvenster koppelen aan het juiste tijdvak in de snapshot; de algemene dagprognose mag dit niet stilzwijgend overschrijven.
+2. Tijdvakverschillen mogen alleen worden gerangschikt als er echte tijdsafhankelijke gegevens of gevalideerde soortspecifieke relaties bestaan. Als alleen dezelfde thermische invoer beschikbaar is, moet VisCoach aangeven dat geen betekenisvol verschil kan worden vastgesteld.
+3. Watertemperatuurmetingen krijgen een afzonderlijk meettijdstip en waar beschikbaar meetdiepte en meetmethode. Sessie-starttijd is geen betrouwbare vervanging voor meettijd.
+4. Brier-evaluatie moet per sessie maximaal één onafhankelijke uitkomst tellen en alleen een geldige, vooraf opgeslagen snapshot met een passende afgeronde sessie gebruiken.
+5. De bestaande Data Quality Engine wordt geïntegreerd in de selectie van invoer voor relevante analyses; geen nieuwe kwaliteitsengine.
+
+### P2 — consistentie en onderhoudbaarheid
+
+1. Tijdzone- en DST-afhandeling standaardiseren op `Europe/Amsterdam`, inclusief middernacht en sessies die over de klokwisseling lopen.
+2. Backupvalidatie uitbreiden met volledige relaties tussen vangsten, sessies, snapshots, adviezen en hengelrecords.
+3. Model-/engineversies en gebruikte invoer herleidbaar houden in snapshots.
+4. Brier-uitkomsten bij kleine aantallen nadrukkelijk als voorlopig presenteren, met aantallen en onzekerheid.
+
+### Uitvoeringsvolgorde
+
+- P0: eerst review, regressietests en Quality Gate; daarna pas samenvoegen.
+- P1: afzonderlijke PR's op de bestaande engines en VisCoach-coördinator.
+- P2: afzonderlijke, testbare onderhouds- en validatieverbeteringen.
+
+De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules blijven de enige gezaghebbende implementaties voor hun domein.
