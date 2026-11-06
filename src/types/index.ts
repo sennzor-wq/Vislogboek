@@ -171,6 +171,7 @@ export interface FishingSession {
   updatedAt: string;
   /** Kwaliteitsvlaggen voor legacy-import; false betekent dat de waarde niet uit de bron bekend was. */
   legacyImportQuality?: {
+    startDateKnown: boolean;
     startTimeKnown: boolean;
     endTimeKnown: boolean;
     durationKnown: boolean;
