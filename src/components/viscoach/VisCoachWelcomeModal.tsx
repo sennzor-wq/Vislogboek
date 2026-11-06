@@ -70,24 +70,24 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
     let cancelled = false;
     setWeather(null);
 
-    const updateGreeting = (forecast: WeatherHourlyForecast | null) => {
+    const previousGreetingId = readPreviousGreetingId();
+    const updateGreeting = (forecast: WeatherHourlyForecast | null, persist: boolean) => {
       const selected = selectWelcomeGreeting({
         date: new Date(),
         daysSinceLastSession,
         previousSessionOutcome: latestCompletedSession?.outcome ?? null,
         hasRecordedCatch,
         weather: forecast,
-      }, readPreviousGreetingId());
+      }, previousGreetingId);
       setGreeting(selected);
-      storeGreetingId(selected.id);
+      if (persist) storeGreetingId(selected.id);
     };
-
-    updateGreeting(null);
 
     const location = locations.find((item) =>
       typeof item.latitude === 'number' && Number.isFinite(item.latitude) &&
       typeof item.longitude === 'number' && Number.isFinite(item.longitude)
     );
+    updateGreeting(null, !location);
     if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
       return () => { cancelled = true; };
     }
@@ -96,7 +96,10 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
       if (cancelled) return;
       const fetchedAt = new Date(result.fetchedAt).getTime();
       const isFresh = Number.isFinite(fetchedAt) && Date.now() - fetchedAt <= 30 * 60 * 1000;
-      if (!isFresh || result.hourly.length === 0) return;
+      if (!isFresh || result.hourly.length === 0) {
+        updateGreeting(null, true);
+        return;
+      }
 
       const now = Date.now();
       const closest = result.hourly.reduce((best, candidate) =>
@@ -105,8 +108,9 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
           : best
       );
       setWeather(closest);
-      updateGreeting(closest);
+      updateGreeting(closest, true);
     }).catch((error) => {
+      if (!cancelled) updateGreeting(null, true);
       console.warn('Weercontext voor VisCoach-welkomsttekst kon niet worden geladen:', error);
     });
 
