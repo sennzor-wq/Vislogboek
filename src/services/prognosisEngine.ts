@@ -73,9 +73,10 @@ function getOutcomeForSpecies(
     !session.targetSpecies?.includes(species)
   )) return null;
 
-  if (session.outcome === 'skunk_confirmed') return 'skunk_confirmed';
-
   const sessionCatches = catchIndex.get(session.id) ?? [];
+  if (session.outcome === 'skunk_confirmed') {
+    return sessionCatches.length === 0 ? 'skunk_confirmed' : null;
+  }
   const knownSpeciesCatches = sessionCatches.filter((item) => item.dataQuality?.speciesKnown !== false);
   if (knownSpeciesCatches.length === 0) return null;
 
