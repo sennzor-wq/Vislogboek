@@ -42,6 +42,9 @@ jobs:
       - name: TypeScript typecheck
         run: bun run lint
 
+      - name: Amsterdam timezone and DST regression tests
+        run: bun run tsx test-date-time.ts
+
       # Deterministic local suites. test-core-logic.ts currently calls the
       # live Open-Meteo API; keep it out of CI until its network calls are mocked.
       - name: Core prognosis and thermal tests
