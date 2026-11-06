@@ -235,12 +235,50 @@ Dit is een belangrijk fundament voor een coach die zijn eigen adviezen moet kunn
 ### 3.4 Wat nog niet als gerealiseerd mag worden beschouwd
 
 De volgende onderdelen zijn productdoelen of uitbreidingen, niet aantoonbaar volledig gerealiseerde functies:
-- Een volledig geïntegreerde VisCoach-startpagina die bij het openen van de app de centrale instap is wanneer geen actieve sessie bestaat.
-- Een korte contextuele introductietekst is optioneel en mag bestaande weer-/stekgegevens gebruiken. Een grote tekstenbibliotheek is geen kernvereiste voor VisCoach.
+- De geïntegreerde VisCoach-instap met schermvullende welkomstmodal bij het openen van de app. De modal is een laag boven de bestaande app, geen tweede applicatie of vervanging van de bestaande navigatie.
+- Een vaste UX-route van welkomstmodal naar een uitgebreid, zo nodig schermvullend visplan en vervolgens naar de bestaande actieve sessie-interface.
+- Een contextgestuurde welkomsttekstbibliotheek met minimaal 200 korte, onderscheidbare tekstvarianten. De selectie gebruikt uitsluitend beschikbare en voldoende betrouwbare bestaande gegevens; een grote tekstenbibliotheek is hiermee expliciet onderdeel van de producteis.
 - Een compleet, gebruiksvriendelijk advies dat de gekozen vistijd vergelijkt met relevante alternatieven en omstandigheden, tactiek, positie, wind-/kijk-/werprichting, aas/voer en onzekerheid samenbrengt in één coachplan.
 - Een persoonlijk lerend profiel per stek en vissoort dat meer doet dan algemene historische statistieken tonen.
 - Een sessiecoach die geïntegreerd is in de actieve sessiepagina en veranderingen en gebruikerswaarnemingen tijdens het vissen omzet in nieuwe tactische voorstellen.
 - Een onveranderlijke historie van coachadviezen, uitgevoerde acties en resultaten waarmee de tactische waarde van adviezen kan worden geëvalueerd.
+
+### 3.5 VisCoach-instap, modal en welkomstteksten
+
+#### UX-doel en navigatie
+- Bij het openen van de app verschijnt standaard de VisCoach-welkomstmodal als vriendelijke, schermvullende instap. Op desktop mag dit een groot centraal venster met zichtbare app-context erachter zijn; op kleine schermen wordt de modal schermvullend.
+- De modal is een presentatie- en navigatielaag boven de bestaande app. Bestaande pagina's, navigatie, sessiebeheer, prognosepagina en logboek blijven bestaan en behouden hun eigen verantwoordelijkheden.
+- De modal verschijnt niet opnieuw bij iedere interne paginawissel of rerender. Sluiten beëindigt alleen de welkomstweergave; de gebruiker kan VisCoach later opnieuw openen via de bestaande navigatie.
+- De bestaande VisCoach-navigatie-ingang blijft beschikbaar als heropenroute. Deze mag de gebruiker naar dezelfde welkomst-/planervaring brengen; er komt geen concurrerende tweede ingang met afwijkende logica.
+- De welkomstmodal biedt een duidelijke primaire actie om een visplan te maken of verder te gaan. Wanneer een actieve sessie bestaat, krijgt **Sessie hervatten** een prominente plek. Een actieve sessie wordt nooit automatisch beëindigd of vervangen door een nieuw plan.
+- Vanuit de modal kan het volledige visplan worden geopend in een ruime weergave. Op mobiel gebruikt dit de beschikbare schermruimte. De uitgebreide planweergave mag inhoudelijk rijker zijn dan de korte welkomstmodal, maar blijft een presentatie van bestaande engine-uitvoer.
+- Tijdens het daadwerkelijk vissen blijft de bestaande actieve sessie-interface de centrale werkplek. De modal mag de invoer van vangsten, waarnemingen, hengelgegevens en sessie-events niet blokkeren.
+- Sluiten, teruggaan en heropenen moeten voorspelbaar werken met toetsenbord, schermlezer, focusbeheer en mobiele terugnavigatie. De modal mag geen onbedoelde blokkade van de rest van de app veroorzaken.
+
+#### Contextselectie voor welkomstteksten
+- De bibliotheek bevat minimaal 200 korte, onderscheidbare Nederlandse tekstvarianten. Variatie mag bestaan uit zorgvuldig geschreven vaste zinnen en gecontroleerde tekstsjablonen; de telling mag geen vrijwel identieke varianten als afzonderlijke unieke teksten presenteren.
+- Een contextselectie kiest één passende welkomsttekst per app-opening. De tekst blijft tijdens die opening stabiel en wisselt niet bij iedere render of weer-refresh. Direct opeenvolgende openingen vermijden waar mogelijk herhaling.
+- Relevante context mag uitsluitend uit bestaande, beschikbare gegevens komen, zoals:
+  - datum, seizoen en lokaal tijdstip;
+  - actuele of verwachte temperatuur, wind en neerslag voor de relevante locatie en het beoogde vistijdvak;
+  - tijd sinds de laatst geregistreerde vissessie;
+  - geregistreerde doelsoort, stek en sessiecontext;
+  - de uitkomst van de vorige sessie, uitsluitend wanneer die expliciet en betrouwbaar is vastgelegd;
+  - bestaande prognose- en tijdvakuitvoer, inclusief onzekerheid waar relevant.
+- De selectie weegt context op relevantie en datakwaliteit. Niet ieder beschikbaar gegeven hoeft in de tekst terug te komen; tegenstrijdige of niet-relevante omstandigheden worden niet gecombineerd tot één geforceerde zin.
+- Ontbrekende, verouderde of onbetrouwbare gegevens worden niet genoemd alsof ze actueel of bekend zijn. Als onvoldoende context beschikbaar is, kiest de app een neutrale welkomsttekst.
+- De tekst mag geen vangst beloven, geen gebruiker verwijten maken over een eerdere nulvangst of lange pauze, en geen biologische bewering doen die niet door bestaande relevante modeluitvoer wordt ondersteund. Bijvoorbeeld: uitspraken over vissen die in groepen op diepte liggen zijn alleen toegestaan als de bestaande soort-/habitatuitvoer dat voor de betreffende context daadwerkelijk onderbouwt.
+- De welkomstteksten gebruiken bestaande gegevens en engine-uitvoer. Er komt geen aparte weerservice, prognoseberekening, biologische regelset of tweede adviesengine voor de begroeting.
+- De tekstbibliotheek en selectie zijn offline beschikbaar en vereisen geen externe AI-dienst of netwerkverbinding. Nieuwe zinnen mogen later worden toegevoegd zonder de onderliggende prognose- of sessiedata te wijzigen.
+
+#### Acceptatiecriteria
+- De welkomstmodal verschijnt bij een nieuwe app-opening, maar niet opnieuw door interne navigatie of gewone componentupdates.
+- De gebruiker kan de modal sluiten en via de bestaande VisCoach-navigatie opnieuw openen.
+- Bij een actieve sessie is hervatten duidelijk beschikbaar en blijft de bestaande sessie-interface leidend.
+- Het uitgebreide visplan is vanuit de modal bereikbaar en schaalt naar mobiel en desktop.
+- Er zijn minimaal 200 onderscheidbare korte Nederlandse tekstvarianten; selectie is contextgestuurd, stabiel tijdens één app-opening en voorkomt waar mogelijk directe herhaling.
+- Tests dekken ontbrekende/verouderde weersdata, onbekende sessie-uitkomst, geen eerdere sessie, actieve sessie, herhaalde app-openingen, selectie zonder netwerk en het vermijden van niet-onderbouwde biologische claims.
+- Bestaande navigatie, sessie-, vangst-, prognose- en logboekfunctionaliteit blijven behouden.
 
 ---
 
