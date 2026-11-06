@@ -990,3 +990,88 @@ Vislogboek krijgt een optionele GIS-laag die een GPS- of handmatig gekozen vispo
 - De GIS-laag blijft optioneel en geïsoleerd: bestaande logboek-, prognose- en Coach-functionaliteit mag hierdoor niet ongemerkt veranderen.
 
 De volledige architectuur, databronnen, matching, profielreconstructie, onzekerheidsregels, fasering en acceptatiecriteria staan in [GIS_STEKHERKENNING_BLUEPRINT.md](GIS_STEKHERKENNING_BLUEPRINT.md). Dit projectcontextdocument bevat alleen de algemene uitgangspunten; de aparte blueprint is leidend voor de technische uitwerking. **Status: GIS-onderzoeksfase voor de huidige functionele doelstelling afgerond (5 november 2026); de beschikbare bronnen zijn voldoende voor algemene indicatieve diepte-informatie.** Dit is geen claim dat op iedere exacte voerplek een actuele diepte bekend is. Historische profielwaarden blijven tijdgebonden referenties; handmatige veldmetingen kunnen als afzonderlijke, gedateerde bron worden toegevoegd. De GIS-appimplementatie is nog niet gestart en valt buiten de 32 verbeterpunten.
+
+
+---
+
+## 12. Fase 0 – technische dataintegriteit en herstelbesluiten (6 november 2026)
+
+Deze sectie vult de bestaande product- en architectuurafspraken aan op basis van de code-audit. De onderstaande wijzigingen worden gefaseerd via featurebranches en pull requests uitgevoerd; `main` blijft ongemoeid totdat de afzonderlijke wijzigingen zijn beoordeeld en samengevoegd.
+
+### 12.1 Bindende regels voor historische gegevens
+
+1. Een afgeronde legacy-sessie zonder vangstrecords is **onbekend**, tenzij de bron expliciet `skunk_confirmed` of een expliciete nulvangstbevestiging bevat.
+2. Ontbrekende doelsoorten blijven leeg/onbekend. Een vangstsoort mag niet automatisch de oorspronkelijke doelsoort worden.
+3. Ontbrekende vangstsoort of aantallen worden niet als echte soort-/aantalswaarneming gebruikt.
+4. Ontbrekende starttijd, eindtijd, duur en weerwaarden worden niet als echte gegevens aangemaakt.
+5. Een compatibiliteitswaarde die een bestaand UI-/opslagcontract tijdelijk vereist, moet een expliciete datakwaliteitsmarkering dragen en mag niet in prognosehistorie of evaluatie terechtkomen.
+6. Geplande duur en geplande eindtijd zijn nooit werkelijke visduur of blootstelling.
+7. Een sessie met meerdere doelsoorten wordt per prognosesoort beoordeeld aan de hand van de afzonderlijke vangstrecords. Een vangst van een andere soort is geen succes voor de voorspelde doelsoort.
+8. Een sessie-uitkomst `catch` zonder bruikbare soortspecifieke vangstregistratie is geen geldige soortspecifieke trainingsuitkomst.
+9. Onbekende of onvolledige records blijven behouden in het logboek; uitsluiten van modelgebruik is geen reden om ze te verwijderen.
+
+### 12.2 Technisch datacontract voor legacy-import
+
+De bestaande `FishingSession` en `CatchItem` krijgen optionele `dataQuality`-metadata. Deze metadata is alleen vereist voor geconverteerde legacyrecords en is additief:
+
+- Sessie: `importedFromLegacy`, `sourceFormat`, `startTimeKnown`, `endTimeKnown`, `durationKnown`, `targetSpeciesKnown`, `outcomeConfirmed`, `weatherKnown`.
+- Vangst: `importedFromLegacy`, `speciesKnown`, `countKnown`, `timestampKnown`.
+
+De velden zijn geen vervanging voor de feitelijke sessie- of vangstgegevens. Ze maken zichtbaar welke waarden in de bron aanwezig waren en welke alleen als compatibiliteitswaarde zijn behouden. Nieuwe, normaal ingevoerde records hoeven deze legacy-markeringen niet te dragen.
+
+De huidige Dexie-tabellen zijn objectstores zonder index op deze nieuwe metadata. Optionele velden kunnen daarom additief worden opgeslagen; er is geen reden om alleen hiervoor bestaande records te herschrijven. Als later een index of een structurele opslagwijziging nodig blijkt, wordt een afzonderlijke Dexie-migratie met upgrade- en rollbacktests ontworpen.
+
+### 12.3 Legacy-importregels
+
+De omzetting van het geneste legacyformaat moet:
+- `durationMinutes` alleen afleiden uit twee geldige, expliciete kloktijden of een expliciet duurveld;
+- `endTime` weglaten als die niet in de bron aanwezig is;
+- `targetSpecies` alleen vullen vanuit een expliciete doelsoortlijst;
+- `skunk_confirmed` alleen gebruiken bij een expliciete nulvangststatus/-bevestiging;
+- bij ontbrekende vangstsoort de compatibiliteitswaarde `Overig` combineren met `speciesKnown: false`;
+- bij ontbrekend aantal een compatibiliteitswaarde combineren met `countKnown: false`;
+- historische weerscontext alleen aanmaken wanneer de vereiste bronwaarden werkelijk aanwezig zijn;
+- bestaande moderne platte back-ups ongewijzigd behouden en geen records achteraf reconstrueren.
+
+Een legacy-sessie zonder starttijd kan voor weergave een compatibiliteitsdatum behouden, maar krijgt `startTimeKnown: false` en mag niet aan tijdvakstatistieken bijdragen.
+
+### 12.4 Historische berekeningen
+
+De prognosehistorie moet:
+- sessies met onbekende doelsoort of onbekende starttijd uitsluiten van soort-/tijdvakvergelijkingen;
+- een `catch`-sessie alleen als succes tellen wanneer een bijbehorend vangstrecord met bekende soort de gekozen prognosesoort bevestigt;
+- een geregistreerde vangst van uitsluitend andere soorten als nulvangst voor de geselecteerde doelsoort behandelen, mits de sessie zelf een bevestigde uitkomst heeft;
+- een vangststatus zonder bruikbare vangstrecords uitsluiten;
+- onbekende vangstaantallen niet als één vis tellen;
+- geplande duur/eindtijd niet gebruiken als werkelijke blootstelling;
+- het bestaande hengelurenmodel op basis van actieve intervallen behouden.
+
+De algemene soortselectie (`Algemeen`) blijft onderscheiden van de concrete soort `Overig`; een generieke prognose mag niet per ongeluk als uitsluitend `Overig` worden geëvalueerd.
+
+### 12.5 Bestaande lokale gegevens en migraties
+
+De importcorrectie verandert geen bestaande IndexedDB-records. Records die in een eerdere versie al met fictieve standaardwaarden zijn geïmporteerd, kunnen niet veilig automatisch worden hersteld omdat de oorspronkelijke waarden ontbreken. Ze moeten als mogelijk besmette historie worden behandeld totdat de gebruiker de bronback-up opnieuw importeert of de gegevens handmatig kan verifiëren.
+
+Er wordt geen destructieve bulkcorrectie of automatische statuswijziging op bestaande sessies uitgevoerd.
+
+### 12.6 Nog uit te voeren controles na de eerste P0-implementatie
+
+- Meetmoment, meetdiepte en meetmethode van watertemperatuur afzonderlijk opslaan en valideren.
+- Brier-evaluaties controleren op meerdere snapshots per sessie en op de exacte voorspellingsgebeurtenis.
+- Rolling baseline en Brier-testset op onafhankelijke sessies blijven baseren.
+- Tijdzonegebruik standaardiseren op expliciete Europe/Amsterdam-datum-/tijdregels.
+- Beste tijdvak beperken tot de daadwerkelijk gekozen sessieperiode.
+- Tijdvakscores niet kunstmatig differentiëren zolang alleen dezelfde dagthermiek beschikbaar is.
+- Voorvoerplanning mag onbekende sessieduur niet vervangen door een standaardduur.
+- Call-sites controleren dat vangstrecords altijd worden doorgegeven aan soortspecifieke historische prognoseberekeningen.
+
+### 12.7 Acceptatiecriteria voor P0
+
+- Een legacy-sessie met alleen status `completed` en zonder vangsten wordt `unknown`, niet `skunk_confirmed`.
+- Een expliciet bevestigde nulvangst blijft `skunk_confirmed`.
+- Ontbrekende doelsoort, tijd, duur, weer, vangstsoort en aantal worden aantoonbaar als onbekend gemarkeerd.
+- Een andere gevangen soort wordt niet als succes voor de geselecteerde prognosesoort geteld.
+- Een vangstrecord zonder bekende soort/aantal levert geen soortspecifieke vangst of betrouwbaar vangsttempo op.
+- Alleen werkelijke duur draagt bij aan blootstellingsberekeningen.
+- Export/import behoudt de optionele datakwaliteitsmetadata.
+- Geen bestaande gegevens worden verwijderd of automatisch herschreven.
