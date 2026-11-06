@@ -87,7 +87,7 @@ function getOutcomeForSpecies(
 
 function getSimilarSessions(
   sessions: FishingSession[],
-  species: FishSpecies,
+  species: FishSpecies | 'Algemeen',
   slot: TimeSlot,
   catches: CatchItem[]
 ): FishingSession[] {
@@ -95,7 +95,7 @@ function getSimilarSessions(
   const catchIndex = getCatchSessionIndex(catches);
   return sessions.flatMap((session) => {
     if (session.dataQuality?.startTimeKnown === false) return [];
-    if (species !== 'Overig' && (
+    if (species !== 'Algemeen' && (
       session.dataQuality?.targetSpeciesKnown === false ||
       !session.targetSpecies?.includes(species)
     )) return [];
@@ -237,7 +237,8 @@ function analyzeTimeSlot(
   userWaterTemp?: number | null,
   presenceObs?: PresenceObservationType,
   thermalAnalysis?: WaterThermalAnalysis,
-  catches: CatchItem[] = []
+  catches: CatchItem[] = [],
+  historySpecies: FishSpecies | 'Algemeen' = species
 ): TimeSlotAnalysis {
   const hoursConfig = TIME_SLOT_HOURS[slot];
   const month = date.getMonth() + 1;
@@ -417,7 +418,7 @@ function analyzeTimeSlot(
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
-  const similarSessions = getSimilarSessions(historicalSessions, species, slot, catches);
+  const similarSessions = getSimilarSessions(historicalSessions, historySpecies, slot, catches);
 
   const relevantCount = similarSessions.length;
   const confirmedCatches = similarSessions.filter((s) => s.outcome === 'catch').length;
@@ -623,7 +624,8 @@ export function calculateDayPrognosis(
       userWaterTemp,
       presenceObs,
       thermalAnalysis,
-      options?.catches ?? []
+      options?.catches ?? [],
+      species
     );
   }
 
@@ -731,7 +733,7 @@ export function calculateDayPrognosis(
       const rawLambdaPerHour = hasCompleteCatchCounts && totalDurationHours > 0
         ? totalTargetCatches / totalDurationHours
         : 0;
-      hourlyCatchRate = Math.round(rawLambdaPerHour * 100) / 100;
+      hourlyCatchRate = hasCompleteCatchCounts ? Math.round(rawLambdaPerHour * 100) / 100 : null;
 
       const actFactor = 0.88 + (dayScore / 10) * 0.24;
       const effectiveLambda = rawLambdaPerHour * actFactor;
