@@ -629,8 +629,18 @@ export function calculateDayPrognosis(
     const sortedFuture = [...futureOrActiveSlots].sort(
       (a, b) => timeSlotAnalyses[b].activityScore - timeSlotAnalyses[a].activityScore
     );
-    bestSlot = sortedFuture[0];
-    alternativeSlots = sortedFuture.slice(1);
+    const availableScores = sortedFuture
+      .filter((slot) => timeSlotAnalyses[slot].activityScoreAvailable !== false)
+      .map((slot) => timeSlotAnalyses[slot].activityScore);
+    const hasMeaningfulDifference = availableScores.length > 1 &&
+      Math.max(...availableScores) - Math.min(...availableScores) >= 0.1;
+    if (hasMeaningfulDifference) {
+      bestSlot = sortedFuture[0];
+      alternativeSlots = sortedFuture.slice(1);
+    } else {
+      bestSlot = 'Geen betekenisvol onderscheid';
+      alternativeSlots = [];
+    }
   }
 
   const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
@@ -973,7 +983,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : 'Ochtend',
+        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : 'Ochtend',
         options?.catches ?? []
       ) ?? undefined
     : undefined;
@@ -1037,6 +1047,8 @@ export interface PendingPrognosisSnapshot {
   durationKnown?: boolean;
   locationName?: string;
   chosenSlot?: TimeSlot;
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   conditions?: WeatherSnapshot;
   weatherInput?: WeatherHourlyForecast[];
   inputContext?: PrognosisInputContext;
@@ -1063,13 +1075,15 @@ export async function savePrognosisSnapshot(
     inputContext?: PrognosisInputContext;
     inputFingerprint?: string;
     supersedesSnapshotId?: string;
+    targetWindowStart?: string;
+    targetWindowEnd?: string | null;
   }
 ): Promise<PrognosisSnapshot> {
   const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
     chosenSlot ||
-    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
       ? (prognosis.bestTimeSlot as TimeSlot)
-      : 'Ochtend');
+      : undefined);
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
@@ -1103,6 +1117,8 @@ export async function savePrognosisSnapshot(
     locationName,
     durationHours,
     durationKnown: metadata?.runKind ? durationHours > 0 : undefined,
+    targetWindowStart: metadata?.targetWindowStart,
+    targetWindowEnd: metadata?.targetWindowEnd,
     runKind: metadata?.runKind,
     inputFingerprint: metadata?.inputFingerprint,
     supersedesSnapshotId: metadata?.supersedesSnapshotId,
