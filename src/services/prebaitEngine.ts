@@ -12,6 +12,7 @@ import {
   PrebaitProgramPlan,
 } from '../types';
 import { assessDataQuality } from './dataQualityEngine';
+import { getAmsterdamDateKey } from '../utils/dateTime';
 
 const PREBAIT_SPECIES: FishSpecies[] = ['Karper', 'Zeelt', 'Brasem'];
 
@@ -20,7 +21,7 @@ export function supportsPrebaitPlanning(species: FishSpecies | 'Algemeen'): spec
 }
 
 function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  return getAmsterdamDateKey(d) ?? '';
 }
 
 function daysBetween(start: string, end: string): number {
