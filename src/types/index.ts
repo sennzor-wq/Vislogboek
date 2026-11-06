@@ -126,6 +126,12 @@ export interface CatchItem {
   technique?: string;
   notes?: string;
   photoUrl?: string;              // Base64 data URL
+  /** Kwaliteitsvlaggen voor legacy-import; false betekent dat de waarde niet uit de bron bekend was. */
+  legacyImportQuality?: {
+    speciesKnown: boolean;
+    countKnown: boolean;
+    timestampKnown: boolean;
+  };
   createdAt: string;
 }
 
@@ -163,6 +169,14 @@ export interface FishingSession {
   isBenchmark?: boolean;          // Beschermde benchmark!
   createdAt: string;
   updatedAt: string;
+  /** Kwaliteitsvlaggen voor legacy-import; false betekent dat de waarde niet uit de bron bekend was. */
+  legacyImportQuality?: {
+    startTimeKnown: boolean;
+    endTimeKnown: boolean;
+    durationKnown: boolean;
+    targetSpeciesKnown: boolean;
+    weatherSnapshotKnown: boolean;
+  };
 }
 
 /** Een werkelijk actief tijdvak van één hengel. Een lege eindtijd betekent dat de interval nog loopt. */
