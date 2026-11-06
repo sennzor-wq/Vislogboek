@@ -77,7 +77,7 @@ function getSimilarSessions(
     if (session.isBenchmark || session.legacyImportQuality?.startTimeKnown === false) return false;
     if (!session.targetSpecies?.includes(species)) return false;
     const hour = getAmsterdamHour(session.startTime);
-    if (!Number.isFinite(hour) || hour < hours.start || hour >= hours.end) return false;
+    if (hour === null || hour < hours.start || hour >= hours.end) return false;
     if (session.outcome === 'skunk_confirmed') return true;
     return catches.some((item) => item.sessionId === session.id && item.species === species && item.legacyImportQuality?.speciesKnown !== false);
   });
