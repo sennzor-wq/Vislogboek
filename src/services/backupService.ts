@@ -501,8 +501,15 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       ['geplande sessies', data.plannedSessions || []], ['coachadviezen', data.coachAdviceRecords || []],
     ];
     for (const [label, records] of collections) {
-      if (records.some((record) => !record || typeof record !== 'object' || typeof record.id !== 'string' || !record.id.trim())) {
-        throw new Error(`De back-up bevat een ongeldig record in ${label} (ontbrekende ID).`);
+      const seenIds = new Set<string>();
+      for (const record of records) {
+        if (!record || typeof record !== 'object' || typeof record.id !== 'string' || !record.id.trim()) {
+          throw new Error(`De back-up bevat een ongeldig record in ${label} (ontbrekende ID).`);
+        }
+        if (seenIds.has(record.id)) {
+          throw new Error(`De back-up bevat een dubbel record-ID in ${label}: ${record.id}.`);
+        }
+        seenIds.add(record.id);
       }
     }
     const limitsError = validateBackupPayloadLimits(data);
@@ -511,6 +518,42 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     const backupSessionIds = new Set(data.sessions.map((session) => session.id));
     const backupLocationIds = new Set(data.locations.map((location) => location.id));
     const backupSnapshotIds = new Set((data.prognosisSnapshots || []).map((snapshot) => snapshot.id));
+
+    // Controleer alle harde relaties vóór merge of restore. Historische ID-lijsten
+    // in inputContext zijn auditmetadata en worden bewust niet als foreign keys behandeld.
+    for (const session of data.sessions) {
+      if (session.locationId && !backupLocationIds.has(session.locationId)) {
+        throw new Error(`Sessie ${session.id} verwijst naar een stek die niet in de back-up aanwezig is.`);
+      }
+      if (session.snapshotId && !backupSnapshotIds.has(session.snapshotId)) {
+        throw new Error(`Sessie ${session.id} verwijst naar een prognosesnapshot die niet in de back-up aanwezig is.`);
+      }
+    }
+    for (const catchItem of data.catches) {
+      if (typeof catchItem.sessionId !== 'string' || !backupSessionIds.has(catchItem.sessionId)) {
+        throw new Error(`Vangst ${catchItem.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
+      }
+      if (catchItem.locationId && !backupLocationIds.has(catchItem.locationId)) {
+        throw new Error(`Vangst ${catchItem.id} verwijst naar een stek die niet in de back-up aanwezig is.`);
+      }
+    }
+    for (const observation of data.presenceObservations || []) {
+      if (typeof observation.locationId !== 'string' || !backupLocationIds.has(observation.locationId)) {
+        throw new Error(`Waarneming ${observation.id} verwijst naar een stek die niet in de back-up aanwezig is.`);
+      }
+      if (observation.sessionId && !backupSessionIds.has(observation.sessionId)) {
+        throw new Error(`Waarneming ${observation.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
+      }
+    }
+    for (const snapshot of data.prognosisSnapshots || []) {
+      if (snapshot.locationId && !backupLocationIds.has(snapshot.locationId)) {
+        throw new Error(`Prognosesnapshot ${snapshot.id} verwijst naar een stek die niet in de back-up aanwezig is.`);
+      }
+      if (snapshot.linkedSessionId && !backupSessionIds.has(snapshot.linkedSessionId)) {
+        throw new Error(`Prognosesnapshot ${snapshot.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
+      }
+    }
+
     for (const planned of data.plannedSessions || []) {
       if (!backupLocationIds.has(planned.locationId) || !Number.isFinite(new Date(planned.plannedStartTime).getTime()) ||
           !['planned', 'started', 'cancelled', 'overdue'].includes(planned.status)) {
