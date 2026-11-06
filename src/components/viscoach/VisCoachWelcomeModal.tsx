@@ -54,7 +54,7 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
     .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())[0] || null, [sessions]);
 
   const daysSinceLastSession = latestCompletedSession
-    ? Math.max(0, Math.floor((Date.now() - new Date(latestCompletedSession.startTime).getTime()) / 86400000))
+    ? Math.max(0, Math.floor((Date.now() - new Date(latestCompletedSession.endTime || latestCompletedSession.startTime).getTime()) / 86400000))
     : null;
 
   const hasRecordedCatch = latestCompletedSession
