@@ -5,7 +5,7 @@
  */
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis, getSessionDurationHours } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, getSessionDurationHours, getActualSessionDurationHours } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
   BENCHMARK_SESSION,
@@ -272,18 +272,26 @@ async function run14Scenarios() {
       updatedAt: '',
     })),
   ];
-  const p1 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 1 }).personalCatchChance!;
-  const p2 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 2 }).personalCatchChance!;
-  const p4 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 4 }).personalCatchChance!;
-  const p6 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 6 }).personalCatchChance!;
-  const p8 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 8 }).personalCatchChance!;
+  const tenCatches = Array.from({ length: 6 }, (_, i) => ({
+    id: `catch-record-${i}`,
+    sessionId: `catch-${i}`,
+    species: 'Karper' as const,
+    count: 2,
+    timestamp: '2026-09-01T13:00:00.000Z',
+    createdAt: '',
+  }));
+  const p1 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 1, catches: tenCatches }).personalCatchChance!;
+  const p2 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 2, catches: tenCatches }).personalCatchChance!;
+  const p4 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 4, catches: tenCatches }).personalCatchChance!;
+  const p6 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 6, catches: tenCatches }).personalCatchChance!;
+  const p8 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 8, catches: tenCatches }).personalCatchChance!;
   assert(
     p1 < p2 && p2 < p4 && p4 < p6 && p6 <= p8,
     `12.1 Monotoon stijgende kans over duur (1u: ${p1}% < 2u: ${p2}% < 4u: ${p4}% < 6u: ${p6}% <= 8u: ${p8}%)`
   );
   const unknownDurationPrognosis = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
-    { allowUnknownSessionDuration: true }
+    { allowUnknownSessionDuration: true, catches: tenCatches }
   );
   assert(
     unknownDurationPrognosis.plannedDurationHours === null &&
@@ -303,8 +311,9 @@ async function run14Scenarios() {
     durationMinutes: 90,
   };
   assert(
-    getSessionDurationHours(plannedDurationSession) === 4,
-    '12.3 Actieve sessie gebruikt bekende geplande duur wanneer werkelijke duur nog ontbreekt'
+    getSessionDurationHours(plannedDurationSession) === 4 &&
+      getActualSessionDurationHours(plannedDurationSession) === null,
+    '12.3 Actieve sessie mag geplande duur voor de live-prognose gebruiken, niet voor historische blootstelling'
   );
   assert(
     getSessionDurationHours(completedDurationSession) === 1.5,
@@ -313,18 +322,18 @@ async function run14Scenarios() {
 
   const noPresenceBonus = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
-    { sessionDurationHours: 3 }
+    { sessionDurationHours: 3, catches: tenCatches }
   );
   const withPresenceObservation = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
-    { sessionDurationHours: 3, presenceObservation: 'vis_springen_rollen' }
+    { sessionDurationHours: 3, presenceObservation: 'vis_springen_rollen', catches: tenCatches }
   );
   assert(
     noPresenceBonus.personalCatchChance === withPresenceObservation.personalCatchChance,
     '12.2 Viswaarnemingen geven geen ongevalideerde vaste bonus aan de persoonlijke vangstkans'
   );
 
-  const progInvalid = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: -5 });
+  const progInvalid = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: -5, catches: tenCatches });
   assert(
     progInvalid.personalCatchChance !== null && !isNaN(progInvalid.personalCatchChance),
     '12.2 Negatieve sessieduur valt veilig terug naar de standaard (geen crash of NaN)'
