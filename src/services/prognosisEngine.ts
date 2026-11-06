@@ -27,6 +27,7 @@ import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
 import { createDataQualityReport } from './dataQualityEngine';
+import { PROGNOSIS_ENGINE_VERSIONS, PROGNOSIS_MODEL_VERSION } from './modelVersions';
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -1188,8 +1189,9 @@ export async function savePrognosisSnapshot(
     predictedWaterTemperatureHistoricalSamples: prognosis.thermalAnalysis?.historicalWaterTemperatureSamples ?? 0,
     predictedWaterTemperatureHistoricalSource: prognosis.thermalAnalysis?.historicalWaterTemperatureSource ?? null,
     predictedWaterTemperatureWeatherCoverage: prognosis.thermalAnalysis?.weatherCoverageRatio,
-    modelVersion: 'v2.4-water-thermal-history',
-    source: 'Vislogboek v2.4 water thermal model',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
+    engineVersions: { ...PROGNOSIS_ENGINE_VERSIONS },
+    source: `Vislogboek ${PROGNOSIS_MODEL_VERSION}`,
     createdAt: new Date().toISOString(),
   };
 
