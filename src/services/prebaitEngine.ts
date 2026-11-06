@@ -2,6 +2,7 @@ import {
   FishSpecies,
   FishingLocation,
   FishingSession,
+  CatchItem,
   TimeSlot,
   WaterThermalAnalysis,
   BankWindAnalysis,
@@ -70,7 +71,8 @@ export function calculatePrebaitPlan(
   historicalSessions?: FishingSession[],
   location?: FishingLocation,
   bankWind?: BankWindAnalysis,
-  targetSlot?: TimeSlot
+  targetSlot?: TimeSlot,
+  historicalCatches?: CatchItem[]
 ): PrebaitProgramPlan;
 export function calculatePrebaitPlan(
   targetDateStr: string,
@@ -80,7 +82,8 @@ export function calculatePrebaitPlan(
   historicalSessions?: FishingSession[],
   location?: FishingLocation,
   bankWind?: BankWindAnalysis,
-  targetSlot?: TimeSlot
+  targetSlot?: TimeSlot,
+  historicalCatches?: CatchItem[]
 ): PrebaitProgramPlan | null;
 export function calculatePrebaitPlan(
   targetDateStr: string,
@@ -90,7 +93,8 @@ export function calculatePrebaitPlan(
   historicalSessions: FishingSession[] = [],
   location?: FishingLocation,
   _bankWind?: BankWindAnalysis,
-  _targetSlot: TimeSlot = 'Ochtend'
+  _targetSlot: TimeSlot = 'Ochtend',
+  historicalCatches: CatchItem[] = []
 ): PrebaitProgramPlan | null {
   if (!supportsPrebaitPlanning(species)) return null;
 
@@ -301,11 +305,14 @@ export function calculatePrebaitPlan(
 
   // Persoonlijke vergelijking uitsluitend binnen dezelfde doelsoort en stek.
   let personalEvidence: PrebaitProgramPlan['personalEvidence'];
-  const relevantSessions = historicalSessions.filter((s) => {
-    if ((s.outcome !== 'catch' && s.outcome !== 'skunk_confirmed') || s.isBenchmark) return false;
-    if (!location?.id || s.locationId !== location.id) return false;
-    if (!s.targetSpecies?.includes(species)) return false;
-    return true;
+  const relevantSessions = historicalSessions.filter((session) => {
+    if ((session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') || session.isBenchmark) return false;
+    if (!location?.id || session.locationId !== location.id) return false;
+    if (!session.targetSpecies?.includes(species)) return false;
+    if (session.outcome === 'skunk_confirmed') return true;
+    return historicalCatches.some((item) =>
+      item.sessionId === session.id && item.species === species && item.legacyImportQuality?.speciesKnown !== false
+    );
   });
   const prebaitedSessions = relevantSessions.filter((s) =>
     s.prebaited === true || (s.prebaited === undefined && Boolean(s.baitAndFeed?.toLowerCase().includes('voorvoer')))
