@@ -269,7 +269,8 @@ export function normalizeRawBackup(raw: any): BackupData {
       outcome,
       targetSpecies,
       legacyImportQuality: {
-        startTimeKnown: Boolean((s.start_time && s.date) || (typeof s.startTime === 'string' && Number.isFinite(Date.parse(s.startTime)))),
+        startDateKnown: Boolean((typeof s.date === 'string' && Number.isFinite(Date.parse(s.date))) || (typeof s.startTime === 'string' && Number.isFinite(Date.parse(s.startTime)))),
+        startTimeKnown: Boolean((s.start_time && s.date) || (typeof s.startTime === 'string' && Number.isFinite(Date.parse(s.startTime)) && /T\\d{2}:\\d{2}/.test(s.startTime))),
         endTimeKnown: Boolean((s.end_time && (s.end_date || s.date)) || (typeof s.endTime === 'string' && Number.isFinite(Date.parse(s.endTime)))),
         durationKnown: typeof durationMinutes === 'number',
         targetSpeciesKnown: targetSpecies.length > 0,
