@@ -35,6 +35,20 @@ import {
   ChevronUp,
 } from 'lucide-react';
 
+function getKnownCatchCount(item: CatchItem): number {
+  return item.legacyImportQuality?.countKnown === false ? 0 : item.count;
+}
+
+function getCatchSpeciesLabel(item: CatchItem): string {
+  return item.legacyImportQuality?.speciesKnown === false ? 'Soort onbekend' : item.species;
+}
+
+function getCatchTimeLabel(item: CatchItem): string {
+  return item.legacyImportQuality?.timestampKnown === false
+    ? 'Tijd onbekend'
+    : new Date(item.timestamp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+}
+
 const COACH_FACTOR_LABELS: Record<string, string> = {
   advice: 'prognoseadvies',
   bestTimeSlot: 'tijdvak',
@@ -123,7 +137,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
     const yearKey = String(year);
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
     const sessionCatches = catches.filter((c) => c.sessionId === session.id);
-    const sessionFishCount = sessionCatches.reduce((sum, c) => sum + (c.count || 1), 0);
+    const sessionFishCount = sessionCatches.reduce((sum, c) => sum + getKnownCatchCount(c), 0);
 
     if (!groups[yearKey]) groups[yearKey] = { year, totalFish: 0, months: {} };
     if (!groups[yearKey].months[monthKey]) {
@@ -327,7 +341,9 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-3 text-xs text-slate-300 mt-1.5 flex-wrap">
-                        <span>Gestart om: {new Date(session.startTime).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>Gestart om: {session.legacyImportQuality?.startTimeKnown === false
+                          ? 'Tijd onbekend'
+                          : new Date(session.startTime).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</span>
                         <span>•</span>
                         <span className="font-bold text-emerald-300">Live duur: {liveDuration}</span>
                         {session.participantCount && <><span>•</span><span>{session.participantCount} deelnemer(s)</span></>}
@@ -443,8 +459,8 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           >
                             <div>
                               <span className="font-bold text-white block">
-                                {c.count > 1 ? `${c.count}x ` : ''}
-                                {c.species}
+                                {c.legacyImportQuality?.countKnown === false ? '' : c.count > 1 ? `${c.count}x ` : ''}
+                                {getCatchSpeciesLabel(c)}
                               </span>
                               <span className="text-slate-400 text-[11px]">
                                 {c.weightKg ? `${c.weightKg} kg` : 'Gewicht onbekend'}
@@ -452,7 +468,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               </span>
                             </div>
                             <span className="text-[10px] text-slate-400">
-                              {new Date(c.timestamp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}
+                              {getCatchTimeLabel(c)}
                             </span>
                           </div>
                         ))}
@@ -626,19 +642,23 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                     <div className="flex items-center gap-3 text-xs text-slate-400 flex-wrap">
                       <span className="flex items-center gap-1 text-slate-300">
                         <Calendar className="w-3.5 h-3.5" />
-                        {new Date(session.startTime).toLocaleDateString('nl-NL', {
-                          weekday: 'short',
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
+                        {session.legacyImportQuality?.startDateKnown === false
+                          ? 'Datum onbekend'
+                          : new Date(session.startTime).toLocaleDateString('nl-NL', {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
                       </span>
                       <span>•</span>
                       <span>
-                        {new Date(session.startTime).toLocaleTimeString('nl-NL', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}{' '}
+                        {session.legacyImportQuality?.startTimeKnown === false
+                          ? 'Tijd onbekend'
+                          : new Date(session.startTime).toLocaleTimeString('nl-NL', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}{' '}
                         –{' '}
                         {session.endTime
                           ? new Date(session.endTime).toLocaleTimeString('nl-NL', {
@@ -803,8 +823,8 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               <div className="flex items-start justify-between">
                                 <div>
                                   <span className="font-bold text-white text-sm block">
-                                    {c.count > 1 ? `${c.count}x ` : ''}
-                                    {c.species}
+                                    {c.legacyImportQuality?.countKnown === false ? '' : c.count > 1 ? `${c.count}x ` : ''}
+                                    {getCatchSpeciesLabel(c)}
                                   </span>
                                   <span className="text-emerald-300 font-semibold text-xs">
                                     {c.weightKg !== null && c.weightKg !== undefined
@@ -815,7 +835,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                                                                 {c.photoUrl && (
                                   <img
                                     src={c.photoUrl}
-                                    alt={c.species}
+                                    alt={getCatchSpeciesLabel(c)}
                                     className="w-10 h-10 object-cover rounded-lg border border-slate-600"
                                   />
                                 )}
@@ -827,7 +847,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               </div>
 
                               <div className="text-[10px] text-slate-500 pt-1 border-t border-slate-700/50 flex justify-between">
-                                <span>{new Date(c.timestamp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>{getCatchTimeLabel(c)}</span>
                                 <button
                                   onClick={() => setEditingCatch(c)}
                                   className="text-slate-400 hover:text-white underline cursor-pointer"
