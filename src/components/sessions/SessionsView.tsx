@@ -321,7 +321,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
           <div className="grid grid-cols-1 gap-3.5">
             {activeSessions.map((session) => {
               const sessionCatches = catches.filter((c) => c.sessionId === session.id);
-              const totalFish = sessionCatches.reduce((sum, c) => sum + (c.count || 1), 0);
+              const totalFish = sessionCatches.reduce((sum, c) => sum + getKnownCatchCount(c), 0);
               const liveDuration = calculateLiveDuration(session.startTime);
 
               return (
@@ -589,7 +589,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                                     .map((session) => {
             const isExpanded = expandedSessionIds.has(session.id);
             const sessionCatches = catches.filter((c) => c.sessionId === session.id);
-            const totalFish = sessionCatches.reduce((sum, c) => sum + (c.count || 1), 0);
+            const totalFish = sessionCatches.reduce((sum, c) => sum + getKnownCatchCount(c), 0);
 
             const durationFormatted = session.durationMinutes
               ? `${Math.floor(session.durationMinutes / 60)}u ${session.durationMinutes % 60}m`
