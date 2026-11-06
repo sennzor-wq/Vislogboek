@@ -86,6 +86,9 @@ jobs:
       - name: Backup import fixture tests
         run: bun run tsx test-backup-import.ts
 
+      - name: Legacy data integrity regression tests
+        run: bun run test:audit-data-integrity
+
       - name: Backup import security validation tests
         run: bun run tsx test-security-backup-validation.ts
 

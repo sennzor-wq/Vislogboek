@@ -2,6 +2,7 @@ import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
+  CatchItem,
   FishSpecies,
   TimeSlot,
   ThermalTrend,
@@ -18,6 +19,7 @@ export interface RodPositioningOptions {
   userWaterTemp?: number | null;
   thermalAnalysis: WaterThermalAnalysis;
   historicalSessions: FishingSession[];
+  historicalCatches?: CatchItem[];
   targetSlot?: TimeSlot;
 }
 
@@ -594,7 +596,7 @@ export function analyzeRodPositioning(
   species: FishSpecies | 'Algemeen',
   options: RodPositioningOptions
 ): RodPositioningAdvice {
-  const { location, userWaterTemp, thermalAnalysis, historicalSessions, targetSlot } = options;
+  const { location, userWaterTemp, thermalAnalysis, historicalSessions, historicalCatches = [], targetSlot } = options;
 
   // 1. Relevante weersperiode selecteren (targetSlot of daggemiddelde)
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
@@ -783,12 +785,17 @@ export function analyzeRodPositioning(
 
   if (location?.id) {
     // Filter uitsluitend voltooide sessies op exact deze geregistreerde stek (benchmark uitgesloten)
-    const validSpotSessions = historicalSessions.filter(
-      (s) =>
-        s.locationId === location.id &&
-        (s.outcome === 'catch' || s.outcome === 'skunk_confirmed') &&
-        !s.isBenchmark
-    );
+    const validSpotSessions = historicalSessions.filter((session) => {
+      if (session.locationId !== location.id || session.isBenchmark) return false;
+      if (species !== 'Algemeen' && !session.targetSpecies?.includes(species)) return false;
+      if (session.outcome === 'skunk_confirmed') return true;
+      if (session.outcome !== 'catch') return false;
+      return historicalCatches.some((item) =>
+        item.sessionId === session.id &&
+        (species === 'Algemeen' || item.species === species) &&
+        item.legacyImportQuality?.speciesKnown !== false
+      );
+    });
 
     const totalCompleted = validSpotSessions.length;
 

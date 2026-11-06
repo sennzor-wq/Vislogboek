@@ -75,6 +75,14 @@ async function runTestSuite() {
       time: `2026-10-${String(25 + dayIndex).padStart(2, '0')}T${hour.time.slice(11)}`,
     }))
   ).flat();
+  const histCatches: CatchItem[] = Array.from({ length: 6 }, (_, i) => ({
+    id: `hist_catch_${i}`,
+    sessionId: `hist_s_${i}`,
+    species: 'Karper',
+    count: 1,
+    timestamp: `2026-09-${String(i + 1).padStart(2, '0')}T14:00:00Z`,
+    createdAt: `2026-09-${String(i + 1).padStart(2, '0')}T14:00:00Z`,
+  }));
   const progWithData = calculateDayPrognosis(
     '2026-10-28',
     weatherSample,
@@ -83,7 +91,7 @@ async function runTestSuite() {
     new Date().toISOString(),
     null,
     new Date(),
-    { sessionDurationHours: 4, locationId: 'spot-de-plas' }
+    { sessionDurationHours: 4, locationId: 'spot-de-plas', catches: histCatches }
   );
 
   const sampleWeatherSnap: WeatherSnapshot = {
@@ -359,7 +367,7 @@ async function runTestSuite() {
     '2.9 Benchmark-sessie wordt geweigerd voor synchronisatie naar modelvalidatie'
   );
 
-  // 2.10 Een niet-doelsoortvangst is geen doelsoortsucces.
+  // 2.10 Een niet-doelsoortvangst bewijst geen doelsoortnulvangst.
   const nonTargetSnapshot: PrognosisSnapshot = {
     id: 'snapshot_non_target_catch',
     forecastTimestamp: '2026-10-27T10:00:00Z',
@@ -395,8 +403,8 @@ async function runTestSuite() {
   await autoSyncSessionOutcomeToSnapshot(nonTargetSession);
   const nonTargetResult = await db.prognosisSnapshots.get(nonTargetSnapshot.id);
   assert(
-    nonTargetResult?.actualOutcome === 'skunk_confirmed' && nonTargetResult.actualTargetCatchesCount === 0,
-    '2.10 Bijvangst wordt als nulvangst voor de voorspelde doelsoort verwerkt, niet als doelsoortsucces'
+    nonTargetResult?.actualOutcome === 'unknown' && nonTargetResult.actualTargetCatchesCount === undefined,
+    '2.10 Bijvangst blijft onbekend voor de voorspelde doelsoort en wordt niet als nulvangst gescoord'
   );
 
   // 2.11 Een algemene vangststatus zonder soortspecifieke vangstregistratie blijft onbekend.

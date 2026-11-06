@@ -44,11 +44,14 @@ for (const s of sept15Sessions) {
   console.log(`- ID: ${s.id}, SpotId: ${s.locationId}, Name: "${s.locationName}", Time: ${s.startTime.slice(11, 16)}-${(s.endTime || '').slice(11, 16)}, Catches: ${sessionCatches.length} (${sessionCatches.map(c => c.species).join(', ')})`);
 }
 
-console.log('\n--- 5. skunk_confirmed Mapping Check ---');
+console.log('\n--- 5. Unknown outcome mapping Check ---');
 const zeroCatchSessions = normalized.sessions.filter(s => normalized.catches.filter(c => c.sessionId === s.id).length === 0);
-console.log('Zero-catch sessions count:', zeroCatchSessions.length);
-for (const z of zeroCatchSessions) {
-  console.log(`- Zero catch session: ${z.id}, Date: ${z.startTime.slice(0, 10)}, Outcome: "${z.outcome}" (must be 'skunk_confirmed')`);
+console.log('Sessions without catch records:', zeroCatchSessions.length);
+for (const session of zeroCatchSessions) {
+  console.log(`- Session: ${session.id}, Date: ${session.startTime.slice(0, 10)}, Outcome: "${session.outcome}" (absence of a catch record is not explicit blank confirmation)`);
+}
+if (zeroCatchSessions.some((session) => session.outcome !== 'unknown')) {
+  throw new Error('Legacy completed sessions without explicit blank confirmation must remain unknown');
 }
 
 console.log('\n--- 6. Null vs 0 kg Weights Check ---');

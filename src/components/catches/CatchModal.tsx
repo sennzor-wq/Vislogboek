@@ -27,10 +27,14 @@ export const CatchModal: React.FC<CatchModalProps> = ({
     )}:${pad(date.getMinutes())}`;
   };
 
-  const [species, setSpecies] = useState<FishSpecies>(
-    catchItem?.species || activeSession?.targetSpecies?.[0] || 'Karper'
+  const [species, setSpecies] = useState<FishSpecies | ''>(
+    catchItem
+      ? catchItem.legacyImportQuality?.speciesKnown === false ? '' : catchItem.species
+      : activeSession?.targetSpecies?.[0] || ''
   );
-  const [count, setCount] = useState<number>(catchItem?.count || 1);
+  const [count, setCount] = useState<number>(
+    catchItem && catchItem.legacyImportQuality?.countKnown === false ? 0 : catchItem?.count ?? 1
+  );
   const [weightInput, setWeightInput] = useState<string>(
     catchItem?.weightKg !== undefined && catchItem?.weightKg !== null ? String(catchItem.weightKg) : ''
   );
@@ -39,7 +43,9 @@ export const CatchModal: React.FC<CatchModalProps> = ({
     catchItem?.lengthCm !== undefined && catchItem?.lengthCm !== null ? String(catchItem.lengthCm) : ''
   );
   const [timestamp, setTimestamp] = useState<string>(
-    catchItem ? catchItem.timestamp.slice(0, 16) : formatDateTimeLocal(now)
+    catchItem
+      ? catchItem.legacyImportQuality?.timestampKnown === false ? '' : catchItem.timestamp.slice(0, 16)
+      : formatDateTimeLocal(now)
   );
   const [rod, setRod] = useState<string>(catchItem?.rod || '');
   const [bait, setBait] = useState<string>(catchItem?.bait || activeSession?.baitAndFeed || '');
@@ -63,6 +69,10 @@ export const CatchModal: React.FC<CatchModalProps> = ({
     e.preventDefault();
     setSubmitting(true);
     try {
+      if (!species || !Number.isInteger(count) || count < 1 || !timestamp || !Number.isFinite(new Date(timestamp).getTime())) {
+        setSubmitting(false);
+        return;
+      }
       const parsedWeight = weightInput.trim() !== '' ? parseFloat(weightInput.replace(',', '.')) : null;
       const parsedLength = lengthInput.trim() !== '' ? parseFloat(lengthInput.replace(',', '.')) : null;
 
@@ -70,8 +80,8 @@ export const CatchModal: React.FC<CatchModalProps> = ({
         id: catchItem?.id || 'catch_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         sessionId,
         locationId: activeSession?.locationId,
-        species,
-        count: Math.max(1, count),
+        species: species as FishSpecies,
+        count,
         weightKg: parsedWeight && !isNaN(parsedWeight) ? parsedWeight : null,
         isGroupWeight: count > 1 ? isGroupWeight : false,
         lengthCm: parsedLength && !isNaN(parsedLength) ? parsedLength : null,
@@ -119,6 +129,7 @@ export const CatchModal: React.FC<CatchModalProps> = ({
               className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
               required
             >
+              <option value="">Selecteer soort...</option>
               {ALL_SPECIES.map((sp) => (
                 <option key={sp} value={sp}>
                   {sp}

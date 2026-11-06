@@ -272,11 +272,19 @@ async function run14Scenarios() {
       updatedAt: '',
     })),
   ];
-  const p1 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 1 }).personalCatchChance!;
-  const p2 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 2 }).personalCatchChance!;
-  const p4 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 4 }).personalCatchChance!;
-  const p6 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 6 }).personalCatchChance!;
-  const p8 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 8 }).personalCatchChance!;
+  const tenSessionCatches = Array.from({ length: 6 }, (_, i) => ({
+    id: `catch-record-${i}`,
+    sessionId: `catch-${i}`,
+    species: 'Karper' as const,
+    count: 1,
+    timestamp: '2026-09-01T13:00:00Z',
+    createdAt: '2026-09-01T13:00:00Z',
+  }));
+  const p1 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 1, catches: tenSessionCatches }).personalCatchChance!;
+  const p2 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 2, catches: tenSessionCatches }).personalCatchChance!;
+  const p4 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 4, catches: tenSessionCatches }).personalCatchChance!;
+  const p6 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 6, catches: tenSessionCatches }).personalCatchChance!;
+  const p8 = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: 8, catches: tenSessionCatches }).personalCatchChance!;
   assert(
     p1 < p2 && p2 < p4 && p4 < p6 && p6 <= p8,
     `12.1 Monotoon stijgende kans over duur (1u: ${p1}% < 2u: ${p2}% < 4u: ${p4}% < 6u: ${p6}% <= 8u: ${p8}%)`
@@ -303,8 +311,8 @@ async function run14Scenarios() {
     durationMinutes: 90,
   };
   assert(
-    getSessionDurationHours(plannedDurationSession) === 4,
-    '12.3 Actieve sessie gebruikt bekende geplande duur wanneer werkelijke duur nog ontbreekt'
+    getSessionDurationHours(plannedDurationSession) === null,
+    '12.3 Geplande duur wordt niet als werkelijke blootstelling gebruikt'
   );
   assert(
     getSessionDurationHours(completedDurationSession) === 1.5,
@@ -326,8 +334,8 @@ async function run14Scenarios() {
 
   const progInvalid = calculateDayPrognosis('2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(), { sessionDurationHours: -5 });
   assert(
-    progInvalid.personalCatchChance !== null && !isNaN(progInvalid.personalCatchChance),
-    '12.2 Negatieve sessieduur valt veilig terug naar de standaard (geen crash of NaN)'
+    progInvalid.personalCatchChance === null,
+    '12.2 Ongeldige negatieve sessieduur levert geen schijnvangstkans op'
   );
 
   // 13. Export, import en herstel van bestaande back-ups
