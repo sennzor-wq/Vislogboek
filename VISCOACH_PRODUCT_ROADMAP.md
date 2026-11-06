@@ -1053,3 +1053,75 @@ De coach moet:
 - [Projectcontext – huidige VisCoach-specificatie](https://github.com/sennzor-wq/Vislogboek/blob/main/PROJECT_CONTEXT.md#18-viscoach--toekomstige-startpagina-en-sessie-instap)
 
 **Laatste inhoudelijke controle van de repository voor deze roadmap:** 2 november 2026. De aanvullende ontwerpprincipes zijn verwerkt op basis van de productbeslissingen; de read-only audit moet bestandsnamen, interfaces, datadekking en implementatiestatus opnieuw verifiëren voordat een fase wordt gebouwd.
+
+
+---
+
+## 9. Fase 0 – technische herstelstappen na code-audit
+
+**Statuspeildatum: 6 november 2026.** Deze sectie is een aanvulling op de bestaande productarchitectuur. De implementatie loopt via aparte branches en PR's; wijzigingen worden niet rechtstreeks op `main` aangebracht.
+
+### 9.1 P0 – gegevensbetrouwbaarheid vóór personalisatie
+
+**Eerste implementatiepakket: legacy-import en soortspecifieke historie**
+
+Bestanden en verantwoordelijkheden:
+
+| Bestand | Technische functie |
+|---|---|
+| `src/types/index.ts` | Optionele provenance-/datakwaliteitsvelden voor legacy-sessies en vangsten |
+| `src/services/backupService.ts` | Legacy normalisatie zonder verzonnen duur, eindtijd, doelsoort, vangstsoort/aantal of weer |
+| `src/services/prognosisEngine.ts` | Soortspecifieke sessie-uitkomst op basis van echte vangstrecords; onbekende records uitsluiten |
+| `src/services/sessionEffortEngine.ts` | Werkelijke hengeluren blijven leidend; geplande tijd niet als gerealiseerde inspanning gebruiken |
+| `test-phase0-data-integrity.ts` | Regressietests voor legacy-import en scheiding tussen geplande en werkelijke duur |
+| `package.json` | Expliciete testopdracht voor de P0-integriteitstests |
+
+De optionele metadata is additief. Alleen wanneer een structurele IndexedDB-index of een niet-additieve wijziging nodig blijkt, wordt een nieuwe Dexie-versie toegevoegd. Geen onnodige databaseversie bump.
+
+### 9.2 P0-acceptatiecriteria
+
+1. Voltooide sessie zonder vangstrecords is onbekend, tenzij de bron nulvangst expliciet bevestigt.
+2. Doelsoort wordt alleen uit expliciete bronvelden overgenomen.
+3. Vangstsoort en aantal zijn alleen bruikbaar als ze in de bron bekend waren.
+4. Missende tijd-/duur-/weervelden blijven onbekend en worden niet als echte observatie gebruikt.
+5. Soortspecifiek succes wordt bepaald door vangstrecords van de voorspelde doelsoort, niet alleen door `session.outcome === 'catch'`.
+6. Een vangst van een andere soort kan voor een expliciet geselecteerde doelsoort als geen doelsoortvangst gelden, maar wordt niet als doelsoortsucces geteld.
+7. Een onbekend vangstaantal wordt niet als één vis in het Poisson-model gebruikt.
+8. Geplande duur en geplande eindtijd tellen niet als werkelijke sessieduur.
+9. Moderne back-ups blijven compatibel; legacy metadata blijft behouden bij export/import.
+10. Geen automatische correctie of verwijdering van al bestaande lokale records.
+
+### 9.3 P1 – prognoseperiode en tijdvakken
+
+Na P0:
+
+- `calculateDayPrognosis()` en `buildVisCoachPlan()` moeten dezelfde gekozen start-/eindperiode hanteren.
+- De aanbevolen tijd wordt alleen gekozen uit tijdvakken die met de gekozen periode overlappen.
+- Als de bestaande thermische invoer voor alle tijdvakken gelijk is, wordt geen schijnonderscheidende beste tijd gepresenteerd. Een echte rangschikking vereist tijdsafhankelijke onderbouwing; contextfactoren krijgen geen ongevalideerde numerieke bonus.
+- Tijdsgrenzen worden expliciet in Europe/Amsterdam geïnterpreteerd en getest op middernacht en zomer-/wintertijd.
+
+### 9.4 P1 – temperatuur en evaluatie
+
+- Voeg aan de temperatuurwaarneming meettijdstip, meetdiepte en meetmethode/herkomst toe.
+- Gebruik niet langer automatisch de sessiestart als meettijdstip wanneer de gebruiker later heeft gemeten.
+- Koppel temperatuurvalidatie alleen aan een meting die ná de prognose en op dezelfde lokale doeldag is gedaan.
+- Brier-score telt alleen unieke, geldige sessie-uitkomstparen voor dezelfde vooraf gedefinieerde gebeurtenis. Meerdere snapshots uit één sessie mogen niet ongemerkt als onafhankelijke sessies worden gepresenteerd.
+- Rolling baseline blijft strikt chronologisch en gebruikt alleen informatie die vóór het prognosemoment bekend was.
+
+### 9.5 P1 – duurafhankelijke tactiek
+
+- `getSessionDurationHours()` levert uitsluitend werkelijke duur op.
+- Een ontbrekende duur blijft `null`.
+- `prebaitEngine.ts` mag een onbekende sessieduur niet stilzwijgend omzetten in drie uur wanneer het plan daarvan afhankelijk is.
+- Geplande sessieduur blijft apart beschikbaar voor planning, niet voor historische blootstelling.
+
+### 9.6 Volgorde en releasebeleid
+
+1. P0 data-contract, import en soortspecifieke historie.
+2. P0 regressietests en backup round-trip.
+3. P1 duur-/tijdvaklogica en gekozen sessieperiode.
+4. P1 temperatuurmeetmetadata en evaluatie-integriteit.
+5. P2 tijdzones, datakwaliteitsrapportage en verdere observatie-/invoerverbeteringen.
+6. Pas daarna persoonlijke stekprofielen en verdere tactische personalisatie.
+
+Elke stap krijgt een afzonderlijke reviewbare PR. Een PR wordt niet als gereed beschouwd voordat typecheck, gerichte tests, productiebuild en relevante backup-/migratieregressies aantoonbaar zijn uitgevoerd. Biologische juistheid vereist daarnaast inhoudelijke validatie; een geslaagde test bewijst dat niet.
