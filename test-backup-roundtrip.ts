@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from './src/db/db';
+import { HISTORICAL_LOCATIONS } from './src/data/historicalData';
 import {
   collectBackupData,
   restoreBackupData,
@@ -95,7 +96,9 @@ async function run() {
     notes: 'Testwaarneming', createdAt: '2026-11-02T10:30:00.000Z',
   };
 
-  await db.locations.bulkPut([BENCHMARK_LOCATION, location]);
+  const pierLocation = HISTORICAL_LOCATIONS.find((item) => item.id === 'spot-mvp1g19d-dfemr2');
+  if (!pierLocation) throw new Error('Canonical Lokkershoek Pier test location is missing');
+  await db.locations.bulkPut([BENCHMARK_LOCATION, pierLocation, location]);
   await db.sessions.bulkPut([BENCHMARK_SESSION, session]);
   await db.catches.bulkPut([...BENCHMARK_CATCHES, catchItem]);
   await db.settings.put(settings);
@@ -108,7 +111,7 @@ async function run() {
 
   const backup = await collectBackupData();
   assert(backup.version === 5, 'Nieuwe export gebruikt backupformaat v5');
-  assert(backup.locations.length === 2 && backup.sessions.length === 2,
+  assert(backup.locations.length === 3 && backup.sessions.length === 2,
     'Locaties en sessies uit alle records worden geëxporteerd');
   assert(backup.catches.length === BENCHMARK_CATCHES.length + 1,
     'Alle vangsten worden geëxporteerd');
@@ -202,6 +205,36 @@ async function run() {
   const duplicateRodBackup = { ...backup, sessionRods: [rodDetail, { ...rodDetail, id: 'backup-roundtrip-rod-duplicate' }] };
   const duplicateRodImport = await inspectImportFile(JSON.stringify(duplicateRodBackup));
   assert(!duplicateRodImport.preview.valid, 'Dubbele hengelnummers binnen één sessie worden vóór import geweigerd');
+
+  const orphanCatch = await inspectImportFile(JSON.stringify({
+    ...backup, catches: [{ ...catchItem, sessionId: 'missing-session' }],
+  }));
+  assert(!orphanCatch.preview.valid, 'Vangst zonder bestaande sessierelatie wordt vóór import geweigerd');
+
+  const orphanSessionLocation = await inspectImportFile(JSON.stringify({
+    ...backup, sessions: [session, { ...session, id: 'orphan-location-session', locationId: 'missing-location' }],
+  }));
+  assert(!orphanSessionLocation.preview.valid, 'Sessie met ontbrekende stekreferentie wordt vóór import geweigerd');
+
+  const orphanSessionSnapshot = await inspectImportFile(JSON.stringify({
+    ...backup, sessions: [{ ...session, snapshotId: 'missing-snapshot' }],
+  }));
+  assert(!orphanSessionSnapshot.preview.valid, 'Sessie met ontbrekende snapshotreferentie wordt vóór import geweigerd');
+
+  const orphanSnapshotSession = await inspectImportFile(JSON.stringify({
+    ...backup, prognosisSnapshots: [{ ...snapshot, linkedSessionId: 'missing-session' }],
+  }));
+  assert(!orphanSnapshotSession.preview.valid, 'Snapshot met ontbrekende sessiereferentie wordt vóór import geweigerd');
+
+  const orphanObservation = await inspectImportFile(JSON.stringify({
+    ...backup, presenceObservations: [{ ...observation, sessionId: 'missing-session' }],
+  }));
+  assert(!orphanObservation.preview.valid, 'Waarneming met ontbrekende sessiereferentie wordt vóór import geweigerd');
+
+  const duplicateCatchId = await inspectImportFile(JSON.stringify({
+    ...backup, catches: [catchItem, { ...catchItem }],
+  }));
+  assert(!duplicateCatchId.preview.valid, 'Dubbele record-IDs binnen één back-uptabel worden vóór import geweigerd');
 
   const future = await inspectImportFile(JSON.stringify({ version: 6, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');
