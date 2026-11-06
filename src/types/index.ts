@@ -160,6 +160,10 @@ export interface FishingSession {
   missedCount?: number;           // gemiste vissen
   waterDepth?: number;
   waterTemperature?: number | null; // Gemeten watertemperatuur in °C (optioneel, nooit 0 indien onbekend)
+  waterTemperatureMeasuredAt?: string; // Exact meetmoment; ontbrekend betekent niet bruikbaar voor temperatuurvalidatie
+  waterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
+  waterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  waterTemperatureMeasurementDepthM?: number;
   baitDirection?: CompassDirection | null; // Richting van aasaanbieding (optioneel, nooit verplicht)
   notes?: string;
   weatherSnapshot?: WeatherSnapshot;
@@ -274,7 +278,7 @@ export interface DayPrognosis {
   activityScoreAvailable?: boolean;
   weatherDataQuality?: WeatherDataQuality;
   advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig';
-  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag';
+  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid';
   alternativeTimeSlots: TimeSlot[];
   summaryRationale: string;
   personalCatchChance: number | null; // % kans op >= 1 vangst van doelsoort tijdens sessie
@@ -524,6 +528,8 @@ export interface PrognosisSnapshot {
   locationName?: string;
   durationHours: number; // 0 betekent expliciet onbekend; nooit als sessieduur interpreteren
   durationKnown?: boolean;
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   technique?: string;
   predictedActivityScore: number | null;  // null indien ontbrekende gegevens de index onbetrouwbaar maken
   activityScoreAvailable?: boolean;
