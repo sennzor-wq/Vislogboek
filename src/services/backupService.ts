@@ -289,6 +289,22 @@ export function normalizeRawBackup(raw: any): BackupData {
           : typeof s.water_temperature === 'number'
           ? s.water_temperature
           : null,
+      waterTemperatureMeasuredAt:
+        typeof s.waterTemperatureMeasuredAt === 'string' && Number.isFinite(Date.parse(s.waterTemperatureMeasuredAt))
+          ? s.waterTemperatureMeasuredAt
+          : undefined,
+      waterTemperatureMeasurementSource:
+        s.waterTemperatureMeasurementSource === 'manual' || s.waterTemperatureMeasurementSource === 'imported' || s.waterTemperatureMeasurementSource === 'unknown'
+          ? s.waterTemperatureMeasurementSource
+          : undefined,
+      waterTemperatureMeasurementMethod:
+        s.waterTemperatureMeasurementMethod === 'thermometer' || s.waterTemperatureMeasurementMethod === 'probe' || s.waterTemperatureMeasurementMethod === 'other' || s.waterTemperatureMeasurementMethod === 'unknown'
+          ? s.waterTemperatureMeasurementMethod
+          : undefined,
+      waterTemperatureMeasurementDepthM:
+        typeof s.waterTemperatureMeasurementDepthM === 'number' && Number.isFinite(s.waterTemperatureMeasurementDepthM) && s.waterTemperatureMeasurementDepthM >= 0
+          ? s.waterTemperatureMeasurementDepthM
+          : undefined,
       baitDirection: s.baitDirection || s.bait_direction || undefined,
       weatherSnapshot,
       isBenchmark: isBench,
