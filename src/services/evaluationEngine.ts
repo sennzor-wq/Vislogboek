@@ -442,6 +442,7 @@ export async function autoSyncSessionOutcomeToSnapshot(
     (session.waterTemperatureMeasurementMethod === 'thermometer' || session.waterTemperatureMeasurementMethod === 'probe' || session.waterTemperatureMeasurementMethod === 'other') &&
     Number.isFinite(new Date(session.waterTemperatureMeasuredAt).getTime()) &&
     new Date(session.waterTemperatureMeasuredAt).getTime() <= Date.now() &&
+    new Date(session.waterTemperatureMeasuredAt).getTime() <= new Date(session.endTime).getTime() &&
     snapshot.targetDate === getAmsterdamDate(session.waterTemperatureMeasuredAt) &&
     new Date(snapshot.forecastTimestamp).getTime() < new Date(session.waterTemperatureMeasuredAt).getTime()
   ) {
