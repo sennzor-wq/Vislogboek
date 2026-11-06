@@ -1,5 +1,5 @@
 import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from '../db/db';
-import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
+import { ALL_SPECIES, FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
 
 export interface BackupData {
   version: number;
@@ -166,7 +166,7 @@ export function normalizeRawBackup(raw: any): BackupData {
 
     // Verwerk vangsten van deze sessie
     for (const c of rawCatches) {
-      const speciesKnown = typeof c.species === 'string' && c.species.trim().length > 0;
+      const speciesKnown = typeof c.species === 'string' && ALL_SPECIES.includes(c.species as any);
       const countKnown = typeof c.count === 'number' && Number.isFinite(c.count) && c.count > 0;
       const timestampKnown = Boolean(c.timestamp || (c.time && s.date));
       const catchItem: CatchItem = {
@@ -227,7 +227,7 @@ export function normalizeRawBackup(raw: any): BackupData {
       ? s.targetSpecies
       : Array.isArray(s.target_species) ? s.target_species : [];
     const targetSpecies = explicitTargetSpecies.filter((value: unknown): value is string =>
-      typeof value === 'string' && value.trim().length > 0
+      typeof value === 'string' && ALL_SPECIES.includes(value as any)
     );
 
     // Historisch weer wordt alleen overgenomen als alle verplichte velden werkelijk aanwezig zijn.
@@ -273,16 +273,16 @@ export function normalizeRawBackup(raw: any): BackupData {
       id: s.id,
       locationId: isLokkershoek19 ? 'spot-mvp1g19d-dfemr2' : (s.spot_id || undefined), // Gekoppeld aan Lokkershoek Pier
       locationName: isLokkershoek19 ? 'Lokkershoek Pier' : (s.spot_name || s.location?.label || 'Onbekende stek'),
-      startTime: s.start_time ? `${s.date}T${s.start_time}:00` : (s.startTime || (s.date ? `${s.date}T12:00:00` : (s.created_at || s.createdAt || new Date().toISOString()))),
-      endTime: s.end_time ? `${s.end_date || s.date}T${s.end_time}:00` : (s.endTime || undefined),
+      startTime: s.startTime || (s.start_time && s.date ? `${s.date}T${s.start_time}:00` : (s.date ? `${s.date}T12:00:00` : (s.created_at || s.createdAt || new Date().toISOString()))),
+      endTime: s.endTime || (s.end_time && (s.end_date || s.date) ? `${s.end_date || s.date}T${s.end_time}:00` : undefined),
       durationMinutes,
       outcome,
       targetSpecies: targetSpecies as any,
       dataQuality: {
         importedFromLegacy: true,
-        sourceFormat: 'legacy-nested-v2',
-        startTimeKnown: Boolean(s.start_time || s.startTime),
-        endTimeKnown: Boolean(s.end_time || s.endTime),
+        sourceFormat: typeof raw.format === 'string' ? raw.format : 'legacy-nested-v2',
+        startTimeKnown: Boolean(s.startTime || (s.start_time && s.date)),
+        endTimeKnown: Boolean(s.endTime || (s.end_time && (s.end_date || s.date))),
         durationKnown: typeof durationMinutes === 'number',
         targetSpeciesKnown: targetSpecies.length > 0,
         outcomeConfirmed: outcome === 'catch' || outcome === 'skunk_confirmed',
