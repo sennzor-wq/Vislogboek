@@ -1098,9 +1098,9 @@ In de branch zijn de volgende technische aanpassingen aangebracht; samenvoeging 
 
 ### Uitvoeringsvolgorde
 
-- P0: eerst review, regressietests en Quality Gate; daarna pas samenvoegen.
-- P1: afzonderlijke PR's op de bestaande engines en VisCoach-coördinator.
-- P2: afzonderlijke, testbare onderhouds- en validatieverbeteringen.
+- P0: afgerond en gemerged via PR #39.
+- P1: afgerond en gemerged via PR #40.
+- P2: resterende, afzonderlijk te testen onderhouds- en validatieverbeteringen.
 
 De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules blijven de enige gezaghebbende implementaties voor hun domein.
 
@@ -1113,7 +1113,7 @@ De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules
 
 ## P1 implementation update — 6 november 2026
 
-Status: implemented on branch `audit/p1-prognosis-integrity`; not merged to `main`. GitHub Quality Gate verification is pending.
+Status: P1 is implemented and merged to `main` via PR #40 on 6 November 2026. The final GitHub Quality Gate passed. The items below are now acceptance rules for regression testing, not outstanding implementation tasks.
 
 The P1 implementation adds the following integrity rules:
 
