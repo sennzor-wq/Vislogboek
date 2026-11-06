@@ -305,7 +305,7 @@ export function normalizeRawBackup(raw: any): BackupData {
         weatherKnown: Boolean(weatherSnapshot || legacyWeatherSnapshot),
         weatherComplete: Boolean(weatherSnapshot),
         weatherFieldsKnown: Object.entries(legacyWeatherSnapshot ?? weatherSnapshot ?? {})
-          .filter(([, value]) => value !== undefined && value !== null)
+          .filter(([key, value]) => key !== 'source' && key !== 'capturedAt' && value !== undefined && value !== null)
           .map(([key]) => key),
       },
       technique: s.technique || undefined,
