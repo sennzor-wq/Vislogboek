@@ -28,8 +28,20 @@ const imported = normalizeRawBackup({
       catches: [],
     },
     {
-      id: 'legacy-unknown-catch-species',
+      id: 'legacy-cross-midnight',
       date: '2026-10-03',
+      end_date: '2026-10-04',
+      status: 'completed',
+      outcome: 'skunk_confirmed',
+      start_time: '22:00',
+      end_time: '02:00',
+      targetSpecies: ['Karper'],
+      created_at: '2026-10-04T02:00:00.000Z',
+      catches: [],
+    },
+    {
+      id: 'legacy-unknown-catch-species',
+      date: '2026-10-04',
       status: 'completed',
       targetSpecies: ['Karper'],
       created_at: '2026-10-03T20:00:00.000Z',
@@ -54,6 +66,10 @@ assert.ok(explicitBlank);
 assert.equal(explicitBlank.outcome, 'skunk_confirmed');
 assert.equal(explicitBlank.durationMinutes, 180);
 assert.equal(explicitBlank.dataQuality?.outcomeConfirmed, true);
+
+const crossMidnight = imported.sessions.find((session) => session.id === 'legacy-cross-midnight');
+assert.ok(crossMidnight);
+assert.equal(crossMidnight.durationMinutes, 240, 'duration respects explicit end date across midnight');
 
 const unknownCatch = imported.catches.find((item) => item.id === 'catch-unknown-species');
 assert.ok(unknownCatch);
