@@ -452,8 +452,6 @@ async function runTestSuite() {
       predictedActivityScore: 7,
       predictedCatchChance: 70, // f = 0.7
       actualOutcome: 'catch',
-      linkedSessionId: 'evaluation-session-5',
-      linkedSessionId: 'evaluation-session-3',
       linkedSessionId: 'evaluation-session-1',   // o = 1.0 -> (0.7 - 1)^2 = 0.09
       source: '',
       modelVersion: 'v2.2',
@@ -468,7 +466,6 @@ async function runTestSuite() {
       predictedActivityScore: 6,
       predictedCatchChance: 40, // f = 0.4
       actualOutcome: 'skunk_confirmed',
-      linkedSessionId: 'evaluation-session-4',
       linkedSessionId: 'evaluation-session-2', // o = 0.0 -> (0.4 - 0)^2 = 0.16
       source: '',
       modelVersion: 'v2.2',
@@ -483,6 +480,7 @@ async function runTestSuite() {
       predictedActivityScore: 8,
       predictedCatchChance: 60, // f = 0.6
       actualOutcome: 'catch',   // o = 1.0 -> (0.6 - 1)^2 = 0.16
+      linkedSessionId: 'evaluation-session-3',
       source: '',
       modelVersion: 'v2.2',
       createdAt: '',
@@ -496,6 +494,7 @@ async function runTestSuite() {
       predictedActivityScore: 5,
       predictedCatchChance: 20, // f = 0.2
       actualOutcome: 'skunk_confirmed', // o = 0.0 -> (0.2 - 0)^2 = 0.04
+      linkedSessionId: 'evaluation-session-4',
       source: '',
       modelVersion: 'v2.2',
       createdAt: '',
@@ -509,6 +508,7 @@ async function runTestSuite() {
       predictedActivityScore: 7,
       predictedCatchChance: 50, // f = 0.5
       actualOutcome: 'catch',   // o = 1.0 -> (0.5 - 1)^2 = 0.25
+      linkedSessionId: 'evaluation-session-5',
       source: '',
       modelVersion: 'v2.2',
       createdAt: '',
