@@ -166,6 +166,6 @@ Dit zijn auditbevindingen en aandachtspunten, geen wijzigingen die binnen de rea
 | Betrouwbare coachinvoer en ontbrekende gegevens expliciet | **Gereed** — sectie 3.1 en 7 |
 | Oude backups en sessies compatibel houden | **Bestaande bescherming aanwezig en CI-getest** — legacyfixture/import/roundtrip; geen universele compatibiliteitsgarantie |
 | Baselinecommit en Quality Gate vastgelegd | **Gereed** — commit en run in sectie 2 |
-| Geen applicatiegedrag gewijzigd | **Gereed** — uitsluitend documentatie op branch `documentation` |
+| Geen applicatiegedrag gewijzigd | **Gereed** — uitsluitend read-only audit en documentatie; de audit is eerst op `documentation` vastgelegd en daarna als ondersteunend document naar `main` overgenomen. Er is geen applicatiecode of gebruikersdatabase gewijzigd. |
 
 **Conclusie:** Fase 0 is afgerond als read-only audit en gegevensfundament. Openstaande punten hierboven worden meegenomen naar de relevante volgende fase; ze worden niet stilzwijgend in Fase 0 opgelost.
