@@ -1105,3 +1105,5 @@ In de branch zijn de volgende technische aanpassingen aangebracht; samenvoeging 
 De bestaande prognose-, thermische, evaluatie-, backup- en datakwaliteitsmodules blijven de enige gezaghebbende implementaties voor hun domein.
 
 8. Persoonlijke voorvoerhistorie gebruikt dezelfde soortspecifieke bewijsregel: alleen een bekende vangstregistratie van de doelsoort telt als vangstsucces; expliciete bevestigde nulvangsten blijven geldig. De bestaande vangstrecords worden doorgegeven aan `prebaitEngine.ts`.
+
+9. Het persoonlijke hengelpositioneringsprofiel telt alleen sessies op dezelfde stek en voor de geselecteerde doelsoort. Een `catch` vereist een soortspecifiek vangstrecord; een expliciet bevestigde nulvangst blijft geldig.
