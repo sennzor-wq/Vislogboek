@@ -554,7 +554,7 @@ export function calculateDayPrognosis(
   const location = options?.location;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
 
-  const slotReferenceDate = currentDateRef ?? new Date(`${dateStr}T12:00:00`);
+  const slotReferenceDate = currentDateRef ?? new Date(`${dateStr}T12:00:00.000Z`);
 
   // Thermische analyse van het viswater (waterdiepte per stek en actuele meting doorgeven)
   // Als currentDateRef optioneel is weggelaten, geldt targetDateStr zelf als de referentie.
