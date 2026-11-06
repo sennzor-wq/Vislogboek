@@ -1110,8 +1110,9 @@ Na P0:
 
 ### 9.5 P1 – duurafhankelijke tactiek
 
-- `getSessionDurationHours()` levert uitsluitend werkelijke duur op.
-- Een ontbrekende duur blijft `null`.
+- `getActualSessionDurationHours()` levert uitsluitend werkelijke duur op en is leidend voor historische blootstellingsberekeningen.
+- `getSessionDurationHours()` blijft de planning-/live-coachinghelper en mag voor een actieve sessie de geplande horizon teruggeven; gebruik deze helper niet voor historische vangsttempo's.
+- Een onbekende werkelijke duur blijft `null`.
 - `prebaitEngine.ts` mag een onbekende sessieduur niet stilzwijgend omzetten in drie uur wanneer het plan daarvan afhankelijk is.
 - Geplande sessieduur blijft apart beschikbaar voor planning, niet voor historische blootstelling.
 
