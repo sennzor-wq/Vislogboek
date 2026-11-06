@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from './src/db/db';
+import { HISTORICAL_LOCATIONS } from './src/data/historicalData';
 import {
   collectBackupData,
   restoreBackupData,
@@ -95,7 +96,9 @@ async function run() {
     notes: 'Testwaarneming', createdAt: '2026-11-02T10:30:00.000Z',
   };
 
-  await db.locations.bulkPut([BENCHMARK_LOCATION, location]);
+  const pierLocation = HISTORICAL_LOCATIONS.find((item) => item.id === 'spot-mvp1g19d-dfemr2');
+  if (!pierLocation) throw new Error('Canonical Lokkershoek Pier test location is missing');
+  await db.locations.bulkPut([BENCHMARK_LOCATION, pierLocation, location]);
   await db.sessions.bulkPut([BENCHMARK_SESSION, session]);
   await db.catches.bulkPut([...BENCHMARK_CATCHES, catchItem]);
   await db.settings.put(settings);
@@ -108,7 +111,7 @@ async function run() {
 
   const backup = await collectBackupData();
   assert(backup.version === 5, 'Nieuwe export gebruikt backupformaat v5');
-  assert(backup.locations.length === 2 && backup.sessions.length === 2,
+  assert(backup.locations.length === 3 && backup.sessions.length === 2,
     'Locaties en sessies uit alle records worden geëxporteerd');
   assert(backup.catches.length === BENCHMARK_CATCHES.length + 1,
     'Alle vangsten worden geëxporteerd');
