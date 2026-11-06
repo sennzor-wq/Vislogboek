@@ -293,6 +293,17 @@ async function run14Scenarios() {
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null, new Date(),
     { allowUnknownSessionDuration: true }
   );
+  const temperatureQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Watertemperatuur');
+  const forecastQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Weersverwachting');
+  assert(temperatureQuality?.usable === false && forecastQuality?.usable === true,
+    '12.2a Centrale datakwaliteitscontrole onderscheidt ontbrekende watertemperatuur van beschikbare weersverwachting');
+  const equalSlotPrognosis = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
+    new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
+  );
+  assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
+    '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
+
   assert(
     unknownDurationPrognosis.plannedDurationHours === null &&
       unknownDurationPrognosis.personalCatchChance === null &&
