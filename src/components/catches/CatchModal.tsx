@@ -129,6 +129,7 @@ export const CatchModal: React.FC<CatchModalProps> = ({
               className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
               required
             >
+              <option value="">Selecteer soort...</option>
               {ALL_SPECIES.map((sp) => (
                 <option key={sp} value={sp}>
                   {sp}
