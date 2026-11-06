@@ -21,6 +21,8 @@ assert(getAmsterdamHour('2026-11-05T23:30:00.000Z') === 0,
   'Hour extraction uses Amsterdam local time rather than the runtime timezone');
 assert(getAmsterdamMonth('2026-01-31') === 1,
   'Date-only values retain their calendar month');
+assert(getAmsterdamDateKey(new Date('2026-11-05T23:30:00.000Z')) === '2026-11-06',
+  'Date objects use the same Amsterdam date interpretation as ISO timestamps');
 
 assert(getAmsterdamDateKey('2026-03-29T00:30:00.000Z') === '2026-03-29' &&
   getAmsterdamHour('2026-03-29T00:30:00.000Z') === 1,
