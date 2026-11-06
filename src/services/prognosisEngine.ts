@@ -623,7 +623,7 @@ export function calculateDayPrognosis(
   // Beste toekomstige tijdvak
   const futureOrActiveSlots = slots.filter((slot) => !timeSlotAnalyses[slot].isPast);
 
-  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' = 'Geen toekomstig tijdvak meer vandaag';
+  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid' = 'Geen toekomstig tijdvak meer vandaag';
   let alternativeSlots: TimeSlot[] = [];
 
   if (futureOrActiveSlots.length > 0) {
@@ -844,7 +844,7 @@ export function calculateDayPrognosis(
   // Samenvatting
   let summaryRationale = '';
   if (!dayScoreAvailable) { summaryRationale='De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.'; }
-  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag') {
+  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid') {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
   } else {
@@ -905,7 +905,7 @@ export function calculateDayPrognosis(
     thermalAnalysis,
     historicalSessions,
     historicalCatches: options?.catches ?? [],
-    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
+    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : undefined,
   });
 
   // Dagwaarden voor de tactische deelmodules; ontbrekende waarden blijven onbekend.
@@ -1322,7 +1322,7 @@ export async function createLiveSnapshotForSessionStart(
     );
 
     const chosenSlot =
-      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
+      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
         : undefined;
 
