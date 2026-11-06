@@ -287,6 +287,8 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (typeof predicted !== 'number' || !Number.isFinite(predicted) || predicted < 0 || predicted > 35) return false;
     if (typeof actual !== 'number' || !Number.isFinite(actual) || actual < 0 || actual > 35) return false;
     if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
+    if (snapshot.actualWaterTemperatureMeasurementSource !== 'manual' && snapshot.actualWaterTemperatureMeasurementSource !== 'imported') return false;
+    if (snapshot.actualWaterTemperatureMeasurementMethod !== 'thermometer' && snapshot.actualWaterTemperatureMeasurementMethod !== 'probe' && snapshot.actualWaterTemperatureMeasurementMethod !== 'other') return false;
     const forecastMs = new Date(snapshot.forecastTimestamp).getTime();
     const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
     if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs || measuredMs > Date.now()) return false;
@@ -435,14 +437,21 @@ export async function autoSyncSessionOutcomeToSnapshot(
     measuredTemp >= 0 &&
     measuredTemp <= 35 &&
     typeof snapshot.predictedWaterTemperature === 'number' &&
-    snapshot.targetDate === getAmsterdamDate(session.startTime) &&
-    new Date(snapshot.forecastTimestamp).getTime() < new Date(session.startTime).getTime()
+    session.waterTemperatureMeasuredAt &&
+    (session.waterTemperatureMeasurementSource === 'manual' || session.waterTemperatureMeasurementSource === 'imported') &&
+    (session.waterTemperatureMeasurementMethod === 'thermometer' || session.waterTemperatureMeasurementMethod === 'probe' || session.waterTemperatureMeasurementMethod === 'other') &&
+    Number.isFinite(new Date(session.waterTemperatureMeasuredAt).getTime()) &&
+    new Date(session.waterTemperatureMeasuredAt).getTime() <= Date.now() &&
+    snapshot.targetDate === getAmsterdamDate(session.waterTemperatureMeasuredAt) &&
+    new Date(snapshot.forecastTimestamp).getTime() < new Date(session.waterTemperatureMeasuredAt).getTime()
   ) {
     await db.prognosisSnapshots.update(session.snapshotId, {
       linkedSessionId: session.id,
       actualWaterTemperature: measuredTemp,
-      // Het sessiemodel heeft nog geen afzonderlijk meettijdstip; starttijd is de expliciete benadering.
-      actualWaterTemperatureTimestamp: session.startTime,
+      actualWaterTemperatureTimestamp: session.waterTemperatureMeasuredAt,
+      actualWaterTemperatureMeasurementSource: session.waterTemperatureMeasurementSource,
+      actualWaterTemperatureMeasurementMethod: session.waterTemperatureMeasurementMethod,
+      actualWaterTemperatureMeasurementDepthM: session.waterTemperatureMeasurementDepthM,
     });
     temperatureLinked = true;
   }
