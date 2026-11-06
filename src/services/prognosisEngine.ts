@@ -59,36 +59,26 @@ function clamp(val: number, min: number, max: number): number {
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
 const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
-const similarSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
 const completedSessionCache = new WeakMap<FishingSession[], FishingSession[]>();
 const comparableSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
 const catchSessionIndexCache = new WeakMap<CatchItem[], Map<string, CatchItem[]>>();
 
 function getSimilarSessions(
   sessions: FishingSession[],
+  catches: CatchItem[],
   species: FishSpecies,
   slot: TimeSlot
 ): FishingSession[] {
-  let byKey = similarSessionCache.get(sessions);
-  if (!byKey) {
-    byKey = new Map<string, FishingSession[]>();
-    similarSessionCache.set(sessions, byKey);
-  }
-  const key = `${species}|${slot}`;
-  const cached = byKey.get(key);
-  if (cached) return cached;
-
   const hours = TIME_SLOT_HOURS[slot];
-  const filtered = sessions.filter((session) => {
-    if (session.outcome === 'active' || session.outcome === 'unknown' || session.isBenchmark) return false;
-    const matchedSpecies =
-      session.targetSpecies?.includes(species) || (!session.targetSpecies || session.targetSpecies.length === 0);
-    if (!matchedSpecies) return false;
+  return sessions.filter((session) => {
+    if (session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') return false;
+    if (session.isBenchmark || session.legacyImportQuality?.startTimeKnown === false) return false;
+    if (!session.targetSpecies?.includes(species)) return false;
     const hour = new Date(session.startTime).getHours();
-    return hour >= hours.start && hour < hours.end;
+    if (!Number.isFinite(hour) || hour < hours.start || hour >= hours.end) return false;
+    if (session.outcome === 'skunk_confirmed') return true;
+    return catches.some((item) => item.sessionId === session.id && item.species === species && item.legacyImportQuality?.speciesKnown !== false);
   });
-  byKey.set(key, filtered);
-  return filtered;
 }
 
 function getCompletedSessions(sessions: FishingSession[]): FishingSession[] {
@@ -234,6 +224,7 @@ function analyzeTimeSlot(
   profile: SpeciesProfile,
   date: Date,
   historicalSessions: FishingSession[],
+  historicalCatches: CatchItem[],
   currentDateRef: Date,
   userWaterTemp?: number | null,
   presenceObs?: PresenceObservationType,
@@ -417,7 +408,7 @@ function analyzeTimeSlot(
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
-  const similarSessions = getSimilarSessions(historicalSessions, species, slot);
+  const similarSessions = getSimilarSessions(historicalSessions, historicalCatches, species, slot);
 
   const relevantCount = similarSessions.length;
   const confirmedCatches = similarSessions.filter((s) => s.outcome === 'catch').length;
@@ -524,22 +515,13 @@ export function getSessionDurationHours(session: FishingSession): number | null 
   if (typeof session.durationMinutes === 'number' && Number.isFinite(session.durationMinutes) && session.durationMinutes > 0) {
     return session.durationMinutes / 60;
   }
+  if (session.legacyImportQuality?.startTimeKnown === false ||
+      session.legacyImportQuality?.endTimeKnown === false) return null;
   if (session.startTime && session.endTime) {
     const diffMs = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
     const diffMins = diffMs / 60000;
     if (Number.isFinite(diffMins) && diffMins > 0 && diffMins < 10080) {
       return diffMins / 60;
-    }
-  }
-  if (typeof session.plannedDurationHours === 'number' && Number.isFinite(session.plannedDurationHours) &&
-      session.plannedDurationHours > 0 && session.plannedDurationHours <= 24) {
-    return session.plannedDurationHours;
-  }
-  if (session.startTime && session.plannedEndTime) {
-    const plannedDiffMs = new Date(session.plannedEndTime).getTime() - new Date(session.startTime).getTime();
-    const plannedDiffHours = plannedDiffMs / 3600000;
-    if (Number.isFinite(plannedDiffHours) && plannedDiffHours > 0 && plannedDiffHours <= 24) {
-      return plannedDiffHours;
     }
   }
   return null;
@@ -629,6 +611,7 @@ export function calculateDayPrognosis(
       profile,
       date,
       historicalSessions,
+      options?.catches ?? [],
       slotReferenceDate,
       userWaterTemp,
       presenceObs,
@@ -666,10 +649,20 @@ export function calculateDayPrognosis(
 
   // Alleen voltooide sessies met bevestigde uitkomst ('catch' of 'skunk_confirmed').
   // Actieve sessies, onbekende uitkomsten en benchmarks worden strikt uitgesloten!
-  const comparableSessions = getComparableSessions(historicalSessions, species, locationId);
+  const rawComparableSessions = getComparableSessions(historicalSessions, species, locationId);
+  const catchIndex = options?.catches ? getCatchSessionIndex(options.catches) : new Map();
+  const hasKnownTargetCatch = (session: FishingSession) =>
+    (catchIndex.get(session.id) ?? []).some((item) =>
+      (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false
+    );
+  // Een generieke sessie-uitkomst 'catch' is alleen een doelsoortsucces wanneer
+  // een vangstrecord van die doelsoort aanwezig is. Anders blijft de uitkomst onbekend.
+  const comparableSessions = rawComparableSessions.filter((session) =>
+    session.outcome === 'skunk_confirmed' || (session.outcome === 'catch' && hasKnownTargetCatch(session))
+  );
 
   const sessionCount = comparableSessions.length;
-  const successfulSessionsCount = comparableSessions.filter((s) => s.outcome === 'catch').length;
+  const successfulSessionsCount = comparableSessions.filter((session) => session.outcome === 'catch').length;
   const historicalSuccessRate =
     sessionCount > 0 ? Math.round((successfulSessionsCount / sessionCount) * 100) : null;
 
@@ -696,16 +689,23 @@ export function calculateDayPrognosis(
 
   const uncertaintyNotes: string[] = [];
 
-  // Sessies zonder bekende duur mogen wel in sessiestatistiek staan, maar niet in de blootstellingsnoemer.
-  const durationSessions = comparableSessions.filter((s) => getSessionDurationHours(s) !== null);
+  // Sessies zonder werkelijk bekende duur mogen niet als blootstelling meetellen.
+  const durationSessions = comparableSessions.filter((session) => getSessionDurationHours(session) !== null);
+  const poissonSessions = durationSessions.filter((session) =>
+    session.outcome === 'skunk_confirmed' ||
+    (catchIndex.get(session.id) ?? []).some((item) =>
+      (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false &&
+      item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
+    )
+  );
 
-  // Minimum 5 vergelijkbare sessies vereist; voor het Poisson-blootstellingsmodel moeten ook
-  // minimaal 5 van die sessies een bekende, geldige duur hebben.
+  // Minimaal vijf vergelijkbare sessies en vijf sessies met bekende werkelijke duur
+  // én bruikbare vangstaantallen zijn nodig voor het Poisson-blootstellingsmodel.
   if (sessionCount >= 5) {
     uncertaintyInterval = calculateWilsonInterval(successfulSessionsCount, sessionCount);
 
-    if (durationSessions.length >= 5) {
-      const totalDurationHours = durationSessions.reduce(
+    if (poissonSessions.length >= 5) {
+      const totalDurationHours = poissonSessions.reduce(
         (acc, s) => acc + (getSessionDurationHours(s) ?? 0),
         0
       );
@@ -713,18 +713,13 @@ export function calculateDayPrognosis(
       avgDurationMinutes = Math.round(avgDurationHours * 60);
 
       let totalTargetCatches = 0;
-      for (const s of durationSessions) {
-        if (s.outcome === 'skunk_confirmed') continue;
-        if (options?.catches && options.catches.length > 0) {
-          const catchIndex = getCatchSessionIndex(options.catches);
-          const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
-            (catchItem) => species === 'Algemeen' || catchItem.species === species
-          );
-          const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
-          totalTargetCatches += count > 0 ? count : 1;
-        } else {
-          totalTargetCatches += 1;
-        }
+      for (const session of poissonSessions) {
+        if (session.outcome === 'skunk_confirmed') continue;
+        const sessionCatches = (catchIndex.get(session.id) ?? []).filter((item) =>
+          (species === 'Algemeen' || item.species === species) && item.legacyImportQuality?.speciesKnown !== false &&
+          item.legacyImportQuality?.countKnown !== false && Number.isFinite(item.count) && item.count > 0
+        );
+        totalTargetCatches += sessionCatches.reduce((sum, item) => sum + item.count, 0);
       }
 
       const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
