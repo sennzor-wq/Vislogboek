@@ -1070,7 +1070,7 @@ Bestanden en verantwoordelijkheden:
 | Bestand | Technische functie |
 |---|---|
 | `src/types/index.ts` | Optionele provenance-/datakwaliteitsvelden voor legacy-sessies en vangsten |
-| `src/services/backupService.ts` | Legacy normalisatie zonder verzonnen duur, eindtijd, doelsoort, vangstsoort/aantal of weer |
+| `src/services/backupService.ts` | Legacy normalisatie zonder verzonnen duur, eindtijd, doelsoort, vangstsoort/aantal of weer; gedeeltelijke bronweervelden apart bewaren |
 | `src/services/prognosisEngine.ts` | Soortspecifieke sessie-uitkomst op basis van echte vangstrecords; onbekende records uitsluiten |
 | `src/services/sessionEffortEngine.ts` | Werkelijke hengeluren blijven leidend; geplande tijd niet als gerealiseerde inspanning gebruiken |
 | `test-phase0-data-integrity.ts` | Regressietests voor legacy-import en scheiding tussen geplande en werkelijke duur |
@@ -1083,7 +1083,7 @@ De optionele metadata is additief. Alleen wanneer een structurele IndexedDB-inde
 1. Voltooide sessie zonder vangstrecords is onbekend, tenzij de bron nulvangst expliciet bevestigt.
 2. Doelsoort wordt alleen uit expliciete bronvelden overgenomen.
 3. Vangstsoort en aantal zijn alleen bruikbaar als ze in de bron bekend waren.
-4. Missende tijd-/duur-/weervelden blijven onbekend en worden niet als echte observatie gebruikt.
+4. Missende tijd-/duur-/weervelden blijven onbekend; gedeeltelijke echte weerwaarden blijven apart bewaard en worden niet als complete weersnapshot gebruikt.
 5. Soortspecifiek succes wordt bepaald door vangstrecords van de voorspelde doelsoort, niet alleen door `session.outcome === 'catch'`.
 6. Een vangst van een andere soort kan voor een expliciet geselecteerde doelsoort als geen doelsoortvangst gelden, maar wordt niet als doelsoortsucces geteld.
 7. Een onbekend vangstaantal wordt niet als één vis in het Poisson-model gebruikt.
