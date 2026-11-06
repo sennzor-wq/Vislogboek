@@ -59,68 +59,67 @@ function clamp(val: number, min: number, max: number): number {
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
 const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
-const similarSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
-const completedSessionCache = new WeakMap<FishingSession[], FishingSession[]>();
-const comparableSessionCache = new WeakMap<FishingSession[], Map<string, FishingSession[]>>();
 const catchSessionIndexCache = new WeakMap<CatchItem[], Map<string, CatchItem[]>>();
+
+function getOutcomeForSpecies(
+  session: FishingSession,
+  species: FishSpecies | 'Algemeen',
+  catchIndex: Map<string, CatchItem[]>
+): FishingSession['outcome'] | null {
+  if (session.isBenchmark || session.outcome === 'active' || session.outcome === 'unknown') return null;
+  if (session.dataQuality?.outcomeConfirmed === false) return null;
+  if (species !== 'Algemeen' && (
+    session.dataQuality?.targetSpeciesKnown === false ||
+    !session.targetSpecies?.includes(species)
+  )) return null;
+
+  if (session.outcome === 'skunk_confirmed') return 'skunk_confirmed';
+
+  const sessionCatches = catchIndex.get(session.id) ?? [];
+  const knownSpeciesCatches = sessionCatches.filter((item) => item.dataQuality?.speciesKnown !== false);
+  if (knownSpeciesCatches.length === 0) return null;
+
+  const targetCatches = knownSpeciesCatches.filter((item) =>
+    species === 'Algemeen' || item.species === species
+  );
+  return targetCatches.length > 0 ? 'catch' : 'skunk_confirmed';
+}
 
 function getSimilarSessions(
   sessions: FishingSession[],
   species: FishSpecies,
-  slot: TimeSlot
+  slot: TimeSlot,
+  catches: CatchItem[]
 ): FishingSession[] {
-  let byKey = similarSessionCache.get(sessions);
-  if (!byKey) {
-    byKey = new Map<string, FishingSession[]>();
-    similarSessionCache.set(sessions, byKey);
-  }
-  const key = `${species}|${slot}`;
-  const cached = byKey.get(key);
-  if (cached) return cached;
-
   const hours = TIME_SLOT_HOURS[slot];
-  const filtered = sessions.filter((session) => {
-    if (session.outcome === 'active' || session.outcome === 'unknown' || session.isBenchmark) return false;
-    const matchedSpecies =
-      session.targetSpecies?.includes(species) || (!session.targetSpecies || session.targetSpecies.length === 0);
-    if (!matchedSpecies) return false;
-    const hour = new Date(session.startTime).getHours();
-    return hour >= hours.start && hour < hours.end;
+  const catchIndex = getCatchSessionIndex(catches);
+  return sessions.flatMap((session) => {
+    if (session.dataQuality?.startTimeKnown === false) return [];
+    if (species !== 'Overig' && (
+      session.dataQuality?.targetSpeciesKnown === false ||
+      !session.targetSpecies?.includes(species)
+    )) return [];
+    const timestamp = new Date(session.startTime).getTime();
+    if (!Number.isFinite(timestamp)) return [];
+    const hour = new Date(timestamp).getHours();
+    if (hour < hours.start || hour >= hours.end) return [];
+    const outcome = getOutcomeForSpecies(session, species, catchIndex);
+    return outcome ? [{ ...session, outcome }] : [];
   });
-  byKey.set(key, filtered);
-  return filtered;
-}
-
-function getCompletedSessions(sessions: FishingSession[]): FishingSession[] {
-  const cached = completedSessionCache.get(sessions);
-  if (cached) return cached;
-  const completed = sessions.filter(
-    (session) => (session.outcome === 'catch' || session.outcome === 'skunk_confirmed') && !session.isBenchmark
-  );
-  completedSessionCache.set(sessions, completed);
-  return completed;
 }
 
 function getComparableSessions(
   sessions: FishingSession[],
   species: FishSpecies | 'Algemeen',
-  locationId?: string
+  locationId: string | undefined,
+  catches: CatchItem[]
 ): FishingSession[] {
-  let byKey = comparableSessionCache.get(sessions);
-  if (!byKey) {
-    byKey = new Map<string, FishingSession[]>();
-    comparableSessionCache.set(sessions, byKey);
-  }
-  const key = `${species}|${locationId ?? '*'}`;
-  const cached = byKey.get(key);
-  if (cached) return cached;
-  const filtered = getCompletedSessions(sessions).filter((session) => {
-    if (species !== 'Algemeen' && (!session.targetSpecies || !session.targetSpecies.includes(species))) return false;
-    if (locationId && session.locationId !== locationId) return false;
-    return true;
+  const catchIndex = getCatchSessionIndex(catches);
+  return sessions.flatMap((session) => {
+    if (locationId && session.locationId !== locationId) return [];
+    const outcome = getOutcomeForSpecies(session, species, catchIndex);
+    return outcome ? [{ ...session, outcome }] : [];
   });
-  byKey.set(key, filtered);
-  return filtered;
 }
 
 function getCatchSessionIndex(catches: CatchItem[]): Map<string, CatchItem[]> {
@@ -237,7 +236,8 @@ function analyzeTimeSlot(
   currentDateRef: Date,
   userWaterTemp?: number | null,
   presenceObs?: PresenceObservationType,
-  thermalAnalysis?: WaterThermalAnalysis
+  thermalAnalysis?: WaterThermalAnalysis,
+  catches: CatchItem[] = []
 ): TimeSlotAnalysis {
   const hoursConfig = TIME_SLOT_HOURS[slot];
   const month = date.getMonth() + 1;
@@ -417,7 +417,7 @@ function analyzeTimeSlot(
   const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
-  const similarSessions = getSimilarSessions(historicalSessions, species, slot);
+  const similarSessions = getSimilarSessions(historicalSessions, species, slot, catches);
 
   const relevantCount = similarSessions.length;
   const confirmedCatches = similarSessions.filter((s) => s.outcome === 'catch').length;
@@ -622,7 +622,8 @@ export function calculateDayPrognosis(
       slotReferenceDate,
       userWaterTemp,
       presenceObs,
-      thermalAnalysis
+      thermalAnalysis,
+      options?.catches ?? []
     );
   }
 
@@ -656,7 +657,7 @@ export function calculateDayPrognosis(
 
   // Alleen voltooide sessies met bevestigde uitkomst ('catch' of 'skunk_confirmed').
   // Actieve sessies, onbekende uitkomsten en benchmarks worden strikt uitgesloten!
-  const comparableSessions = getComparableSessions(historicalSessions, species, locationId);
+  const comparableSessions = getComparableSessions(historicalSessions, species, locationId, options?.catches ?? []);
 
   const sessionCount = comparableSessions.length;
   const successfulSessionsCount = comparableSessions.filter((s) => s.outcome === 'catch').length;
@@ -708,21 +709,33 @@ export function calculateDayPrognosis(
         if (options?.catches && options.catches.length > 0) {
           const catchIndex = getCatchSessionIndex(options.catches);
           const sessionCatches = (catchIndex.get(s.id) ?? []).filter(
-            (catchItem) => species === 'Algemeen' || catchItem.species === species
+            (catchItem) => catchItem.dataQuality?.speciesKnown !== false &&
+              (species === 'Algemeen' || catchItem.species === species)
           );
-          const count = sessionCatches.reduce((acc, catchItem) => acc + (catchItem.count || 1), 0);
-          totalTargetCatches += count > 0 ? count : 1;
-        } else {
-          totalTargetCatches += 1;
+          const count = sessionCatches.reduce((acc, catchItem) =>
+            acc + (catchItem.dataQuality?.countKnown === false ? 0 : catchItem.count), 0);
+          totalTargetCatches += count;
         }
       }
 
-      const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
+      const hasCompleteCatchCounts = durationSessions.every((session) => {
+        if (session.outcome !== 'catch') return true;
+        const records = (getCatchSessionIndex(options?.catches ?? []).get(session.id) ?? [])
+          .filter((item) => item.dataQuality?.speciesKnown !== false &&
+            (species === 'Algemeen' || item.species === species));
+        return records.every((item) => item.dataQuality?.countKnown !== false);
+      });
+      if (!hasCompleteCatchCounts) {
+        uncertaintyNotes.push('Vangsttempo niet berekend: voor één of meer relevante vangsten ontbreekt een betrouwbaar aantal.');
+      }
+      const rawLambdaPerHour = hasCompleteCatchCounts && totalDurationHours > 0
+        ? totalTargetCatches / totalDurationHours
+        : 0;
       hourlyCatchRate = Math.round(rawLambdaPerHour * 100) / 100;
 
       const actFactor = 0.88 + (dayScore / 10) * 0.24;
       const effectiveLambda = rawLambdaPerHour * actFactor;
-      if (sessionDuration !== null) {
+      if (hasCompleteCatchCounts && sessionDuration !== null) {
         let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
         durationAdjusted = clamp(durationAdjusted, 0, 0.95);
         expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
