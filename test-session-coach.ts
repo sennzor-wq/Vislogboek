@@ -35,6 +35,7 @@ async function run() {
     predictedCatchChance: null,
     source: 'test',
     modelVersion: 'test-v1',
+    engineVersions: { prognosis: '1.0.0', waterThermal: '1.0.0' },
     createdAt: '2026-11-05T10:00:00.000Z',
     prognosisData: {
       date: '2026-11-05',
@@ -63,6 +64,8 @@ async function run() {
   assert(first !== null, 'Startsnapshot levert een eerste coachadvies op');
   assert(first?.trigger === 'session_start', 'Eerste advies is herkenbaar als sessiestartadvies');
   assert(first?.prognosisSnapshotId === snapshot.id, 'Coachadvies verwijst naar de volledige startsnapshot');
+  assert(first?.engineVersions?.waterThermal === '1.0.0' && first.engineVersions.prognosis === '1.0.0',
+    'Coachadvies bewaart de volledige engineversiekaart van de gebruikte snapshot');
   assert(second?.id === first?.id && stored.length === 1, 'Herhaald opslaan maakt geen dubbele startadviezen');
   assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
 
