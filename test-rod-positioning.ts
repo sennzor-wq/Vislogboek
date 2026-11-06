@@ -5,6 +5,7 @@ import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
+  CatchItem,
   WaterThermalAnalysis,
   DayPrognosis,
 } from './src/types';
@@ -155,10 +156,19 @@ const fc1 = [
   ...createHourlyForecasts('2026-07-14', 21, 16, 'ZW'),
   ...createHourlyForecasts('2026-07-15', 21, 16, 'ZW'),
 ];
+const histCatches: CatchItem[] = ['s1', 's2', 's4', 's5'].map((sessionId, index) => ({
+  id: `hist-catch-${index}`,
+  sessionId,
+  species: 'Karper',
+  count: 1,
+  timestamp: `2026-06-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
+  createdAt: `2026-06-${String(index + 1).padStart(2, '0')}T10:00:00Z`,
+}));
 const prog1 = calculateDayPrognosis('2026-07-15', fc1, 'Karper', histSessions, undefined, null, new Date('2026-07-15T05:00:00Z'), {
   sessionDurationHours: 4,
   locationId: 'spot-test-1',
   location: baseLoc,
+  catches: histCatches,
 });
 
 assert(prog1.positioningAdvice !== undefined, '1.1 Positioning advice is aanwezig in DayPrognosis');
