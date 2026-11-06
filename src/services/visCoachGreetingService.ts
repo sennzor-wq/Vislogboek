@@ -8,6 +8,8 @@ export type WelcomeGreetingCategory =
   | 'winter'
   | 'rain'
   | 'dry'
+  | 'cold'
+  | 'warm'
   | 'long-break'
   | 'previous-catch'
   | 'previous-skunk';
@@ -181,6 +183,50 @@ const GREETINGS: Record<WelcomeGreetingCategory, string[]> = {
     'Het is prettig als je spullen droog kunnen blijven. De uurverwachting is droog.',
     'Zullen we van dit droge moment gebruikmaken en je volgende sessie voorbereiden?',
   ],
+  cold: [
+    'Het is fris buiten. Een warme jas maakt je bezoek aan de waterkant prettiger.',
+    'De temperatuur is laag. Denk aan warme kleding als je op pad gaat.',
+    'Een koude start vandaag? Neem iets warms mee voor aan de waterkant.',
+    'Het is behoorlijk fris volgens de verwachting. Maak het jezelf comfortabel.',
+    'Bij deze temperatuur zijn warme handen geen overbodige luxe.',
+    'De lucht is koud. Een thermoskan kan vandaag goed van pas komen.',
+    'Kleed je warm aan als je vandaag langere tijd buiten wilt zijn.',
+    'Het voelt fris aan. Misschien past een kortere sessie vandaag beter.',
+    'De temperatuur vraagt om een extra laag kleding. Ben je er klaar voor?',
+    'Een koude dag aan het water vraagt vooral om een goede voorbereiding.',
+    'Houd jezelf warm en kijk welk moment vandaag het beste bij je past.',
+    'Het is fris aan de waterkant. Vergeet je muts of handschoenen niet.',
+    'De verwachting laat lage temperaturen zien. Zorg goed voor jezelf buiten.',
+    'Een warme drank en droge kleding kunnen een koude sessie aangenamer maken.',
+    'De temperatuur is aan de frisse kant. We bekijken rustig je visplannen.',
+    'Op koude dagen is comfort belangrijk. Neem voldoende warme kleding mee.',
+    'Het wordt een frisse sessie als je nu vertrekt. Ben je goed voorbereid?',
+    'De kou kan het verblijf buiten minder comfortabel maken. Plan bewust je tijd.',
+    'Een koude ochtend vraagt om een warme voorbereiding.',
+    'Het is fris genoeg om een extra trui mee te nemen. Waar wil je vissen?',
+  ],
+  warm: [
+    'Het is warm buiten. Neem voldoende water mee als je naar de waterkant gaat.',
+    'De temperatuur loopt op. Denk aan schaduw en bescherming tegen de zon.',
+    'Een warme dag vraagt om voldoende drinken en een comfortabele plek.',
+    'Het is aangenaam warm volgens de verwachting. Vergeet zonbescherming niet.',
+    'Bij deze temperatuur is een vroege of late sessie misschien prettiger.',
+    'De warmte kan vermoeiend zijn. Zorg dat je voldoende kunt drinken.',
+    'Het wordt warm aan de waterkant. Neem een pet en zonnebrand mee.',
+    'Een warme middag? Kijk of een ander tijdstip beter bij je past.',
+    'De temperatuur is stevig. Houd rekening met jezelf én je materiaal.',
+    'Zoek bij warmte waar mogelijk een plek met schaduw.',
+    'Het is warm genoeg om extra water mee te nemen. Goed voorbereid op pad?',
+    'Een korte sessie kan op een warme dag precies goed zijn.',
+    'De zon kan flink aanwezig zijn. Bescherm jezelf goed tijdens het vissen.',
+    'Bij warm weer is comfort belangrijk. Plan een moment dat bij jou past.',
+    'Het wordt een warme dag. Misschien is vissen in de ochtend of avond prettiger.',
+    'Denk bij deze temperatuur aan drinken, schaduw en voldoende pauzes.',
+    'De verwachting is warm. Maak je plan met oog voor je eigen comfort.',
+    'Een warme dag aan het water vraagt om bescherming tegen de zon.',
+    'Het is warm buiten. Zorg voor voldoende drinken voordat je vertrekt.',
+    'De temperatuur is hoog genoeg om schaduw en verkoeling mee te nemen in je voorbereiding.',
+  ],
   'long-break': [
     'Je laatste geregistreerde vissessie was {days} dagen geleden. Fijn dat je weer vooruitkijkt.',
     'Het is {days} dagen geleden sinds je laatste sessie. Heb je alweer zin in de waterkant?',
@@ -265,6 +311,8 @@ function getCategory(context: WelcomeGreetingContext): WelcomeGreetingCategory {
   if (context.previousSessionOutcome === 'catch' && context.hasRecordedCatch) return 'previous-catch';
 
   if (context.weather) {
+    if (context.weather.temperature <= 8) return 'cold';
+    if (context.weather.temperature >= 22) return 'warm';
     if (context.weather.precipitation > 0 || context.weather.precipitationProbability >= 50) return 'rain';
     if (context.weather.precipitation === 0 && context.weather.precipitationProbability < 20) return 'dry';
   }
