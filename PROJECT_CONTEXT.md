@@ -1064,3 +1064,18 @@ The P1 implementation adds the following integrity rules:
 - The existing `dataQualityEngine` is integrated into prognosis input assessment. Its report is exposed in the prognosis result and is used alongside forecast coverage to prevent personal catch probabilities from being shown when required inputs are unusable.
 
 These changes do not introduce a second prognosis engine, do not rewrite existing IndexedDB records, and do not infer missing measurement metadata for historical sessions. Existing temperature values without trustworthy measurement metadata remain available for journal/history use but are excluded from temperature validation.
+
+
+## Fase 0 — datadictionary en technische nulmeting (afgerond 6 november 2026)
+
+De read-only audit van de actuele `main` is afgerond op commit `65f56c4a7408d874defa415212b74cd165f01147`. De volledige datadictionary, het Dexie-/backupcontract, de code-eigenaren, de CI-baseline en resterende aandachtspunten staan in [`FASE0_DATA_DICTIONARY_AND_BASELINE.md`](FASE0_DATA_DICTIONARY_AND_BASELINE.md).
+
+De Quality Gate op deze exacte commit is geslaagd (run [#42273675118](https://github.com/sennzor-wq/Vislogboek/actions/runs/42273675118)): dependency-audits, typecheck, alle in CI geselecteerde regressiesuites, productiebuild en controle op private buildartefacten. Dit bewijst technische regressiestatus, niet de wetenschappelijke nauwkeurigheid van prognoses of een handmatige Android-praktijktest.
+
+Belangrijkste audituitkomsten:
+- Dexie schema v4 bevat tien persistente tabellen; JSON-backup v5 exporteert deze tabellen en is getest met legacy-, security- en roundtripfixtures.
+- De coach kan alleen expliciet bekende en passende waarden gebruiken. Geplande duur is geen werkelijke inspanning; luchttemperatuur is geen watertemperatuur; waarneming is geen vangst; ontbrekende waarden blijven onbekend.
+- Bestaande engines en services zijn de aangewezen code-eigenaren; er is geen tweede prognose-, thermische, tactische, evaluatie- of backupengine nodig.
+- Aandachtspunten voor volgende fasen: ingebouwde historische seeding bij database-initialisatie, twee testsuites die niet in CI draaien, de templategerichte README en nog ontbrekende praktijkvalidatie met echte meetparen/sessies.
+
+Fase 0 is hiermee afgerond als repository-audit en gegevensfundament. De feitelijke IndexedDB-inhoud op een gebruikersapparaat is niet uitgelezen; er is geen persoonlijke database opgeschoond en geen applicatiecode gewijzigd.
