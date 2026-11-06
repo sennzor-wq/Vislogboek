@@ -16,19 +16,50 @@ interface VisCoachWelcomeModalProps {
   onOpenLocations: () => void;
 }
 
-const LAST_GREETING_KEY = 'vislogboek.viscoach.lastWelcomeGreeting';
+const DAILY_GREETING_KEY = 'vislogboek.viscoach.dailyWelcomeGreeting';
+const RECENT_GREETINGS_KEY = 'vislogboek.viscoach.recentWelcomeGreetings';
+const MAX_RECENT_GREETINGS = 10;
 
-function readPreviousGreetingId(): string | null {
+function getLocalDateKey(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
+}
+
+function readDailyGreeting(): WelcomeGreeting | null {
   try {
-    return window.localStorage.getItem(LAST_GREETING_KEY);
+    const stored = window.localStorage.getItem(DAILY_GREETING_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as { date?: string; greeting?: WelcomeGreeting };
+    if (parsed.date !== getLocalDateKey() || !parsed.greeting?.id || !parsed.greeting?.text || !parsed.greeting?.category) {
+      return null;
+    }
+    return parsed.greeting;
   } catch {
     return null;
   }
 }
 
-function storeGreetingId(id: string): void {
+function readRecentGreetingIds(): string[] {
   try {
-    window.localStorage.setItem(LAST_GREETING_KEY, id);
+    const stored = window.localStorage.getItem(RECENT_GREETINGS_KEY);
+    const parsed: unknown = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string').slice(0, MAX_RECENT_GREETINGS) : [];
+  } catch {
+    return [];
+  }
+}
+
+function storeDailyGreeting(greeting: WelcomeGreeting): void {
+  try {
+    window.localStorage.setItem(DAILY_GREETING_KEY, JSON.stringify({
+      date: getLocalDateKey(),
+      greeting,
+    }));
+    const recent = [greeting.id, ...readRecentGreetingIds().filter((id) => id !== greeting.id)]
+      .slice(0, MAX_RECENT_GREETINGS);
+    window.localStorage.setItem(RECENT_GREETINGS_KEY, JSON.stringify(recent));
   } catch {
     // Welkomstteksten blijven werken wanneer lokale opslag niet beschikbaar is.
   }
@@ -70,17 +101,22 @@ export const VisCoachWelcomeModal: React.FC<VisCoachWelcomeModalProps> = ({
     let cancelled = false;
     setWeather(null);
 
-    const previousGreetingId = readPreviousGreetingId();
+    const dailyGreeting = readDailyGreeting();
+    const recentGreetingIds = readRecentGreetingIds();
+    if (dailyGreeting) setGreeting(dailyGreeting);
+
     const updateGreeting = (forecast: WeatherHourlyForecast | null, persist: boolean) => {
+      // Dezelfde begroeting blijft de hele lokale kalenderdag staan, ook bij heropenen.
+      if (dailyGreeting) return;
       const selected = selectWelcomeGreeting({
         date: new Date(),
         daysSinceLastSession,
         previousSessionOutcome: latestCompletedSession?.outcome ?? null,
         hasRecordedCatch,
         weather: forecast,
-      }, previousGreetingId);
+      }, recentGreetingIds);
       setGreeting(selected);
-      if (persist) storeGreetingId(selected.id);
+      if (persist) storeDailyGreeting(selected);
     };
 
     const location = locations.find((item) =>
