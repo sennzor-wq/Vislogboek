@@ -344,11 +344,15 @@ export async function linkSessionOutcomeToSnapshot(
   const targetSpeciesMatches =
     snapshot.targetSpecies === 'Algemeen' ||
     Boolean(session.targetSpecies?.includes(snapshot.targetSpecies as any));
-  const resolvedOutcome: FishingSession['outcome'] = !targetSpeciesMatches
+  const sessionCatches = await db.catches.where('sessionId').equals(session.id).toArray();
+  const hasOnlyOtherSpeciesCatches = snapshot.targetSpecies !== 'Algemeen' &&
+    sessionCatches.some((item) => item.species !== snapshot.targetSpecies || item.legacyImportQuality?.speciesKnown === false) &&
+    !sessionCatches.some((item) => item.species === snapshot.targetSpecies && item.legacyImportQuality?.speciesKnown !== false);
+  const resolvedOutcome: FishingSession['outcome'] = !targetSpeciesMatches || hasOnlyOtherSpeciesCatches
     ? 'unknown'
-    : session.outcome === 'catch'
-      ? targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed'
-      : session.outcome === 'skunk_confirmed' && targetCatchesCount === 0
+    : session.outcome === 'catch' && targetCatchesCount > 0
+      ? 'catch'
+      : session.outcome === 'skunk_confirmed' && targetCatchesCount === 0 && sessionCatches.length === 0
         ? 'skunk_confirmed'
         : 'unknown';
 
@@ -358,9 +362,11 @@ export async function linkSessionOutcomeToSnapshot(
     actualTargetCatchesCount: resolvedOutcome === 'unknown' ? undefined : targetCatchesCount,
     evaluationNotes: !targetSpeciesMatches
       ? `Sessie ${session.id} niet geëvalueerd: de voorspelde doelsoort was niet als doelsoort geselecteerd in de sessie.`
-      : resolvedOutcome === 'unknown'
-        ? `Sessie ${session.id} niet geëvalueerd: de doelsoortuitkomst is niet eenduidig.`
-        : `Gekoppeld aan sessie ${session.id} (${resolvedOutcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'geen doelvis gevangen'}).`,
+      : hasOnlyOtherSpeciesCatches
+        ? `Sessie ${session.id} niet geëvalueerd: er is een andere soort geregistreerd, maar geen vangstrecord van de voorspelde doelsoort.`
+        : resolvedOutcome === 'unknown'
+          ? `Sessie ${session.id} niet geëvalueerd: de doelsoortuitkomst is niet eenduidig.`
+          : `Gekoppeld aan sessie ${session.id} (${resolvedOutcome === 'catch' ? `${targetCatchesCount} doelvis(sen) gevangen` : 'geen doelvis gevangen'}).`,
   });
 }
 
@@ -430,13 +436,27 @@ export async function autoSyncSessionOutcomeToSnapshot(
     evaluationReason = 'bevestigde nulvangst';
   } else if (session.outcome === 'catch' && sessionCatches.length > 0) {
     const relevantCatches = sessionCatches.filter(
-      (c) => snapshot.targetSpecies === 'Algemeen' || c.species === snapshot.targetSpecies
+      (c) => snapshot.targetSpecies === 'Algemeen' ||
+        (c.species === snapshot.targetSpecies && c.legacyImportQuality?.speciesKnown !== false)
     );
-    targetCatchesCount = relevantCatches.reduce((sum, c) => sum + (c.count || 1), 0);
-    resolvedOutcome = targetCatchesCount > 0 ? 'catch' : 'skunk_confirmed';
-    evaluationReason = targetCatchesCount > 0
-      ? `${targetCatchesCount} doelvis(sen) geregistreerd`
-      : 'wel vangst(en) geregistreerd, maar geen vangst van de voorspelde doelsoort';
+    // Een andere soort vangen bewijst niet dat de voorspelde doelsoort niet is gevangen.
+    // Zonder doelsoortrecord blijft de doelsoortuitkomst daarom onbekend, geen nulvangst.
+    if (relevantCatches.length > 0) {
+      resolvedOutcome = 'catch';
+      const countsKnown = relevantCatches.every((c) =>
+        c.legacyImportQuality?.countKnown !== false && Number.isFinite(c.count) && c.count > 0
+      );
+      targetCatchesCount = countsKnown
+        ? relevantCatches.reduce((sum, c) => sum + c.count, 0)
+        : undefined;
+      evaluationReason = countsKnown
+        ? `${targetCatchesCount} doelvis(sen) geregistreerd`
+        : 'doelsoortvangst geregistreerd; het exacte aantal is onbekend';
+    } else {
+      resolvedOutcome = 'unknown';
+      targetCatchesCount = undefined;
+      evaluationReason = 'wel vangst(en) geregistreerd, maar geen vangstrecord van de voorspelde doelsoort';
+    }
   } else if (session.outcome === 'catch' && sessionCatches.length === 0) {
     evaluationReason = 'sessie heeft uitkomst vangst, maar er zijn geen soortspecifieke vangstregistraties';
   } else if (session.outcome === 'skunk_confirmed' && sessionCatches.length > 0) {
