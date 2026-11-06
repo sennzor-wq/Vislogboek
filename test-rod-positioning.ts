@@ -541,6 +541,7 @@ const progBefore = calculateDayPrognosis('2026-07-15', fc1, 'Karper', histSessio
   sessionDurationHours: 4,
   locationId: 'spot-test-1',
   location: baseLoc,
+  catches: histCatches,
 });
 
 assert(progBefore.activityScore === prog1.activityScore, '9.1 Activiteitsscore is strikt identiek');
