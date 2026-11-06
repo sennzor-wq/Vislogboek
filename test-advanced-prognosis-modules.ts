@@ -5,6 +5,7 @@ import { calculateDayPrognosis } from './src/services/prognosisEngine';
 import {
   FishingLocation,
   FishingSession,
+  CatchItem,
   WaterThermalAnalysis,
   WeatherHourlyForecast,
   PresenceObservation,
