@@ -218,7 +218,7 @@ export function normalizeRawBackup(raw: any): BackupData {
     // Doelsoort is niet hetzelfde als de gevangen soort. Alleen expliciete doelsoortinvoer behouden.
     const rawTargetSpecies = Array.isArray(s.targetSpecies) ? s.targetSpecies
       : Array.isArray(s.target_species) ? s.target_species : [];
-    const targetSpecies = rawTargetSpecies.filter((species: unknown) => typeof species === 'string') as FishingSession['targetSpecies'];
+    const targetSpecies = rawTargetSpecies.filter((species: unknown) => typeof species === 'string') as NonNullable<FishingSession['targetSpecies']>;
 
     // Legacyweer alleen overnemen wanneer alle vereiste waarden en het meettijdstip bekend zijn.
     let weatherSnapshot = s.weatherSnapshot;
