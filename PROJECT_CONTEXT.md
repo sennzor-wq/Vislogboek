@@ -1035,11 +1035,13 @@ P0 is gemerged via PR #39 en P1 via PR #40. De GitHub Quality Gate is voor beide
 
 P0 heeft de legacy-import, soortspecifieke bewijsregels, werkelijke sessieduur en onbekende vangstuitkomsten gecorrigeerd. P1 heeft tijdvakselectie, water-temperatuurmeetmetadata, Brier-deduplicatie/linkvalidatie en de integratie van de bestaande `dataQualityEngine` afgerond.
 
-Resterende P2-aandachtspunten:
-- centrale tijdzone-/DST-regels en regressietests;
-- volledige backup-referentiële-integriteit tussen vangsten, sessies, snapshots, adviezen en hengelrecords;
-- granulariteit en herleidbaarheid van model-/engineversies;
-- Brier-uitkomsten bij kleine aantallen nadrukkelijk als voorlopig presenteren.
+P2 is volledig geïmplementeerd en gemerged naar `main` op 6 november 2026 via PR #42, #43, #45 en #46. De definitieve Quality Gates zijn geslaagd.
+
+De P2-uitvoering borgt:
+- centrale `Europe/Amsterdam`-datum/tijdverwerking, inclusief expliciete afhandeling van niet-bestaande en dubbele lokale tijden bij DST-wisselingen;
+- backupvalidatie op ontbrekende/duplicaat-ID's en ongeldige relaties tussen sessies, vangsten, locaties, snapshots en waarnemingen, vóórdat importmutaties plaatsvinden;
+- expliciete model- en deelengineversies in nieuwe prognosesnapshots, doorgegeven aan coachadviezen; oude snapshots blijven compatibel en krijgen geen verzonnen historische versies;
+- expliciete voorlopige duiding van Brier-resultaten, inclusief aantallen en waarschuwing dat kleine steekproeven geen robuuste validatie of generaliseerbaarheid aantonen.
 
 De bestaande prognose-, weer-, evaluatie- en datakwaliteitsengines blijven de enige gezaghebbende implementaties voor hun domein. Er zijn geen parallelle engines toegevoegd.
 
