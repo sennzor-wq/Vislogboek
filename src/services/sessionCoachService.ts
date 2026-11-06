@@ -88,7 +88,7 @@ function createAdviceRecord(
     confidence: prognosis.personalCatchConfidence,
     response: 'pending',
     coachVersion: 'viscoach-session-coordinator-v1',
-    engineVersions: { prognosis: snapshot.modelVersion },
+    engineVersions: snapshot.engineVersions ? { ...snapshot.engineVersions } : { prognosis: snapshot.modelVersion },
   };
 }
 
