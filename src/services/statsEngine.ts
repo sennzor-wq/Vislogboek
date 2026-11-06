@@ -1,4 +1,5 @@
 import { FishingSession, CatchItem, SessionOutcome, FishSpecies } from '../types';
+import { getAmsterdamHour } from '../utils/dateTime';
 
 export interface StatsFilter {
   dateFrom?: string;
@@ -198,7 +199,7 @@ export function calculateStats(
   };
 
   for (const s of completedSessions) {
-    const hour = new Date(s.startTime).getHours();
+    const hour = getAmsterdamHour(s.startTime) ?? -1;
     let slot = 'Middag';
     if (hour >= 0 && hour < 6) slot = 'Nacht';
     else if (hour >= 6 && hour < 12) slot = 'Ochtend';

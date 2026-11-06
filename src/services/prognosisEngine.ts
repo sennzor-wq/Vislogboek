@@ -27,6 +27,7 @@ import { analyzeHabitatMovement } from './habitatMovementEngine';
 import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
 import { createDataQualityReport } from './dataQualityEngine';
+import { addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth } from '../utils/dateTime';
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -75,8 +76,8 @@ function getSimilarSessions(
     if (session.outcome !== 'catch' && session.outcome !== 'skunk_confirmed') return false;
     if (session.isBenchmark || session.legacyImportQuality?.startTimeKnown === false) return false;
     if (!session.targetSpecies?.includes(species)) return false;
-    const hour = new Date(session.startTime).getHours();
-    if (!Number.isFinite(hour) || hour < hours.start || hour >= hours.end) return false;
+    const hour = getAmsterdamHour(session.startTime);
+    if (hour === null || hour < hours.start || hour >= hours.end) return false;
     if (session.outcome === 'skunk_confirmed') return true;
     return catches.some((item) => item.sessionId === session.id && item.species === species && item.legacyImportQuality?.speciesKnown !== false);
   });
@@ -232,13 +233,13 @@ function analyzeTimeSlot(
   thermalAnalysis?: WaterThermalAnalysis
 ): TimeSlotAnalysis {
   const hoursConfig = TIME_SLOT_HOURS[slot];
-  const month = date.getMonth() + 1;
+  const month = getAmsterdamMonth(date) ?? 1;
   const season = getSeason(month);
 
   // Controleer of dit tijdvak reeds volledig verstreken is
-  const targetDateStr = date.toISOString().slice(0, 10);
-  const curDateStr = currentDateRef.toISOString().slice(0, 10);
-  const curHour = currentDateRef.getHours();
+  const targetDateStr = getAmsterdamDateKey(date) ?? '';
+  const curDateStr = getAmsterdamDateKey(currentDateRef) ?? '';
+  const curHour = getAmsterdamHour(currentDateRef) ?? -1;
 
   let isPast = false;
   let remainingHours = hoursConfig.end - hoursConfig.start;
@@ -553,7 +554,7 @@ export function calculateDayPrognosis(
   const location = options?.location;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
 
-  const slotReferenceDate = currentDateRef ?? new Date(`${dateStr}T12:00:00`);
+  const slotReferenceDate = currentDateRef ?? new Date(`${dateStr}T12:00:00.000Z`);
 
   // Thermische analyse van het viswater (waterdiepte per stek en actuele meting doorgeven)
   // Als currentDateRef optioneel is weggelaten, geldt targetDateStr zelf als de referentie.
@@ -586,7 +587,7 @@ export function calculateDayPrognosis(
     thermalAnalysis.prognosisImpactNote += ` Lokale seizoenskalibratie toegepast: ${correction > 0 ? '-' : '+'}${Math.abs(correction).toFixed(1)} °C op basis van ${temperatureCalibration.sampleCount} eerdere metingen.`;
   }
 
-  const date = new Date(dateStr);
+  const date = new Date(`${dateStr}T12:00:00.000Z`);
   const actualSpecies = species === 'Algemeen' ? 'Overig' : species;
   const profile = SPECIES_PROFILES[actualSpecies];
 
@@ -826,10 +827,8 @@ export function calculateDayPrognosis(
 
   // Datum & dagnaam
   const todayRef = currentDateRef ?? new Date();
-  const todayStr = todayRef.toISOString().slice(0, 10);
-  const tomorrow = new Date(todayRef);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const todayStr = getAmsterdamDateKey(todayRef) ?? '';
+  const tomorrowStr = todayStr ? addCalendarDays(todayStr, 1) ?? '' : '';
 
   let dayName = '';
   if (dateStr === todayStr) {
