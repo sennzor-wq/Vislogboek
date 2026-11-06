@@ -68,7 +68,7 @@ export function evaluatePrognosisPerformance(
   // vastgelegde voorspelling mee; latere snapshots zijn geen onafhankelijke sessies.
   const earliestBySessionAndSpecies = new Map<string, PrognosisSnapshot>();
   for (const snapshot of eligibleSnapshots) {
-    const key = `${snapshot.linkedSessionId}| ${snapshot.targetSpecies}`;
+    const key = `${snapshot.linkedSessionId}|${snapshot.targetSpecies}`;
     const current = earliestBySessionAndSpecies.get(key);
     if (!current || Date.parse(snapshot.forecastTimestamp) < Date.parse(current.forecastTimestamp)) {
       earliestBySessionAndSpecies.set(key, snapshot);
