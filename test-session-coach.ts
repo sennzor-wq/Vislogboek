@@ -117,31 +117,44 @@ async function run() {
       rationale: 'De wind duwt voedsel richting deze oever.',
       alternativeOption: 'Probeer bij weinig activiteit de diepere overgangszone.',
       missingInformation: [],
+      windContext: { directionText: 'Zuidwest', speedKmH: 24, isStrongWind: true, isColdWind: false },
+      windCastingGuidance: {
+        castingAdvice: {
+          isCastingDirectionDefinite: false,
+          recommendedDirection: null,
+          summary: 'Oeverrichting ontbreekt.',
+          reason: 'GPS-punt bepaalt de oeverrichting niet.',
+          scenarioGuidance: { standingLeewardBank: '', standingWindwardBank: '' },
+        },
+      },
     },
     bankWindAnalysis: {
-      isConfigured: true,
-      bankAssessment: { explanation: 'De wind staat op de gekozen oever.' },
-      rodPlacementAdvice: {
-        primaryPosition: 'Vis vanaf de luwtezijde.',
-        castingDirectionAdvice: 'Werp schuin langs de oever.',
-      },
+      isConfigured: false,
+      windOriginDirection: 'Zuidwest',
+      windDestinationDirection: 'Noordoost',
+      windSpeedKmH: 24,
+      relation: 'Onbekende oeveroriëntatie',
+      bankAssessment: { explanation: 'De windrichting is bekend, maar de oeverzijde niet.' },
+      rodPlacementAdvice: { primaryPosition: '', rationale: '', castingDirectionAdvice: '' },
       missingInformation: [],
+      fieldChecklist: [],
     },
     habitatAnalysis: {
       primaryZone: { name: 'Rietkraag', whyLikely: 'Hier kan natuurlijk voedsel samenkomen.' },
       alternativeZone: { name: 'Diepere overgangszone' },
-      movementHypothesis: {
-        likelyDirection: 'De vis kan vanuit dieper water naar de rietkraag trekken.',
-        timeOfDayDynamic: 'Rond de schemering kan deze zone interessanter worden.',
-        transitRoute: 'Zoek de overgang tussen ondiep en dieper water.',
-      },
+      movementHypothesis: {},
       missingInformation: [],
     },
     prebaitPlan: {
       sessionDayGuidance: { advice: 'Voer beperkt bij en bouw de stek rustig op.' },
-      methodFeederGuidance: 'Houd de method feeder compact gevuld.',
+      methodFeederGuidance: 'Method feeder uitleg.',
     },
-  } as any);
+    thermalAnalysis: { hasMeasuredWaterTemp: false, estimatedWaterTemp: 3.8 },
+    uncertaintyNotes: [
+      'Er zijn 3 vergelijkbare eigen sessies in de database voor deze selectie (minimaal 5 vereist).',
+      'Exacte oeverlijnoriëntatie en omtrek van het water zijn niet bekend in het systeem (GPS is een enkel punt).',
+    ],
+  } as any, { windSpeed: 24, windDirection: 225, windDirectionText: 'Zuidwest' } as any, 'Method feeder');
   const translatedText = [
     translatedAdvice.summary,
     translatedAdvice.recommendation,
@@ -149,12 +162,31 @@ async function run() {
   ].join(' ').toLowerCase();
   assert(
     translatedText.includes('avond') &&
-    translatedText.includes('aanlandige oeverzone') &&
     translatedText.includes('rietkraag') &&
+    translatedText.includes('wind') &&
+    translatedText.includes('werprichting') &&
     translatedText.includes('method feeder') &&
-    translatedText.includes('wind'),
-    'De centrale VisCoach-vertaling combineert tijd, stek, wind, habitat en voer tot één praktisch advies'
+    translatedText.includes('geschat op ongeveer 3.8 °c') &&
+    translatedText.includes('persoonlijke vangkans betrouwbaar'),
+    'VisCoach maakt een praktisch plan, legt sterke wind en werprichting uit en benoemt onzekerheid begrijpelijk'
   );
+  assert(
+    translatedAdvice.recommendation.includes('Als het niet werkt') &&
+    translatedAdvice.recommendation.includes('Waar beginnen'),
+    'Het advies bevat een duidelijke startplek en een vervolgstap'
+  );
+  const calmAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    positioningAdvice: {
+      recommendedZone: 'Algemene zoekzone',
+      windContext: { directionText: 'Noord', speedKmH: 5, isStrongWind: false, isColdWind: false },
+    },
+  } as any);
+  assert(
+    !calmAdvice.recommendation.includes('Wind en werprichting'),
+    'Bij zwakke wind wordt geen onnodig wind- of werprichtingadvies getoond'
+  );
+
   assert(
     changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
     'Kleine scorefluctuatie en gewijzigde toelichting veroorzaken geen nieuw praktisch advies'
