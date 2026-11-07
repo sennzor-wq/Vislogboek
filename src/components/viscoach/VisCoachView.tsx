@@ -280,7 +280,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
               <h3 className="text-sm font-bold">Zo zou ik deze sessie aanpakken</h3>
             </div>
             <p className="text-sm leading-relaxed text-white">
-              {buildVisCoachAdviceText(plan.prognosis).summary}
+              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).summary}
             </p>
             <p className="text-sm leading-relaxed text-slate-200">
               {buildVisCoachAdviceText(plan.prognosis).recommendation}
