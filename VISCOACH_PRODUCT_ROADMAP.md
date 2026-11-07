@@ -1139,9 +1139,9 @@ De Quality Gate op deze commit is volledig geslaagd (run [#42273675118](https://
 
 ---
 
-## Actuele implementatiestatus op `main` — 6 november 2026
+## Actuele implementatiestatus op `main` — 7 november 2026
 
-Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus geldt uitsluitend de actuele code op `main`. De technische auditbasis voor onderstaande controle is commit `65f56c4a7408d874defa415212b74cd165f01147`.
+Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus geldt uitsluitend de actuele code op `main`. De read-only auditbasis blijft commit `65f56c4a7408d874defa415212b74cd165f01147`; fase-6-voortgang hieronder is aanvullend gecontroleerd op de actuele `main`.
 
 ### Aantoonbaar aanwezig
 
@@ -1150,21 +1150,24 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 - Optioneel een plan opslaan en later starten; een geplande sessie blijft onderscheiden van een actieve sessie.
 - Automatische startsnapshot bij het starten van een actieve sessie en koppeling van de snapshot aan de sessie.
 - Eerste coachadvies op basis van de startsnapshot, met snapshot- en engineversieverwijzing en bescherming tegen dubbele startadviezen.
-- Sessiegebonden herbeoordeling via bestaande prognose- en weerdiensten, met triggers voor weerupdates, sessiewijzigingen, vangstregistratie, handmatige controle en app-heropening.
-- Opslag van tussentijdse snapshots en coachadviezen; een beperkte signatuur en bevestiging bij weersupdates voorkomen een deel van de onnodige wijzigingen.
+- Sessiegebonden herbeoordeling via bestaande prognose- en weerdiensten, met triggers voor weerupdates, sessiewijzigingen, vangstregistratie, waarnemingen, handmatige controle en hervatten.
+- Een expliciete `visibilitychange`-/foreground- en `pageshow`-trigger laat actieve sessies opnieuw beoordelen wanneer een gemonteerde PWA terugkeert. Dit belooft geen verwerking terwijl de PWA volledig gesloten is.
+- De vergelijkingsbasis blijft gekoppeld aan het snapshot waarop het laatst daadwerkelijk getoonde coachadvies rust. Een tussentijdse of onbeoordeelde snapshot schuift deze referentie niet op; opeenvolgende veranderingen kunnen daardoor cumuleren ten opzichte van hetzelfde advies.
+- De adviesvergelijking kijkt naar praktische uitkomsten: algemene prognosecategorie, beste tijdvak en bestaande tactische zones/positionering/voorvoergeschiktheid. Ruwe scorefluctuaties, percentages en vrije toelichting veroorzaken op zichzelf geen nieuw advies.
+- Weerupdates en hervatten vereisen bevestiging van dezelfde praktische wijziging bij een volgende afwijkende invoer. Expliciete gebruikerswaarnemingen en sessiewijzigingen worden direct verwerkt; de praktische-signatuurfilter blijft daarbij gelden.
+- De tests controleren dat een kleine score-/tekstfluctuatie geen praktisch advies wijzigt, een gewijzigde aanbevolen stekzone wel wordt herkend en een nieuwere onbeoordeelde snapshot de adviesreferentie niet vervangt.
 - VisCoach-weergave binnen de bestaande actieve sessie-interface; bestaande sessie-, vangst- en hengelregistratie blijft leidend.
 - Geplande sessies, coachadviezen en hun verwijzingen zijn opgenomen in backupformaat v5; round-trip-, merge-, legacy- en relationele validatietests zijn aanwezig.
 - Veilige verwijdering van sessiegebonden coachrecords en bescherming van gekoppelde snapshots zijn opgenomen in regressietests.
 
 ### Nog niet als volledig afgerond bewezen
 
-1. De bestaande `test-session-coach.ts` test de aanmaak van het eerste coachadvies, snapshotkoppeling, engineversies en dubbele aanmaak. De volledige dynamische herbeoordelingscyclus is daarmee nog niet afgedekt.
-2. De huidige app voert `app_resume` uit wanneer de applicatie na initialisatie data heeft geladen. Een expliciete `visibilitychange`-/foregroundtrigger voor terugkeer naar een reeds gemonteerde PWA is in de gecontroleerde `App.tsx` niet aangetroffen.
-3. De coachsignatuur vergelijkt momenteel adviescategorie, beste tijdvak en een aantal tactische uitkomsten. Activiteitsindex, persoonlijke vangkans, onzekerheidsinterval en alle relevante factor-/kwaliteitswijzigingen zijn niet rechtstreeks onderdeel van die signatuur. Dit vraagt een bewuste definitie van betekenisvolle wijziging, geen willekeurige drempel.
-4. De tests bewijzen nog niet integraal het gedrag bij identieke weerdata na herstart, kleine fluctuaties, opeenvolgende gecombineerde wijzigingen, dubbele events en offline hervatten.
-5. De code bewaart velden voor gebruikersreactie en uitgevoerde tactiek, maar in de gecontroleerde fase-6-tests is nog geen volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst aangetoond.
-6. De baseline Quality Gate bevat `test-session-coach.ts`, maar niet `test-viscoach-greetings.ts` en `test-weather-enrichment.ts`. Deze suites bestaan wel; hun uitvoering is niet door die CI-run bewezen.
+1. De nieuwe tests dekken de zuivere signatuur- en referentiekeuze af, maar de volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
+2. Er zijn nog expliciete regressietests nodig voor een reeks opeenvolgende kleine wijzigingen die samen een praktische verandering vormen, identieke weersdata na herstart, dubbele events en offline hervatten.
+3. De code bewaart velden voor gebruikersreactie en uitgevoerde tactiek, maar een volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst is nog niet aangetoond.
+4. De Quality Gate bevat `test-session-coach.ts`; uitvoering van `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` in de CI-pipeline moet nog afzonderlijk worden geborgd.
+5. De nieuwe Quality Gate voor de huidige adviesvergelijkingswijziging is bij deze documentupdate nog in uitvoering; er wordt dus nog geen geslaagde CI-status geclaimd.
 
 ### Conclusie en eerstvolgende fase
 
-VisCoach is dus geen lege module en de basis van fase 6 is al gebouwd. De resterende opdracht is niet om opnieuw een VisCoach te ontwerpen of een tweede engine te maken, maar om de bestaande coachcoördinatie en gebruikerscyclus gericht af te maken en te bewijzen. De volgende implementatiestap hoort te starten met een gerichte fase-6-gap-analyse en testontwerp op de actuele `main`, gevolgd door kleine, afzonderlijk gecontroleerde wijzigingen. Eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
+De basis van fase 6 is aanwezig. De actuele wijziging herstelt een belangrijk stabiliteitsprobleem: de adviesreferentie verschuift niet meer door tussentijdse berekeningen, en kleine score-/tekstfluctuaties leiden niet zelfstandig tot nieuw advies. De volgende stap is de volledige event-/herbeoordelingscyclus testen, inclusief opeenstapeling van kleine veranderingen, bevestiging, herstart en dubbele events. Daarna volgen adviesreactie, uitgevoerde tactiek en evaluatie. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
