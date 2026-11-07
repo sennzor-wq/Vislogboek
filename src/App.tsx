@@ -22,7 +22,12 @@ import {
 } from 'lucide-react';
 import { autoSyncSessionOutcomeToSnapshot } from './services/evaluationEngine';
 import { startWeatherAutoRefresh, WEATHER_UPDATED_EVENT } from './services/weatherService';
-import { reassessActiveSessions, createInitialCoachAdviceRecord, VISCOACH_UPDATED_EVENT } from './services/sessionCoachService';
+import {
+  reassessActiveSessions,
+  createInitialCoachAdviceRecord,
+  updateCoachAdviceFeedback,
+  VISCOACH_UPDATED_EVENT,
+} from './services/sessionCoachService';
 
 export default function App() {
   const isOnline = useOnlineStatus();
@@ -191,6 +196,14 @@ export default function App() {
 
   const handleManualReassessment = async (sessionId: string) => {
     await reassessActiveSessions('manual_reanalysis', sessionId);
+    setCoachAdviceRecords(await db.coachAdviceRecords.toArray());
+  };
+
+  const handleUpdateCoachAdvice = async (
+    adviceId: string,
+    updates: { response?: import('./types').CoachAdviceResponse; executedTactic?: string }
+  ) => {
+    await updateCoachAdviceFeedback(adviceId, updates);
     setCoachAdviceRecords(await db.coachAdviceRecords.toArray());
   };
 
@@ -426,6 +439,7 @@ export default function App() {
             onSaveCatch={handleSaveCatch}
             coachAdviceRecords={coachAdviceRecords}
             onManualReassessment={handleManualReassessment}
+            onUpdateCoachAdvice={handleUpdateCoachAdvice}
           />
         )}
         {currentTab === 'locations' && (
