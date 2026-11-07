@@ -4,6 +4,7 @@ import {
   changedSignatureFactors,
   createInitialCoachAdviceRecord,
   getAdviceBaselineSnapshot,
+  getSessionUpdateTrigger,
   prognosisSignature,
   requiresWeatherConfirmation,
   updateCoachAdviceFeedback,
@@ -140,6 +141,44 @@ async function run() {
   assert(!requiresWeatherConfirmation('observation_recorded'), 'Een expliciete gebruikerswaarneming wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('catch_recorded'), 'Een geregistreerde vangst wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('session_changed'), 'Een expliciete sessiewijziging wordt direct beoordeeld');
+
+  const observationBase: FishingSession = {
+    ...session,
+    presenceObservations: ['vis_springen_rollen', 'aasbellen_voedselactiviteit'],
+    waterTemperature: 12.4,
+    waterTemperatureMeasuredAt: '2026-11-05T10:30:00.000Z',
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'thermometer',
+  };
+  assert(
+    getSessionUpdateTrigger(observationBase, {
+      ...observationBase,
+      presenceObservations: ['aasbellen_voedselactiviteit', 'vis_springen_rollen'],
+    }) === 'session_changed',
+    'Een andere volgorde van dezelfde waarnemingen geldt niet als nieuwe observatie'
+  );
+  assert(
+    getSessionUpdateTrigger(observationBase, {
+      ...observationBase,
+      presenceObservations: ['vis_springen_rollen'],
+    }) === 'observation_recorded',
+    'Een gewijzigde viswaarneming triggert expliciete herbeoordeling als observatie'
+  );
+  assert(
+    getSessionUpdateTrigger(observationBase, {
+      ...observationBase,
+      waterTemperature: 13.1,
+      waterTemperatureMeasuredAt: '2026-11-05T11:00:00.000Z',
+    }) === 'observation_recorded',
+    'Een nieuwe watertemperatuurmeting triggert expliciete herbeoordeling als observatie'
+  );
+  assert(
+    getSessionUpdateTrigger(observationBase, {
+      ...observationBase,
+      notes: 'Aantekening bijgewerkt',
+    }) === 'session_changed',
+    'Een gewone notitieaanpassing wordt niet als waarneming geclassificeerd'
+  );
 
   const candidateSignature = prognosisSignature(meaningfulTacticalChange);
   const firstConfirmation = nextWeatherChangeConfirmation(undefined, candidateSignature);
