@@ -282,12 +282,12 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             <p className="text-sm leading-relaxed text-white">
               {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).summary}
             </p>
-            <p className="text-sm leading-relaxed text-slate-200">
-              {buildVisCoachAdviceText(plan.prognosis).recommendation}
+            <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">
+              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).recommendation}
             </p>
-            {buildVisCoachAdviceText(plan.prognosis).rationale && (
+            {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).rationale && (
               <p className="text-xs leading-relaxed text-slate-400">
-                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis).rationale}
+                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).rationale}
               </p>
             )}
           </div>
