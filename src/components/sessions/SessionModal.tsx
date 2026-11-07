@@ -227,7 +227,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
           }
         }
         // Automatische momentopname bij start van een nieuwe live actieve sessie (nooit achteraf voor historische sessies!)
-        if (payload.outcome === 'active' && !payload.snapshotId && !snapshotToSave && loc) {
+        if (payload.outcome === 'active' && !payload.snapshotId && !snapshotToSave) {
           if (!loc) {
             throw new Error('Kies eerst een vislocatie voordat je een sessie start.');
           }
@@ -334,11 +334,14 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               {isEditing && (
                 <p className="mb-1 text-[11px] text-slate-500">De starttijd staat vast sinds deze sessie is gestart.</p>
               )}
+              {!isEditing && !isCompleted && (
+                <p className="mb-1 text-[11px] text-slate-500">Bij het starten legt Vislogboek de werkelijke starttijd automatisch vast ná de prognosesnapshot.</p>
+              )}
               <input
                 type="datetime-local"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                disabled={isEditing}
+                disabled={isEditing || (!isEditing && !isCompleted)}
                 required
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed"
               />
