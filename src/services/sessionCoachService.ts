@@ -70,9 +70,13 @@ export function changedSignatureFactors(
   return Object.keys(current).filter((key) => previous[key] !== current[key]);
 }
 
-/** Alleen autonome forecast-refreshes vereisen een tweede bevestiging. */
+/**
+ * Autonome forecast-refreshes en hervatten na app-heropenen vereisen een tweede
+ * afwijkende weersinvoer met dezelfde praktische uitkomst. Een hervatting is
+ * dus wel een herbeoordeling, maar op zichzelf geen bevestiging van een kandidaat.
+ */
 export function requiresWeatherConfirmation(trigger: CoachAdviceTrigger): boolean {
-  return trigger === 'weather_update';
+  return trigger === 'weather_update' || trigger === 'app_resume';
 }
 
 /**
@@ -474,9 +478,9 @@ export async function reassessActiveSessions(
         continue;
       }
 
-      // Alleen een automatische forecast-refresh krijgt hysterese.
-      // App-hervatten, handmatige controle en expliciete gebruikers-/sessiewijzigingen
-      // worden volgens de blauwdruk direct met de meest recente beschikbare data beoordeeld.
+      // Automatische forecast-refreshes en hervatten na heropenen krijgen hysterese.
+      // Handmatige controle en expliciete gebruikers-/sessiewijzigingen worden direct
+      // met de meest recente beschikbare data beoordeeld.
       if (requiresWeatherConfirmation(trigger)) {
         const confirmation = nextWeatherChangeConfirmation(
           pendingWeatherChanges.get(session.id),
