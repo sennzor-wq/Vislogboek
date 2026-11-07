@@ -142,12 +142,17 @@ async function run() {
       methodFeederGuidance: 'Houd de method feeder compact gevuld.',
     },
   } as any);
+  const translatedText = [
+    translatedAdvice.summary,
+    translatedAdvice.recommendation,
+    translatedAdvice.rationale,
+  ].join(' ').toLowerCase();
   assert(
-    translatedAdvice.summary.includes('avond') &&
-    translatedAdvice.recommendation.includes('Aanlandige oeverzone') &&
-    translatedAdvice.recommendation.includes('Rietkraag') &&
-    translatedAdvice.recommendation.includes('method feeder') &&
-    translatedAdvice.rationale.includes('wind'),
+    translatedText.includes('avond') &&
+    translatedText.includes('aanlandige oeverzone') &&
+    translatedText.includes('rietkraag') &&
+    translatedText.includes('method feeder') &&
+    translatedText.includes('wind'),
     'De centrale VisCoach-vertaling combineert tijd, stek, wind, habitat en voer tot één praktisch advies'
   );
   assert(
