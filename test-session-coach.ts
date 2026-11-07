@@ -5,6 +5,7 @@ import {
   createInitialCoachAdviceRecord,
   getAdviceBaselineSnapshot,
   prognosisSignature,
+  requiresWeatherConfirmation,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
 
@@ -99,6 +100,28 @@ async function run() {
       .includes('recommendedZone'),
     'Een daadwerkelijk gewijzigde aanbevolen stekzone wordt als praktische verandering herkend'
   );
+
+  const combinedPracticalChange = {
+    ...baselinePrognosis,
+    advice: 'Ongunstig',
+    bestTimeSlot: 'Avond',
+    positioningAdvice: { recommendedZone: 'Aanlandige oeverzone' },
+  } as any;
+  const combinedChanges = changedSignatureFactors(
+    prognosisSignature(baselinePrognosis),
+    prognosisSignature(combinedPracticalChange)
+  );
+  assert(
+    ['advice', 'bestTimeSlot', 'recommendedZone'].every((factor) => combinedChanges.includes(factor)),
+    'Gecombineerde wijzigingen in prognose en tactiek worden samen herkend'
+  );
+
+  assert(requiresWeatherConfirmation('weather_update'), 'Automatische forecast-refresh vereist bevestiging');
+  assert(!requiresWeatherConfirmation('app_resume'), 'App-hervatten beoordeelt direct de meest recente beschikbare gegevens');
+  assert(!requiresWeatherConfirmation('manual_reanalysis'), 'Handmatige heranalyse wordt direct beoordeeld');
+  assert(!requiresWeatherConfirmation('observation_recorded'), 'Een expliciete gebruikerswaarneming wordt direct beoordeeld');
+  assert(!requiresWeatherConfirmation('catch_recorded'), 'Een geregistreerde vangst wordt direct beoordeeld');
+  assert(!requiresWeatherConfirmation('session_changed'), 'Een expliciete sessiewijziging wordt direct beoordeeld');
 
   const newerUnadvisedSnapshot: PrognosisSnapshot = {
     ...snapshot,
