@@ -1177,6 +1177,19 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 6. Quality Gate #457 is volledig geslaagd op commit `12b853609005d8c5b29a84253e01fa0668ccecae`, inclusief TypeScript-typecheck, regressietests, het heropeningsscenario in de sessie-/weerintegratietest, backup/restore, beveiligingscontroles en productiebuild. Dit is technische verificatie; het bewijst geen biologische of praktijknauwkeurigheid.
 7. Quality Gate #465 is volledig geslaagd op commit `d5ca09a76f236edc2e0e2c94adf7862cef2986af`, inclusief TypeScript-typecheck, Amsterdamse zomer-/wintertijdregressies, alle bestaande regressies en integratietests en de productiebuild. Deze gate bevat de herstelwijziging voor de coach-startflow, tijdzoneweergave en vergrendelde starttijd.
 
+### Praktische coachvertaling – begrijpelijk visplan
+
+De centrale vertaling is aangescherpt om niet langer losse engine-zinnen achter elkaar te plaatsen. Het coachadvies wordt als één uitvoerbaar plan geordend: wanneer vissen, waar beginnen, wind/werprichting wanneer de bestaande windanalyse stevige wind aangeeft, voeren en aas, en wat te proberen als de eerste aanpak niets oplevert.
+
+- De vertaling hergebruikt uitsluitend bestaande prognose-, habitat-, positionerings-, wind- en voeruitkomsten; zij berekent geen eigen biologische regels, scores of winddrempels.
+- Een concrete werprichting wordt alleen genoemd wanneer de bestaande wind-/positioneringsanalyse deze als bepaald aanmerkt. Bij onbekende oeveroriëntatie wordt uitgelegd waarom geen exacte richting kan worden gegeven.
+- Bij wind die volgens de bestaande analyse niet sterk is, wordt geen aparte windkant of werprichting als doorslaggevend advies gepresenteerd.
+- Geschatte watertemperatuur wordt expliciet als schatting benoemd; de coach spreekt niet langer alsof een modelschatting een meting of bewezen winterrust is.
+- De tekst is opgesplitst in herkenbare stappen en vaktermen rond method feeder worden uitgelegd. Dezelfde vertaling wordt gebruikt voor het vooraf gemaakte plan en het opgeslagen sessieadvies.
+- Beperkingen zoals een kleine vergelijkbare sessiehistorie en ontbrekende oeveroriëntatie worden kort en in gewone taal uitgelegd.
+
+De testset controleert zowel stevige als zwakke wind, ontbrekende oeveroriëntatie, geschatte watertemperatuur, beperkte persoonlijke historie, uitleg van method feeder en de aanwezigheid van een praktisch alternatief.
+
 ### Conclusie en eerstvolgende fase
 
 De basis van fase 6 is aanwezig. Naast de eerder vastgelegde stabiliteitsbescherming is op 7 november een door praktijktest gevonden fout in de daadwerkelijke startflow hersteld: de coach-draft wordt nu als nieuwe sessie behandeld, zodat automatische weerkoppeling, startsnapshot en startadvies worden uitgevoerd. De starttijd wordt correct als lokale tijd weergegeven en na starten vergrendeld. De CI-controle is geslaagd; de gebruiker moet deze drie punten nog in de app bevestigen. De volgende stap is de resterende event-/herbeoordelingscyclus verder testen, met name browser-/PWA-herstart over afzonderlijke modulelevenscycli, meerdere echte tabs en de integratie van alle invoerpaden. De registratie van gebruikersreactie en uitgevoerde tactiek is inmiddels toegevoegd; daarna volgt de evaluatie van die registraties tegen de sessie-uitkomst. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
