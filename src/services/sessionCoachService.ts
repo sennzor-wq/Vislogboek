@@ -1,6 +1,7 @@
 import { db } from '../db/db';
 import {
   CoachAdviceRecord,
+  CoachAdviceResponse,
   CoachAdviceTrigger,
   DayPrognosis,
   FishingLocation,
@@ -125,6 +126,36 @@ function notifyVisCoachUpdated(): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(VISCOACH_UPDATED_EVENT));
   }
+}
+
+/**
+ * Slaat alleen expliciete gebruikersfeedback op het bestaande adviesrecord op.
+ * De prognose en het oorspronkelijke advies blijven onveranderd.
+ */
+export async function updateCoachAdviceFeedback(
+  adviceId: string,
+  updates: { response?: CoachAdviceResponse; executedTactic?: string }
+): Promise<CoachAdviceRecord | null> {
+  const existing = await db.coachAdviceRecords.get(adviceId);
+  if (!existing) return null;
+
+  const now = new Date().toISOString();
+  const patch: Partial<CoachAdviceRecord> = {};
+  if (Object.prototype.hasOwnProperty.call(updates, 'response')) {
+    patch.response = updates.response;
+    patch.responseAt = updates.response ? now : undefined;
+  }
+  if (Object.prototype.hasOwnProperty.call(updates, 'executedTactic')) {
+    const tactic = updates.executedTactic?.trim() ?? '';
+    patch.executedTactic = tactic || undefined;
+    patch.executedAt = tactic ? now : undefined;
+  }
+  if (Object.keys(patch).length === 0) return existing;
+
+  await db.coachAdviceRecords.update(adviceId, patch);
+  const updated = await db.coachAdviceRecords.get(adviceId);
+  if (updated) notifyVisCoachUpdated();
+  return updated ?? null;
 }
 
 /** Bewaart het eerste coachadvies op basis van de volledige startsnapshot. */
