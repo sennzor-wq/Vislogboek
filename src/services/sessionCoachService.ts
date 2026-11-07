@@ -57,8 +57,8 @@ export function prognosisSignature(prognosis: DayPrognosis): Record<string, stri
     bestTimeSlot: prognosis.bestTimeSlot,
     recommendedZone: prognosis.positioningAdvice?.recommendedZone ?? null,
     bankWindRelation: prognosis.bankWindAnalysis?.relation ?? null,
-    bankWindPosition: prognosis.bankWindAnalysis?.rodPlacementAdvice.primaryPosition ?? null,
-    habitatZone: prognosis.habitatAnalysis?.primaryZone.name ?? null,
+    bankWindPosition: prognosis.bankWindAnalysis?.rodPlacementAdvice?.primaryPosition ?? null,
+    habitatZone: prognosis.habitatAnalysis?.primaryZone?.name ?? null,
     prebaitSuitability: prognosis.prebaitPlan?.suitability ?? null,
   };
 }
@@ -162,9 +162,9 @@ export function nextWeatherChangeConfirmation(
 function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommendation: string; rationale: string } {
   const recommendation =
     prognosis.positioningAdvice?.recommendedZone ||
-    prognosis.bankWindAnalysis?.rodPlacementAdvice.primaryPosition ||
-    prognosis.habitatAnalysis?.primaryZone.name ||
-    prognosis.prebaitPlan?.sessionDayGuidance.advice ||
+    prognosis.bankWindAnalysis?.rodPlacementAdvice?.primaryPosition ||
+    prognosis.habitatAnalysis?.primaryZone?.name ||
+    prognosis.prebaitPlan?.sessionDayGuidance?.advice ||
     `Houd de huidige aanpak aan zolang de omstandigheden geen duidelijke reden geven om te wijzigen. ${prognosis.advice.toLowerCase()} omstandigheden.`;
 
   return {
@@ -173,8 +173,8 @@ function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommenda
     rationale: [
       prognosis.summaryRationale,
       prognosis.positioningAdvice?.rationale,
-      prognosis.bankWindAnalysis?.bankAssessment.explanation,
-      prognosis.habitatAnalysis?.movementHypothesis.transitRoute,
+      prognosis.bankWindAnalysis?.bankAssessment?.explanation,
+      prognosis.habitatAnalysis?.movementHypothesis?.transitRoute,
     ].filter(Boolean).join(' '),
   };
 }
