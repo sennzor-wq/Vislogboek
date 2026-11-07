@@ -10,6 +10,7 @@ import {
   requiresWeatherConfirmation,
   updateCoachAdviceFeedback,
   nextWeatherChangeConfirmation,
+  persistCoachReassessment,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
 
@@ -225,6 +226,95 @@ async function run() {
   assert(firstConfirmation.confirmations === 1, 'Een nieuwe weerskandidaat start met één bevestiging');
   assert(secondConfirmation.confirmations === 2, 'Dezelfde praktische wijziging krijgt bij een volgende afwijkende invoer de tweede bevestiging');
   assert(changedCandidate.confirmations === 1, 'Een andere praktische kandidaat start de bevestiging opnieuw en erft geen eerdere bevestiging');
+
+  const updatePrognosis = {
+    ...snapshot.prognosisData!,
+    bestTimeSlot: 'Avond',
+    activityScoreAvailable: false,
+    activityScore: 5,
+    advice: 'Gunstig',
+    summaryRationale: 'Praktische tijdvakwijziging voor integratietest.',
+  } as any;
+  const updateSignature = prognosisSignature(updatePrognosis);
+  const location = {
+    id: 'coach-test-location',
+    name: 'Testwater',
+    latitude: 52,
+    longitude: 5,
+    createdAt: '2026-11-05T09:00:00.000Z',
+    updatedAt: '2026-11-05T09:00:00.000Z',
+  } as any;
+  const updateInput = {
+    session,
+    prognosis: updatePrognosis,
+    currentSignature: updateSignature,
+    inputFingerprint: 'coach-test-update-fingerprint-1',
+    location,
+    durationHours: null,
+    weatherInput: [{ time: '2026-11-05T12:00', temperature: 10, pressure: 1015, windSpeed: 8, windDirection: 225, precipitation: 0, precipitationProbability: 0, cloudCover: 40, weatherCode: 1 }] as any,
+    inputContext: {} as any,
+    previousSnapshot: snapshot,
+    previousAdvice: first ?? undefined,
+    trigger: 'manual_reanalysis' as const,
+  };
+  const persisted = await persistCoachReassessment(updateInput);
+  assert(persisted.status === 'created', 'Een betekenisvolle sessiewijziging slaat snapshot en advies samen op');
+  if (persisted.status === 'created') {
+    assert(
+      persisted.snapshot.linkedSessionId === session.id &&
+      persisted.advice.prognosisSnapshotId === persisted.snapshot.id &&
+      persisted.advice.previousAdviceId === first?.id,
+      'Tussentijds advies verwijst naar zijn snapshot en het voorgaande advies'
+    );
+    assert(
+      persisted.snapshot.inputFingerprint === updateInput.inputFingerprint &&
+      persisted.snapshot.supersedesSnapshotId === snapshot.id,
+      'Tussentijdse snapshot bewaart invoerfingerprint en voorganger'
+    );
+  }
+  const snapshotCountAfterPersist = await db.prognosisSnapshots.where('linkedSessionId').equals(session.id).count();
+  const adviceCountAfterPersist = await db.coachAdviceRecords.where('sessionId').equals(session.id).count();
+  const duplicatePersist = await persistCoachReassessment(updateInput);
+  assert(
+    duplicatePersist.status === 'duplicate' &&
+    await db.prognosisSnapshots.where('linkedSessionId').equals(session.id).count() === snapshotCountAfterPersist &&
+    await db.coachAdviceRecords.where('sessionId').equals(session.id).count() === adviceCountAfterPersist,
+    'Dezelfde invoer wordt ook via de database-idempotentie niet dubbel opgeslagen'
+  );
+  const unchangedPersist = await persistCoachReassessment({
+    ...updateInput,
+    inputFingerprint: 'coach-test-update-fingerprint-2',
+  });
+  assert(
+    unchangedPersist.status === 'unchanged' &&
+    await db.prognosisSnapshots.where('linkedSessionId').equals(session.id).count() === snapshotCountAfterPersist,
+    'Een nieuwe invoer zonder nieuwe praktische verandering maakt geen extra snapshot of advies'
+  );
+
+  const failingPrognosis = { ...updatePrognosis, bestTimeSlot: 'Middag' } as any;
+  const originalAdvicePut = db.coachAdviceRecords.put.bind(db.coachAdviceRecords);
+  (db.coachAdviceRecords as any).put = async () => {
+    throw new Error('Simulated coach-advice persistence failure');
+  };
+  let atomicFailureCaught = false;
+  try {
+    await persistCoachReassessment({
+      ...updateInput,
+      prognosis: failingPrognosis,
+      currentSignature: prognosisSignature(failingPrognosis),
+      inputFingerprint: 'coach-test-atomic-failure',
+    });
+  } catch {
+    atomicFailureCaught = true;
+  } finally {
+    (db.coachAdviceRecords as any).put = originalAdvicePut;
+  }
+  assert(atomicFailureCaught, 'Een fout bij het opslaan van coachadvies wordt doorgegeven');
+  assert(
+    !(await db.prognosisSnapshots.toArray()).some((item) => item.inputFingerprint === 'coach-test-atomic-failure') &&
+    await db.coachAdviceRecords.where('sessionId').equals(session.id).count() === adviceCountAfterPersist,
+    'Een mislukte adviesopslag rolt de tussentijdse snapshot terug en laat geen verweesde registratie achter'
+  );
 
   const newerUnadvisedSnapshot: PrognosisSnapshot = {
     ...snapshot,
