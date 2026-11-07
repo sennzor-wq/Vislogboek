@@ -292,6 +292,10 @@ export function buildVisCoachAdviceText(
 
   const summary = `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
   const reasons: string[] = [];
+  const summaryRationale = cleanCoachText(prognosis.summaryRationale);
+  if (summaryRationale && !/aanvullende locatiegegevens|onbekend/i.test(summaryRationale)) {
+    reasons.push(summaryRationale);
+  }
   if (thermal) {
     if (thermal.hasMeasuredWaterTemp && typeof thermal.measuredWaterTemp === 'number') {
       reasons.push(`De watertemperatuur is gemeten op ${thermal.measuredWaterTemp.toFixed(1)} °C.`);
