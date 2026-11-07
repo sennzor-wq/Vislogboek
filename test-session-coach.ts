@@ -316,6 +316,28 @@ async function run() {
     'Een mislukte adviesopslag rolt de tussentijdse snapshot terug en laat geen verweesde registratie achter'
   );
 
+  const concurrentPrognosis = { ...updatePrognosis, bestTimeSlot: 'Middag' } as any;
+  const concurrentInput = {
+    ...updateInput,
+    prognosis: concurrentPrognosis,
+    currentSignature: prognosisSignature(concurrentPrognosis),
+    inputFingerprint: 'coach-test-concurrent-fingerprint',
+  };
+  const concurrentResults = await Promise.all([
+    persistCoachReassessment(concurrentInput),
+    persistCoachReassessment(concurrentInput),
+  ]);
+  const concurrentStatuses = concurrentResults.map((item) => item.status).sort();
+  assert(
+    concurrentStatuses[0] === 'created' && concurrentStatuses[1] === 'duplicate',
+    'Gelijktijdige herbeoordelingen van dezelfde invoer leveren precies één snapshot en advies op'
+  );
+  assert(
+    await db.prognosisSnapshots.where('linkedSessionId').equals(session.id).count() === snapshotCountAfterPersist + 1 &&
+    await db.coachAdviceRecords.where('sessionId').equals(session.id).count() === adviceCountAfterPersist + 1,
+    'Gelijktijdige dubbele events verhogen snapshot- en adviesaantallen slechts eenmaal'
+  );
+
   const newerUnadvisedSnapshot: PrognosisSnapshot = {
     ...snapshot,
     id: 'coach-test-unadvised-newer-snapshot',
