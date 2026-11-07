@@ -228,6 +228,9 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         }
         // Automatische momentopname bij start van een nieuwe live actieve sessie (nooit achteraf voor historische sessies!)
         if (payload.outcome === 'active' && !payload.snapshotId && !snapshotToSave && loc) {
+          if (!loc) {
+            throw new Error('Kies eerst een vislocatie voordat je een sessie start.');
+          }
           try {
             snapshotToSave = await createLiveSnapshotForSessionStart(
               loc,
@@ -239,8 +242,28 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             ) ?? undefined;
           } catch (snapErr) {
             console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
+            throw new Error('De prognose voor de startsnapshot kon niet worden berekend. De sessie is niet gestart. Controleer je verbinding en probeer opnieuw.');
+          }
+          if (!snapshotToSave) {
+            throw new Error('Er kon geen prognosesnapshot worden gemaakt. De sessie is niet gestart; probeer het opnieuw wanneer de prognose beschikbaar is.');
           }
         }
+      }
+
+      // De starttijd is het daadwerkelijke startmoment ná het berekenen van de snapshot.
+      // De eerder ingevulde datetime-local waarde mag de voorspelling nooit achteraf dateren.
+      if (!isEditing && payload.outcome === 'active') {
+        if (!snapshotToSave) {
+          throw new Error('De startsnapshot ontbreekt. De sessie is niet gestart.');
+        }
+        const forecastTimestamp = snapshotToSave.forecastTimestamp ?? snapshotToSave.inputContext?.calculatedAt;
+        const forecastMs = forecastTimestamp ? Date.parse(forecastTimestamp) : NaN;
+        const actualStart = new Date();
+        if (!Number.isFinite(forecastMs) || forecastMs >= actualStart.getTime()) {
+          throw new Error('De prognose is niet aantoonbaar vóór de sessiestart berekend. De sessie is niet gestart; probeer opnieuw.');
+        }
+        payload.startTime = actualStart.toISOString();
+        payload.updatedAt = payload.startTime;
       }
 
       const normalizedRods = showRodDetails ? sessionRods.slice(0, parsedRods).map((rod) => ({
