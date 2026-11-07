@@ -170,9 +170,12 @@ export interface VisCoachAdviceText {
 }
 
 function cleanCoachText(value: string | undefined): string {
-  return (value ?? '').replaceAll('\\n', ' ').replaceAll('\\r', ' ').replaceAll('\\t', ' ').trim();
+  return (value ?? '')
+    .split(String.fromCharCode(10)).join(' ')
+    .split(String.fromCharCode(13)).join(' ')
+    .split(String.fromCharCode(9)).join(' ')
+    .trim();
 }
-
 function isGenericZone(value: string): boolean {
   return /algemene zoekzone|bekende lokale structuurzone|aanvullende locatiegegevens|onbekend/i.test(value);
 }
