@@ -434,7 +434,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
                             </span>
                           </div>
-                          <p className="text-sm font-bold text-white mt-1">{advice.recommendation}</p>
+                          <p className="text-sm leading-relaxed font-normal text-white mt-2 whitespace-pre-line">{advice.recommendation}</p>
                           {advice.changedFactors.length > 0 && (
                             <p className="text-[10px] text-cyan-300 mt-1">
                               Gewijzigd: {advice.changedFactors.map((factor) => COACH_FACTOR_LABELS[factor] || factor).join(', ')}
