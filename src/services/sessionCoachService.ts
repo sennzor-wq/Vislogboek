@@ -57,6 +57,23 @@ export function requiresWeatherConfirmation(trigger: CoachAdviceTrigger): boolea
   return trigger === 'weather_update';
 }
 
+export interface WeatherChangeConfirmationState {
+  signature: string;
+  confirmations: number;
+}
+
+/** Dezelfde kandidaat wordt bevestigd; een andere kandidaat begint opnieuw bij één. */
+export function nextWeatherChangeConfirmation(
+  previous: WeatherChangeConfirmationState | undefined,
+  currentSignature: Record<string, string | number | null>
+): WeatherChangeConfirmationState {
+  const signature = JSON.stringify(currentSignature);
+  return {
+    signature,
+    confirmations: previous?.signature === signature ? previous.confirmations + 1 : 1,
+  };
+}
+
 function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommendation: string; rationale: string } {
   const recommendation =
     prognosis.positioningAdvice?.recommendedZone ||
@@ -309,12 +326,13 @@ export async function reassessActiveSessions(
       // App-hervatten, handmatige controle en expliciete gebruikers-/sessiewijzigingen
       // worden volgens de blauwdruk direct met de meest recente beschikbare data beoordeeld.
       if (requiresWeatherConfirmation(trigger)) {
-        const signatureKey = JSON.stringify(currentSignature);
-        const candidate = pendingWeatherChanges.get(session.id);
-        const confirmations = candidate?.signature === signatureKey ? candidate.confirmations + 1 : 1;
-        pendingWeatherChanges.set(session.id, { signature: signatureKey, confirmations });
+        const confirmation = nextWeatherChangeConfirmation(
+          pendingWeatherChanges.get(session.id),
+          currentSignature
+        );
+        pendingWeatherChanges.set(session.id, confirmation);
         lastEvaluatedFingerprint.set(session.id, inputFingerprint);
-        if (confirmations < 2) {
+        if (confirmation.confirmations < 2) {
           results.push({
             sessionId: session.id,
             status: 'unchanged',
