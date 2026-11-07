@@ -6,7 +6,7 @@
 **Project:** Vislogboek  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Huidige technische basis bij opstellen:** React 19, TypeScript, Vite, PWA, Dexie 4 / IndexedDB, Open-Meteo  
-**Documentstatus:** leidende product- en technische projectcontext; gecontroleerd en bijgewerkt tot en met 6 november 2026.  
+**Documentstatus:** leidende product- en technische projectcontext; gecontroleerd en bijgewerkt tot en met 7 november 2026.  
 **Belangrijk:** dit is een richtinggevend ontwerp en code-audit op hoofdlijnen, geen claim dat alle hieronder beschreven toekomstige functionaliteit al bestaat.
 
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Documenthiërarchie en actuele projectstatus — peildatum 6 november 2026
+## Documenthiërarchie en actuele projectstatus — peildatum 7 november 2026
 
 Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 
@@ -39,21 +39,19 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 | P1 — prognosekeuze en meetherkomst | Afgerond en gemerged via PR #40 | Geen nieuwe uitvoering nodig; regressiecriteria blijven gelden. |
 | P2 — tijdzone, backuprelaties, Brier en engineprovenance | Afgerond en gemerged via PR #42, #43, #45 en #46 | Geen nieuwe uitvoering nodig; regressiecriteria blijven gelden. |
 | 32-puntenplan, fasen 1–5 | Afgerond volgens de geregistreerde merges en Quality Gates | Deze werkzaamheden niet opnieuw uitvoeren. |
-| 32-puntenplan, fase 6 | Enige resterende implementatiefase | VisCoach bestaat al gedeeltelijk; de volledige dynamische coachcyclus moet nog aantoonbaar aan alle acceptatiecriteria voldoen. |
+| 32-puntenplan, fase 6 | **Afgerond op `main` op 7 november 2026** | De geïntegreerde VisCoach-cyclus voldoet aan de softwarematige acceptatiecriteria; Quality Gate #491 is volledig geslaagd. Praktijkvalidatie blijft onderdeel van de doorlopende persoonlijke nulmeting. |
 | Productfase 0 — persoonlijke nulmeting | Doorlopend | Echte sessies, vooraf opgeslagen prognoses en uitkomsten verzamelen; softwaretests zijn geen praktijkvalidatie. |
 | Technische auditfase 0 | Afgerond als read-only audit | Dit is een afzonderlijke technische inventarisatie en niet dezelfde fase als de persoonlijke nulmeting. |
 
 De technische baseline-audit is uitgevoerd op `main` commit `65f56c4a7408d874defa415212b74cd165f01147`; de bijbehorende Quality Gate run #42273675118 slaagde. De audit wijzigde geen applicatiecode en kon de lokale IndexedDB van een gebruikersapparaat niet uitlezen. Een geslaagde Quality Gate bewijst technische regressiecontrole, geen voorspellende nauwkeurigheid in echte vissessies.
 
-De code-audit voor fase 6 heeft op deze baseline al bestaande onderdelen aangetroffen: VisCoach-planvorming, sessiestart met prognosesnapshot, een sessiegebonden coachcoördinator, herbeoordeling bij weer-/sessie-/vangstwijzigingen en bij app-heropening, een VisCoach-paneel in de actieve sessie en opslag van coachadviezen. Dit is gedeeltelijke implementatie, niet automatisch fase-6-acceptatie.
+De fase-6-uitvoering is op 7 november 2026 afgerond op `main`. De bestaande VisCoach-planvorming, startsnapshot, sessiegebonden coördinator, praktische adviesvergelijking, sessiehistorie, gebruikersfeedback en backuprelaties zijn met gerichte service-, database-, prognose- en evaluatietests gecontroleerd. Quality Gate #491 is volledig geslaagd op commit `ed459875329e03052a7ae442e806890fd3902983`: typecheck, alle regressie- en integratietests, dependency-audits en productiebuild.
 
-De belangrijkste nog te bewijzen fase-6-punten zijn:
-- Dynamische herbeoordeling en advieshistorie volledig testen, inclusief betekenisvolle gecombineerde wijzigingen, identieke invoer, kleine fluctuaties en dubbele events.
-- Terugkeer naar een reeds geopende PWA expliciet controleren; de huidige app-resume-koppeling wordt bij het laden van de app uitgevoerd. Een afzonderlijke zichtbaarheid-/foregroundtrigger is in de gecontroleerde code niet aangetroffen.
-- Controleren of de prognosevergelijking alle voor de gebruiker relevante wijzigingen herkent. De huidige coachsignatuur vergelijkt onder meer adviescategorie, tijdvak en tactische zones, maar niet rechtstreeks alle kernwaarden zoals activiteitsindex, persoonlijke vangkans en onzekerheidsinformatie.
-- Offline-/heropeningsgedrag en de volledige keten van startmomentopname tot advies, uitvoering en evaluatie met gerichte regressietests aantonen.
+De nieuwe tien-sessiesimulatie roept de bestaande `calculateDayPrognosis` en `evaluatePrognosisPerformance` aan. Bij 0–4 eerdere geldige sessies blijft de persoonlijke vangkans `null`; vanaf vijf eerdere geldige sessies berekent de engine in deze synthetische reeks respectievelijk 44%, 48%, 43%, 39% en 42%. De vijf numerieke, vooraf vastgelegde voorspellingen leveren een voorlopige Brier-score van 0,255 op. Dit bewijst de technische gegevensstroom, niet de voorspellende nauwkeurigheid in echte vissessies.
 
-Deze punten zijn auditbevindingen voor fase 6; ze zijn geen toestemming om buiten de goedgekeurde scope te bouwen. Eerst de exacte implementatie en acceptatiecriteria vaststellen, daarna kleine gecontroleerde wijzigingen voorstellen.
+De service-integratietests dekken herbeoordeling bij `app_resume`, offline hervatten met gecachete weerdata, bevestiging van betekenisvolle weerswijzigingen, idempotentie, gelijktijdige events en atomische opslag af. Een fysieke Android-/browsercontrole van afzonderlijke modulelevenscycli of meerdere echte browsertabs is niet geclaimd. Dit is geen resterend softwareblokkerend acceptatiepunt; de persoonlijke nulmeting en praktijkvalidatie lopen door als afzonderlijke productfase 0.
+
+Fase 6 is hiermee **softwarematig afgerond**. Er wordt geen tweede prognose-, evaluatie- of tactische engine toegevoegd.
 
 ---
 
