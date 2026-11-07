@@ -5,6 +5,7 @@ import {
   createInitialCoachAdviceRecord,
   getAdviceBaselineSnapshot,
   getSessionUpdateTrigger,
+  summarizeCoachSessionOutcome,
   prognosisSignature,
   requiresWeatherConfirmation,
   updateCoachAdviceFeedback,
@@ -178,6 +179,43 @@ async function run() {
       notes: 'Aantekening bijgewerkt',
     }) === 'session_changed',
     'Een gewone notitieaanpassing wordt niet als waarneming geclassificeerd'
+  );
+
+  const outcomeSession: FishingSession = {
+    ...session,
+    outcome: 'catch',
+    targetSpecies: ['Karper'],
+  };
+  const targetCatch = {
+    id: 'coach-target-catch',
+    sessionId: outcomeSession.id,
+    species: 'Karper',
+    count: 2,
+    timestamp: '2026-11-05T12:00:00.000Z',
+    createdAt: '2026-11-05T12:00:00.000Z',
+  } as any;
+  const bycatch = { ...targetCatch, id: 'coach-bycatch', species: 'Brasem', count: 1 };
+  const unknownSpeciesCatch = {
+    ...targetCatch,
+    id: 'coach-unknown-species',
+    species: 'Overig',
+    legacyImportQuality: { speciesKnown: false, countKnown: false, timestampKnown: false },
+  } as any;
+  assert(
+    summarizeCoachSessionOutcome(outcomeSession, [targetCatch]) === 'Doelsoort geregistreerd: 2 vissen',
+    'Sessie-evaluatie telt alleen geregistreerde vangsten van de gekozen doelsoort'
+  );
+  assert(
+    summarizeCoachSessionOutcome(outcomeSession, [bycatch]) === 'Andere soort(en) geregistreerd; geen doelsoortvangst vastgelegd',
+    'Bijvangst wordt niet als doelsoortsucces gepresenteerd'
+  );
+  assert(
+    summarizeCoachSessionOutcome(outcomeSession, [unknownSpeciesCatch]) === 'Vangst geregistreerd; doelsoortresultaat deels onbekend',
+    'Een legacyvangst met onbekende soort wordt niet als doelsoortsucces geteld'
+  );
+  assert(
+    summarizeCoachSessionOutcome({ ...outcomeSession, outcome: 'skunk_confirmed' }, []) === 'Bevestigde nulvangst',
+    'Een expliciet bevestigde nulvangst blijft herkenbaar in de coachterugblik'
   );
 
   const candidateSignature = prognosisSignature(meaningfulTacticalChange);
