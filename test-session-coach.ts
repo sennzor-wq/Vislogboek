@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
+import { saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine';
 import {
   changedSignatureFactors,
   buildVisCoachAdviceText,
@@ -68,6 +69,45 @@ async function run() {
 
   await db.sessions.put(session);
   await db.prognosisSnapshots.put(snapshot);
+
+  const preStartSession: FishingSession = {
+    ...session,
+    id: 'coach-prestart-session',
+    startTime: '2026-11-05T10:01:00.000Z',
+  };
+  const preStartPending = {
+    prognosis: snapshot.prognosisData!,
+    durationHours: 0,
+    durationKnown: false,
+    locationName: 'Testwater',
+    forecastTimestamp: '2026-11-05T10:00:30.000Z',
+    inputContext: { calculatedAt: '2026-11-05T10:00:30.000Z' } as any,
+    runKind: 'session_start' as const,
+  };
+  const savedPreStartSession = await saveSessionWithPrognosisSnapshot(preStartSession, preStartPending);
+  const savedPreStartSnapshot = await db.prognosisSnapshots.get(savedPreStartSession.snapshotId!);
+  assert(
+    !!savedPreStartSnapshot &&
+    savedPreStartSnapshot.forecastTimestamp === preStartPending.forecastTimestamp &&
+    Date.parse(savedPreStartSnapshot.forecastTimestamp) < Date.parse(savedPreStartSession.startTime),
+    'Startsnapshot bewaart het oorspronkelijke berekeningstijdstip en ligt vóór de sessiestart'
+  );
+
+  const invalidPreStartSession: FishingSession = {
+    ...preStartSession,
+    id: 'coach-invalid-prestart-session',
+    startTime: '2026-11-05T10:00:00.000Z',
+  };
+  let invalidPreStartRejected = false;
+  try {
+    await saveSessionWithPrognosisSnapshot(invalidPreStartSession, preStartPending);
+  } catch {
+    invalidPreStartRejected = true;
+  }
+  assert(
+    invalidPreStartRejected && !(await db.sessions.get(invalidPreStartSession.id)),
+    'Een snapshot op of na de sessiestart blokkeert het starten en laat geen sessie achter'
+  );
 
   const first = await createInitialCoachAdviceRecord(session, snapshot);
   const second = await createInitialCoachAdviceRecord(session, snapshot);
