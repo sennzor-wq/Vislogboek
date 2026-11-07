@@ -164,6 +164,7 @@ async function run() {
     translatedText.includes('avond') &&
     translatedText.includes('rietkraag') &&
     translatedText.includes('wind') &&
+    translatedText.includes('waait richting noordoost') &&
     translatedText.includes('werprichting') &&
     translatedText.includes('method feeder') &&
     translatedText.includes('geschat op ongeveer 3.8 °c') &&
