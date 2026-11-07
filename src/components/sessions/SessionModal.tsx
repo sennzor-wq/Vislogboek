@@ -12,6 +12,7 @@ import {
 import { getCurrentWeatherSnapshot, fetchHistoricalWeatherSnapshot } from '../../services/weatherService';
 import { createLiveSnapshotForSessionStart, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { Calendar, Clock, MapPin, Sparkles, Thermometer, Wind, AlertCircle, History, Compass } from 'lucide-react';
+import { formatDateTimeLocalInput as formatDateTimeLocal } from '../../utils/dateTime';
 
 interface SessionModalProps {
   session?: FishingSession | null;
@@ -22,6 +23,8 @@ interface SessionModalProps {
   sessionDurationHours?: number;
   plannedEndTime?: string | null;
   createStartSnapshot?: boolean;
+  /** Een vooringevulde draft voor een nieuwe sessie is geen bestaande sessie om te bewerken. */
+  isNewSession?: boolean;
   onClose: () => void;
 }
 
@@ -33,22 +36,15 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   sessionDurationHours,
   plannedEndTime,
   createStartSnapshot = false,
+  isNewSession = false,
   initialRodDetails = [],
   onClose,
 }) => {
-  const isEditing = !!session;
+  const isEditing = !!session && !isNewSession;
 
   const now = new Date();
-  const formatDateTimeLocal = (date: Date) => {
-    if (!Number.isFinite(date.getTime())) return '';
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-      date.getHours()
-    )}:${pad(date.getMinutes())}`;
-  };
-
-  const defaultStartTime = session ? session.startTime.slice(0, 16) : formatDateTimeLocal(now);
-  const defaultEndTime = session?.endTime ? session.endTime.slice(0, 16) : '';
+  const defaultStartTime = session ? formatDateTimeLocal(new Date(session.startTime)) : formatDateTimeLocal(now);
+  const defaultEndTime = session?.endTime ? formatDateTimeLocal(new Date(session.endTime)) : '';
 
   const [locationId, setLocationId] = useState(session?.locationId || locations[0]?.id || '');
   const [startTime, setStartTime] = useState(defaultStartTime);
@@ -220,7 +216,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
       if (isEditing && session?.id) {
         payload.id = session.id;
       } else {
-        payload.id = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        payload.id = session?.id || ('session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
         payload.createdAt = new Date().toISOString();
         if (!payload.weatherSnapshot) {
           // Probeer weerdata automatisch te koppelen; geen verzonnen data en geen blokkade bij offline gebruik.
@@ -312,12 +308,16 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Startdatum & Tijd *
               </label>
+              {isEditing && (
+                <p className="mb-1 text-[11px] text-slate-500">De starttijd staat vast sinds deze sessie is gestart.</p>
+              )}
               <input
                 type="datetime-local"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
+                disabled={isEditing}
                 required
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
