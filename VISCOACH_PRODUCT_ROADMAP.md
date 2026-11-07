@@ -1164,7 +1164,7 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 ### Nog niet als volledig afgerond bewezen
 
 1. De nieuwe tests dekken de zuivere signatuur- en referentiekeuze af, maar de volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
-2. Er zijn nog expliciete regressietests nodig voor een reeks opeenvolgende kleine wijzigingen die samen een praktische verandering vormen, identieke weersdata na herstart, dubbele events en offline hervatten.
+2. De bevestigingslogica is nu als deterministische stap getest: een nieuwe forecastkandidaat begint op één, dezelfde praktische kandidaat krijgt een tweede bevestiging en een andere kandidaat begint opnieuw. De volledige integratie over opeenvolgende invoer, identieke weersdata na herstart, dubbele events en offline hervatten vraagt nog scenario-tests door de complete serviceflow.
 3. De gebruikersreactie en daadwerkelijk uitgevoerde tactiek kunnen nu via de actieve sessie worden vastgelegd en worden getest. De volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst, inclusief analyse van vergelijkbare sessies, is nog niet aangetoond.
 4. De Quality Gate voert `test-session-coach.ts`, `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit; alle drie zijn geslaagd in Quality Gate #434.
 5. Quality Gate #434 is volledig geslaagd op commit `25995b3c683c0b8632360a09865a595ff2c70b1a`, inclusief TypeScript-typecheck, regressietests en productiebuild. Dit is technische verificatie; het bewijst geen biologische of praktijknauwkeurigheid.
