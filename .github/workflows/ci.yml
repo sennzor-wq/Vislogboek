@@ -104,6 +104,12 @@ jobs:
       - name: VisCoach session advice tests
         run: bun run tsx test-session-coach.ts
 
+      - name: VisCoach welcome greeting tests
+        run: bun run tsx test-viscoach-greetings.ts
+
+      - name: Deterministic weather enrichment tests
+        run: bun run tsx test-weather-enrichment.ts
+
       - name: Production build
         run: bun run build
 
