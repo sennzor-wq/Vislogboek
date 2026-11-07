@@ -169,6 +169,57 @@ async function run() {
     'Herhaalde identieke forecastinvoer maakt geen extra snapshot of advies'
   );
 
+  // Simuleer een nieuwe app-runtime: voor deze sessie bestaat nog geen
+  // bevestigingsstatus in het geheugen. Hervatten mag de eerste kandidaat niet
+  // direct publiceren; een tweede afwijkende forecastinvoer mag dat wel.
+  const resumedSession: FishingSession = {
+    ...session,
+    id: 'coach-integration-resumed-session',
+    startTime: new Date(now.getTime() - 30 * 60 * 1000).toISOString(),
+    updatedAt: nowIso,
+  };
+  const resumedSnapshot: PrognosisSnapshot = {
+    ...startSnapshot,
+    id: 'coach-integration-resumed-start-snapshot',
+    linkedSessionId: resumedSession.id,
+    createdAt: nowIso,
+  };
+  await db.sessions.put({ ...resumedSession, snapshotId: resumedSnapshot.id });
+  await db.prognosisSnapshots.put(resumedSnapshot);
+  await createInitialCoachAdviceRecord(
+    { ...resumedSession, snapshotId: resumedSnapshot.id },
+    resumedSnapshot
+  );
+
+  const afterReopen = await reassessActiveSessions('app_resume', resumedSession.id);
+  assert(
+    afterReopen.length === 1 && afterReopen[0].status === 'unchanged' &&
+      afterReopen[0].reason?.includes('Mogelijke wijziging') === true,
+    'Na heropenen wordt een betekenisvolle weerswijziging opnieuw beoordeeld maar nog niet direct gepubliceerd'
+  );
+  assert(
+    await db.prognosisSnapshots.where('linkedSessionId').equals(resumedSession.id).count() === 1 &&
+      await db.coachAdviceRecords.where('sessionId').equals(resumedSession.id).count() === 1,
+    'De eerste controle na heropenen behoudt de startsnapshot en het startadvies'
+  );
+
+  const cachedAfterResume = await db.weatherCache.get(cacheId);
+  await db.weatherCache.put({
+    ...cachedAfterResume!,
+    // Nieuwe forecastinvoer; de praktische uitkomst blijft gelijk aan de kandidaat.
+    hourly: cachedAfterResume!.hourly.map((hour) => ({ ...hour, refreshMarker: 3 })) as any,
+  });
+  const confirmedAfterResume = await reassessActiveSessions('weather_update', resumedSession.id);
+  assert(
+    confirmedAfterResume.length === 1 && confirmedAfterResume[0].status === 'snapshot_created',
+    'Een tweede afwijkende forecastinvoer bevestigt dezelfde kandidaat na heropenen'
+  );
+  assert(
+    await db.prognosisSnapshots.where('linkedSessionId').equals(resumedSession.id).count() === 2 &&
+      await db.coachAdviceRecords.where('sessionId').equals(resumedSession.id).count() === 2,
+    'Na bevestiging na heropenen bestaat precies één extra snapshot en coachadvies'
+  );
+
   const originalFetch = globalThis.fetch;
   try {
     await db.weatherCache.update(cacheId, {
