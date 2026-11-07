@@ -14,6 +14,7 @@ import { EndSessionModal } from './EndSessionModal';
 import { CatchModal } from '../catches/CatchModal';
 import { deleteSessionSafely, deletePrognosisSnapshotSafely } from '../../db/db';
 import { calculateSessionRodEffort, closeOpenRodIntervals } from '../../services/sessionEffortEngine';
+import { summarizeCoachSessionOutcome } from '../../services/sessionCoachService';
 import {
   Plus,
   Play,
@@ -891,6 +892,78 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           <Trash2 className="w-3.5 h-3.5" />
                           Alleen momentopname verwijderen
                         </button>
+                      </div>
+                    )}
+
+                    {/* VisCoach-terugblik: advies, reactie, uitvoering en feitelijke sessie-uitkomst */}
+                    {coachAdviceRecords.some((advice) => advice.sessionId === session.id) && (
+                      <div className="p-3 rounded-2xl bg-cyan-950/30 border border-cyan-800/40 space-y-3">
+                        <div>
+                          <h4 className="text-xs font-bold uppercase tracking-wide text-cyan-300">VisCoach-terugblik</h4>
+                          <p className="text-xs text-slate-300 mt-1">
+                            Geregistreerde sessie-uitkomst: {summarizeCoachSessionOutcome(session, sessionCatches)}.
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Dit legt vast wat er is geadviseerd en uitgevoerd; de sessie-uitkomst bewijst op zichzelf niet dat het advies de vangst heeft veroorzaakt.
+                          </p>
+                        </div>
+                        {coachAdviceRecords
+                          .filter((advice) => advice.sessionId === session.id)
+                          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                          .map((advice) => (
+                            <div key={advice.id} className="border-t border-cyan-900/50 pt-3 space-y-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="text-[10px] text-slate-500">
+                                  {new Date(advice.createdAt).toLocaleString('nl-NL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                  {' · '}
+                                  {advice.trigger === 'session_start' ? 'Startadvies' : 'Tussentijds advies'}
+                                </span>
+                                <span className="text-[10px] text-slate-400">
+                                  Reactie: {advice.response === 'accepted' ? 'Opgevolgd' : advice.response === 'adapted' ? 'Aangepast' : advice.response === 'ignored' ? 'Niet gevolgd' : 'Niet vastgelegd'}
+                                </span>
+                              </div>
+                              <p className="text-sm font-semibold text-white">{advice.recommendation}</p>
+                              {advice.summary && <p className="text-xs text-slate-400">{advice.summary}</p>}
+                              {advice.executedTactic ? (
+                                <p className="text-xs text-emerald-300">Uitgevoerd: {advice.executedTactic}</p>
+                              ) : (
+                                <p className="text-xs text-slate-500">Daadwerkelijke uitvoering niet vastgelegd.</p>
+                              )}
+                              <div className="flex flex-wrap gap-2">
+                                {([
+                                  ['accepted', 'Opgevolgd'],
+                                  ['adapted', 'Aangepast'],
+                                  ['ignored', 'Niet gevolgd'],
+                                ] as [CoachAdviceResponse, string][]).map(([value, label]) => (
+                                  <button
+                                    key={value}
+                                    type="button"
+                                    onClick={() => void onUpdateCoachAdvice(advice.id, { response: value })}
+                                    className={`rounded-lg border px-2 py-1 text-[10px] font-semibold ${advice.response === value ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200' : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500'}`}
+                                  >
+                                    {label}
+                                  </button>
+                                ))}
+                              </div>
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <input
+                                  type="text"
+                                  value={tacticDrafts[advice.id] ?? advice.executedTactic ?? ''}
+                                  onChange={(event) => setTacticDrafts((current) => ({ ...current, [advice.id]: event.target.value }))}
+                                  placeholder="Wat heb je daadwerkelijk uitgevoerd?"
+                                  className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={!(tacticDrafts[advice.id] ?? advice.executedTactic ?? '').trim()}
+                                  onClick={() => void onUpdateCoachAdvice(advice.id, { executedTactic: (tacticDrafts[advice.id] ?? advice.executedTactic ?? '').trim() })}
+                                  className="rounded-lg bg-slate-800 px-3 py-2 text-[10px] font-semibold text-cyan-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  Uitvoering opslaan
+                                </button>
+                              </div>
+                            </div>
+                          ))}
                       </div>
                     )}
 
