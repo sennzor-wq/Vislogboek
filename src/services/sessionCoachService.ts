@@ -329,17 +329,18 @@ export async function persistCoachReassessment(
       }
     );
     await db.prognosisSnapshots.update(savedSnapshot.id, { linkedSessionId: session.id });
+    const linkedSnapshot: PrognosisSnapshot = { ...savedSnapshot, linkedSessionId: session.id };
 
     const savedAdvice = createAdviceRecord(
       session,
-      savedSnapshot,
+      linkedSnapshot,
       prognosis,
       currentAdvice ?? previousAdvice,
       trigger,
       transactionChangedFactors
     );
     await db.coachAdviceRecords.put(savedAdvice);
-    return { status: 'created', snapshot: savedSnapshot, advice: savedAdvice };
+    return { status: 'created', snapshot: linkedSnapshot, advice: savedAdvice };
   });
 }
 
