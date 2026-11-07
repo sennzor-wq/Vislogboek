@@ -353,7 +353,7 @@ async function run14Scenarios() {
   // 12B. Tien opeenvolgende synthetische sessies: de bestaande prognose-engine
   // maakt vanaf vijf eerdere geldige sessies zelf een kans; die snapshots gaan
   // daarna ongewijzigd door de bestaande Brier-evaluatie. Geen database/ productie-data.
-  console.log('\\n--- SCENARIO 12B: Tien opeenvolgende sessies via prognose- en evaluatie-engine ---');
+  console.log('\n--- SCENARIO 12B: Tien opeenvolgende sessies via prognose- en evaluatie-engine ---');
   const sequentialForecasts = makeHourlySeries('2026-10-20', 12, () => 14, () => 40, 12);
   const outcomes: Array<'catch' | 'skunk_confirmed'> = [
     'catch', 'skunk_confirmed', 'catch', 'skunk_confirmed', 'catch',
@@ -373,14 +373,14 @@ async function run14Scenarios() {
       date,
       sequentialForecasts,
       'Karper',
-      sequentialSessions,
+      [...sequentialSessions],
       undefined,
       12,
       new Date(`${date}T05:00:00.000Z`),
       {
         sessionDurationHours: 4,
         locationId: testLocationId,
-        catches: sequentialCatches,
+        catches: [...sequentialCatches],
       }
     );
 
