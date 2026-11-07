@@ -31,6 +31,7 @@ async function run() {
       timeSlots: {} as any,
     } as any,
     durationHours: 3,
+    forecastTimestamp: '2026-11-01T16:59:00.000Z',
     locationName: 'Bomedikke speeltuin',
     chosenSlot: 'Avond',
   };
