@@ -1080,6 +1080,8 @@ export function calculateDayPrognosis(
 
 export interface PendingPrognosisSnapshot {
   prognosis: DayPrognosis;
+  /** Exact moment at which this forecast was calculated; never replace it at persistence time. */
+  forecastTimestamp?: string;
   /** 0 is the explicit storage sentinel for an unknown duration. */
   durationHours: number;
   durationKnown?: boolean;
@@ -1113,6 +1115,7 @@ export async function savePrognosisSnapshot(
     inputContext?: PrognosisInputContext;
     inputFingerprint?: string;
     supersedesSnapshotId?: string;
+    forecastTimestamp?: string;
     targetWindowStart?: string;
     targetWindowEnd?: string | null;
   }
@@ -1147,7 +1150,7 @@ export async function savePrognosisSnapshot(
   const id = `snapshot-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
   const snapshot: PrognosisSnapshot = {
     id,
-    forecastTimestamp: new Date().toISOString(),
+    forecastTimestamp: metadata?.forecastTimestamp ?? metadata?.inputContext?.calculatedAt ?? new Date().toISOString(),
     targetDate: prognosis.date,
     targetSlot,
     targetSpecies: prognosis.species,
@@ -1211,6 +1214,13 @@ export async function saveSessionWithPrognosisSnapshot(
     throw new Error('Een prognosesnapshot kan alleen samen met een nieuwe actieve sessie worden opgeslagen.');
   }
 
+  const forecastTimestamp = pending.forecastTimestamp ?? pending.inputContext?.calculatedAt;
+  const forecastMs = forecastTimestamp ? Date.parse(forecastTimestamp) : NaN;
+  const sessionStartMs = Date.parse(session.startTime);
+  if (!Number.isFinite(forecastMs) || !Number.isFinite(sessionStartMs) || forecastMs >= sessionStartMs) {
+    throw new Error('De prognosesnapshot moet een geldig berekeningstijdstip vóór de daadwerkelijke sessiestart hebben. De sessie is niet gestart.');
+  }
+
   return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, db.sessionRods, async () => {
     const snapshot = await savePrognosisSnapshot(
       pending.prognosis,
@@ -1226,6 +1236,7 @@ export async function saveSessionWithPrognosisSnapshot(
         inputContext: pending.inputContext,
         inputFingerprint: pending.inputFingerprint,
         supersedesSnapshotId: pending.supersedesSnapshotId,
+        forecastTimestamp,
       }
     );
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
@@ -1269,8 +1280,9 @@ export async function createLiveSnapshotForSessionStart(
       allSnapshots,
       allLocations
     );
+    const forecastTimestamp = new Date().toISOString();
     const inputContext: PrognosisInputContext = {
-      calculatedAt: new Date().toISOString(),
+      calculatedAt: forecastTimestamp,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: todayStr,
       targetSpecies: species,
@@ -1331,6 +1343,7 @@ export async function createLiveSnapshotForSessionStart(
     // door saveSessionWithPrognosisSnapshot in één transactie opgeslagen.
     return {
       prognosis: prog,
+      forecastTimestamp,
       durationHours: durationHours ?? 0,
       durationKnown: typeof durationHours === 'number' && Number.isFinite(durationHours) && durationHours > 0,
       locationName: location.name,
