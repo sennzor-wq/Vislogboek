@@ -7,6 +7,7 @@ import {
   FishSpecies,
   SessionRod,
   CoachAdviceRecord,
+  CoachAdviceResponse,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
@@ -80,6 +81,10 @@ interface SessionsViewProps {
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
   coachAdviceRecords: CoachAdviceRecord[];
   onManualReassessment: (sessionId: string) => Promise<void>;
+  onUpdateCoachAdvice: (
+    adviceId: string,
+    updates: { response?: CoachAdviceResponse; executedTactic?: string }
+  ) => Promise<void>;
 }
 
 export const SessionsView: React.FC<SessionsViewProps> = ({
@@ -93,6 +98,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   onSaveCatch,
   coachAdviceRecords,
   onManualReassessment,
+  onUpdateCoachAdvice,
 }) => {
   const [filterOutcome, setFilterOutcome] = useState<string>('Alle');
   const [filterLocationId, setFilterLocationId] = useState<string>('Alle');
@@ -100,6 +106,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
   const [endingSession, setEndingSession] = useState<FishingSession | null>(null);
   const [addingCatchForSessionId, setAddingCatchForSessionId] = useState<string | null>(null);
   const [editingCatch, setEditingCatch] = useState<CatchItem | null>(null);
+  const [tacticDrafts, setTacticDrafts] = useState<Record<string, string>>({});
   const [expandedSessionIds, setExpandedSessionIds] = useState<Set<string>>(new Set());
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(true);
   const [expandedYearIds, setExpandedYearIds] = useState<Set<string>>(new Set());
@@ -434,6 +441,58 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           )}
                           {advice.summary && <p className="text-xs text-slate-300 mt-1">{advice.summary}</p>}
                           {advice.rationale && <p className="text-[11px] text-slate-500 mt-1">{advice.rationale}</p>}
+                          <div className="mt-3 rounded-xl border border-slate-700/80 bg-slate-950/50 p-3 space-y-2">
+                            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Wat deed je met dit advies?</p>
+                            <div className="flex flex-wrap gap-2">
+                              {([
+                                ['accepted', 'Opgevolgd'],
+                                ['adapted', 'Aangepast'],
+                                ['ignored', 'Niet gevolgd'],
+                              ] as [CoachAdviceResponse, string][]).map(([value, label]) => (
+                                <button
+                                  key={value}
+                                  type="button"
+                                  onClick={() => void onUpdateCoachAdvice(advice.id, { response: value })}
+                                  className={`rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold transition ${
+                                    advice.response === value
+                                      ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200'
+                                      : 'border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-500 hover:text-white'
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                            {advice.responseAt && (
+                              <p className="text-[10px] text-slate-500">Reactie vastgelegd: {new Date(advice.responseAt).toLocaleString('nl-NL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                            )}
+                            <label className="block space-y-1">
+                              <span className="text-[10px] font-semibold text-slate-400">Wat heb je daadwerkelijk uitgevoerd?</span>
+                              <input
+                                type="text"
+                                value={tacticDrafts[advice.id] ?? advice.executedTactic ?? ''}
+                                onChange={(event) => setTacticDrafts((current) => ({ ...current, [advice.id]: event.target.value }))}
+                                placeholder="Bijv. naar de diepere overgangszone verplaatst"
+                                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-white placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none"
+                              />
+                            </label>
+                            <div className="flex items-center justify-between gap-2">
+                              {advice.executedAt && (
+                                <span className="text-[10px] text-slate-500">Uitvoering vastgelegd: {new Date(advice.executedAt).toLocaleString('nl-NL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                              )}
+                              <button
+                                type="button"
+                                disabled={!(tacticDrafts[advice.id] ?? advice.executedTactic ?? '').trim()}
+                                onClick={() => {
+                                  const tactic = (tacticDrafts[advice.id] ?? advice.executedTactic ?? '').trim();
+                                  void onUpdateCoachAdvice(advice.id, { executedTactic: tactic });
+                                }}
+                                className="ml-auto rounded-lg bg-slate-800 px-3 py-1.5 text-[10px] font-semibold text-cyan-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                Uitvoering opslaan
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       );
 
