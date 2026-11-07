@@ -7,6 +7,7 @@ import {
   prognosisSignature,
   requiresWeatherConfirmation,
   updateCoachAdviceFeedback,
+  nextWeatherChangeConfirmation,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
 
@@ -139,6 +140,14 @@ async function run() {
   assert(!requiresWeatherConfirmation('observation_recorded'), 'Een expliciete gebruikerswaarneming wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('catch_recorded'), 'Een geregistreerde vangst wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('session_changed'), 'Een expliciete sessiewijziging wordt direct beoordeeld');
+
+  const candidateSignature = prognosisSignature(meaningfulTacticalChange);
+  const firstConfirmation = nextWeatherChangeConfirmation(undefined, candidateSignature);
+  const secondConfirmation = nextWeatherChangeConfirmation(firstConfirmation, candidateSignature);
+  const changedCandidate = nextWeatherChangeConfirmation(firstConfirmation, prognosisSignature(combinedPracticalChange));
+  assert(firstConfirmation.confirmations === 1, 'Een nieuwe weerskandidaat start met één bevestiging');
+  assert(secondConfirmation.confirmations === 2, 'Dezelfde praktische wijziging krijgt bij een volgende afwijkende invoer de tweede bevestiging');
+  assert(changedCandidate.confirmations === 1, 'Een andere praktische kandidaat start de bevestiging opnieuw en erft geen eerdere bevestiging');
 
   const newerUnadvisedSnapshot: PrognosisSnapshot = {
     ...snapshot,
