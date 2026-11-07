@@ -26,7 +26,13 @@ const sessionsBeingReassessed = new Set<string>();
 const pendingWeatherChanges = new Map<string, { signature: string; confirmations: number }>();
 
 
-function prognosisSignature(prognosis: DayPrognosis): Record<string, string | number | null> {
+/**
+ * Alleen uitkomsten die de praktische aanpak kunnen veranderen horen in de
+ * adviesvergelijking. Ruwe scores, percentages en vrije toelichting blijven
+ * bewust buiten deze signature: kleine model-/afrondingsschommelingen mogen
+ * geen nieuw sessieadvies veroorzaken.
+ */
+export function prognosisSignature(prognosis: DayPrognosis): Record<string, string | number | null> {
   return {
     advice: prognosis.advice,
     bestTimeSlot: prognosis.bestTimeSlot,
@@ -38,7 +44,7 @@ function prognosisSignature(prognosis: DayPrognosis): Record<string, string | nu
   };
 }
 
-function changedSignatureFactors(
+export function changedSignatureFactors(
   previous: Record<string, string | number | null>,
   current: Record<string, string | number | null>
 ): string[] {
@@ -92,13 +98,20 @@ function createAdviceRecord(
   };
 }
 
-function isMaterialAdviceChange(
-  previous: CoachAdviceRecord | undefined,
-  prognosis: DayPrognosis
-): boolean {
-  if (!previous) return true;
-  const next = buildAdviceText(prognosis);
-  return previous.recommendation !== next.recommendation || previous.summary !== next.summary;
+/** 
+ * Houd de vergelijkingsbasis vast op het snapshot waarop het laatst getoonde
+ * advies rust. Tussentijdse berekeningen mogen die referentie niet opschuiven.
+ */
+export function getAdviceBaselineSnapshot(
+  snapshots: PrognosisSnapshot[],
+  previousAdvice: CoachAdviceRecord | undefined,
+  fallbackSnapshot: PrognosisSnapshot | undefined
+): PrognosisSnapshot | undefined {
+  if (previousAdvice) {
+    const advisedSnapshot = snapshots.find((snapshot) => snapshot.id === previousAdvice.prognosisSnapshotId);
+    if (advisedSnapshot) return advisedSnapshot;
+  }
+  return fallbackSnapshot;
 }
 
 export const VISCOACH_UPDATED_EVENT = 'vislogboek:viscoach-updated';
@@ -225,8 +238,11 @@ export async function reassessActiveSessions(
       const linkedSnapshots = snapshots
         .filter((snapshot) => snapshot.linkedSessionId === session.id)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      const previousSnapshot = linkedSnapshots[0] ??
+      const previousAdvice = (await db.coachAdviceRecords.where('sessionId').equals(session.id).toArray())
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+      const initialSnapshot = linkedSnapshots.find((snapshot) => snapshot.runKind === 'session_start') ??
         snapshots.find((snapshot) => snapshot.id === session.snapshotId);
+      const previousSnapshot = getAdviceBaselineSnapshot(snapshots, previousAdvice, initialSnapshot);
       if (!previousSnapshot) {
         lastEvaluatedFingerprint.set(session.id, inputFingerprint);
         results.push({ sessionId: session.id, status: 'skipped', reason: 'Geen oorspronkelijke sessieprognose om mee te vergelijken.' });
@@ -330,22 +346,16 @@ export async function reassessActiveSessions(
       });
 
       lastEvaluatedFingerprint.set(session.id, inputFingerprint);
-      const previousAdvice = (await db.coachAdviceRecords.where('sessionId').equals(session.id).toArray())
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-      let adviceId: string | undefined;
-      if (isMaterialAdviceChange(previousAdvice, prognosis)) {
-        const advice = createAdviceRecord(session, snapshot, prognosis, previousAdvice, trigger, changedFactors);
-        await db.coachAdviceRecords.put(advice);
-        adviceId = advice.id;
-        notifyVisCoachUpdated();
-      }
+      const advice = createAdviceRecord(session, snapshot, prognosis, previousAdvice, trigger, changedFactors);
+      await db.coachAdviceRecords.put(advice);
+      notifyVisCoachUpdated();
 
       results.push({
         sessionId: session.id,
         status: 'snapshot_created',
         snapshotId: snapshot.id,
-        adviceId,
-        reason: adviceId ? 'Prognose en praktisch advies zijn betekenisvol gewijzigd.' : 'Prognose is betekenisvol gewijzigd; praktisch advies blijft gelijk.',
+        adviceId: advice.id,
+        reason: 'De praktische prognose-uitkomst is betekenisvol gewijzigd; er is een nieuw, herleidbaar coachadvies opgeslagen.',
       });
     } catch (error) {
       results.push({
