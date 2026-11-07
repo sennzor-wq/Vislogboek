@@ -9,6 +9,7 @@ import {
 } from '../../types';
 import { PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { buildVisCoachPlan, VisCoachPlan } from '../../services/viscoachService';
+import { buildVisCoachAdviceText } from '../../services/sessionCoachService';
 import {
   CalendarClock,
   Clock,
@@ -273,44 +274,23 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-bold text-white">Wat betekent dit?</h3>
-            <p className="text-sm leading-relaxed text-slate-300">{plan.prognosis.summaryRationale}</p>
+          <div className="rounded-2xl border border-emerald-500/30 bg-slate-900/80 p-4 sm:p-5 space-y-3">
+            <div className="flex items-center gap-2 text-emerald-300">
+              <Sparkles className="w-4 h-4" />
+              <h3 className="text-sm font-bold">Zo zou ik deze sessie aanpakken</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-white">
+              {buildVisCoachAdviceText(plan.prognosis).summary}
+            </p>
+            <p className="text-sm leading-relaxed text-slate-200">
+              {buildVisCoachAdviceText(plan.prognosis).recommendation}
+            </p>
+            {buildVisCoachAdviceText(plan.prognosis).rationale && (
+              <p className="text-xs leading-relaxed text-slate-400">
+                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis).rationale}
+              </p>
+            )}
           </div>
-
-          {plan.prognosis.positioningAdvice && (
-            <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-300">
-                <MapPin className="w-4 h-4" />
-                <h3 className="text-sm font-bold">Waar kun je beginnen?</h3>
-              </div>
-              <p className="text-sm font-semibold text-white">{plan.prognosis.positioningAdvice.recommendedZone}</p>
-              <p className="text-xs leading-relaxed text-slate-400">{plan.prognosis.positioningAdvice.rationale}</p>
-            </div>
-          )}
-
-          {plan.prognosis.bankWindAnalysis?.isConfigured && (
-            <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-sky-300">
-                <Wind className="w-4 h-4" />
-                <h3 className="text-sm font-bold">Wind en oever</h3>
-              </div>
-              <p className="text-sm text-white">{plan.prognosis.bankWindAnalysis.bankAssessment.explanation}</p>
-              <p className="text-xs text-slate-400">{plan.prognosis.bankWindAnalysis.rodPlacementAdvice.castingDirectionAdvice}</p>
-            </div>
-          )}
-
-          {plan.prognosis.prebaitPlan && (
-            <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4 space-y-2">
-              <h3 className="text-sm font-bold text-white">Voorvoeradvies</h3>
-              <p className="text-sm text-slate-300">{plan.prognosis.prebaitPlan.sessionDayGuidance.advice}</p>
-              <p className="text-xs text-slate-500">{plan.prognosis.prebaitPlan.confidenceLevel} betrouwbaarheid</p>
-            </div>
-          )}
-
-          {plan.prognosis.uncertaintyNotes && plan.prognosis.uncertaintyNotes.length > 0 && (
-            <p className="text-xs text-slate-500">Let op: {plan.prognosis.uncertaintyNotes[0]}</p>
-          )}
 
           <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <button

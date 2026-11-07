@@ -163,22 +163,100 @@ export function nextWeatherChangeConfirmation(
   };
 }
 
-function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommendation: string; rationale: string } {
-  const recommendation =
-    prognosis.positioningAdvice?.recommendedZone ||
-    prognosis.bankWindAnalysis?.rodPlacementAdvice?.primaryPosition ||
-    prognosis.habitatAnalysis?.primaryZone?.name ||
-    prognosis.prebaitPlan?.sessionDayGuidance?.advice ||
-    `Houd de huidige aanpak aan zolang de omstandigheden geen duidelijke reden geven om te wijzigen. ${prognosis.advice.toLowerCase()} omstandigheden.`;
+export interface VisCoachAdviceText {
+  summary: string;
+  recommendation: string;
+  rationale: string;
+}
+
+/**
+ * Centrale vertaling van de bestaande prognose- en tactische engine-uitvoer
+ * naar één begrijpelijk coachadvies. Deze functie berekent zelf geen kansen,
+ * biologie, windrelaties of tactiek; zij ordent uitsluitend bestaande uitkomsten.
+ * Zowel het plan als het sessieadvies gebruikt exact dezelfde vertaling.
+ */
+export function buildVisCoachAdviceText(prognosis: DayPrognosis): VisCoachAdviceText {
+  const when = prognosis.bestTimeSlot &&
+    prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
+    prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
+      ? `Beste vistijd: ${prognosis.bestTimeSlot}.`
+      : 'Er is geen duidelijk beter tijdvak vastgesteld.';
+
+  const where: string[] = [];
+  const positioning = prognosis.positioningAdvice;
+  const habitat = prognosis.habitatAnalysis;
+  const wind = prognosis.bankWindAnalysis;
+
+  if (positioning?.recommendedZone) {
+    where.push(`Begin bij ${positioning.recommendedZone.toLowerCase()}.`);
+  }
+  if (habitat?.primaryZone?.name && habitat.primaryZone.name !== positioning?.recommendedZone) {
+    where.push(`De belangrijkste zoekzone is ${habitat.primaryZone.name.toLowerCase()}.`);
+  }
+  if (wind?.isConfigured) {
+    if (wind.rodPlacementAdvice?.primaryPosition) {
+      where.push(wind.rodPlacementAdvice.primaryPosition);
+    }
+    if (wind.rodPlacementAdvice?.castingDirectionAdvice) {
+      where.push(wind.rodPlacementAdvice.castingDirectionAdvice);
+    }
+  }
+
+  const alternatives: string[] = [];
+  if (positioning?.alternativeOption) alternatives.push(positioning.alternativeOption);
+  if (habitat?.alternativeZone?.name && habitat.alternativeZone.name !== habitat.primaryZone?.name) {
+    alternatives.push(`Als de eerste zone niets oplevert, probeer dan ${habitat.alternativeZone.name.toLowerCase()}.`);
+  }
+  if (habitat?.movementHypothesis?.transitRoute) {
+    alternatives.push(habitat.movementHypothesis.transitRoute);
+  }
+
+  const movement: string[] = [];
+  if (habitat?.movementHypothesis?.likelyDirection) movement.push(habitat.movementHypothesis.likelyDirection);
+  if (habitat?.movementHypothesis?.timeOfDayDynamic) movement.push(habitat.movementHypothesis.timeOfDayDynamic);
+
+  const feeding: string[] = [];
+  if (prognosis.prebaitPlan?.sessionDayGuidance?.advice) {
+    feeding.push(prognosis.prebaitPlan.sessionDayGuidance.advice);
+  }
+  if (prognosis.prebaitPlan?.methodFeederGuidance) {
+    feeding.push(prognosis.prebaitPlan.methodFeederGuidance);
+  }
+
+  const recommendationParts = [
+    when,
+    ...where,
+    ...movement,
+    ...alternatives,
+    ...feeding,
+  ].filter((part, index, all) => Boolean(part) && all.indexOf(part) === index);
+
+  const reasons = [
+    prognosis.summaryRationale,
+    positioning?.rationale,
+    habitat?.primaryZone?.whyLikely,
+    wind?.isConfigured ? wind.bankAssessment?.explanation : undefined,
+    prognosis.thermalAnalysis?.prognosisImpactNote,
+  ].filter((part): part is string => Boolean(part?.trim()));
+
+  const limitations = [
+    ...(prognosis.uncertaintyNotes ?? []),
+    ...(positioning?.missingInformation ?? []),
+    ...(habitat?.missingInformation ?? []),
+    ...(wind?.missingInformation ?? []),
+  ].filter((part, index, all) => Boolean(part?.trim()) && all.indexOf(part) === index);
 
   return {
-    summary: prognosis.summaryRationale || 'De omstandigheden zijn opnieuw beoordeeld.',
-    recommendation,
+    summary: `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}. ${prognosis.summaryRationale || 'De beschikbare omstandigheden zijn beoordeeld.'} ${when}`,
+    recommendation: recommendationParts.length > 1
+      ? recommendationParts.join(' ')
+      : 'Er is onvoldoende onderbouwing voor een specifieke stek- of tactiekkeuze. Begin op een vertrouwde plek en let op zichtbare visactiviteit.',
     rationale: [
-      prognosis.summaryRationale,
-      prognosis.positioningAdvice?.rationale,
-      prognosis.bankWindAnalysis?.bankAssessment?.explanation,
-      prognosis.habitatAnalysis?.movementHypothesis?.transitRoute,
+      reasons.join(' '),
+      limitations.length > 0 ? `Houd rekening met ontbrekende of onzekere informatie: ${limitations.slice(0, 3).join('; ')}.` : '',
+      prognosis.personalCatchConfidence === 'Onvoldoende gegevens'
+        ? 'Een betrouwbare persoonlijke vangkans kan met de beschikbare sessiegegevens nog niet worden bepaald.'
+        : '',
     ].filter(Boolean).join(' '),
   };
 }
@@ -191,7 +269,7 @@ function createAdviceRecord(
   trigger: CoachAdviceTrigger = 'weather_update',
   changedFactors: string[] = []
 ): CoachAdviceRecord {
-  const text = buildAdviceText(prognosis);
+  const text = buildVisCoachAdviceText(prognosis);
   return {
     id: `coach-advice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     sessionId: session.id,

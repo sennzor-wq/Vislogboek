@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
 import {
   changedSignatureFactors,
+  buildVisCoachAdviceText,
   createInitialCoachAdviceRecord,
   getAdviceBaselineSnapshot,
   getSessionUpdateTrigger,
@@ -107,6 +108,48 @@ async function run() {
     activityScore: 6.1,
     summaryRationale: 'Licht gewijzigde toelichting door een kleine weersupdate',
   } as any;
+
+  const translatedAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    bestTimeSlot: 'Avond',
+    positioningAdvice: {
+      recommendedZone: 'Aanlandige oeverzone',
+      rationale: 'De wind duwt voedsel richting deze oever.',
+      alternativeOption: 'Probeer bij weinig activiteit de diepere overgangszone.',
+      missingInformation: [],
+    },
+    bankWindAnalysis: {
+      isConfigured: true,
+      bankAssessment: { explanation: 'De wind staat op de gekozen oever.' },
+      rodPlacementAdvice: {
+        primaryPosition: 'Vis vanaf de luwtezijde.',
+        castingDirectionAdvice: 'Werp schuin langs de oever.',
+      },
+      missingInformation: [],
+    },
+    habitatAnalysis: {
+      primaryZone: { name: 'Rietkraag', whyLikely: 'Hier kan natuurlijk voedsel samenkomen.' },
+      alternativeZone: { name: 'Diepere overgangszone' },
+      movementHypothesis: {
+        likelyDirection: 'De vis kan vanuit dieper water naar de rietkraag trekken.',
+        timeOfDayDynamic: 'Rond de schemering kan deze zone interessanter worden.',
+        transitRoute: 'Zoek de overgang tussen ondiep en dieper water.',
+      },
+      missingInformation: [],
+    },
+    prebaitPlan: {
+      sessionDayGuidance: { advice: 'Voer beperkt bij en bouw de stek rustig op.' },
+      methodFeederGuidance: 'Houd de method feeder compact gevuld.',
+    },
+  } as any);
+  assert(
+    translatedAdvice.summary.includes('avond') &&
+    translatedAdvice.recommendation.includes('Aanlandige oeverzone') &&
+    translatedAdvice.recommendation.includes('Rietkraag') &&
+    translatedAdvice.recommendation.includes('method feeder') &&
+    translatedAdvice.rationale.includes('wind'),
+    'De centrale VisCoach-vertaling combineert tijd, stek, wind, habitat en voer tot één praktisch advies'
+  );
   assert(
     changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
     'Kleine scorefluctuatie en gewijzigde toelichting veroorzaken geen nieuw praktisch advies'
