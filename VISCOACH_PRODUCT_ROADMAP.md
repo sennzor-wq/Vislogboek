@@ -1,8 +1,8 @@
 # VisCoach – product roadmap en technisch ontwikkelplan
 
-**Documentstatus:** goedgekeurde VisCoach-product- en technische blauwdruk; bijgewerkt met de implementatiestatus op `main` tot en met 6 november 2026  
+**Documentstatus:** goedgekeurde VisCoach-product- en technische blauwdruk; bijgewerkt met de implementatiestatus op `main` tot en met 7 november 2026  
 **Onderzoeksdatum:** 2 november 2026  
-**Implementatiestatus gecontroleerd:** 6 november 2026  
+**Implementatiestatus gecontroleerd:** 7 november 2026  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Doel:** de VisCoach ontwikkelen tot de onderscheidende, persoonlijke advies- en begeleidingslaag van Vislogboek.
 
@@ -1148,7 +1148,8 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 - VisCoach-startscherm waarin doelsoort, stek en gewenste starttijd worden gekozen; eindtijd is optioneel.
 - Planberekening via de bestaande `prognosisEngine`, inclusief hergebruik van de bestaande tactische en thermische analyses.
 - Optioneel een plan opslaan en later starten; een geplande sessie blijft onderscheiden van een actieve sessie.
-- Automatische startsnapshot bij het starten van een actieve sessie en koppeling van de snapshot aan de sessie.
+- Automatische startsnapshot bij het starten van een actieve sessie en koppeling van de snapshot aan de sessie. De coach-startmodal gebruikt nu expliciet een nieuwe-sessie-draftmodus; de vooringevulde draft wordt niet langer als bestaande sessie-edit behandeld. Daardoor loopt de startactie via de automatische weerophaling en voorbereiding van de live prognosesnapshot, waarna sessie en snapshot atomair worden opgeslagen en het eerste startadvies wordt aangemaakt. Dit was een concrete fout in de startflow die tijdens praktijktest door de gebruiker is gevonden en op 7 november hersteld.
+- ISO-starttijdstempels worden voor `datetime-local` eerst naar apparaattijd omgezet; de winter- en zomeruurconversie is aan de tijdzoneregressietests toegevoegd. De starttijd van een bestaande sessie is in het bewerkingsformulier vergrendeld; alleen vóór het daadwerkelijk opslaan/starten kan de gebruiker de starttijd aanpassen.
 - Eerste coachadvies op basis van de startsnapshot, met snapshot- en engineversieverwijzing en bescherming tegen dubbele startadviezen.
 - Sessiegebonden herbeoordeling via bestaande prognose- en weerdiensten, met triggers voor weerupdates, sessiewijzigingen, vangstregistratie, waarnemingen, handmatige controle en hervatten.
 - Een expliciete `visibilitychange`-/foreground- en `pageshow`-trigger laat actieve sessies opnieuw beoordelen wanneer een gemonteerde PWA terugkeert. Dit belooft geen verwerking terwijl de PWA volledig gesloten is.
@@ -1174,7 +1175,8 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 4. De gebruikersreactie, uitgevoerde tactiek en feitelijke sessie-uitkomst zijn nu samen zichtbaar in de sessieterugblik. De tests dekken de doelsoorttelling, bijvangst en onbekende legacysoorten af. Een analyse van vergelijkbare sessies en een onderbouwde effectevaluatie van uitgevoerde tactieken is nog niet aangetoond; er wordt geen causaliteit afgeleid uit één sessie.
 5. De Quality Gate voert `test-session-coach.ts`, `test-session-coach-integration.ts`, `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit; deze suites zijn opgenomen in de verplichte CI-controle.
 6. Quality Gate #457 is volledig geslaagd op commit `12b853609005d8c5b29a84253e01fa0668ccecae`, inclusief TypeScript-typecheck, regressietests, het heropeningsscenario in de sessie-/weerintegratietest, backup/restore, beveiligingscontroles en productiebuild. Dit is technische verificatie; het bewijst geen biologische of praktijknauwkeurigheid.
+7. Quality Gate #465 is volledig geslaagd op commit `d5ca09a76f236edc2e0e2c94adf7862cef2986af`, inclusief TypeScript-typecheck, Amsterdamse zomer-/wintertijdregressies, alle bestaande regressies en integratietests en de productiebuild. Deze gate bevat de herstelwijziging voor de coach-startflow, tijdzoneweergave en vergrendelde starttijd.
 
 ### Conclusie en eerstvolgende fase
 
-De basis van fase 6 is aanwezig. De actuele wijziging herstelt een belangrijk stabiliteitsprobleem: de adviesreferentie verschuift niet meer door tussentijdse berekeningen, en kleine score-/tekstfluctuaties leiden niet zelfstandig tot nieuw advies. De volgende stap is de resterende event-/herbeoordelingscyclus verder testen, met name browser-/PWA-herstart over afzonderlijke modulelevenscycli, meerdere echte tabs en de integratie van alle invoerpaden. De registratie van gebruikersreactie en uitgevoerde tactiek is inmiddels toegevoegd; daarna volgt de evaluatie van die registraties tegen de sessie-uitkomst. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
+De basis van fase 6 is aanwezig. Naast de eerder vastgelegde stabiliteitsbescherming is op 7 november een door praktijktest gevonden fout in de daadwerkelijke startflow hersteld: de coach-draft wordt nu als nieuwe sessie behandeld, zodat automatische weerkoppeling, startsnapshot en startadvies worden uitgevoerd. De starttijd wordt correct als lokale tijd weergegeven en na starten vergrendeld. De CI-controle is geslaagd; de gebruiker moet deze drie punten nog in de app bevestigen. De volgende stap is de resterende event-/herbeoordelingscyclus verder testen, met name browser-/PWA-herstart over afzonderlijke modulelevenscycli, meerdere echte tabs en de integratie van alle invoerpaden. De registratie van gebruikersreactie en uitgevoerde tactiek is inmiddels toegevoegd; daarna volgt de evaluatie van die registraties tegen de sessie-uitkomst. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
