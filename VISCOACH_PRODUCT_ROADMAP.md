@@ -1160,14 +1160,17 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 - Geplande sessies, coachadviezen en hun verwijzingen zijn opgenomen in backupformaat v5; round-trip-, merge-, legacy- en relationele validatietests zijn aanwezig.
 - Veilige verwijdering van sessiegebonden coachrecords en bescherming van gekoppelde snapshots zijn opgenomen in regressietests.
 - De actieve sessieweergave laat de gebruiker per advies vastleggen of dit is opgevolgd, aangepast of niet gevolgd, plus welke tactiek daadwerkelijk is uitgevoerd. Reactie en uitvoeringstijd worden op het bestaande adviesrecord opgeslagen; prognoseverwijzing en oorspronkelijke adviesinhoud blijven behouden.
+- Een gewijzigde expliciete viswaarneming of watertemperatuurmeting wordt bij het opslaan van een actieve sessie nu als observation_recorded doorgegeven; een gewone sessie-/notitiewijziging blijft session_changed. De vergelijking negeert een andere volgorde van dezelfde waarnemingen.
+- Een tussentijdse prognosesnapshot en het coachadvies dat ernaar verwijst worden nu in één Dexie-transactie opgeslagen. Binnen die transactie wordt opnieuw gecontroleerd op identieke invoer en op een inmiddels gewijzigd adviesbaseline, zodat dubbele events of gelijktijdige tabs geen dubbele adviezen hoeven te veroorzaken en geen verweesde snapshot achterlaten wanneer het advies opslaan faalt.
 
 ### Nog niet als volledig afgerond bewezen
 
-1. De nieuwe tests dekken de zuivere signatuur- en referentiekeuze af, maar de volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
-2. De bevestigingslogica is nu als deterministische stap getest: een nieuwe forecastkandidaat begint op één, dezelfde praktische kandidaat krijgt een tweede bevestiging en een andere kandidaat begint opnieuw. De volledige integratie over opeenvolgende invoer, identieke weersdata na herstart, dubbele events en offline hervatten vraagt nog scenario-tests door de complete serviceflow.
-3. De gebruikersreactie en daadwerkelijk uitgevoerde tactiek kunnen nu via de actieve sessie worden vastgelegd en worden getest. De volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst, inclusief analyse van vergelijkbare sessies, is nog niet aangetoond.
-4. De Quality Gate voert `test-session-coach.ts`, `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit; alle drie zijn geslaagd in Quality Gate #434.
-5. Quality Gate #434 is volledig geslaagd op commit `25995b3c683c0b8632360a09865a595ff2c70b1a`, inclusief TypeScript-typecheck, regressietests en productiebuild. Dit is technische verificatie; het bewijst geen biologische of praktijknauwkeurigheid.
+1. De zuivere signatuur-, baseline- en observatietriggerkeuze zijn getest. De volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
+2. De bevestigingslogica is als deterministische stap getest: een nieuwe forecastkandidaat begint op één, dezelfde praktische kandidaat krijgt een tweede bevestiging en een andere kandidaat begint opnieuw. De volledige integratie over opeenvolgende invoer, identieke weersdata na herstart, dubbele events en offline hervatten vraagt nog scenario-tests door de complete serviceflow.
+3. De snapshot/adviesopslag is nu atomair en controleert binnen de transactie opnieuw op dubbele invoer en een gewijzigd adviesbaseline. Dit moet nog met service-/database-integratiescenario's en gelijktijdige herbeoordelingen worden gevalideerd.
+4. De gebruikersreactie en daadwerkelijk uitgevoerde tactiek kunnen nu via de actieve sessie worden vastgelegd en worden getest. De volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst, inclusief analyse van vergelijkbare sessies, is nog niet aangetoond.
+5. De Quality Gate voert `test-session-coach.ts`, `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit; deze suites zijn opgenomen in de verplichte CI-controle.
+6. Quality Gate #438 is volledig geslaagd op commit `f1778375e271eaa5af8c4d8322dc4d95654181e4`, inclusief TypeScript-typecheck, regressietests en productiebuild. De wijzigingen die hierboven na #438 zijn aangebracht moeten nog door een nieuwe Quality Gate worden gevalideerd. Dit is technische verificatie; het bewijst geen biologische of praktijknauwkeurigheid.
 
 ### Conclusie en eerstvolgende fase
 
