@@ -269,9 +269,10 @@ export async function reassessActiveSessions(
         continue;
       }
 
-      // Een weersupdate moet dezelfde praktische wijziging bij een volgende, afwijkende invoer bevestigen.
-      // Gebruikerswaarnemingen, sessiewijzigingen, handmatige controles en app-hervatten worden direct verwerkt.
-      if (trigger === 'weather_update') {
+      // Weersupdates én hervatten kunnen alleen een nieuwe forecast opleveren.
+      // Bevestig daarom dezelfde praktische wijziging op een volgende afwijkende invoer.
+      // Expliciete gebruikerswaarnemingen en sessiewijzigingen worden direct verwerkt.
+      if (trigger === 'weather_update' || trigger === 'app_resume') {
         const signatureKey = JSON.stringify(currentSignature);
         const candidate = pendingWeatherChanges.get(session.id);
         const confirmations = candidate?.signature === signatureKey ? candidate.confirmations + 1 : 1;
