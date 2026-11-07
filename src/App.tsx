@@ -507,6 +507,7 @@ export default function App() {
           sessionDurationHours={prefilledSessionDurationHours}
           plannedEndTime={prefilledPlannedEndTime}
           createStartSnapshot={true}
+          isNewSession={true}
           initialRodDetails={[]}
           onSave={async (newSess, pendingSnapshot, rods) => {
             await handleSaveSession(newSess, pendingSnapshot, rods);
