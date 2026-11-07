@@ -6,6 +6,7 @@
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
 import { calculateDayPrognosis, getSessionDurationHours } from './src/services/prognosisEngine';
+import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
   BENCHMARK_SESSION,
@@ -347,6 +348,125 @@ async function run14Scenarios() {
   assert(
     progInvalid.personalCatchChance === null,
     '12.2 Ongeldige negatieve sessieduur levert geen schijnvangstkans op'
+  );
+
+  // 12B. Tien opeenvolgende synthetische sessies: de bestaande prognose-engine
+  // maakt vanaf vijf eerdere geldige sessies zelf een kans; die snapshots gaan
+  // daarna ongewijzigd door de bestaande Brier-evaluatie. Geen database/ productie-data.
+  console.log('\\n--- SCENARIO 12B: Tien opeenvolgende sessies via prognose- en evaluatie-engine ---');
+  const sequentialForecasts = makeHourlySeries('2026-10-20', 12, () => 14, () => 40, 12);
+  const outcomes: Array<'catch' | 'skunk_confirmed'> = [
+    'catch', 'skunk_confirmed', 'catch', 'skunk_confirmed', 'catch',
+    'catch', 'skunk_confirmed', 'skunk_confirmed', 'catch', 'skunk_confirmed',
+  ];
+  const sequentialSessions: FishingSession[] = [];
+  const sequentialCatches: any[] = [];
+  const sequentialSnapshots: any[] = [];
+  const testLocationId = 'synthetic-ten-session-location';
+
+  for (let index = 0; index < outcomes.length; index++) {
+    const date = new Date(Date.UTC(2026, 9, 20 + index)).toISOString().slice(0, 10);
+    const startTime = `${date}T09:00:00.000Z`;
+    const endTime = `${date}T13:00:00.000Z`;
+    const forecastTimestamp = `${date}T08:00:00.000Z`;
+    const prognosis = calculateDayPrognosis(
+      date,
+      sequentialForecasts,
+      'Karper',
+      sequentialSessions,
+      undefined,
+      12,
+      new Date(`${date}T05:00:00.000Z`),
+      {
+        sessionDurationHours: 4,
+        locationId: testLocationId,
+        catches: sequentialCatches,
+      }
+    );
+
+    if (index < 5) {
+      assert(
+        prognosis.relevantSessionCount === index && prognosis.personalCatchChance === null,
+        `12B.${index + 1} Na ${index} eerdere sessies blijft de persoonlijke kans terecht onbekend`
+      );
+    } else {
+      assert(
+        prognosis.relevantSessionCount === index &&
+          typeof prognosis.personalCatchChance === 'number' &&
+          Number.isFinite(prognosis.personalCatchChance) &&
+          prognosis.personalCatchChance >= 0 &&
+          prognosis.personalCatchChance <= 95,
+        `12B.${index + 1} Na ${index} eerdere geldige sessies berekent de bestaande engine een numerieke vangkans (${prognosis.personalCatchChance}%)`
+      );
+    }
+
+    const sessionId = `synthetic-ten-session-${index + 1}`;
+    const session: FishingSession = {
+      id: sessionId,
+      locationId: testLocationId,
+      locationName: 'Geïsoleerde synthetische teststek',
+      startTime,
+      endTime,
+      durationMinutes: 240,
+      outcome: outcomes[index],
+      targetSpecies: ['Karper'],
+      createdAt: startTime,
+      updatedAt: endTime,
+    };
+
+    if (outcomes[index] === 'catch') {
+      sequentialCatches.push({
+        id: `${sessionId}-catch`,
+        sessionId,
+        species: 'Karper',
+        count: 1,
+        timestamp: `${date}T11:00:00.000Z`,
+        createdAt: `${date}T11:00:00.000Z`,
+      });
+    }
+
+    sequentialSnapshots.push({
+      id: `${sessionId}-snapshot`,
+      runKind: 'session_start',
+      forecastTimestamp,
+      targetDate: date,
+      targetSpecies: 'Karper',
+      locationId: testLocationId,
+      locationName: 'Geïsoleerde synthetische teststek',
+      durationHours: 4,
+      durationKnown: true,
+      predictedActivityScore: prognosis.activityScore,
+      predictedCatchChance: prognosis.personalCatchChance,
+      actualOutcome: outcomes[index],
+      linkedSessionId: sessionId,
+      source: 'synthetic-ten-session-test',
+      modelVersion: 'test-production-engine',
+      createdAt: forecastTimestamp,
+    });
+    sequentialSessions.push(session);
+  }
+
+  const sequentialEvaluation = evaluatePrognosisPerformance(
+    sequentialSnapshots,
+    sequentialSnapshots,
+    sequentialSessions
+  );
+  assert(
+    sequentialSnapshots.filter((snapshot) => snapshot.predictedCatchChance === null).length === 5 &&
+      sequentialSnapshots.filter((snapshot) => typeof snapshot.predictedCatchChance === 'number').length === 5,
+    '12B.11 De tien sessies leveren exact vijf startvoorspellingen zonder kans en vijf voorspellingen met door de engine berekende kans'
+  );
+  assert(
+    sequentialEvaluation.evaluatedCount === 5 &&
+      sequentialEvaluation.hasSufficientData &&
+      typeof sequentialEvaluation.brierScore === 'number',
+    `12B.12 De vijf numerieke vooraf vastgelegde kansen worden onafhankelijk geëvalueerd met Brier (N=${sequentialEvaluation.evaluatedCount}, BS=${sequentialEvaluation.brierScore})`
+  );
+  assert(
+    sequentialSnapshots.every((snapshot, index) =>
+      Date.parse(snapshot.forecastTimestamp) < Date.parse(sequentialSessions[index].startTime)
+    ),
+    '12B.13 Alle tien snapshots hebben een voorspellingstijdstip vóór de werkelijke sessiestart'
   );
 
   // 13. Export, import en herstel van bestaande back-ups
