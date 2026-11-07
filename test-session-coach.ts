@@ -1,6 +1,11 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { createInitialCoachAdviceRecord } from './src/services/sessionCoachService';
+import {
+  changedSignatureFactors,
+  createInitialCoachAdviceRecord,
+  getAdviceBaselineSnapshot,
+  prognosisSignature,
+} from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
 
 let passed = 0;
@@ -68,6 +73,47 @@ async function run() {
     'Coachadvies bewaart de volledige engineversiekaart van de gebruikte snapshot');
   assert(second?.id === first?.id && stored.length === 1, 'Herhaald opslaan maakt geen dubbele startadviezen');
   assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
+
+  const baselinePrognosis = {
+    ...snapshot.prognosisData!,
+    activityScore: 6,
+    summaryRationale: 'Eerste toelichting',
+    positioningAdvice: { recommendedZone: 'Diepere overgangszone' },
+  } as any;
+  const smallFluctuation = {
+    ...baselinePrognosis,
+    activityScore: 6.1,
+    summaryRationale: 'Licht gewijzigde toelichting door een kleine weersupdate',
+  } as any;
+  assert(
+    changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
+    'Kleine scorefluctuatie en gewijzigde toelichting veroorzaken geen nieuw praktisch advies'
+  );
+
+  const meaningfulTacticalChange = {
+    ...smallFluctuation,
+    positioningAdvice: { recommendedZone: 'Aanlandige oeverzone' },
+  } as any;
+  assert(
+    changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(meaningfulTacticalChange))
+      .includes('recommendedZone'),
+    'Een daadwerkelijk gewijzigde aanbevolen stekzone wordt als praktische verandering herkend'
+  );
+
+  const newerUnadvisedSnapshot: PrognosisSnapshot = {
+    ...snapshot,
+    id: 'coach-test-unadvised-newer-snapshot',
+    runKind: 'session_update',
+    createdAt: '2026-11-05T11:00:00.000Z',
+  };
+  assert(
+    getAdviceBaselineSnapshot(
+      [snapshot, newerUnadvisedSnapshot],
+      first ?? undefined,
+      newerUnadvisedSnapshot
+    )?.id === snapshot.id,
+    'Vergelijkingsbasis blijft het snapshot van het laatst getoonde advies, niet een nieuwere onbeoordeelde snapshot'
+  );
 
   await db.delete();
   console.log(`Session coach tests: ${passed} geslaagd, ${failed} gefaald`);
