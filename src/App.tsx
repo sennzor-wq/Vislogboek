@@ -229,6 +229,9 @@ export default function App() {
     if (!sessionData.id) return;
 
     const previousSession = await db.sessions.get(sessionData.id);
+    if (!previousSession && sessionData.outcome === 'active' && !pendingSnapshot && !sessionData.snapshotId) {
+      throw new Error('Een nieuwe actieve sessie kan niet starten zonder vooraf berekende prognosesnapshot.');
+    }
     let savedSession: FishingSession | undefined;
     if (pendingSnapshot && sessionData.outcome === 'active') {
       // Sessie en vooraf gekozen prognose worden atomair vastgelegd.
