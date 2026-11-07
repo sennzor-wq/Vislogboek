@@ -1165,7 +1165,7 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 1. De nieuwe tests dekken de zuivere signatuur- en referentiekeuze af, maar de volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
 2. Er zijn nog expliciete regressietests nodig voor een reeks opeenvolgende kleine wijzigingen die samen een praktische verandering vormen, identieke weersdata na herstart, dubbele events en offline hervatten.
 3. De code bewaart velden voor gebruikersreactie en uitgevoerde tactiek, maar een volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst is nog niet aangetoond.
-4. De Quality Gate bevat `test-session-coach.ts`; uitvoering van `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` in de CI-pipeline moet nog afzonderlijk worden geborgd.
+4. De Quality Gate voert nu ook `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit naast `test-session-coach.ts`; de eerste geslaagde run na deze uitbreiding moet dit bevestigen.
 5. De nieuwe Quality Gate voor de huidige adviesvergelijkingswijziging is bij deze documentupdate nog in uitvoering; er wordt dus nog geen geslaagde CI-status geclaimd.
 
 ### Conclusie en eerstvolgende fase
