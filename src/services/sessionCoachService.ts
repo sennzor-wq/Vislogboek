@@ -170,7 +170,7 @@ export interface VisCoachAdviceText {
 }
 
 function cleanCoachText(value: string | undefined): string {
-  return (value ?? '').replace(/\\s+/g, ' ').trim();
+  return (value ?? '').replaceAll('\\n', ' ').replaceAll('\\r', ' ').replaceAll('\\t', ' ').trim();
 }
 
 function isGenericZone(value: string): boolean {
@@ -188,7 +188,7 @@ function explainZone(value: string): string {
 
 function explainCoachLimitation(note: string): string | null {
   if (/vergelijkbare eigen sessies/i.test(note)) {
-    const count = note.match(/(?:zijn er|er zijn)\\s+(\\d+)\\s+vergelijkbare/i)?.[1];
+    const count = note.split(' ').find((part) => part.length > 0 && Number.isInteger(Number(part)));
     return count
       ? `Er zijn ${count} vergelijkbare eigen sessies. Dat is nog te weinig om jouw persoonlijke vangkans betrouwbaar te berekenen.`
       : 'Er zijn nog te weinig vergelijkbare eigen sessies om jouw persoonlijke vangkans betrouwbaar te berekenen.';
