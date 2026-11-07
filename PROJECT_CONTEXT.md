@@ -33,7 +33,7 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 
 ### Status op basis van de actuele `main`
 
-| Onderdeel | Status op 6 november 2026 | Betekenis |
+| Onderdeel | Status op 7 november 2026 | Betekenis |
 |---|---|---|
 | P0 — data-integriteit | Afgerond en gemerged via PR #39 | Geen nieuwe uitvoering nodig; regressiecriteria blijven gelden. |
 | P1 — prognosekeuze en meetherkomst | Afgerond en gemerged via PR #40 | Geen nieuwe uitvoering nodig; regressiecriteria blijven gelden. |
