@@ -251,17 +251,20 @@ export function buildVisCoachAdviceText(
   const strongWind = positioning?.windContext?.isStrongWind === true;
   const windSpeed = positioning?.windContext?.speedKmH ?? wind?.windSpeedKmH ?? weather?.windSpeed;
   const windDirection = positioning?.windContext?.directionText || weather?.windDirectionText;
+  const windOrigin = wind?.windOriginDirection || positioning?.windCastingGuidance?.windOrigin?.fullName || windDirection;
+  const windDestination = wind?.windDestinationDirection || positioning?.windCastingGuidance?.windDestination?.fullName;
+  const windFlowText = windOrigin
+    ? `De wind komt uit de richting ${windOrigin}${windDestination ? ` en waait richting ${windDestination}` : ''}.`
+    : '';
   const casting = positioning?.windCastingGuidance?.castingAdvice;
   let windAdvice = '';
   if (strongWind) {
     if (casting?.isCastingDirectionDefinite && casting.recommendedDirection) {
-      windAdvice = `Er staat volgens de analyse stevige wind. De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
+      windAdvice = `Er staat volgens de analyse stevige wind. ${windFlowText} De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
     } else if (wind?.isConfigured && wind.rodPlacementAdvice?.castingDirectionAdvice) {
-      windAdvice = `Er staat volgens de analyse stevige wind. ${cleanCoachText(wind.rodPlacementAdvice.primaryPosition)} ${cleanCoachText(wind.rodPlacementAdvice.castingDirectionAdvice)}`;
+      windAdvice = `Er staat volgens de analyse stevige wind. ${windFlowText} ${cleanCoachText(wind.rodPlacementAdvice.primaryPosition)} ${cleanCoachText(wind.rodPlacementAdvice.castingDirectionAdvice)}`;
     } else {
-      const directionText = windDirection
-        ? `De wind komt uit het ${windDirection.toLowerCase()}${typeof windSpeed === 'number' ? ` met ongeveer ${windSpeed.toFixed(1)} km/u` : ''}.`
-        : typeof windSpeed === 'number' ? `De wind is ongeveer ${windSpeed.toFixed(1)} km/u.` : '';
+      const directionText = windFlowText || (typeof windSpeed === 'number' ? `De wind is ongeveer ${windSpeed.toFixed(1)} km/u.` : '');
       windAdvice = `${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
     }
   }
