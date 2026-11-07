@@ -84,6 +84,46 @@ export function getSessionUpdateTrigger(
   return observationChanged || measurementChanged ? 'observation_recorded' : 'session_changed';
 }
 
+/**
+ * Beschrijft de geregistreerde sessie-uitkomst zonder vangst van een bijvangst
+ * of een onbekende legacy-soort als doelsoortsucces te tellen.
+ */
+export function summarizeCoachSessionOutcome(
+  session: FishingSession,
+  catches: import('../types').CatchItem[]
+): string {
+  if (session.outcome === 'skunk_confirmed') return 'Bevestigde nulvangst';
+
+  const targetSpecies = session.targetSpecies ?? [];
+  const targetCatches = catches.filter((item) =>
+    item.legacyImportQuality?.speciesKnown !== false && targetSpecies.includes(item.species)
+  );
+  const knownTargetCount = targetCatches.reduce((sum, item) =>
+    sum + (item.legacyImportQuality?.countKnown === false ? 0 : item.count), 0
+  );
+  const targetCountUnknown = targetCatches.some((item) => item.legacyImportQuality?.countKnown === false);
+
+  if (targetCatches.length > 0) {
+    if (knownTargetCount > 0) {
+      return `Doelsoort geregistreerd: ${knownTargetCount} vis${knownTargetCount === 1 ? '' : 'sen'}`;
+    }
+    return targetCountUnknown
+      ? 'Doelsoort geregistreerd; aantal onbekend'
+      : 'Doelsoortregistratie aanwezig; aantal niet betrouwbaar bekend';
+  }
+
+  if (session.outcome === 'catch') {
+    if (targetSpecies.length === 0) return 'Vangst geregistreerd; doelsoort niet vastgelegd';
+    if (catches.some((item) => item.legacyImportQuality?.speciesKnown === false)) {
+      return 'Vangst geregistreerd; doelsoortresultaat deels onbekend';
+    }
+    if (catches.length > 0) return 'Andere soort(en) geregistreerd; geen doelsoortvangst vastgelegd';
+    return 'Sessie als vangst gemarkeerd; soortspecifieke vangst ontbreekt';
+  }
+
+  return session.outcome === 'unknown' ? 'Uitkomst onbekend' : 'Sessie niet afgerond';
+}
+
 export interface WeatherChangeConfirmationState {
   signature: string;
   confirmations: number;
