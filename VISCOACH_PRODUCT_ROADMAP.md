@@ -1159,15 +1159,16 @@ Deze roadmap is de VisCoach-blauwdruk; voor de feitelijke implementatiestatus ge
 - VisCoach-weergave binnen de bestaande actieve sessie-interface; bestaande sessie-, vangst- en hengelregistratie blijft leidend.
 - Geplande sessies, coachadviezen en hun verwijzingen zijn opgenomen in backupformaat v5; round-trip-, merge-, legacy- en relationele validatietests zijn aanwezig.
 - Veilige verwijdering van sessiegebonden coachrecords en bescherming van gekoppelde snapshots zijn opgenomen in regressietests.
+- De actieve sessieweergave laat de gebruiker per advies vastleggen of dit is opgevolgd, aangepast of niet gevolgd, plus welke tactiek daadwerkelijk is uitgevoerd. Reactie en uitvoeringstijd worden op het bestaande adviesrecord opgeslagen; prognoseverwijzing en oorspronkelijke adviesinhoud blijven behouden.
 
 ### Nog niet als volledig afgerond bewezen
 
 1. De nieuwe tests dekken de zuivere signatuur- en referentiekeuze af, maar de volledige dynamische herbeoordelingscyclus via echte database-/weerevents moet nog uitgebreider integraal worden getest.
 2. Er zijn nog expliciete regressietests nodig voor een reeks opeenvolgende kleine wijzigingen die samen een praktische verandering vormen, identieke weersdata na herstart, dubbele events en offline hervatten.
-3. De code bewaart velden voor gebruikersreactie en uitgevoerde tactiek, maar een volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst is nog niet aangetoond.
+3. De gebruikersreactie en daadwerkelijk uitgevoerde tactiek kunnen nu via de actieve sessie worden vastgelegd en worden getest. De volledige evaluatiecyclus van advies → reactie/uitvoering → sessie-uitkomst, inclusief analyse van vergelijkbare sessies, is nog niet aangetoond.
 4. De Quality Gate voert nu ook `test-viscoach-greetings.ts` en `test-weather-enrichment.ts` uit naast `test-session-coach.ts`; de eerste geslaagde run na deze uitbreiding moet dit bevestigen.
 5. De nieuwe Quality Gate voor de huidige adviesvergelijkingswijziging is bij deze documentupdate nog in uitvoering; er wordt dus nog geen geslaagde CI-status geclaimd.
 
 ### Conclusie en eerstvolgende fase
 
-De basis van fase 6 is aanwezig. De actuele wijziging herstelt een belangrijk stabiliteitsprobleem: de adviesreferentie verschuift niet meer door tussentijdse berekeningen, en kleine score-/tekstfluctuaties leiden niet zelfstandig tot nieuw advies. De volgende stap is de volledige event-/herbeoordelingscyclus testen, inclusief opeenstapeling van kleine veranderingen, bevestiging, herstart en dubbele events. Daarna volgen adviesreactie, uitgevoerde tactiek en evaluatie. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
+De basis van fase 6 is aanwezig. De actuele wijziging herstelt een belangrijk stabiliteitsprobleem: de adviesreferentie verschuift niet meer door tussentijdse berekeningen, en kleine score-/tekstfluctuaties leiden niet zelfstandig tot nieuw advies. De volgende stap is de volledige event-/herbeoordelingscyclus testen, inclusief opeenstapeling van kleine veranderingen, bevestiging, herstart en dubbele events. De registratie van gebruikersreactie en uitgevoerde tactiek is inmiddels toegevoegd; daarna volgt de evaluatie van die registraties tegen de sessie-uitkomst. Er wordt geen tweede prognose- of tactische engine toegevoegd; eerdere fasen en P0/P1/P2 worden niet opnieuw uitgevoerd.
