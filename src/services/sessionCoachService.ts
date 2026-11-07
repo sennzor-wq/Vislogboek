@@ -57,6 +57,33 @@ export function requiresWeatherConfirmation(trigger: CoachAdviceTrigger): boolea
   return trigger === 'weather_update';
 }
 
+/**
+ * Onderscheidt expliciete waarnemings-/meetupdates van gewone sessiebewerkingen.
+ * Alleen bestaande, daadwerkelijk gewijzigde observatievelden bepalen de trigger.
+ */
+export function getSessionUpdateTrigger(
+  previous: FishingSession | undefined,
+  current: FishingSession
+): CoachAdviceTrigger {
+  if (!previous) return 'session_changed';
+
+  const normalizeObservations = (values: FishingSession['presenceObservations']) =>
+    [...(values ?? [])].sort().join('|');
+  const observationChanged =
+    normalizeObservations(previous.presenceObservations) !== normalizeObservations(current.presenceObservations);
+
+  const measurementFields: Array<keyof FishingSession> = [
+    'waterTemperature',
+    'waterTemperatureMeasuredAt',
+    'waterTemperatureMeasurementSource',
+    'waterTemperatureMeasurementMethod',
+    'waterTemperatureMeasurementDepthM',
+  ];
+  const measurementChanged = measurementFields.some((field) => previous[field] !== current[field]);
+
+  return observationChanged || measurementChanged ? 'observation_recorded' : 'session_changed';
+}
+
 export interface WeatherChangeConfirmationState {
   signature: string;
   confirmations: number;
@@ -379,8 +406,30 @@ export async function reassessActiveSessions(
         weatherFetchedAt: weather.fetchedAt,
       };
 
-      const snapshot = await db.transaction('rw', db.prognosisSnapshots, db.coachAdviceRecords, async () => {
-        const saved = await savePrognosisSnapshot(
+      // Snapshot en het advies dat ernaar verwijst worden samen opgeslagen.
+      // De transactie controleert opnieuw op een identieke invoer en op een inmiddels
+      // gewijzigd adviesbaseline, zodat dubbele events/tabs geen dubbele adviezen maken.
+      const persistence = await db.transaction('rw', db.prognosisSnapshots, db.coachAdviceRecords, async () => {
+        const currentSnapshots = await db.prognosisSnapshots.where('linkedSessionId').equals(session.id).toArray();
+        if (currentSnapshots.some((item) => item.inputFingerprint === inputFingerprint)) {
+          return { status: 'duplicate' as const };
+        }
+
+        const currentAdvice = (await db.coachAdviceRecords.where('sessionId').equals(session.id).toArray())
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+        const currentAdviceSnapshot = currentAdvice
+          ? currentSnapshots.find((item) => item.id === currentAdvice.prognosisSnapshotId)
+          : undefined;
+        const currentBaseline = currentAdviceSnapshot ?? previousSnapshot;
+        if (!currentBaseline?.prognosisData) return { status: 'missing_baseline' as const };
+
+        const transactionChangedFactors = changedSignatureFactors(
+          prognosisSignature(currentBaseline.prognosisData),
+          currentSignature
+        );
+        if (transactionChangedFactors.length === 0) return { status: 'unchanged' as const };
+
+        const savedSnapshot = await savePrognosisSnapshot(
           prognosis,
           durationHours ?? 0,
           location.id,
@@ -393,24 +442,44 @@ export async function reassessActiveSessions(
             weatherInput: weather.hourly,
             inputContext,
             inputFingerprint,
-            supersedesSnapshotId: previousSnapshot.id,
+            supersedesSnapshotId: currentBaseline.id,
           }
         );
-        await db.prognosisSnapshots.update(saved.id, { linkedSessionId: session.id });
-        return saved;
+        await db.prognosisSnapshots.update(savedSnapshot.id, { linkedSessionId: session.id });
+
+        const savedAdvice = createAdviceRecord(
+          session,
+          savedSnapshot,
+          prognosis,
+          currentAdvice ?? previousAdvice,
+          trigger,
+          transactionChangedFactors
+        );
+        await db.coachAdviceRecords.put(savedAdvice);
+        return { status: 'created' as const, snapshot: savedSnapshot, advice: savedAdvice };
       });
 
       lastEvaluatedFingerprint.set(session.id, inputFingerprint);
-      const advice = createAdviceRecord(session, snapshot, prognosis, previousAdvice, trigger, changedFactors);
-      await db.coachAdviceRecords.put(advice);
-      notifyVisCoachUpdated();
+      if (persistence.status !== 'created') {
+        results.push({
+          sessionId: session.id,
+          status: 'unchanged',
+          reason: persistence.status === 'duplicate'
+            ? 'Deze invoer is al in een andere herbeoordeling opgeslagen.'
+            : persistence.status === 'missing_baseline'
+              ? 'De oorspronkelijke prognose ontbreekt; er is geen veilige vergelijkingsbasis.'
+              : 'De praktische uitkomst is inmiddels gelijk aan het laatst vastgelegde advies.',
+        });
+        continue;
+      }
 
+      notifyVisCoachUpdated();
       results.push({
         sessionId: session.id,
         status: 'snapshot_created',
-        snapshotId: snapshot.id,
-        adviceId: advice.id,
-        reason: 'De praktische prognose-uitkomst is betekenisvol gewijzigd; er is een nieuw, herleidbaar coachadvies opgeslagen.',
+        snapshotId: persistence.snapshot.id,
+        adviceId: persistence.advice.id,
+        reason: 'De praktische prognose-uitkomst is betekenisvol gewijzigd; snapshot en coachadvies zijn atomair opgeslagen.',
       });
     } catch (error) {
       results.push({
