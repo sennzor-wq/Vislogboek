@@ -6,6 +6,7 @@ import {
   getAdviceBaselineSnapshot,
   prognosisSignature,
   requiresWeatherConfirmation,
+  updateCoachAdviceFeedback,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
 
@@ -74,6 +75,22 @@ async function run() {
     'Coachadvies bewaart de volledige engineversiekaart van de gebruikte snapshot');
   assert(second?.id === first?.id && stored.length === 1, 'Herhaald opslaan maakt geen dubbele startadviezen');
   assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
+
+  const feedbackSaved = first
+    ? await updateCoachAdviceFeedback(first.id, { response: 'adapted', executedTactic: 'Hengelpunt verplaatst naar de diepere overgangszone' })
+    : null;
+  assert(
+    feedbackSaved?.response === 'adapted' && !!feedbackSaved.responseAt,
+    'Gebruikersreactie wordt met registratietijd op het adviesrecord opgeslagen'
+  );
+  assert(
+    feedbackSaved?.executedTactic === 'Hengelpunt verplaatst naar de diepere overgangszone' && !!feedbackSaved.executedAt,
+    'Daadwerkelijk uitgevoerde tactiek wordt afzonderlijk met tijdstip vastgelegd'
+  );
+  assert(
+    feedbackSaved?.prognosisSnapshotId === snapshot.id && feedbackSaved?.recommendation === first?.recommendation,
+    'Feedback wijzigt de oorspronkelijke prognoseverwijzing en adviesinhoud niet'
+  );
 
   const baselinePrognosis = {
     ...snapshot.prognosisData!,
