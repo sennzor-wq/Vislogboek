@@ -125,7 +125,7 @@ async function run() {
   const first = await reassessActiveSessions('weather_update', session.id);
   assert(
     first.length === 1 && first[0].status === 'unchanged' &&
-      first[0].reason?.includes('Mogelijke wijziging'),
+      first[0].reason?.includes('Mogelijke wijziging') === true,
     'Een eerste betekenisvolle forecastkandidaat wacht op bevestiging en maakt nog geen advies'
   );
   assert(
