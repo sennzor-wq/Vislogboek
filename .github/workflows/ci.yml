@@ -103,6 +103,8 @@ jobs:
 
       - name: VisCoach session advice tests
         run: bun run tsx test-session-coach.ts
+      - name: VisCoach live reassessment integration tests
+        run: bun run tsx test-session-coach-integration.ts
 
       - name: VisCoach welcome greeting tests
         run: bun run tsx test-viscoach-greetings.ts
