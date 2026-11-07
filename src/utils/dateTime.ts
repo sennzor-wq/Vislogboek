@@ -118,3 +118,16 @@ export function addCalendarDays(dateKey: string, days: number): string | null {
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().slice(0, 10);
 }
+
+
+/**
+ * Formatteert een absoluut tijdstip voor een HTML datetime-local invoerveld.
+ * Gebruikt bewust de lokale apparaattijdzone, gelijk aan de interpretatie van
+ * datetime-local door de browser en Date(string) bij het opslaan.
+ */
+export function formatDateTimeLocalInput(value: Date | string): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (!Number.isFinite(date.getTime())) return '';
+  const pad = (part: number) => String(part).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
