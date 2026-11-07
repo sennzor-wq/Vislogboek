@@ -122,6 +122,26 @@ export default function App() {
     });
   }, [loading]);
 
+  // Een geïnstalleerde PWA kan lang gemonteerd blijven terwijl zij op de achtergrond staat.
+  // Herbeoordeel daarom ook bij terugkeer naar een zichtbare app; vertrouw niet alleen op mount/reload.
+  useEffect(() => {
+    if (loading) return;
+
+    const handleAppVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      void reassessActiveSessions('app_resume').catch((error) => {
+        console.error('VisCoach kon actieve sessies niet herbeoordelen na terugkeer naar de app:', error);
+      });
+    };
+
+    document.addEventListener('visibilitychange', handleAppVisible);
+    window.addEventListener('pageshow', handleAppVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', handleAppVisible);
+      window.removeEventListener('pageshow', handleAppVisible);
+    };
+  }, [loading]);
+
   useEffect(() => {
     if (!loading && sessions.some((session) => session.outcome === 'active')) {
       setCurrentTab('sessions');
