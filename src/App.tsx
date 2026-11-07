@@ -25,6 +25,7 @@ import { startWeatherAutoRefresh, WEATHER_UPDATED_EVENT } from './services/weath
 import {
   reassessActiveSessions,
   createInitialCoachAdviceRecord,
+  getSessionUpdateTrigger,
   updateCoachAdviceFeedback,
   VISCOACH_UPDATED_EVENT,
 } from './services/sessionCoachService';
@@ -227,6 +228,7 @@ export default function App() {
   ) => {
     if (!sessionData.id) return;
 
+    const previousSession = await db.sessions.get(sessionData.id);
     let savedSession: FishingSession | undefined;
     if (pendingSnapshot && sessionData.outcome === 'active') {
       // Sessie en vooraf gekozen prognose worden atomair vastgelegd.
@@ -296,7 +298,8 @@ export default function App() {
       );
       if (savedSession.outcome === 'active') setCurrentTab('sessions');
       if (savedSession.outcome === 'active' && !pendingSnapshot) {
-        void reassessActiveSessions('session_changed').catch((error) => {
+        const trigger = getSessionUpdateTrigger(previousSession, savedSession);
+        void reassessActiveSessions(trigger, savedSession.id).catch((error) => {
           console.error('VisCoach kon de gewijzigde sessie niet herbeoordelen:', error);
         });
       }
