@@ -261,8 +261,6 @@ export function buildVisCoachAdviceText(
         : typeof windSpeed === 'number' ? `De wind is ongeveer ${windSpeed.toFixed(1)} km/u.` : '';
       windAdvice = `${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
     }
-  } else if (typeof windSpeed === 'number') {
-    windAdvice = `De wind is volgens de bestaande analyse niet sterk genoeg om de keuze van je stek of werprichting te laten bepalen. ${windDirection ? `Hij komt uit het ${windDirection.toLowerCase()}.` : ''} Richt je daarom eerst op de herkenbare structuur en diepteovergangen.`;
   }
   if (windAdvice) sections.push(`Wind en werprichting\n${windAdvice}`);
 
@@ -297,7 +295,7 @@ export function buildVisCoachAdviceText(
   }
   const explanation = cleanCoachText(habitat?.primaryZone?.whyLikely || positioning?.rationale);
   if (explanation && !/aanvullende locatiegegevens|onbekend/i.test(explanation)) reasons.push(explanation);
-  if (wind?.isConfigured && wind.bankAssessment?.explanation) {
+  if (strongWind && wind?.isConfigured && wind.bankAssessment?.explanation) {
     reasons.push(cleanCoachText(wind.bankAssessment.explanation));
   }
   const limitations = (prognosis.uncertaintyNotes ?? [])
