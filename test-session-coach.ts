@@ -138,7 +138,7 @@ async function run() {
   );
 
   assert(requiresWeatherConfirmation('weather_update'), 'Automatische forecast-refresh vereist bevestiging');
-  assert(!requiresWeatherConfirmation('app_resume'), 'App-hervatten beoordeelt direct de meest recente beschikbare gegevens');
+  assert(requiresWeatherConfirmation('app_resume'), 'App-hervatten start opnieuw een voorzichtige weersbevestiging na heropenen');
   assert(!requiresWeatherConfirmation('manual_reanalysis'), 'Handmatige heranalyse wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('observation_recorded'), 'Een expliciete gebruikerswaarneming wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('catch_recorded'), 'Een geregistreerde vangst wordt direct beoordeeld');
