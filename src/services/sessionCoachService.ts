@@ -169,95 +169,146 @@ export interface VisCoachAdviceText {
   rationale: string;
 }
 
-/**
- * Centrale vertaling van de bestaande prognose- en tactische engine-uitvoer
- * naar één begrijpelijk coachadvies. Deze functie berekent zelf geen kansen,
- * biologie, windrelaties of tactiek; zij ordent uitsluitend bestaande uitkomsten.
- * Zowel het plan als het sessieadvies gebruikt exact dezelfde vertaling.
- */
-export function buildVisCoachAdviceText(prognosis: DayPrognosis): VisCoachAdviceText {
-  const when = prognosis.bestTimeSlot &&
-    prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
-    prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
-      ? `Beste vistijd: ${prognosis.bestTimeSlot}.`
-      : 'Er is geen duidelijk beter tijdvak vastgesteld.';
+function cleanCoachText(value: string | undefined): string {
+  return (value ?? '').replace(/\\s+/g, ' ').trim();
+}
 
-  const where: string[] = [];
+function isGenericZone(value: string): boolean {
+  return /algemene zoekzone|bekende lokale structuurzone|aanvullende locatiegegevens|onbekend/i.test(value);
+}
+
+function explainZone(value: string): string {
+  const normalized = value.toLowerCase();
+  if (/overgang/.test(normalized)) return 'de overgang waar ondieper water overgaat in dieper water';
+  if (/diep|rustzone|holding/.test(normalized)) return 'een dieper en rustiger deel van het water';
+  if (/riet/.test(normalized)) return 'de rietkraag, als die op deze stek aanwezig is';
+  if (/structuur/.test(normalized)) return 'een plek waar je ter plaatse duidelijke structuur ziet, bijvoorbeeld begroeiing of een verandering in de bodem';
+  return value;
+}
+
+function explainCoachLimitation(note: string): string | null {
+  if (/vergelijkbare eigen sessies/i.test(note)) {
+    const count = note.match(/(?:zijn er|er zijn)\\s+(\\d+)\\s+vergelijkbare/i)?.[1];
+    return count
+      ? `Er zijn ${count} vergelijkbare eigen sessies. Dat is nog te weinig om jouw persoonlijke vangkans betrouwbaar te berekenen.`
+      : 'Er zijn nog te weinig vergelijkbare eigen sessies om jouw persoonlijke vangkans betrouwbaar te berekenen.';
+  }
+  if (/oeverlijnoriëntatie|oeveroriëntatie|GPS is een enkel punt/i.test(note)) {
+    return 'De richting en vorm van de oever zijn niet vastgelegd. Daarom kan ik geen exacte windkant of werprichting aanwijzen.';
+  }
+  if (/watertemperatuur is niet gemeten|geschatte watertemperatuur/i.test(note)) {
+    return 'De watertemperatuur is geschat en niet op deze stek gemeten. Zie de temperatuur daarom als een aanwijzing, niet als een vaststaand gegeven.';
+  }
+  if (/watertype onbekend/i.test(note)) {
+    return 'Het watertype is niet vastgelegd. Ik doe daarom geen aanname over stroming.';
+  }
+  if (/geen concrete lokale habitatkenmerken/i.test(note)) {
+    return 'Er zijn nog geen concrete kenmerken van deze stek vastgelegd, zoals diepteverloop, bodem of begroeiing.';
+  }
+  return null;
+}
+
+/**
+ * Centrale vertaling van bestaande engine-uitvoer naar een uitvoerbaar visplan.
+ * Deze laag berekent zelf geen biologie, kansen, windrelaties of tactiek.
+ * Ze ordent bestaande uitkomsten, legt vaktermen uit en maakt onzekerheid expliciet.
+ */
+export function buildVisCoachAdviceText(
+  prognosis: DayPrognosis,
+  weather?: import('../types').WeatherSnapshot | null,
+  technique?: string | null
+): VisCoachAdviceText {
   const positioning = prognosis.positioningAdvice;
   const habitat = prognosis.habitatAnalysis;
   const wind = prognosis.bankWindAnalysis;
+  const thermal = prognosis.thermalAnalysis;
+  const sections: string[] = [];
 
-  if (positioning?.recommendedZone) {
-    where.push(`Begin bij ${positioning.recommendedZone.toLowerCase()}.`);
-  }
-  if (habitat?.primaryZone?.name && habitat.primaryZone.name !== positioning?.recommendedZone) {
-    where.push(`De belangrijkste zoekzone is ${habitat.primaryZone.name.toLowerCase()}.`);
-  }
-  if (wind?.isConfigured) {
-    if (wind.rodPlacementAdvice?.primaryPosition) {
-      where.push(wind.rodPlacementAdvice.primaryPosition);
+  const when = prognosis.bestTimeSlot &&
+    prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
+    prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
+      ? `Volgens de prognose is ${prognosis.bestTimeSlot.toLowerCase()} het gunstigste tijdvak. Dat betekent niet dat je op andere momenten geen vis kunt vangen.`
+      : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
+
+  sections.push(`Wanneer\n${when}`);
+
+  const primaryZone = habitat?.primaryZone?.name && !isGenericZone(habitat.primaryZone.name)
+    ? habitat.primaryZone.name
+    : positioning?.recommendedZone && !isGenericZone(positioning.recommendedZone)
+      ? positioning.recommendedZone
+      : null;
+  const primaryExplanation = primaryZone
+    ? explainZone(primaryZone)
+    : 'een plek waar je ter plaatse herkenbare structuur of een verandering in de diepte kunt vinden. De app weet nog niet precies hoe deze stek eruitziet.';
+  const where = primaryZone
+    ? `Begin bij ${primaryExplanation}. Dit is de belangrijkste zoekzone die uit de beschikbare stekgegevens en analyses naar voren komt.`
+    : `Begin met het zoeken naar ${primaryExplanation} Kijk vanaf de kant waar je veilig kunt vissen en controleer waar de bodem of oever verandert. Kies geen specifieke diepte of bodemvorm die niet is vastgelegd.`;
+  sections.push(`Waar beginnen\n${where}`);
+
+  const strongWind = positioning?.windContext?.isStrongWind === true;
+  const windSpeed = positioning?.windContext?.speedKmH ?? wind?.windSpeedKmH ?? weather?.windSpeed;
+  const windDirection = positioning?.windContext?.directionText || weather?.windDirectionText;
+  const casting = positioning?.windCastingGuidance?.castingAdvice;
+  let windAdvice = '';
+  if (strongWind) {
+    if (casting?.isCastingDirectionDefinite && casting.recommendedDirection) {
+      windAdvice = `Er staat volgens de analyse stevige wind. De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
+    } else if (wind?.isConfigured && wind.rodPlacementAdvice?.castingDirectionAdvice) {
+      windAdvice = `Er staat volgens de analyse stevige wind. ${cleanCoachText(wind.rodPlacementAdvice.primaryPosition)} ${cleanCoachText(wind.rodPlacementAdvice.castingDirectionAdvice)}`;
+    } else {
+      const directionText = windDirection
+        ? `De wind komt uit het ${windDirection.toLowerCase()}${typeof windSpeed === 'number' ? ` met ongeveer ${windSpeed.toFixed(1)} km/u` : ''}.`
+        : typeof windSpeed === 'number' ? `De wind is ongeveer ${windSpeed.toFixed(1)} km/u.` : '';
+      windAdvice = `${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
     }
-    if (wind.rodPlacementAdvice?.castingDirectionAdvice) {
-      where.push(wind.rodPlacementAdvice.castingDirectionAdvice);
-    }
+  } else if (typeof windSpeed === 'number') {
+    windAdvice = `De wind is volgens de bestaande analyse niet sterk genoeg om de keuze van je stek of werprichting te laten bepalen. ${windDirection ? `Hij komt uit het ${windDirection.toLowerCase()}.` : ''} Richt je daarom eerst op de herkenbare structuur en diepteovergangen.`;
   }
-
-  const alternatives: string[] = [];
-  if (positioning?.alternativeOption) alternatives.push(positioning.alternativeOption);
-  if (habitat?.alternativeZone?.name && habitat.alternativeZone.name !== habitat.primaryZone?.name) {
-    alternatives.push(`Als de eerste zone niets oplevert, probeer dan ${habitat.alternativeZone.name.toLowerCase()}.`);
-  }
-  if (habitat?.movementHypothesis?.transitRoute) {
-    alternatives.push(habitat.movementHypothesis.transitRoute);
-  }
-
-  const movement: string[] = [];
-  if (habitat?.movementHypothesis?.likelyDirection) movement.push(habitat.movementHypothesis.likelyDirection);
-  if (habitat?.movementHypothesis?.timeOfDayDynamic) movement.push(habitat.movementHypothesis.timeOfDayDynamic);
+  if (windAdvice) sections.push(`Wind en werprichting\n${windAdvice}`);
 
   const feeding: string[] = [];
-  if (prognosis.prebaitPlan?.sessionDayGuidance?.advice) {
-    feeding.push(prognosis.prebaitPlan.sessionDayGuidance.advice);
-  }
+  const sessionFeeding = cleanCoachText(prognosis.prebaitPlan?.sessionDayGuidance?.advice);
+  if (sessionFeeding) feeding.push(sessionFeeding);
   if (prognosis.prebaitPlan?.methodFeederGuidance) {
-    feeding.push(prognosis.prebaitPlan.methodFeederGuidance);
+    feeding.push(technique?.toLowerCase().includes('method')
+      ? 'Bij method feeder zit het voer in of rond het voerkorfje, vlak bij je haakaas. Houd die korfvulling apart van eventueel vooraf gevoerd aas.'
+      : 'De voeranalyse bevat ook een aanwijzing voor method feeder. Die is alleen van toepassing als je daadwerkelijk met deze techniek vist.');
   }
+  if (feeding.length > 0) sections.push(`Voeren en aas\n${feeding.join(' ')}`);
 
-  const recommendationParts = [
-    when,
-    ...where,
-    ...movement,
-    ...alternatives,
-    ...feeding,
-  ].filter((part, index, all) => Boolean(part) && all.indexOf(part) === index);
+  const alternative = positioning?.alternativeOption
+    ? cleanCoachText(positioning.alternativeOption)
+    : habitat?.alternativeZone?.name && !isGenericZone(habitat.alternativeZone.name)
+      ? `Probeer daarna ${explainZone(habitat.alternativeZone.name)}.`
+      : '';
+  const fallback = alternative
+    ? `Als je op de eerste plek geen activiteit ziet of geen aanbeten krijgt, probeer dan deze tweede optie: ${alternative}`
+    : 'Zie je geen activiteit of krijg je geen aanbeten, controleer dan eerst opnieuw de omgeving en probeer een tweede herkenbare structuur of diepteovergang. Verander niet steeds van aanpak door kleine weersschommelingen.';
+  sections.push(`Als het niet werkt\n${fallback}`);
 
-  const reasons = [
-    prognosis.summaryRationale,
-    positioning?.rationale,
-    habitat?.primaryZone?.whyLikely,
-    wind?.isConfigured ? wind.bankAssessment?.explanation : undefined,
-    prognosis.thermalAnalysis?.prognosisImpactNote,
-  ].filter((part): part is string => Boolean(part?.trim()));
-
-  const limitations = [
-    ...(prognosis.uncertaintyNotes ?? []),
-    ...(positioning?.missingInformation ?? []),
-    ...(habitat?.missingInformation ?? []),
-    ...(wind?.missingInformation ?? []),
-  ].filter((part, index, all) => Boolean(part?.trim()) && all.indexOf(part) === index);
+  const summary = `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
+  const reasons: string[] = [];
+  if (thermal) {
+    if (thermal.hasMeasuredWaterTemp && typeof thermal.measuredWaterTemp === 'number') {
+      reasons.push(`De watertemperatuur is gemeten op ${thermal.measuredWaterTemp.toFixed(1)} °C.`);
+    } else if (typeof thermal.estimatedWaterTemp === 'number') {
+      reasons.push(`De watertemperatuur is geschat op ongeveer ${thermal.estimatedWaterTemp.toFixed(1)} °C en niet op deze stek gemeten. De invloed van temperatuur is daarom onzeker.`);
+    }
+  }
+  const explanation = cleanCoachText(habitat?.primaryZone?.whyLikely || positioning?.rationale);
+  if (explanation && !/aanvullende locatiegegevens|onbekend/i.test(explanation)) reasons.push(explanation);
+  if (wind?.isConfigured && wind.bankAssessment?.explanation) {
+    reasons.push(cleanCoachText(wind.bankAssessment.explanation));
+  }
+  const limitations = (prognosis.uncertaintyNotes ?? [])
+    .map(explainCoachLimitation)
+    .filter((item): item is string => Boolean(item));
+  const uniqueReasons = [...new Set([...reasons, ...limitations])].slice(0, 4);
 
   return {
-    summary: `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}. ${prognosis.summaryRationale || 'De beschikbare omstandigheden zijn beoordeeld.'} ${when}`,
-    recommendation: recommendationParts.length > 1
-      ? recommendationParts.join(' ')
-      : 'Er is onvoldoende onderbouwing voor een specifieke stek- of tactiekkeuze. Begin op een vertrouwde plek en let op zichtbare visactiviteit.',
-    rationale: [
-      reasons.join(' '),
-      limitations.length > 0 ? `Houd rekening met ontbrekende of onzekere informatie: ${limitations.slice(0, 3).join('; ')}.` : '',
-      prognosis.personalCatchConfidence === 'Onvoldoende gegevens'
-        ? 'Een betrouwbare persoonlijke vangkans kan met de beschikbare sessiegegevens nog niet worden bepaald.'
-        : '',
-    ].filter(Boolean).join(' '),
+    summary,
+    recommendation: sections.join('\n\n'),
+    rationale: uniqueReasons.join(' '),
   };
 }
 
@@ -269,7 +320,7 @@ function createAdviceRecord(
   trigger: CoachAdviceTrigger = 'weather_update',
   changedFactors: string[] = []
 ): CoachAdviceRecord {
-  const text = buildVisCoachAdviceText(prognosis);
+  const text = buildVisCoachAdviceText(prognosis, snapshot.predictedConditions, snapshot.technique ?? session.technique);
   return {
     id: `coach-advice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     sessionId: session.id,
