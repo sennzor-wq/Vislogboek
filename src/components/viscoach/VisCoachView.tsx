@@ -280,14 +280,14 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
               <h3 className="text-sm font-bold">Zo zou ik deze sessie aanpakken</h3>
             </div>
             <p className="text-sm leading-relaxed text-white">
-              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).summary}
+              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).summary}
             </p>
             <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">
-              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).recommendation}
+              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).recommendation}
             </p>
-            {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).rationale && (
+            {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).rationale && (
               <p className="text-xs leading-relaxed text-slate-400">
-                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext.technique).rationale}
+                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).rationale}
               </p>
             )}
           </div>
