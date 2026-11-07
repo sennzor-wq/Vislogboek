@@ -51,6 +51,11 @@ export function changedSignatureFactors(
   return Object.keys(current).filter((key) => previous[key] !== current[key]);
 }
 
+/** Alleen autonome forecast-refreshes vereisen een tweede bevestiging. */
+export function requiresWeatherConfirmation(trigger: CoachAdviceTrigger): boolean {
+  return trigger === 'weather_update';
+}
+
 function buildAdviceText(prognosis: DayPrognosis): { summary: string; recommendation: string; rationale: string } {
   const recommendation =
     prognosis.positioningAdvice?.recommendedZone ||
@@ -269,10 +274,10 @@ export async function reassessActiveSessions(
         continue;
       }
 
-      // Weersupdates én hervatten kunnen alleen een nieuwe forecast opleveren.
-      // Bevestig daarom dezelfde praktische wijziging op een volgende afwijkende invoer.
-      // Expliciete gebruikerswaarnemingen en sessiewijzigingen worden direct verwerkt.
-      if (trigger === 'weather_update' || trigger === 'app_resume') {
+      // Alleen een automatische forecast-refresh krijgt hysterese.
+      // App-hervatten, handmatige controle en expliciete gebruikers-/sessiewijzigingen
+      // worden volgens de blauwdruk direct met de meest recente beschikbare data beoordeeld.
+      if (requiresWeatherConfirmation(trigger)) {
         const signatureKey = JSON.stringify(currentSignature);
         const candidate = pendingWeatherChanges.get(session.id);
         const confirmations = candidate?.signature === signatureKey ? candidate.confirmations + 1 : 1;
