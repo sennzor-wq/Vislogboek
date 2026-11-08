@@ -194,25 +194,39 @@ async function run() {
   const afterReopen = await reassessActiveSessions('app_resume', resumedSession.id);
   assert(
     afterReopen.length === 1 && afterReopen[0].status === 'unchanged' &&
-      afterReopen[0].reason?.includes('Mogelijke wijziging') === true,
-    'Na heropenen wordt een betekenisvolle weerswijziging opnieuw beoordeeld maar nog niet direct gepubliceerd'
+      afterReopen[0].reason?.includes('telt niet als weersbevestiging') === true,
+    'Na heropenen wordt de prognose opnieuw beoordeeld, maar hervatten telt niet als weersbevestiging'
   );
   assert(
     await db.prognosisSnapshots.where('linkedSessionId').equals(resumedSession.id).count() === 1 &&
       await db.coachAdviceRecords.where('sessionId').equals(resumedSession.id).count() === 1,
-    'De eerste controle na heropenen behoudt de startsnapshot en het startadvies'
+    'De controle na heropenen behoudt de startsnapshot en het startadvies'
   );
 
   const cachedAfterResume = await db.weatherCache.get(cacheId);
   await db.weatherCache.put({
     ...cachedAfterResume!,
-    // Nieuwe forecastinvoer; de praktische uitkomst blijft gelijk aan de kandidaat.
+    // De eerste echte weersupdate na hervatten start pas de bevestiging.
     hourly: cachedAfterResume!.hourly.map((hour) => ({ ...hour, refreshMarker: 3 })) as any,
+  });
+  const firstWeatherAfterResume = await reassessActiveSessions('weather_update', resumedSession.id);
+  assert(
+    firstWeatherAfterResume.length === 1 && firstWeatherAfterResume[0].status === 'unchanged' &&
+      await db.prognosisSnapshots.where('linkedSessionId').equals(resumedSession.id).count() === 1 &&
+      await db.coachAdviceRecords.where('sessionId').equals(resumedSession.id).count() === 1,
+    'De eerste afwijkende forecast na hervatten start de bevestiging maar publiceert nog geen advies'
+  );
+
+  const cachedAfterFirstWeather = await db.weatherCache.get(cacheId);
+  await db.weatherCache.put({
+    ...cachedAfterFirstWeather!,
+    // Een tweede afzonderlijke forecastinvoer bevestigt dezelfde praktische wijziging.
+    hourly: cachedAfterFirstWeather!.hourly.map((hour) => ({ ...hour, refreshMarker: 4 })) as any,
   });
   const confirmedAfterResume = await reassessActiveSessions('weather_update', resumedSession.id);
   assert(
     confirmedAfterResume.length === 1 && confirmedAfterResume[0].status === 'snapshot_created',
-    'Een tweede afwijkende forecastinvoer bevestigt dezelfde kandidaat na heropenen'
+    'Een tweede echte forecast-update bevestigt dezelfde kandidaat na heropenen'
   );
   assert(
     await db.prognosisSnapshots.where('linkedSessionId').equals(resumedSession.id).count() === 2 &&
