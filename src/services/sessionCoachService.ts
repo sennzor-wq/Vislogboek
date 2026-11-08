@@ -71,12 +71,17 @@ export function changedSignatureFactors(
 }
 
 /**
- * Autonome forecast-refreshes en hervatten na app-heropenen vereisen een tweede
- * afwijkende weersinvoer met dezelfde praktische uitkomst. Een hervatting is
- * dus wel een herbeoordeling, maar op zichzelf geen bevestiging van een kandidaat.
+ * Autonome forecast-refreshes en hervatten na app-heropenen vallen onder de
+ * voorzichtige weersbeoordeling. Alleen een nieuwe forecast-refresh mag een
+ * kandidaat bevestigen; app_resume is uitsluitend een herbeoordeling.
  */
 export function requiresWeatherConfirmation(trigger: CoachAdviceTrigger): boolean {
   return trigger === 'weather_update' || trigger === 'app_resume';
+}
+
+/** Hervatten van de app is nooit een tweede, onafhankelijke weersbevestiging. */
+export function countsAsWeatherConfirmation(trigger: CoachAdviceTrigger): boolean {
+  return trigger === 'weather_update';
 }
 
 /**
@@ -619,6 +624,18 @@ export async function reassessActiveSessions(
       // Handmatige controle en expliciete gebruikers-/sessiewijzigingen worden direct
       // met de meest recente beschikbare data beoordeeld.
       if (requiresWeatherConfirmation(trigger)) {
+        // App hervatten mag een bestaande kandidaat niet bevestigen of verhogen.
+        // Bewaar de kandidaat ongewijzigd; alleen een nieuwe forecast-refresh telt.
+        if (!countsAsWeatherConfirmation(trigger)) {
+          lastEvaluatedFingerprint.set(session.id, inputFingerprint);
+          results.push({
+            sessionId: session.id,
+            status: 'unchanged',
+            reason: 'App hervat: prognose opnieuw beoordeeld, maar deze herbeoordeling telt niet als weersbevestiging. Wacht op een nieuwe weersupdate.',
+          });
+          continue;
+        }
+
         const confirmation = nextWeatherChangeConfirmation(
           pendingWeatherChanges.get(session.id),
           currentSignature
