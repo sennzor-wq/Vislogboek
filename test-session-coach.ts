@@ -10,6 +10,7 @@ import {
   summarizeCoachSessionOutcome,
   prognosisSignature,
   requiresWeatherConfirmation,
+  countsAsWeatherConfirmation,
   updateCoachAdviceFeedback,
   nextWeatherChangeConfirmation,
   persistCoachReassessment,
@@ -258,8 +259,23 @@ async function run() {
     'Gecombineerde wijzigingen in prognose en tactiek worden samen herkend'
   );
 
-  assert(requiresWeatherConfirmation('weather_update'), 'Automatische forecast-refresh vereist bevestiging');
-  assert(requiresWeatherConfirmation('app_resume'), 'App-hervatten start opnieuw een voorzichtige weersbevestiging na heropenen');
+  assert(requiresWeatherConfirmation('weather_update'), 'Automatische forecast-refresh valt onder de voorzichtige weersbeoordeling');
+  assert(requiresWeatherConfirmation('app_resume'), 'App-hervatten wordt opnieuw beoordeeld met de voorzichtige weerslogica');
+  assert(countsAsWeatherConfirmation('weather_update'), 'Een nieuwe forecast-refresh mag een weerskandidaat bevestigen');
+  assert(!countsAsWeatherConfirmation('app_resume'), 'App-hervatten telt nooit als tweede weersbevestiging');
+  const pendingBeforeResume = nextWeatherChangeConfirmation(undefined, candidateSignature);
+  const pendingAfterResume = countsAsWeatherConfirmation('app_resume')
+    ? nextWeatherChangeConfirmation(pendingBeforeResume, candidateSignature)
+    : pendingBeforeResume;
+  assert(
+    pendingAfterResume.confirmations === 1,
+    'Een app-hervatting laat het aantal bevestigingen van een bestaande kandidaat ongewijzigd'
+  );
+  const confirmedAfterNewForecast = nextWeatherChangeConfirmation(pendingAfterResume, candidateSignature);
+  assert(
+    confirmedAfterNewForecast.confirmations === 2,
+    'Pas een volgende afwijkende forecast-refresh kan dezelfde kandidaat bevestigen'
+  );
   assert(!requiresWeatherConfirmation('manual_reanalysis'), 'Handmatige heranalyse wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('observation_recorded'), 'Een expliciete gebruikerswaarneming wordt direct beoordeeld');
   assert(!requiresWeatherConfirmation('catch_recorded'), 'Een geregistreerde vangst wordt direct beoordeeld');
