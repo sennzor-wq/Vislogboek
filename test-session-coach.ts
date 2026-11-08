@@ -263,6 +263,7 @@ async function run() {
   assert(requiresWeatherConfirmation('app_resume'), 'App-hervatten wordt opnieuw beoordeeld met de voorzichtige weerslogica');
   assert(countsAsWeatherConfirmation('weather_update'), 'Een nieuwe forecast-refresh mag een weerskandidaat bevestigen');
   assert(!countsAsWeatherConfirmation('app_resume'), 'App-hervatten telt nooit als tweede weersbevestiging');
+  const candidateSignature = prognosisSignature(meaningfulTacticalChange);
   const pendingBeforeResume = nextWeatherChangeConfirmation(undefined, candidateSignature);
   const pendingAfterResume = countsAsWeatherConfirmation('app_resume')
     ? nextWeatherChangeConfirmation(pendingBeforeResume, candidateSignature)
@@ -356,7 +357,6 @@ async function run() {
     'Een expliciet bevestigde nulvangst blijft herkenbaar in de coachterugblik'
   );
 
-  const candidateSignature = prognosisSignature(meaningfulTacticalChange);
   const firstConfirmation = nextWeatherChangeConfirmation(undefined, candidateSignature);
   const secondConfirmation = nextWeatherChangeConfirmation(firstConfirmation, candidateSignature);
   const changedCandidate = nextWeatherChangeConfirmation(firstConfirmation, prognosisSignature(combinedPracticalChange));
