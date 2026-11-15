@@ -48,9 +48,11 @@ Werk:
 Werk:
 - Scheid productie-initialisatie, schema-upgrades, eenmalige migraties en ontwikkel-/benchmarkfixtures.
 - Verwijder destructieve benchmark-seeding uit het normale productiepad.
-- Onderzoek de historische benchmarksessie en de vier canonieke vangsten, inclusief alle code-, test-, UI-, documentatie- en evaluatieverwijzingen.
-- Verwijder ongeldige historische benchmarkvangsten en eventueel de volledige benchmark-sessie wanneer deze geen geldige praktijkdata vertegenwoordigt en veilig kan worden verwijderd.
-- Verwijder bijbehorende testdata alleen uit productie-seed; behoud synthetische fixtures in tests waar ze nodig en duidelijk gemarkeerd zijn.
+- Onderzoek de vaste sessie van 19 oktober 2026 en de vier canonieke vangsten, inclusief alle code-, test-, UI-, documentatie- en evaluatieverwijzingen. De huidige code zet deze records op `isBenchmark: false`; hun herkomst moet daarom expliciet worden vastgesteld voordat ze worden verwijderd.
+- Onderzoek ook `HISTORICAL_LOCATIONS`, `HISTORICAL_SESSIONS` en `HISTORICAL_CATCHES` uit `src/data/historicalData.ts`. Het bestand zegt dat deze 5 stekken, 10 sessies en 16 vangsten uit een concrete gebruikersbackup van 26 oktober 2026 zijn geïmporteerd. Behandel deze records als echte gebruikersdata en verwijder ze niet als benchmarkopruiming.
+- Haal persoonlijke backup-/historische fixtures uit het normale seedpad voor nieuwe installaties wanneer de herkomst is bevestigd; behoud bestaande lokale records en voer geen verwijdering/migratie uit zonder backup-, restore- en behoudtests.
+- Verwijder alleen aantoonbaar ongeldige synthetische benchmarkvangsten en eventueel de volledige benchmark-sessie wanneer dit veilig kan.
+- Behoud synthetische fixtures in tests waar ze nodig en duidelijk gemarkeerd zijn.
 - Maak migratie/cleanup idempotent, transactioneel waar ondersteund, en veilig voor bestaande databases.
 - Maak vooraf een export-/hersteltest en controleer dat echte sessies, vangsten, foto's/media, IDs en relaties behouden blijven.
 
@@ -173,7 +175,7 @@ Werk:
 
 | Fase | Status | Opmerking |
 |---|---|---|
-| 0. Baseline en audit | Te starten | Eerst actuele `main` en bestaande documentatie reconciliëren |
+| 0. Baseline en audit | **In uitvoering** | Uitgebreide read-only audit op `main` commit `4831fd6d7a200467c29773c574be7090674eca29`; eerste bevindingen in `FASE0_OPTIMIZATION_AUDIT.md`; matrix, verwijzingsaudit en huidige CI-baseline nog afronden |
 | 1. Dataveiligheid en benchmarkdata | Gepland | Benchmarkdata mag na afhankelijkhedenaudit worden verwijderd |
 | 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |
@@ -181,4 +183,17 @@ Werk:
 | 5. Gesloten leercyclus | Gepland | Praktijkvalidatie vereist |
 | 6. Administratie en releasecontrole | Doorlopend | Documentatie bij elke fase bijwerken |
 
-**Huidige status:** het plan is vastgelegd; de implementatiefases zijn nog niet als uitgevoerd aangemerkt. Er is met deze documentatievastlegging geen applicatiecode of gebruikersdatabase gewijzigd.
+## 5. Fase 0 — auditlog en actuele voortgang (15 november 2026)
+
+De uitgebreide read-only audit is gestart op actuele `main` commit `4831fd6d7a200467c29773c574be7090674eca29`. De bevindingen, bronpaden, voorlopige traceerbaarheidsmatrix en openstaande controles staan in [`FASE0_OPTIMIZATION_AUDIT.md`](FASE0_OPTIMIZATION_AUDIT.md).
+
+Eerste bevestigde bevindingen:
+- `src/db/db.ts` seedt bij normale database-initialisatie de vaste sessie `benchmark-session-20261019` en vier canonieke vangstrecords via `put()`. De records zijn in code als `isBenchmark: false` gemarkeerd; herkomst en referenties moeten eerst worden vastgesteld. Er is niets verwijderd.
+- `src/data/historicalData.ts` vermeldt expliciet dat 5 locaties, 10 sessies en 16 vangsten uit een concrete gebruikersbackup van 26 oktober 2026 komen. Deze gegevens worden als echte gebruikersdata beschermd en mogen niet als benchmarkcleanup worden verwijderd. Wel moet worden onderzocht waarom persoonlijke data in het nieuwe-installatie seedpad zit.
+- `src/services/prognosisEngine.ts` berekent de numerieke activiteitsindex momenteel op basis van thermische efficiëntie; wind, druk, seizoen, tijd/licht, bewolking en neerslag blijven context. Dit is een bewuste huidige beperking, geen bewijs dat die factoren biologisch irrelevant zijn.
+- `src/services/sessionCoachService.ts` toont de wind-/werprichtingsectie alleen bij `strongWind`; `test-session-coach.ts` test expliciet dat de sectie bij zwakke wind ontbreekt. Dit is een concrete afwijking van de gewenste coachervaring voor latere fase 4.
+- Bestaande soortprofielen, habitat-, wind-, positionerings-, voer-, evaluatie- en coachservices zijn aanwezig. Een centrale geïntegreerde stek-/soortleerlaag is nog niet aangetoond; de audit moet eerst bestaande aggregatie volledig volgen.
+- Er zijn bij de controle geen openstaande PR's gevonden. Er zijn meerdere historische branches; `main` blijft de enige bron van waarheid.
+- Quality Gate run #503 (`43723261161`) op de huidige baseline rapporteerde een zeer vroege failure zonder zichtbare jobstappen of beschikbare logs. De oorzaak is onbekend; een rerun is aangevraagd en moet worden beoordeeld. De oudere geslaagde Quality Gate op een eerdere commit geldt niet als bewijs voor deze baseline.
+
+**Fase 0 blijft in uitvoering.** De eerste bevindingen zijn niet voldoende om fase 0 af te ronden of fase 1 te starten. Er is tijdens deze audit geen applicatiecode of gebruikersdatabase gewijzigd; alleen auditdocumentatie is toegevoegd/bijgewerkt.
