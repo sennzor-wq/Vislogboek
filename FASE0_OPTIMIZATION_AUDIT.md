@@ -329,3 +329,22 @@ Voeg in een latere implementatiefase regressietests toe voor:
 
 Een onbekend aantal mag niet stilzwijgend als één vis worden geïnterpreteerd. Toon desnoods het aantal geregistreerde vangstrecords apart van het bekende aantal vissen.
 
+
+
+## 12. Besluit eigenaar: ingebouwde benchmark mag volledig verdwijnen (15 november 2026)
+
+De gebruiker heeft expliciet bevestigd dat de ingebouwde benchmark-/demonstratiesessie uit de beginfase van de app volledig mag verdwijnen. Het was ooit een topvisavond die tijdelijk als benchmark diende, maar heeft geen blijvende betekenis meer. Deze toestemming omvat het verwijderen van de ingebouwde benchmarklocatie, -sessie en -vangsten en het verwijderen van alle productie-initialisatie-, restore-, statistiek-, prognose-, evaluatie-, UI- en testafhankelijkheden die uitsluitend voor deze ingebouwde benchmark bestaan.
+
+**Afbakening:** deze toestemming is niet automatisch toestemming om de oorspronkelijke backupfixture of echte vangstregistraties te verwijderen. De backupfixture bevat een eigen historische referentiesessie (`ref-2026-10-19-lokkershoek`) met acht vangstregels. Die brondata blijft behouden tenzij later expliciet anders besloten. Bij opschoning moeten alle andere gebruikersdata, relaties, IDs en backupinhoud behouden blijven. Een benchmarkspecifieke testfixture mag alleen worden verwijderd als de audit aantoont dat deze uitsluitend de obsolete ingebouwde benchmark representeert; anders wordt de test omgebouwd naar een fixture-onafhankelijke regressietest.
+
+**Implementatievoorwaarden voor fase 1:**
+1. Verwijder ingebouwde benchmark seed en alle vaste-ID upsert-/delete-logica uit normale database-initialisatie.
+2. Verwijder benchmarkinjectie uit volledige restore; een restore moet exact de inhoud van de backup herstellen en geen ingebouwde demo-data toevoegen.
+3. Maak merge-import referentieel consistent: geen vangsten importeren waarvan de sessie in die import wordt overgeslagen of niet bestaat.
+4. Verwijder de obsolete benchmark uit prognose-/evaluatie-/statistiek/UI-paden; behoud generieke ondersteuning voor expliciet als benchmark gemarkeerde testdata alleen waar tests/evaluatie dit nodig hebben.
+5. Verwijder of herschrijf alleen tests die uitsluitend de ingebouwde demo-avond valideren; vervang ze door tests voor normale lege installatie, import, restore en behoud van echte gegevens.
+6. Verifieer idempotentie: herhaald starten mag geen demo-data terugzetten, bestaande records overschrijven of records verwijderen.
+7. Test migratie met een database waarin de ingebouwde benchmark al bestaat: verwijder alleen de exact geïdentificeerde ingebouwde IDs en alleen wanneer de records aantoonbaar de ingebouwde benchmark zijn; behoud de backup-referentiesessie en alle niet-gerelateerde data.
+8. Voer voor implementatie een volledige diff-/afhankelijkheidscontrole uit; rapporteer afzonderlijk statische inspectie, daadwerkelijk uitgevoerde tests en praktijkvalidatie.
+
+**Status:** toestemming voor het verwijderen van de ingebouwde benchmark is gegeven. Nog geen applicatiecode of database gewijzigd. De fase-0-audit en exacte verwijzingsinventaris blijven nodig vóór de uitvoering.
