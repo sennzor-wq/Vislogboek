@@ -306,3 +306,26 @@ De prognose-engine ontvangt een optionele `technique` en bewaart deze in snapsho
 - [ ] Volg `waterFacingDirection` en `habitatFeatures` van type tot invoer, opslag, engine en UI; bevestig dat er geen verborgen configuratieroute bestaat.
 - [ ] Bepaal hoe hengeluren als vergelijkingscontext veilig kunnen worden meegenomen, zonder hengels als onafhankelijke sessies te behandelen.
 - [ ] Bepaal welke techniek-/aas-/voerfilters verantwoord zijn bij de huidige kleine dataset; toon ontbrekende vergelijkbaarheid expliciet.
+
+
+## 11. Statistiek- en legacykwaliteitscontrole
+
+### 11.1 Onbekend vangstaantal telt als één vis in algemene statistieken
+
+`normalizeRawBackup()` bewaart een vangstrecord waarvan het aantal ontbreekt als `count: 0` en markeert `legacyImportQuality.countKnown: false`. Dat is op zichzelf een goede manier om ontbrekende broninformatie niet te verzinnen.
+
+`src/services/statsEngine.ts` berekent `totalFishCaught` echter met `(c.count || 1)`. Daardoor wordt `count: 0` (de expliciete representatie van onbekend aantal) als één vis geteld. Dezelfde totaaltelling voedt onder meer vangsten per uur en gemiddeld aantal vissen per sessie. De algemene statistieken kunnen hierdoor legacyvangsten met onbekend aantal overschatten. De prognose-Poissonroute filtert zulke vangstrecords wél met `legacyImportQuality.countKnown !== false` en `count > 0`, waardoor statistiek- en prognosegedrag uiteenlopen.
+
+**Status:** concreet datakwaliteits-/statistiekrisico bevestigd via statische code-inspectie. Nog niet lokaal uitgevoerd of met een regressietest gereproduceerd.
+
+### 11.2 Gevolg voor de acceptatie
+
+Voeg in een latere implementatiefase regressietests toe voor:
+- vangst met bekend aantal 1;
+- groepsvangst met bekend aantal groter dan 1;
+- onbekend aantal (`count: 0`, `countKnown: false`);
+- legacyrecord zonder kwaliteitsvlag (backwards compatibility expliciet bepalen);
+- correcte berekening van totaal, vangsten per uur en gemiddelde per sessie.
+
+Een onbekend aantal mag niet stilzwijgend als één vis worden geïnterpreteerd. Toon desnoods het aantal geregistreerde vangstrecords apart van het bekende aantal vissen.
+
