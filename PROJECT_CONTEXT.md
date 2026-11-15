@@ -686,3 +686,19 @@ Het centrale, door de producteigenaar opgedragen optimalisatietraject staat in *
 **Uitgangspunten:** de kernfunctionaliteit blijft gratis en offline-first; bestaande gebruikersgegevens worden beschermd; bestaande engines worden eerst hergebruikt; prognoses worden biologisch soortspecifiek en onzekerheid wordt zichtbaar gemaakt; geen verbetering geldt als afgerond zonder tests, diff-review en passend bewijs. Historische benchmark-/testvangsten mogen na een afhankelijkhedenaudit worden verwijderd wanneer ze niet valide zijn of de productie verstoren. Echte gebruikersdata mag niet als onderdeel van deze cleanup worden verwijderd.
 
 **Status per 15 november 2026:** het verbeterplan is vastgelegd op `main` en de uitgebreide read-only fase-0-audit is gestart op commit `4831fd6d7a200467c29773c574be7090674eca29`. Eerste bevindingen staan in `FASE0_OPTIMIZATION_AUDIT.md`. De vaste sessie van 19 oktober en vier canonieke vangsten zijn verdacht als benchmarkseed maar nog niet definitief geclassificeerd; historische records uit `src/data/historicalData.ts` zijn volgens de broncode uit een concrete gebruikersbackup geïmporteerd en worden beschermd. De huidige activiteitsscore is thermisch gedreven; windadvies wordt in de coachtekst alleen bij sterke wind getoond. Quality Gate-runs #503–#511 op de documentatie-updates faalden vrijwel direct zonder zichtbare workflowstappen of beschikbare logs. Run #510 rapporteerde `runner_id=0`; rerun van #503 bleef failure. Oorzaak onbekend; geen geslaagde Quality Gate op de huidige auditbaseline. Fase 0 blijft in uitvoering; fase 1 is nog niet gestart. Er is geen applicatiecode of gebruikersdatabase gewijzigd.
+
+
+## Verplichte GitHub-werkwijze — altijd toepassen
+
+- Bundel alle aanpassingen die bij één opdracht/werkeenheid horen in **één enkele Git-commit**. Sla nooit bestanden één voor één op via afzonderlijke commits.
+- Gebruik standaard de commit-message-suffix **`[skip ci]`**, zodat documentatie- en andere wijzigingen niet onbedoeld GitHub Actions starten.
+- Laat `[skip ci]` uitsluitend weg wanneer de gebruiker expliciet vraagt om de GitHub Action(s) te laten draaien.
+- Als de gebruikte GitHub-interface geen multi-file commit in één keer ondersteunt, gebruik dan Git Trees + één commit (of een gelijkwaardige atomische Git-operatie). Gebruik niet als workaround meerdere Contents API-writes.
+- Controleer vóór het committen de volledige verzamelde diff en de actuele HEAD van `main`; commit alleen de bedoelde bestanden.
+- Controleer na het committen dat precies één commit is aangemaakt en dat alle bedoelde bestanden daarin zitten. Rapporteer commit-SHA, gewijzigde bestanden en of CI bewust is overgeslagen.
+- Deze regel geldt voor documentatie, code, tests, configuratie, workflows en alle andere repositorybestanden. Alleen een expliciete afwijkende opdracht van de gebruiker kan hiervan afwijken.
+
+
+## Eigenaarbesluit datagrondslag — 15 november 2026
+
+Alle reeds bestaande historische vangstregistraties mogen bij de gecontroleerde reset worden verwijderd, inclusief vangsten uit de persoonlijke historische backupseed. De schone start mag geen oude vangsten opnieuw seedden of bij restore injecteren. Vangsten die na de reset worden ingevoerd moeten behouden blijven. Dit besluit omvat niet automatisch het verwijderen van sessies zonder vangst, locaties, prognosesnapshots, waarnemingen of overige gebruikersgegevens; zie `VISLOGBOEK_VERBETERPLAN.md` en `FASE0_OPTIMIZATION_AUDIT.md`.

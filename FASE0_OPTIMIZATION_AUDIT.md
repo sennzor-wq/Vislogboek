@@ -397,3 +397,23 @@ De ingebouwde sessie en locatie zijn in de huidige code feitelijk met `isBenchma
 
 Bij fase 1 moet ook de ongebruikte/obsoleet geworden import `BENCHMARK_SESSION_ID` in `evaluationEngine.ts` worden onderzocht en verwijderd als die geen functionele rol heeft. De import in `prognosisEngine.ts` moet worden verwijderd als die niet daadwerkelijk wordt gebruikt. Generieke `isBenchmark`-filters kunnen blijven voor geïsoleerde evaluatietestfixtures; vaste datum-/ID-uitzonderingen mogen niet blijven bestaan.
 
+
+
+## 16. Aanvullend eigenaarbesluit: alle historische vangstregistraties mogen verdwijnen (15 november 2026)
+
+De eigenaar heeft de eerdere beperkte toestemming voor alleen de ingebouwde demo-/benchmarkavond uitgebreid: **alle reeds aanwezige historische vangstregistraties mogen worden verwijderd** om met een schone vangstdataset in 2026 verder te gaan. Dit omvat dus ook de historische vangstrecords uit de persoonlijke backupfixture van 26 oktober 2026 die eerder als echte historische gebruikersdata beschermd werden. De eerdere formulering dat deze historische vangsten zonder nieuwe toestemming behouden moeten blijven, is hiermee vervangen.
+
+De toestemming geldt voor historische vangstregistraties die vóór de reset bestaan. Ze is geen toestemming om toekomstige vangsten na de reset te wissen. Nieuwe installaties mogen historische vangsten niet automatisch seedden; restore mag geen data toevoegen die niet in de backup staat. Een eenmalige migratie moet exact afgebakend, idempotent en veilig zijn, met aantoonbaar behoud van nieuwe registraties.
+
+**Niet stilzwijgend inbegrepen:** historische sessies zonder vangsten, locaties, instellingen, prognosesnapshots, waarnemingen en andere gebruikersgegevens. Die blijven behouden totdat de eigenaar expliciet anders beslist. De vraag of sessies zonder vangsten ook verwijderd mogen worden, staat nog open. Er is nog geen app-code, migratie of gebruikersdatabase gewijzigd.
+
+
+## Verplichte GitHub-werkwijze — altijd toepassen
+
+- Bundel alle aanpassingen die bij één opdracht/werkeenheid horen in **één enkele Git-commit**. Sla nooit bestanden één voor één op via afzonderlijke commits.
+- Gebruik standaard de commit-message-suffix **`[skip ci]`**, zodat documentatie- en andere wijzigingen niet onbedoeld GitHub Actions starten.
+- Laat `[skip ci]` uitsluitend weg wanneer de gebruiker expliciet vraagt om de GitHub Action(s) te laten draaien.
+- Als de gebruikte GitHub-interface geen multi-file commit in één keer ondersteunt, gebruik dan Git Trees + één commit (of een gelijkwaardige atomische Git-operatie). Gebruik niet als workaround meerdere Contents API-writes.
+- Controleer vóór het committen de volledige verzamelde diff en de actuele HEAD van `main`; commit alleen de bedoelde bestanden.
+- Controleer na het committen dat precies één commit is aangemaakt en dat alle bedoelde bestanden daarin zitten. Rapporteer commit-SHA, gewijzigde bestanden en of CI bewust is overgeslagen.
+- Deze regel geldt voor documentatie, code, tests, configuratie, workflows en alle andere repositorybestanden. Alleen een expliciete afwijkende opdracht van de gebruiker kan hiervan afwijken.
