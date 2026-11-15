@@ -260,3 +260,49 @@ De huidige activiteitsscore is expliciet thermisch gedreven. De persoonlijke kan
 - [ ] Controleer of `researchRegistry`-goedkeuring bewust buiten de runtime-code staat of dat een echte modelgoedkeuringscontrole ontbreekt.
 - [ ] Volg zoninstraling, zuurstof, stroming, waterstand, zicht en maanstand door types → weer-/waterbron → engine → UI → tests; markeer niet beschikbare factoren expliciet.
 - [ ] Beoordeel tests op inhoudelijke dekking van de blauwdruk, niet alleen op aanwezigheid in de Quality Gate.
+
+
+## 10. Datadictionary, registratie-UI en daadwerkelijke inspanning
+
+### 10.1 Beschikbare kernvelden en invoer
+
+De centrale types `src/types/index.ts` bevatten al veel van de gewenste gegevens:
+- **Locatie:** naam, GPS, watertype, waterdiepte, optionele `waterFacingDirection` en `habitatFeatures`.
+- **Sessie:** start/eindtijd, werkelijke duur, aparte geplande duur/eindtijd, doelsoort(en), totaal hengelaantal, deelnemers, techniek, aas/voer, aanbeten/gemiste vissen, diepte, watertemperatuur met meettijd/-bron/-methode/-diepte, waarnemingstypen, weercontext, snapshotkoppeling en legacy-kwaliteitsvlaggen.
+- **Vangst:** sessie-/locatiekoppeling, soort, aantal, gewicht/lengte, tijd, hengel, aas, techniek, notities, foto en legacy-kwaliteitsvlaggen.
+- **Hengeldetails:** hengelnummer, positiezone, techniek, aas/presentatie, werkelijke actieve intervallen en gebeurtenissen (aanbeet, gemist, vangst, overig).
+- **Prognose:** tijdvakfactoren, thermische status, onzekerheid, bron-/provenancevelden, modelversie, invoerfingerprint en onveranderlijke snapshotdata.
+
+### 10.2 UI-defaults kunnen ontbrekende informatie als ingevuld opslaan
+
+In `SessionModal.tsx` worden voor een nieuwe sessie standaardwaarden ingesteld:
+- doelsoort: Karper;
+- hengelaantal: 2;
+- techniek: “Statisch / Feeder”;
+- aas/voer: “Boilies, maden & mais”.
+
+Deze waarden worden in de sessiepayload opgeslagen, ook wanneer de gebruiker ze niet bewust heeft bevestigd of aangepast. Dit is een UX-keuze, maar voor latere modelanalyse kan het onbekende/ongekozen informatie laten lijken op een echte observatie. De audit moet beoordelen of defaults duidelijk als voorstel worden gemarkeerd en/of als onbevestigd worden opgeslagen, zonder de snelle invoer onnodig ingewikkeld te maken.
+
+Ook `LocationModal.tsx` vult ontbrekende GPS-coördinaten standaard met 51.9610, 5.2280 en slaat die waarden op als locatiecoördinaten. Wanneer een gebruiker een nieuwe stek invoert en deze coördinaten niet bewust aanpast of via GPS ophaalt, kan weer- en windanalyse daardoor aan een verkeerde locatie worden gekoppeld. De ontbrekende GPS-positie moet onderscheiden blijven van een echte locatiecoördinaat.
+
+### 10.3 Oeveroriëntatie en habitatkenmerken: type aanwezig, UI-invoer niet aangetoond
+
+`FishingLocation` bevat `waterFacingDirection` en `habitatFeatures`. De gecontroleerde `LocationModal.tsx` biedt echter alleen naam, omschrijving, watertype, diepte, GPS en notities; geen expliciete invoer voor oeveroriëntatie of gestructureerde habitatkenmerken. `bankWindEngine.ts` heeft de oeveroriëntatie nodig om de wind-oeverrelatie te bepalen. Daardoor bestaat de type-/enginecapaciteit, maar is de configuratie via de standaard stekeditor niet aangetoond. Een GPS-punt of vrije notitie mag niet als vervanging voor oeveroriëntatie worden behandeld.
+
+### 10.4 Hengeluren worden berekend en getoond, maar niet aantoonbaar in de vangkans gebruikt
+
+`sessionEffortEngine.ts` berekent werkelijke hengeluren uit actieve intervallen en voorkomt dubbeltelling van overlappende intervallen per hengel. `SessionsView.tsx` toont deze uitkomst bij sessiedetails. De actieve invoer van hengeldetails wordt via `App.tsx` en `db.sessionRods` opgeslagen.
+
+De gecontroleerde vangkansroute in `prognosisEngine.ts` gebruikt echter sessieduur via `getSessionDurationHours()` voor de Poisson-blootstelling en niet `calculateSessionRodEffort()` of `sessionRods`. Hengeluren worden dus op dit moment aantoonbaar berekend/getoond, maar hun invloed op de persoonlijke vangkans of het stekprofiel is niet aangetoond. Dit is een verschil met de roadmap, die hengeluren als context voor eerlijke vergelijkingen wil gebruiken. Hengeluren mogen overigens niet zonder verdere onderbouwing als onafhankelijke vangstkansen worden vermenigvuldigd.
+
+### 10.5 Techniek en aas/voer in historische vergelijkingen
+
+De prognose-engine ontvangt een optionele `technique` en bewaart deze in snapshots/invoercontext. De historische vergelijkingsselectie `getComparableSessions()` filtert echter op soort en optioneel locatie, niet op techniek of aas/voer. `getSimilarSessions()` filtert op soort en tijdvak, niet op locatie, methode of aas. De huidige persoonlijke historie is dus minder tactisch vergelijkbaar dan de productblauwdruk beoogt. Dit kan bewust zijn wegens beperkte data, maar de UI moet niet suggereren dat de kansschatting al volledig methode-/aasgespecificeerd is.
+
+### 10.6 Bijgewerkte open acties
+
+- [ ] Beoordeel sessie-defaults voor doelsoort, hengelaantal, techniek en aas/voer als mogelijke bron van onbevestigde invoer.
+- [ ] Verwijder geen GPS-waarde uit bestaande gebruikersdata; bepaal hoe nieuwe locaties zonder bevestigde coördinaten als onbekende locatie kunnen blijven bestaan.
+- [ ] Volg `waterFacingDirection` en `habitatFeatures` van type tot invoer, opslag, engine en UI; bevestig dat er geen verborgen configuratieroute bestaat.
+- [ ] Bepaal hoe hengeluren als vergelijkingscontext veilig kunnen worden meegenomen, zonder hengels als onafhankelijke sessies te behandelen.
+- [ ] Bepaal welke techniek-/aas-/voerfilters verantwoord zijn bij de huidige kleine dataset; toon ontbrekende vergelijkbaarheid expliciet.
