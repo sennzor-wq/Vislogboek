@@ -3,8 +3,8 @@
 **Status:** in uitvoering — read-only  
 **Peildatum:** 15 november 2026  
 **Geaudite branch:** `main`  
-**Huidige `main`-head:** `917df22a4758931c416148271e3088a37f09765a`  
-**App-codebaseline bij start audit:** `4831fd6d7a200467c29773c574be7090674eca29` (de daaropvolgende commits in deze audit wijzigden uitsluitend documentatie)  
+**App-codebaseline bij start audit:** `4831fd6d7a200467c29773c574be7090674eca29`  
+**Documentatie:** latere commits op `main` wijzigen uitsluitend audit-/projectdocumentatie; er zijn geen app-codebestanden gewijzigd.  
 **Doel:** de bestaande technische nulmeting aanvullen met de expliciete traceerbaarheid van blueprint → code → UI → test en met de dataveiligheids-, prognose-, stekleren- en VisCoach-vragen uit `VISLOGBOEK_VERBETERPLAN.md`.
 
 > Dit is een voortgangsrapport, geen afgeronde audit. Er is alleen repository-inhoud onderzocht. De IndexedDB van een echte gebruikersinstallatie is niet uitgelezen. Er is geen applicatiecode, lokale database of vangstregistratie gewijzigd.
@@ -18,7 +18,7 @@
 | Openstaande PR's | Geen gevonden bij controle op 15 november 2026 |
 | Branches | Meerdere historische feature-, audit- en documentatiebranches aanwezig; `main` blijft de enige bron van waarheid |
 | Bestaande technische nulmeting | `FASE0_DATA_DICTIONARY_AND_BASELINE.md`, uitgevoerd op oudere commit `65f56c4a7408d874defa415212b74cd165f01147` |
-| CI op huidige baseline | Quality Gate run #503 (`43723261161`) en alle daaropvolgende runs op documentatiecommits eindigden vrijwel direct als failure. De meest recente run op de huidige `main`-head is #508 (`43724438477`): job `132843202915`, `runner_id=0`, geen zichtbare stappen en geen beschikbare logs. Een rerun van run #503 is aangevraagd maar bleef eveneens failure. Oorzaak is dus **onbekend en lijkt vóór de eerste workflowstap te ontstaan**; dit is niet als codefout of geslaagde test te classificeren. |
+| CI op huidige baseline | Quality Gate run #503 (`43723261161`) en alle daaropvolgende runs op documentatiecommits eindigden vrijwel direct als failure. De meest recente run na de auditdocumentatie-updates is #511 (`43724488095`): jobstart faalde direct, zonder zichtbare workflowstappen of beschikbare logs. Run #510 (`43724438477`) had `runner_id=0`, geen stappen en geen logs. Een rerun van run #503 is aangevraagd maar bleef eveneens failure. Oorzaak is dus **onbekend en lijkt vóór de eerste workflowstap te ontstaan**; dit is niet als codefout of geslaagde test te classificeren. |
 | Workflow | `.github/workflows/ci.yml`; typecheck, dependency audits, regressiesuites en productiebuild |
 
 De eerdere fase-0-datadictionary blijft geldig als historische audit op de toenmalige commit. Deze nieuwe audit heeft een bredere scope en moet de huidige `main` opnieuw aan de actuele productblauwdruk koppelen. De twee audits mogen niet als dezelfde afronding worden gepresenteerd.
@@ -76,8 +76,8 @@ De coachlaag is geen lege placeholder: zij combineert bestaande prognose-, habit
 
 ## 5. Baseline- en validatiebeperkingen
 
-- De huidige `main`-head is `917df22a4758931c416148271e3088a37f09765a`; de app-codebaseline bij start van de audit was `4831fd6d7a200467c29773c574be7090674eca29`. Alle tussenliggende commits voor deze audit wijzigden uitsluitend documentatie.
-- De nieuwste Quality Gate-run #508 (`43724438477`) op de huidige `main`-head faalde vóór zichtbare workflowstappen (`runner_id=0`, geen stappen, geen logs). Ook eerdere runs #503–#507 en de rerun van #503 faalden op dezelfde manier. De oorzaak is onbekend en lijkt bij runner-/workflowstart te liggen; er is geen testresultaat beschikbaar.
+- De app-codebaseline bij start van de audit was `4831fd6d7a200467c29773c574be7090674eca29`. Alle commits die daarna voor deze audit zijn gemaakt, wijzigden uitsluitend documentatie.
+- De nieuwste Quality Gate-run #511 (`43724488095`) op de huidige documentatie-head faalde vóór zichtbare workflowstappen. Ook runs #503–#510 en de rerun van #503 faalden op dezelfde manier; bij run #510 is expliciet `runner_id=0` en een lege stappenlijst gerapporteerd. De oorzaak is onbekend en lijkt bij runner-/workflowstart te liggen; er is geen testresultaat beschikbaar.
 - De oudere geslaagde Quality Gate #491 / run #42423374317 is op een eerdere commit uitgevoerd en mag niet worden gepresenteerd als bewijs voor de huidige baseline.
 - De repository heeft deterministische tests voor veel services, maar de audit moet nog controleren welke blueprint-eisen niet door een gerichte regressietest worden afgedekt.
 - Er is geen toegang tot de werkelijke IndexedDB-inhoud van een gebruiker via deze repository-audit. Aantallen, lokale afwijkingen en persoonlijke records kunnen dus niet worden vastgesteld.
