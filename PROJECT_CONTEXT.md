@@ -6,7 +6,7 @@
 **Project:** Vislogboek  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Huidige technische basis bij opstellen:** React 19, TypeScript, Vite, PWA, Dexie 4 / IndexedDB, Open-Meteo  
-**Documentstatus:** leidende product- en technische projectcontext; gecontroleerd en bijgewerkt tot en met 7 november 2026.  
+**Documentstatus:** leidende product- en technische projectcontext; historisch bijgewerkt tot en met 7 november 2026, met aanvullende optimalisatie-auditstatus van 15 november 2026.  
 **Belangrijk:** dit is een richtinggevend ontwerp en code-audit op hoofdlijnen, geen claim dat alle hieronder beschreven toekomstige functionaliteit al bestaat.
 
 
@@ -29,7 +29,9 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 1. **Dit bestand (`PROJECT_CONTEXT.md`) is leidend voor de volledige app.** Het beschrijft productvisie, wetenschappelijke uitgangspunten, architectuur, datakwaliteit, privacy, ontwikkelafspraken en de actuele projectstatus. Bij tegenstrijdigheid is dit document leidend voor de bedoeling; de code op `main` blijft leidend voor wat daadwerkelijk is gebouwd.
 2. **`IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md` is het goedgekeurde uitvoeringsplan.** De 32 verbeterpunten zijn afgeleid van deze projectcontext. Het plan bepaalt de afgesproken fasering en acceptatiecriteria, maar kan de projectcontext of de actuele code niet overrulen.
 3. **`VISCOACH_PRODUCT_ROADMAP.md` is de specifieke product- en technische blauwdruk voor VisCoach.** Deze roadmap werkt de VisCoach-ervaring en coachcyclus uit binnen de kaders van deze projectcontext. Het is geen tweede productvisie of een zelfstandige architectuur.
-4. **`FASE0_DATA_DICTIONARY_AND_BASELINE.md` is een ondersteunend auditbewijs.** Het bevat de datadictionary en de read-only technische nulmeting van de code op de vastgelegde baseline. Het is geen tweede projectcontext of implementatieplan.
+4. **`FASE0_DATA_DICTIONARY_AND_BASELINE.md` is het eerdere ondersteunende auditbewijs.** Het bevat de datadictionary en de read-only technische nulmeting op commit `65f56c4a7408d874defa415212b74cd165f01147` (6 november 2026).
+5. **`VISLOGBOEK_VERBETERPLAN.md` is het actuele overkoepelende uitvoeringsplan.** Het bepaalt de volgorde en acceptatiecriteria voor de nieuwe optimalisatie.
+6. **`FASE0_OPTIMIZATION_AUDIT.md` is het aanvullende auditbewijs voor de uitgebreide fase 0.** Deze audit is gestart op de actuele `main`-commit van 15 november 2026 en is nog in uitvoering. Het eerdere fase-0-document blijft een afgeronde historische nulmeting op zijn eigen commit.
 
 ### Status op basis van de actuele `main`
 
@@ -41,7 +43,8 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 | 32-puntenplan, fasen 1–5 | Afgerond volgens de geregistreerde merges en Quality Gates | Deze werkzaamheden niet opnieuw uitvoeren. |
 | 32-puntenplan, fase 6 | **Afgerond op `main` op 7 november 2026** | De geïntegreerde VisCoach-cyclus voldoet aan de softwarematige acceptatiecriteria; Quality Gate #491 is volledig geslaagd. Praktijkvalidatie blijft onderdeel van de doorlopende persoonlijke nulmeting. |
 | Productfase 0 — persoonlijke nulmeting | Doorlopend | Echte sessies, vooraf opgeslagen prognoses en uitkomsten verzamelen; softwaretests zijn geen praktijkvalidatie. |
-| Technische auditfase 0 | Afgerond als read-only audit | Dit is een afzonderlijke technische inventarisatie en niet dezelfde fase als de persoonlijke nulmeting. |
+| Technische auditfase 0 (datadictionary, 6 november) | Afgerond als read-only audit op commit `65f56c4` | Historische technische inventarisatie; niet de uitgebreide optimalisatie-audit van 15 november. |
+| Uitgebreide optimalisatie-auditfase 0 | **In uitvoering** op `main` commit `4831fd6` | Traceerbaarheid blueprint → code → UI → test, benchmark-/seedafhankelijkheden en huidige Quality Gate-baseline worden opnieuw gecontroleerd. Zie `FASE0_OPTIMIZATION_AUDIT.md`. |
 
 De technische baseline-audit is uitgevoerd op `main` commit `65f56c4a7408d874defa415212b74cd165f01147`; de bijbehorende Quality Gate run #42273675118 slaagde. De audit wijzigde geen applicatiecode en kon de lokale IndexedDB van een gebruikersapparaat niet uitlezen. Een geslaagde Quality Gate bewijst technische regressiecontrole, geen voorspellende nauwkeurigheid in echte vissessies.
 
@@ -682,4 +685,4 @@ Het centrale, door de producteigenaar opgedragen optimalisatietraject staat in *
 
 **Uitgangspunten:** de kernfunctionaliteit blijft gratis en offline-first; bestaande gebruikersgegevens worden beschermd; bestaande engines worden eerst hergebruikt; prognoses worden biologisch soortspecifiek en onzekerheid wordt zichtbaar gemaakt; geen verbetering geldt als afgerond zonder tests, diff-review en passend bewijs. Historische benchmark-/testvangsten mogen na een afhankelijkhedenaudit worden verwijderd wanneer ze niet valide zijn of de productie verstoren. Echte gebruikersdata mag niet als onderdeel van deze cleanup worden verwijderd.
 
-**Status per 15 november 2026:** verbeterplan is vastgelegd op `main` (commit `91e8e0d7619db8518065b4f8fb8d5369c92a3bd7`). Fase 0 is nog te starten; er wordt geen implementatie- of validatiestatus geclaimd op basis van alleen dit document.
+**Status per 15 november 2026:** het verbeterplan is vastgelegd op `main` en de uitgebreide read-only fase-0-audit is gestart op commit `4831fd6d7a200467c29773c574be7090674eca29`. Eerste bevindingen staan in `FASE0_OPTIMIZATION_AUDIT.md`. De vaste sessie van 19 oktober en vier canonieke vangsten zijn verdacht als benchmarkseed maar nog niet definitief geclassificeerd; historische records uit `src/data/historicalData.ts` zijn volgens de broncode uit een concrete gebruikersbackup geïmporteerd en worden beschermd. De huidige activiteitsscore is thermisch gedreven; windadvies wordt in de coachtekst alleen bij sterke wind getoond. De nieuwste Quality Gate-run #503 op de huidige baseline faalde zeer vroeg zonder beschikbare joblogs; oorzaak onbekend, rerun aangevraagd. Fase 0 blijft in uitvoering; fase 1 is nog niet gestart. Er is geen applicatiecode of gebruikersdatabase gewijzigd.
