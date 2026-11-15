@@ -712,3 +712,26 @@ De eigenaar heeft toestemming gegeven om bij de gecontroleerde schone start **al
 ## Implementatiestatus schone start — 15 november 2026
 
 De repositorywijziging introduceert databaseversie 5 met een eenmalige v4→v5 resetmigratie en verwijdert automatische historische seeddata en benchmarkinjectie bij backup-restore. Een regressietest voor de migratie is toegevoegd. Tests, build en lint moeten nog worden uitgevoerd; de wijziging geldt daarom nog niet als software-getest.
+
+---
+
+## Zelfstandig project — zelflerende prognose, foutdiagnose en VisCoach-feedbacklus
+
+**Projectissue:** [#50 — Zelflerende prognose, foutdiagnose en VisCoach-feedbacklus](https://github.com/sennzor-wq/Vislogboek/issues/50)  
+**Projectdocument:** [PROJECT_ZELFLERENDE_PROGNOSE.md](PROJECT_ZELFLERENDE_PROGNOSE.md)  
+**Relatie:** zelfstandig projectspoor naast het overkoepelende optimalisatietraject #49. Het sluit inhoudelijk aan op fase 5, maar heeft een eigen scope, fasering, audit en acceptatiecriteria. Er wordt één gedeelde leerarchitectuur gebouwd; geen dubbele feedbacklus.
+
+### Productdoel
+Vislogboek moet een aantoonbaar lerend systeem worden: prognose vooraf vastleggen → sessie-uitkomst koppelen → evalueren → verklaren waarom een voorspelling afweek → datakwaliteit controleren → gevalideerde modelverbetering → nieuwe prognose en VisCoach-tactiek → opnieuw evalueren.
+
+### Niet-onderhandelbare principes
+- Brier-score is een evaluatiemaatstaf en diagnose-instrument, geen directe correctiefactor voor de vangstkans.
+- Een slechte score leidt eerst tot foutdiagnose. Mogelijke oorzaken zijn modelbias, vervuilde of onvolledige invoer, onjuiste koppeling, onvergelijkbare sessies, selectiebias, kleine steekproef of toevalsvariatie.
+- Oorspronkelijke snapshots en bronregistraties blijven onveranderd. Onbetrouwbare data wordt gemarkeerd met reden en auditspoor, niet stilzwijgend aangepast of verwijderd.
+- Kalibratie en evaluatie worden chronologisch gescheiden om future leakage te voorkomen.
+- Alleen gevalideerde, versieerbare en terugdraaibare correcties mogen toekomstige prognoses en passende VisCoach-adviezen beïnvloeden.
+- Softwaretests en synthetische simulaties bewijzen niet zelfstandig de praktijknauwkeurigheid.
+- Offline-first en gratis kernfunctionaliteit blijven behouden.
+
+### Startstatus
+Er zijn al bouwstenen in de repository: prognosis snapshots, sessie-uitkomstkoppeling, evaluationEngine, Brier/Brier Skill Score, forward-validation tests, historische sessieanalyse en watertemperatuurkalibratie. De directe terugkoppeling van Brier-evaluatie naar de vangstkans is niet aangetoond. De actuele codeketen en foutdiagnose moeten eerst opnieuw volledig worden geaudit. Zie issue #50 en het zelfstandige projectdocument.
