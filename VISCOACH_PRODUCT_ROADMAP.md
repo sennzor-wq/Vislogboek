@@ -1203,3 +1203,14 @@ De volgende ontwikkelfase is niet een herhaling van fase 6. De persoonlijke prak
 ### Startsnapshot en Brier-integriteit — herstel 7 november 2026
 
 De daadwerkelijke startprocedure is aangescherpt zodat een nieuwe actieve sessie niet kan worden opgeslagen zonder een vooraf berekende prognosesnapshot. De snapshot bewaart het oorspronkelijke berekeningstijdstip (`forecastTimestamp` / `inputContext.calculatedAt`); de opslagtijd vervangt dit niet meer. Na het berekenen van de snapshot wordt de daadwerkelijke sessiestart vastgelegd. De opslagservice weigert bovendien iedere combinatie waarbij het voorspellingstijdstip ontbreekt, ongeldig is of niet strikt vóór de sessiestart ligt. Sessie en snapshot blijven atomair opgeslagen. Als de prognose niet beschikbaar is, wordt de start afgebroken in plaats van een sessie zonder valide Brier-basis aan te maken. De regressietest controleert zowel behoud van het oorspronkelijke tijdstip als het blokkeren van een snapshot op of na de sessiestart.
+
+
+---
+
+## Uitvoeringsregie: centraal verbeterplan (15 november 2026)
+
+De gefaseerde optimalisatie van Vislogboek wordt vanaf deze datum uitgevoerd volgens **[VISLOGBOEK_VERBETERPLAN.md](VISLOGBOEK_VERBETERPLAN.md)**. Deze roadmap blijft de productblauwdruk; het verbeterplan is leidend voor de volgorde, audit, acceptatiecriteria en voortgangsregistratie.
+
+De eerstvolgende stap is een read-only baseline-audit op actuele `main`: blueprint-eisen koppelen aan code, UI, tests en status. Daarna volgen dataveiligheid/benchmarkdata, soortspecifieke biologische prognose, geïntegreerd lerend stekprofiel, tactisch VisCoach-advies en praktijkvalidatie. De bestaande engines zijn hergebruikskandidaten; de audit bepaalt hun feitelijke dekking. Historische benchmarkdata mag na controle van alle afhankelijkheden worden verwijderd als die ongeldig of verstorend is; echte gebruikersgegevens blijven beschermd.
+
+**Voortgang:** plan vastgelegd op `main` via commit `91e8e0d7619db8518065b4f8fb8d5369c92a3bd7`; uitvoering nog niet gestart. Zie het statusregister in het centrale verbeterplan.
