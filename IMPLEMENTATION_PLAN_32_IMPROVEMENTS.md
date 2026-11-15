@@ -209,4 +209,18 @@ De producteigenaar heeft een aanvullend, overkoepelend optimalisatietraject opge
 
 Eerste stap: read-only baseline-audit. Daarna prioriteit voor veilige database-initialisatie en het verwijderen van uitsluitend ongeldige benchmark-/testdata, gevolgd door biologische prognose, lerend stekprofiel, tactisch advies en praktijkvalidatie. De toestemming om benchmarkvangsten te verwijderen geldt niet voor echte gebruikersgegevens. Documentatie en dit statusregister worden na iedere fase bijgewerkt.
 
-**Status:** overkoepelend plan vastgelegd op `main`; nog geen implementatie van deze nieuwe fases geclaimd. Raadpleeg het centrale verbeterplan voor actuele status en acceptatiecriteria.
+**Status:** overkoepelend plan vastgelegd op `main`; de uitgebreide fase-0-audit is gestart op `main` commit `4831fd6d7a200467c29773c574be7090674eca29`. De eerdere technische audit van 6 november blijft afgerond op zijn eigen baseline, maar geldt niet als afronding van deze uitgebreidere audit. Eerste bevindingen en openstaande controles staan in [`FASE0_OPTIMIZATION_AUDIT.md`](FASE0_OPTIMIZATION_AUDIT.md). Fase 1 is nog niet gestart. Raadpleeg [`VISLOGBOEK_VERBETERPLAN.md`](VISLOGBOEK_VERBETERPLAN.md) voor actuele status en acceptatiecriteria.
+
+
+## Aanvullende status — uitgebreide optimalisatie-audit (15 november 2026)
+
+De uitgebreide read-only fase 0 is gestart op actuele `main` commit `4831fd6d7a200467c29773c574be7090674eca29`. De eerdere technische fase-0-audit van 6 november blijft geldig voor zijn eigen baseline en datadictionary, maar dekt niet automatisch de nieuwe traceerbaarheid van blueprint → code → UI → test of de actuele benchmark-/seedafhankelijkheden.
+
+Eerste bevindingen:
+- De database-initialisatie seedt nog steeds een vaste sessie van 19 oktober 2026 en vier canonieke vangsten. Deze records staan in code op `isBenchmark: false`; herkomst en verwijzingen moeten eerst worden vastgesteld.
+- `src/data/historicalData.ts` beschrijft 10 sessies en 16 vangsten als afkomstig uit een concrete gebruikersbackup. Deze data wordt beschermd en niet als ongeldige benchmark verwijderd; wel wordt onderzocht hoe persoonlijke data uit het nieuwe-installatie seedpad wordt gehouden.
+- De numerieke activiteitsscore is op dit moment thermisch gedreven; andere factoren worden als context verwerkt.
+- De VisCoach-windsectie wordt alleen bij `strongWind` getoond; de huidige test verwacht expliciet dat deze bij zwakke wind ontbreekt. Dit wordt in fase 4 gericht herzien.
+- De nieuwste Quality Gate-run #503 op de huidige baseline rapporteerde failure zonder zichtbare jobstappen of beschikbare logs. De oorzaak is onbekend; rerun is aangevraagd.
+
+Zie `FASE0_OPTIMIZATION_AUDIT.md` voor bronpaden, bewijs, beperkingen en openstaande controles. De audit blijft in uitvoering; geen fase-1-implementatie of verwijdering van gebruikersdata is gestart.
