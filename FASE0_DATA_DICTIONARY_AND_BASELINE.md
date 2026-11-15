@@ -169,3 +169,22 @@ Dit zijn auditbevindingen en aandachtspunten, geen wijzigingen die binnen de rea
 | Geen applicatiegedrag gewijzigd | **Gereed** — uitsluitend read-only audit en documentatie; de audit is eerst op `documentation` vastgelegd en daarna als ondersteunend document naar `main` overgenomen. Er is geen applicatiecode of gebruikersdatabase gewijzigd. |
 
 **Conclusie:** Fase 0 is afgerond als read-only audit en gegevensfundament. Openstaande punten hierboven worden meegenomen naar de relevante volgende fase; ze worden niet stilzwijgend in Fase 0 opgelost.
+
+
+---
+
+## 9. Aanvullende auditcontext — 15 november 2026
+
+Deze datadictionary en technische nulmeting zijn afgerond op de toenmalige baselinecommit `65f56c4a7408d874defa415212b74cd165f01147`. De scope en conclusie van dit document blijven historisch geldig voor die commit. Ze mogen niet worden geïnterpreteerd als afronding van de bredere optimalisatie-audit die op 15 november 2026 is gestart.
+
+De nieuwe audit controleert de actuele `main` opnieuw op:
+- blueprint → code → UI → test-traceerbaarheid;
+- alle benchmark- en historische seeddata en hun verwijzingen;
+- de huidige prognosefactoren en scorebijdragen;
+- het geïntegreerde stek-/soortleren;
+- de volledige VisCoach-wind-/positioneringsketen;
+- de actuele Quality Gate op de huidige commit.
+
+De uitgebreide audit is vastgelegd in [FASE0_OPTIMIZATION_AUDIT.md](FASE0_OPTIMIZATION_AUDIT.md) en staat nog **in uitvoering**. De eerste bevinding is dat `src/data/historicalData.ts` de 10 sessies en 16 vangsten expliciet als afkomstig uit een concrete gebruikersbackup beschrijft. Deze backup-afgeleide records worden als echte gebruikersdata beschermd en vallen niet onder benchmarkcleanup. De aparte vaste sessie van 19 oktober 2026 en de vier canonieke vangsten moeten nog op herkomst en afhankelijkheden worden gecontroleerd.
+
+Er is met deze aanvullende auditregistratie geen applicatiecode of gebruikersdatabase gewijzigd.
