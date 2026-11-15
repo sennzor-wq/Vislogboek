@@ -203,3 +203,12 @@ Deze punten versterken het besluit: geen opruiming of simpele vlagwijziging in f
 - [ ] Test of restore van de echte legacyfixture een tweede representatie van de 19-oktoberreferentiesessie toevoegt.
 - [ ] Controleer alle prognose-, evaluatie-, statistiek- en UI-filters op expliciete ID's én op vlaggen; kies later één canonieke representatie en één bron van waarheid.
 - [ ] Controleer de sessie-/vangststatistiekroute op meetellen van benchmarkrecords.
+
+
+### 8.7 UI-statistieken en schijnbare testdekking
+
+De sessie-/vangststatistieken lopen via `StatsView.tsx` rechtstreeks naar `calculateStats(sessions, catches, filter)`. `statsEngine.ts` filtert op locatie, uitkomst, techniek en datum, maar sluit `session.isBenchmark` niet uit. De hard-coded 19-oktobersessie met `isBenchmark: false` telt dus als gewone sessie mee in de cijfers en vangst-per-uurstatistieken.
+
+Ook de bestaande `test-backup-import.ts` dekt de echte merge-import niet af: de test simuleert de skipregels handmatig op basis van expliciete IDs (`BENCHMARK_SESSION.id` en `ref-2026-10-19-lokkershoek`) en vangstprefixen. De productiefunctie `normalizeRawBackup()` zet de legacy referentiesessie echter op `isBenchmark: false`, en `mergeImportData()` vertrouwt daarna op de vlag. De test controleert dus niet dat de daadwerkelijke import hetzelfde resultaat geeft als de simulatie.
+
+**Auditconclusie:** de referentieset kan op dit moment op verschillende plekken verschillend worden behandeld: beschermd in een testfixture, als gewone sessie genormaliseerd, bij restore naast een tweede ingebouwde representatie geplaatst, en in statistieken/prognoses mogelijk als echte gebruikersdata meegeteld. Dit moet als één end-to-end datacontract worden opgelost, niet als een losse UI- of seedfix.
