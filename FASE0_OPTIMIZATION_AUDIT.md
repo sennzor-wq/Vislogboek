@@ -381,3 +381,19 @@ Generieke uitsluiting van expliciet als benchmark gemarkeerde synthetische evalu
 De implementatie moet een eenmalige, transactionele migratie uitvoeren die alleen de exact genoemde ingebouwde IDs verwijdert. De sessie moet eerst worden opgezocht op exact ID; de vier catches alleen verwijderen wanneer hun `sessionId` gelijk is aan die ingebouwde sessie-ID en hun IDs in de expliciete allowlist staan. De oude benchmarklocatie alleen verwijderen als exact de obsolete locatie-ID aanwezig is én geen niet-benchmark sessie ernaar verwijst; anders behoud de locatie en rapporteer het conflict. Verwijder geen records op basis van alleen datum, locatie, soort, gewicht of vergelijkbare inhoud. De echte legacybackupreferentie (`ref-2026-10-19-lokkershoek`) blijft behouden.
 
 De migratie moet idempotent zijn, atomair uitgevoerd worden en een herstel-/backupstrategie volgen. Test vóór en na migratie de aantallen en IDs van alle niet-benchmark locaties, sessies, catches, snapshots, waarnemingen, hengeldetails en geplande sessies. Bestaande gebruikerdata buiten de exacte ingebouwde allowlist mag byte-/veldgetrouw niet wijzigen.
+
+
+## 14. Extra dataseed-risico: echte historische backupdata wordt op nieuwe installaties ingevoegd
+
+De initialisatie in `db.ts` doet naast de ingebouwde benchmark nog iets zelfstandigs: zij seedt `HISTORICAL_LOCATIONS`, `HISTORICAL_SESSIONS` en `HISTORICAL_CATCHES` als records met ontbrekende IDs. `historicalData.ts` vermeldt expliciet dat deze 5 locaties, 10 sessies en 16 vangsten zijn geïmporteerd uit een concrete backup van 26 oktober 2026 (`vislogboek-backup-2026-10-26_50803f8b.json`). Dit zijn geen synthetische benchmarkrecords maar persoonlijke historische registraties.
+
+Dit betekent dat een nieuwe installatie nu automatisch een kopie van die historische gebruikersdata krijgt. Het verwijderen van de ingebouwde benchmark mag deze historische seeding niet per ongeluk verwijderen of aanpassen, maar het bredere dataprivacy-/provenanceprobleem moet afzonderlijk worden opgelost. Gewenste richting: een nieuwe installatie start met een lege persoonlijke database en voorbeelddata is opt-in en duidelijk als voorbeeld gemarkeerd; bestaande installaties behouden hun reeds aanwezige records. Een migratie mag deze historische IDs niet blind wissen, omdat een bestaande gebruiker ze mogelijk als echte data heeft behouden of aangepast.
+
+`initializeDatabaseOnce()` initialiseert bovendien standaardinstellingen met Lokkershoek Pier als default. Na het verwijderen van de ingebouwde benchmark moet gecontroleerd worden of deze default nog een bewuste productkeuze is en of de stek bestaat op basis van echte historische locatiegegevens. Geen defaultcoördinaten of historische records verwijderen op basis van benchmarkverwantschap.
+
+## 15. Correctie en nadere precisering van benchmarkverwijzingen
+
+De ingebouwde sessie en locatie zijn in de huidige code feitelijk met `isBenchmark: false` gedefinieerd. De term 'beschermde benchmark' in diverse foutmeldingen en UI-labels is daardoor generieke functionaliteit voor expliciet gemarkeerde records, niet de feitelijke status van deze vaste ingebouwde sessie. De vaste sessie is niet door `isBenchmark` beschermd; de seed blijft haar juist als gewone sessie toevoegen/updaten. De audit beschrijft daarom vanaf dit punt de vaste set als **ingebouwde demo-/referentiesessie** en reserveert **expliciete benchmarkfixture** voor testrecords die daadwerkelijk `isBenchmark: true` hebben.
+
+Bij fase 1 moet ook de ongebruikte/obsoleet geworden import `BENCHMARK_SESSION_ID` in `evaluationEngine.ts` worden onderzocht en verwijderd als die geen functionele rol heeft. De import in `prognosisEngine.ts` moet worden verwijderd als die niet daadwerkelijk wordt gebruikt. Generieke `isBenchmark`-filters kunnen blijven voor geïsoleerde evaluatietestfixtures; vaste datum-/ID-uitzonderingen mogen niet blijven bestaan.
+
