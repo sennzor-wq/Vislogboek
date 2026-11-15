@@ -95,3 +95,38 @@ De coachlaag is geen lege placeholder: zij combineert bestaande prognose-, habit
 - [ ] Reproduceerbare huidige softwarebaseline en bekende beperkingen vastleggen.
 
 **Fase 0 blijft in uitvoering totdat deze punten zijn afgehandeld of expliciet als niet uitvoerbaar / niet beschikbaar zijn gemotiveerd. Tot die tijd start fase 1 niet.**
+
+
+## 7. Aanvullende ketencontrole — 15 november 2026
+
+### 7.1 Prognose en stekvergelijking
+
+De centrale orkestratie in `src/services/prognosisEngine.ts` roept bestaande modules aan:
+- `analyzeRodPositioning()` voor hengelpositionering;
+- `analyzeBankWind()` voor wind/oeverrelatie;
+- `analyzeHabitatMovement()` voor habitat- en bewegingshypothesen;
+- `calculatePrebaitPlan()` voor voorvoeradvies bij ondersteunde soorten.
+
+Dit bevestigt dat fase 4 bestaande modules moet integreren en aanscherpen, niet een parallelle tactische engine moet introduceren.
+
+Er zijn twee verschillende historische sessiefilters:
+- `getSimilarSessions()` selecteert afgeronde sessies op doelsoort en tijdvak en sluit expliciet gemarkeerde benchmarks en onbetrouwbare starttijden uit. Deze selectie filtert niet op stek-ID.
+- `getComparableSessions()` filtert voor de statistische vangstkans wél op doelsoort en, wanneer opgegeven, locatie-ID. Doelsoortsucces vereist een vangstrecord van de doelsoort; bevestigde nulvangst blijft een aparte uitkomst. Voor de Poisson-berekening worden sessies zonder bekende werkelijke duur niet als blootstelling gebruikt.
+
+Dit is een nuttige basis, maar nog geen aangetoond, volledig stekprofiel: een centrale leerlaag moet onder meer inspanning, hengeluren, tactiek, weers-/watercontext, soort en onzekerheid op sessieniveau samenbrengen. Vangsten binnen één sessie zijn geen onafhankelijke sessie-observaties.
+
+### 7.2 Geometrie en werprichting
+
+- `bankWindEngine.ts` vereist een vastgelegde `waterFacingDirection` om de wind ten opzichte van de gekozen oever te configureren. Een GPS-punt alleen vertelt niet aan welke kant van het water de visser staat.
+- `rodPositioningEngine.ts` bouwt wind-/werprichtingsscenario's en maakt een exacte aanbevolen richting alleen definitief wanneer voldoende persoonlijke sessie-evidentie voor een favoriete werprichting bestaat. Zonder die onderbouwing geeft de engine geen vaste kompasrichting.
+- De centrale coachtekst in `sessionCoachService.ts` laat de windsectie echter alleen zien als `isStrongWind` waar is. Bij sterke wind kan de coach dus voorzichtig zijn over geometrie; bij rustige wind verdwijnt de windcontext volledig.
+
+De fase-4-wijziging moet dit onderscheid behouden: windcontext mag ook bij lichte/matige wind worden uitgelegd, maar een exacte werprichting blijft geblokkeerd zolang de geometrie en/of persoonlijke bewijsbasis onvoldoende zijn.
+
+### 7.3 UI- en adviesketen
+
+`viscoachService.ts` bouwt het plan op basis van de gekozen stek, doelsoort, gewenste start/eindtijd, sessies en vangsten en roept `calculateDayPrognosis()` aan. `VisCoachView.tsx` gebruikt vervolgens `buildVisCoachAdviceText()` voor samenvatting, aanbeveling en rationale in het plan. De sessiecoach bewaart daarnaast adviesrecords en feedback over uitgevoerde tactiek. De volledige UI-keten is dus aanwezig, maar de inhoudelijke kwaliteit hangt af van de engine-uitvoer en de beperkingen hierboven.
+
+### 7.4 Regressietest die huidige windbeperking vastlegt
+
+`test-session-coach.ts` test expliciet dat de tekst “Wind en werprichting” ontbreekt bij 5 km/u wind. Dit is geen ontbrekende testdekking: het is een test die het huidige gedrag bewust vastlegt. In fase 4 moet de testverwachting worden aangepast naar een relevante windcontext zonder gefingeerde werprichting; alleen de implementatie wijzigen zonder deze test bewust te herzien is niet voldoende.
