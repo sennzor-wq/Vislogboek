@@ -182,3 +182,24 @@ De Quality Gate bevat expliciete opdrachten voor de volgende testgroepen (bestan
 - 19-oktober-sessie: **provenance-risico aangescherpt**; sterke inhoudelijke overeenkomst met de backup-referentiesessie, maar materiële verschillen. Niet verwijderen.
 - Legacy backupfixture: **testbron aanwezig**; blijft behouden en wordt niet als productie-seed of opruimdoel behandeld.
 - Nog open: volledige repositorybrede ID-verwijzingsinventaris, blueprintfactorenmatrix, volledige UI/engine-keten, en reproduceerbare lokale softwarebaseline.
+
+
+### 8.5 Backup-import-, restore- en evaluatieketen — concrete inconsistenties
+
+Vervolginspectie van `src/services/backupService.ts`, `src/services/evaluationEngine.ts`, `src/services/prognosisEngine.ts` en de UI toont extra risico's:
+
+1. **Backup-normalisatie wist de beschermde status.** In `normalizeRawBackup()` wordt zowel ID `ref-2026-10-19-lokkershoek` als `BENCHMARK_SESSION.id` expliciet naar `isBenchmark: false` genormaliseerd. De oorspronkelijke fixture markeert de 19-oktobersessie juist als `protected: true` en `is_reference: true`. De importnormalisatie vertaalt die velden niet naar de beschermingsstatus.
+2. **Merge-import kan vangsten zonder sessie importeren.** `mergeImportData()` slaat sessies met `isBenchmark: true` over, maar de daaropvolgende vangstlus voegt alle nieuwe vangsten toe zonder te controleren of hun `sessionId` in de database bestaat of in dezelfde import wordt toegelaten. Dit kan verweesde vangstrecords opleveren. De bestaande importvalidatie moet hierop worden getoetst.
+3. **Restore voegt de ingebouwde referentieset na herstel altijd toe.** `restoreBackupData()` wist eerst de tabellen en herstelt vervolgens de backup, maar voegt daarna `BENCHMARK_LOCATION`, `BENCHMARK_SESSION` en de vier `BENCHMARK_CATCHES` toe als hun eigen IDs ontbreken. Een backup met de oorspronkelijke referentiesessie onder ID `ref-2026-10-19-lokkershoek` krijgt daardoor ook de afwijkende ingebouwde sessie onder ID `benchmark-session-20261019`, inclusief vier extra gegroepeerde vangsten. Dit kan dubbele representaties van dezelfde referentiegebeurtenis opleveren.
+4. **Benchmarkfilters zijn vlag-afhankelijk, niet ID-afhankelijk.** `evaluationEngine.ts` sluit snapshots en sessies uit op `isBenchmark === true`; de import van `BENCHMARK_SESSION_ID` wordt in het bekeken bestand niet verder gebruikt. `prognosisEngine.ts` filtert vergelijkbare/afgeronde sessies eveneens op `isBenchmark`, niet op de vaste ID. Omdat de vaste sessie als false wordt opgeslagen, kan zij als gewone gebruikerssessie meetellen in prognosehistorie en evaluatie-input. De sessielijst laat benchmarkbescherming en verwijderblokkade eveneens afhangen van `session.isBenchmark`; de vaste sessie met false wordt dus niet als beschermd getoond.
+5. **Statistiek/UI-controle nog open.** `StatsView.tsx` bevat expliciete snapshot-benchmarkfiltering; de volledige sessie-/vangststatistiekroute moet nog worden nagelopen op onbedoeld meetellen van de referentieset.
+
+Deze punten versterken het besluit: geen opruiming of simpele vlagwijziging in fase 0. Eerst is een eenduidig datacontract nodig voor de oorspronkelijke backupreferentie, de ingebouwde test-/benchmarkrepresentatie, vangstkoppelingen, merge-import, volledige restore en modeluitsluiting. Een latere oplossing moet tests bevatten voor import van de echte legacyfixture, merge met en zonder aanwezige referentiesessie, volledige restore, herhaalde initialisatie, nul verweesde vangsten en exact één representatie van de referentiegebeurtenis.
+
+### 8.6 Update open fase-0-acties
+
+- [ ] Traceer `normalizeRawBackup()` en alle import-/restorepaden op behoud van `protected` / `is_reference` en benchmarkstatus.
+- [ ] Test of `mergeImportData()` vangsten toevoegt waarvan de sessie wordt overgeslagen of niet bestaat.
+- [ ] Test of restore van de echte legacyfixture een tweede representatie van de 19-oktoberreferentiesessie toevoegt.
+- [ ] Controleer alle prognose-, evaluatie-, statistiek- en UI-filters op expliciete ID's én op vlaggen; kies later één canonieke representatie en één bron van waarheid.
+- [ ] Controleer de sessie-/vangststatistiekroute op meetellen van benchmarkrecords.
