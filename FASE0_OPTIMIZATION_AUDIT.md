@@ -348,3 +348,36 @@ De gebruiker heeft expliciet bevestigd dat de ingebouwde benchmark-/demonstratie
 8. Voer voor implementatie een volledige diff-/afhankelijkheidscontrole uit; rapporteer afzonderlijk statische inspectie, daadwerkelijk uitgevoerde tests en praktijkvalidatie.
 
 **Status:** toestemming voor het verwijderen van de ingebouwde benchmark is gegeven. Nog geen applicatiecode of database gewijzigd. De fase-0-audit en exacte verwijzingsinventaris blijven nodig vóór de uitvoering.
+
+
+## 13. Afbakening technische verwijdering ingebouwde benchmark — aanvullende inventaris
+
+Na expliciete toestemming is de codeketen nogmaals nagelopen. De ingebouwde dataset bestaat uit:
+- locatie-ID `benchmark-location-lokkershoek` (oude locatie; initialisatie probeert deze alleen te verwijderen als er geen sessies meer aan hangen);
+- sessie-ID `benchmark-session-20261019`;
+- vier catch-ID's `benchmark-catch-brasem-1`, `benchmark-catch-zeelt`, `benchmark-catch-karper`, `benchmark-catch-brasem-2` (samen acht vissen);
+- bijbehorende vaste seed- en upsert-/delete-logica in `initializeDatabaseOnce()`;
+- herstelinjectie van locatie, sessie en vier vangsten in `restoreBackupData()`;
+- benchmarkbescherming/labels en verwijderblokkades in sessie- en locatie-UI en veilige deletefuncties;
+- imports en speciale uitzonderingen in `prognosisEngine.ts`, `evaluationEngine.ts`, `backupService.ts`, prognose-invoerfingerprints en tests.
+
+### 13.1 Wat moet verdwijnen en wat generiek mag blijven
+
+De volgende functionaliteit is uitsluitend gekoppeld aan de obsolete ingebouwde avond en moet in fase 1 verdwijnen: vaste IDs en objecten uit `db.ts`; de sessie-/vangstseed en canonical catch rewrite/delete-loop; de speciale mapping van de 19-oktoberreferentie naar Lokkershoek in backupnormalisatie; restore-injectie; benchmarkbadge-/beschermingscopy die alleen deze vaste avond voorstelt; de obsolete test die eist dat deze sessie bestaat; imports van `BENCHMARK_SESSION_ID` die alleen die vaste ID blokkeren; en test-/merge-simulaties die de ingebouwde locatie/sessie/vangst als een verplichte referentie behandelen.
+
+Generieke uitsluiting van expliciet als benchmark gemarkeerde synthetische evaluatiedata mag blijven waar dit nodig is om modelvalidatie onafhankelijk te houden. Dat is geen reden om een vaste demo-sessie in iedere gebruikersdatabase te seeden. Generieke `isBenchmark`-semantiek, indien behouden, moet duidelijk beperkt zijn tot test-/evaluatiedata en mag geen echte backup- of gebruikerssessies op ID/datum/locatie stilzwijgend veranderen.
+
+### 13.2 Bestaande tests die moeten worden vervangen/aangepast
+
+- `test-thermal-and-prognosis.ts` bevat assertions dat de vaste sessie-ID bestaat, `isBenchmark: false` is en vier canonieke catches bevat. Vervang door tests dat een lege installatie geen ingebouwde demo-records krijgt en dat echte historische gebruikersdata correct wordt ingelezen.
+- `test-brier-integration.ts` verwacht dat `initializeDatabase()` de benchmarksessie aanmaakt en daarna als protected benchmark verwijdert. Vervang dit door onafhankelijke validatietests met synthetische benchmarkfixtures die niet via productiedatabase-initialisatie worden aangemaakt.
+- `test-backup-import.ts` importeert de ingebouwde benchmarkconstanten en simuleert speciale uitsluitingen voor de oude IDs. Vervang door end-to-end tests op de werkelijke `inspectImportFile()`/`normalizeRawBackup()`/`mergeImportData()`-keten, inclusief behoud van legitieme legacyreferentiedata.
+- `test-backup-roundtrip.ts` bouwt zijn testdatabase met de ingebouwde benchmarkconstanten. Gebruik volledig lokale fixture-objecten en test dat export→restore exact dezelfde records teruggeeft zonder app-injectie.
+- `test-safe-deletion.ts` test generieke expliciete `isBenchmark: true` bescherming. Beslis in implementatie of generieke beschermde testdata nog nodig is; verwijder in elk geval de claim dat de ingebouwde Lokkershoek-sessie beschermd moet blijven.
+- `test-forward-validation.ts` controleert dat een sessie met expliciete benchmarkstatus niet wordt gesynchroniseerd/e geëvalueerd. Deze generieke modelvalidatie-invariant kan blijven met een geïsoleerde testfixture.
+
+### 13.3 Migratie van bestaande lokale databases
+
+De implementatie moet een eenmalige, transactionele migratie uitvoeren die alleen de exact genoemde ingebouwde IDs verwijdert. De sessie moet eerst worden opgezocht op exact ID; de vier catches alleen verwijderen wanneer hun `sessionId` gelijk is aan die ingebouwde sessie-ID en hun IDs in de expliciete allowlist staan. De oude benchmarklocatie alleen verwijderen als exact de obsolete locatie-ID aanwezig is én geen niet-benchmark sessie ernaar verwijst; anders behoud de locatie en rapporteer het conflict. Verwijder geen records op basis van alleen datum, locatie, soort, gewicht of vergelijkbare inhoud. De echte legacybackupreferentie (`ref-2026-10-19-lokkershoek`) blijft behouden.
+
+De migratie moet idempotent zijn, atomair uitgevoerd worden en een herstel-/backupstrategie volgen. Test vóór en na migratie de aantallen en IDs van alle niet-benchmark locaties, sessies, catches, snapshots, waarnemingen, hengeldetails en geplande sessies. Bestaande gebruikerdata buiten de exacte ingebouwde allowlist mag byte-/veldgetrouw niet wijzigen.
