@@ -1,0 +1,97 @@
+# Fase 0 — uitgebreide optimalisatie-audit
+
+**Status:** in uitvoering — read-only  
+**Peildatum:** 15 november 2026  
+**Geaudite branch:** `main`  
+**Baselinecommit:** `4831fd6d7a200467c29773c574be7090674eca29`  
+**Doel:** de bestaande technische nulmeting aanvullen met de expliciete traceerbaarheid van blueprint → code → UI → test en met de dataveiligheids-, prognose-, stekleren- en VisCoach-vragen uit `VISLOGBOEK_VERBETERPLAN.md`.
+
+> Dit is een voortgangsrapport, geen afgeronde audit. Er is alleen repository-inhoud onderzocht. De IndexedDB van een echte gebruikersinstallatie is niet uitgelezen. Er is geen applicatiecode, lokale database of vangstregistratie gewijzigd.
+
+## 1. Repositorybasis
+
+| Controle | Bevinding |
+|---|---|
+| Leidende branch | `main` |
+| Baselinecommit | `4831fd6d7a200467c29773c574be7090674eca29` |
+| Openstaande PR's | Geen gevonden bij controle op 15 november 2026 |
+| Branches | Meerdere historische feature-, audit- en documentatiebranches aanwezig; `main` blijft de enige bron van waarheid |
+| Bestaande technische nulmeting | `FASE0_DATA_DICTIONARY_AND_BASELINE.md`, uitgevoerd op oudere commit `65f56c4a7408d874defa415212b74cd165f01147` |
+| CI op huidige baseline | Quality Gate run #503 (`43723261161`) rapporteerde failure binnen circa 2 seconden. GitHub leverde geen jobstappen en de logdownload was niet beschikbaar; oorzaak is dus **onbekend**, niet als codefout of geslaagde test te classificeren. Een rerun van de mislukte job is aangevraagd; uitkomst moet nog worden gecontroleerd. |
+| Workflow | `.github/workflows/ci.yml`; typecheck, dependency audits, regressiesuites en productiebuild |
+
+De eerdere fase-0-datadictionary blijft geldig als historische audit op de toenmalige commit. Deze nieuwe audit heeft een bredere scope en moet de huidige `main` opnieuw aan de actuele productblauwdruk koppelen. De twee audits mogen niet als dezelfde afronding worden gepresenteerd.
+
+## 2. Eerste traceerbaarheidsmatrix
+
+| Onderwerp / eis | Huidige code en UI | Bestaande testdekking | Voorlopige status / vervolg |
+|---|---|---|---|
+| Database-initialisatie en benchmarkdata | `src/db/db.ts`: `initializeDatabaseOnce()` wordt vanuit `App.tsx` tijdens laden aangeroepen. De functie schrijft de vaste sessie `benchmark-session-20261019` en vier vangstrecords opnieuw via `put()`, en verwijdert andere vangsten die aan die sessie hangen. | `test-safe-deletion.ts` test dat expliciet als benchmark gemarkeerde records niet verwijderd kunnen worden; dit bewijst niet dat de huidige seeded sessie beschermd is. | **Risico bevestigd.** De vaste sessie en vangsten hebben `isBenchmark: false`; classificatie en herkomst moeten eerst worden vastgesteld. Geen verwijdering tijdens fase 0. |
+| Historische records uit backup | `src/data/historicalData.ts` meldt expliciet dat 5 locaties, 10 sessies en 16 vangsten zijn geïmporteerd uit `vislogboek-backup-2026-10-26_50803f8b.json`. `src/db/db.ts` seedt deze records wanneer hun IDs ontbreken. | Legacy-/backup-/dataintegriteitstests bestaan; geen test bewijst dat persoonlijke backuprecords als productie-fixture veilig zijn voor distributie naar nieuwe installaties. | **Beschermen.** Dit zijn backup-afgeleide records en mogen niet als ongeldig benchmarkmateriaal worden verwijderd. Wel onderzoeken hoe persoonlijke seeddata uit het normale nieuwe-installatiepad kan worden gehaald zonder bestaande lokale records te wissen. |
+| Numerieke biologische activiteitsindex | `src/services/prognosisEngine.ts`: de huidige index wordt berekend uit `thermalEff` via `metabolicCeiling`; temperatuur is de enige factor met numerieke scorebijdrage. Druk, wind, seizoen, tijd/licht, bewolking en neerslag worden verwerkt als context met score 0. | Prognose-/thermische tests bestaan; `test-rod-positioning.ts` toetst tactische scenario's, niet de empirische juistheid van alle biologische factorresponsen. | **Gedeeltelijk.** Voorzichtigheid tegen ongefundeerde gewichten is goed; de blueprintfactoren moeten volledig worden geïnventariseerd en onderbouwd. |
+| Soortspecifieke basisbiologie | `src/services/fishProfiles.ts` bevat soortprofielen, voorkeursperioden/-windrichtingen, drempels en bronnen. | `test-research-registry.ts`, prognosetests en positioneringstests bestaan. | **Aanwezig als basis, validatie onzeker.** Bronnen moeten per soort en per claim worden gecontroleerd; groeirelatie mag bijvoorbeeld niet zonder meer als vangstactiviteitscurve worden gebruikt. |
+| Habitat-/bewegingsanalyse | `src/services/habitatMovementEngine.ts` maakt primaire/alternatieve zones en benoemt ontbrekende habitat-, temperatuur- en windgegevens. | Positionering- en advanced-moduletests bestaan. | **Gedeeltelijk.** Er is al een habitat-/bewegingslaag; audit moet nog aantonen hoe volledig deze per soort, stek en tijdsverloop is. |
+| Lerend stekprofiel per stek en soort | Persoonlijke sessieanalyse zit in `prognosisEngine.ts`; thermische historie in `waterTemperatureHistory.ts`; soortprofielen in `fishProfiles.ts`; habitat en positionering in afzonderlijke engines. In de huidige services-directory is geen centrale `spotLearningEngine.ts` aangetroffen. | Tests voor temperatuurleren, historisch profiel, Brier/forward validation en positionering bestaan. | **Geen geïntegreerd profiel aangetoond.** Eerst vaststellen welke aggregatie al in bestaande functies zit; pas daarna beslissen of een centrale leerlaag ontbreekt. |
+| Wind-/werprichtingadvies | `src/services/sessionCoachService.ts` voegt de sectie “Wind en werprichting” alleen toe wanneer `positioning.windContext.isStrongWind === true`. De UI `src/components/viscoach/VisCoachView.tsx` toont de resulterende aanbeveling. | `test-session-coach.ts` bevat expliciet de verwachting dat bij zwakke wind de windsectie ontbreekt. `test-rod-positioning.ts` test geometriebeperkingen en scenario's. | **Afwijking van gewenste productrichting bevestigd.** Bestaande test encodeert het huidige gedrag; fase 4 moet deze test bewust aanpassen naar relevante windcontext bij rustige/matige wind, zonder ongegronde werprichting. |
+| Gesloten leercyclus | `sessionCoachService.ts` bewaart advies, gebruikersreactie en uitgevoerde tactiek; prognose-snapshots en evaluatie bestaan. | `test-session-coach.ts`, `test-session-coach-integration.ts`, `test-brier-integration.ts`, `test-forward-validation.ts`. | **Softwarematige bouwstenen aanwezig.** Onafhankelijke beoordeling van prognosekwaliteit en tactische advieswaarde en praktijkbewijs blijven nodig. |
+
+## 3. Dataveiligheid — voorlopige bevindingen
+
+### 3.1 Vaste sessie van 19 oktober 2026
+
+In `src/db/db.ts` staat een hard-coded sessie met ID `benchmark-session-20261019` en vier canonieke vangstrecords:
+- 3 brasems (groepregistratie),
+- 1 zeelt,
+- 1 karper,
+- later nog 3 brasems.
+
+De sessie beschrijft in totaal acht vissen. De code zet of houdt `isBenchmark: false`; de vier vangsten hebben geen expliciete benchmarkvlag. De init-functie gebruikt `put()` voor de vier canonieke IDs en verwijdert alle andere vangsten die aan deze sessie hangen. Dit betekent dat een handmatig gewijzigde vangst met een van die canonieke IDs bij de volgende app-runtime opnieuw kan worden overschreven, en dat extra vangsten gekoppeld aan deze sessie worden verwijderd.
+
+De ID/constantennaam wijst op benchmarkherkomst, maar de recordvelden zelf markeren het niet als benchmark. De herkomst is nog niet definitief bewezen. **Niet verwijderen of omzetten voordat de bronbackup en alle verwijzingen zijn gecontroleerd.**
+
+### 3.2 Historische backupdata
+
+`src/data/historicalData.ts` identificeert zichzelf als import uit een concrete Vislogboek-backup van 26 oktober 2026 en bevat 10 sessies en 16 vangsten, met onder meer drie expliciet bevestigde nulvangstsessies. Deze records zijn geen onderdeel van de vier canonieke vangsten hierboven. Ze moeten als potentieel echte gebruikersdata worden beschermd. Het feit dat ze in broncode staan, is op zichzelf juist reden om de productie-seed te herzien: nieuwe installaties horen niet automatisch persoonlijke backuprecords te ontvangen.
+
+### 3.3 Verwijzings- en beschermingsketen
+
+- `src/db/db.ts` bevat verwijderbeveiliging op basis van `session.isBenchmark` en `snapshot.isBenchmark`.
+- `test-safe-deletion.ts` controleert die bescherming met expliciet als benchmark gemarkeerde fixtures.
+- De vaste sessie van 19 oktober is in de huidige constante juist `isBenchmark: false`; de bestaande benchmarkbescherming beschermt die dus niet op basis van dit veld.
+- `src/services/evaluationEngine.ts` sluit snapshots met `isBenchmark: true` en sessies met `isBenchmark: true` uit. De import van `BENCHMARK_SESSION_ID` moet op resterend gebruik worden gecontroleerd.
+- Een volledige repositorybrede inventaris van alle ID-verwijzingen, UI-verwijzingen en fixturegebruik is nog open.
+
+## 4. Prognose- en coachbevindingen
+
+### 4.1 Activiteit versus locatie
+
+De code maakt al een nuttig onderscheid tussen de numerieke activiteitsscore en de aparte habitat-/positioneringsanalyses. Wind kan als context voor oppervlaktevoedsel en zoneverplaatsing worden beschreven zonder automatisch de totale activiteitsscore te verhogen. Dit concept moet behouden blijven.
+
+De huidige activiteitsscore is echter thermisch gedreven. De volgende auditstap is niet simpelweg extra gewichten toevoegen, maar per factor vastleggen: biologische hypothese, soort, levensstadium indien relevant, watertype, tijdsvertraging, meetbron, interactie, onzekerheid, score- of habitatrol en beschikbare literatuur/praktijkdata.
+
+### 4.2 Coachadvies
+
+De coachlaag is geen lege placeholder: zij combineert bestaande prognose-, habitat-, positionerings- en voeruitvoer. De concrete windbeperking is dat de tekstsectie alleen verschijnt bij sterke wind. De huidige test legt die beperking vast. Fase 4 moet dus zowel implementatie als testverwachting bewust wijzigen, en mag niet simpelweg elke situatie een exacte kompasrichting geven.
+
+## 5. Baseline- en validatiebeperkingen
+
+- De huidige main-commit is `4831fd6d7a200467c29773c574be7090674eca29`.
+- De nieuwste Quality Gate-run #503 op deze commit faalde zeer vroeg; de GitHub-job bevatte geen zichtbare stappen en logophaalactie leverde geen logbestand. De oorzaak is onbekend. Rerun is aangevraagd en moet nog worden beoordeeld.
+- De oudere geslaagde Quality Gate #491 / run #42423374317 is op een eerdere commit uitgevoerd en mag niet worden gepresenteerd als bewijs voor de huidige baseline.
+- De repository heeft deterministische tests voor veel services, maar de audit moet nog controleren welke blueprint-eisen niet door een gerichte regressietest worden afgedekt.
+- Er is geen toegang tot de werkelijke IndexedDB-inhoud van een gebruiker via deze repository-audit. Aantallen, lokale afwijkingen en persoonlijke records kunnen dus niet worden vastgesteld.
+- De bestaande Brier/BSS-implementatie gebruikt vooraf vastgelegde prognoses, sessiekoppelingen, deduplicatie en chronologische rolling baseline. Dit is een nuttige technische basis, maar de score is alleen betrouwbaar voor de kwaliteit van de onderliggende echte, vergelijkbare sessiedata.
+
+## 6. Open werk om fase 0 af te ronden
+
+- [ ] Volledige blueprint → code → UI → test-matrix voor alle relevante VisCoach- en projectcontext-eisen.
+- [ ] Repositorybrede verwijzingsinventaris van benchmark-IDs, `isBenchmark`, historische seeddata, evaluatie, snapshots, veilige verwijdering, UI en tests.
+- [ ] Herkomst van de sessie van 19 oktober en de vier canonieke vangsten vaststellen; onderscheid maken tussen synthetische benchmarkdata en echte gebruikersdata.
+- [ ] Vaststellen of `HISTORICAL_*` alleen bedoeld is als persoonlijke migratie-/fixturedata en veilig uit het nieuwe-installatiepad kan worden gehaald zonder bestaande lokale gegevens te raken.
+- [ ] Huidige Quality Gate rerun beoordelen; bij falen de precieze oorzaak vaststellen en baseline opnieuw vastleggen.
+- [ ] Prognosefactoren uit de volledige productblauwdruk inventariseren, inclusief niet-beschikbare invoer en reeds bestaande modelrollen.
+- [ ] Spotprofiel en sessie-aggregatie volledig volgen, inclusief nulvangsten, inspanning, hengeluren, doelsoort en datakwaliteit.
+- [ ] VisCoach-adviesketen tot de daadwerkelijke UI en alle relevante tests afronden.
+- [ ] Reproduceerbare huidige softwarebaseline en bekende beperkingen vastleggen.
+
+**Fase 0 blijft in uitvoering totdat deze punten zijn afgehandeld of expliciet als niet uitvoerbaar / niet beschikbaar zijn gemotiveerd. Tot die tijd start fase 1 niet.**
