@@ -675,3 +675,11 @@ Deze punten moeten later met gegevens en technische afwegingen worden besloten; 
 - Definitieve gebeurtenisdefinities per prognosetype: minimaal één doelvis, aantallen, vangsttempo of andere uitkomst.
 - Hoe sessies met meerdere doelsoorten afzonderlijk worden geëvalueerd.
 - Minimale aantallen en onzekerheidsdrempels per soort-/locatie-/seizoenssegment.
+
+## Verbeter- en optimalisatietraject — leidend uitvoeringsplan (15 november 2026)
+
+Het centrale, door de producteigenaar opgedragen optimalisatietraject staat in **[VISLOGBOEK_VERBETERPLAN.md](VISLOGBOEK_VERBETERPLAN.md)**. Dit document bepaalt de uitvoeringsvolgorde en acceptatiecriteria voor dataveiligheid, soortspecifieke biologische prognose, lerend stekprofiel, praktisch VisCoach-advies, praktijkvalidatie en administratie. De bestaande productvisie en technische blauwdrukken blijven inhoudelijk leidend; het verbeterplan organiseert de uitvoering en voorkomt parallelle/tegenstrijdige plannen.
+
+**Uitgangspunten:** de kernfunctionaliteit blijft gratis en offline-first; bestaande gebruikersgegevens worden beschermd; bestaande engines worden eerst hergebruikt; prognoses worden biologisch soortspecifiek en onzekerheid wordt zichtbaar gemaakt; geen verbetering geldt als afgerond zonder tests, diff-review en passend bewijs. Historische benchmark-/testvangsten mogen na een afhankelijkhedenaudit worden verwijderd wanneer ze niet valide zijn of de productie verstoren. Echte gebruikersdata mag niet als onderdeel van deze cleanup worden verwijderd.
+
+**Status per 15 november 2026:** verbeterplan is vastgelegd op `main` (commit `91e8e0d7619db8518065b4f8fb8d5369c92a3bd7`). Fase 0 is nog te starten; er wordt geen implementatie- of validatiestatus geclaimd op basis van alleen dit document.
