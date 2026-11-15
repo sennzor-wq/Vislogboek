@@ -221,6 +221,6 @@ Eerste bevindingen:
 - `src/data/historicalData.ts` beschrijft 10 sessies en 16 vangsten als afkomstig uit een concrete gebruikersbackup. Deze data wordt beschermd en niet als ongeldige benchmark verwijderd; wel wordt onderzocht hoe persoonlijke data uit het nieuwe-installatie seedpad wordt gehouden.
 - De numerieke activiteitsscore is op dit moment thermisch gedreven; andere factoren worden als context verwerkt.
 - De VisCoach-windsectie wordt alleen bij `strongWind` getoond; de huidige test verwacht expliciet dat deze bij zwakke wind ontbreekt. Dit wordt in fase 4 gericht herzien.
-- De nieuwste Quality Gate-run #503 op de huidige baseline rapporteerde failure zonder zichtbare jobstappen of beschikbare logs. De oorzaak is onbekend; rerun is aangevraagd.
+- Quality Gate-runs #503–#511 op de documentatie-updates eindigden vrijwel direct als failure zonder zichtbare workflowstappen of beschikbare logs. Run #510 rapporteerde `runner_id=0`; een rerun van #503 bleef eveneens failure. De oorzaak is onbekend en lijkt vóór de eerste workflowstap te liggen; er is geen geslaagde Quality Gate op de huidige auditbaseline.
 
 Zie `FASE0_OPTIMIZATION_AUDIT.md` voor bronpaden, bewijs, beperkingen en openstaande controles. De audit blijft in uitvoering; geen fase-1-implementatie of verwijdering van gebruikersdata is gestart.
