@@ -212,3 +212,51 @@ De sessie-/vangststatistieken lopen via `StatsView.tsx` rechtstreeks naar `calcu
 Ook de bestaande `test-backup-import.ts` dekt de echte merge-import niet af: de test simuleert de skipregels handmatig op basis van expliciete IDs (`BENCHMARK_SESSION.id` en `ref-2026-10-19-lokkershoek`) en vangstprefixen. De productiefunctie `normalizeRawBackup()` zet de legacy referentiesessie echter op `isBenchmark: false`, en `mergeImportData()` vertrouwt daarna op de vlag. De test controleert dus niet dat de daadwerkelijke import hetzelfde resultaat geeft als de simulatie.
 
 **Auditconclusie:** de referentieset kan op dit moment op verschillende plekken verschillend worden behandeld: beschermd in een testfixture, als gewone sessie genormaliseerd, bij restore naast een tweede ingebouwde representatie geplaatst, en in statistieken/prognoses mogelijk als echte gebruikersdata meegeteld. Dit moet als één end-to-end datacontract worden opgelost, niet als een losse UI- of seedfix.
+
+
+## 9. Productblauwdruk → code → UI → test: factor- en modelrolmatrix
+
+Deze matrix is gebaseerd op de bindende uitgangspunten in `PROJECT_CONTEXT.md` (secties 3–8 en 10) en de VisCoach-roadmap (secties 4, 5 en 7). Dit is een statische broncode-inspectie, geen empirische validatie.
+
+| Factor / concept uit blauwdruk | Huidige code/engine | Huidige modelrol | Auditstatus / nog te toetsen |
+|---|---|---|---|
+| Gemeten watertemperatuur | `waterThermalEngine.ts`, `waterTemperatureHistory.ts`, `prognosisEngine.ts` | Leidende thermische invoer wanneer geldig en aanwezig | **Aanwezig.** Provenance, meetdiepte/-tijd, lokale representativiteit en uncertainty bandbreedte per watertype controleren. |
+| Geschatte watertemperatuur | `waterThermalEngine.ts`, `prognosisEngine.ts` | Alternatief wanneer geen bruikbare meting beschikbaar is; herkenbaar als schatting | **Aanwezig.** Modelkalibratie en foutmarges per water-/stektype controleren. |
+| Luchttemperatuur / thermische historie | `weatherService.ts`, `waterThermalEngine.ts` | Invoer voor thermische ontwikkeling; niet rechtstreeks presenteren als watertemperatuur | **Aanwezig als thermische invoer.** Lag, hysterese, instraling, wind, vochtigheid en diepte-effecten verder toetsen. |
+| Temperatuurrespons per soort | `fishProfiles.ts` + `calculateThermalEfficiency()` | Enige directe numerieke bijdrage aan de biologische activiteitsindex | **Gedeeltelijk / parameters voorlopig.** Exacte optimum-, breedte- en tolerantieparameters zijn niet door de algemene bronverwijzingen bewezen; validatie per soort, levensfase en watertype ontbreekt. |
+| Luchtdruk en druktrend | `findPressureTrend()`, `prognosisEngine.ts` | Weerscontext; scorebijdrage 0 | **Bewust niet als directe factor gebruikt.** Blijft zo totdat soortspecifiek bewijs de relatie met activiteit/voedselopname ondersteunt. |
+| Windrichting, snelheid en winddraaiing | `prognosisEngine.ts`, `bankWindEngine.ts`, `habitatMovementEngine.ts`, `rodPositioningEngine.ts` | Context, oppervlaktedrift, wind-/oeverrelatie en tactiek; scorebijdrage 0 | **Meerdere engines aanwezig.** Geen automatische algemene scorebonus; lokale geometrie en stroming bepalen toepasbaarheid. UI-coachtekst heeft de reeds vastgestelde strong-wind-beperking. |
+| Seizoen | `getSeason()`, `fishProfiles.ts`, tactische engines | Context en input voor habitat-/positioneringsregels; scorebijdrage 0 | **Gedeeltelijk.** Seizoensgewichten in profielen zijn voorlopig en worden niet in de centrale activiteitsindex toegepast. Controleer op dubbeltelling met temperatuur. |
+| Tijdstip / dag-nacht / schemering | `TIME_SLOT_HOURS`, `fishProfiles.ts`, `prognosisEngine.ts` | Voorkeursperiode als beschrijvende context; scorebijdrage 0 | **Gedeeltelijk.** Tijdvakvoorkeuren en crepusculaire hypothese zijn niet kwantitatief gevalideerd; astronomische schemering is niet hetzelfde als vaste tijdvaklabels. |
+| Bewolking en neerslag | `prognosisEngine.ts`, weerdata | Beschrijvende weerscontext; scorebijdrage 0 | **Aanwezig als context.** Geen gevalideerde soort-/watertypegebonden effectgrootte. |
+| Zoninstraling / lichtintensiteit | Thermische engine en weersinvoer; tijdvakcontext in prognose | Kan indirect in thermische ontwikkeling en tactische interpretatie doorwerken | **Niet aangetoond als expliciete zelfstandige activiteitsscorefactor.** Beschikbaarheid, bron, dekking en mogelijke dubbeltelling moeten worden vastgesteld. |
+| Waterdiepte, watertype, bodem, dekking en lokale structuur | Locatietype + `habitatMovementEngine.ts`, `rodPositioningEngine.ts`, `bankWindEngine.ts` | Habitat-/bewegings- en positioneringscontext | **Gedeeltelijk.** Locatievelden zijn optioneel; volledigheid en daadwerkelijke invloed per engine/UI controleren. |
+| Stroming, waterbeweging, waterstand, zicht en zuurstof | Habitat-/positioneringsregels bevatten contextuele aannames; geen complete afzonderlijke meetketen aangetoond | Context / lokale hypothese, niet centrale activiteitsindex | **Onvolledig/onzeker.** Scheid gemeten, afgeleid en niet beschikbaar; voorkom dat zuurstof of stroming als feit wordt gepresenteerd zonder invoer. |
+| Maanstand / solunar | In de gecontroleerde centrale scoreketen niet aangetroffen | Geen aangetoonde scorebijdrage | **Niet aangetoond.** Alleen toevoegen na afzonderlijke bewijs- en productbeoordeling; niet nodig om fase 0 af te ronden. |
+| Waargenomen activiteit / aanwezigheid | `presenceObservations`, sessieregistratie, `habitatMovementEngine.ts` | Lokale aanwezigheidssignalen, los van vangst | **Bouwstenen aanwezig.** Controleer tijd, zone, soortzekerheid en hoe signalen worden gebruikt zonder aanwezigheid als vangst te tellen. |
+| Doelsoortvangst / nulvangst / onbekend | Sessie-uitkomst, vangstrecords, `getSimilarSessions()`, `getComparableSessions()` | Persoonlijke vangkans en historische vergelijkbaarheid | **Gedeeltelijk aanwezig.** Benchmark- en referentiesessies kunnen momenteel door foutieve vlaggen als gewone data meetellen; eerst datacontract oplossen. |
+| Effectieve vistijd / hengeluren | `sessionEffortEngine.ts`, `sessionRods` | Inspanning als vergelijkingscontext | **Bouwstenen aanwezig.** Controleer of hengeluren werkelijk worden gebruikt in kansschatting en stekprofiel, en of ontbrekende intervallen onbekend blijven. |
+| Aas, voer, methode en presentatie | Sessietypen, `prebaitEngine.ts`, coachservices | Tactisch advies en vergelijkingscontext | **Gedeeltelijk.** Audit welke invoer in de vergelijkingsfilters en coachbeslissing werkelijk meeweegt; voorkom causale claims op basis van kleine aantallen. |
+
+### 9.1 Onderzoeksregister en modelgoedkeuring
+
+`src/services/researchRegistry.ts` bevat op de huidige codebaseline zeven registraties. Alle zeven hebben `approvedForPrediction: false`. De geregistreerde onderwerpen zijn hoofdzakelijk watertemperatuur, thermische modellen, temperatuur en groei/voedselopname, plus karperdagritme en zeeltvoederefficiëntie.
+
+De functie `isApprovedPredictionKnowledge()` controleert expliciete goedkeuring en bewijskracht. De gecontroleerde `prognosisEngine.ts` en `fishProfiles.ts` importeren deze functie/het register echter niet; de temperatuurresponsparameters in `fishProfiles.ts` worden rechtstreeks gebruikt door `calculateThermalEfficiency()`. Dit bewijst niet dat de parameters onjuist zijn, maar de formele goedkeuringspoort van het register is niet aantoonbaar verbonden met de actieve modelcode.
+
+**Open auditvraag:** welke bronnen en empirische onderbouwing rechtvaardigen de huidige exacte temperatuurparameters per soort, en hoe wordt vastgelegd dat deze parameters voorlopig zijn zolang het register geen directe modelgoedkeuring geeft?
+
+### 9.2 Activiteit versus vangstkans — juiste scheiding, maar benchmarkvervuilingsrisico
+
+De roadmap en projectcontext eisen afzonderlijke behandeling van biologische activiteit, persoonlijke kans op een gelande doelvis, verwachte aantallen en lokale aanwezigheidssignalen. De code houdt de thermische activiteitsindex gescheiden van de historische sessie-/vangstkansberekening. Dit is architectonisch in lijn met de blauwdruk.
+
+De huidige activiteitsscore is expliciet thermisch gedreven. De persoonlijke kans gebruikt historische sessies, doelsoort, tijdvak, locatie en werkelijke sessieduur waar beschikbaar. De audit moet nog bepalen of methode, aas/voer, effectieve visuren en hengeluren daadwerkelijk voldoende worden meegenomen. Door de foutieve benchmark-/referentievlaggen kan de kwaliteit van die persoonlijke historie bovendien vervuild zijn.
+
+### 9.3 Volgende fase-0-controles
+
+- [ ] Volledige datadictionary: veld, type, bron, optioneel/verplicht, provenance, kwaliteitsniveau en downstream gebruik.
+- [ ] Volg of effectieve visuren/hengeluren, methode, aas/voer en waarnemingen de kansberekening en coach daadwerkelijk beïnvloeden, of alleen worden opgeslagen/getoond.
+- [ ] Controleer de precieze thermische parameters en bronkoppeling per soort; registreer wat literatuur ondersteunt versus wat voorlopig heuristisch is.
+- [ ] Controleer of `researchRegistry`-goedkeuring bewust buiten de runtime-code staat of dat een echte modelgoedkeuringscontrole ontbreekt.
+- [ ] Volg zoninstraling, zuurstof, stroming, waterstand, zicht en maanstand door types → weer-/waterbron → engine → UI → tests; markeer niet beschikbare factoren expliciet.
+- [ ] Beoordeel tests op inhoudelijke dekking van de blauwdruk, niet alleen op aanwezigheid in de Quality Gate.
