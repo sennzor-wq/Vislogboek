@@ -44,7 +44,7 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 | 32-puntenplan, fase 6 | **Afgerond op `main` op 7 november 2026** | De geïntegreerde VisCoach-cyclus voldoet aan de softwarematige acceptatiecriteria; Quality Gate #491 is volledig geslaagd. Praktijkvalidatie blijft onderdeel van de doorlopende persoonlijke nulmeting. |
 | Productfase 0 — persoonlijke nulmeting | Doorlopend | Echte sessies, vooraf opgeslagen prognoses en uitkomsten verzamelen; softwaretests zijn geen praktijkvalidatie. |
 | Technische auditfase 0 (datadictionary, 6 november) | Afgerond als read-only audit op commit `65f56c4` | Historische technische inventarisatie; niet de uitgebreide optimalisatie-audit van 15 november. |
-| Uitgebreide optimalisatie-auditfase 0 | **In uitvoering** op `main` commit `4831fd6` | Traceerbaarheid blueprint → code → UI → test, benchmark-/seedafhankelijkheden en huidige Quality Gate-baseline worden opnieuw gecontroleerd. Zie `FASE0_OPTIMIZATION_AUDIT.md`. |
+| Uitgebreide optimalisatie-auditfase 0 | **In uitvoering**; gestart op `4831fd6`, hercontrole tegen app-codebaseline `20f53dc` en main HEAD `18fe884` | De oorspronkelijke auditbaseline is niet meer actueel: 28 commits later zijn ook app-code en tests gewijzigd. De hercontrole en concrete bevindingen staan in `FASE0_OPTIMIZATION_AUDIT.md` §19. |
 
 De technische baseline-audit is uitgevoerd op `main` commit `65f56c4a7408d874defa415212b74cd165f01147`; de bijbehorende Quality Gate run #42273675118 slaagde. De audit wijzigde geen applicatiecode en kon de lokale IndexedDB van een gebruikersapparaat niet uitlezen. Een geslaagde Quality Gate bewijst technische regressiecontrole, geen voorspellende nauwkeurigheid in echte vissessies.
 

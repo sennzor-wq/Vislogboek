@@ -4,7 +4,9 @@
 **Peildatum:** 15 november 2026  
 **Geaudite branch:** `main`  
 **App-codebaseline bij start audit:** `4831fd6d7a200467c29773c574be7090674eca29`  
-**Documentatie:** latere commits op `main` wijzigen uitsluitend audit-/projectdocumentatie; er zijn geen app-codebestanden gewijzigd.  
+**Actuele app-codebaseline voor hercontrole:** `20f53dc34d572105a26ee0b5c692ba74e546bc02`  
+**Actuele main HEAD:** `18fe8848535435624c9579130b253adfe289b732` (documentatiecommit, parent is de app-codebaseline hierboven).  
+**Baselinecorrectie:** sinds de oorspronkelijke auditbaseline zijn 28 commits toegevoegd. De vergelijking toont wijzigingen in app-code en tests, waaronder db.ts, backupService.ts, evaluationEngine.ts, prognosisEngine.ts en de regressietests. De eerdere auditconclusies zijn daarom niet zonder hercontrole op de huidige code toepasbaar.  
 **Doel:** de bestaande technische nulmeting aanvullen met de expliciete traceerbaarheid van blueprint → code → UI → test en met de dataveiligheids-, prognose-, stekleren- en VisCoach-vragen uit `VISLOGBOEK_VERBETERPLAN.md`.
 
 > Dit is een voortgangsrapport, geen afgeronde audit. Er is alleen repository-inhoud onderzocht. De IndexedDB van een echte gebruikersinstallatie is niet uitgelezen. Er is geen applicatiecode, lokale database of vangstregistratie gewijzigd.
@@ -444,3 +446,64 @@ De v4→v5 database-upgrade voert een eenmalige reset uit van alle bestaande ses
 Automatische historische data-seeding is uit productie-initialisatie verwijderd; restore injecteert geen vaste benchmarkrecords meer. Merge-import laat vangsten en sessiegebonden afhankelijkheden alleen toe wanneer de ouder-sessie bestaat. De vaste benchmark-ID-uitzonderingen zijn uit de backup-normalisatie gehaald, zodat een handmatig geselecteerde backup niet op basis van een historische datum/ID wordt aangepast.
 
 Een afzonderlijke v4→v5 regressietest is toegevoegd, inclusief behoud van na de migratie aangemaakte sessies en vangsten. **Uitvoering van tests/build/lint moet nog worden bevestigd; deze codewijziging mag dus nog niet als software-getest of praktijk-gevalideerd worden gerapporteerd.**
+
+
+## 19. Read-only hercontrole op actuele main — 15 november 2026, 17:47
+
+Deze sectie legt de eerste hercontrole vast. Dit is nadrukkelijk nog geen afronding van fase 0.
+
+### 19.1 Repository- en Quality Gate-status
+
+- De actuele main HEAD is 18fe8848535435624c9579130b253adfe289b732. De parent is 20f53dc34d572105a26ee0b5c692ba74e546bc02, waarop de huidige applicatiecode staat.
+- De GitHub-vergelijking vanaf de oorspronkelijke auditbaseline 4831fd6 toont 28 commits en wijzigingen in zowel documentatie als applicatiecode/tests. De traceerbaarheidsmatrix moet daarom tegen de huidige code worden afgerond.
+- Er zijn op dit moment geen open pull requests. De twee open projectissues zijn #49 en #50.
+- Er zijn veel historische branches. main blijft volgens de bestaande projectafspraak de enige bron van waarheid; er is geen reden om nu nieuwe branches te maken of oude branches blind te verwijderen.
+- De meest recente waargenomen Quality Gate-run is 43726513010 op commit 55a5062. De job eindigde als failure en rapporteerde geen uitgevoerde stappen. Dit levert geen testresultaat op. De oorzaak is onbekend en is niet als applicatiecodefout vastgesteld.
+- De huidige main-commits na die run bevatten [skip ci]. Tijdens deze hercontrole is geen workflow gestart of opnieuw uitgevoerd.
+
+### 19.2 Schone-startmigratie en testdekking
+
+- Databaseversie 5 bevat een eenmalige upgrade van v4 naar v5. De migratie verwijdert alle sessies en vangsten die vóór de upgrade aanwezig zijn, inclusief bevestigde nulvangstsessies. Dit komt overeen met het expliciete eigenaarbesluit van 15 november 2026.
+- De migratie verwijdert sessiegebonden hengeldetails en coachadviesrecords, verwijdert presence-observaties die gekoppeld zijn aan de oude sessies, ontkoppelt snapshots die naar die sessies verwijzen of via session.snapshotId aan die sessies gekoppeld waren, en wist bij die snapshots de evaluatie-uitkomstvelden.
+- Geplande sessies blijven behouden; een verwijzing naar een verwijderde gestarte sessie wordt leeggemaakt. Locaties, instellingen, weercache, losse locatie-waarnemingen en niet-gekoppelde prognosesnapshots blijven behouden. De oude technische benchmarklocatie wordt alleen verwijderd wanneer geen gepland plan ernaar verwijst.
+- Nieuwe database-initialisatie zaait geen historische locaties, sessies of vangsten meer; alleen standaardinstellingen worden aangemaakt. Die standaardinstellingen verwijzen nog wel naar de naam en coördinaten van Lokkershoek Pier. Controleer in de resterende UI-audit of dit zonder aangemaakte locatie tot verwarring of een onbedoelde weer-/locatiecontext leidt.
+- test-clean-start-migration.ts en het package-script bestaan, maar de test wordt niet aangeroepen in .github/workflows/ci.yml. De test is niet uitgevoerd. De bestaande test dekt een representatieve v4-database, een lege nieuwe installatie en behoud van na de migratie ingevoerde sessies/vangsten.
+- Aanvullende migratietestgevallen blijven nodig: een geëvalueerde snapshot zonder geldige sessiekoppeling, verweesde sessiegebonden waarnemingen en een expliciete controle dat alle bedoelde evaluatievelden na reset leeg zijn. De actuele test bewijst deze randgevallen niet.
+
+### 19.3 Backup en restore — concrete compatibiliteitsbevinding
+
+- collectBackupData en restoreBackupData verwerken tien persistente tabellen. restoreBackupData wist en vult die tabellen binnen één IndexedDB read/write-transactie.
+- replaceWithImportData maakt eerst een JSON-export via exportDatabaseToJson en voert daarna de volledige restore uit. De huidige round-triptest test restoreBackupData rechtstreeks; de volledige replaceWithImportData-flow en het daadwerkelijke veiligheidsdownloadpad zijn niet aangetoond.
+- Er is een concrete legacy-importcompatibiliteitsfout gevonden. De meegeleverde legacyfixture van versie 2 heeft het formaat met spots en geneste catches. normalizeRawBackup verwerkt dit via de tweede normalisatieroute, maar geeft daarin geen lege plannedSessions- en coachAdviceRecords-arrays terug.
+- inspectImportFile vereist inmiddels beide arrays voor elke backup. Daardoor wordt deze legacyfixture bij de gebruikersimport afgewezen voordat de preview verschijnt. test-backup-import.ts test alleen normalizeRawBackup en test niet de volledige inspectImportFile-route met deze fixture. De round-triptest test wel een platte legacy v2-structuur, maar niet dit daadwerkelijke spots/catches-formaat.
+- validateBackupPayloadLimits neemt plannedSessions en coachAdviceRecords niet op in de collectie- en totaalrecordlimieten. Dit is een aanvullende validatie-/robuustheidslacune.
+- Deze punten moeten als gerichte backupregressies worden getest voordat de backup- en restoreketen als volledig gevalideerd wordt beschouwd.
+
+### 19.4 Prognose, evaluatie en leercyclus
+
+- evaluatePrognosisPerformance berekent een gemiddelde Brier-score en kalibratiegroepen. Alleen geldige, vooraf vastgelegde prognoses met een afgeronde, gekoppelde sessie en overeenkomende uitkomst tellen mee. Per sessie en doelsoort wordt de vroegste geldige snapshot gebruikt. Er zijn minimaal vijf onafhankelijke uitkomsten nodig voor de Brier-score.
+- De Brier Skill Score vergelijkt op dezelfde testgevallen met een rolling baseline van eerdere sessies van dezelfde doelsoort waarvan de uitkomst vóór het prognosemoment bekend was. Dit beperkt future leakage in die baseline.
+- De StatsView toont geaggregeerde Brier/BSS en kalibratiegroepen. Een individuele foutkaart die verklaart waarom een specifieke Brier-bijdrage hoog of laag was, is in de huidige UI niet aangetoond.
+- De prognose-engine gebruikt de Brier-score niet als directe terugkoppeling. De persoonlijke vangstkans wordt wel gevoed door historische succesfrequentie en een Poisson-vangsttempo. Watertemperatuurkalibratie is een afzonderlijke route.
+- dataQualityEngine is in de prognose-engine geïntegreerd, maar beoordeelt momenteel vooral herkomst en beschikbaarheid van drie invoercategorieën: watertemperatuur, weersverwachting en vergelijkbare sessiehistorie. Dit is geen volledige controle op dubbele records, verkeerde koppelingen, foutieve vangstaantallen of onjuiste meetwaarden.
+- researchRegistry bevat kennisitems met approvedForPrediction op false. De functie isApprovedPredictionKnowledge bestaat, maar een runtime-goedkeuringscontrole in de actieve prognose-/soortprofielketen is niet aangetoond.
+- Persoonlijke vergelijkingen zijn gedeeltelijk gescheiden: getSimilarSessions filtert op doelsoort en tijdvak, terwijl getComparableSessions filtert op doelsoort en eventueel locatie. Techniek en aas/voer zijn geen harde vergelijkingsfilters. De Poisson-laag gebruikt bekende sessieduur en bekende aantallen waar beschikbaar.
+
+### 19.5 Invoerkwaliteit en VisCoach
+
+- LocationModal vult een nieuwe locatie standaard in met vaste coördinaten 51.9610, 5.2280 en schrijft deze fallback ook bij opslaan. Als de gebruiker die waarden niet bewust controleert, kan een locatie met onjuiste GPS-data ontstaan.
+- FishingLocation bevat waterFacingDirection en habitatFeatures en de wind-/positioneringsengines gebruiken deze velden, maar LocationModal biedt geen zichtbare invoervelden om ze vast te leggen.
+- SessionModal vult nieuwe sessies standaard in met doelsoort Karper, twee hengels, techniek Statisch / Feeder en aas/voer Boilies, maden & mais. Deze waarden worden in de sessiepayload opgeslagen als de gebruiker ze niet aanpast. Dit kan persoonlijke vergelijkingsdata vervuilen wanneer de defaults niet overeenkomen met de werkelijke sessie.
+- statsEngine telt vangstrecords met count 0 of onbekend als één vis via count || 1. De Poisson-prognoselaag sluit onbekende aantallen juist uit. Daardoor kunnen statistieken en prognosehistorie verschillende aantallen vissen rapporteren.
+- De VisCoach-tekst toont een wind-/werprichtingssectie alleen wanneer isStrongWind true is. De bestaande test verwacht dat de sectie bij zwakke wind ontbreekt. Dit blijft een bekende afwijking van de gewenste bredere windcontext; exacte werprichting mag alleen worden gegeven wanneer de geometrie voldoende bekend is.
+
+### 19.6 Nog open om fase 0 af te ronden
+
+- De volledige blueprint → code → UI → test-matrix is nog niet af.
+- De repositorybrede inventaris van alle benchmark-ID's, isBenchmark-verwijzingen, historische import-/seedpaden en fixtureafhankelijkheden moet nog volledig worden afgetekend.
+- De legacy backupfout en de ontbrekende collectiegrenzen moeten worden omgezet in concrete regressietests en daarna in een latere implementatiefase worden hersteld.
+- De migratietest moet in de Quality Gate worden opgenomen of op een andere reproduceerbare manier aantoonbaar worden uitgevoerd. Er mag geen CI-run worden gestart zonder expliciete opdracht van de gebruiker.
+- Typecheck, relevante tests en productiebuild zijn op de huidige app-codebaseline niet aantoonbaar uitgevoerd. De Quality Gate levert momenteel geen bruikbare testuitvoering omdat de job vóór de eerste stap faalt.
+- De IndexedDB van een echte gebruikersinstallatie is niet toegankelijk via deze repository-audit; lokale gebruikersdata en een echte browserrestore moeten apart worden gecontroleerd.
+
+**Conclusie:** fase 0 blijft in uitvoering. De code voor de schone start is aanwezig, maar nog niet softwarematig gevalideerd. De legacy backup-import bevat een aantoonbaar probleem. Er zijn nog geen productcode- of gebruikersdatamutaties uitgevoerd tijdens deze audit.
