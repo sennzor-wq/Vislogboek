@@ -417,3 +417,21 @@ De toestemming geldt voor historische vangstregistraties die vóór de reset bes
 - Controleer vóór het committen de volledige verzamelde diff en de actuele HEAD van `main`; commit alleen de bedoelde bestanden.
 - Controleer na het committen dat precies één commit is aangemaakt en dat alle bedoelde bestanden daarin zitten. Rapporteer commit-SHA, gewijzigde bestanden en of CI bewust is overgeslagen.
 - Deze regel geldt voor documentatie, code, tests, configuratie, workflows en alle andere repositorybestanden. Alleen een expliciete afwijkende opdracht van de gebruiker kan hiervan afwijken.
+
+
+## 17. Definitieve scope schone start: alle historische sessies én vangsten (15 november 2026)
+
+De eigenaar heeft bevestigd dat niet alleen alle historische vangstrecords, maar ook **alle historische sessies zonder vangsten** verwijderd mogen worden. Dit vervangt de open vraag uit §16 en de eerdere beperking dat sessies behouden moesten blijven.
+
+De eenmalige migratie mag alle bestaande records in `sessions` en `catches` verwijderen. Afgeleide sessiegegevens moeten relationeel worden afgehandeld:
+- `sessionRods` en sessiegebonden `coachAdviceRecords` verwijderen;
+- `presenceObservations` alleen verwijderen wanneer `sessionId` naar een verwijderde sessie verwijst; locatiegebonden waarnemingen zonder sessiekoppeling behouden;
+- `prognosisSnapshots` behouden als voorspellinghistorie, maar koppelingen naar verwijderde sessies en de bijbehorende feitelijke uitkomstvelden verwijderen zodat ze niet meer als geëvalueerde sessie gelden;
+- `plannedSessions` behouden en alleen een `startedSessionId` ontkoppelen als die naar een verwijderde sessie verwees;
+- locaties, instellingen, weercache en niet-sessiegebonden waarnemingen behouden.
+
+Productie-initialisatie moet alle automatische historische data-seeding verwijderen. Een nieuwe installatie start zonder vooraf geladen locaties, sessies en vangsten. Een expliciete restore blijft de door de gebruiker gekozen backup herstellen, maar voegt nooit extra ingebouwde benchmarkdata toe. Merge-import mag geen vangsten, hengeldetails, sessiegebonden waarnemingen of coachadviezen toevoegen als hun ouder-sessie niet daadwerkelijk is toegelaten.
+
+**Acceptatiecriteria:** een v4→v5 migratietest met bestaande sessies/vangsten en alle relevante relaties; behoud van locaties, weercache, geplande sessies en losse waarnemingen; snapshots correct ontkoppeld; lege nieuwe installatie; herhaald initialiseren; en bewijs dat na de migratie nieuw ingevoerde sessies/vangsten blijven bestaan. Statische inspectie, uitgevoerde tests en praktijkvalidatie worden afzonderlijk gerapporteerd.
+
+**Status:** toestemming compleet; implementatie nog niet uitgevoerd. Deze paragraaf vervangt de eerdere open afbakening in §16.

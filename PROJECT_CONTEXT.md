@@ -702,3 +702,8 @@ Het centrale, door de producteigenaar opgedragen optimalisatietraject staat in *
 ## Eigenaarbesluit datagrondslag — 15 november 2026
 
 Alle reeds bestaande historische vangstregistraties mogen bij de gecontroleerde reset worden verwijderd, inclusief vangsten uit de persoonlijke historische backupseed. De schone start mag geen oude vangsten opnieuw seedden of bij restore injecteren. Vangsten die na de reset worden ingevoerd moeten behouden blijven. Dit besluit omvat niet automatisch het verwijderen van sessies zonder vangst, locaties, prognosesnapshots, waarnemingen of overige gebruikersgegevens; zie `VISLOGBOEK_VERBETERPLAN.md` en `FASE0_OPTIMIZATION_AUDIT.md`.
+
+
+## Definitief eigenaarbesluit — schone start sessies en vangsten (15 november 2026)
+
+De eigenaar heeft toestemming gegeven om bij de gecontroleerde schone start **alle reeds bestaande historische sessies én alle vangstregistraties te verwijderen**, inclusief sessies zonder vangsten en records uit de oude persoonlijke backupseed. Nieuwe installaties mogen geen historische locaties, sessies of vangsten automatisch laden. De migratie mag alleen de bestaande sessie-/vangsthistorie en direct sessiegebonden afgeleide gegevens opruimen; locaties, instellingen, weercache, prognosehistorie, geplande sessies en niet-sessiegebonden waarnemingen blijven behouden. Prognoses gekoppeld aan verwijderde sessies worden ontkoppeld en niet langer als geëvalueerde uitkomsten beschouwd. Na de migratie ingevoerde sessies en vangsten moeten behouden blijven. Zie de definitieve voorwaarden in `VISLOGBOEK_VERBETERPLAN.md` en `FASE0_OPTIMIZATION_AUDIT.md`.
