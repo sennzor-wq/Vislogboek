@@ -5,7 +5,7 @@
  */
 
 import { PrognosisSnapshot, FishingSession } from '../types';
-import { BENCHMARK_SESSION_ID, db } from '../db/db';
+import { db } from '../db/db';
 
 export interface CalibrationBin {
   rangeLabel: string;        // bijv. "0% – 20%"

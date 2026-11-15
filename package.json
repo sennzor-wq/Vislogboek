@@ -10,7 +10,8 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "test:viscoach-greetings": "tsx test-viscoach-greetings.ts",
-    "test:audit-data-integrity": "tsx test-audit-data-integrity.ts"
+    "test:audit-data-integrity": "tsx test-audit-data-integrity.ts",
+    "test:clean-start-migration": "tsx test-clean-start-migration.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

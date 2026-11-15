@@ -16,7 +16,7 @@ import {
   PrognosisInputContext,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
-import { BENCHMARK_SESSION_ID, db, syncSessionPresenceObservations } from '../db/db';
+import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';

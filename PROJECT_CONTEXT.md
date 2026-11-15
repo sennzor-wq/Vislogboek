@@ -707,3 +707,8 @@ Alle reeds bestaande historische vangstregistraties mogen bij de gecontroleerde 
 ## Definitief eigenaarbesluit — schone start sessies en vangsten (15 november 2026)
 
 De eigenaar heeft toestemming gegeven om bij de gecontroleerde schone start **alle reeds bestaande historische sessies én alle vangstregistraties te verwijderen**, inclusief sessies zonder vangsten en records uit de oude persoonlijke backupseed. Nieuwe installaties mogen geen historische locaties, sessies of vangsten automatisch laden. De migratie mag alleen de bestaande sessie-/vangsthistorie en direct sessiegebonden afgeleide gegevens opruimen; locaties, instellingen, weercache, prognosehistorie, geplande sessies en niet-sessiegebonden waarnemingen blijven behouden. Prognoses gekoppeld aan verwijderde sessies worden ontkoppeld en niet langer als geëvalueerde uitkomsten beschouwd. Na de migratie ingevoerde sessies en vangsten moeten behouden blijven. Zie de definitieve voorwaarden in `VISLOGBOEK_VERBETERPLAN.md` en `FASE0_OPTIMIZATION_AUDIT.md`.
+
+
+## Implementatiestatus schone start — 15 november 2026
+
+De repositorywijziging introduceert databaseversie 5 met een eenmalige v4→v5 resetmigratie en verwijdert automatische historische seeddata en benchmarkinjectie bij backup-restore. Een regressietest voor de migratie is toegevoegd. Tests, build en lint moeten nog worden uitgevoerd; de wijziging geldt daarom nog niet als software-getest.

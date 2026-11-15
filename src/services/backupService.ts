@@ -1,4 +1,4 @@
-import { db, BENCHMARK_LOCATION, BENCHMARK_SESSION, BENCHMARK_CATCHES } from '../db/db';
+import { db } from '../db/db';
 import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
 
 export interface BackupData {
@@ -244,7 +244,7 @@ export function normalizeRawBackup(raw: any): BackupData {
       }
     }
 
-    const isBench = s.id === 'ref-2026-10-19-lokkershoek' || s.id === BENCHMARK_SESSION.id ? false : (s.isBenchmark === true);
+    const isBench = s.isBenchmark === true;
 
     const baitAndFeedParts = [
       s.bait ? `Aas: ${s.bait.trim()}` : null,
@@ -257,7 +257,7 @@ export function normalizeRawBackup(raw: any): BackupData {
       !s.spot_id && s.location?.label ? `Steklocatie: ${s.location.label}` : null,
     ].filter(Boolean);
 
-    const isLokkershoek19 = s.id === 'ref-2026-10-19-lokkershoek' || s.id === BENCHMARK_SESSION.id;
+    const isLokkershoek19 = false;
 
     sessions.push({
       id: s.id,
@@ -600,11 +600,11 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     const existingCatchIds = new Set(await db.catches.toCollection().primaryKeys());
 
     // Beschouw de benchmark-referentie ook als al aanwezig indien de benchmark al in de db staat
-    const dupSessions = data.sessions.filter((s) => existingSessionIds.has(s.id) || (s.isBenchmark && existingSessionIds.has(BENCHMARK_SESSION.id))).length;
-    const dupLocations = data.locations.filter((l) => existingLocationIds.has(l.id) || (l.isBenchmark && existingLocationIds.has(BENCHMARK_LOCATION.id))).length;
+    const dupSessions = data.sessions.filter((s) => existingSessionIds.has(s.id)).length;
+    const dupLocations = data.locations.filter((l) => existingLocationIds.has(l.id)).length;
     const dupCatches = data.catches.filter((c) => existingCatchIds.has(c.id)).length;
 
-    const hasBenchmark = data.sessions.some((s) => s.isBenchmark || s.id === BENCHMARK_SESSION.id || s.id === 'ref-2026-10-19-lokkershoek');
+    const hasBenchmark = data.sessions.some((s) => s.isBenchmark === true);
 
     return {
       preview: {
@@ -670,7 +670,7 @@ export async function mergeImportData(data: BackupData): Promise<{
 
     for (const sess of data.sessions) {
       const existing = await db.sessions.get(sess.id);
-      if (!existing && !sess.isBenchmark) {
+      if (!existing && !sess.isBenchmark && (!sess.locationId || await db.locations.get(sess.locationId))) {
         await db.sessions.put(sess);
         addedSessions++;
       }
@@ -678,7 +678,7 @@ export async function mergeImportData(data: BackupData): Promise<{
 
     for (const c of data.catches) {
       const existing = await db.catches.get(c.id);
-      if (!existing) { await db.catches.put(c); addedCatches++; }
+      if (!existing && await db.sessions.get(c.sessionId)) { await db.catches.put(c); addedCatches++; }
     }
     for (const item of data.weatherCache || []) {
       if (!(await db.weatherCache.get(item.id))) { await db.weatherCache.put(item); addedWeatherCache++; }
@@ -687,16 +687,16 @@ export async function mergeImportData(data: BackupData): Promise<{
       if (!(await db.prognosisSnapshots.get(item.id))) { await db.prognosisSnapshots.put(item); addedPrognosisSnapshots++; }
     }
     for (const item of data.presenceObservations || []) {
-      if (!(await db.presenceObservations.get(item.id))) { await db.presenceObservations.put(item); addedPresenceObservations++; }
+      if (!(await db.presenceObservations.get(item.id)) && await db.locations.get(item.locationId) && (!item.sessionId || await db.sessions.get(item.sessionId))) { await db.presenceObservations.put(item); addedPresenceObservations++; }
     }
     for (const item of data.sessionRods || []) {
-      if (!(await db.sessionRods.get(item.id))) { await db.sessionRods.put(item); addedSessionRods++; }
+      if (!(await db.sessionRods.get(item.id)) && await db.sessions.get(item.sessionId)) { await db.sessionRods.put(item); addedSessionRods++; }
     }
     for (const item of data.plannedSessions || []) {
-      if (!(await db.plannedSessions.get(item.id))) { await db.plannedSessions.put(item); addedPlannedSessions++; }
+      if (!(await db.plannedSessions.get(item.id)) && await db.locations.get(item.locationId)) { const { startedSessionId, ...plan } = item; await db.plannedSessions.put({ ...plan, startedSessionId: startedSessionId && await db.sessions.get(startedSessionId) ? startedSessionId : undefined }); addedPlannedSessions++; }
     }
     for (const item of data.coachAdviceRecords || []) {
-      if (!(await db.coachAdviceRecords.get(item.id))) { await db.coachAdviceRecords.put(item); addedCoachAdviceRecords++; }
+      if (!(await db.coachAdviceRecords.get(item.id)) && await db.sessions.get(item.sessionId) && await db.prognosisSnapshots.get(item.prognosisSnapshotId)) { await db.coachAdviceRecords.put(item); addedCoachAdviceRecords++; }
     }
     // The user explicitly selected import: backup settings are authoritative for this merge.
     if (data.settings) {
@@ -739,12 +739,6 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       if (data.plannedSessions?.length) await db.plannedSessions.bulkPut(data.plannedSessions);
       if (data.coachAdviceRecords?.length) await db.coachAdviceRecords.bulkPut(data.coachAdviceRecords);
 
-      // De app houdt de ingebouwde referentieset beschikbaar, zoals vóór deze backupversie.
-      if (!(await db.locations.get(BENCHMARK_LOCATION.id))) await db.locations.put(BENCHMARK_LOCATION);
-      if (!(await db.sessions.get(BENCHMARK_SESSION.id))) await db.sessions.put(BENCHMARK_SESSION);
-      for (const item of BENCHMARK_CATCHES) {
-        if (!(await db.catches.get(item.id))) await db.catches.put(item);
-      }
     });
 }
 

@@ -435,3 +435,12 @@ Productie-initialisatie moet alle automatische historische data-seeding verwijde
 **Acceptatiecriteria:** een v4→v5 migratietest met bestaande sessies/vangsten en alle relevante relaties; behoud van locaties, weercache, geplande sessies en losse waarnemingen; snapshots correct ontkoppeld; lege nieuwe installatie; herhaald initialiseren; en bewijs dat na de migratie nieuw ingevoerde sessies/vangsten blijven bestaan. Statische inspectie, uitgevoerde tests en praktijkvalidatie worden afzonderlijk gerapporteerd.
 
 **Status:** toestemming compleet; implementatie nog niet uitgevoerd. Deze paragraaf vervangt de eerdere open afbakening in §16.
+
+
+## 18. Implementatie schone start — codewijziging voorbereid (15 november 2026)
+
+De v4→v5 database-upgrade voert een eenmalige reset uit van alle bestaande sessies en vangsten. De migratie ruimt sessiegebonden hengeldetails en coachadviezen op, verwijdert alleen sessiegekoppelde presence-observaties, ontkoppelt snapshots en wist hun feitelijke uitkomstvelden, en ontkoppelt geplande sessies. Locaties, instellingen, weercache, prognosehistorie en locatiegebonden waarnemingen blijven behouden. De oude technische benchmarklocatie wordt alleen verwijderd als geen gepland plan ernaar verwijst.
+
+Automatische historische data-seeding is uit productie-initialisatie verwijderd; restore injecteert geen vaste benchmarkrecords meer. Merge-import laat vangsten en sessiegebonden afhankelijkheden alleen toe wanneer de ouder-sessie bestaat. De vaste benchmark-ID-uitzonderingen zijn uit de backup-normalisatie gehaald, zodat een handmatig geselecteerde backup niet op basis van een historische datum/ID wordt aangepast.
+
+Een afzonderlijke v4→v5 regressietest is toegevoegd, inclusief behoud van na de migratie aangemaakte sessies en vangsten. **Uitvoering van tests/build/lint moet nog worden bevestigd; deze codewijziging mag dus nog niet als software-getest of praktijk-gevalideerd worden gerapporteerd.**

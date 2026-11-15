@@ -11,122 +11,7 @@ import {
   PlannedFishingSession,
   CoachAdviceRecord,
 } from '../types';
-import {
-  HISTORICAL_LOCATIONS,
-  HISTORICAL_SESSIONS,
-  HISTORICAL_CATCHES,
-} from '../data/historicalData';
-
-export const BENCHMARK_LOCATION_ID = 'benchmark-location-lokkershoek';
-export const BENCHMARK_SESSION_ID = 'benchmark-session-20261019';
 export const LOKKERSHOEK_PIER_ID = 'spot-mvp1g19d-dfemr2';
-
-export const BENCHMARK_LOCATION: FishingLocation = {
-  id: BENCHMARK_LOCATION_ID,
-  name: 'Lokkershoek Pier',
-  description: 'Campingzijde bij het doodlopende gedeelte en de bomen',
-  latitude: 51.944861,
-  longitude: 5.19234,
-  waterDepth: 2,
-  waterType: 'Plas/Zandafgraving',
-  notes: 'Campingzijde met zachte bodem en bomenpartij.',
-  isBenchmark: false,
-  createdAt: '2026-10-19T18:00:00+02:00',
-  updatedAt: '2026-10-19T18:00:00+02:00',
-};
-
-export const BENCHMARK_SESSION: FishingSession = {
-  id: BENCHMARK_SESSION_ID,
-  locationId: LOKKERSHOEK_PIER_ID,
-  locationName: 'Lokkershoek Pier',
-  startTime: '2026-10-19T19:00:00+02:00',
-  endTime: '2026-10-19T22:00:00+02:00',
-  durationMinutes: 180,
-  outcome: 'catch',
-  targetSpecies: ['Brasem', 'Karper', 'Zeelt'],
-  rodCount: 2,
-  rodTypes: 'Feeder & Karperhengel',
-  technique: 'Feeder / Statisch',
-  baitAndFeed: 'Maden, mais & vismeelpellets',
-  bitesCount: 11,
-  missedCount: 3,
-  waterDepth: 2,
-  notes: '8 vissen totaal: 1e uur 3 brasems, 1 zeelt en 1 karper van circa 10 kg; later 3 brasems.',
-  weatherSnapshot: {
-    temperature: 11.5,
-    pressure: 1018,
-    pressureTrend: 'stabiel',
-    windSpeed: 14,
-    windDirection: 230,
-    windDirectionText: 'ZW',
-    cloudCover: 75,
-    precipitation: 0.2,
-    source: 'knmi-regionaal',
-    capturedAt: '2026-10-19T19:00:00+02:00',
-  },
-  isBenchmark: false,
-  createdAt: '2026-10-19T22:05:00+02:00',
-  updatedAt: '2026-10-19T22:05:00+02:00',
-};
-
-export const BENCHMARK_CATCHES: CatchItem[] = [
-  {
-    id: 'benchmark-catch-brasem-1',
-    sessionId: BENCHMARK_SESSION_ID,
-    locationId: LOKKERSHOEK_PIER_ID,
-    species: 'Brasem',
-    count: 3,
-    weightKg: 4.8,
-    isGroupWeight: true,
-    timestamp: '2026-10-19T19:25:00+02:00',
-    bait: 'Maden & zoete mais',
-    technique: 'Feeder',
-    notes: 'Eerste uur: 3 brasems op de voerplek',
-    createdAt: '2026-10-19T19:26:00+02:00',
-  },
-  {
-    id: 'benchmark-catch-zeelt',
-    sessionId: BENCHMARK_SESSION_ID,
-    locationId: LOKKERSHOEK_PIER_ID,
-    species: 'Zeelt',
-    count: 1,
-    weightKg: 2.1,
-    isGroupWeight: false,
-    timestamp: '2026-10-19T19:42:00+02:00',
-    bait: 'Maden',
-    technique: 'Feeder',
-    notes: 'Eerste uur: Prachtig donkergroene zeelt bij de bomen',
-    createdAt: '2026-10-19T19:43:00+02:00',
-  },
-  {
-    id: 'benchmark-catch-karper',
-    sessionId: BENCHMARK_SESSION_ID,
-    locationId: LOKKERSHOEK_PIER_ID,
-    species: 'Karper',
-    count: 1,
-    weightKg: 10.0,
-    isGroupWeight: false,
-    timestamp: '2026-10-19T19:55:00+02:00',
-    bait: '15mm boilie',
-    technique: 'Statisch',
-    notes: 'Eerste uur: Karper van circa 10 kg, sterke dril onder de kant',
-    createdAt: '2026-10-19T20:00:00+02:00',
-  },
-  {
-    id: 'benchmark-catch-brasem-2',
-    sessionId: BENCHMARK_SESSION_ID,
-    locationId: LOKKERSHOEK_PIER_ID,
-    species: 'Brasem',
-    count: 3,
-    weightKg: 5.2,
-    isGroupWeight: true,
-    timestamp: '2026-10-19T21:20:00+02:00',
-    bait: 'Maden & pellets',
-    technique: 'Feeder',
-    notes: 'Later in de avond: 3 brasems bij rustiger wordende wind',
-    createdAt: '2026-10-19T21:22:00+02:00',
-  },
-];
 
 export class VislogboekDatabase extends Dexie {
   locations!: Table<FishingLocation, string>;
@@ -184,6 +69,76 @@ export class VislogboekDatabase extends Dexie {
       sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
       plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, planSnapshotId, createdAt',
       coachAdviceRecords: 'id, sessionId, prognosisSnapshotId, previousAdviceId, createdAt, trigger',
+    });
+
+    // v5: eenmalige schone start van de historische sessie- en vangstdataset.
+    // De migratie raakt alleen records die vóór deze database-upgrade bestaan.
+    this.version(5).stores({
+      locations: 'id, name, isBenchmark, createdAt',
+      sessions: 'id, locationId, startTime, outcome, isBenchmark, createdAt',
+      catches: 'id, sessionId, locationId, species, timestamp, createdAt',
+      weatherCache: 'id, latitude, longitude, fetchedAt',
+      settings: 'id',
+      prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
+      presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
+      sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
+      plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, planSnapshotId, createdAt',
+      coachAdviceRecords: 'id, sessionId, prognosisSnapshotId, previousAdviceId, createdAt, trigger',
+    }).upgrade(async (tx) => {
+      const sessions = await tx.table('sessions').toArray();
+      const deletedSessionIds = new Set(sessions.map((session: FishingSession) => session.id));
+      const deletedSnapshotIds = new Set(sessions
+        .map((session: FishingSession) => session.snapshotId)
+        .filter((snapshotId): snapshotId is string => typeof snapshotId === 'string'));
+
+      await tx.table('catches').clear();
+      await tx.table('sessions').clear();
+      await tx.table('sessionRods').clear();
+      await tx.table('coachAdviceRecords').clear();
+
+      const observations = await tx.table('presenceObservations').toArray();
+      const sessionObservationIds = observations
+        .filter((observation: PresenceObservation) => Boolean(observation.sessionId && deletedSessionIds.has(observation.sessionId)))
+        .map((observation: PresenceObservation) => observation.id);
+      if (sessionObservationIds.length > 0) {
+        await tx.table('presenceObservations').bulkDelete(sessionObservationIds);
+      }
+
+      const snapshots = await tx.table('prognosisSnapshots').toArray();
+      for (const snapshot of snapshots) {
+        if ((snapshot.linkedSessionId && deletedSessionIds.has(snapshot.linkedSessionId)) || deletedSnapshotIds.has(snapshot.id)) {
+          await tx.table('prognosisSnapshots').put({
+            ...snapshot,
+            linkedSessionId: undefined,
+            actualOutcome: undefined,
+            actualTargetCatchesCount: undefined,
+            evaluationNotes: undefined,
+          });
+        }
+      }
+
+      const plannedSessions = await tx.table('plannedSessions').toArray();
+      const resetAt = new Date().toISOString();
+      for (const planned of plannedSessions) {
+        if (planned.startedSessionId && deletedSessionIds.has(planned.startedSessionId)) {
+          await tx.table('plannedSessions').put({
+            ...planned,
+            startedSessionId: undefined,
+            startedSessionDeletedAt: resetAt,
+            updatedAt: resetAt,
+          });
+        }
+      }
+
+      // Alleen de oude technische benchmarklocatie opruimen wanneer geen plan ernaar verwijst.
+      const benchmarkLocation = await tx.table('locations').get('benchmark-location-lokkershoek');
+      if (benchmarkLocation) {
+        const locationPlans = await tx.table('plannedSessions').where('locationId')
+          .equals('benchmark-location-lokkershoek').count();
+        if (locationPlans === 0) {
+          await tx.table('locations').delete('benchmark-location-lokkershoek');
+        }
+      }
     });
   }
 }
@@ -245,50 +200,7 @@ export function initializeDatabase(): Promise<void> {
 
 async function initializeDatabaseOnce(): Promise<void> {
   try {
-    // 1. Zorg dat historische stekken aanwezig zijn (inclusief Lokkershoek Pier)
-    for (const loc of HISTORICAL_LOCATIONS) {
-      const existing = await db.locations.get(loc.id);
-      if (!existing) {
-        await db.locations.put(loc);
-      }
-    }
-
-    // 2. Controleer en update de sessie van 19 okt 2026 naar Lokkershoek Pier (zonder benchmarkstatus)
-    const existingSession = await db.sessions.get(BENCHMARK_SESSION_ID);
-    if (!existingSession) {
-      await db.sessions.put(BENCHMARK_SESSION);
-    } else {
-      await db.sessions.update(BENCHMARK_SESSION_ID, {
-        locationId: LOKKERSHOEK_PIER_ID,
-        locationName: 'Lokkershoek Pier',
-        isBenchmark: false,
-        notes: '8 vissen totaal: 1e uur 3 brasems, 1 zeelt en 1 karper van circa 10 kg; later 3 brasems.',
-      });
-    }
-
-    // 3. Controleer vangsten van deze sessie: zorg dat exact de 4 canonieke registraties aanwezig zijn (totaal 8 vissen)
-    // en verwijder eventuele overtollige/dubbele vangsten die het aantal op 9 brachten.
-    const canonicalCatchIds = new Set(BENCHMARK_CATCHES.map((c) => c.id));
-    for (const c of BENCHMARK_CATCHES) {
-      await db.catches.put(c);
-    }
-    const currentSessionCatches = await db.catches.where('sessionId').equals(BENCHMARK_SESSION_ID).toArray();
-    for (const sc of currentSessionCatches) {
-      if (!canonicalCatchIds.has(sc.id)) {
-        await db.catches.delete(sc.id);
-      }
-    }
-
-    // 4. Verwijder de verouderde referentiestek 'benchmark-location-lokkershoek' zodat geen duplicaatstek ontstaat
-    const oldBenchLoc = await db.locations.get(BENCHMARK_LOCATION_ID);
-    if (oldBenchLoc) {
-      const sessionsUsingOldLoc = await db.sessions.where('locationId').equals(BENCHMARK_LOCATION_ID).count();
-      if (sessionsUsingOldLoc === 0) {
-        await db.locations.delete(BENCHMARK_LOCATION_ID);
-      }
-    }
-
-    // 5. Standaardinstellingen controleren
+    // Alleen apparaatinstellingen initialiseren; historische records/locaties worden nooit automatisch gezaaid.
     const settings = await db.settings.get('user_settings');
     if (!settings) {
       await db.settings.put({
@@ -300,21 +212,6 @@ async function initializeDatabaseOnce(): Promise<void> {
         defaultDurationHours: 3,
         theme: 'dark',
       });
-    }
-
-    // 6. Automatische eenmalige seeding van de overige historische data
-    for (const sess of HISTORICAL_SESSIONS) {
-      const existing = await db.sessions.get(sess.id);
-      if (!existing) {
-        await db.sessions.put(sess);
-      }
-    }
-
-    for (const c of HISTORICAL_CATCHES) {
-      const existing = await db.catches.get(c.id);
-      if (!existing) {
-        await db.catches.put(c);
-      }
     }
   } catch (error) {
     console.error('Fout bij initialiseren database:', error);

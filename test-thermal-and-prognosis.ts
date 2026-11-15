@@ -9,12 +9,6 @@ import { calculateDayPrognosis, getSessionDurationHours } from './src/services/p
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
-  BENCHMARK_SESSION,
-  BENCHMARK_LOCATION,
-  BENCHMARK_CATCHES,
-  BENCHMARK_SESSION_ID,
-} from './src/db/db';
-import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
@@ -484,18 +478,7 @@ async function run14Scenarios() {
     `13.2 Ontbrekende gewichten blijven strikt null (${unmeasuredWeights} van 24)`
   );
 
-  // 14. Lokkershoek Pier sessie en vangsten integriteit
-  console.log('\n--- SCENARIO 14: Lokkershoek Pier sessie integriteit ---');
-  assert(
-    BENCHMARK_SESSION.id === 'benchmark-session-20261019' &&
-    BENCHMARK_SESSION.locationId === 'spot-mvp1g19d-dfemr2' &&
-    BENCHMARK_SESSION.isBenchmark === false,
-    '14.1 Lokkershoek Pier sessie correct gekoppeld en benchmarkstatus verwijderd'
-  );
-  assert(
-    BENCHMARK_CATCHES.length === 4 && BENCHMARK_CATCHES.reduce((a, c) => a + c.count, 0) === 8,
-    '14.2 Vangsten bevatten exact 8 vissen (6 brasems, 1 zeelt, 1 karper)'
-  );
+  // Scenario 14 is vervangen door de afzonderlijke v4→v5 clean-start migratietest.
 
   console.log(`\n======================================================`);
   console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);

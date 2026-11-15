@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { db, initializeDatabase, deleteSessionSafely, LOKKERSHOEK_PIER_ID, BENCHMARK_SESSION_ID } from './src/db/db';
+import { db, initializeDatabase, deleteSessionSafely, LOKKERSHOEK_PIER_ID } from './src/db/db';
 import { autoSyncSessionOutcomeToSnapshot, evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { FishingSession, PrognosisSnapshot, CatchItem, WeatherSnapshot } from './src/types';
 
@@ -435,12 +435,7 @@ async function runBrierIntegrationTest() {
     '5.5 Kalibratietabel bevat alle 5 kanssegmenten'
   );
 
-  // Controleer dat de beschermde benchmark buitengesloten blijft
-  const benchmarkSess = await db.sessions.get(BENCHMARK_SESSION_ID);
-  assert(
-    benchmarkSess !== undefined,
-    '5.6 Referentiesessie Lokkershoek Pier blijft veilig in de database'
-  );
+  // De productie-database bevat geen automatisch geladen benchmarkavond meer.
 
   // ====================================================================
   // STAP 6: OPVANGEN EN VEILIG VERWIJDEREN VAN ALLE TESTGEGEVENS

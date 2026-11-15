@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { normalizeRawBackup } from './src/services/backupService';
-import { BENCHMARK_SESSION, BENCHMARK_LOCATION, BENCHMARK_CATCHES } from './src/db/db';
 import { FishingLocation, FishingSession, CatchItem, SessionOutcome } from './src/types';
 
 const jsonPath = path.resolve('test-fixtures/legacy/vislogboek-backup-2026-10-26.json');
@@ -66,7 +65,7 @@ console.log('\n--- 7. Merge Simulation & Exclusion of Benchmark ---');
 let addedLocs = 0;
 let skippedLocs = 0;
 for (const loc of normalized.locations) {
-  if (loc.id === BENCHMARK_LOCATION.id || loc.id === 'ref-location-lokkershoek' || loc.isBenchmark) {
+  if (loc.isBenchmark) {
     skippedLocs++;
   } else {
     addedLocs++;
@@ -76,7 +75,7 @@ for (const loc of normalized.locations) {
 let addedSess = 0;
 let skippedSess = 0;
 for (const sess of normalized.sessions) {
-  if (sess.id === BENCHMARK_SESSION.id || sess.id === 'ref-2026-10-19-lokkershoek' || sess.isBenchmark) {
+  if (sess.isBenchmark) {
     skippedSess++;
   } else {
     addedSess++;
@@ -86,7 +85,7 @@ for (const sess of normalized.sessions) {
 let addedCatch = 0;
 let skippedCatch = 0;
 for (const c of normalized.catches) {
-  if (BENCHMARK_CATCHES.some(bc => bc.id === c.id) || c.id.startsWith('ref-c')) {
+  if (!normalized.sessions.some((session) => session.id === c.sessionId && !session.isBenchmark)) {
     skippedCatch++;
   } else {
     addedCatch++;
