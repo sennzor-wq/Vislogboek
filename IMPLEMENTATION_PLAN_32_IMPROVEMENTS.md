@@ -199,3 +199,14 @@ De read-only audit en datadictionary zijn vastgelegd in [`FASE0_DATA_DICTIONARY_
 - Resterende aandachtspunten zijn expliciet geregistreerd in de audit; ze zijn geen reden om de nulmeting of testresultaten te overschatten.
 
 **Acceptatie voorbereidende stap/Fase 0:** documentatie en codecontract zijn geïnventariseerd; datadictionary en baseline zijn vastgelegd; CI is geslaagd; er is geen applicatiegedrag gewijzigd. Fase 0 is hiermee gereed.
+
+
+---
+
+## Overkoepelende optimalisatie en uitvoeringsvolgorde (15 november 2026)
+
+De producteigenaar heeft een aanvullend, overkoepelend optimalisatietraject opgedragen. De volgorde en acceptatiecriteria staan in **[VISLOGBOEK_VERBETERPLAN.md](VISLOGBOEK_VERBETERPLAN.md)**. Dit document met 32 verbeterpunten blijft bestaan als bestaand implementatieplan; het nieuwe verbeterplan organiseert de bredere samenhang en bepaalt de eerstvolgende fases. Overlappende werkzaamheden worden niet dubbel uitgevoerd: vóór iedere stap wordt gecontroleerd welke punten al op `main` zijn geïmplementeerd en getest.
+
+Eerste stap: read-only baseline-audit. Daarna prioriteit voor veilige database-initialisatie en het verwijderen van uitsluitend ongeldige benchmark-/testdata, gevolgd door biologische prognose, lerend stekprofiel, tactisch advies en praktijkvalidatie. De toestemming om benchmarkvangsten te verwijderen geldt niet voor echte gebruikersgegevens. Documentatie en dit statusregister worden na iedere fase bijgewerkt.
+
+**Status:** overkoepelend plan vastgelegd op `main`; nog geen implementatie van deze nieuwe fases geclaimd. Raadpleeg het centrale verbeterplan voor actuele status en acceptatiecriteria.
