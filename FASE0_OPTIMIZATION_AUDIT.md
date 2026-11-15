@@ -131,3 +131,54 @@ De fase-4-wijziging moet dit onderscheid behouden: windcontext mag ook bij licht
 ### 7.4 Regressietest die huidige windbeperking vastlegt
 
 `test-session-coach.ts` test expliciet dat de tekst “Wind en werprichting” ontbreekt bij 5 km/u wind. Dit is geen ontbrekende testdekking: het is een test die het huidige gedrag bewust vastlegt. In fase 4 moet de testverwachting worden aangepast naar een relevante windcontext zonder gefingeerde werprichting; alleen de implementatie wijzigen zonder deze test bewust te herzien is niet voldoende.
+
+
+## 8. Aanvullende controles — 15 november 2026 (vervolg)
+
+### 8.1 Herkomstcontrole referentiesessie 19 oktober
+
+De repository bevat naast de historische TypeScript-data ook de fixture `test-fixtures/legacy/vislogboek-backup-2026-10-26.json`. In deze oorspronkelijke backup staat een beschermde/referentiesessie op 19 oktober 2026:
+- backup-ID: `ref-2026-10-19-lokkershoek`;
+- omschrijving: Lokkershoek, Culemborg;
+- tijd: 19:00–22:00;
+- techniek: vaste hengel;
+- acht afzonderlijke vangstregels, waaronder één karper van circa 10 kg, één zeelt en zes brasems;
+- regionale weerscontext: o.a. windrichting O en luchtdruk 1026,1 hPa.
+
+De hard-coded sessie in `src/db/db.ts` beschrijft dezelfde datum, tijd en acht vissen, met dezelfde soortverdeling en circa 10 kg karper, maar:
+- gebruikt ID `benchmark-session-20261019` en locatie-ID `spot-mvp1g19d-dfemr2`;
+- noemt Feeder & Karperhengel / Feeder-Statisch in plaats van vaste hengel;
+- heeft vier gegroepeerde vangstrecords in plaats van de acht individuele backupregels;
+- bevat afwijkende weerswaarden (o.a. windrichting 230° ZW en druk 1018 hPa);
+- wordt als `isBenchmark: false` opgeslagen en overschrijft bij initialisatie de vier canonieke vangst-ID's.
+
+**Conclusie:** de vaste database-sessie lijkt inhoudelijk sterk verwant aan, of afgeleid van, de echte beschermde referentiesessie uit de backup. De verschillen zijn materieel en de precieze bewerkingsgeschiedenis is niet bewezen. Dit is dus geen vrijbrief om de records als synthetische benchmark te verwijderen. Behandel ze voorlopig als mogelijk echte gebruikers-/referentiedata. De juiste vervolgstap is een veld-voor-veld provenance- en ID-relatie-audit; tot die tijd niet verwijderen, niet samenvoegen en niet automatisch herschrijven.
+
+### 8.2 CI, Actions-limiet en lokale uitvoerbaarheid
+
+De repositorymetadata bevestigt dat `sennzor-wq/Vislogboek` op GitHub als **private** repository staat. Daarmee is de eerder genoemde Actions-billinglimiet een plausibele verklaring voor het niet starten van hosted runners, maar niet bewezen: de repository-audit geeft geen inzage in account-/organisatieverbruik, resterend inbegrepen compute, billing hold of runnerbeschikbaarheid. De gerapporteerde `runner_id=0` en lege stappenlijsten wijzen erop dat de job niet aan een runner is begonnen; ze identificeren de oorzaak niet.
+
+De workflow `.github/workflows/ci.yml` definieert zelf een brede deterministische suite: dependency-audits, TypeScript-typecheck, datum/DST-tests, prognose-/thermische tests, Brier- en forward-validation, research registry, positionering, waterthermiek, veilige verwijdering, backup/import/security/round-trip, sessiehengels, VisCoach en productiebuild. Dit is aanzienlijk vollediger dan de scripts-sectie in `package.json`, die slechts twee convenience-scripts declareert (`test:viscoach-greetings` en `test:audit-data-integrity`). De overige suites worden in CI direct met `bun run tsx <testbestand>` gestart. Dat is op zichzelf geen ontbrekende dekking.
+
+**Werkafspraak:** GitHub Actions wordt niet langer als kritieke afhankelijkheid voor het afronden van de statische fase-0-audit behandeld. We kunnen broncode, workflow, scripts en testdoelen inspecteren zonder runner. Typecheck, tests en build tellen pas als uitgevoerd wanneer ze in een lokale of CI-runtime daadwerkelijk zijn gedraaid en de exitstatus/logs beschikbaar zijn. De huidige audit heeft deze opdrachten nog niet lokaal uitgevoerd; er wordt dus geen softwaretest als geslaagd gemarkeerd. De exacte Actions-billingoorzaak blijft open totdat de eigenaar de usage/billingstatus controleert of een runner weer start.
+
+### 8.3 Testinventaris — huidige workflow
+
+De Quality Gate bevat expliciete opdrachten voor de volgende testgroepen (bestandsnamen uit `.github/workflows/ci.yml`):
+- `test-date-time.ts`, `test-thermal-and-prognosis.ts`, `test-brier-integration.ts`, `test-forward-validation.ts`;
+- `test-advanced-prognosis-modules.ts`, `test-research-registry.ts`, `test-rod-positioning.ts`;
+- `test-water-thermal-coupling.ts`, `test-water-temperature-learning.ts`, `test-water-history-profile.ts`, `test-water-temperature-synthetic-validation.ts`;
+- `test-safe-deletion.ts`, `test-session-snapshot-commit.ts`;
+- `test-viscoach-part1.ts`, `test-backup-import.ts`, `test-audit-data-integrity.ts`, `test-security-backup-validation.ts`, `test-backup-roundtrip.ts`;
+- `test-session-rods.ts`, `test-session-coach.ts`, `test-session-coach-integration.ts`, `test-viscoach-greetings.ts`, `test-weather-enrichment.ts`;
+- daarna `bun run lint` (TypeScript `tsc --noEmit`) en `bun run build`.
+
+`test-core-logic.ts` is bewust niet opgenomen omdat het momenteel live Open-Meteo-netwerkverzoeken doet en nog niet is gemockt. De workflow controleert daarnaast dat private artefacten niet in `dist` belanden. De audit moet nog per blueprint-eis vaststellen of de bestaande test de gewenste inhoudelijke invariant daadwerkelijk controleert; alleen aanwezigheid in de workflow is geen bewijs van adequaatheid.
+
+### 8.4 Bijgewerkte status en resterende fase-0-acties
+
+- CI-billinglimiet: **plausibele hypothese, niet geverifieerd**; private repo bevestigd, accountverbruik niet beschikbaar.
+- Testworkflow: **statisch geïnventariseerd**; niet lokaal of via een runner uitgevoerd op de huidige baseline.
+- 19-oktober-sessie: **provenance-risico aangescherpt**; sterke inhoudelijke overeenkomst met de backup-referentiesessie, maar materiële verschillen. Niet verwijderen.
+- Legacy backupfixture: **testbron aanwezig**; blijft behouden en wordt niet als productie-seed of opruimdoel behandeld.
+- Nog open: volledige repositorybrede ID-verwijzingsinventaris, blueprintfactorenmatrix, volledige UI/engine-keten, en reproduceerbare lokale softwarebaseline.
