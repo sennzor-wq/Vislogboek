@@ -224,3 +224,8 @@ Eerste bevindingen:
 - Quality Gate-runs #503–#511 op de documentatie-updates eindigden vrijwel direct als failure zonder zichtbare workflowstappen of beschikbare logs. Run #510 rapporteerde `runner_id=0`; een rerun van #503 bleef eveneens failure. De oorzaak is onbekend en lijkt vóór de eerste workflowstap te liggen; er is geen geslaagde Quality Gate op de huidige auditbaseline.
 
 Zie `FASE0_OPTIMIZATION_AUDIT.md` voor bronpaden, bewijs, beperkingen en openstaande controles. De audit blijft in uitvoering; geen fase-1-implementatie of verwijdering van gebruikersdata is gestart.
+
+
+## Fase-0-auditverwijzing — 16 november 2026
+
+De read-only matrix voor de centrale prognose-/VisCoach-/sessie-/evaluatieketen is toegevoegd aan `FASE0_OPTIMIZATION_AUDIT.md` §25. Deze bevestigt aanwezige service- en UI-koppelingen, maar markeert de volledige UI-lifecycle van VisCoach-planning en het starten van geplande sessies als onvoldoende direct getest. Ook is een mogelijke tegenstrijdigheid vastgesteld tussen het gekozen sessietijdvenster en de dagbrede aanbeveling. Zie §25.2 voor de resterende auditdelen. Geen applicatiecode gewijzigd.

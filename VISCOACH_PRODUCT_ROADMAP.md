@@ -1214,3 +1214,10 @@ De gefaseerde optimalisatie van Vislogboek wordt vanaf deze datum uitgevoerd vol
 De uitgebreide read-only baseline-audit op actuele `main` is gestart. De eerste controle bevestigt dat de bestaande engines al veel van de gewenste functies leveren, maar ook dat de numerieke activiteitsindex momenteel thermisch gedreven is en dat de windsectie van VisCoach alleen bij sterke wind verschijnt. De database-initialisatie seedt een vaste sessie met vier vangsten; daarnaast seedt `historicalData.ts` records die volgens de broncommentaar uit een concrete gebruikersbackup komen. Die backup-afgeleide records worden beschermd en niet als benchmarkdata verwijderd. De volledige traceerbaarheidsmatrix, verwijzingsinventaris en CI-baseline moeten nog worden afgerond. Zie [`FASE0_OPTIMIZATION_AUDIT.md`](FASE0_OPTIMIZATION_AUDIT.md).
 
 **Voortgang:** het centrale plan is vastgelegd op `main`; uitgebreide fase 0 is in uitvoering op commit `4831fd6d7a200467c29773c574be7090674eca29`. Fase 1 is nog niet gestart. Zie het statusregister in het centrale verbeterplan.
+
+
+## 12. Implementatiestatus gecontroleerd op 16 november 2026 — kernketen
+
+De actuele traceerbaarheid van de kernketen prognose → VisCoach → sessie → evaluatie is opgenomen in `FASE0_OPTIMIZATION_AUDIT.md` §25. De App koppelt de bestaande prognose-engine aan VisCoach-planning, startsnapshots, actieve sessieherbeoordeling, adviesfeedback en statistische evaluatie. Service-/databasegedrag heeft gerichte tests; de volledige browserflow is niet end-to-end getest.
+
+Een concrete afwijking is vastgesteld: de planweergave toont het door de gebruiker gekozen tijdvenster, maar de coachaanbeveling gebruikt nog het beste tijdvak van de gehele dagprognose. Dit kan tegenstrijdige tijdadviezen opleveren. Er is tijdens fase 0 geen code aangepast. De overige openstaande matrixdelen staan in audit §25.2.
