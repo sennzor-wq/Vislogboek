@@ -1,9 +1,9 @@
-import { FishSpecies } from '../types';
+import type { FishSpecies } from '../types';
 import {
   getResearchByOutcome,
   isApprovedPredictionKnowledge,
-  ResearchRegistryEntry,
 } from './researchRegistry';
+import type { ResearchRegistryEntry } from './researchRegistry';
 
 /**
  * Tijdgebonden bewijs wordt strikt naar de werkelijk gemeten respons gescheiden.
