@@ -75,6 +75,21 @@ Deze bronnen onderbouwen de modelstructuur en de noodzaak van soort-/contextspec
 - De bestaande habitat- en positioneringsengines worden verbeterd waar nodig; geen duplicatie.
 - Iedere betekenisvolle modelwijziging krijgt een modelversie en reproduceerbare tests.
 
+### Voedings-/foerageerlaag: bewijs vóór scoring
+
+De voedingslaag blijft een aparte biologische respons naast fysiologische activiteit. De laag beschrijft of en wanneer de soort waarschijnlijk foerageert, op welk type voedsel/prooi en onder welke ecologische context. Dit is niet hetzelfde als zwemactiviteit, aanwezigheid op de stek of kans dat een hengelaar een vis vangt.
+
+De literatuur wordt per soort geclassificeerd op:
+- gemeten respons: maagvulling/consumptie, directe foerageerobservatie, dieet/prooikeuze, telemetrie/activiteit of groei;
+- veld versus gecontroleerde kweek-/tankopzet;
+- levensfase/lengteklasse, watertype, seizoen, lichtregime, voedsel/prooiaanbod en temperatuur;
+- overdraagbaarheid naar Nederlandse stilstaande en stromende wateren;
+- onzekerheid en bronbeperkingen.
+
+De literatuurinventaris bevat nu directe voedings-/dieetbronnen voor alle negen concrete soorten, maar de kwaliteit is ongelijk: sommige zijn veldmetingen, andere gecontroleerde kweekstudies of alleen dieet-/prooikeuze. Een bron die dieet beschrijft bewijst niet automatisch een dagritme; telemetrie bewijst niet automatisch voedselopname; groei bewijst geen acute voedingsactiviteit.
+
+**Eerste implementatiestap:** een kwalitatieve, soortspecifieke voedingscontext met expliciete bewijsstatus en bronverwijzingen. Geen numerieke factor, tijdvakbonus of temperatuurvermenigvuldiger wordt geactiveerd zolang de overdraagbaarheid en relatie met lokale sessie-/vangstdata niet zijn aangetoond. De app kent doorgaans de leeftijds-/lengtesamenstelling en het natuurlijke prooiaanbod van de lokale vispopulatie niet; zulke factoren blijven daarom onbekend in plaats van ingevuld.
+
 ### Reproduceerbare historische invoer
 
 Elke prognosesnapshot bewaart naast bronrecord-ID's een compacte whitelist van de historische sessie-, vangst- en waarnemingskenmerken die de bestaande engines kunnen beïnvloeden. Dezelfde canonieke helper wordt gebruikt door de vier snapshotbouwers. De fingerprint wordt uit diezelfde genormaliseerde featurepayload opgebouwd, zodat wijzigingen in bijvoorbeeld aasrichting, voorvoerstatus of meetprovenance niet ongemerkt buiten de invoercontrole vallen.
@@ -109,7 +124,7 @@ Waar direct bewijs ontbreekt, blijft een factor context of een expliciete hypoth
 2. Bouw een evidence matrix per soort en per uitkomst: activiteit, voeding, habitat, groei of vangst.
 3. Rond de factorprovenance en de whitelisted, replaybare historische feature-snapshot af voor alle prognose- en snapshotbouwers.
 4. Herzie thermische profielparameters alleen waar de brondata dat rechtvaardigen; voeg curve- en regressietests toe.
-5. Ontwikkel de voedingslaag met afzonderlijke bewijsklassen en expliciete onzekerheid.
+5. Ontwikkel eerst een kwalitatieve, soortspecifieke voedingscontext met bronverwijzingen, meettype, overdraagbaarheid en onzekerheid. Activeer geen numerieke invloed zonder passende veldvalidatie.
 6. Houd habitatuitvoer voorlopig kwalitatief tot voldoende lokale presence-data bestaan.
 7. Herzie en kalibreer de vangkans pas met voldoende echte sessies en chronologische backtests.
 

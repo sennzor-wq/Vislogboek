@@ -66,3 +66,51 @@ if (!sharedPikeEvidence || !sharedPikeEvidence.species.includes('Snoek')) {
   throw new Error('The lowland-river telemetry study must be linked to both pike and pikeperch.');
 }
 console.log('All concrete species have registered, non-approved biological evidence.');
+const directFeedingEvidenceBySpecies: Record<string, string> = {
+  Karper: 'common-carp-diel-grazing-food-type-2009',
+  Brasem: 'bream-roach-in-situ-diel-zooplankton-feeding-2004',
+  Snoek: 'northern-pike-field-seasonal-feeding-diet-2025',
+  Baars: 'perch-field-diel-feeding-seasonal-diet-1986',
+  Voorn: 'roach-autumnal-diel-feeding-shift-2008',
+  Zeelt: 'tench-field-diel-seasonal-feeding-2018',
+  Snoekbaars: 'pikeperch-winter-spring-feeding-temperature-2020',
+  Meerval: 'wels-catfish-seasonal-diet-feeding-2025',
+  Roofblei: 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018',
+};
+for (const [species, id] of Object.entries(directFeedingEvidenceBySpecies)) {
+  const evidence = RESEARCH_REGISTRY.find((item) => item.id === id);
+  if (!evidence || !evidence.species.includes(species)) {
+    throw new Error(`Direct feeding/diet evidence must be linked to ${species}.`);
+  }
+  if (evidence.approvedForPrediction || evidence.sourceReferences.length === 0 || evidence.limitations.length === 0) {
+    throw new Error(`Feeding evidence for ${species} must retain source limitations and remain non-approved.`);
+  }
+}
+const pikeFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-field-seasonal-feeding-diet-2025');
+if (!pikeFeeding?.summary.includes('niet statistisch significant')) {
+  throw new Error('The pike evidence must preserve the non-significant seasonal/temperature result.');
+}
+const catfishFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'wels-catfish-seasonal-diet-feeding-2025');
+if (!catfishFeeding?.sourceReferences.some((source) => source.includes('Aquaculture Nutrition'))) {
+  throw new Error('The catfish feeding study must retain its verified journal metadata.');
+}
+console.log('Direct feeding evidence coverage and non-activation tests passed.');
+const profileFeedingSourceChecks: Record<string, string> = {
+  Karper: '10.1111/j.1095-8649.2009.02236.x',
+  Brasem: 'In situ diel patterns of zooplankton consumption',
+  Snoek: '10.3409/fb_73-3.10',
+  Baars: 'annzool.net/PDF/anzf23/anz23-049-056.pdf',
+  Voorn: '10.1111/j.1095-8649.2008.02020.x',
+  Zeelt: '10.1134/S003294521804001X',
+  Snoekbaars: '10.1111/are.14401',
+  Meerval: '10.1155/anu/4619857',
+  Roofblei: '10.1111/eff.12414',
+};
+for (const [species, reference] of Object.entries(profileFeedingSourceChecks)) {
+  if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((source) => source.includes(reference))) {
+    throw new Error(`The ${species} profile must link its reviewed feeding/diet evidence.`);
+  }
+}
+console.log('All species profiles link their feeding evidence sources.');
+
+
