@@ -220,7 +220,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     {
       title: 'Gemeten voedselopname en voedingsritme',
       description: 'Onderzoek dat daadwerkelijk voedselopname of een voedingsritme heeft gemeten.',
-      entries: [...feedingEvidenceContext.feedingIntensity, ...feedingEvidenceContext.feedingRhythm],
+      entries: Array.from(new Map([...feedingEvidenceContext.feedingIntensity, ...feedingEvidenceContext.feedingRhythm].map((entry) => [entry.id, entry] as const)).values()),
     },
     {
       title: 'Foerageergedrag',
@@ -230,7 +230,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     {
       title: 'Dieet en prooikeuze',
       description: 'Wat de vis eet of selecteert; dit bewijst geen hogere voedingsactiviteit op een bepaald tijdstip.',
-      entries: [...feedingEvidenceContext.dietComposition, ...feedingEvidenceContext.preySelection],
+      entries: Array.from(new Map([...feedingEvidenceContext.dietComposition, ...feedingEvidenceContext.preySelection].map((entry) => [entry.id, entry] as const)).values()),
     },
   ] : [];
 
@@ -788,7 +788,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                   </p>
                                 )}
                                 <p className="text-[10px] text-slate-500">
-                                  Bewijsstatus: {entry.evidenceStrength === 'strong' ? 'sterk' : entry.evidenceStrength === 'moderate' ? 'matig' : entry.evidenceStrength === 'limited' ? 'beperkt' : 'nog onbekend'} · niet vrijgegeven als automatische voorspellingsfactor
+                                  Bewijsstatus: {entry.evidenceStrength === 'strong' ? 'sterk' : entry.evidenceStrength === 'moderate' ? 'matig' : entry.evidenceStrength === 'limited' ? 'beperkt' : 'nog onbekend'} · {entry.approvedForPrediction ? 'beoordeeld voor voorspellingsgebruik' : 'nog niet vrijgegeven als voorspellingsfactor'}
                                 </p>
                               </div>
                             </details>
