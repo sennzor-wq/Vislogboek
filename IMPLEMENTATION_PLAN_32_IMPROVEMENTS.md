@@ -234,3 +234,8 @@ De read-only matrix voor de centrale prognose-/VisCoach-/sessie-/evaluatieketen 
 ## Fase-0-vervolg — stekgegevens en geometrie (16 november 2026)
 
 Audit §26 bevestigt dat wind-, habitat- en positioneringsengines zijn geïntegreerd en scenario-getest. De locatie-invoer heeft echter open punten: standaard-GPS rond Culemborg kan onbedoeld als echte steklocatie worden opgeslagen, gestructureerde habitatkenmerken ontbreken in de gewone editor en oeveroriëntatie is alleen vanuit Prognose instelbaar. Deze punten zijn auditbevindingen; geen code gewijzigd.
+
+
+## Fase-0-vervolg — persoonlijk leren en hengelinzet (16 november 2026)
+
+Audit §28 bevestigt bestaande beperkte persoonlijke sessie-/soort-/stekstatistiek en een afzonderlijke richtingsnuance. Segmentatie naar techniek, aas/voer en hengeluren ontbreekt in de vangst-rate. De hengelurenhelper is getest maar niet geïntegreerd. De statistiekengine kan onbekende aantallen als één vis tellen en heeft geen aangetroffen directe regressietest. Een centrale stekleerlaag is nog niet aangetoond.

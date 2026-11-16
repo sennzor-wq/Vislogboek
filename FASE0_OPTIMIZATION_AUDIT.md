@@ -774,3 +774,39 @@ Daarnaast bewaart `autoSyncSessionOutcomeToSnapshot()` de meting met de juiste `
 - Zonder expliciet meettijdstip/methode/herkomst wordt de waarde niet als gevalideerde lokale meting behandeld.
 
 **Fasestatus:** fase 0 blijft read-only en in uitvoering. Er is geen applicatiecode of gebruikersdata gewijzigd.
+
+
+## 28. Traceerbaarheidsmatrix — persoonlijk leren, sessie-inspanning en tactiek (16 november 2026)
+
+Read-only controle van de huidige implementatie op `main` commit `46c90e06309f80c69f48bb6872ad75f28df92f2d`.
+
+| Blueprint-eis | Code / UI-keten | Testbewijs | Status en beperking |
+|---|---|---|---|
+| Persoonlijke vangstervaring per stek en doelsoort | `prognosisEngine.ts`: `getComparableSessions()` filtert op doelsoort en optioneel exact `locationId`; alleen voltooide vangst-/bevestigde nulvangstsessies tellen mee. Vangstrecords moeten de doelsoort bevestigen. | `test-core-logic.ts` bevat scenario's voor soort-/stekselectie, onbekende uitkomsten, benchmarkuitsluiting en bevestigde nulvangsten. | **Aanwezig, gedeeltelijk geïntegreerd.** Dit is een beperkte sessie-aggregatie in de prognose-engine, geen afzonderlijke centrale stekleerlaag. |
+| Persoonlijke vangstkans corrigeren voor werkelijke sessieduur | `getSessionDurationHours()` gebruikt geregistreerde duur of geldige start/eindtijd; Poisson-rate = bekende doelvangsten / totale geldige sessieduur, met bevestigde nulvangsten in de blootstellingsnoemer. De geplande duur bepaalt vervolgens de kans op minimaal één vangst. | `test-core-logic.ts` test duur/exposure en nulvangsten; `test-session-coach.ts` en andere prognosetests gebruiken dezelfde engine. | **Aanwezig en getest.** Alleen sessieduur wordt gebruikt; werkelijke hengeluren worden niet in de vangst-rate verwerkt. |
+| Persoonlijke invloed van techniek, aas en tactiek op vangstprognose | `calculateDayPrognosis()` accepteert context voor techniek en voorvoer; de persoonlijke `comparableSessions`-selectie filtert echter alleen op soort en stek. Er wordt geen vergelijkbare sessieset op `technique`, `baitAndFeed`, hengelpositie of aasaanbieding gebruikt voor de Poisson-rate. | Geen test aangetroffen die techniek-/aasgescheiden vangstprognoses vergelijkt. | **Ontbreekt in de persoonlijke vangst-rate.** De engine gebruikt sessieduur en doelsoort/locatie, maar de productbelofte van methode-/tactiekgespecificeerd persoonlijk leren is hiermee nog niet gerealiseerd. |
+| Persoonlijk leerresultaat voor aas-/werprichting | `rodPositioningEngine.ts` analyseert op dezelfde stek en doelsoort de geregistreerde `baitDirection`; vereist minimaal 11 voltooide sessies en 6 richtingsregistraties. | `test-rod-positioning.ts` test onder de drempel, onvoldoende richtingregistraties en een voldoende groot profiel. | **Aanwezig, smal en voorzichtig.** Het is een kwalitatieve richtingnuance, geen centrale tactiek-/methodevergelijking. |
+| Sessiedetails per hengel vastleggen | `SessionModal.tsx` laat optioneel hengelpositie, techniek, aas/presentatie, actieve intervallen en gebeurtenissen per hengel vastleggen; App bewaart de records in `sessionRods`. | `test-session-rods.ts` test opslagstructuur-/inspanninghelperregels en overlap/ontbrekende intervallen. | **Aanwezig als registratie.** De sessie blijft terecht de primaire observatie-eenheid; details per hengel worden niet automatisch als onafhankelijke sessies behandeld. |
+| Werkelijke hengeluren berekenen en gebruiken | `sessionEffortEngine.ts` biedt `calculateSessionRodEffort()` en `closeOpenRodIntervals()`. `SessionsView.tsx` importeert `calculateSessionRodEffort`, maar de naam komt in het bestand alleen in de import voor; er is geen aanroep. `prognosisEngine.ts` en `statsEngine.ts` gebruiken de helper niet. | `test-session-rods.ts` test de helper geïsoleerd, inclusief overlap en ontbrekende intervallen. | **Helper aanwezig, productintegratie ontbreekt.** De test bewijst de helper, niet dat hengeluren in sessieoverzicht, statistieken of persoonlijke prognoses terechtkomen. |
+| Groepssessies onderscheiden van hengels en deelnemers | Types bevatten `participantCount`, `rodCount` en per-hengelrecords. | `test-session-rods.ts` test de scheiding tussen deelnemers, totaal aantal hengels en één primaire sessie. | **Registratie aanwezig; leer-/statistiekintegratie beperkt.** Prognose-rate gebruikt sessieduur, niet deelnemers- of hengeluren. |
+| Statistieken respecteren onbekende vangstaantallen | `statsEngine.ts` telt `count || 1` in totale, soort-, locatie- en tijdvakstatistieken. Dat behandelt een onbekend aantal (bijvoorbeeld `legacyImportQuality.countKnown === false`) als één vis. `SessionsView.tsx` gebruikt wel `getKnownCatchCount()` en telt een onbekend aantal als nul bekende vissen. | Geen directe testaanroep van `calculateStats()` aangetroffen in de beschikbare tests; `test-core-logic.ts` importeert de functie, maar voert geen `calculateStats()`-aanroep uit. | **Bevestigd consistentieprobleem en testgat.** Het statistiekdashboard kan onbekende aantallen als echte vissen tellen, terwijl het sessieoverzicht die aantallen als onbekend behandelt. |
+| Centrale leerlaag per stek × doelsoort | Service-inventaris bevat losse modules voor prognose, positionering, habitat, thermiek, evaluatie, voorvoer en sessie-inspanning. Er is geen `spotLearningEngine.ts` of vergelijkbare centrale aggregatieservice aangetroffen. | Geen centrale profiel-/aggregatietests aangetroffen. | **Niet aangetoond / waarschijnlijk ontbrekend.** De bestaande deelmodellen moeten eerst in kaart worden gebracht; pas daarna kan worden besloten of een centrale laag echt nodig is. |
+
+### 28.1 Belangrijkste conclusies
+
+1. De app leert al op beperkte wijze van echte sessies: de Poisson-vangst-rate gebruikt doelsoort, stek, bekende vangsten, bevestigde nulvangsten en werkelijke sessieduur.
+2. De persoonlijke vangstkans is nog niet uitgesplitst naar techniek, aas/voer, hengelpositie of feitelijke hengelinzet. Dat betekent dat een sessie met method feeder en een statische boiliepresentatie in dezelfde soort-/stekbasis kunnen vallen.
+3. De richtingmodule is het enige expliciet aangetroffen persoonlijke tactiekprofiel met een hoge datadrempel. Het is bewust een lichte nuance, geen robuust causaal leermodel.
+4. Per-hengeldata worden opgeslagen en de helper voor hengeluren is getest, maar de helper is niet aangesloten op de productweergave of de prognose-/statistiekaggregatie. De huidige vangst-rate is per sessie-uur, niet per actieve hengeluur.
+5. Het statistiekdashboard heeft een concreet telrisico: `count || 1` behandelt onbekende aantallen als één. Dit wijkt af van de kwaliteitsbewuste weergave in `SessionsView.tsx`.
+6. De roadmap-kandidaat `spotLearningEngine.ts` is nog niet aangetroffen. De audit kan daarom niet bevestigen dat er al één reproduceerbaar profiel bestaat waarin thermiek, habitat, tactiek, vangstdata en onzekerheid per stek × doelsoort samenkomen.
+
+### 28.2 Vereiste vervolgstappen na fase-0-acceptatie
+
+- Regressietests voor `calculateStats()` bij onbekende soort/aantallen, onbekende sessieduur, andere soorten en bevestigde nulvangst.
+- Beslissen welke inspanningseenheid voor welke maatstaf geldt: sessie-uren voor visserinspanning, hengeluren voor hengelinzet. Niet ongemerkt door elkaar gebruiken.
+- Vaststellen welke minimumaantallen nodig zijn voordat techniek-/aas-/richtingsegmenten een persoonlijke nuance mogen geven; kleine steekproeven moeten terugvallen op de bredere stek-/soortbasis.
+- Pas na die inventarisatie bepalen of een centrale `spotLearningEngine` ontbreekt en welke bestaande services daarin moeten worden samengebracht.
+- Geen causaliteitsclaim afleiden uit een hogere vangstfrequentie bij een tactiek; sessieomstandigheden en selectie-effecten moeten zichtbaar blijven.
+
+**Fasestatus:** fase 0 blijft read-only en in uitvoering; geen applicatiecode of gebruikersdata gewijzigd.

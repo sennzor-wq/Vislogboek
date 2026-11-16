@@ -1231,3 +1231,8 @@ Zie `FASE0_OPTIMIZATION_AUDIT.md` §26. De wind-, habitat- en positioneringsengi
 ## Watertemperatuur — aanvullende audit (16 november 2026)
 
 Zie `FASE0_OPTIMIZATION_AUDIT.md` §27. De kernlogica voor lokale meting, weather-only schatting, historisch profiel en toekomstextrapolatie is aanwezig en synthetisch getest. Een timestamp-inconsistentie blijft open: het expliciete `waterTemperatureMeasuredAt` wordt bij sessiehistorie en live herbeoordeling niet consequent gebruikt; sessiestart- of herbeoordelingstijd kan daardoor de meettijd vervangen. Ook kan dezelfde fysieke meting via sessie en snapshot dubbel worden geteld. Geen code gewijzigd.
+
+
+## Persoonlijke leerlaag en hengelinzet — audit 16 november 2026
+
+Zie `FASE0_OPTIMIZATION_AUDIT.md` §28. De huidige persoonlijke vangst-rate gebruikt stek, doelsoort, bekende vangsten, bevestigde nulvangsten en sessieduur, maar segmenteert niet naar techniek, aas/voer of hengelinzet. De helper voor hengeluren is geïmplementeerd en unitgetest maar niet aangesloten op de sessieweergave, prognose of statistieken. De statistiekengine telt onbekende aantallen nog via `count || 1` als één vis. Een centrale `spotLearningEngine` is niet aangetroffen; eerst wordt de volledige bestaande leerlogica geïnventariseerd.
