@@ -1227,3 +1227,8 @@ Het onderzoeksregister bevat nu aanvullende directe voedingsritmegegevens voor b
 De adviescopy volgt nu het door de gebruiker gekozen tijdvak in plaats van automatisch het beste tijdvak van de hele dag. Bij een sessie over meerdere tijdvakken wordt geen enkele dagdeelwinnaar opgelegd. Dit is een correctie in de coachvertaling; er wordt geen biologische score aangepast.
 
 De levensfase is vastgelegd als interne, optionele modelnuance en geen verplichte intake. Alleen betrouwbaar bekende levensfase-informatie mag later een soortspecifieke modifier activeren; ontbrekende informatie blijft onbekend en verhoogt de onzekerheid. Er is geen extra gebruikersinvoer toegevoegd.
+
+
+### Fase 2 — volwassen meerval: veldtelemetrie als bewegingsbewijs (16 november 2026)
+
+Het onderzoeksregister bevat nu Santos et al. (2025) over tien volwassen meervallen in een Portugees reservoir. De schemerpiek en hogere nachtelijke activiteit zijn gemeten via accelerometers; dieptegebruik varieert met seizoen en individu. Omdat geen directe voedselopname is gemeten, is de bron uitsluitend als locomotorische activiteit/habitatgebruik geclassificeerd. Geen voedingsritmefactor of tijdvakscore toegevoegd.

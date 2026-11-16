@@ -288,3 +288,8 @@ Tijdvakmodellering blijft uitgeschakeld totdat het bewijs voldoende overdraagbaa
 De gekozen starttijd is onderdeel van de primaire VisCoach-invoer. De adviesvertaling mag daarom niet zonder meer de globale bestTimeSlot van de dagprognose herhalen. Voor één gekozen tijdvak wordt de bijbehorende TimeSlotAnalysis.conclusion gebruikt. Een sessie die meerdere tijdvakken omvat, krijgt geen kunstmatige enkele winnaar; de globale dagvoorkeur blijft hooguit als afzonderlijke dagcontext zichtbaar. Dit verandert geen biologische score of rangschikking.
 
 Levensfase wordt niet als verplicht gebruikersveld toegevoegd. De modelarchitectuur gebruikt levensfase alleen wanneer die betrouwbaar bekend is en de betreffende bron daadwerkelijk een levensfase-effect op de gemeten respons ondersteunt. Zonder die informatie blijft de soortbrede prior gelden met passende onzekerheid. Geen levensfase afleiden uit lengte zonder soortspecifieke, gevalideerde relatie.
+
+
+## 27. Volwassen meerval: beweging en voedselopname strikt gescheiden
+
+De volwassen veldtelemetrie van Santos et al. (2025) voegt een seizoensgebonden schemer-/nachtpatroon toe aan de locomotorische en dieptegebruikscontext van Europese meerval. Versnellingsmeters en druksensoren meten activiteit en diepte, niet rechtstreeks voedselopname. Ook wanneer auteurs bewegingspieken als mogelijke predatie/foerageeractiviteit interpreteren, blijft dit bewijs voor beweging/habitat; het mag niet worden samengevoegd met de directe, maar gecontroleerde voedingsmetingen van Boujard (1995). Geen tijdvakscore of voedingsbonus wordt geactiveerd.
