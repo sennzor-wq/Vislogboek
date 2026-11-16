@@ -503,3 +503,8 @@ De illustratieve karperverdeling 30/17/15/12/8/8/10 procent is expliciet in de a
 ### Fase 2 — habitat-/wind-/positioneringsketen gevolgd (16 november 2026)
 
 De read-only trace van de bestaande bankWind-, habitatMovement- en rodPositioning-engines staat in [FASE2_PROGNOSE_AUDIT.md §9](FASE2_PROGNOSE_AUDIT.md). De habitatengine levert kwalitatieve zones en een heuristisch confidence-label, geen gekalibreerde aanwezigheidkans. De positioneringsengine is expliciet gescheiden van de activiteitsindex en Poisson-vangkans. Geen numerieke kans of bonus toegevoegd; fase 2 blijft audit.
+
+
+### Fase 2 — meettijd-provenance watertemperatuur (16 november 2026)
+
+De read-only controle bevestigt dat historische sessiemetingen momenteel op session.startTime worden gedateerd, terwijl het type een afzonderlijk waterTemperatureMeasuredAt-veld bevat. Snapshot- en sessiebronnen kunnen hierdoor dezelfde fysieke meting als twee verschillende waarnemingen behandelen. Zie [FASE2_PROGNOSE_AUDIT.md §10](FASE2_PROGNOSE_AUDIT.md). Eerst fallback- en deduplicatiebeleid vastleggen; daarna een gerichte fix met tests. Geen code gewijzigd.

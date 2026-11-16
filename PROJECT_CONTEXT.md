@@ -968,3 +968,8 @@ De besproken karpervoorbeeldverdeling (30/17/15/12/8/8/10 procent over de zeven 
 ### Fase 2 — habitat-/wind-/positioneringsaudit (16 november 2026)
 
 De bestaande bankWindEngine, habitatMovementEngine en rodPositioningEngine zijn afzonderlijk gevolgd. BankWind berekent oever-/windgeometrie; habitatMovement geeft kwalitatieve primaire/alternatieve zones en bewegingshypothesen; rodPositioning geeft tactische zoek-/hengeladviezen en is expliciet onafhankelijk van activiteitsindex en Poisson-vangkans. De habitat-confidence is heuristisch en geen gekalibreerde aanwezigheidkans. Deze modules zijn bruikbare bestaande bouwstenen, maar mogen niet als numerieke kansvoorspelling worden gepresenteerd. Details en resterende databeperkingen staan in FASE2_PROGNOSE_AUDIT.md §9. Fase 2 blijft audit.
+
+
+### Fase 2 — watertemperatuur meettijd-provenance (16 november 2026)
+
+De hercontrole vond dat waterTemperatureMeasuredAt wel in het sessietype bestaat, maar dat waterTemperatureHistory.ts en waterThermalEngine.ts sessie.waterTemperature nog op session.startTime dateren. Een gekoppelde snapshot kan dezelfde fysieke meting op het echte meettijdstip bewaren; omdat deduplicatie exact op locatie/tijd/temperatuur werkt, kan deze meting dubbel meetellen. Dit kan meetouderdom, thermische extrapolatie en historische profielen vertekenen. Zie FASE2_PROGNOSE_AUDIT.md §10. Geen code gewijzigd; eerst fallback- en deduplicatiebeleid vastleggen, daarna gerichte regressiefix.

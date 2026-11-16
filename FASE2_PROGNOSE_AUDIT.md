@@ -344,3 +344,27 @@ De PrognosisView toont bankwind en habitatbeweging in de geavanceerde details. D
 - De habitatengine voegt ontbrekende context toe aan missingInformation en verlaagt in de prognoseketen de confidence naar Laag wanneer belangrijke velden ontbreken. Dit voorkomt een deel van de schijnzekerheid, maar vervangt geen gekalibreerde aanwezigheidsschatting.
 
 **Conclusie:** bestaande ruimtelijke modules vormen een bruikbare basis voor stek- en positioneringsadvies. Ze zijn nog geen probabilistisch, soortspecifiek aanwezigheidsmodel. Fase 2 moet de bestaande kwalitatieve uitkomsten behouden en eerst een datacontract plus validatieplan maken voordat numerieke aanwezigheidskansen worden toegevoegd.
+
+
+## 10. Kritiek aandachtspunt — meettijdstip en dubbeltelling watertemperatuur
+
+**Read-only hercontrole op main, 16 november 2026.**
+
+De types bevatten het veld waterTemperatureMeasuredAt voor het exacte moment waarop een sessiewatertemperatuur is gemeten. De huidige historische verwerking gebruikt dit veld echter niet:
+
+- collectHistoricalWaterTemperatureObservations() in waterTemperatureHistory.ts slaat een sessiemeting op met timestamp = session.startTime.
+- analyzeWaterThermalDevelopment() in waterThermalEngine.ts gebruikt eveneens session.startTime als timestamp van een historisch sessiemeetanker.
+- Prognosesnapshots kunnen dezelfde meting afzonderlijk bewaren via actualWaterTemperature en actualWaterTemperatureTimestamp.
+- De historische profielbouwer verwijdert alleen duplicaten met exact dezelfde locatie, timestamp en temperatuur. Als de snapshot de werkelijke meettijd gebruikt en de sessie starttijd een ander moment is, kan dezelfde meting tweemaal meetellen.
+
+Dit is meer dan een administratieve afwijking: het kan de leeftijd van een meetanker verkeerd berekenen, de thermische extrapolatie verschuiven en de historische locatie-/seizoensbaseline onbedoeld extra gewicht geven. Het is daarom een dataprovenance-risico voor iedere toekomstige biologische temperatuurrespons.
+
+### Vereiste correctie vóór betrouwbare modelkalibratie
+
+1. Gebruik waterTemperatureMeasuredAt als primaire tijdstempel wanneer deze geldig aanwezig is.
+2. Definieer expliciet wat te doen met oudere sessies zonder exact meettijdstip. Behandel session.startTime niet stilzwijgend als exact meetmoment; markeer een eventuele fallback als benadering of sluit de meting uit van tijdkritische extrapolatie.
+3. Maak één canonieke waarneming per fysieke meting. Koppel snapshot- en sessiebron waar mogelijk aan dezelfde meet-ID of gebruik een veilige deduplicatieregel die niet alleen op een toevallig identiek tijdstip vertrouwt.
+4. Houd meettijd, registratietijd, bron, methode en meetdiepte gescheiden.
+5. Voeg regressietests toe voor een meting halverwege een sessie, ontbrekend meettijdstip, snapshot+sessieduplicaat, benchmarkuitsluiting en het kiezen van het juiste meest recente anker.
+
+**Besluit:** geen code gewijzigd in deze stap. Eerst de fallback-/deduplicatiepolicy vastleggen en daarna als één gerichte data-integriteitsfix implementeren. Tot die tijd moeten sessiemetingen zonder exact meettijdstip als onzeker worden behandeld bij temperatuurhistorie en thermische extrapolatie.
