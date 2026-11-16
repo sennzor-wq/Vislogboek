@@ -92,6 +92,9 @@ jobs:
       - name: Legacy data integrity regression tests
         run: bun run test:audit-data-integrity
 
+      - name: Clean-start database migration tests
+        run: bun run test:clean-start-migration
+
       - name: Backup import security validation tests
         run: bun run tsx test-security-backup-validation.ts
 

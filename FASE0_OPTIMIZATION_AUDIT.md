@@ -507,3 +507,31 @@ Deze sectie legt de eerste hercontrole vast. Dit is nadrukkelijk nog geen afrond
 - De IndexedDB van een echte gebruikersinstallatie is niet toegankelijk via deze repository-audit; lokale gebruikersdata en een echte browserrestore moeten apart worden gecontroleerd.
 
 **Conclusie:** fase 0 blijft in uitvoering. De code voor de schone start is aanwezig, maar nog niet softwarematig gevalideerd. De legacy backup-import bevat een aantoonbaar probleem. Er zijn nog geen productcode- of gebruikersdatamutaties uitgevoerd tijdens deze audit.
+
+
+## 20. Vervolgcontrole en testbasis op actuele main — 16 november 2026
+
+### 20.1 Repositorystatus en wijzigingsscope
+
+- De actuele `main`-commit vóór deze documentatie-/CI-update is `5dbf3b4e8afcd67f5d879f2944c6f60eea71c55f`.
+- Deze commit verwijdert de ongebruikte `scripts/generate-historical-data.ts`, die historische data uit een persoonlijke backupfixture kon genereren. Er is geen caller of package-script voor dit bestand gevonden. De clean-startafspraak blijft leidend: geen historische vangst-/sessiedata automatisch seedden.
+- `test-core-logic.ts` gebruikt nu eigen synthetische evaluatiegegevens in plaats van verwijderde benchmarkconstanten en bevat geen afhankelijkheid meer van de oude historische Lokkershoek-vangstfixture.
+- `test-forward-validation.ts` gebruikt een eigen synthetische benchmark-ID in plaats van de verwijderde productieconstante.
+- De wijziging is één commit geweest. Er is geen gebruikersdatabase of bestaande lokale IndexedDB aangepast.
+
+### 20.2 Uitgevoerde controle
+
+- Op 16 november heeft de eigenaar lokaal `bun run lint` uitgevoerd. Uitvoer: `tsc --noEmit`; er werden geen TypeScript-fouten gerapporteerd.
+- Dit bewijst alleen dat de TypeScript-typecheck op de lokale checkout slaagt. Het bewijst niet dat tests, dependency-audits of de productiebuild slagen.
+- De bestaande GitHub Actions-workflow bevat al `test-forward-validation.ts`, maar riep `test-clean-start-migration.ts` nog niet aan. Het package-script `test:clean-start-migration` bestaat wel. Deze audit-update voegt die regressietest toe aan de Quality Gate.
+- `test-core-logic.ts` is bewust niet aan de bestaande CI-workflow toegevoegd: de test doet live Open-Meteo-aanroepen en is daardoor niet deterministisch/offline. De gewijzigde test moet nog afzonderlijk op een netwerkbeschikbare lokale omgeving worden uitgevoerd, tenzij de externe aanroepen later geïsoleerd/gemockt worden.
+
+### 20.3 Nog uit te voeren — geen resultaten vooruitlopen
+
+- De Quality Gate op de bijgewerkte `main` moet alle workflowstappen uitvoeren. Typecheck, tests, dependency-audits en productiebuild zijn pas geslaagd nadat de bijbehorende GitHub Actions-run groen is.
+- Controleer expliciet de clean-startmigratietest en forward-validationtests in de workflow-uitvoer.
+- Voer `test-core-logic.ts` lokaal uit en beoordeel iedere fout inhoudelijk. Herstel geen test door historische seeddata terug te plaatsen, assertions zonder bewijs af te zwakken of tests uit te schakelen.
+- Als de Quality Gate faalt, classificeer de fout eerst als workflow-/runnerprobleem, dependencyprobleem, bestaande regressie of fout in de recente wijziging. Pas daarna gericht aan.
+- De volledige blueprint → code → UI → test-matrix, de repositorybrede benchmark-/seedverwijzingsaudit en de concrete backup-importregressies uit §19 zijn nog niet afgetekend.
+
+**Conclusie:** fase 0 blijft in uitvoering. De typecheck is bevestigd; de volledige softwarevalidatie is nog pending. Fase 1 start niet voordat de audit en de vereiste regressiecontroles aantoonbaar zijn afgerond.

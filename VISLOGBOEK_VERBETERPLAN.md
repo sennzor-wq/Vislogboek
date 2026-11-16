@@ -175,7 +175,7 @@ Werk:
 
 | Fase | Status | Opmerking |
 |---|---|---|
-| 0. Baseline en audit | **In uitvoering** | Uitgebreide read-only audit op `main` commit `4831fd6d7a200467c29773c574be7090674eca29`; eerste bevindingen in `FASE0_OPTIMIZATION_AUDIT.md`; matrix, verwijzingsaudit en huidige CI-baseline nog afronden |
+| 0. Baseline en audit | **In uitvoering** | Hercontrole op actuele `main`; vervolgcommit `5dbf3b4` verwijderde historische benchmarktestafhankelijkheden en de ongebruikte historische generator. `bun run lint` is lokaal geslaagd; volledige Quality Gate, clean-startmigratietest, lokale core-logic-test en auditmatrix staan nog open. Zie audit §19–20. |
 | 1. Dataveiligheid en benchmarkdata | Gepland | Benchmarkdata mag na afhankelijkhedenaudit worden verwijderd |
 | 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |
@@ -262,3 +262,24 @@ Uitvoeringsscope:
 - De migratie moet via een versie-upgrade precies één keer lopen, atomair en idempotent zijn, en een regressietest hebben voor zowel oude data als nieuw ingevoerde data.
 
 **Status na implementatievoorstel:** de productiecode bevat nu de v4→v5 clean-startmigratie, verwijdert automatische historische seeding en injecteert geen benchmarkdata meer bij restore. De regressietest is toegevoegd maar moet nog lokaal worden uitgevoerd; totdat die test en de volledige build/lint zijn uitgevoerd, geldt dit als geïmplementeerd in code maar nog niet software-getest.
+
+
+## 6. Voortgangsupdate — 16 november 2026
+
+De uitgebreide fase-0-audit is voortgezet vanaf de actuele `main`. De huidige codebasis staat op commit `5dbf3b4e8afcd67f5d879f2944c6f60eea71c55f` vóór de documentatie-/CI-update.
+
+Afgerond sinds de eerste hercontrole:
+- Verouderde afhankelijkheden van historische benchmarkconstanten zijn uit `test-core-logic.ts` en `test-forward-validation.ts` gehaald; tests gebruiken eigen synthetische fixtures.
+- De ongebruikte historische generator `scripts/generate-historical-data.ts` is verwijderd nadat geen caller of package-script was gevonden.
+- De eigenaar heeft `bun run lint` lokaal uitgevoerd; TypeScript typecheck slaagde zonder gerapporteerde fouten.
+
+Nu toegevoegd aan de Quality Gate:
+- Uitvoering van het reeds bestaande package-script `bun run test:clean-start-migration`, zodat de v4→v5 schone-startmigratie niet alleen als los testsbestand bestaat maar ook door CI wordt gecontroleerd.
+
+Nog niet afgerond:
+- GitHub Actions Quality Gate op deze wijzigingsset moet nog volledig draaien en de uitkomst moet worden beoordeeld.
+- `test-core-logic.ts` blijft een afzonderlijke lokale controle zolang live Open-Meteo-aanroepen niet zijn gemockt.
+- De complete blueprint → code → UI → test-matrix, de repositorybrede verwijzingsaudit en de backup-importregressies moeten nog worden afgetekend.
+- Fase 1 is nog niet gestart; softwarematige en praktijkvalidatie worden afzonderlijk bijgehouden.
+
+De eerdere paragrafen in dit document beschrijven besluiten en tussenstanden op hun oorspronkelijke datum. Bij statusverschillen geldt deze voortgangsupdate samen met de actuele code en de meest recente sectie van `FASE0_OPTIMIZATION_AUDIT.md`.

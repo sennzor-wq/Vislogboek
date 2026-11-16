@@ -6,7 +6,7 @@
 **Project:** Vislogboek  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Huidige technische basis bij opstellen:** React 19, TypeScript, Vite, PWA, Dexie 4 / IndexedDB, Open-Meteo  
-**Documentstatus:** leidende product- en technische projectcontext; historisch bijgewerkt tot en met 7 november 2026, met aanvullende optimalisatie-auditstatus van 15 november 2026.  
+**Documentstatus:** leidende product- en technische projectcontext; product- en architectuurbasis bijgewerkt tot en met 7 november 2026, met uitgebreide optimalisatie-audit en voortgangsupdate tot en met 16 november 2026.  
 **Belangrijk:** dit is een richtinggevend ontwerp en code-audit op hoofdlijnen, geen claim dat alle hieronder beschreven toekomstige functionaliteit al bestaat.
 
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Documenthiërarchie en actuele projectstatus — peildatum 7 november 2026
+## Documenthiërarchie en actuele projectstatus — peildatum 16 november 2026
 
 Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 
@@ -44,7 +44,7 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 | 32-puntenplan, fase 6 | **Afgerond op `main` op 7 november 2026** | De geïntegreerde VisCoach-cyclus voldoet aan de softwarematige acceptatiecriteria; Quality Gate #491 is volledig geslaagd. Praktijkvalidatie blijft onderdeel van de doorlopende persoonlijke nulmeting. |
 | Productfase 0 — persoonlijke nulmeting | Doorlopend | Echte sessies, vooraf opgeslagen prognoses en uitkomsten verzamelen; softwaretests zijn geen praktijkvalidatie. |
 | Technische auditfase 0 (datadictionary, 6 november) | Afgerond als read-only audit op commit `65f56c4` | Historische technische inventarisatie; niet de uitgebreide optimalisatie-audit van 15 november. |
-| Uitgebreide optimalisatie-auditfase 0 | **In uitvoering**; gestart op `4831fd6`, hercontrole tegen app-codebaseline `20f53dc` en main HEAD `18fe884` | De oorspronkelijke auditbaseline is niet meer actueel: 28 commits later zijn ook app-code en tests gewijzigd. De hercontrole en concrete bevindingen staan in `FASE0_OPTIMIZATION_AUDIT.md` §19. |
+| Uitgebreide optimalisatie-auditfase 0 | **In uitvoering**; hercontrole op `main` en vervolgvalidatie tot en met `5dbf3b4` (16 november) | De eerste hercontrole staat in `FASE0_OPTIMIZATION_AUDIT.md` §19; de vervolgstatus, code-/testwijzigingen en nog uit te voeren Quality Gate staan in §20. De blueprint → code → UI → test-matrix is nog niet compleet. |
 
 De technische baseline-audit is uitgevoerd op `main` commit `65f56c4a7408d874defa415212b74cd165f01147`; de bijbehorende Quality Gate run #42273675118 slaagde. De audit wijzigde geen applicatiecode en kon de lokale IndexedDB van een gebruikersapparaat niet uitlezen. Een geslaagde Quality Gate bewijst technische regressiecontrole, geen voorspellende nauwkeurigheid in echte vissessies.
 
@@ -735,3 +735,14 @@ Vislogboek moet een aantoonbaar lerend systeem worden: prognose vooraf vastlegge
 
 ### Startstatus
 Er zijn al bouwstenen in de repository: prognosis snapshots, sessie-uitkomstkoppeling, evaluationEngine, Brier/Brier Skill Score, forward-validation tests, historische sessieanalyse en watertemperatuurkalibratie. De directe terugkoppeling van Brier-evaluatie naar de vangstkans is niet aangetoond. De actuele codeketen en foutdiagnose moeten eerst opnieuw volledig worden geaudit. Zie issue #50 en het zelfstandige projectdocument.
+
+
+## Voortgang uitgebreide optimalisatie-audit — 16 november 2026
+
+De actuele `main`-commit is `5dbf3b4e8afcd67f5d879f2944c6f60eea71c55f`. In deze commit zijn verouderde historische benchmarkafhankelijkheden uit de evaluatietestfixtures verwijderd, zijn synthetische sessiekoppelingen toegevoegd en is de niet-aangeroepen historische datageneratorscript verwijderd. Er zijn geen historische vangstgegevens teruggezet.
+
+De eigenaar heeft op de lokale Mac `bun run lint` uitgevoerd; `tsc --noEmit` eindigde zonder TypeScript-fouten. Dit is uitsluitend bewijs voor de typecheck. De volledige testsuite en productiebuild zijn op deze commit nog niet als geslaagd aangetoond.
+
+De GitHub Quality Gate wordt aangevuld met de bestaande `test:clean-start-migration`-test. De test `test-core-logic.ts` is niet aan de CI toegevoegd zolang deze live Open-Meteo-aanroepen doet; de uitvoering daarvan blijft een afzonderlijke lokale netwerkafhankelijke controle. De eerstvolgende CI-run moet de forward-validationtests, de clean-startmigratietest en de overige bestaande Quality Gate-stappen beoordelen.
+
+**Status:** fase 0 blijft open. Geen fase 1 gestart en geen praktijkvalidatie geclaimd. Zie `FASE0_OPTIMIZATION_AUDIT.md` §20 voor de actuele teststatus en resterende acties.
