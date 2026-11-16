@@ -462,20 +462,38 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   },
   {
     id: 'roach-diel-diet-and-habitat-shifts-2002-2004',
-    topic: 'dagritme-voedselkeuze-en-habitat',
-    measuredOutcomes: ['diet_composition', 'habitat_use', 'locomotor_activity'],
+    topic: 'dagritme-voedselopname-dieet-en-habitat',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition', 'habitat_use'],
     species: ['Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Veldonderzoek naar blankvoorn beschreef verschuivingen in dieet en habitat tussen dag en nacht. Telemetrie in heldere en troebele ondiepe meren liet zien dat activiteit en ruimtelijke verdeling sterk met de helderheid en het meertype konden verschillen.',
+    summary: 'In een klein mesotroof meer van circa 12 ha verschoof blankvoorn overdag naar het littoraal en at daar vooral littorale prooien; ’s nachts bevonden de vissen zich in het pelagiaal en domineerden pelagische prooien zoals Daphnia en Chaoborus. De studie rapporteerde daarnaast seizoensverschuivingen in dieet en dagritme van voedingsintensiteit; op geselecteerde dagen werden maaglediging en dieetverandering over 24 uur kwantitatief gevolgd.',
     limitations: [
-      'De studies betreffen specifieke kleine meren; de waargenomen dag-/nachtpatronen zijn niet universeel.',
-      'Een verschuiving in dieet of habitat is niet automatisch een verandering in totale voedselopname of hengelvangbaarheid.',
-      'Leeftijd, predatiedruk, helderheid, voedseltype en seizoen kunnen het patroon veranderen.'
+      'De studie betreft één klein mesotroof meer en een specifieke prooigemeenschap; dit is geen universeel patroon voor alle Nederlandse wateren.',
+      'Een dag-nachtverschuiving in habitat en dieet is niet automatisch een hogere totale voedselopname in één dagdeel of een hogere hengelvangbaarheid.',
+      'De relatieve voedingsintensiteit en het belang van prooitypen verschilden per seizoen; de abstract geeft geen universeel kloktijdoptimum.'
     ],
     sourceReferences: [
-      'Haertel, S.S. & Eckmann, R. (2002). Diel diet shift of roach and its implications for the estimation of daily rations. Journal of Fish Biology, 60, 876–892. https://doi.org/10.1111/j.1095-8649.2002.tb02415.x',
-      'Jacobsen, L., Berg, S., Jepsen, N. & Skov, C. (2004). Does roach behaviour differ between shallow lakes of different environmental state? Journal of Fish Biology, 65, 135–147. https://doi.org/10.1111/j.0022-1112.2004.00436.x'
+      'Haertel, S.S. & Eckmann, R. (2002). Diel diet shift of roach and its implications for the estimation of daily rations. Journal of Fish Biology, 60, 876–892. https://doi.org/10.1111/j.1095-8649.2002.tb02415.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-diel-movement-clear-turbid-lakes-2004',
+    topic: 'dagritme-beweging-en-habitatgebruik',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Radio-telemetrie volgde blankvoorns van 12–25 cm in twee ondiepe meren (helder en troebel) tijdens meerdere 48-uurs meetperioden. In beide meren was de bewegingsactiviteit doorgaans het hoogst rond dageraad en schemering en het laagst in de nacht. De middagactiviteit en ruimtelijke verdeling verschilden echter sterk met de helderheid: in het heldere meer bleven vissen overdag passief tussen waterplanten en verplaatsten zij zich ’s nachts naar het centrale meer; in het troebele meer was de verdeling overdag ruimer en lagen vissen ’s nachts dichter bij de oever.',
+    limitations: [
+      'De studie vergelijkt twee specifieke ondiepe meren en meerdere 48-uurs meetperioden; de patronen zijn niet universeel.',
+      'De gemeten respons is radio-telemetrische beweging en habitatverdeling, geen directe voedselopname of vangstkans.',
+      'Waterhelderheid en vermoedelijke predatiedruk beïnvloedden het gedrag; seizoen en lokale habitat begrenzen de overdraagbaarheid.'
+    ],
+    sourceReferences: [
+      'Jacobsen, L., Berg, S., Jepsen, N. & Skov, C. (2004). Does roach behaviour differ between shallow lakes of different environmental state? Journal of Fish Biology, 65(1), 135–147. https://doi.org/10.1111/j.0022-1112.2004.00436.x'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
@@ -662,14 +680,14 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Brasem', 'Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'In-situ maaginhoud- en consumptieonderzoek in het meso-eutrofe Rimov-stuwmeer vond bij subadulte en volwassen brasem en blankvoorn een overwegend daggebonden voedingsritme met duidelijk lagere maagvulling in de nacht. De grootteklassen en maand waarin verschillen zichtbaar waren, verschilden per soort.',
+    summary: 'In-situ maaginhoud- en consumptieonderzoek in het meso-eutrofe Římov-stuwmeer (Tsjechië) vond bij subadulte en volwassen brasem en blankvoorn die vrijwel uitsluitend op microcrustaceeën foerageerden een overwegend daggebonden voedingsritme met duidelijke nachtelijke daling van maagvulling. De dag-nachtverschillen werden bij blankvoorn van 200–270 mm en brasem van 220–330 mm in mei gezien; in augustus ook bij kleinere lengteklassen van circa 110–170 mm.',
     limitations: [
-      'De studie onderzocht vooral foerageren op microcrustaceeën in één stuwmeer; dit is niet hetzelfde als alle voedselbronnen of aasopname door hengelvis.',
-      'De patronen waren afhankelijk van lengteklasse en maand.',
-      'De bevinding ondersteunt soort- en contextspecifieke dagritmehypothesen, maar geen universele activiteitsscore.'
+      'De studie onderzocht vooral foerageren op microcrustaceeën in één meso-eutroof stuwmeer; dit is niet hetzelfde als alle voedselbronnen of aasopname door hengelvis.',
+      'De patronen waren afhankelijk van lengteklasse en maand; de gerapporteerde lengteklassen zijn geen directe leeftijdsindeling.',
+      'De bevinding ondersteunt soort- en contextspecifieke dagritmehypothesen, maar geen universele activiteitsscore of vaste dagbonus.'
     ],
     sourceReferences: [
-      'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214. Bibliographic record: https://nas.er.usgs.gov/queries/references/ReferenceViewer.aspx?refnum=35171'
+      'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214. Author publication list: https://www.hbu.cas.cz/publikace/strana-7/?employeeId=651; bibliographic record: https://nas.er.usgs.gov/queries/references/ReferenceViewer.aspx?refnum=35171'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
@@ -932,10 +950,10 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Maaginhoudonderzoek bij volwassen blankvoorn in het Franse Lac Aydat vond leeftijdsafhankelijke voedingsperioden: twee- en driejarige vissen aten vooral vanaf de middag tot de schemering, terwijl oudere vissen zowel overdag als ’s nachts voedselfractie innamen.',
+    summary: 'Maaginhoudonderzoek bemonsterde 253 blankvoorns van 98–240 mm met intervallen van vier uur op 20–21 juli 1988 in het Franse Lac Aydat. Twee- en driejarige vissen voedden vooral vanaf 14:00 tot de schemering en selecteerden Cladocera; oudere vissen aten zowel overdag als ’s nachts met variabele intensiteit en periodiciteit en hadden een gemengder dieet.',
     limitations: [
       'De studie bemonsterde één meer gedurende twee zomerdagen; dit is beperkte temporele en geografische dekking.',
-      'Leeftijdsgroepen verschilden ook in dieet; jongere vissen aten vooral zoöplankton en oudere vissen een gemengd dieet.',
+      'Leeftijdsgroepen verschilden in zowel timing als dieet; jongere vissen aten vooral zoöplankton en oudere vissen macrophyten, sediment en chironomiden.',
       'De aanwezigheid van baars in het bemonsteringsgebied werd als mogelijke contextfactor besproken.',
       'De app kent de leeftijd en het actuele dieet van de lokale blankvoorn meestal niet; geen vaste schemerbonus toepassen.'
     ],

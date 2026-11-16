@@ -345,3 +345,13 @@ Chen et al. (2012) rapporteerden bij de ondersoort `Cyprinus carpio haematopteru
 ## 35. Meerval: gecontroleerd voedingsritme naast gescheiden veldresponsen
 
 Boujard (1995) levert direct bewijs voor nachtelijke voedselopname in een gecontroleerde zelfvoeropstelling, maar de beschikbare abstract specificeert de levensfase niet en laat zien dat individuele versus groepshuisvesting het ritme beïnvloedt. De vroege juveniele veldstudie meet nachtelijke pelagische voedselopname. Twee volwassen veldtelemetriebronnen (Slavík & Horký, 2012; Santos et al., 2025) meten EMG-/accelerometeractiviteit en diepte, niet rechtstreeks voedselopname. Deze responsen blijven afzonderlijk in de registry en in VisCoach. Volwassen telemetrie mag niet als voedingsritme worden gelezen en de gecontroleerde voerautomaatstudie mag niet als veldvangstbewijs worden gepresenteerd. Alle records blijven niet-goedgekeurd voor numerieke voorspelling.
+
+
+## 36. Blankvoorn: drie aparte tijdresponsen
+
+De blankvoornliteratuur bevat drie verschillende responsen die niet tot één dagdeelbonus mogen worden samengevoegd:
+1. Haertel & Eckmann (2002): dieet, habitat en seizoensafhankelijke voedingsintensiteit in een klein mesotroof meer; overdag littoraal/littorale prooi en ’s nachts pelagisch/pelagische prooi.
+2. Jacobsen et al. (2004): radio-telemetrische beweging en habitatverdeling in twee ondiepe meren; dageraad-/schemeractiviteit, nachtminimum en een sterk helderheidsafhankelijk ruimtelijk patroon. Geen directe voedingsmeting.
+3. Jamet et al. (1990): maaginhoud bij 253 vissen; 2–3-jarige blankvoorn voedde vooral vanaf 14:00 tot schemering, oudere vissen zowel dag als nacht.
+
+De gezamenlijke broncontext ondersteunt dat levensfase, voedseltype, helderheid, predatiedruk en habitat het tijdgedrag beïnvloeden. Het model mag zonder betrouwbare levensfase- en lokale context geen vaste middag-, schemer- of nachtvoorkeur toekennen. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling.
