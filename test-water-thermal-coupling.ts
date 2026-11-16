@@ -463,7 +463,9 @@ async function runTestSuite() {
 
   const coldThermalResponse = calculateThermalEfficiency(2, SPECIES_PROFILES['Karper']);
   assert(
-    !/dwingt|spaarstand|foerageerdrang is sterk geremd|winterrust/i.test(coldThermalResponse.description),
+    coldThermalResponse.description.includes('geen gevalideerde fysiologische tolerantiegrens') &&
+      coldThermalResponse.description.includes('geen winterrust') &&
+      !/dwingt|spaarstand|foerageerdrang is sterk geremd|winterrust wordt/i.test(coldThermalResponse.description),
     '5.4 Lage temperatuur wordt niet als bewezen winterrust of stop van voedselopname gepresenteerd'
   );
 
