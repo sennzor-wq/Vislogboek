@@ -443,7 +443,8 @@ async function runTestSuite() {
 
   assert(
     (progColdSnap.uncertaintyNotes ?? []).some(
-      (n) => n.includes('Watertemperatuur is niet gemeten') && n.includes('niet automatisch in winterrust door een tijdelijke daling van de luchttemperatuur')
+      (n) => n.includes('thermische component gebruikt een geschatte watertemperatuur') &&
+        n.includes('geen directe meting of voorspelling van activiteit, foerageren of winterrust')
     ),
     '5.1 Onzekerheidsnotitie vermeldt expliciet dat karper niet automatisch in winterrust raakt door koude lucht'
   );
@@ -479,7 +480,8 @@ async function runTestSuite() {
   const coldSlotConclusion = progRealWinter.timeSlots['Middag'].conclusion;
   assert(
     coldSlotConclusion.includes('Lage thermische activiteitspotentie') &&
-      !/inactieve winterstand|winterrust/i.test(coldSlotConclusion),
+      coldSlotConclusion.includes('Dit stelt geen winterrust of volledige inactiviteit vast') &&
+      !/dwingt .* winterstand/i.test(coldSlotConclusion),
     '5.6 Lage thermische score wordt niet als bewezen winterrust of volledige inactiviteit gepresenteerd'
   );
 
