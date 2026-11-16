@@ -524,6 +524,12 @@ export interface PrognosisInputContext {
     'id' | 'locationId' | 'sessionId' | 'observationType' | 'timestamp'
   >>;
   historyFeatureSchemaVersion?: 1;
+  /** Exacte lokale biascorrectie die bij deze prognoserun is gebruikt. */
+  waterTemperatureCalibration?: {
+    appliedCorrectionC: number;
+    sampleCount: number;
+    season: 'winter' | 'lente' | 'zomer' | 'herfst';
+  } | null;
   presenceObservation?: string | null;
   historicalWaterTemperatureSamples: Array<{
     locationId: string;
