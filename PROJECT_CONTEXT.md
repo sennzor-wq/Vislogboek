@@ -1084,3 +1084,19 @@ De featurelijsten zijn deterministisch op record-ID gesorteerd. Benchmarkrecords
 Regressies controleren dat modelrelevante sessiewijzigingen (zoals aasrichting/voorvoerstatus) de fingerprint wijzigen en dat vrije notities/foto-inhoud buiten de feature-snapshot blijven. De VisCoach-integratietest controleert dat de werkelijk opgeslagen snapshot de whitelisted sessiekenmerken bevat.
 
 **Beperking:** de gebruikte historische data-input is nu veel beter te reproduceren, maar de uitvoerbare modelcode zelf wordt niet gearchiveerd. Bij betekenisvolle wijzigingen aan logica of soortparameters moeten `modelVersion`/`engineVersions` worden verhoogd. De volledige Quality Gate voor deze featurebranch is groen: [run #43930702270](https://github.com/sennzor-wq/Vislogboek/actions/runs/43930702270), inclusief typecheck, regressietests, backup/restore en productiebuild.
+
+## Fase 2 — uitbreiding soortspecifiek voedingsbewijs (16 november 2026)
+
+Het centrale researchregister en de evidence matrix zijn uitgebreid met directe voedings-/dieetbronnen voor de negen concrete soorten:
+- Karper: daggebonden graasgedrag en invloed van voedselaanbod in gesimuleerde vijvercondities.
+- Brasem en Voorn: in-situ dagritme van zoöplanktonconsumptie; voor Voorn ook een herfstverschuiving van dag naar schemer/nacht.
+- Snoek: veld-maaginhoud en seizoensdieet; seizoens- en temperatuurrelaties waren niet statistisch significant.
+- Baars: veldmetingen van dagritme en seizoens-/lengteafhankelijke prooikeuze.
+- Zeelt: directe veldmetingen van voedingsintensiteit met avond- en nachtelijke pieken in één klein eutroof water.
+- Snoekbaars: gecontroleerde winter-/voorjaarsvoedingsrespons op temperatuur en levensfasegebonden dieetbewijs uit twee reservoirs.
+- Meerval: directe veld-maaginhoud, seizoensvariatie en lengte-/leeftijdsafhankelijke prooikeuze.
+- Roofblei: maaginhoud/stabiele isotopen tonen een levensfasegebonden verschuiving naar piscivorie.
+
+Alle nieuwe registraties blijven `approvedForPrediction: false`. De bronopzetten verschillen sterk (veld, tank/kweek, maaginhoud, dieet of prooikeuze), en geografische overdraagbaarheid en levensfase zijn belangrijke beperkingen. De matrix maakt expliciet dat dieet geen dagritme bewijst, telemetrie geen voedselopname bewijst en groei geen acute voedingsactiviteit bewijst.
+
+**Volgende stap:** een kwalitatieve, soortspecifieke voedingscontext ontwerpen met bronverwijzingen, meettype en onzekerheid. Geen numerieke factor, tijdvakbonus of temperatuurvermenigvuldiger activeren zonder voldoende direct en overdraagbaar bewijs plus lokale validatie.
