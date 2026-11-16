@@ -1246,3 +1246,12 @@ Audit §29 onderscheidt de thermische activiteitsscore van de aparte habitat-, o
 ## PDF-referentie watertemperatuur — audit 16 november 2026
 
 Audit §30 vergelijkt de PDF-relaxatieformule met `waterThermalEngine`. De bestaande engine heeft al meetankers, historische profielen, instraling en onzekerheidsmetadata. De PDF introduceert een continue diepte-/windtijdconstante, maar de dynamische formule en vuistregel spreken elkaar tegen bij windstilte; ook vereisen windeenheden en tijdstap conversie. Eerst experimenteel backtesten op onafhankelijke lokale meetreeksen; geen directe formulevervanging en geen code gewijzigd.
+
+
+### Levensfase als interne nuance, niet als verplichte intake
+
+De gebruiker hoeft bij het maken van een eerste VisCoach-plan geen leeftijd of levensfase van de doelvis te kiezen. Dit zou extra handelingen en een schijnprecisie opleveren: een visser kan de leeftijdsopbouw van de lokale populatie meestal niet betrouwbaar vaststellen. De biologische laag mag levensfase alleen gebruiken wanneer deze uit een betrouwbare bron of expliciete, voldoende zekere context bekend is. Als die informatie ontbreekt, blijft het soortbrede profiel van toepassing en wordt de onzekerheid verhoogd; de app leidt levensfase niet automatisch af uit één gevangen vis of alleen de lengte. Een optionele levensfase-invoer is pas gerechtvaardigd als de gebruiker die betrouwbaar kan weten en het aantoonbaar een relevant adviesverschil oplevert.
+
+### Gekozen tijdvak stuurt de coachtekst
+
+De coachtekst moet het door de gebruiker gekozen tijdvak volgen. Bij één herleidbaar tijdvak gebruikt de tekst de conclusie van dat tijdvak. Wanneer de gekozen sessie meerdere tijdvakken bestrijkt, presenteert VisCoach niet automatisch het beste tijdvak van de hele dag als aanbeveling. Een alternatief tijdvak mag alleen worden voorgesteld wanneer de vergelijking binnen dezelfde stek, doelsoort en vergelijkbare inspanning een betekenisvol en onderbouwd verschil laat zien.

@@ -281,3 +281,10 @@ De tijdvakcontext gebruikt nu een schatting van civiele dageraad en civiele sche
 Het onderzoeksregister onderscheidt directe voedselopname/-ritmiek van locomotorische activiteit en habitatgebruik. De recente bronnen laten zien waarom dit nodig is: blankvoorn/brasem kunnen afhankelijk van levensfase, dieet en pelagisch/littoraal habitat een dag- of nachtpatroon laten zien; baars heeft een directe herfstwaarneming met oplopende maaginhoud richting schemering; vroege juveniele meerval foerageert ’s nachts, maar dat mag niet naar volwassen exemplaren worden geëxtrapoleerd. Voor snoek en roofblei is beweging niet automatisch jacht- of voedingsintensiteit.
 
 Tijdvakmodellering blijft uitgeschakeld totdat het bewijs voldoende overdraagbaar en toetsbaar is. Elke toekomstige voorkeur moet gekoppeld zijn aan de daadwerkelijk gemeten respons, soort, levensfase, seizoen, habitat, lichtconditie en relevante onzekerheid. Tegenstrijdige studies blijven zichtbaar en worden niet gemiddeld tot een schijnbaar universele soortvoorkeur.
+
+
+## 26. VisCoach-tijdvenster en levensfase
+
+De gekozen starttijd is onderdeel van de primaire VisCoach-invoer. De adviesvertaling mag daarom niet zonder meer de globale bestTimeSlot van de dagprognose herhalen. Voor één gekozen tijdvak wordt de bijbehorende TimeSlotAnalysis.conclusion gebruikt. Een sessie die meerdere tijdvakken omvat, krijgt geen kunstmatige enkele winnaar; de globale dagvoorkeur blijft hooguit als afzonderlijke dagcontext zichtbaar. Dit verandert geen biologische score of rangschikking.
+
+Levensfase wordt niet als verplicht gebruikersveld toegevoegd. De modelarchitectuur gebruikt levensfase alleen wanneer die betrouwbaar bekend is en de betreffende bron daadwerkelijk een levensfase-effect op de gemeten respons ondersteunt. Zonder die informatie blijft de soortbrede prior gelden met passende onzekerheid. Geen levensfase afleiden uit lengte zonder soortspecifieke, gevalideerde relatie.

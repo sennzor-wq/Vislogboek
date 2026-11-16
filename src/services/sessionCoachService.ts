@@ -8,6 +8,7 @@ import {
   FishingSession,
   PrognosisSnapshot,
   PrognosisInputContext,
+  TimeSlot,
 } from '../types';
 import { calculateDayPrognosis, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
@@ -224,7 +225,8 @@ function explainCoachLimitation(note: string): string | null {
 export function buildVisCoachAdviceText(
   prognosis: DayPrognosis,
   weather?: import('../types').WeatherSnapshot | null,
-  technique?: string | null
+  technique?: string | null,
+  selectedTimeSlot?: TimeSlot | null
 ): VisCoachAdviceText {
   const positioning = prognosis.positioningAdvice;
   const habitat = prognosis.habitatAnalysis;
@@ -232,11 +234,18 @@ export function buildVisCoachAdviceText(
   const thermal = prognosis.thermalAnalysis;
   const sections: string[] = [];
 
-  const when = prognosis.bestTimeSlot &&
-    prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
-    prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
-      ? `Volgens de prognose is ${prognosis.bestTimeSlot.toLowerCase()} het gunstigste tijdvak. Dat betekent niet dat je op andere momenten geen vis kunt vangen.`
-      : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
+  const selectedSlotAnalysis = selectedTimeSlot ? prognosis.timeSlots?.[selectedTimeSlot] : null;
+  const when = selectedTimeSlot
+    ? selectedSlotAnalysis?.conclusion
+      ? `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak geldt: ${selectedSlotAnalysis.conclusion}`
+      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het beste tijdvak van de hele dag.`
+    : selectedTimeSlot === null
+      ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het beste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
+      : prognosis.bestTimeSlot &&
+        prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
+        prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
+          ? `Volgens de prognose is ${prognosis.bestTimeSlot.toLowerCase()} het gunstigste tijdvak. Dat betekent niet dat je op andere momenten geen vis kunt vangen.`
+          : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
   sections.push(`Wanneer\n${when}`);
 
