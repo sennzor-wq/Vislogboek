@@ -91,7 +91,7 @@ export function analyzeWaterThermalDevelopment(
   // Alleen een expliciet bij deze prognoserun ingevoerde meting is actueel.
   // Sessiemetingen blijven historische ankers, ook wanneer ze pas kort geleden
   // zijn geregistreerd; bij herbeoordeling worden ze dus geëxtrapoleerd/geschat.
-  const isActualSituation = Boolean(anchor && anchor.source === 'current' && targetIsCurrentDate);
+  const isActualSituation = Boolean(anchor && anchor.source === 'current' && (!currentDateRef || targetIsCurrentDate));
   const hasMeasured = isActualSituation;
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
