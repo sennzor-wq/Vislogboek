@@ -430,6 +430,169 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
+
+  {
+    id: 'common-carp-diel-grazing-food-type-2009',
+    topic: 'dagritme-foerageren-en-voedseltype',
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een gecontroleerde studie onder gesimuleerde vijvercondities vond bij gewone karper meer graastijd overdag dan in de nacht. De verticale foerageerpositie veranderde met het beschikbare voedseltype: plankton in de waterkolom versus meer bodemgericht gedrag bij benthische ongewervelden.',
+    limitations: [
+      'De studie gebruikte kleine tanks met drie karpers per tank en is geen veldonderzoek in natuurlijke Nederlandse wateren.',
+      'Voedselbeschikbaarheid en kunstvoer beïnvloedden het waargenomen gedrag; het patroon kan niet los van het voedselaanbod worden geïnterpreteerd.',
+      'Dit ondersteunt een hypothese over dagritme en voedseltype, geen numerieke tijdvakbonus of directe vangstkans.'
+    ],
+    sourceReferences: [
+      'Rahman, M.M. & Meyer, C.G. (2009). Effects of food type on diel behaviours of common carp Cyprinus carpio in simulated aquaculture pond conditions. Journal of Fish Biology, 74(10), 2269–2278. https://doi.org/10.1111/j.1095-8649.2009.02236.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'tench-field-diel-seasonal-feeding-2018',
+    topic: 'dagritme-seizoen-en-voedselopname',
+    species: ['Zeelt'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Maandelijkse maaginhoudanalyses van 90 zeelten uit één klein eutroof water in Perm beschreven directe dag- en seizoensvariatie in voedselopname. De hoogste voedingsintensiteit werd gemeten tussen 18:00–21:00 en 00:00–03:00; de voedselkeuze verschilde bovendien tussen leeftijdsgroepen.',
+    limitations: [
+      'Het onderzoek betrof één klein, begroeid water en de vegetatieperiode van één jaar; de uitkomst is niet universeel voor Nederlandse wateren.',
+      'Leeftijdsgroepen verschilden in dieet, terwijl de app de leeftijd van de lokale zeeltpopulatie niet kent.',
+      'De gemeten tijdvakken mogen niet zonder lokale validatie als harde scorebonus worden gebruikt.'
+    ],
+    sourceReferences: [
+      'Bezmaternykh, V.V. & Shcherbina, G.K. (2018). Feeding of Tench Tinca tinca (Cyprinidae) in a Small Eutrophic Water Body. Journal of Ichthyology, 58(4), 545–551. https://doi.org/10.1134/S003294521804001X'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'perch-field-diel-feeding-seasonal-diet-1986',
+    topic: 'dagritme-seizoensdieet-en-prooikeuze',
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Veldonderzoek naar baars in een klein humusrijk Fins meer beschreef seizoensverschillen in dieet en directe voedingsactiviteit. De activiteit verschoof van duidelijke ochtend- en avondpieken in mei/juni naar een middagpiek in juli/augustus; prooikeuze verschilde ook met de lengteklasse.',
+    limitations: [
+      'De studie betreft één klein, sterk humusrijk en zuurstofgestratificeerd meer in Zuid-Finland en één zomerperiode.',
+      'De sterke grootte- en voedselbeschikbaarheidsafhankelijkheid kan niet worden vertaald naar één vast ritme voor alle baarspopulaties.',
+      'De studie meet voedingsactiviteit in een specifieke ecologische context, niet hengelvangbaarheid.'
+    ],
+    sourceReferences: [
+      'Rask, M. (1986). The diet and diel feeding activity of perch, Perca fluviatilis L., in a small lake in southern Finland. Annales Zoologici Fennici, 23, 49–56. https://www.annzool.net/PDF/anzf23/anz23-049-056.pdf'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-autumnal-diel-feeding-shift-2008',
+    topic: 'seizoensafhankelijk-dag-nachtritme',
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Veldonderzoek in de litoraalzone van een groot boreaal meer vond bij blankvoorn in de herfst een verschuiving van dagvoeding naar schemering toen de watertemperatuur daalde van circa 20 naar 10 °C. Bij circa 5 °C bleef in de late herfst een laag maar stabiel niveau van nachtelijke voedingsactiviteit bestaan.',
+    limitations: [
+      'Het onderzoek vond plaats in een boreaal meer en een ondiepe, verlichte oeverzone; predatierisico, lichtregime en habitat kunnen het patroon verklaren.',
+      'De relatie tussen temperatuur, licht en predatierisico is contextueel; temperatuur alleen is geen bewezen oorzaak.',
+      'De waarneming rechtvaardigt geen vaste Nederlandse tijdvakbonus.'
+    ],
+    sourceReferences: [
+      'Hautala, A. (2008). Autumnal shift from diurnal to nocturnal peaking feeding activity of Rutilus rutilus in boreal lake littoral zones. Journal of Fish Biology, 73(6), 1407–1418. https://doi.org/10.1111/j.1095-8649.2008.02020.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'bream-roach-in-situ-diel-zooplankton-feeding-2004',
+    topic: 'dagritme-foerageren-op-zooplankton',
+    species: ['Brasem', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'In-situ maaginhoud- en consumptieonderzoek in het meso-eutrofe Rimov-stuwmeer vond bij subadulte en volwassen brasem en blankvoorn een overwegend daggebonden voedingsritme met duidelijk lagere maagvulling in de nacht. De grootteklassen en maand waarin verschillen zichtbaar waren, verschilden per soort.',
+    limitations: [
+      'De studie onderzocht vooral foerageren op microcrustaceeën in één stuwmeer; dit is niet hetzelfde als alle voedselbronnen of aasopname door hengelvis.',
+      'De patronen waren afhankelijk van lengteklasse en maand.',
+      'De bevinding ondersteunt soort- en contextspecifieke dagritmehypothesen, maar geen universele activiteitsscore.'
+    ],
+    sourceReferences: [
+      'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214. Bibliographic record: https://nas.er.usgs.gov/queries/references/ReferenceViewer.aspx?refnum=35171'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-field-seasonal-feeding-diet-2025',
+    topic: 'seizoensdieet-en-voedingsintensiteit',
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Maandelijkse maaginhoudanalyse van 133 snoeken uit een diep Anatolisch stuwmeer vond een overwegend visetend dieet, vooral zeelt en Atherina. De gemiddelde maagvullingsindex was numeriek hoger in de zomer en lager in de winter, maar de seizoensverschillen waren niet statistisch significant; de gemeten temperatuurcorrelatie was eveneens niet significant.',
+    limitations: [
+      'De studie betreft één diep stuwmeer in Centraal-Anatolië en een specifieke prooivisgemeenschap; dit verschilt van veel Nederlandse wateren.',
+      'De seizoensverschillen in maagvulling waren niet statistisch significant en mogen niet als bewezen seizoensbonus worden geïnterpreteerd.',
+      'Maaginhoud is een momentopname van voedselopname, geen directe maat voor jachtactiviteit of hengelvangbaarheid.'
+    ],
+    sourceReferences: [
+      'Yazıcıoğlu, O., Yazıcı, R., Yağcı, A. & Yılmaz, M. (2025). Diet and feeding strategy of northern pike (Esox lucius L., 1758) inhabiting a deep dam lake in Central Anatolia, Türkiye. Folia Biologica (Kraków), 73, 92–103. https://doi.org/10.3409/fb_73-3.10'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-winter-spring-feeding-temperature-2020',
+    topic: 'temperatuur-en-piscivore-voedselopname',
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een gecontroleerde studie met gekweekte snoekbaarsbroedvis onderzocht voedselopname bij 4,5, 8,5 en 12,5 °C. De consumptie van prooivis nam significant toe van 4,5 naar 8,5 °C en was het hoogst bij 12,5 °C; vrouwtjes aten meer en reageerden sneller dan mannetjes.',
+    limitations: [
+      'Het betrof gekweekte broedvis tijdens de winter-/voorpaaiperiode en geen vrijlevende populatie in een Nederlands meer of kanaal.',
+      'Sekse, prooigrootte, acclimatisatie en reproductiestatus beïnvloedden de respons.',
+      'De resultaten zijn biologische context, geen overdraagbare veldcurve of numerieke hengelprognose.'
+    ],
+    sourceReferences: [
+      'Malinovskyi, O., Blecha, M., Křišťan, J. & Policar, T. (2020). Feeding activity of pikeperch (Sander lucioperca) under winter and spring photothermal conditions of pre-spawning period. Aquaculture Research, 51(2), 852–857. https://doi.org/10.1111/are.14401'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018',
+    topic: 'levensfase-en-prooikeuze',
+    species: ['Roofblei', 'Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Maaginhoud- en stabiele-isotopenonderzoek in twee stuwmeren vond duidelijke levensfasegebonden dieetverschuivingen bij roofblei en snoekbaars. Kleine roofblei (<100 mm) aten vooral terrestrische en uitgekomen aquatische insecten; grotere exemplaren waren overwegend visetend. Grotere roofblei aten relatief meer cypriniden, terwijl grotere snoekbaars meer perciden consumeerde.',
+    limitations: [
+      'De studie betreft twee specifieke reservoirs; de prooigemeenschap en voedselbeschikbaarheid bepalen mede de waargenomen verschillen.',
+      'De lengteklassen zijn geen directe leeftijdsindeling en de app kent de levensfase van de lokale populatie meestal niet.',
+      'Dieet en prooikeuze zijn niet hetzelfde als dagelijkse voedingsintensiteit of vangstkans.'
+    ],
+    sourceReferences: [
+      'Vašek, M., Eloranta, A.P., Vejříková, I. et al. (2018). Stable isotopes and gut contents indicate differential resource use by coexisting asp (Leuciscus aspius) and pikeperch (Sander lucioperca). Ecology of Freshwater Fish, 27, 1054–1065. https://doi.org/10.1111/eff.12414'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'wels-catfish-seasonal-diet-feeding-2025',
+    topic: 'seizoensdieet-en-maagvulling',
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Maaginhoudonderzoek van 200 Europese meervallen uit een diep Anatolisch stuwmeer vond een breed dieet, met vis als belangrijk aandeel en zeelt als dominante prooi. De maagvullingsindex verschilde tussen seizoenen en was het hoogst in de winter en het laagst in de herfst; ook lengte en leeftijd hingen samen met dieet en maagvulling.',
+    limitations: [
+      'De studie betreft één diep stuwmeer in Centraal-Anatolië; de lokale prooigemeenschap verschilt van Nederlandse wateren.',
+      'De auteurs bespreken mogelijke effecten van voortplanting, temperatuur, vertering en daglengte; de seizoensuitkomst is niet zonder meer causaal.',
+      'Maagvulling is geen directe maat voor vangbaarheid en mag niet als vaste winterbonus worden gebruikt.'
+    ],
+    sourceReferences: [
+      'Exploring Prey Selectivity and Feeding Habits of Wels Catfish (Silurus glanis L., 1758) in a Deep Anatolian Reservoir: Seasonal, Length, and Age-Dependent Diet Analysis (2025). Animal Nutrition and Feed Technology / open-access journal record. https://doi.org/10.1155/anu/4619857'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
 ];
 
 /**
