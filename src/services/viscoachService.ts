@@ -238,6 +238,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     snapshots,
     locations
   );
+  const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, input.location.id, date);
   const now = new Date();
   const prognosis = calculateDayPrognosis(
     date,
@@ -254,7 +255,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
       location: input.location,
       catches: input.catches,
       historicalWaterTemperatures,
-      waterTemperatureCalibration: getWaterTemperatureCalibration(snapshots, input.location.id, date),
+      waterTemperatureCalibration,
       prebaitOptions: {
         sessionDurationHours: durationHours ?? undefined,
         planningDate: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now),
@@ -293,6 +294,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     sessionDurationHours: durationHours,
     technique: null,
     manualWaterTemperatureInput: null, // VisCoach vraagt geen actuele handmatige watertemperatuur; niet afleiden.
+    waterTemperatureCalibration,
     location: {
       id: input.location.id,
       latitude: input.location.latitude,
