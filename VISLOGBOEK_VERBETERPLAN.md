@@ -464,3 +464,8 @@ De fase-1-acceptatie is gebaseerd op:
 - GitHub Actions Quality Gate-run [#43886994227](https://github.com/sennzor-wq/Vislogboek/actions/runs/43886994227) slaagde op de backup/restore-werkstroomcommit. De latere beperkte opschoning is apart vastgelegd; de app-level praktijktest is door de eigenaar bevestigd.
 
 **Fase 2 is gestart.** De eerste stap is een read-only inventarisatie van de huidige prognose-engine en alle relevante soortprofielen, factoren, brondata, onzekerheidsbehandeling en chronologische evaluatie. Bestaande engines worden hergebruikt; er worden nog geen arbitraire gewichten of concurrerende engine toegevoegd.
+
+
+### Fase 2 — eerste code-audit (16 november 2026)
+
+De eerste read-only inspectie is vastgelegd in [FASE2_PROGNOSE_AUDIT.md](FASE2_PROGNOSE_AUDIT.md). Bevestigd: de huidige activiteitsindex wordt uitsluitend numeriek gestuurd door de soortspecifieke thermische respons; wind, luchtdruk, seizoen, tijdstip/licht, bewolking en neerslag zijn uitlegbare context zonder scorebijdrage. De bestaande habitatbewegingsengine gebruikt deze context juist voor ruimtelijke/habitatinschatting. De soortprofielen bevatten voorlopige parameters en heuristische velden; hun bronnen bewijzen niet automatisch de numerieke modelwaarden. Volgende stap is de volledige factor → code → UI → data → testmatrix en controle van de scoreketen wanneer watertemperatuur ontbreekt. Er zijn nog geen modelwijzigingen uitgevoerd.
