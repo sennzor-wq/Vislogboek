@@ -63,7 +63,7 @@ export function getSpeciesFeedingEvidenceContext(
     new Map(
       feedingEvidence
         .filter(isApprovedPredictionKnowledge)
-        .map((entry) => [entry.id, entry])
+        .map((entry) => [entry.id, entry] as const)
     ).values()
   );
 
