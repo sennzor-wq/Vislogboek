@@ -1200,3 +1200,8 @@ Het register bevat nu directe dagritmebronnen voor jonge snoek (dagactieve jacht
 ### Fase 2 — dagdeelprofielen afgestemd op literatuur en onzekerheid (16 november 2026)
 
 Kwalitatieve tijdvakvoorkeuren zijn gecorrigeerd waar ze botsten met gemeten voedingsritmes: geen algemene nachtvoorkeur voor karper, geen generieke nacht-/schemerpiek voor brasem, avond/nachtcontext voor zeelt, expliciete seizoensverschuivingen voor blankvoorn en baars, en geen verzonnen dagritme voor het algemene fallbackprofiel. De prognose-score en tijdvakrangschikking zijn ongewijzigd; regressietests bewaken de profielwaarden en de neutrale uitleg bij 'Algemeen'.
+
+
+### Fase 2 — gescheiden dagritme-evidence service (16 november 2026)
+
+Een pure `dielBehaviorEvidenceService` groepeert per soort direct voedingsritme, locomotorische activiteit en habitatgebruik als afzonderlijke bewijsstromen. Alleen soortgekoppelde bronnen worden meegenomen; goedgekeurde kennis blijft apart en alle huidige records blijven niet-goedgekeurd. De service berekent geen scores en leidt geen voedingsritme af uit telemetrie. Regressietests bewaken onder meer dat roofblei voorlopig alleen bewegingsbewijs heeft en dat `Overig` geen soortspecifiek dagritme erft.

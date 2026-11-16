@@ -259,3 +259,8 @@ Nieuwe directe bronnen laten zien dat jonge snoek overdag jaagt en in de plankti
 ## 22. Soortspecifieke dagdeelprofielen zijn kwalitatieve hypothesen
 
 De canonieke dagdeelvoorkeuren zijn herzien op basis van direct voedingsbewijs waar beschikbaar. Karper krijgt geen algemene nachtvoorkeur; brasem is in de beschikbare in-situ studie vooral daggebonden; zeelt heeft beperkte maar directe avond-/nachtpieken; blankvoorn en baars vertonen seizoensafhankelijke verschuivingen. Het generieke fallbackprofiel bevat geen eigen dagdeelvoorkeur. Deze gegevens blijven beschrijvende context, geen numerieke tijdvakbonus of score. De vaste klokblokken zijn onvoldoende om zonsopkomst en schemering in alle seizoenen nauwkeurig te representeren.
+
+
+## 23. Diel evidence service: responsvariabelen blijven gescheiden
+
+`getSpeciesDielBehaviorEvidenceContext()` levert per soort afzonderlijke collecties voor `feeding_rhythm`, `locomotor_activity` en `habitat_use`. Het servicecontract gebruikt alleen expliciet soortgekoppelde research-registerrecords en houdt goedgekeurde kennis apart. Een soort met alleen telemetrie krijgt de scope `movement-only`; het systeem leidt daaruit geen voedingsritme af. Voor `Overig` worden geen soortspecifieke tijdpatronen geërfd. De service bevat geen tijdvakscore of modelgewichten en vormt een gecontroleerde inputlaag voor latere zonne-relatieve tijdvaklogica.
