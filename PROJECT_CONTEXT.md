@@ -1038,3 +1038,10 @@ Gerichte regressietests controleren dat sessie- en snapshotrecords hun eigen met
 Een extra provenancecontrole vond dat `sessionCoachService.ts` bij iedere live herbeoordeling de watertemperatuur van de actieve sessie opnieuw als actuele gebruikersmeting doorgaf. Daardoor kon een meting van de sessiestart uren later nog als actueel worden gepresenteerd. Dit is gecorrigeerd: de coach geeft geen sessiewaarde meer door als actuele invoer; de thermische engine gebruikt de sessie via de expliciete meettijd, bron en methode als historisch anker en berekent de latere temperatuur met de beschikbare weersontwikkeling.
 
 De integratietest bevat nu een sessiemeting van een uur eerder en controleert dat de herbeoordelingssnapshot deze als `estimated_from_measurement` met de juiste meettijd en provenance bewaart. Test/build zijn niet uitgevoerd; commit gebruikt `[skip ci]`.
+
+
+## Fase 2 — resterende snapshot-reproduceerbaarheidspunten (16 november 2026)
+
+De vier prognose-/coach-inputcontext-bouwers gebruiken nu dezelfde historische watertemperatuurcollector en bewaren de provenance van historische metingen. Een aanvullende audit heeft twee resterende beperkingen vastgesteld: (1) de actuele handmatige watertemperatuur staat niet in alle builders als afzonderlijk veld in `PrognosisInputContext` en wordt door `PrognosisView` niet in de inputfingerprint opgenomen; (2) historische sessies, vangsten en waarnemingen worden in de context vooral via record-ID's en een fingerprint gerepresenteerd, niet via compacte featurewaarden. Daardoor is volledige replay na wijziging/verwijdering van bronrecords niet gegarandeerd.
+
+Vóór modelkalibratie wordt een compacte, privacybewuste inputfeature-snapshot ontworpen. Deze bewaart alleen de variabelen die de prognose daadwerkelijk gebruikt, niet de volledige sessie-/vangstrecords. Fase 2 blijft open.

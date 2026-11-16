@@ -407,3 +407,15 @@ Elke opgenomen historische meting bewaart in de prognose-inputcontext nu ook het
 Bij het samenstellen van een seizoensprofiel worden tijdstippen naar hetzelfde absolute tijdstip genormaliseerd voor deduplicatie. Daardoor telt een sessie- en snapshotregistratie van dezelfde locatie, temperatuur en fysieke meettijd niet dubbel door een verschil in tijdzone-notatie. De thermische extrapolatie gebruikt dezelfde expliciete meettijd en slaat ongedateerde of onvoldoende gedocumenteerde sessiemetingen over. De live coach-herbeoordeling geeft een sessiemeting niet langer opnieuw door als actuele handmatige watertemperatuur; zij gebruikt de sessie alleen als historisch anker via het expliciete meettijdstip.
 
 Gerichte regressietests zijn toegevoegd voor meettijd midden in een sessie, ontbrekende meettijd, onbekende meetmethode/-herkomst, benchmarkuitsluiting en sessie-/snapshotdeduplicatie. De tests zijn in deze GitHub-only werkstroom toegevoegd maar niet lokaal uitgevoerd; de commit gebruikt daarom de afgesproken `[skip ci]`-regel. Praktijkvalidatie blijft afzonderlijk nodig.
+
+
+### Prognosesnapshot-input volledigheid — aanvullende audit, 16 november 2026
+
+De vier huidige inputcontext-bouwers zijn gecontroleerd: `PrognosisView`, `createLiveSnapshotForSessionStart`, `sessionCoachService` en `viscoachService`. Ze gebruiken dezelfde historische temperatuurcollector; de collectorprovenance uit de voorgaande fix wordt daardoor in de historische meetrecords van hun snapshots opgenomen.
+
+Er blijven twee reproduceerbaarheidsbeperkingen open:
+
+1. **Actuele handmatige watertemperatuur:** `PrognosisView` geeft de actuele handmatige watertemperatuur door aan `calculateDayPrognosis`, maar neemt die waarde niet afzonderlijk op in `PrognosisInputContext` of de inputfingerprint. `createLiveSnapshotForSessionStart` neemt de waarde wel op in de fingerprint, maar niet als afzonderlijk veld in de inputcontext. De waarde staat wel in `prognosisData.thermalAnalysis`; meetmoment, methode en meetdiepte zijn daarmee nog niet volledig als invoerprovenance vastgelegd.
+2. **Historische sessie-/vangst-/waarnemingsdata:** de inputcontext bewaart de record-ID's en een fingerprint, maar niet alle compacte featurewaarden die de persoonlijke vangstkans en andere historische analyses beïnvloeden. Zolang de oorspronkelijke records beschikbaar blijven, kunnen ze via ID's worden teruggevonden; na wijziging of verwijdering garandeert de snapshot geen volledige replay van alle historische invoer.
+
+**Vervolg vóór modelkalibratie:** leg de actuele temperatuurinvoer als expliciet inputobject vast en ontwerp een minimale, privacybewuste feature-snapshot voor de historische sessie-, vangst- en waarnemingsvariabelen die de prognose daadwerkelijk gebruikt. Kopieer niet de volledige gebruikersrecords. Tot die tijd zijn snapshots onveranderlijke uitkomst-/fingerprintregistraties met gedeeltelijke, niet volledige inputreproduceerbaarheid.
