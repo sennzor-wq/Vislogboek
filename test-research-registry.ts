@@ -46,3 +46,19 @@ if (!SPECIES_PROFILES.Zeelt.scientificReferences.some((source) => source.include
   throw new Error('The tench profile must link the limited experimental feeding study.');
 }
 console.log('Species profile source-link tests passed.');
+
+
+const coveredSpecies = ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', 'Snoekbaars', 'Meerval', 'Roofblei'];
+for (const species of coveredSpecies) {
+  const entries = RESEARCH_REGISTRY.filter((item) => item.species.includes(species));
+  if (entries.length === 0) {
+    throw new Error(`The central research registry must contain species-linked evidence for ${species}.`);
+  }
+  if (entries.some((item) => item.approvedForPrediction)) {
+    throw new Error(`Evidence for ${species} must not silently activate a prediction rule.`);
+  }
+}
+if (RESEARCH_REGISTRY.some((item) => item.species.includes('Overig'))) {
+  throw new Error('The generic Overig fallback must not be presented as a biological species.');
+}
+console.log('All concrete species have registered, non-approved biological evidence.');

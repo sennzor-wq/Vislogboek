@@ -243,7 +243,193 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     ],
     reviewedAt: '2026-11-02',
     approvedForPrediction: false,
-  }
+  },
+
+  {
+    id: 'common-carp-juvenile-foraging-temperature-2012',
+    topic: 'temperatuur-en-foerageergedrag',
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een experimentele studie onderzocht gewone karperjuvenielen van circa 90–105 mm bij 16, 20, 24 en 28 °C. Temperatuur beïnvloedde de foraging rate en groei positief binnen het onderzochte bereik; de hoogste gemeten foerageersnelheid trad op bij 24 °C.',
+    limitations: [
+      'De studie onderzocht juvenielen in gecontroleerde omstandigheden; de uitkomst is niet rechtstreeks overdraagbaar op volwassen karper in Nederlandse buitenwateren.',
+      'Foerageersnelheid en groei zijn verschillende responsvariabelen; groei is geen directe maat voor dagelijkse activiteit of vangbaarheid.',
+      'De studie valideert niet de bestaande thermische profielcurve of de exacte optimum-/breedteparameters van Vislogboek.'
+    ],
+    sourceReferences: [
+      'Oyugi, D.O., Cucherousset, J., Baker, D.J. & Britton, J.R. (2012). Effects of temperature on the foraging and growth rate of juvenile common carp, Cyprinus carpio. Journal of Thermal Biology, 37(1), 89–94. https://doi.org/10.1016/j.jtherbio.2011.11.005'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-bream-winter-activity-reservoir-2018',
+    topic: 'winteractiviteit-en-habitat',
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Akoestische telemetrie in een Europees stuwmeer liet zien dat brasem ook in de winter actief bleef in een zone met relatief warmer en zuurstofrijk water. Foerageren werd op basis van de habitatcontext vermoed, maar niet als directe voedselopname gemeten.',
+    limitations: [
+      'De studie betreft één diep reservoir met een specifieke thermische en zuurstofstratificatie; dit is niet gelijk aan een ondiepe plas, kanaal of polderwater.',
+      'Telemetrie meet detecties en beweging, niet rechtstreeks de hoeveelheid voedselopname of de kans op een hengelvangst.',
+      'De studie levert geen universele winterbonus of numerieke temperatuurcurve voor brasem.'
+    ],
+    sourceReferences: [
+      'Jurajda, P., Roche, K., Halačka, K., Mrkvová, M. & Zukal, J. (2018). Winter activity of common bream (Abramis brama L.) in a European reservoir. Fisheries Management and Ecology, 25, 163–171. https://doi.org/10.1111/fme.12275'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-bream-wetland-seasonal-movement-2026',
+    topic: 'seizoensbeweging-en-habitat',
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een tweejarige akoestische telemetriestudie volgde 170 brasems in het sterk verbonden River Bure-wetland. De gemeten bewegingsmaten waren gemiddeld hoger in de winter dan in de zomer; gebruik van zijwateren en off-channel habitats hing samen met de sterke laterale verbindingen.',
+    limitations: [
+      'Het onderzochte Britse wetland heeft een uitzonderlijk netwerk van verbonden zijwateren en is niet representatief voor ieder Nederlands water.',
+      'Bewegingsmaten zijn geen directe maat voor voedselopname, totale activiteit of vangbaarheid.',
+      'De studie ondersteunt seizoens- en habitatcontext, maar geen vaste tijdvakscore of universele winterweging.'
+    ],
+    sourceReferences: [
+      'Cittadino, S., Tarkan, A.S., Aksu, S. et al. (2026). Effects of season and acoustic telemetry sample sizes on the detections and movements of potadromous common bream Abramis brama in a highly connected wetland system. Hydrobiologia, 853, 3287–3301. https://doi.org/10.1007/s10750-026-06142-x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-lowland-river-movement-habitat-2025',
+    topic: 'temperatuur-seizoen-en-habitatbeweging',
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Akoestische telemetrie in een sterk gereguleerde Engelse laaglandrivier liet zien dat snoekbewegingen samenhingen met seizoen en temperatuur. De bewegingsfrequentie nam toe bij oplopende watertemperatuur tot circa 15 °C en nam daarboven af; een off-channel marina vormde een belangrijk habitat.',
+    limitations: [
+      'De rivier was sterk gekanaliseerd en had slechts één belangrijke off-channel marina; habitatbeschikbaarheid verschilt sterk van natuurlijke meren en kleine Nederlandse wateren.',
+      'De studie meet beweging en habitatgebruik, niet rechtstreeks voedselopname, jachtintensiteit of vangbaarheid.',
+      'De waargenomen temperatuurrelatie mag niet als gevalideerde thermische activiteitscurve voor snoek worden overgenomen.'
+    ],
+    sourceReferences: [
+      'Nolan, E.T., Hindes, A.M., Bolland, J.D. et al. (2025; first published online 2024). Movements and habitat use of native and invasive piscivorous fishes in a temperate and channelized lowland river. Hydrobiologia, 852, 2187–2206. https://doi.org/10.1007/s10750-024-05533-2'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-perch-activity-habitat-lakes-2002-2025',
+    topic: 'dagritme-activiteit-en-habitat',
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Radiotelemetrie bij volwassen baars liet dag- en schemerpatronen zien, maar ook duidelijke verschillen tussen eutrofe, mesotrofe en hypereutrofe meren. Een recente review bundelt de brede ecologische kennis en benadrukt variatie tussen populaties, habitat en levensfasen.',
+    limitations: [
+      'De veldstudies betreffen volwassen baars in specifieke Deense meren; activiteitspatronen verschilden tussen de onderzochte meren.',
+      'De review omvat uiteenlopende geografische populaties en is geen directe meting van dagelijkse vangstkans.',
+      'Deze bronnen rechtvaardigen geen universele voorkeursuren, vaste wind-/temperatuurgewichten of één profielcurve voor alle wateren.'
+    ],
+    sourceReferences: [
+      'Jacobsen, L. (2002). Activity and food choice of piscivorous perch (Perca fluviatilis) in a eutrophic shallow lake: a radio-telemetry study. Freshwater Biology, 47, 2370–2379. https://doi.org/10.1046/j.1365-2427.2002.01005.x',
+      'Jacobsen, L., Berg, S., Baktoft, H. & Skov, C. (2015). Behavioural strategy of large perch Perca fluviatilis varies between a mesotrophic and a hypereutrophic lake. Journal of Fish Biology, 86, 1016–1029. https://doi.org/10.1111/jfb.12613',
+      'Ning, N., Barlow, C., Baumgartner, L.J. et al. (2025). A global review of the biology and ecology of the European perch, Perca fluviatilis. Reviews in Fish Biology and Fisheries, 35, 587–618. https://doi.org/10.1007/s11160-025-09924-z'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-diel-diet-and-habitat-shifts-2002-2004',
+    topic: 'dagritme-voedselkeuze-en-habitat',
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Veldonderzoek naar blankvoorn beschreef verschuivingen in dieet en habitat tussen dag en nacht. Telemetrie in heldere en troebele ondiepe meren liet zien dat activiteit en ruimtelijke verdeling sterk met de helderheid en het meertype konden verschillen.',
+    limitations: [
+      'De studies betreffen specifieke kleine meren; de waargenomen dag-/nachtpatronen zijn niet universeel.',
+      'Een verschuiving in dieet of habitat is niet automatisch een verandering in totale voedselopname of hengelvangbaarheid.',
+      'Leeftijd, predatiedruk, helderheid, voedseltype en seizoen kunnen het patroon veranderen.'
+    ],
+    sourceReferences: [
+      'Haertel, S.S. & Eckmann, R. (2002). Diel diet shift of roach and its implications for the estimation of daily rations. Journal of Fish Biology, 60, 876–892. https://doi.org/10.1111/j.1095-8649.2002.tb02415.x',
+      'Jacobsen, L., Berg, S., Jepsen, N. & Skov, C. (2004). Does roach behaviour differ between shallow lakes of different environmental state? Journal of Fish Biology, 65, 135–147. https://doi.org/10.1111/j.0022-1112.2004.00436.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'tench-nocturnal-feeding-locomotor-rhythm-2005',
+    topic: 'nachtelijk-voedingsritme-en-locomotorische-activiteit',
+    species: ['Zeelt'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een gecontroleerde studie naar zelfgestuurde voedselopname en bewegingsritme bij zeelt vond sterk nachtelijk gedrag onder binnen- en buitencondities. Voedertijd kon het locomotorische ritme mede synchroniseren.',
+    limitations: [
+      'De studie gebruikte gecontroleerde voeropstellingen en is geen representatieve veldstudie van Nederlandse stekken.',
+      'Nachtelijke locomotorische activiteit is niet hetzelfde als directe voedselopname in natuurlijke omstandigheden of vangbaarheid.',
+      'Deze bron ondersteunt een biologische hypothese, maar geen harde vaste nachtbonus.'
+    ],
+    sourceReferences: [
+      'Herrero, M.J., Pascual, M., Madrid, J.A. & Sánchez-Vázquez, F.J. (2005). Demand-feeding rhythms and feeding-entrainment of locomotor activity rhythms in tench (Tinca tinca). Physiology & Behavior, 84(4), 595–605. https://doi.org/10.1016/j.physbeh.2005.02.015'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-diel-activity-drainage-canal-2005',
+    topic: 'dagritme-activiteit-en-spawning-habitat',
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Akoestische telemetrie onderzocht de activiteit en beweging van volwassen snoekbaars in een drainagekanaal in Zuid-Frankrijk tijdens het voorjaar. De studie levert soortspecifieke informatie over dagritme, beweging en paaicontext.',
+    limitations: [
+      'De studie is beperkt tot één kanaal, één seizoen en een zuidelijk mediterraan klimaat.',
+      'Beweging en paaigedrag zijn niet hetzelfde als dagelijkse voedselopname of vangbaarheid.',
+      'De uitkomst mag niet als algemene Nederlandse jaarcurve of vaste schemerbonus worden gebruikt.'
+    ],
+    sourceReferences: [
+      'Poulet, N., Arzel, C., Messad, S., Lek, S. & Argillier, C. (2005). Diel activity of adult pikeperch Sander lucioperca (L.) in a drainage canal in the Mediterranean basin during spring. Hydrobiologia, 543, 79–90. https://doi.org/10.1007/s10750-004-6823-6'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-catfish-feeding-and-activity-rhythms-1995-2012',
+    topic: 'dagritme-voedingsactiviteit-en-individuele-variatie',
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een gecontroleerde voedingsstudie vond sterk nachtelijke voedselopname bij Europese meerval, terwijl veldtelemetrie in twee rivieren duidelijke individuele verschillen liet zien in dag-/nachtactiviteit. In de veldstudie hing EMG-activiteit samen met temperatuur en stroming.',
+    limitations: [
+      'De gecontroleerde voedingsstudie laat zien dat voerregime en sociale context het ritme kunnen veranderen.',
+      'De veldstudie betrof een beperkte groep gezenderde vissen in twee rivieren tijdens voorjaar en zomer; individuele variatie was groot.',
+      'Meerval mag daarom niet als uitsluitend nachtactief worden gemodelleerd en de studies leveren geen directe vangstkans.'
+    ],
+    sourceReferences: [
+      'Boujard, T. (1995). Diel rhythms of feeding activity in the European catfish, Silurus glanis. Physiology & Behavior, 58(4), 641–645. https://doi.org/10.1016/0031-9384(95)00109-V',
+      'Slavík, O. & Horký, P. (2012). Diel dualism in the energy consumption of the European catfish Silurus glanis. Journal of Fish Biology, 81, 2223–2234. https://doi.org/10.1111/j.1095-8649.2012.03436.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'asp-diel-seasonal-movement-river-lake-2016-2020',
+    topic: 'dagritme-seizoen-en-migratie',
+    species: ['Roofblei'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Telemetriestudies in een rivier en een verbonden rivier-meersysteem beschrijven seizoensgebonden migratie en dag-/schemerbewegingen van roofblei. Meren werden vooral in voorjaar en zomer als foerageerhabitat gebruikt; winter- en paaibewegingen volgden andere ruimtelijke patronen.',
+    limitations: [
+      'De studies zijn uitgevoerd in specifieke Estse en Tsjechische riviersystemen met eigen barrières en habitatverbindingen.',
+      'Migratie en locatiegebruik zijn geen directe metingen van dagelijkse voedselopname of hengelvangbaarheid.',
+      'De bevindingen ondersteunen habitat- en seizoenscontext, geen vaste dagelijkse tijdvakscore voor Nederlandse wateren.'
+    ],
+    sourceReferences: [
+      'Kärgenberg, E., Økland, F., Thalfeldt, M., Thorstad, E.B., Sandlund, O.T. & Tambets, M. (2020). Migration patterns of a potamodromous piscivore, asp (Leuciscus aspius), in a river–lake system. Journal of Fish Biology, 97, 996–1008. https://doi.org/10.1111/jfb.14454',
+      'Horký, P. & Slavík, O. (2017). Diel and seasonal rhythms of asp Leuciscus aspius (L.) in a riverine environment. Ethology Ecology & Evolution, 29(5), 449–459. https://doi.org/10.1080/03949370.2016.1230560'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
 ];
 
 /**

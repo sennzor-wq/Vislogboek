@@ -1001,3 +1001,12 @@ Deze wijziging is documentatie-only. Geen profielwaarden, bronnen, modeluitkomst
 De historische temperatuurketen gebruikt voortaan uitsluitend het expliciete sessieveld `waterTemperatureMeasuredAt`; `session.startTime` wordt niet langer als vervangend meetmoment gebruikt. Sessie- en snapshotwaarnemingen worden alleen toegelaten wanneer het meettijdstip parsebaar is en zowel herkomst als meetmethode bekend zijn. Oudere records zonder die metadata blijven behouden, maar leveren geen thermisch anker of historische profielwaarneming totdat ze correct zijn aangevuld. Dit volgt de bestaande UI-uitleg en het typecontract.
 
 Deduplicatie van historische sessie-/snapshotmetingen vergelijkt het absolute tijdstip, zodat equivalente ISO-notaties met verschillende tijdzone-offsets niet dubbel tellen. Regressietests dekken de expliciete meettijd, ontbrekende meettijd, onbekende bron/methode, benchmarkuitsluiting en dubbele snapshot-/sessiewaarneming. De code- en testwijzigingen zijn vastgelegd met `[skip ci]`; tests/build zijn niet als uitgevoerd of geslaagd geregistreerd. Fase 2 blijft open.
+
+
+## Fase 2 — soortgerichte bewijsregistratie uitgebreid (16 november 2026)
+
+De bestaande `src/services/researchRegistry.ts` is uitgebreid met gecontroleerde, soortgerichte literatuurregistraties zodat alle negen concrete profielsoorten minimaal één expliciete biologische bronregistratie hebben. De aanvullingen omvatten karperfoerageren, brasemwinteractiviteit en wetlandbeweging, snoek-/snoekbaarsbeweging, baarsactiviteit en habitat, blankvoorn-dieet-/habitatverschuivingen, zeeltvoedingsritme, meervalvoedingsritme/individuele variatie en roofbleimigratie.
+
+Alle aanvullingen blijven `approvedForPrediction: false`. Dit verbetert brontraceerbaarheid, maar valideert geen bestaande thermische optimum-/breedteparameters en activeert geen numerieke factoren. `test-research-registry.ts` controleert nu ook dat alle negen concrete soorten een soortgekoppelde registratie hebben en dat de generieke fallback `Overig` niet als soort wordt geregistreerd.
+
+De auditbron voor snoek/snoekbaars is gecorrigeerd: DOI `10.1007/s10750-024-05533-2` hoort bij Nolan et al. (online 2024; jaargang 2025), niet bij Cittadino et al. (2024). Geen app-modeluitvoer of profielparameters zijn gewijzigd. Tests/build zijn niet uitgevoerd; de commit gebruikt `[skip ci]`.
