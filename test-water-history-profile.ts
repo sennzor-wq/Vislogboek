@@ -82,7 +82,7 @@ assert(snapshotMeasurement?.recordType === 'snapshot' &&
   snapshotMeasurement.recordedAt === '2026-06-10T08:30:00Z' &&
   snapshotMeasurement.measurementDepthM === 0.5,
   'Snapshotmeting bewaart eigen herkomst en meetdiepte');
-assert(collectedMeasurements.find((item) => item.locationId === target.id && item.temperatureC === 14)?.timestamp === '2026-06-10T10:00:00+02:00',
+assert(sessionMeasurement?.timestamp === '2026-06-10T10:00:00+02:00',
   'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
 const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
 assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
