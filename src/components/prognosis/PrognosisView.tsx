@@ -230,6 +230,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     const inputContext: PrognosisInputContext = {
       calculatedAt,
       manualWaterTemperatureInput,
+      waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLoc.id, activeDayProg.date),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: activeDayProg.date,
       targetSpecies: selectedSpecies,
