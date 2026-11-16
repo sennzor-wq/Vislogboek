@@ -1227,3 +1227,18 @@ Het onderzoeksregister bevat nu aanvullende directe voedingsritmegegevens voor b
 De adviescopy volgt nu het door de gebruiker gekozen tijdvak in plaats van automatisch het beste tijdvak van de hele dag. Bij een sessie over meerdere tijdvakken wordt geen enkele dagdeelwinnaar opgelegd. Dit is een correctie in de coachvertaling; er wordt geen biologische score aangepast.
 
 De levensfase is vastgelegd als interne, optionele modelnuance en geen verplichte intake. Alleen betrouwbaar bekende levensfase-informatie mag later een soortspecifieke modifier activeren; ontbrekende informatie blijft onbekend en verhoogt de onzekerheid. Er is geen extra gebruikersinvoer toegevoegd.
+
+
+### Fase 2 — volwassen meerval: veldtelemetrie als bewegingsbewijs (16 november 2026)
+
+Het onderzoeksregister bevat nu Santos et al. (2025) over tien volwassen meervallen in een Portugees reservoir. De schemerpiek en hogere nachtelijke activiteit zijn gemeten via accelerometers; dieptegebruik varieert met seizoen en individu. Omdat geen directe voedselopname is gemeten, is de bron uitsluitend als locomotorische activiteit/habitatgebruik geclassificeerd. Geen voedingsritmefactor of tijdvakscore toegevoegd.
+
+
+### Fase 2 — evidence-matrix dag-/nachtvoeding herzien (16 november 2026)
+
+De literatuurinventarisatie onderscheidt nu acht soorten met directe tijdgebonden voedselopname van roofblei, waarvoor momenteel vooral dieet-/prooikeuze en beweging zijn onderbouwd. De studie naar volwassen meerval in een Portugees reservoir meet accelerometeractiviteit en dieptegebruik, geen voedselopname; deze is daarom uitsluitend als beweging/habitat geregistreerd. Alle bronnen blijven niet-goedgekeurd voor scoring. De bijgewerkte soort-/responsmatrix en overdraagbaarheidsgrenzen staan in FASE2_PROGNOSE_AUDIT.md §7 en §32.
+
+
+### Fase 2 — baarsbron Ladogameer per soort geregistreerd (16 november 2026)
+
+De studie van Fedorova & Drozzhina (1982) onderzocht zowel snoekbaars als baars. De bron is nu afzonderlijk aan baars gekoppeld en testbaar in de diel-evidence-service. De conclusie voor baars is geen vaste dagpiek: voedselopname was relatief sterker rond schemering en hing samen met prooigedrag. De registratie blijft niet-goedgekeurd voor scoring.
