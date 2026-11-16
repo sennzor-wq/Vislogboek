@@ -1019,3 +1019,8 @@ De soortgerichte literatuur is in `FASE2_PROGNOSE_AUDIT.md` §7.6 geclassificeer
 Repositorybrede controle van de 41 TypeScript-/TSX-bronbestanden bevestigde dat het research register nog niet als runtime-poort wordt gebruikt. Alleen `dataQualityEngine.ts` importeert momenteel het type `DataStatus`; de prognose-, profiel-, habitat- en positioneringsengines lezen de geregistreerde kennis niet. Dit is bewust nog niet gekoppeld omdat geen nieuwe numerieke factor is goedgekeurd. Vóór toekomstige factoractivatie moet de relevante registratie expliciet worden gekoppeld en moet een test afdwingen dat niet-goedgekeurde kennis geen numerieke scorebijdrage levert.
 
 De matrix en deze runtime-status wijzigen geen modelwaarden of app-uitvoer. Fase 2 blijft open.
+
+
+## Fase 2 — correctie gedeelde snoek-/snoekbaarsbron (16 november 2026)
+
+De telemetriestudie van Nolan et al. (2025; online 2024), DOI `10.1007/s10750-024-05533-2`, onderzoekt zowel snoek als snoekbaars. De bijbehorende registervermelding is daarom aan beide soorten gekoppeld; een regressietest controleert die koppeling. De evidence-matrix §7.6 is aangescherpt zodat voedingsmetingen, locomotorische activiteit, habitat-/bewegingsdata en groeidata niet door elkaar worden gehaald. Een groeistudie blijft uitsluitend groeibewijs en wordt niet als acute activiteitscurve gebruikt.

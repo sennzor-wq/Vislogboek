@@ -61,4 +61,8 @@ for (const species of coveredSpecies) {
 if (RESEARCH_REGISTRY.some((item) => item.species.includes('Overig'))) {
   throw new Error('The generic Overig fallback must not be presented as a biological species.');
 }
+const sharedPikeEvidence = getResearchBySpecies('Snoekbaars').find((item) => item.id === 'northern-pike-lowland-river-movement-habitat-2025');
+if (!sharedPikeEvidence || !sharedPikeEvidence.species.includes('Snoek')) {
+  throw new Error('The lowland-river telemetry study must be linked to both pike and pikeperch.');
+}
 console.log('All concrete species have registered, non-approved biological evidence.');

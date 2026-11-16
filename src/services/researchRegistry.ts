@@ -302,7 +302,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'northern-pike-lowland-river-movement-habitat-2025',
     topic: 'temperatuur-seizoen-en-habitatbeweging',
-    species: ['Snoek'],
+    species: ['Snoek', 'Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
     summary: 'Akoestische telemetrie in een sterk gereguleerde Engelse laaglandrivier liet zien dat snoekbewegingen samenhingen met seizoen en temperatuur. De bewegingsfrequentie nam toe bij oplopende watertemperatuur tot circa 15 °C en nam daarboven af; een off-channel marina vormde een belangrijk habitat.',
