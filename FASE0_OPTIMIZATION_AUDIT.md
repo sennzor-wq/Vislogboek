@@ -951,3 +951,38 @@ Dit laat zien dat de modellen niet equivalent zijn. Bij weinig wind reageert de 
 **Conclusie:** de PDF bevat bruikbare fysische hypotheses en een kandidaat-relaxatieformule, maar geen bewezen upgrade. De huidige engine heeft al meer databronnen en betere meet-/historie-/onzekerheidsafhandeling. De belangrijkste kans is een continue, toetsbare diepte- en windafhankelijke tijdconstante; de PDF-formule zelf mag pas na correctie van de interne inconsistentie en onafhankelijke backtest worden overwogen. Geen code gewijzigd.
 
 **Fasestatus:** fase 0 blijft read-only en in uitvoering.
+
+
+## 31. Beschikbaarheid en validatiegeschiktheid van echte watertemperatuurdata
+
+### 31.1 Waar de data staat en wat GitHub wel/niet kan aantonen
+
+De persistente gebruikersdata staat in de browserdatabase `VislogboekDB` (Dexie/IndexedDB; `src/db/db.ts`). De database bevat onder meer `sessions`, `weatherCache` en `prognosisSnapshots`. De backupservice exporteert deze tabellen naar een JSON-backup (`src/services/backupService.ts`). De repository bevat alleen het databaseschema en de applicatiecode, niet de actuele IndexedDB-inhoud van een gebruiker. Daarom kan deze read-only broncode-audit niet vaststellen hoeveel echte metingen, bruikbare prognosesnapshots of volledige meet-/weerparen er in de persoonlijke dataset aanwezig zijn.
+
+### 31.2 Welke gegevens per prognose bewaard kunnen worden
+
+Een `PrognosisSnapshot` heeft velden voor:
+- de vooraf voorspelde watertemperatuur, onzekerheidsmarge, status en meetanker;
+- de exacte uurlijkse weersinvoer die aan de engine is doorgegeven (`weatherInput`);
+- de later geregistreerde werkelijke watertemperatuur, het exacte meettijdstip, de herkomst (handmatig/geïmporteerd), meetmethode en meetdiepte;
+- locatie, doeldatum, prognosetijdstip en eventuele sessiekoppeling.
+
+De evaluatie-engine accepteert alleen echte metingen met bekende herkomst en methode, die na het prognosetijdstip zijn geregistreerd en op dezelfde lokale doeldag vallen. Daarmee is het snapshot-schema in beginsel geschikt voor een betrouwbare, soortneutrale temperatuurvalidatie. De weerscache alleen is daarvoor minder sterk dan `weatherInput`: die cache is een locatiegebonden opgehaalde weersreeks en bewijst op zichzelf niet welke exacte reeks bij een specifieke voorspelling is gebruikt.
+
+### 31.3 Datakwaliteitsbeperking in de sessiegeschiedenis
+
+Het type `FishingSession` bevat `waterTemperatureMeasuredAt`, `waterTemperatureMeasurementSource`, `waterTemperatureMeasurementMethod` en optioneel de meetdiepte. De huidige implementatie van `collectHistoricalWaterTemperatureObservations()` gebruikt voor sessiemetingen echter `session.startTime` als timestamp in plaats van `waterTemperatureMeasuredAt`. Daardoor kan een meting die tijdens of na de sessie is gedaan in het historische temperatuurprofiel op het verkeerde moment terechtkomen. Metingen zonder bekend exact meettijdstip horen niet stilzwijgend op de starttijd te worden gezet voor empirische modelvalidatie.
+
+De snapshot-evaluatie en het historische profiel zijn twee verschillende datastromen: de snapshot-evaluatie vereist expliciete meetmetadata; de historische profielverzamelaar neemt momenteel ook sessiewaarden mee en dateert die anders. Dit moet vóór een serieuze backtest worden geharmoniseerd, met behoud van bestaande meetgegevens en zonder oude metingen als actuele meting te presenteren.
+
+### 31.4 Wat nodig is om de werkelijke dataset te beoordelen
+
+1. Maak vanuit de app een actuele JSON-backup via de bestaande exportfunctie; dit is een gebruikersdata-export en geen GitHub-bestand.
+2. Tel lokaal, zonder records te wijzigen: echte sessiemetingen met exact meettijdstip en bekende meetmethode/herkomst; snapshots met voorspelde temperatuur; snapshots met een geldige latere meting; snapshots met volledige `weatherInput`; en unieke stekken/dagen.
+3. Controleer dubbele metingen, ontbrekende timestamps, meetmomenten vóór/na de doeldag, benchmarkrecords, ontbrekende weersuren en herhaalde snapshots voor dezelfde doeldag.
+4. Rapporteer aantallen en dekking per stek, seizoen en horizon. Beoordeel pas daarna of er genoeg onafhankelijke meetparen zijn voor MAE/RMSE/bias en een chronologische hold-out-validatie.
+5. Behandel de backup als vertrouwelijke gebruikersdata. Deel of upload hem niet naar GitHub; voor een eerste beoordeling kan een lokaal gegenereerde, geanonimiseerde telling volstaan.
+
+**Conclusie:** de applicatie heeft de benodigde opslagvelden om echte temperatuurvoorspellingen tegen metingen en de bijbehorende weersinvoer te toetsen, maar de werkelijke omvang en kwaliteit van de persoonlijke dataset zijn vanuit de repository niet vast te stellen. De meettijdstempel-inconsistentie in de sessiehistorie moet eerst worden opgelost. De eerstvolgende praktische stap is een lokale, read-only telling van een actuele backup; pas met die aantallen beslissen we of een empirische vergelijking haalbaar is. Geen code gewijzigd.
+
+**Fasestatus:** fase 0 blijft read-only en in uitvoering.
