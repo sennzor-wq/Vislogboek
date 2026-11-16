@@ -817,3 +817,8 @@ De matrix staat in `FASE0_OPTIMIZATION_AUDIT.md` §28. De bestaande prognose geb
 Hengelgegevens kunnen worden ingevoerd en `sessionEffortEngine.ts` bevat een geteste berekening van hengeluren, maar `SessionsView.tsx` roept die helper niet aan; ook prognose en statistieken gebruiken hem niet. Er is dus nog geen productintegratie van hengeluren. Verder telt `statsEngine.ts` onbekende aantallen via `count || 1` als één vis, terwijl de sessieweergave onbekende aantallen niet meetelt. Een directe `calculateStats()`-regressietest ontbreekt in de aangetroffen tests.
 
 Er is geen centrale `spotLearningEngine.ts` aangetroffen. Of die nodig is, moet pas na afronding van de volledige audit worden besloten. Geen code gewijzigd.
+
+
+## Fase-0-vervolg — biologische prognosefactoren (16 november 2026)
+
+Audit §29 bevestigt dat de activiteitsscore alleen de soortspecifieke thermische efficiëntie gebruikt. Weer-, seizoen- en tijdsfactoren blijven context; habitat, oeverwind, persoonlijke vangstkans en voorvoer zijn aparte uitkomsten. De huidige tests tonen vooral softwarematige/synthetische werking en geen biologische praktijkvalidatie. De volledige factorcatalogus, hydrologische invoerhiaten en testlacunes zijn vastgelegd in de audit. Geen code gewijzigd.

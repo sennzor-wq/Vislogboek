@@ -810,3 +810,78 @@ Read-only controle van de huidige implementatie op `main` commit `46c90e06309f80
 - Geen causaliteitsclaim afleiden uit een hogere vangstfrequentie bij een tactiek; sessieomstandigheden en selectie-effecten moeten zichtbaar blijven.
 
 **Fasestatus:** fase 0 blijft read-only en in uitvoering; geen applicatiecode of gebruikersdata gewijzigd.
+
+
+## 29. Traceerbaarheidsmatrix — biologische prognosefactoren en scorebijdrage (16 november 2026)
+
+Read-only controle van de biologische activiteitsscore, thermische schatting, habitat-/bewegingsanalyse en tests op de actuele `main`-baseline `9bec9071c33851847030bf593d34e8e2c482d3ca`. De fase-2-blauwdruk in `VISLOGBOEK_VERBETERPLAN.md` vraagt om een soortspecifieke beoordeling van biologische, meteorologische, hydrologische, seizoensgebonden en lokale factoren. Zij noemt nog geen volledig vastgelegde, afzonderlijke canonieke lijst met alle factoren; onderstaande inventaris combineert daarom de expliciete blauwdrukeisen met de factoren die de bestaande profielen en engines daadwerkelijk modelleren.
+
+### 29.1 Factorenmatrix
+
+| Factor / invoer | Huidige codeketen | Werkelijke rol in de biologische activiteitsscore | Status en beperking |
+|---|---|---|---|
+| Watertemperatuur (gemeten of geschat) | `waterThermalEngine.ts` → `calculateThermalEfficiency()` in `fishProfiles.ts` → `prognosisEngine.ts` | **Directe numerieke bijdrage.** Soortspecifieke thermische efficiëntie wordt via `1 + 9 × efficiency^0.85` omgerekend naar een relatieve index van 1–10. | **Actief in score.** De score is uitsluitend hierop gebaseerd. Profielparameters zijn modelinstellingen; hun biologische/empirische validatie is niet aangetoond. |
+| Historische watertrend en thermische traagheid | `waterThermalEngine.ts`, `waterTemperatureHistory.ts` | Geen afzonderlijke bonus. Beïnvloedt de geschatte watertemperatuur die vervolgens de thermische score voedt. | **Indirect actief via temperatuur.** Meetankers/timestamp-inconsistentie staat in §27. |
+| Luchttemperatuur en voorafgaande weersontwikkeling | `waterThermalEngine.ts` | Geen directe scoreterm; draagt bij aan de modelschatting van watertemperatuur. | **Indirect actief via temperatuur.** De schatting blijft afhankelijk van weerdekking en onzekerheid. |
+| Zonnestraling, bewolking en thermische opwarming | `weatherService.ts` → `waterThermalEngine.ts` | Zonnestraling/bewolking kan de thermische schatting beïnvloeden; bewolking heeft daarnaast een aparte contextregel zonder scorebijdrage. | **Indirect via temperatuur / anders context.** Geen apart gevalideerd licht-effect op activiteit. |
+| Windmenging | `waterThermalEngine.ts` | Kan thermische ontwikkeling/menging beïnvloeden en daarmee indirect de geschatte watertemperatuur; geen eigen activiteitsscoreterm. | **Indirect via temperatuur.** Geen afzonderlijke biologische windbonus. |
+| Waterdiepte | `waterThermalEngine.ts`, `habitatMovementEngine.ts`, `bankWindEngine.ts` | Onderdeel van thermische traagheid/schattingscontext en habitat-/zonebeschrijving; geen rechtstreekse scoreterm. | **Indirect thermisch en actief in habitatcontext.** Een geregistreerde gemiddelde diepte is geen bodemprofiel. |
+| Luchtdruk en druktrend | `findPressureTrend()` en `prognosisEngine.ts` | Score is expliciet 0; impact blijft neutraal. Ook de habitatmodule presenteert de trend als context. | **Alleen context.** Profielvelden `pressureSensitivity` en `optimalPressureRange` veranderen de score niet. |
+| Windsnelheid en windrichting | `prognosisEngine.ts`, `bankWindEngine.ts`, `habitatMovementEngine.ts`, `rodPositioningEngine.ts` | Score is expliciet 0. Wind wordt geduid voor oppervlaktecontext, oeverrelatie, lokale verplaatsing en positionering. | **Alleen context voor totale activiteit; actief in oever-/habitat-/positioneringsadvies.** Voorkeurswindrichtingen en disruptiedrempels zijn voorlopig. |
+| Seizoen | `getSeason()`, `fishProfiles.ts`, `habitatMovementEngine.ts` | Seizoenfactor heeft score 0. `seasonalWeights` in soortprofielen worden niet in de activiteitsscore toegepast. Seizoen wordt wel gebruikt in habitatduiding. | **Alleen context/habitat.** Seizoensprioren zijn voorlopige metadata, geen actieve scoregewichten. |
+| Tijdstip, dagdeel en schemering | `preferredSlots` en `crepuscularBonus` in `fishProfiles.ts`; `prognosisEngine.ts` | Score is expliciet 0; voorkeur wordt als voorlopige notitie getoond. | **Alleen context.** Geen gevalideerde numerieke dagdeel-/schemerbonus. |
+| Bewolking en neerslag | `prognosisEngine.ts`, `habitatMovementEngine.ts` | Score is expliciet 0; profielvoorkeuren worden beschrijvend vermeld. | **Alleen context.** Geen soort- en watertypegevalideerde bonus/malus. |
+| Watertype, habitatkenmerken, oeveroriëntatie en locatiecontext | `habitatMovementEngine.ts`, `bankWindEngine.ts`, `rodPositioningEngine.ts` | Geen bijdrage aan de totale biologische activiteitsscore. Ze beïnvloeden zones, lokale beweging, oeverwind en tactische positionering. | **Actief in habitat-/bewegings-/tactisch model.** Gestructureerde habitatinvoer en geometrie blijven beperkt; zie §26. |
+| Directe waarnemingen: springen/rollen, aasbellen, aanbeten | `analyzeHabitatMovement()` | Geen numerieke activiteitsscorebijdrage. Waarnemingen kunnen de primaire habitatzone direct bepalen of beïnvloeden. | **Actief als lokale observatie/habitatbewijs.** Geen formele weging in de totale activiteitsscore. |
+| Persoonlijke sessies, vangsten en nulvangsten | `getSimilarSessions()` en Poisson-rate in `prognosisEngine.ts` | Niet opgenomen in de biologische activiteitsscore. Worden gebruikt voor een afzonderlijke persoonlijke vangstkans binnen de opgegeven sessieduur. | **Afzonderlijke vangstkans.** Niet verwarren met biologische activiteit; segmentatie naar techniek/aas ontbreekt volgens §28. |
+| Voorvoer, aas en techniek | `prebaitEngine.ts` en coach-/sessiecontext | Geen bijdrage aan de biologische activiteitsscore. Voorvoerplan en tactiek worden afzonderlijk berekend/geadviseerd. | **Tactische advieslaag.** Geen empirisch aangetoonde invloed op de biologische index. |
+
+### 29.2 Wat de score exact doet
+
+Per tijdvak wordt de geldige gemeten watertemperatuur gebruikt als die beschikbaar is; anders de beschikbare thermische schatting. `calculateThermalEfficiency(effectiveTemp, profile)` levert de soortspecifieke thermische efficiëntie. De engine berekent vervolgens:
+
+`activityScore = round(clamp(1 + 9 × thermalEfficiency^0.85, 1, 10), 1)`
+
+Alle overige factorobjecten — luchtdruk, wind, seizoen, tijdstip/licht, bewolking en neerslag — hebben `score: 0` en `impact: neutraal`. Wanneer geen bruikbare watertemperatuur beschikbaar is, wordt intern een placeholder gebruikt om de berekening technisch te kunnen uitvoeren, maar `activityScoreAvailable` is `false` en de conclusie meldt dat de index niet betrouwbaar te bepalen is. De placeholder mag dus niet als echte prognose worden geïnterpreteerd.
+
+### 29.3 Hydrologische en biologische dekking: wat nog niet aantoonbaar gemodelleerd wordt
+
+De huidige engines bevatten geen expliciete, gestructureerde invoer-/responsketen voor onder meer:
+- opgeloste zuurstof (DO) of zuurstofverzadiging;
+- waterhelderheid/troebelheid als meetwaarde;
+- stroomsnelheid, actuele stromingsrichting of debiet (watertype kan wel rivier/kanaal onderscheiden);
+- waterstand en verandering van waterstand;
+- prooidichtheid/natuurlijk voedselaanbod als actuele meet- of waarnemingsreeks;
+- levensstadium, paaifase of voortplantingsstatus van de doelvis;
+- een gestructureerd bodem-/diepteprofiel of lokale temperatuur op meerdere dieptes.
+
+Een deel van de lokale structuur kan via vrije notities of habitatlabels worden beschreven, en de habitatmodule noemt ontbrekende gegevens expliciet. Dat is niet gelijk aan een gestructureerd meetmodel of een kwantitatieve biologische respons. Deze punten zijn **niet aangetoond als actieve factoren**; de audit doet geen uitspraak dat elk ervan noodzakelijk een numerieke scorefactor moet worden.
+
+### 29.4 Testdekking en bewijsgrenzen
+
+| Controle | Aangetroffen testdekking | Conclusie |
+|---|---|---|
+| Thermische schatting en ontwikkeling | `test-thermal-and-prognosis.ts`, `test-water-thermal-coupling.ts`, `test-water-history-profile.ts`, `test-water-temperature-synthetic-validation.ts` | Thermische keten en synthetische scenario's zijn getest; dit bewijst niet dat de biologische activiteitscurve voor echte vissen empirisch juist is. |
+| Soort-/temperatuurprofielen | Profiel- en prognosetests bestaan; thermische efficiëntie wordt gebruikt door de score. | Geen aangetroffen onafhankelijke praktijkvalidatie van alle soortspecifieke optimale temperaturen, toleranties en curvebreedtes. |
+| Wind/oever/habitat | `test-advanced-prognosis-modules.ts`, `test-rod-positioning.ts` | Scenario's voor de aparte oever-/habitat-/positioneringsmodules; geen bewijs dat wind de totale activiteitsscore correct zou moeten wijzigen. |
+| Factoren zonder scorebijdrage | Bestaande tests controleren onder meer dat de index binnen bereik blijft en dat contextmodules functioneren. | Geen aangetroffen systematische invariantietests die per factor aantonen dat variatie in druk, wind, seizoen, dagdeel, bewolking en neerslag de thermische index niet verandert. |
+| Interacties en tijdsvertraging | Thermische tests bevatten weersverloopscenario's; habitat bevat enkele gecombineerde contextregels. | Geen volledige testmatrix voor soort × seizoen × levensstadium × watertype × factorinteractie of vertraging. |
+| Biologische uitkomstvalidatie | Geen bewijs van voldoende onafhankelijke, chronologische praktijksessies voor de activiteitsscore zelf. | Synthetische tests zijn geen praktijkvalidatie; de huidige score kan nog niet als gekalibreerde vangst- of voedingskans worden gepresenteerd. |
+
+### 29.5 Auditconclusie
+
+1. **De huidige engine is geen multi-factor biologische activiteitsscore.** Het is een soortspecifieke thermische index met daarnaast afzonderlijke persoonlijke vangstkans-, habitat-, oeverwind-, positionerings- en voorvoeranalyses.
+2. De huidige scheiding is op zichzelf verstandig: wind kan de locatie van vis beïnvloeden zonder de totale activiteit te verhogen; druk, licht en neerslag krijgen geen arbitraire bonus.
+3. De belangrijkste aantoonbare lacune ten opzichte van fase 2 is niet simpelweg “meer factoren optellen”, maar het ontbreken van een complete, expliciet geprioriteerde factorinventaris met per factor biologische hypothese, soort/levensstadium, tijdschaal, databron, onzekerheid, interactie en rol.
+4. Er zijn profielvelden en wetenschappelijke referenties aanwezig, maar de referenties onderbouwen niet automatisch de exacte numerieke modelparameters. De bestaande tests toetsen vooral softwaregedrag en synthetische scenario's, niet de biologische juistheid van de score.
+5. Een echte uitbreiding is dus **waarschijnlijk nodig om fase 2 volledig te halen**, maar het is nog niet verantwoord om nu te bepalen welke extra factoren numeriek moeten meetellen of welke gewichten zij krijgen. Eerst moeten de ontbrekende factoren, beschikbare databronnen en valideerbaarheid per soort worden vastgesteld. Sommige factoren kunnen terecht context- of habitatfactor blijven.
+
+### 29.6 Vervolg na afronding van de read-only audit
+
+- Maak een canonieke factorcatalogus uit de oorspronkelijke product-/biologische bronnen en koppel elke factor aan soort, levensstadium, watertype, tijdschaal, databron, meetstatus, hypothese, richting, interacties en onzekerheid.
+- Classificeer per factor expliciet: score, thermische schatting, habitat/beweging, tactiek, context, niet beschikbaar of bewust uitgesloten.
+- Voeg eerst tests toe die de huidige scheiding bewijzen: wijzig één contextfactor terwijl temperatuur gelijk blijft en controleer dat de biologische index gelijk blijft; test daarnaast thermische respons per soort.
+- Beoordeel voor elke kandidaatfactor of betrouwbare invoer in de offline-first app beschikbaar en praktisch registreerbaar is.
+- Pas daarna een modelontwerp, parameters en chronologische backtest vaststellen. Geen scoregewichten of productcode wijzigen in fase 0.
+
+**Fasestatus:** fase 0 blijft read-only en in uitvoering. Geen applicatiecode, gebruikersdata of prognose-uitvoer gewijzigd.

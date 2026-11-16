@@ -1236,3 +1236,8 @@ Zie `FASE0_OPTIMIZATION_AUDIT.md` §27. De kernlogica voor lokale meting, weathe
 ## Persoonlijke leerlaag en hengelinzet — audit 16 november 2026
 
 Zie `FASE0_OPTIMIZATION_AUDIT.md` §28. De huidige persoonlijke vangst-rate gebruikt stek, doelsoort, bekende vangsten, bevestigde nulvangsten en sessieduur, maar segmenteert niet naar techniek, aas/voer of hengelinzet. De helper voor hengeluren is geïmplementeerd en unitgetest maar niet aangesloten op de sessieweergave, prognose of statistieken. De statistiekengine telt onbekende aantallen nog via `count || 1` als één vis. Een centrale `spotLearningEngine` is niet aangetroffen; eerst wordt de volledige bestaande leerlogica geïnventariseerd.
+
+
+## Biologische prognosefactoren — fase-0-audit 16 november 2026
+
+Audit §29 onderscheidt de thermische activiteitsscore van de aparte habitat-, oeverwind-, positionerings-, persoonlijke vangstkans- en voorvoeruitkomsten. Alleen watertemperatuur beïnvloedt de huidige numerieke activiteitsscore. Andere factoren blijven context of beïnvloeden een aparte engine. De score en soortparameters zijn nog niet biologisch gevalideerd op onafhankelijke praktijkdata; een canonieke factorcatalogus en testmatrix ontbreken. Geen code gewijzigd.

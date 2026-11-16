@@ -239,3 +239,8 @@ Audit §26 bevestigt dat wind-, habitat- en positioneringsengines zijn geïntegr
 ## Fase-0-vervolg — persoonlijk leren en hengelinzet (16 november 2026)
 
 Audit §28 bevestigt bestaande beperkte persoonlijke sessie-/soort-/stekstatistiek en een afzonderlijke richtingsnuance. Segmentatie naar techniek, aas/voer en hengeluren ontbreekt in de vangst-rate. De hengelurenhelper is getest maar niet geïntegreerd. De statistiekengine kan onbekende aantallen als één vis tellen en heeft geen aangetroffen directe regressietest. Een centrale stekleerlaag is nog niet aangetoond.
+
+
+## Fase-0-vervolg — biologische prognosefactoren (16 november 2026)
+
+Audit §29 bevestigt dat de numerieke activiteitsscore thermisch gedreven is. Wind, druk, seizoen, tijd/licht, bewolking en neerslag leveren geen scorebijdrage; wind/habitat/diepte en waarnemingen beïnvloeden wel aparte ruimtelijke/tactische modules. De huidige tests bewijzen geen biologische juistheid of praktijkvalidatie. Eerst factorcatalogus, databronnen, onzekerheid en interacties vastleggen; nog geen modelgewichten of codewijzigingen.
