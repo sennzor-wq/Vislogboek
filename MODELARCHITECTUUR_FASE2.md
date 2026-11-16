@@ -180,3 +180,10 @@ De prognose-UI bevat een aparte sectie voor soortspecifieke voedingsliteratuur. 
 De sectie is onderzoekscontext, geen voorspelling voor de huidige stek of datum. De UI wijzigt geen activiteitsscore, beste vistijd, persoonlijke vangstkans of sessiesnapshot. Bij 'Algemeen' wordt geen soortspecifieke conclusie getoond. Geen numerieke voedingsfactor of tijdvakbonus.
 
 Volgende stap na groene CI: merge, controle mergecommit en daarna verkennen hoe eigen lokale waarnemingen van foerageeractiviteit apart kunnen worden geregistreerd en gevalideerd.
+
+
+## 13. Lokale foerageerobservaties zijn nog geen tijdvaklabels
+
+De huidige sessie-editor bewaart waarnemingen als categorieën op sessieniveau. `syncSessionPresenceObservations()` zet bij nieuwe records `session.updatedAt` in het veld `timestamp`; dit is het registratie-/update-moment, niet aantoonbaar het fysieke waarnemingstijdstip. Ook kunnen niet meerdere gebeurtenissen van hetzelfde type binnen één sessie afzonderlijk worden vastgelegd. Deze records zijn bruikbaar als grove sessiecontext, niet als betrouwbare tijdgebonden voedingslabels.
+
+Voor toekomstige lokale kalibratie is een afzonderlijke, herhaalbare gebeurtenisregistratie nodig met verplicht `observedAt`, apart `recordedAt`, locatie, optionele sessie, gedragstype, optionele waargenomen soort en identificatiezekerheid, en optionele diepte/zone. Ontbrekend waarnemingstijdstip blijft onbekend; nooit terugvullen met sessie-update/starttijd. De nieuwe entiteit moet in backup/restore, snapshot-whitelist/fingerprint, migraties en verwijderregels worden meegenomen. Geen modelinvloed totdat datakwaliteit en chronologische validatie zijn aangetoond.

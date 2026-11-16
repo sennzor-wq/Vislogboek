@@ -499,3 +499,25 @@ De sectie is expliciet gelabeld als biologische achtergrond uit gepubliceerde st
 De documentatiecommit met deze UI-integratie wordt door de normale Quality Gate gevalideerd. De eerdere documentatiecontrole [#43935102399](https://github.com/sennzor-wq/Vislogboek/actions/runs/43935102399) is volledig groen.
 
 **Volgende stap:** PR-controle op typecheck, regressietests en productiebuild; daarna merge alleen bij volledig groen. Vervolgens beoordelen of een brongebonden lokale voedingsobservatie (bijv. waargenomen aasbellen/foerageeractiviteit) als afzonderlijke gebruikerswaarneming aan de toekomstige voedingslaag kan worden gekoppeld. Geen automatische voedingsbonus zonder validatie.
+
+
+## 16. Lokale foerageerwaarnemingen: huidige databeperking en ontwerp (16 november 2026)
+
+Audit van `PresenceObservation`, `SessionModal` en `syncSessionPresenceObservations()` toont een belangrijke beperking. De sessie-editor bewaart waarnemingen als een set categorieën op sessieniveau (`presenceObservations`). Bij synchronisatie wordt voor een nieuw record `session.updatedAt` gebruikt als zowel `timestamp` als `createdAt`. Dit is het registratiemoment van de sessie-update, niet noodzakelijk het werkelijke moment waarop aasbellen, bodemwoeling of foerageren is waargenomen. Per sessie kan bovendien maar één record per type bestaan; herhaalde waarnemingen binnen één sessie zijn niet afzonderlijk vast te leggen. De structuur bevat geen expliciete soortidentificatie of identificatiezekerheid.
+
+De huidige prognose gebruikt de gekozen `presenceObservation` uitsluitend voor een verklarende notitie en expliciete onzekerheidscontext; er wordt geen numerieke bonus toegepast. Deze bestaande gegevens mogen daarom niet als nauwkeurig getimede voedingsmetingen of als trainingslabels voor een tijdvakgebonden voedingsmodel worden behandeld.
+
+### Ontwerp voor een echte foerageerobservatie
+
+Voordat lokale waarnemingen een voedingslaag mogen kalibreren, moet een herhaalbare gebeurtenisregistratie worden toegevoegd met minimaal:
+
+- `observedAt`: het werkelijke waarnemingstijdstip, verplicht en expliciet ingevoerd/gekozen;
+- `recordedAt`: het afzonderlijke moment waarop de gebruiker de waarneming opslaat;
+- locatie en optionele sessiekoppeling;
+- gedragstype (bijv. aasbellen/bodemwoeling, zichtbaar foerageren, oppervlaktevoeding, aasopname; waarnemingscategorieën moeten niet als gelijkwaardige zekerheid worden behandeld);
+- waargenomen soort (optioneel/onbekend toegestaan) en identificatiezekerheid;
+- optionele diepte/zone en korte notitie.
+
+Meerdere gebeurtenissen van hetzelfde type per sessie moeten mogelijk zijn. Een ontbrekend `observedAt` mag nooit stilzwijgend worden vervangen door `recordedAt`, sessiestart of sessie-updatetijd. Bestaande sessiesamenvattingen blijven compatibel, maar krijgen geen verzonnen gebeurtenistijd; ze worden uitgesloten van tijdvaktraining tenzij er later een expliciet bevestigde bron voor het werkelijke tijdstip bestaat.
+
+Een implementatie vereist een aparte gebeurtenisentiteit of een equivalent append-only ontwerp, IndexedDB-migratie, export/import/backup/restore-dekking, whitelisted snapshotvelden en fingerprinting, verwijder-/privacyregels en regressietests. Pas na die basis kan chronologische evaluatie van waarnemingen versus sessie-uitkomsten worden ontworpen. Geen numerieke voedingsbonus totdat er voldoende representatieve en correct getimede gegevens zijn.

@@ -1142,3 +1142,10 @@ De prognoseweergave heeft nu een aparte sectie voor soortspecifieke voedingslite
 De UI leest alleen de pure `feedingEvidenceService`; er is geen koppeling naar de prognoseberekening. Activiteitsindex, beste vistijd, persoonlijke vangstkans en sessiesnapshots blijven ongewijzigd. PR-controle op typecheck, regressies en productiebuild is vereist vóór merge.
 
 **Volgende stap:** na groene CI mergen en de mergecommit controleren. Daarna onderzoeken hoe lokale gebruikerswaarnemingen van daadwerkelijke foerageeractiviteit apart kunnen worden vastgelegd en chronologisch gevalideerd; geen automatische voedingsbonus.
+
+
+### Fase 2 — audit lokale foerageerwaarnemingen (16 november 2026)
+
+Belangrijke databeperking gevonden: huidige sessiewaarnemingen zijn een sessiesamenvatting. `syncSessionPresenceObservations()` gebruikt `session.updatedAt` als `timestamp` bij nieuwe records; dat is niet bewezen het werkelijke moment van waarnemen. Per sessie kan bovendien maar één record per type bestaan en soortidentificatie ontbreekt. Deze records zijn dus geen betrouwbare tijdvaklabels voor voedingskalibratie. Huidige prognose gebruikt ze uitsluitend als kwalitatieve context zonder numerieke bonus.
+
+**Volgende actie:** ontwerp en implementeer een aparte, herhaalbare foerageerobservatie met verplicht `observedAt`, apart `recordedAt`, locatie, optionele sessie, gedragstype, optionele soort/identificatiezekerheid en diepte/zone. Neem dit op in IndexedDB-migratie, backup/restore, snapshot-whitelist/fingerprint en verwijdertests. Geen tijdstip automatisch invullen en geen modelbonus voordat chronologische validatie dit ondersteunt.
