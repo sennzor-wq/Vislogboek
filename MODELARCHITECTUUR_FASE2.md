@@ -242,3 +242,10 @@ Implementatievoorwaarden: vergelijk tijdvakken alleen op factoren die aantoonbaa
 ## 19. Samenvatting is consistent met de tijdvakstatus
 
 De prognose-samenvatting maakt onderscheid tussen ontbrekende thermische basisgegevens, gelijkwaardige beschikbare tijdvakken, een onderbouwd beste toekomstig tijdvak en een dag waarvan alle tijdvakken verstreken zijn. Gelijkwaardige tijdvakken worden expliciet als zodanig beschreven; ze worden niet verward met verstreken tijdvakken. Dit wijzigt geen modelscore of biologische factor.
+
+
+## 20. Dagritmebewijs: gemeten respons bepaalt de toegestane conclusie
+
+Het researchregister bevat nu aparte tijdgebonden bronnen voor snoek, snoekbaars en roofblei. Elke bron wordt geclassificeerd naar de daadwerkelijk gemeten respons: voedselopname-/verteringscontext, locomotorische activiteit of habitatgebruik. Een bewegingspiek rond schemering is geen automatisch bewijs voor een voedingspiek; een nachtelijke locatie is geen bewijs voor nachtelijke jacht. De snoekbaarsprofieltekst benoemt daarom de schemeringsgerichte bewegingsbevinding met individuele en contextuele variatie, niet een universeel nachtactief patroon.
+
+Alle nieuwe records blijven niet-goedgekeurd voor numerieke voorspelling. De bestaande tijdvakscore en de thermische berekening blijven ongewijzigd. Een volgende modelstap moet zonne-gerelateerde dageraad/schemering kunnen onderscheiden van vaste klokblokken en de gedragsresponsvariabele expliciet behouden.
