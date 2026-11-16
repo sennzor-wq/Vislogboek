@@ -939,3 +939,12 @@ De zeven illustratieve factorfamilies zijn: watertemperatuur/verloop; wind/water
 Architectuurprincipe: omgevingsdata → soortspecifieke biologische respons → activiteit/foerageren → habitat/beweging → lokale leerlaag → betrouwbaarheid/ onzekerheid. Bestaande engines worden hergebruikt; geen dubbele engine. Factoren mogen interacties hebben en hoeven niet in een simpele gewogen som te passen. Ontbrekende gegevens blijven expliciet onbekend of onzeker.
 
 **Status:** ontwerpdoel vastgelegd; fase 2 blijft audit. Er zijn nog geen gewichten, modelgedragingen of app-code gewijzigd en er is nog geen biologische prestatieverbetering aangetoond.
+
+
+### Tweede auditronde fase 2 — 16 november 2026
+
+De prognoseketen is deels gevolgd van `PrognosisView.tsx` via `calculateDayPrognosis()` naar de onveranderlijke snapshots en evaluatie. De UI toont `N/B` en de snapshot slaat `predictedActivityScore: null` op wanneer de thermische basis ontbreekt. De persoonlijke vangstkans gebruikt een aparte Poisson-blootstellingsberekening op basis van eigen sessie-/vangstdata en sessieduur; de huidige implementatie moduleert het historische vangsttempo daarnaast nog met een beperkte factor uit de dagactiviteitsscore. Dit verband moet in het toekomstige model expliciet worden getoetst.
+
+Gevonden tekstuele inconsistentie: één onzekerheidsnotitie in `prognosisEngine.ts` zegt dat luchttemperatuur wordt gebruikt wanneer watertemperatuur niet beschikbaar is, terwijl de score-/UI-regels luchttemperatuur expliciet niet als vervanging behandelen. De UI en snapshot markeren de score wel als niet beschikbaar. Gerichte codecorrectie en regressietest staan open; nog niet gewijzigd.
+
+De bestaande tests dekken veel thermische, habitat-, wind- en ontbrekende-data-scenario's, maar blijven synthetische tests en bewijzen geen praktijknauwkeurigheid. De lokale IndexedDB is niet vanuit de repository-audit uitleesbaar; de nieuwe persoonlijke meetreeks start conform clean-startafspraak opnieuw. De eerste factor-/datadekking en vervolgacties staan in `FASE2_PROGNOSE_AUDIT.md` §6.

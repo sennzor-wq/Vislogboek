@@ -476,3 +476,10 @@ De eerste read-only inspectie is vastgelegd in [FASE2_PROGNOSE_AUDIT.md](FASE2_P
 De producteigenaar heeft het doelbeeld bevestigd: een soortspecifiek biologisch model dat activiteit, voedselzoekgedrag en habitat-/locatiekeuze afzonderlijk beoordeelt en die uitkomsten uitlegbaar samenbrengt. De zeven factorfamilies en architectuur zijn vastgelegd in [FASE2_PROGNOSE_AUDIT.md §5](FASE2_PROGNOSE_AUDIT.md). Voorbeeldpercentages zijn illustratief, geen implementatiegewichten. Geen universele soortweging, geen arbitraire bonussen en geen vangstkans afleiden uit alleen activiteit.
 
 **Status blijft:** fase 2 — audit en factorinventarisatie. Volgende werkstap: volledige code → UI → snapshot → testmatrix, bron-/parameterbeoordeling per soort en inventarisatie van echte evaluatiedata. Pas na die audit volgt een toetsbaar kandidaatmodel met baseline; daarna pas implementatie.
+
+
+### Fase 2 — tweede auditronde (16 november 2026)
+
+De tweede read-only ronde heeft de gegevensstroom deels gevolgd van PrognosisView via `calculateDayPrognosis()` naar snapshots en evaluatie. De UI en snapshotopslag respecteren de status 'niet beschikbaar' bij ontbrekende watertemperatuur. De persoonlijke Poisson-vangkans gebruikt eigen sessieduur en vangsttempo, met een bestaande beperkte modulatie uit de dagactiviteitsscore. Een tekstuele inconsistentie over luchttemperatuur als fallback is gevonden; gerichte correctie en regressietest zijn nog open. Bestaande tests dekken thermische en habitat-/windscenario's, maar zijn geen praktijkvalidatie. Details en eerste factor-/datamatrix: [FASE2_PROGNOSE_AUDIT.md §6](FASE2_PROGNOSE_AUDIT.md).
+
+**Volgende:** bron-/parameterbeoordeling voor alle tien profielvermeldingen, volledige habitat-/wind-/positioneringsketen en gerichte correctie van de temperatuurfallbacktekst. Geen gewichten of modelgedrag gewijzigd.
