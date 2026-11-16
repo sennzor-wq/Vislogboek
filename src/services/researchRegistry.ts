@@ -14,6 +14,17 @@
  * factor afzonderlijk is beoordeeld.
  */
 
+export type ResearchOutcome =
+  | 'feeding_intensity'
+  | 'feeding_rhythm'
+  | 'foraging_behavior'
+  | 'diet_composition'
+  | 'prey_selection'
+  | 'locomotor_activity'
+  | 'habitat_use'
+  | 'growth'
+  | 'feeding_physiology';
+
 export type EvidenceStrength =
   | 'strong'
   | 'moderate'
@@ -68,6 +79,9 @@ export interface ResearchRegistryEntry {
    * unknown  = onderbouwing nog niet beoordeeld
    */
   evidenceStrength: EvidenceStrength;
+
+  /** Wat de studie daadwerkelijk heeft gemeten; nooit afleiden uit alleen topic/summary. */
+  measuredOutcomes?: ResearchOutcome[];
 
   /**
    * Korte, neutrale beschrijving van wat bekend is.
@@ -175,6 +189,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'freshwater-fish-temperature-growth-four-species-tien-2024',
     topic: 'temperatuur-en-groei',
+    measuredOutcomes: ['growth'],
     species: ['Brasem', 'Baars', 'Snoekbaars', 'Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -211,6 +226,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'common-carp-temperature-feeding-rhythm-2012',
     topic: 'dagritme-en-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'feeding_physiology'],
     species: ['Karper'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -229,6 +245,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'tench-temperature-feeding-efficiency-2026',
     topic: 'temperatuur-en-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_physiology'],
     species: ['Zeelt'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -248,6 +265,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'common-carp-juvenile-foraging-temperature-2012',
     topic: 'temperatuur-en-foerageergedrag',
+    measuredOutcomes: ['foraging_behavior', 'growth'],
     species: ['Karper'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -266,6 +284,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'common-bream-winter-activity-reservoir-2018',
     topic: 'winteractiviteit-en-habitat',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Brasem'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -284,6 +303,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'common-bream-wetland-seasonal-movement-2026',
     topic: 'seizoensbeweging-en-habitat',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Brasem'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -302,6 +322,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'northern-pike-lowland-river-movement-habitat-2025',
     topic: 'temperatuur-seizoen-en-habitatbeweging',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Snoek', 'Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -320,6 +341,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'european-perch-activity-habitat-lakes-2002-2025',
     topic: 'dagritme-activiteit-en-habitat',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Baars'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -340,6 +362,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'roach-diel-diet-and-habitat-shifts-2002-2004',
     topic: 'dagritme-voedselkeuze-en-habitat',
+    measuredOutcomes: ['diet_composition', 'habitat_use', 'locomotor_activity'],
     species: ['Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -359,6 +382,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'tench-nocturnal-feeding-locomotor-rhythm-2005',
     topic: 'nachtelijk-voedingsritme-en-locomotorische-activiteit',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'locomotor_activity'],
     species: ['Zeelt'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -377,6 +401,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'pikeperch-diel-activity-drainage-canal-2005',
     topic: 'dagritme-activiteit-en-spawning-habitat',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -395,6 +420,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'european-catfish-feeding-and-activity-rhythms-1995-2012',
     topic: 'dagritme-voedingsactiviteit-en-individuele-variatie',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'locomotor_activity'],
     species: ['Meerval'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -414,6 +440,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'asp-diel-seasonal-movement-river-lake-2016-2020',
     topic: 'dagritme-seizoen-en-migratie',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Roofblei'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -434,6 +461,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'common-carp-diel-grazing-food-type-2009',
     topic: 'dagritme-foerageren-en-voedseltype',
+    measuredOutcomes: ['foraging_behavior', 'feeding_rhythm'],
     species: ['Karper'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -452,6 +480,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'tench-field-diel-seasonal-feeding-2018',
     topic: 'dagritme-seizoen-en-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition'],
     species: ['Zeelt'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -470,6 +499,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'perch-field-diel-feeding-seasonal-diet-1986',
     topic: 'dagritme-seizoensdieet-en-prooikeuze',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition', 'prey_selection'],
     species: ['Baars'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -488,6 +518,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'roach-autumnal-diel-feeding-shift-2008',
     topic: 'seizoensafhankelijk-dag-nachtritme',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
     species: ['Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -506,6 +537,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'bream-roach-in-situ-diel-zooplankton-feeding-2004',
     topic: 'dagritme-foerageren-op-zooplankton',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
     species: ['Brasem', 'Voorn'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -524,6 +556,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'northern-pike-field-seasonal-feeding-diet-2025',
     topic: 'seizoensdieet-en-voedingsintensiteit',
+    measuredOutcomes: ['feeding_intensity', 'diet_composition'],
     species: ['Snoek'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -542,6 +575,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'pikeperch-winter-spring-feeding-temperature-2020',
     topic: 'temperatuur-en-piscivore-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_physiology'],
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'limited',
@@ -560,6 +594,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018',
     topic: 'levensfase-en-prooikeuze',
+    measuredOutcomes: ['diet_composition', 'prey_selection'],
     species: ['Roofblei', 'Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -578,6 +613,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   {
     id: 'wels-catfish-seasonal-diet-feeding-2025',
     topic: 'seizoensdieet-en-maagvulling',
+    measuredOutcomes: ['feeding_intensity', 'diet_composition'],
     species: ['Meerval'],
     application: 'biology',
     evidenceStrength: 'moderate',
@@ -628,6 +664,23 @@ export function getResearchBySpecies(
       (entrySpecies) =>
         entrySpecies.trim().toLowerCase() === normalizedSpecies
     );
+  });
+}
+
+/**
+ * Zoekt alleen bronnen waarvan het gemeten resultaat expliciet is geclassificeerd.
+ * Dit is een literatuurfilter, geen vrijgave als voorspellingsfactor.
+ */
+export function getResearchByOutcome(
+  species: string,
+  outcome: ResearchOutcome
+): ResearchRegistryEntry[] {
+  const normalizedSpecies = species.trim().toLowerCase();
+  return RESEARCH_REGISTRY.filter((entry) => {
+    const appliesToSpecies = entry.species.length === 0 || entry.species.some(
+      (entrySpecies) => entrySpecies.trim().toLowerCase() === normalizedSpecies
+    );
+    return appliesToSpecies && entry.measuredOutcomes?.includes(outcome) === true;
   });
 }
 

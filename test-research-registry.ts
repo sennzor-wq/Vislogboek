@@ -114,3 +114,39 @@ for (const [species, reference] of Object.entries(profileFeedingSourceChecks)) {
 console.log('All species profiles link their feeding evidence sources.');
 
 
+
+// Measured outcomes are explicit study classifications, not inferred from topic wording.
+import { getResearchByOutcome } from './src/services/researchRegistry';
+const outcomeExpectations: Array<[string, string, string]> = [
+  ['Karper', 'common-carp-temperature-feeding-rhythm-2012', 'feeding_intensity'],
+  ['Brasem', 'bream-roach-in-situ-diel-zooplankton-feeding-2004', 'feeding_intensity'],
+  ['Snoek', 'northern-pike-field-seasonal-feeding-diet-2025', 'diet_composition'],
+  ['Baars', 'perch-field-diel-feeding-seasonal-diet-1986', 'feeding_rhythm'],
+  ['Voorn', 'roach-autumnal-diel-feeding-shift-2008', 'feeding_rhythm'],
+  ['Zeelt', 'tench-field-diel-seasonal-feeding-2018', 'feeding_intensity'],
+  ['Snoekbaars', 'pikeperch-winter-spring-feeding-temperature-2020', 'feeding_physiology'],
+  ['Meerval', 'wels-catfish-seasonal-diet-feeding-2025', 'diet_composition'],
+  ['Roofblei', 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018', 'prey_selection'],
+];
+for (const [species, id, outcome] of outcomeExpectations) {
+  const matches = getResearchByOutcome(species, outcome as import('./src/services/researchRegistry').ResearchOutcome);
+  if (!matches.some((item) => item.id === id)) {
+    throw new Error(`The measured outcome ${outcome} must be explicitly discoverable for ${species}.`);
+  }
+  if (matches.some((item) => item.approvedForPrediction)) {
+    throw new Error(`Outcome classification must not approve prediction factors for ${species}.`);
+  }
+}
+const aspFeedingIntensity = getResearchByOutcome('Roofblei', 'feeding_intensity');
+if (aspFeedingIntensity.length !== 0) {
+  throw new Error('Asp diet/prey-selection evidence must not be misclassified as measured feeding intensity.');
+}
+const aspDiet = getResearchByOutcome('Roofblei', 'diet_composition');
+if (!aspDiet.some((item) => item.id === 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018')) {
+  throw new Error('Asp ontogenetic diet evidence must remain discoverable as diet composition.');
+}
+const growthOnly = getResearchByOutcome('Brasem', 'growth');
+if (!growthOnly.some((item) => item.id === 'freshwater-fish-temperature-growth-four-species-tien-2024')) {
+  throw new Error('Growth evidence must remain separately classified from feeding intensity.');
+}
+console.log('Measured biological outcome classification tests passed.');
