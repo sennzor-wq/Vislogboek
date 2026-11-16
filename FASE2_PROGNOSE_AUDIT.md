@@ -371,51 +371,31 @@ De PrognosisView toont bankwind en habitatbeweging in de geavanceerde details. D
 **Conclusie:** bestaande ruimtelijke modules vormen een bruikbare basis voor stek- en positioneringsadvies. Ze zijn nog geen probabilistisch, soortspecifiek aanwezigheidsmodel. Fase 2 moet de bestaande kwalitatieve uitkomsten behouden en eerst een datacontract plus validatieplan maken voordat numerieke aanwezigheidskansen worden toegevoegd.
 
 
-## 10. Kritiek aandachtspunt — meettijdstip en dubbeltelling watertemperatuur
+## 10. Watertemperatuurprovenance — implementatiestatus en resterende beperkingen
 
-**Read-only hercontrole op main, 16 november 2026.**
+### Oorspronkelijke auditbevinding
 
-De types bevatten het veld waterTemperatureMeasuredAt voor het exacte moment waarop een sessiewatertemperatuur is gemeten. De huidige historische verwerking gebruikt dit veld echter niet:
+De read-only hercontrole van 16 november 2026 vond dat sessiemetingen met `session.startTime` werden gedateerd, terwijl de types al een expliciet `waterTemperatureMeasuredAt` bevatten. Ook konden sessie- en snapshotkopieën van dezelfde meting door verschillende tijdstempels dubbel meetellen. De meetdatum in `SessionModal.tsx` was optioneel en werd niet automatisch ingevuld.
 
-- collectHistoricalWaterTemperatureObservations() in waterTemperatureHistory.ts slaat een sessiemeting op met timestamp = session.startTime.
-- analyzeWaterThermalDevelopment() in waterThermalEngine.ts gebruikt eveneens session.startTime als timestamp van een historisch sessiemeetanker.
-- Prognosesnapshots kunnen dezelfde meting afzonderlijk bewaren via actualWaterTemperature en actualWaterTemperatureTimestamp.
-- De historische profielbouwer verwijdert alleen duplicaten met exact dezelfde locatie, timestamp en temperatuur. Als de snapshot de werkelijke meettijd gebruikt en de sessie starttijd een ander moment is, kan dezelfde meting tweemaal meetellen.
+### Huidige implementatie
 
-Dit is meer dan een administratieve afwijking: het kan de leeftijd van een meetanker verkeerd berekenen, de thermische extrapolatie verschuiven en de historische locatie-/seizoensbaseline onbedoeld extra gewicht geven. Het is daarom een dataprovenance-risico voor iedere toekomstige biologische temperatuurrespons.
+De oorspronkelijke tekortkomingen zijn aangepakt in de volgende commits:
 
-### Vereiste correctie vóór betrouwbare modelkalibratie
+- [c854dc3](https://github.com/sennzor-wq/Vislogboek/commit/c854dc396d344c8217c95fde83ea58aeea8a5317): sessie- en snapshotmetingen worden alleen gebruikt met een parsebaar expliciet meettijdstip en bekende bron/methode. De thermische engine gebruikt `waterTemperatureMeasuredAt`; er is geen fallback naar `session.startTime`.
+- [bea2f8b](https://github.com/sennzor-wq/Vislogboek/commit/bea2f8baa305fb8bbc8ddacf1fed8454c973e72e): historische meetrecords bewaren record-ID/type, registratiemoment, bron, methode en meetdiepte in de inputcontext.
+- [78de199](https://github.com/sennzor-wq/Vislogboek/commit/78de199054186db7a96bd60f6ac7fbce76601d12): live coach-herbeoordeling geeft de sessietemperatuur niet langer door als actuele meting; de sessiemeting wordt als historisch anker gebruikt.
 
-1. Gebruik waterTemperatureMeasuredAt als primaire tijdstempel wanneer deze geldig aanwezig is.
-2. Definieer expliciet wat te doen met oudere sessies zonder exact meettijdstip. Behandel session.startTime niet stilzwijgend als exact meetmoment; markeer een eventuele fallback als benadering of sluit de meting uit van tijdkritische extrapolatie.
-3. Maak één canonieke waarneming per fysieke meting. Koppel snapshot- en sessiebron waar mogelijk aan dezelfde meet-ID of gebruik een veilige deduplicatieregel die niet alleen op een toevallig identiek tijdstip vertrouwt.
-4. Houd meettijd, registratietijd, bron, methode en meetdiepte gescheiden.
-5. Voeg regressietests toe voor een meting halverwege een sessie, ontbrekend meettijdstip, snapshot+sessieduplicaat, benchmarkuitsluiting en het kiezen van het juiste meest recente anker.
+De historische profielberekening normaliseert meettijdstippen naar absolute tijd voor deduplicatie op locatie, meetmoment en temperatuur. De collector bewaart de bronrecords afzonderlijk in de snapshot-inputcontext; de profielberekening telt equivalente metingen eenmaal. Benchmarkmetingen en records met onbekende meetbron/-methode of ontbrekend meettijdstip worden uitgesloten van de historische temperatuurreeks. De onderliggende gebruikersrecords blijven behouden.
 
-**Besluit:** geen code gewijzigd in deze stap. Eerst de fallback-/deduplicatiepolicy vastleggen en daarna als één gerichte data-integriteitsfix implementeren. Tot die tijd moeten sessiemetingen zonder exact meettijdstip als onzeker worden behandeld bij temperatuurhistorie en thermische extrapolatie.
+### Resterende beperkingen
 
+1. Er is nog geen gedeeld fysiek `measurementId` dat sessie- en snapshotrecord expliciet aan elkaar koppelt. De huidige deduplicatie gebruikt locatie + absoluut meetmoment + temperatuur. Dit voorkomt dubbele telling door tijdzone-notatie, maar blijft een deterministische match en geen expliciete meet-ID-koppeling.
+2. De inputcontext bewaart zowel de sessie- als snapshotbronrecord; `historicalWaterTemperatureSampleCount` is daardoor het aantal opgenomen bronrecords, terwijl de effectieve profiel-`sampleCount` na deduplicatie het aantal unieke meetcombinaties weergeeft.
+3. De actuele handmatige watertemperatuurinvoer staat niet in alle builders als afzonderlijk invoerobject in `PrognosisInputContext`. `PrognosisView` neemt de waarde ook niet op in de inputfingerprint; `createLiveSnapshotForSessionStart` neemt de waarde wel op in de fingerprint, maar niet als afzonderlijk contextveld. De temperatuurwaarde zelf is wel opgenomen in `prognosisData.thermalAnalysis`; methode, meetmoment en meetdiepte zijn niet overal als gestructureerde invoerprovenance beschikbaar.
+4. Historische sessie-, vangst- en waarnemingsfeatures worden in de inputcontext voornamelijk via record-ID's en een fingerprint vastgelegd. Volledige replay na wijziging of verwijdering van bronrecords is daarom niet gegarandeerd.
 
-**Aanvullende UI-controle:** SessionModal.tsx bevat een handmatig invulbaar veld “Meetdatum en -tijd”. Het veld is optioneel, wordt niet automatisch gevuld en wordt alleen opgeslagen wanneer de gebruiker een waarde invult. Een sessiemeting zonder timestamp is dus een mogelijke normale invoerstatus, niet automatisch een corrupte record. Dit bevestigt dat de fallbackpolicy bewust moet omgaan met ontbrekende meettijdstippen; stilzwijgend session.startTime als exact meetmoment behandelen is niet verantwoord.
+### Validatie en vervolg
 
+Gerichte regressietests zijn toegevoegd in `test-water-history-profile.ts`, `test-water-thermal-coupling.ts`, `test-water-temperature-synthetic-validation.ts` en `test-session-coach-integration.ts`. Tests en build zijn nog niet uitgevoerd. De Quality Gate in `.github/workflows/ci.yml` ondersteunt handmatige uitvoering via `workflow_dispatch`; de codecommits gebruiken conform afspraak `[skip ci]`.
 
-### Uitvoering meettijd-/provenancebeleid — 16 november 2026
-
-De historische meetverwerking is aangescherpt: sessiemetingen gebruiken uitsluitend `waterTemperatureMeasuredAt` als meettijd. Er is geen fallback naar `session.startTime`. Zowel sessie- als snapshotmetingen vereisen een parsebaar expliciet meettijdstip, bekende herkomst (`manual` of `imported`) en bekende meetmethode (niet `unknown`). Records zonder deze gegevens blijven in de gebruikersdata behouden, maar worden niet als tijdkritisch meetanker of historische temperatuurwaarneming gebruikt totdat de metadata is aangevuld.
-
-Elke opgenomen historische meting bewaart in de prognose-inputcontext nu ook het oorspronkelijke record-ID en recordtype, registratiemoment, bron, meetmethode en meetdiepte. Het daadwerkelijke meetmoment blijft een afzonderlijk veld. Deze metadata worden niet samengevoegd met sessiestart, recordaanmaaktijd of totale waterdiepte.
-
-Bij het samenstellen van een seizoensprofiel worden tijdstippen naar hetzelfde absolute tijdstip genormaliseerd voor deduplicatie. Daardoor telt een sessie- en snapshotregistratie van dezelfde locatie, temperatuur en fysieke meettijd niet dubbel door een verschil in tijdzone-notatie. De thermische extrapolatie gebruikt dezelfde expliciete meettijd en slaat ongedateerde of onvoldoende gedocumenteerde sessiemetingen over. De live coach-herbeoordeling geeft een sessiemeting niet langer opnieuw door als actuele handmatige watertemperatuur; zij gebruikt de sessie alleen als historisch anker via het expliciete meettijdstip.
-
-Gerichte regressietests zijn toegevoegd voor meettijd midden in een sessie, ontbrekende meettijd, onbekende meetmethode/-herkomst, benchmarkuitsluiting en sessie-/snapshotdeduplicatie. De tests zijn in deze GitHub-only werkstroom toegevoegd maar niet lokaal uitgevoerd; de commit gebruikt daarom de afgesproken `[skip ci]`-regel. Praktijkvalidatie blijft afzonderlijk nodig.
-
-
-### Prognosesnapshot-input volledigheid — aanvullende audit, 16 november 2026
-
-De vier huidige inputcontext-bouwers zijn gecontroleerd: `PrognosisView`, `createLiveSnapshotForSessionStart`, `sessionCoachService` en `viscoachService`. Ze gebruiken dezelfde historische temperatuurcollector; de collectorprovenance uit de voorgaande fix wordt daardoor in de historische meetrecords van hun snapshots opgenomen.
-
-Er blijven twee reproduceerbaarheidsbeperkingen open:
-
-1. **Actuele handmatige watertemperatuur:** `PrognosisView` geeft de actuele handmatige watertemperatuur door aan `calculateDayPrognosis`, maar neemt die waarde niet afzonderlijk op in `PrognosisInputContext` of de inputfingerprint. `createLiveSnapshotForSessionStart` neemt de waarde wel op in de fingerprint, maar niet als afzonderlijk veld in de inputcontext. De waarde staat wel in `prognosisData.thermalAnalysis`; meetmoment, methode en meetdiepte zijn daarmee nog niet volledig als invoerprovenance vastgelegd.
-2. **Historische sessie-/vangst-/waarnemingsdata:** de inputcontext bewaart de record-ID's en een fingerprint, maar niet alle compacte featurewaarden die de persoonlijke vangstkans en andere historische analyses beïnvloeden. Zolang de oorspronkelijke records beschikbaar blijven, kunnen ze via ID's worden teruggevonden; na wijziging of verwijdering garandeert de snapshot geen volledige replay van alle historische invoer.
-
-**Vervolg vóór modelkalibratie:** leg de actuele temperatuurinvoer als expliciet inputobject vast en ontwerp een minimale, privacybewuste feature-snapshot voor de historische sessie-, vangst- en waarnemingsvariabelen die de prognose daadwerkelijk gebruikt. Kopieer niet de volledige gebruikersrecords. Tot die tijd zijn snapshots onveranderlijke uitkomst-/fingerprintregistraties met gedeeltelijke, niet volledige inputreproduceerbaarheid.
+Vóór modelkalibratie moeten de actuele handmatige temperatuurinvoer en de compacte historische feature-snapshot volledig worden vastgelegd. Een gedeelde meet-ID kan later worden toegevoegd als de praktijkdata aantonen dat de huidige deduplicatiesleutel onvoldoende is.

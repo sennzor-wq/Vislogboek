@@ -1045,3 +1045,10 @@ De integratietest bevat nu een sessiemeting van een uur eerder en controleert da
 De vier prognose-/coach-inputcontext-bouwers gebruiken nu dezelfde historische watertemperatuurcollector en bewaren de provenance van historische metingen. Een aanvullende audit heeft twee resterende beperkingen vastgesteld: (1) de actuele handmatige watertemperatuur staat niet in alle builders als afzonderlijk veld in `PrognosisInputContext` en wordt door `PrognosisView` niet in de inputfingerprint opgenomen; (2) historische sessies, vangsten en waarnemingen worden in de context vooral via record-ID's en een fingerprint gerepresenteerd, niet via compacte featurewaarden. Daardoor is volledige replay na wijziging/verwijdering van bronrecords niet gegarandeerd.
 
 Vóór modelkalibratie wordt een compacte, privacybewuste inputfeature-snapshot ontworpen. Deze bewaart alleen de variabelen die de prognose daadwerkelijk gebruikt, niet de volledige sessie-/vangstrecords. Fase 2 blijft open.
+
+
+## Fase 2 — auditstatus watertemperatuurprovenance geconsolideerd (16 november 2026)
+
+De oude audittekst die de oorspronkelijke `session.startTime`-fout beschreef, is vervangen door een actuele status. De implementatie gebruikt nu expliciete meettijdstippen en bekende bron/methode, bewaart de provenance van historische sessie-/snapshotrecords en voorkomt dat live coach-herbeoordeling een oude sessiemeting als actueel behandelt.
+
+Open punten zijn: geen gedeelde fysieke measurement-ID (deduplicatie gebruikt locatie + absoluut meetmoment + temperatuur), handmatige actuele temperatuurinvoer is nog niet overal gestructureerd in inputcontext/fingerprint, en historische sessie-/vangst-/waarnemingsfeatures worden niet volledig als compacte replaybare waarden bewaard. Regressietests zijn toegevoegd maar nog niet uitgevoerd.
