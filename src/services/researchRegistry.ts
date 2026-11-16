@@ -588,7 +588,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
       'Maagvulling is geen directe maat voor vangbaarheid en mag niet als vaste winterbonus worden gebruikt.'
     ],
     sourceReferences: [
-      'Exploring Prey Selectivity and Feeding Habits of Wels Catfish (Silurus glanis L., 1758) in a Deep Anatolian Reservoir: Seasonal, Length, and Age-Dependent Diet Analysis (2025). Animal Nutrition and Feed Technology / open-access journal record. https://doi.org/10.1155/anu/4619857'
+      'Yazici, R., Yilmaz, M. & Yazıcıoğlu, O. (2025). Exploring Prey Selectivity and Feeding Habits of Wels Catfish (Silurus glanis L., 1758) in a Deep Anatolian Reservoir: Seasonal, Length, and Age-Dependent Diet Analysis. Aquaculture Nutrition, 2025, Article 4619857. https://doi.org/10.1155/anu/4619857'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
