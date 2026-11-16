@@ -875,7 +875,7 @@ export function calculateDayPrognosis(
     let obsNote = '';
     switch (presenceObs) {
       case 'vis_springen_rollen':
-        obsNote = 'Vis zien springen/rollen bevestigt dat vis fysiek aanwezig is op de stek. Dit verhoogt de lokale aanwezigheidskans, maar garandeert geen aasopname.';
+        obsNote = 'Vis zien springen/rollen bevestigt dat vis fysiek aanwezig is op de stek, maar garandeert geen aasopname. De waarneming wordt als context getoond en niet als numerieke bonus toegepast.';
         break;
       case 'aasbellen_voedselactiviteit':
         obsNote = 'Aasbellen en bodemwoelingen duiden op actieve voedselzoektocht in de bodemlaag.';
@@ -896,6 +896,9 @@ export function calculateDayPrognosis(
       observation: presenceObs,
       note: obsNote,
     };
+    uncertaintyNotes.push(
+      'Viswaarnemingen worden als context geregistreerd; er wordt geen numerieke aanwezigheidsbonus toegepast zolang het effect niet empirisch is gevalideerd.'
+    );
   }
 
   // Tactische hengelpositionering & visbeweging (volledig gescheiden van vangstkans/activiteit)

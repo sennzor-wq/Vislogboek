@@ -751,3 +751,8 @@ De GitHub Quality Gate wordt aangevuld met de bestaande `test:clean-start-migrat
 ## GitHub Actions-status — 16 november 2026
 
 Quality Gate-run #529 op commit `26576d0` eindigde als failure voordat een workflowstap werd uitgevoerd. De job bevatte nul stappen en er waren geen logs beschikbaar. Dit is geen mislukte testuitslag: de test- en buildstappen zijn niet gestart. De oorzaak is onbekend. Zie `FASE0_OPTIMIZATION_AUDIT.md` §21. De lokale typecheck is wel geslaagd; overige softwarevalidatie blijft open.
+
+
+## Core-logic testanalyse — 16 november 2026
+
+De eerste lokale uitvoering van `bun run tsx test-core-logic.ts` op de actuele code gaf 26 geslaagde en 25 mislukte controles. De oorzaken zijn geclassificeerd: temperatuurfixtures misten expliciete watertemperatuurmetingen; synthetische `catch`-sessies misten doelsoortgebonden `CatchItem`-records; en een oude test verwachtte een numerieke aanwezigheidsbonus waarvoor geen empirisch gevalideerde factor bestaat. De testfixtures worden gecorrigeerd zonder de strikte datakwaliteitsregels te versoepelen of een ongefundeerde bonus toe te voegen. De gewijzigde suite moet nog opnieuw lokaal worden uitgevoerd; zie §22 in `FASE0_OPTIMIZATION_AUDIT.md`.

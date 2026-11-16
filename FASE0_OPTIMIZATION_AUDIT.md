@@ -547,3 +547,14 @@ De commit `26576d0c78a6c9cbbae42d8a90180fb2248ba782` activeerde Quality Gate-run
 - Dit is geen testfailure en mag niet als applicatiecodefout worden geclassificeerd. De oorzaak van het niet starten is met de beschikbare rungegevens niet vast te stellen; een runner-/accountlimiet is mogelijk maar niet bewezen.
 
 **Vervolg:** laat de deterministische clean-startmigratietest lokaal uitvoeren zolang de GitHub-runner geen stappen start. Daarna kan de audit verder met de lokale core-logic-test (die live Open-Meteo gebruikt) en de resterende code-/UI-matrix. Geen herhaalde CI-runs starten zonder aanwijzing dat de runner weer beschikbaar is.
+
+
+## 22. Core-logic testanalyse en fixturecorrectie — 16 november 2026
+
+De eigenaar heeft op de lokale checkout `bun run tsx test-core-logic.ts` uitgevoerd: **26 geslaagd, 25 mislukt**. De failures zijn inhoudelijk geclassificeerd voordat code is aangepast:
+
+- **Temperatuurrespons (groep 1):** de test gaf luchttemperaturen door maar liet de watertemperatuur ongemeten. De huidige thermische engine weigert bewust een fictieve watertemperatuur. De testfixture moet daarom een expliciete synthetische watermeting aanleveren; de productie-regel voor ontbrekende waterdata blijft intact.
+- **Persoonlijke vangststatistiek (groep 3 en 5):** meerdere synthetische sessies hadden `outcome: 'catch'` maar geen gekoppelde `CatchItem`. De engine sluit zulke sessies terecht uit als doelsoortsucces. De tests krijgen expliciete synthetische doelsoortvangsten. Ook wordt een gemeten synthetische watertemperatuur gebruikt zodat de centrale datakwaliteitscontrole de persoonlijke prognose niet terecht op `null` zet.
+- **Viswaarnemingen (groep 4):** de bestaande test eiste een numerieke aanwezigheidsbonus, maar de productiecode bevat geen empirisch gevalideerde bonusfactor. Er wordt geen arbitraire bonus toegevoegd. De waarneming blijft contextinformatie en de prognose vermeldt expliciet dat er geen numerieke bonus wordt toegepast zolang het effect niet empirisch is gevalideerd.
+
+De testfixtures en deze expliciete onzekerheidsnotitie zijn voorbereid in één wijzigingsset. **De aangepaste tests zijn nog niet opnieuw uitgevoerd**; de uitslag blijft dus pending. De live Open-Meteo-afhankelijkheid van deze suite blijft bestaan. Geen historische data is teruggezet en er is geen CI-run gestart.
