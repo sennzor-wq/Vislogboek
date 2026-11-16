@@ -193,33 +193,7 @@ function getSolarTransitionContext(
     : 'Civiele dageraad is ' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ' en civiele schemering ' + solarTimes.sunset + '–' + solarTimes.civilDusk + '; beide vallen buiten dit tijdvak. Dit verandert de score niet.';
 }
 
-/**
- * Koppelt vaste kloktijdvakken aan de lokale overgang rond zonsopkomst/-ondergang.
- * De ±60 minuten is uitsluitend een brede UI-contextband, geen formele astronomische
- * schemerdefinitie en geen numerieke modelbonus.
- */
-function getSolarTransitionContext(
-  slot: TimeSlot,
-  solarTimes?: { sunrise: string; sunset: string }
-): string {
-  const sunrise = getLocalClockMinutes(solarTimes?.sunrise);
-  const sunset = getLocalClockMinutes(solarTimes?.sunset);
-  if (sunrise === null || sunset === null) {
-    return 'Zonsopkomst en zonsondergang zijn voor deze datum niet beschikbaar; zonne-relatieve tijdcontext is onbekend.';
-  }
-  const slotStart = TIME_SLOT_HOURS[slot].start * 60;
-  const slotEnd = TIME_SLOT_HOURS[slot].end * 60;
-  const overlap = (start: number, end: number) => Math.max(0, Math.min(slotEnd, end) - Math.max(slotStart, start));
-  const sunriseOverlap = overlap(Math.max(0, sunrise - 60), Math.min(1440, sunrise + 60));
-  const sunsetOverlap = overlap(Math.max(0, sunset - 60), Math.min(1440, sunset + 60));
-  const format = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
-  const periods: string[] = [];
-  if (sunriseOverlap > 0) periods.push(`het brede overgangsvenster rond zonsopkomst (${format(sunrise)})`);
-  if (sunsetOverlap > 0) periods.push(`het brede overgangsvenster rond zonsondergang (${format(sunset)})`);
-  return periods.length > 0
-    ? `Dit tijdvak overlapt met ${periods.join(' en ')}. Dit is zonnecontext, geen gevalideerde activiteitsscore.`
-    : `Zonsopkomst is ${format(sunrise)} en zonsondergang ${format(sunset)}; de brede overgangsvensters vallen buiten dit tijdvak. Dit verandert de score niet.`;
-}
+
 
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
