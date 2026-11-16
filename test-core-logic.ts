@@ -55,6 +55,27 @@ function createWeatherDay(temp: number, pressure = 1015, windSpeed = 14, precip 
   return list;
 }
 
+function createWeatherHistory(temp: number, pressure = 1015, windSpeed = 14, precip = 0): WeatherHourlyForecast[] {
+  const list: WeatherHourlyForecast[] = [];
+  for (let day = 23; day <= 26; day++) {
+    for (let h = 0; h < 24; h++) {
+      list.push({
+        time: `2026-10-${day}T${String(h).padStart(2, '0')}:00`,
+        temperature: temp,
+        pressure,
+        windSpeed,
+        windDirection: 225,
+        windDirectionText: 'ZW',
+        precipitation: precip,
+        precipitationProbability: precip > 0 ? 50 : 10,
+        cloudCover: 75,
+        weatherCode: precip > 0 ? 61 : 2,
+      });
+    }
+  }
+  return list;
+}
+
 async function runTestSuite() {
   console.log('--- STARTING VISLOGBOEK v2.2 VERIFICATION SUITE ---\n');
 
@@ -63,14 +84,14 @@ async function runTestSuite() {
   // ==========================================
   console.log('--- TESTGROEP 1: Temperatuurrespons per Vissoort ---');
 
-  // Deze temperatuurcurve-tests leveren expliciet een gemeten watertemperatuur aan;
-  // luchttemperatuur alleen mag de thermische respons niet invullen.
+  // Deze temperatuurcurve-tests gebruiken een weather-only modelschatting op basis
+  // van minimaal 72 uur voorafgaande uurlijkse weerdata; er wordt geen lokale meting gefingeerd.
   // Karper bij 5 °C (winterkoud), 9.5 °C (herfst), 15 °C, 21 °C (optimum), 28 °C (hittegrens)
-  const carp5 = calculateDayPrognosis('2026-10-26', createWeatherDay(5), 'Karper', [], undefined, 5);
-  const carp95 = calculateDayPrognosis('2026-10-26', createWeatherDay(9.5), 'Karper', [], undefined, 9.5);
-  const carp15 = calculateDayPrognosis('2026-10-26', createWeatherDay(15), 'Karper', [], undefined, 15);
-  const carp21 = calculateDayPrognosis('2026-10-26', createWeatherDay(21), 'Karper', [], undefined, 21);
-  const carp28 = calculateDayPrognosis('2026-10-26', createWeatherDay(28), 'Karper', [], undefined, 28);
+  const carp5 = calculateDayPrognosis('2026-10-26', createWeatherHistory(5), 'Karper', []);
+  const carp95 = calculateDayPrognosis('2026-10-26', createWeatherHistory(9.5), 'Karper', []);
+  const carp15 = calculateDayPrognosis('2026-10-26', createWeatherHistory(15), 'Karper', []);
+  const carp21 = calculateDayPrognosis('2026-10-26', createWeatherHistory(21), 'Karper', []);
+  const carp28 = calculateDayPrognosis('2026-10-26', createWeatherHistory(28), 'Karper', []);
 
   assert(
     carp5.activityScore < 3.5,
@@ -94,9 +115,9 @@ async function runTestSuite() {
   );
 
   // Snoek bij 4 °C, 12.5 °C (optimum), 24 °C (warmtebeperking)
-  const pike4 = calculateDayPrognosis('2026-10-26', createWeatherDay(4), 'Snoek', [], undefined, 4);
-  const pike12 = calculateDayPrognosis('2026-10-26', createWeatherDay(12.5), 'Snoek', [], undefined, 12.5);
-  const pike24 = calculateDayPrognosis('2026-10-26', createWeatherDay(24), 'Snoek', [], undefined, 24);
+  const pike4 = calculateDayPrognosis('2026-10-26', createWeatherHistory(4), 'Snoek', []);
+  const pike12 = calculateDayPrognosis('2026-10-26', createWeatherHistory(12.5), 'Snoek', []);
+  const pike24 = calculateDayPrognosis('2026-10-26', createWeatherHistory(24), 'Snoek', []);
 
   assert(
     pike4.activityScore > carp5.activityScore + 1.5,
@@ -112,8 +133,8 @@ async function runTestSuite() {
   );
 
   // Zeelt bij 8 °C (inactief) vs 21 °C (warmteminnend)
-  const tench8 = calculateDayPrognosis('2026-10-26', createWeatherDay(8), 'Zeelt', [], undefined, 8);
-  const tench21 = calculateDayPrognosis('2026-10-26', createWeatherDay(21), 'Zeelt', [], undefined, 21);
+  const tench8 = calculateDayPrognosis('2026-10-26', createWeatherHistory(8), 'Zeelt', []);
+  const tench21 = calculateDayPrognosis('2026-10-26', createWeatherHistory(21), 'Zeelt', []);
   assert(
     tench8.activityScore < 4.0 && tench21.activityScore >= 7.5,
     `1.9 Zeelt toont sterke warmtegevoeligheid (8 °C: ${tench8.activityScore}/10 vs 21 °C: ${tench21.activityScore}/10)`
@@ -183,23 +204,23 @@ async function runTestSuite() {
       createdAt: session.startTime,
     }));
 
-  const prog1h = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const prog1h = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 1,
     catches: carpCatches,
   });
-  const prog2h = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const prog2h = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 2,
     catches: carpCatches,
   });
-  const prog4h = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const prog4h = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 4,
     catches: carpCatches,
   });
-  const prog6h = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const prog6h = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 6,
     catches: carpCatches,
   });
-  const prog8h = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const prog8h = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 8,
     catches: carpCatches,
   });
@@ -246,12 +267,12 @@ async function runTestSuite() {
     `3.6 Vangsttempo per uur blijft constant (${prog2h.hourlyCatchRate}/u); totale verwachte vangst stijgt met duur (2u: ~${prog2h.expectedCatches} vs 6u: ~${prog6h.expectedCatches})`
   );
 
-  const progDefault = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), { catches: carpCatches });
-  const progZero = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const progDefault = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), { catches: carpCatches });
+  const progZero = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 0,
     catches: carpCatches,
   });
-  const progNaN = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const progNaN = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: NaN,
     catches: carpCatches,
   });
@@ -265,11 +286,11 @@ async function runTestSuite() {
 
   const progLowData = calculateDayPrognosis(
     '2026-10-26',
-    createWeatherDay(18),
+    createWeatherHistory(18),
     'Karper',
     carpSessions.slice(0, 3),
     undefined,
-    18,
+    undefined,
     new Date(),
     { sessionDurationHours: 6, catches: carpCatches }
   );
@@ -293,7 +314,7 @@ async function runTestSuite() {
     { id: 'b4', startTime: '2026-09-04T12:00', durationMinutes: 180, outcome: 'skunk_confirmed', targetSpecies: ['Karper'], createdAt: '', updatedAt: '' },
     { id: 'c1', startTime: '2026-09-05T12:00', durationMinutes: 180, outcome: 'catch', targetSpecies: ['Karper'], createdAt: '', updatedAt: '' },
   ];
-  const progBlankHeavy = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', blankHeavySessions, undefined, 18, new Date(), {
+  const progBlankHeavy = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', blankHeavySessions, undefined, undefined, new Date(), {
     catches: [{ id: 'blank-heavy-catch', sessionId: 'c1', species: 'Karper', count: 1, timestamp: '2026-09-05T13:00', createdAt: '' }],
   });
   // 1 vangst over 5 * 3 = 15 uur -> 1 / 15 = 0.0667 -> afgerond 0.07/u
@@ -306,7 +327,7 @@ async function runTestSuite() {
   const sampleCatches: CatchItem[] = [
     { id: 'c_item_1', sessionId: 'c1', species: 'Karper', count: 3, timestamp: '2026-09-05T13:00', createdAt: '' },
   ];
-  const progWithCatches = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', blankHeavySessions, undefined, 18, new Date(), {
+  const progWithCatches = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', blankHeavySessions, undefined, undefined, new Date(), {
     catches: sampleCatches,
   });
   // 3 vissen over 15 uur -> 3 / 15 = 0.20/u
@@ -326,7 +347,7 @@ async function runTestSuite() {
   );
 
   // 3.13 Stek zonder sessies toont geen gefabriceerde 100% basisfrequentie
-  const progUnfishedSpot = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', carpSessions, undefined, 18, new Date(), {
+  const progUnfishedSpot = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
     locationId: 'onbekende_stek_zonder_sessies',
     catches: carpCatches,
   });
@@ -345,7 +366,7 @@ async function runTestSuite() {
     { id: 'unk1', startTime: '2026-09-11T12:00', outcome: 'unknown', targetSpecies: ['Karper'], createdAt: '', updatedAt: '' },
     { id: 'bm1', startTime: '2026-09-12T12:00', outcome: 'catch', targetSpecies: ['Karper'], isBenchmark: true, createdAt: '', updatedAt: '' },
   ];
-  const progMixed = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', mixedSessions, undefined, 18, new Date(), { catches: carpCatches });
+  const progMixed = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', mixedSessions, undefined, undefined, new Date(), { catches: carpCatches });
   assert(
     progMixed.relevantSessionCount === 5,
     `3.14 Actieve, onbekende en benchmark sessies strikt uitgesloten van vangststatistiek (N=5 van 8, berekend: ${progMixed.relevantSessionCount})`
@@ -361,7 +382,7 @@ async function runTestSuite() {
     createdAt: '',
     updatedAt: '',
   }));
-  const progAllBlanks = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', allBlanks, undefined, 18);
+  const progAllBlanks = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', allBlanks);
   assert(
     progAllBlanks.personalCatchChance === 0 &&
       progAllBlanks.hourlyCatchRate === 0 &&
@@ -374,13 +395,13 @@ async function runTestSuite() {
   // ==========================================
   console.log('\n--- TESTGROEP 4: Viswaarnemingen & Aanwezigheidslogica ---');
 
-  const progRolling = calculateDayPrognosis('2026-10-26', createWeatherDay(16), 'Karper', carpSessions, undefined, 16, new Date(), {
+  const progRolling = calculateDayPrognosis('2026-10-26', createWeatherHistory(16), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 3,
     presenceObservation: 'vis_springen_rollen',
     catches: carpCatches,
   });
 
-  const progNoSightings = calculateDayPrognosis('2026-10-26', createWeatherDay(16), 'Karper', carpSessions, undefined, 16, new Date(), {
+  const progNoSightings = calculateDayPrognosis('2026-10-26', createWeatherHistory(16), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 3,
     presenceObservation: 'geen_waarnemingen',
     catches: carpCatches,
@@ -424,7 +445,7 @@ async function runTestSuite() {
     carpSessions[6], // skunk_confirmed
     carpSessions[7], // skunk_confirmed
   ];
-  const progFive = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', fiveSessions, undefined, 18, new Date(), { catches: carpCatches });
+  const progFive = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', fiveSessions, undefined, undefined, new Date(), { catches: carpCatches });
 
   assert(
     progFive.personalCatchChance !== null,
@@ -445,7 +466,7 @@ async function runTestSuite() {
 
   // Onder 5 sessies (< 5)
   const fourSessions = carpSessions.slice(0, 4);
-  const progFour = calculateDayPrognosis('2026-10-26', createWeatherDay(18), 'Karper', fourSessions, undefined, 18, new Date(), { catches: carpCatches });
+  const progFour = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', fourSessions, undefined, undefined, new Date(), { catches: carpCatches });
   assert(
     progFour.personalCatchChance === null && progFour.personalCatchConfidence === 'Onvoldoende gegevens',
     '5.4 Bij N=4 sessies is personalCatchChance exact null en betrouwbaarheid "Onvoldoende gegevens"'

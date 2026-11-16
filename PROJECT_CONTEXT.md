@@ -756,3 +756,8 @@ Quality Gate-run #529 op commit `26576d0` eindigde als failure voordat een workf
 ## Core-logic testanalyse — 16 november 2026
 
 De eerste lokale uitvoering van `bun run tsx test-core-logic.ts` op de actuele code gaf 26 geslaagde en 25 mislukte controles. De oorzaken zijn geclassificeerd: temperatuurfixtures misten expliciete watertemperatuurmetingen; synthetische `catch`-sessies misten doelsoortgebonden `CatchItem`-records; en een oude test verwachtte een numerieke aanwezigheidsbonus waarvoor geen empirisch gevalideerde factor bestaat. De testfixtures worden gecorrigeerd zonder de strikte datakwaliteitsregels te versoepelen of een ongefundeerde bonus toe te voegen. De gewijzigde suite moet nog opnieuw lokaal worden uitgevoerd; zie §22 in `FASE0_OPTIMIZATION_AUDIT.md`.
+
+
+### Correctie testfixtures watertemperatuur — 16 november 2026
+
+De core-logic fixtures gebruiken voor temperatuurrespons en persoonlijke prognose nu minimaal 72 uur synthetische voorafgaande uurlijkse weersdata zonder een waarde via `userWaterTemp` mee te geven. Dat veld is uitsluitend voor een echte lokale meting. De tests moeten de weather-only modelschattingsroute controleren; directe meting en schatting blijven apart getest. Zie de aanvullende correctie in `FASE0_OPTIMIZATION_AUDIT.md`.
