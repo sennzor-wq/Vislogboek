@@ -229,3 +229,8 @@ Zie `FASE0_OPTIMIZATION_AUDIT.md` voor bronpaden, bewijs, beperkingen en opensta
 ## Fase-0-auditverwijzing — 16 november 2026
 
 De read-only matrix voor de centrale prognose-/VisCoach-/sessie-/evaluatieketen is toegevoegd aan `FASE0_OPTIMIZATION_AUDIT.md` §25. Deze bevestigt aanwezige service- en UI-koppelingen, maar markeert de volledige UI-lifecycle van VisCoach-planning en het starten van geplande sessies als onvoldoende direct getest. Ook is een mogelijke tegenstrijdigheid vastgesteld tussen het gekozen sessietijdvenster en de dagbrede aanbeveling. Zie §25.2 voor de resterende auditdelen. Geen applicatiecode gewijzigd.
+
+
+## Fase-0-vervolg — stekgegevens en geometrie (16 november 2026)
+
+Audit §26 bevestigt dat wind-, habitat- en positioneringsengines zijn geïntegreerd en scenario-getest. De locatie-invoer heeft echter open punten: standaard-GPS rond Culemborg kan onbedoeld als echte steklocatie worden opgeslagen, gestructureerde habitatkenmerken ontbreken in de gewone editor en oeveroriëntatie is alleen vanuit Prognose instelbaar. Deze punten zijn auditbevindingen; geen code gewijzigd.

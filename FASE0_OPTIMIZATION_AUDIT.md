@@ -702,3 +702,35 @@ Deze eerste matrix dekt alleen de kernketen prognose → VisCoach → sessie →
 - overige eisen uit `VISCOACH_PRODUCT_ROADMAP.md` en `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md`.
 
 **Fasestatus:** fase 0 blijft in uitvoering. Geen productcode of gebruikersdata gewijzigd. Fase 1 blijft gesloten.
+
+
+## 26. Traceerbaarheidsmatrix — stekgegevens, geometrie, wind en habitat (16 november 2026)
+
+Read-only controle op `main` commit `c7ad4a60e07170f8e9ee6e9a5591dfdff453906f`.
+
+| Blueprint-eis | Code / UI-keten | Testbewijs | Status en beperking |
+|---|---|---|---|
+| Lokale stekgegevens beheren | `LocationsView.tsx` → `LocationModal.tsx` → `App.handleSaveLocation()` → IndexedDB `locations`. De editor bevat naam, beschrijving/oeverzijde, watertype, gemiddelde waterdiepte, GPS en vrije notities/bodemverloop. | Geen directe LocationModal-/browserinteractietest aangetroffen. | **Aanwezig, invoer gedeeltelijk.** Watertype kan expliciet Onbekend blijven; diepte is optioneel. |
+| GPS-coördinaten van een stek vastleggen | `LocationModal.tsx` ondersteunt handmatige coördinaten en browser-geolocatie. | Geen directe UI-test aangetroffen. | **Gedeeltelijk / risico op foutieve invoer.** Een nieuwe locatie start met vaste standaardcoördinaten `51.9610, 5.2280`; ongeldige/lege waarden vallen bij opslaan terug op `51.961, 5.228`. Als de gebruiker dit niet bewust vervangt, kan een stek met niet-bevestigde Culemborg-coördinaten worden opgeslagen. Dit is strijdig met de eis dat ontbrekende lokale context niet stilzwijgend als bekend wordt behandeld. |
+| Oeveroriëntatie vastleggen voor windanalyse | `PrognosisView.tsx` heeft `handleQuickSetWaterFacing()`, schrijft `waterFacingDirection` naar de locatie en herberekent de prognose. `bankWindEngine.ts` gebruikt die richting voor de relatieve wind/oeverhoek. | `test-advanced-prognosis-modules.ts` test acht kompasrichtingen, aanlandige/aflandige/zijwind en ontbrekende oriëntatie. | **Aanwezig, maar verspreid in UI.** Oeveroriëntatie staat niet in het algemene locatieformulier; de gebruiker moet de instelling vanuit Prognose bereiken. |
+| Habitat-/structuurgegevens per stek vastleggen | `habitatMovementEngine.ts` leest `waterType`, `waterDepth`, `habitatFeatures` en vrije locatie-notities. De locatie-editor heeft een vrije notitie voor bodemverloop, maar geen gestructureerde invoer voor `habitatFeatures`. | `test-advanced-prognosis-modules.ts` test bekende structuur, ontbrekende diepte/watertype en directe waarnemingen. | **Gedeeltelijk.** De engine kan gestructureerde habitatkenmerken verwerken, maar de standaard locatie-editor biedt geen zichtbare gestructureerde invoer daarvoor. Vrije notities zijn geen gelijkwaardige, gevalideerde velden. |
+| Wind-/oeverrelatie analyseren | `calculateDayPrognosis()` integreert `bankWindEngine.ts`; windrichting, snelheid, oeveroriëntatie en thermische context bepalen relatie en oeverbeoordeling. | `test-advanced-prognosis-modules.ts` bevat scenario's voor windrichting, winterkou en ontbrekende oriëntatie. | **Aanwezig en unitgetest.** Het resultaat blijft een zoekhypothese; één GPS-punt beschrijft geen volledige oevervorm of watergrens. |
+| Hengelpositie en waarschijnlijke viszone | `rodPositioningEngine.ts` maakt soort-/seizoens-/thermische zoekhypothesen; `habitatMovementEngine.ts` bepaalt primaire en alternatieve zone; beide worden in de dagprognose opgenomen en in `PrognosisView.tsx` weergegeven. | `test-rod-positioning.ts` en `test-advanced-prognosis-modules.ts` testen positionering, seizoenen, stromend/stilstaand water, habitat en directe observaties. | **Aanwezig en uitgebreid scenario-getest.** Dit zijn modelmatige zoekzones, geen vastgestelde vislocaties. |
+| Geen schijnnauwkeurige kaart-/bodem-/werprichtingclaims | Habitat-engine meldt ontbrekende sonar/bathymetrie, waterdiepte en lokale kenmerken; wind-/positioneringslogica houdt ontbrekende oeveroriëntatie expliciet onbekend. | `test-advanced-prognosis-modules.ts` test expliciet geen verzonnen diepte-/watertype-/sonaraannames en scenario's bij onbekende oeveroriëntatie. | **Gedeeltelijk aanwezig.** De engines beperken ongefundeerde claims, maar de editor kan door standaard-GPS nog steeds niet-bevestigde locatiecontext vastleggen. |
+| Tactische informatie in VisCoach tonen | `buildVisCoachAdviceText()` vertaalt bestaande positionerings-, habitat-, wind- en voeruitvoer naar tekst; `VisCoachView` en actieve sessies tonen advies. | `test-session-coach.ts`, `test-session-coach-integration.ts`; de test voor lichte wind legt bewust vast dat de windsectie ontbreekt. | **Aanwezig, met bekende UX-afwijking.** De windsectie wordt alleen getoond bij `strongWind`; zie audit §7.4. De engine kan meer windcontext hebben dan de coachtekst toont. |
+
+### 26.1 Bevestigde aandachtspunten
+
+1. **Standaard-GPS is niet veilig als standaardwaarde.** Nieuwe stekken krijgen direct coördinaten rond Culemborg, ook wanneer de gebruiker de locatie niet heeft vastgesteld. De fallback bij ongeldige invoer doet hetzelfde. Hierdoor kan weersinformatie voor de verkeerde plaats aan een stek worden gekoppeld. Dit is een concreet datakwaliteitsrisico.
+2. **Stekgeometrie is beperkt.** De app bewaart één GPS-punt en een globale kijkrichting; er is geen vastgelegde oeverpolygoon, watergrens, dieptekaart of sonarprofiel. De engines erkennen deze beperking en mogen daarom geen precieze werp-/vispositie claimen.
+3. **Habitatinvoer is niet volledig ontsloten.** De engine accepteert `habitatFeatures`, maar de gewone locatie-editor biedt alleen vrije notities en geen gestructureerde habitatselectie. Controleer in een latere productfase of de bestaande vrije notities voldoende zijn of dat een kleine, gevalideerde invoer nodig is.
+4. **Oeveroriëntatie is een aparte prognose-instelling.** De gebruiker kan deze instellen vanuit Prognose, maar niet direct in het standaardformulier van de stek. Dit is functioneel aanwezig maar minder vindbaar.
+5. De unit-/scenariotests bewijzen de deterministische engine-uitvoer voor ingevoerde context; zij bewijzen niet dat de gebruiker die context correct heeft ingevoerd of dat de voorspelde zone op het echte water klopt.
+
+### 26.2 Vervolg
+
+- Controleer de waterthermiek-/temperatuurketen afzonderlijk, inclusief gemeten versus geschatte temperatuur en hergebruik van de laatst bekende lokale meting.
+- Controleer of de locatie-editor de vereiste velden uit de productblauwdruk volledig ondersteunt.
+- Houd deze bevindingen read-only tot fase 0 formeel is afgerond en geaccepteerd.
+
+**Fasestatus:** fase 0 blijft in uitvoering; geen applicatiecode of gebruikersdata gewijzigd.

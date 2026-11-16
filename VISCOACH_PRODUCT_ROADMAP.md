@@ -1221,3 +1221,8 @@ De uitgebreide read-only baseline-audit op actuele `main` is gestart. De eerste 
 De actuele traceerbaarheid van de kernketen prognose → VisCoach → sessie → evaluatie is opgenomen in `FASE0_OPTIMIZATION_AUDIT.md` §25. De App koppelt de bestaande prognose-engine aan VisCoach-planning, startsnapshots, actieve sessieherbeoordeling, adviesfeedback en statistische evaluatie. Service-/databasegedrag heeft gerichte tests; de volledige browserflow is niet end-to-end getest.
 
 Een concrete afwijking is vastgesteld: de planweergave toont het door de gebruiker gekozen tijdvenster, maar de coachaanbeveling gebruikt nog het beste tijdvak van de gehele dagprognose. Dit kan tegenstrijdige tijdadviezen opleveren. Er is tijdens fase 0 geen code aangepast. De overige openstaande matrixdelen staan in audit §25.2.
+
+
+## Aanvullende audit — stekgegevens en geometrie (16 november 2026)
+
+Zie `FASE0_OPTIMIZATION_AUDIT.md` §26. De wind-, habitat- en positioneringsengines zijn aan de prognose gekoppeld en scenario-getest. De invoer is onvolledig: de standaard locatie-editor biedt geen gestructureerde habitatkenmerken, oeveroriëntatie is alleen vanuit Prognose instelbaar en nieuwe locaties krijgen standaard GPS-coördinaten rond Culemborg. Dit laatste kan een niet-bevestigde locatie als echte GPS-positie opslaan. Geen code gewijzigd; fase 0 blijft read-only.
