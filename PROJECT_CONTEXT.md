@@ -1133,3 +1133,12 @@ PR [#56](https://github.com/sennzor-wq/Vislogboek/pull/56) is gemerged als [d10e
 Quality Gate op de PR-head [#43934866369](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934866369) is volledig groen. De Quality Gate op de mergecommit moet nog worden bevestigd.
 
 **Volgende actie:** review het outputcontract en de veilige UI-presentatie als brongebonden onderzoekscontext (geen voedingsvoorspelling). Pas daarna beperkte UI-integratie toe, zonder numerieke factor of wijziging van de bestaande activiteitsindex/vangkans.
+
+
+### Fase 2 — voedingsliteratuur zichtbaar in prognose (16 november 2026)
+
+De prognoseweergave heeft nu een aparte sectie voor soortspecifieke voedingsliteratuur, met drie gescheiden groepen: gemeten voedselopname/-ritme, foerageergedrag en dieet/prooikeuze. Elke bron toont bij uitklappen de geregistreerde bevinding, beperkingen, referenties en bewijsstatus. De sectie is nadrukkelijk achtergrondinformatie en geen actuele voedingsvoorspelling voor de stek of datum. Voor 'Algemeen' wordt geen soortspecifiek bewijs gesuggereerd.
+
+De UI leest alleen de pure `feedingEvidenceService`; er is geen koppeling naar de prognoseberekening. Activiteitsindex, beste vistijd, persoonlijke vangstkans en sessiesnapshots blijven ongewijzigd. PR-controle op typecheck, regressies en productiebuild is vereist vóór merge.
+
+**Volgende stap:** na groene CI mergen en de mergecommit controleren. Daarna onderzoeken hoe lokale gebruikerswaarnemingen van daadwerkelijke foerageeractiviteit apart kunnen worden vastgelegd en chronologisch gevalideerd; geen automatische voedingsbonus.

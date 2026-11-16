@@ -171,3 +171,12 @@ De pure service `src/services/feedingEvidenceService.ts` is toegevoegd en gemerg
 Dit is nog geen voorspellingslaag: de service wijzigt geen activiteit, vangstkans, tijdvakscore of UI. Alle huidige bronnen blijven niet-goedgekeurd. De PR Quality Gate [#43934866369](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934866369) is volledig groen.
 
 **Volgende stap:** review het consumentencontract en bepaal hoe een beperkte, brongebonden onderzoekscontext in de prognose-UI wordt weergegeven zonder de indruk te wekken dat er al een gekalibreerde voedingsprognose bestaat. Pas na die review UI-integratie uitvoeren; geen numerieke factor activeren.
+
+
+## 12. Weergave van kwalitatieve voedingsliteratuur
+
+De prognose-UI bevat een aparte sectie voor soortspecifieke voedingsliteratuur. De drie zichtbare bewijsgroepen blijven gescheiden: gemeten voedselopname/-ritme, foerageergedrag en dieet/prooikeuze. Bronbevindingen, beperkingen, referenties en bewijsstatus komen rechtstreeks uit `feedingEvidenceService` / `researchRegistry`; bronnen die meerdere uitkomsten meten worden per groep ontdubbeld.
+
+De sectie is onderzoekscontext, geen voorspelling voor de huidige stek of datum. De UI wijzigt geen activiteitsscore, beste vistijd, persoonlijke vangstkans of sessiesnapshot. Bij 'Algemeen' wordt geen soortspecifieke conclusie getoond. Geen numerieke voedingsfactor of tijdvakbonus.
+
+Volgende stap na groene CI: merge, controle mergecommit en daarna verkennen hoe eigen lokale waarnemingen van foerageeractiviteit apart kunnen worden geregistreerd en gevalideerd.
