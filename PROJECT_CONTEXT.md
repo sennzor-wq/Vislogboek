@@ -1220,3 +1220,10 @@ De voorlopige ±60-minutenband rond zonsopkomst/-ondergang is vervangen door een
 ### Fase 2 — literatuurinventarisatie dag-/nachtritmes uitgebreid (16 november 2026)
 
 Het onderzoeksregister bevat nu aanvullende directe voedingsritmegegevens voor blankvoorn/brasem, blankvoorn afzonderlijk, baars en vroege juveniele meerval. Belangrijkste uitkomst: dag-/nachtgedrag blijkt contextafhankelijk; er zijn tegenstrijdige patronen tussen leeftijdsklassen, dieet en habitat. Roofblei- en snoekgegevens bevatten vooral beweging/habitat en mogen niet als directe voedingspieken worden gebruikt. Alle toevoegingen blijven niet-goedgekeurd voor scoring.
+
+
+### Fase 2 — VisCoach-tijdvenster en levensfasebesluit (16 november 2026)
+
+De adviescopy volgt nu het door de gebruiker gekozen tijdvak in plaats van automatisch het beste tijdvak van de hele dag. Bij een sessie over meerdere tijdvakken wordt geen enkele dagdeelwinnaar opgelegd. Dit is een correctie in de coachvertaling; er wordt geen biologische score aangepast.
+
+De levensfase is vastgelegd als interne, optionele modelnuance en geen verplichte intake. Alleen betrouwbaar bekende levensfase-informatie mag later een soortspecifieke modifier activeren; ontbrekende informatie blijft onbekend en verhoogt de onzekerheid. Er is geen extra gebruikersinvoer toegevoegd.

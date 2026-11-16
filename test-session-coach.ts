@@ -212,6 +212,41 @@ async function run() {
     translatedText.includes('persoonlijke vangkans betrouwbaar'),
     'VisCoach maakt een praktisch plan, legt sterke wind en werprichting uit en benoemt onzekerheid begrijpelijk'
   );
+  const selectedWindowAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    bestTimeSlot: 'Avond',
+    timeSlots: {
+      Ochtend: { conclusion: 'De ochtendomstandigheden zijn voor dit tijdvak vergelijkbaar.' },
+      Avond: { conclusion: 'De avond heeft in dit voorbeeld een andere context.' },
+    },
+  } as any, null, null, 'Ochtend');
+  const selectedWindowText = [
+    selectedWindowAdvice.summary,
+    selectedWindowAdvice.recommendation,
+    selectedWindowAdvice.rationale,
+  ].join(' ').toLowerCase();
+  assert(
+    selectedWindowText.includes('gekozen sessie valt in het tijdvak ochtend') &&
+    selectedWindowText.includes('ochtendomstandigheden') &&
+    !selectedWindowText.includes('avond het gunstigste tijdvak'),
+    'VisCoach gebruikt de analyse van het gekozen tijdvak en niet het beste tijdvak van de hele dag'
+  );
+
+  const multiWindowAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    bestTimeSlot: 'Avond',
+  } as any, null, null, null);
+  const multiWindowText = [
+    multiWindowAdvice.summary,
+    multiWindowAdvice.recommendation,
+    multiWindowAdvice.rationale,
+  ].join(' ').toLowerCase();
+  assert(
+    multiWindowText.includes('meerdere tijdvakken') &&
+    !multiWindowText.includes('avond het gunstigste tijdvak'),
+    'VisCoach verzint geen enkele winnaar wanneer de geplande sessie meerdere tijdvakken bestrijkt'
+  );
+
   assert(
     translatedAdvice.recommendation.includes('Als het niet werkt') &&
     translatedAdvice.recommendation.includes('Waar beginnen'),

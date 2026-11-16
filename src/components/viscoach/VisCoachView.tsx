@@ -76,6 +76,15 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
     .filter((item) => item.status === 'planned' || item.status === 'overdue')
     .sort((a, b) => new Date(a.plannedStartTime).getTime() - new Date(b.plannedStartTime).getTime());
 
+  const planAdvice = plan
+    ? buildVisCoachAdviceText(
+        plan.prognosis,
+        plan.pendingSnapshot.conditions,
+        plan.pendingSnapshot.inputContext?.technique,
+        plan.selectedTimeSlot ?? null
+      )
+    : null;
+
   const invalidatePlan = () => {
     setPlan(null);
     setSavedMessage(null);
@@ -280,14 +289,14 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
               <h3 className="text-sm font-bold">Zo zou ik deze sessie aanpakken</h3>
             </div>
             <p className="text-sm leading-relaxed text-white">
-              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).summary}
+              {planAdvice?.summary}
             </p>
             <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">
-              {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).recommendation}
+              {planAdvice?.recommendation}
             </p>
-            {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).rationale && (
+            {planAdvice?.rationale && (
               <p className="text-xs leading-relaxed text-slate-400">
-                Waarom dit advies? {buildVisCoachAdviceText(plan.prognosis, plan.pendingSnapshot.conditions, plan.pendingSnapshot.inputContext?.technique).rationale}
+                Waarom dit advies? {planAdvice.rationale}
               </p>
             )}
           </div>
