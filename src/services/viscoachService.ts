@@ -10,7 +10,7 @@ import {
   WeatherSnapshot,
   PrognosisInputContext,
 } from '../types';
-import { calculateDayPrognosis, createPrognosisInputFingerprint, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
+import { calculateDayPrognosis, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
@@ -284,6 +284,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     waterTemperature: null,
   };
 
+  const historyFeatures = createPrognosisHistoryFeatureSnapshot(input.sessions, input.catches);
   const inputContext: PrognosisInputContext = {
     calculatedAt: new Date().toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
@@ -301,19 +302,16 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
       waterFacingDirection: input.location.waterFacingDirection,
       habitatFeatures: input.location.habitatFeatures,
     },
-    historicalSessionIds: input.sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
-    catchRecordIds: input.catches.map((item) => item.id),
+    historicalSessionIds: historyFeatures.historicalSessionFeatures!.map((item) => item.id),
+    catchRecordIds: historyFeatures.historicalCatchFeatures!.map((item) => item.id),
     observationIds: [],
+    ...historyFeatures,
     presenceObservation: 'onbekend',
     historicalWaterTemperatureSamples: historicalWaterTemperatures,
-    historyFingerprint: createPrognosisInputFingerprint({
-      sessions: input.sessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-      catches: input.catches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
-      historicalWaterTemperatures,
-    }),
+    historyFingerprint: createPrognosisHistoryFingerprint(input.sessions, input.catches, [], historicalWaterTemperatures),
     historySummary: {
-      sessionCount: input.sessions.filter((item) => item.isBenchmark !== true).length,
-      catchRecordCount: input.catches.length,
+      sessionCount: historyFeatures.historicalSessionFeatures!.length,
+      catchRecordCount: historyFeatures.historicalCatchFeatures!.length,
       observationCount: 0,
       historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
     },
