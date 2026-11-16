@@ -40,7 +40,7 @@ export function calculateCivilTwilightTimes(
 
   const [year, month, day] = date.split('-').map(Number);
   const dayOfYear = Math.floor((Date.UTC(year, month - 1, day) - Date.UTC(year, 0, 0)) / 86400000);
-  const daysInYear = new Date(Date.UTC(year + 1, 0, 0)).getUTCDate() === 366 ? 366 : 365;
+  const daysInYear = (Date.UTC(year + 1, 0, 1) - Date.UTC(year, 0, 1)) / 86400000;
   const gamma = (2 * Math.PI / daysInYear) * (dayOfYear - 1);
   const declination = 0.006918
     - 0.399912 * Math.cos(gamma) + 0.070257 * Math.sin(gamma)

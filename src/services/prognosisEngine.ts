@@ -17,7 +17,8 @@ import {
   ManualWaterTemperatureInput,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
-import { calculateCivilTwilightTimes, CivilTwilightTimes } from './solarTimeEngine';
+import { calculateCivilTwilightTimes } from './solarTimeEngine';
+import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';

@@ -408,6 +408,7 @@ async function run14Scenarios() {
     '2026-10-23', s1Forecasts, 'Snoekbaars', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), {
       sessionDurationHours: 3,
+      location: { id: 'solar-test', name: 'Solar test', latitude: 51.961, longitude: 5.228, createdAt: '', updatedAt: '' },
       dailySolarTimes: [{ date: '2026-10-23', sunrise: '2026-10-23T08:20', sunset: '2026-10-23T18:30' }],
     }
   );
