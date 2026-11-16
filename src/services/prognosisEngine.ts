@@ -951,12 +951,15 @@ export function calculateDayPrognosis(
 
   // Samenvatting
   let summaryRationale = '';
-  if (!dayScoreAvailable) { summaryRationale='De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.'; }
-  else if (bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid') {
+  if (!dayScoreAvailable) {
+    summaryRationale = 'De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.';
+  } else if (bestSlot === 'Geen betekenisvol onderscheid') {
+    summaryRationale = 'De beschikbare tijdvakken verschillen volgens de huidige prognose niet betekenisvol in thermische activiteitspotentie. Er is daarom geen onderbouwde beste vistijd; kies een moment dat praktisch past.';
+  } else if (bestSlot === 'Geen toekomstig tijdvak meer vandaag') {
+    summaryRationale = 'Alle tijdvakken voor vandaag zijn inmiddels verstreken. Bekijk de prognose voor morgen.';
+  } else {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
-  } else {
-    summaryRationale = 'Alle tijdvakken voor vandaag zijn inmiddels verstreken. Bekijk de prognose voor morgen.';
   }
 
   // Onzekerheden

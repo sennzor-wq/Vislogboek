@@ -398,6 +398,20 @@ async function run14Scenarios() {
   );
   assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
     '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
+  assert(
+    equalSlotPrognosis.summaryRationale.toLowerCase().includes('niet betekenisvol') &&
+      !equalSlotPrognosis.summaryRationale.toLowerCase().includes('verstreken'),
+    '12.2c Gelijkwaardige tijdvakken worden niet ten onrechte als verstreken gepresenteerd'
+  );
+  const allPastPrognosis = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
+    new Date('2026-10-24T12:00:00Z'), { sessionDurationHours: 3 }
+  );
+  assert(
+    allPastPrognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' &&
+      allPastPrognosis.summaryRationale.toLowerCase().includes('verstreken'),
+    '12.2d Alleen wanneer alle tijdvakken verstreken zijn, meldt de samenvatting dat'
+  );
 
   assert(
     unknownDurationPrognosis.plannedDurationHours === null &&

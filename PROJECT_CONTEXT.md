@@ -1180,3 +1180,8 @@ De nieuwe metabole/aerobe-scopebronnen zijn aan de canonieke soortprofielen geko
 De prognose hoeft niet altijd één beste tijdvak aan te wijzen. Als omstandigheden tussen tijdvakken praktisch gelijk zijn en er geen relevante soortspecifieke gedragsfactor is die een verschil onderbouwt, toont de app de tijdvakken als gelijkwaardig. De visser kiest dan zelf wanneer hij vist; geen kunstmatige nachtvoorkeur.
 
 Een natuurlijke voorkeur voor ochtend, schemering of nacht mag wel meewegen wanneer direct, soortspecifiek bewijs het relevante gedrag ondersteunt. Voedingsritme is bewijs voor voedingsgedrag; telemetrie/locomotie is niet automatisch bewijs voor meer voedselopname of vangstkans. De app onderscheidt duidelijke voorkeur, kleine/onzekere verschillen en geen betekenisvol verschil. Numerieke drempels en scores volgen pas na bronbeoordeling en validatie; er komt geen standaard tijdvakbonus.
+
+
+### Fase 2 — gelijkwaardige tijdvakken correct gecommuniceerd (16 november 2026)
+
+Een presentatiebug is hersteld: wanneer de tijdvakuitkomst `Geen betekenisvol onderscheid` was, meldde de samenvatting ten onrechte dat alle tijdvakken verstreken waren. De samenvatting onderscheidt nu gelijkwaardige tijdvakken van een verstreken dag en van ontbrekende thermische basisgegevens. Regressietests bewaken beide gevallen; scores en modelberekening zijn ongewijzigd.
