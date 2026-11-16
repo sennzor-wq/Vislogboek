@@ -402,6 +402,8 @@ Dit is meer dan een administratieve afwijking: het kan de leeftijd van een meeta
 
 De historische meetverwerking is aangescherpt: sessiemetingen gebruiken uitsluitend `waterTemperatureMeasuredAt` als meettijd. Er is geen fallback naar `session.startTime`. Zowel sessie- als snapshotmetingen vereisen een parsebaar expliciet meettijdstip, bekende herkomst (`manual` of `imported`) en bekende meetmethode (niet `unknown`). Records zonder deze gegevens blijven in de gebruikersdata behouden, maar worden niet als tijdkritisch meetanker of historische temperatuurwaarneming gebruikt totdat de metadata is aangevuld.
 
+Elke opgenomen historische meting bewaart in de prognose-inputcontext nu ook het oorspronkelijke record-ID en recordtype, registratiemoment, bron, meetmethode en meetdiepte. Het daadwerkelijke meetmoment blijft een afzonderlijk veld. Deze metadata worden niet samengevoegd met sessiestart, recordaanmaaktijd of totale waterdiepte.
+
 Bij het samenstellen van een seizoensprofiel worden tijdstippen naar hetzelfde absolute tijdstip genormaliseerd voor deduplicatie. Daardoor telt een sessie- en snapshotregistratie van dezelfde locatie, temperatuur en fysieke meettijd niet dubbel door een verschil in tijdzone-notatie. De thermische extrapolatie gebruikt dezelfde expliciete meettijd en slaat ongedateerde of onvoldoende gedocumenteerde sessiemetingen over.
 
 Gerichte regressietests zijn toegevoegd voor meettijd midden in een sessie, ontbrekende meettijd, onbekende meetmethode/-herkomst, benchmarkuitsluiting en sessie-/snapshotdeduplicatie. De tests zijn in deze GitHub-only werkstroom toegevoegd maar niet lokaal uitgevoerd; de commit gebruikt daarom de afgesproken `[skip ci]`-regel. Praktijkvalidatie blijft afzonderlijk nodig.

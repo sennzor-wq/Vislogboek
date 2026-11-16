@@ -13,6 +13,14 @@ export interface HistoricalWaterTemperatureObservation {
   latitude?: number;
   longitude?: number;
   isBenchmark?: boolean;
+  /** Herkomst en methode van de fysieke meting; apart van het meetmoment. */
+  measurementSource?: 'manual' | 'imported' | 'unknown';
+  measurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  measurementDepthM?: number;
+  /** Wanneer het record is opgeslagen, los van het daadwerkelijke meetmoment. */
+  recordedAt?: string;
+  recordId?: string;
+  recordType?: 'session' | 'snapshot';
 }
 
 /**
@@ -39,6 +47,12 @@ export function collectHistoricalWaterTemperatureObservations(
       locationId: snapshot.locationId,
       temperatureC: snapshot.actualWaterTemperature,
       timestamp: snapshot.actualWaterTemperatureTimestamp,
+      measurementSource: snapshot.actualWaterTemperatureMeasurementSource,
+      measurementMethod: snapshot.actualWaterTemperatureMeasurementMethod,
+      measurementDepthM: snapshot.actualWaterTemperatureMeasurementDepthM,
+      recordedAt: snapshot.createdAt,
+      recordId: snapshot.id,
+      recordType: 'snapshot',
       waterType: location?.waterType,
       waterDepth: location?.waterDepth,
       latitude: location?.latitude,
@@ -57,6 +71,12 @@ export function collectHistoricalWaterTemperatureObservations(
       locationId: session.locationId,
       temperatureC: session.waterTemperature,
       timestamp: session.waterTemperatureMeasuredAt,
+      measurementSource: session.waterTemperatureMeasurementSource,
+      measurementMethod: session.waterTemperatureMeasurementMethod,
+      measurementDepthM: session.waterTemperatureMeasurementDepthM,
+      recordedAt: session.createdAt,
+      recordId: session.id,
+      recordType: 'session',
       waterType: location?.waterType,
       waterDepth: session.waterDepth ?? location?.waterDepth,
       latitude: location?.latitude,

@@ -500,6 +500,12 @@ export interface PrognosisInputContext {
     latitude?: number;
     longitude?: number;
     isBenchmark?: boolean;
+    measurementSource?: 'manual' | 'imported' | 'unknown';
+    measurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+    measurementDepthM?: number;
+    recordedAt?: string;
+    recordId?: string;
+    recordType?: 'session' | 'snapshot';
   }>;
   historyFingerprint?: string;
   historySummary: {

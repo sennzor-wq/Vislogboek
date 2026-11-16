@@ -1024,3 +1024,10 @@ De matrix en deze runtime-status wijzigen geen modelwaarden of app-uitvoer. Fase
 ## Fase 2 — correctie gedeelde snoek-/snoekbaarsbron (16 november 2026)
 
 De telemetriestudie van Nolan et al. (2025; online 2024), DOI `10.1007/s10750-024-05533-2`, onderzoekt zowel snoek als snoekbaars. De bijbehorende registervermelding is daarom aan beide soorten gekoppeld; een regressietest controleert die koppeling. De evidence-matrix §7.6 is aangescherpt zodat voedingsmetingen, locomotorische activiteit, habitat-/bewegingsdata en groeidata niet door elkaar worden gehaald. Een groeistudie blijft uitsluitend groeibewijs en wordt niet als acute activiteitscurve gebruikt.
+
+
+## Fase 2 — volledige meetprovenance in prognosesnapshots (16 november 2026)
+
+Historische watertemperatuurwaarnemingen bewaren nu naast het expliciete meettijdstip ook het oorspronkelijke record-ID en recordtype (sessie/snapshot), registratiemoment, meetbron, meetmethode en meetdiepte. De velden zijn toegevoegd aan `HistoricalWaterTemperatureObservation` en aan de historische meetrecords in `PrognosisInputContext`. De bestaande snapshotbouwers geven de verzamelde observaties rechtstreeks door, zodat de metadata onderdeel wordt van de onveranderlijke inputcontext en fingerprint.
+
+Gerichte regressietests controleren dat sessie- en snapshotrecords hun eigen metadata behouden. Dit verandert niet welke metingen worden toegelaten en verandert geen temperatuur- of visactiviteitsscore. Tests/build zijn niet uitgevoerd; commit gebruikt `[skip ci]`.

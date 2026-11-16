@@ -37,6 +37,7 @@ const makeMeasuredSession = (
   waterTemperatureMeasuredAt: measuredAt,
   waterTemperatureMeasurementSource: source,
   waterTemperatureMeasurementMethod: method,
+  waterTemperatureMeasurementDepthM: 0.4,
   isBenchmark,
   createdAt: startTime,
   updatedAt: startTime,
@@ -59,6 +60,8 @@ const duplicateSnapshot = {
   actualWaterTemperatureTimestamp: '2026-06-10T08:00:00Z',
   actualWaterTemperatureMeasurementSource: 'manual',
   actualWaterTemperatureMeasurementMethod: 'thermometer',
+  actualWaterTemperatureMeasurementDepthM: 0.5,
+  createdAt: '2026-06-10T08:30:00Z',
 } as unknown as PrognosisSnapshot;
 const collectedMeasurements = collectHistoricalWaterTemperatureObservations(
   measuredSessions,
@@ -67,6 +70,18 @@ const collectedMeasurements = collectHistoricalWaterTemperatureObservations(
 );
 assert(collectedMeasurements.length === 4,
   'Alleen sessie- en snapshotmetingen met exact meetmoment en bekende herkomst/methode worden verzameld');
+const sessionMeasurement = collectedMeasurements.find((item) => item.recordId === 'session-a');
+const snapshotMeasurement = collectedMeasurements.find((item) => item.recordId === 'snapshot-session-a');
+assert(sessionMeasurement?.recordType === 'session' &&
+  sessionMeasurement.recordedAt === '2026-06-10T08:00:00Z' &&
+  sessionMeasurement.measurementSource === 'manual' &&
+  sessionMeasurement.measurementMethod === 'thermometer' &&
+  sessionMeasurement.measurementDepthM === 0.4,
+  'Sessiemeting bewaart record-ID, registratiemoment, bron, methode en meetdiepte apart van meettijd');
+assert(snapshotMeasurement?.recordType === 'snapshot' &&
+  snapshotMeasurement.recordedAt === '2026-06-10T08:30:00Z' &&
+  snapshotMeasurement.measurementDepthM === 0.5,
+  'Snapshotmeting bewaart eigen herkomst en meetdiepte');
 assert(collectedMeasurements.find((item) => item.locationId === target.id && item.temperatureC === 14)?.timestamp === '2026-06-10T10:00:00+02:00',
   'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
 const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
