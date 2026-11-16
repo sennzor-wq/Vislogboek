@@ -1265,3 +1265,10 @@ De coachtekst moet het door de gebruiker gekozen tijdvak volgen. Bij één herle
 - Alle nieuwe onderzoeksrecords blijven `approvedForPrediction: false`. Er zijn geen biologische scores, tijdvakgewichten of numerieke parameters geactiveerd.
 
 **Volgende uitvoering:** maak de bewijsdekking per soort controleerbaar op responsvariabele, levensfase, seizoen, habitat/watertype, meetmethode en geografische overdraagbaarheid. Identificeer expliciet waar een soort alleen indirecte of contextgebonden dekking heeft. Daarna pas kan worden besloten welke kwalitatieve claims veilig in VisCoach thuishoren; numerieke invloed blijft geblokkeerd totdat lokale, chronologisch gescheiden validatie dat ondersteunt.
+
+
+## Fase 2 — biologische context in VisCoach zonder extra invoer (16 november 2026)
+
+De volgende stap gebruikt de bestaande onderzoeksregistraties om in VisCoach een korte **Biologische context** te tonen. De tekst onderscheidt directe dagritme-/voedingsmetingen van alleen beweging, habitat of dieet en benoemt de grenzen van levensfase, seizoen en watertype. Dit is uitleg, geen verborgen numerieke factor. Er komt geen verplicht levensfaseveld of extra handeling bij.
+
+De sessiecoach moet bovendien bij opgeslagen start- en herbeoordelingsadviezen hetzelfde werkelijke sessietijdvak gebruiken als de planweergave. Bij meerdere tijdvakken wordt geen beste dagdeel opgedrongen. Acceptatie: regressietests voor enkel tijdvak, meerdere tijdvakken, directe voedingsritmebronnen en uitsluitend indirect bewijs; geen wijziging in bestaande scores of vangstkans.

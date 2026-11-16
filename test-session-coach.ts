@@ -4,6 +4,7 @@ import { saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine
 import {
   changedSignatureFactors,
   buildVisCoachAdviceText,
+  buildVisCoachBiologicalContext,
   createInitialCoachAdviceRecord,
   getAdviceBaselineSnapshot,
   getSessionUpdateTrigger,
@@ -16,6 +17,7 @@ import {
   persistCoachReassessment,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
+import { resolveSelectedTimeSlot } from './src/services/viscoachService';
 
 let passed = 0;
 let failed = 0;
@@ -111,11 +113,56 @@ async function run() {
   );
 
   const first = await createInitialCoachAdviceRecord(session, snapshot);
+
+  assert(
+    resolveSelectedTimeSlot(new Date('2026-11-05T10:00:00.000Z'), null) === 'Ochtend' &&
+    resolveSelectedTimeSlot(new Date('2026-11-05T13:00:00.000Z'), null) === 'Middag' &&
+    resolveSelectedTimeSlot(new Date('2026-11-05T19:00:00.000Z'), null) === 'Avond' &&
+    resolveSelectedTimeSlot(new Date('2026-11-05T01:00:00.000Z'), null) === 'Nacht',
+    'Een starttijd zonder eindtijd wordt aan het juiste Amsterdamse tijdvak gekoppeld'
+  );
+
   const second = await createInitialCoachAdviceRecord(session, snapshot);
   const stored = await db.coachAdviceRecords.where('sessionId').equals(session.id).toArray();
 
   assert(first !== null, 'Startsnapshot levert een eerste coachadvies op');
   assert(first?.trigger === 'session_start', 'Eerste advies is herkenbaar als sessiestartadvies');
+
+  assert(
+    Boolean(first && first.recommendation.toLowerCase().includes('gekozen sessie valt in het tijdvak ochtend') &&
+    !first.recommendation.toLowerCase().includes('avond het gunstigste tijdvak')),
+    'Opgeslagen startadvies gebruikt het werkelijke sessietijdvak in plaats van de dagwinnaar'
+  );
+  const multiSlotSession: FishingSession = {
+    ...session,
+    id: 'coach-multi-slot-session',
+    startTime: '2026-11-05T10:00:00.000Z',
+    endTime: '2026-11-05T13:00:00.000Z',
+  };
+  const multiSlotSnapshot: PrognosisSnapshot = {
+    ...snapshot,
+    id: 'coach-multi-slot-snapshot',
+    linkedSessionId: multiSlotSession.id,
+    prognosisData: { ...snapshot.prognosisData!, bestTimeSlot: 'Avond' } as any,
+  };
+  await db.sessions.put(multiSlotSession);
+  await db.prognosisSnapshots.put(multiSlotSnapshot);
+  const multiSlotStoredAdvice = await createInitialCoachAdviceRecord(multiSlotSession, multiSlotSnapshot);
+  assert(
+    Boolean(multiSlotStoredAdvice && multiSlotStoredAdvice.recommendation.toLowerCase().includes('meerdere tijdvakken') &&
+    !multiSlotStoredAdvice.recommendation.toLowerCase().includes('avond het gunstigste tijdvak')),
+    'Opgeslagen advies voor een sessie over meerdere tijdvakken verzint geen dagwinnaar'
+  );
+  assert(
+    buildVisCoachBiologicalContext('Karper').includes('levensfasen') &&
+    buildVisCoachBiologicalContext('Karper').includes('niet als vaste tijdvakvoorkeur'),
+    'Biologische context benoemt de begrenzing van direct dagritmebewijs zonder een vaste voorkeur te claimen'
+  );
+  assert(
+    buildVisCoachBiologicalContext('Roofblei').includes('geen directe meting van tijdgebonden voedselopname'),
+    'Beweging en dieet worden niet verward met directe tijdgebonden voedselopname'
+  );
+
   assert(first?.prognosisSnapshotId === snapshot.id, 'Coachadvies verwijst naar de volledige startsnapshot');
   assert(first?.engineVersions?.waterThermal === '1.0.0' && first.engineVersions.prognosis === '1.0.0',
     'Coachadvies bewaart de volledige engineversiekaart van de gebruikte snapshot');
