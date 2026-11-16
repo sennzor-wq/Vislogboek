@@ -1010,3 +1010,12 @@ De bestaande `src/services/researchRegistry.ts` is uitgebreid met gecontroleerde
 Alle aanvullingen blijven `approvedForPrediction: false`. Dit verbetert brontraceerbaarheid, maar valideert geen bestaande thermische optimum-/breedteparameters en activeert geen numerieke factoren. `test-research-registry.ts` controleert nu ook dat alle negen concrete soorten een soortgekoppelde registratie hebben en dat de generieke fallback `Overig` niet als soort wordt geregistreerd.
 
 De auditbron voor snoek/snoekbaars is gecorrigeerd: DOI `10.1007/s10750-024-05533-2` hoort bij Nolan et al. (online 2024; jaargang 2025), niet bij Cittadino et al. (2024). Geen app-modeluitvoer of profielparameters zijn gewijzigd. Tests/build zijn niet uitgevoerd; de commit gebruikt `[skip ci]`.
+
+
+## Fase 2 — evidence-matrix en runtime-koppelingsstatus (16 november 2026)
+
+De soortgerichte literatuur is in `FASE2_PROGNOSE_AUDIT.md` §7.6 geclassificeerd naar voedselopname/foerageren, activiteit/locomotie, habitat/beweging en groeidata. De dekking is ongelijk: karper, zeelt en meerval hebben de duidelijkste directe voedings-/foerageerbronnen; baars en blankvoorn hebben dieet-/voedselkeuzegegevens; snoek, snoekbaars en roofblei zijn in de huidige inventaris vooral via telemetrie en habitat-/bewegingsstudies onderbouwd; brasem vooral via winteractiviteit en seizoens-/habitatbeweging. Deze uitkomsten zijn niet uitwisselbaar.
+
+Repositorybrede controle van de 41 TypeScript-/TSX-bronbestanden bevestigde dat het research register nog niet als runtime-poort wordt gebruikt. Alleen `dataQualityEngine.ts` importeert momenteel het type `DataStatus`; de prognose-, profiel-, habitat- en positioneringsengines lezen de geregistreerde kennis niet. Dit is bewust nog niet gekoppeld omdat geen nieuwe numerieke factor is goedgekeurd. Vóór toekomstige factoractivatie moet de relevante registratie expliciet worden gekoppeld en moet een test afdwingen dat niet-goedgekeurde kennis geen numerieke scorebijdrage levert.
+
+De matrix en deze runtime-status wijzigen geen modelwaarden of app-uitvoer. Fase 2 blijft open.

@@ -270,6 +270,13 @@ De repository bevat testfixtures en code voor sessie-/vangsthistorie, maar de pe
 5. **Levensfase en individuele variatie moeten in bewijsstatus worden vermeld.** Waar het model geen levensfase kent, mag het geen precisie claimen die de bronpopulatie niet ondersteunt.
 
 
+### 7.4 Nog ontbrekende brondekking
+
+De literatuurverkenning is nog niet compleet voor alle factoren en soorten. Vooral directe veldstudies naar voedselopname/foerageren bij snoek, brasem, blankvoorn, snoekbaars en roofblei onder Nederlandse of vergelijkbare laaglandcondities blijven nodig. Ook onafhankelijke gegevens over drukverandering, wind, zuurstof, stroming, regen en interacties zijn nodig voordat die factoren numeriek kunnen bijdragen.
+
+**Conclusie:** er is voldoende bewijs om soortspecifieke verschillen en habitat-/tijdspatronen serieus te modelleren, maar niet om nu al betrouwbare vaste percentages of exacte responsgewichten te publiceren. De volgende stap is de bestaande parameter- en bronverwijzingen één voor één te auditen en per modeluitkomst een expliciete bewijsstatus toe te kennen.
+
+
 ### 7.5 Koppeling aan het centrale research register
 
 De eerste broninventaris uit §7.1 is nu ook als soortgerichte kennis vastgelegd in `src/services/researchRegistry.ts`. Voor alle negen concrete profielsoorten bestaat minimaal één expliciete soortgekoppelde registratie. De aanvullende registraties betreffen onder meer karperfoerageren, brasemwinteractiviteit en wetlandbeweging, snoek- en snoekbaarsbeweging, baars- en blankvoornactiviteit/habitat, zeeltvoedingsritme, meervalvoeding/individuele variatie en roofbleimigratie.
@@ -278,11 +285,30 @@ De eerste broninventaris uit §7.1 is nu ook als soortgerichte kennis vastgelegd
 
 De DOI-vermelding bij de snoek-/snoekbaarsstudie is gecorrigeerd: DOI `10.1007/s10750-024-05533-2` betreft Nolan et al., *Movements and habitat use of native and invasive piscivorous fishes in a temperate and channelized lowland river* (online gepubliceerd in 2024; jaargang 2025), niet Cittadino et al. (2024).
 
-### 7.4 Nog ontbrekende brondekking
 
-De literatuurverkenning is nog niet compleet voor alle factoren en soorten. Vooral directe veldstudies naar voedselopname/foerageren bij snoek, brasem, blankvoorn, snoekbaars en roofblei onder Nederlandse of vergelijkbare laaglandcondities blijven nodig. Ook onafhankelijke gegevens over drukverandering, wind, zuurstof, stroming, regen en interacties zijn nodig voordat die factoren numeriek kunnen bijdragen.
 
-**Conclusie:** er is voldoende bewijs om soortspecifieke verschillen en habitat-/tijdspatronen serieus te modelleren, maar niet om nu al betrouwbare vaste percentages of exacte responsgewichten te publiceren. De volgende stap is de bestaande parameter- en bronverwijzingen één voor één te auditen en per modeluitkomst een expliciete bewijsstatus toe te kennen.
+**Runtime-koppeling:** de repositorybrede broncontrole vond dat geen prognose-, profiel-, habitat- of positioneringsengine de registerinhoud of `isApprovedPredictionKnowledge()` momenteel raadpleegt. `dataQualityEngine.ts` importeert alleen het type `DataStatus`. Het register is dus op dit moment een centrale bewijsadministratie en testbron, nog geen technische runtime-poort. Vóór een nieuwe factor numeriek wordt geactiveerd, moet de implementatie expliciet aan de relevante registratie worden gekoppeld en moet een regressietest aantonen dat niet-goedgekeurde kennis geen scorebijdrage kan leveren.
+
+### 7.6 Evidence-matrix per soort en responsvariabele
+
+De matrix hieronder classificeert de geregistreerde bronnen naar wat zij daadwerkelijk meten. Een bron kan voor de ene modeluitkomst bruikbaar zijn en voor een andere ongeschikt. De register-ID's verwijzen naar de volledige samenvatting, bron en beperkingen in `src/services/researchRegistry.ts`.
+
+| Soort | Voedselopname / foerageren | Activiteit / locomotie | Habitat / beweging | Huidige modelconclusie |
+|---|---|---|---|---|
+| Karper | `common-carp-temperature-feeding-rhythm-2012`; `common-carp-juvenile-foraging-temperature-2012` — directe voedings-/foerageermetingen, deels gecontroleerd en deels juveniel | Voedingsritme is geen zelfstandige zwemactiviteitsmeting | Geen specifieke telemetriebron in het huidige register | Bruikbare hypothesen voor voedingsritme en temperatuurrespons; geen volwassen Nederlandse veldcurve of exacte vangstweging |
+| Brasem | Geen directe voedselopname gemeten; winterfoerageren in de reservoirstudie is afgeleid/vermoed | `common-bream-winter-activity-reservoir-2018` — telemetrie-/activiteitscontext | `common-bream-wetland-seasonal-movement-2026` — seizoensbeweging en gebruik van verbonden zijwateren | Vooral winter-, diepte-, zuurstof- en habitatcontext; niet omzetten naar directe voedingsscore |
+| Snoek | Geen directe voedingsmeting in de geregistreerde bronnen | Bewegingsmaten via telemetrie | `northern-pike-lowland-river-movement-habitat-2025` — seizoen, temperatuur en off-channel habitat | Voorlopig habitat-/bewegingshypothesen; geen dagelijkse voedingscurve |
+| Baars | `european-perch-activity-habitat-lakes-2002-2025` — voedselkeuze, geen algemene voeropnamesnelheid | Radiotelemetrie en dag-/schemeractiviteit, sterk verschillend per meer | Littoraal/pelagisch gebruik en verschillen naar trofische toestand | Onderbouwt contextafhankelijke dagritmes en habitat; geen universele voorkeursuren |
+| Voorn | `roach-diel-diet-and-habitat-shifts-2002-2004` — dieetverschuiving en seizoens-/dagritme in voedingsintensiteit | Telemetrie toont verschillen in activiteit tussen heldere en troebele meren | Dag-/nachtverschuiving tussen littoraal en pelagisch habitat | Bruikbaar voor gekoppelde dieet-/habitatcontext; geen vaste dag-nachtregel |
+| Zeelt | `tench-nocturnal-feeding-locomotor-rhythm-2005`; `tench-temperature-feeding-efficiency-2026` — gecontroleerde voedingsmetingen | Nachtelijk locomotorisch ritme onder gecontroleerde condities | USGS-soortprofiel beschrijft habitat/tolerantie, maar is geen lokale veldvangststudie | Nachtelijke voorkeur is een hypothese met beperkte overdraagbaarheid; geen harde nachtbonus |
+| Snoekbaars | Geen directe voedselopname gemeten in de geregistreerde bronnen | `pikeperch-diel-activity-drainage-canal-2005` — volwassen vis, voorjaars-/kanaalcontext | `northern-pike-lowland-river-movement-habitat-2025` — rivier- en off-channel habitat | Dagritme-/bewegingscontext, maar geen Nederlandse jaarcurve of directe voedingsscore |
+| Meerval | `european-catfish-feeding-and-activity-rhythms-1995-2012` — gecontroleerde voedingsritmes | EMG-telemetrie toont activiteit en grote individuele variatie | Twee riviercontexten; geen universele stekvoorkeur | Nachtelijke voeding is contextafhankelijk; individuele variatie moet expliciet blijven |
+| Roofblei | Geen directe voedselopname gemeten; meergebruik als foerageerhabitat is telemetrisch afgeleid | Diel-/seizoensbeweging via telemetrie | `asp-diel-seasonal-movement-river-lake-2016-2020` — migratie tussen rivier, meer, paaigebied en winterhabitat | Vooral migratie-/habitatlaag; geen directe dagelijkse voedingscurve |
+| Overig | Geen soortspecifieke bronnen | Geen soortspecifieke bronnen | Geen soortspecifieke bronnen | Alleen generieke terugval; geen soortspecifieke biologische precisie |
+
+**Modelimplicatie:** de huidige bronnen geven geen gelijkmatige dekking over alle uitkomsten. Directe voedings-/foerageergegevens zijn vooral beschikbaar voor karper, zeelt en meerval; voor baars en blankvoorn zijn dieet-/voedselkeuzegegevens beschikbaar. Voor snoek, snoekbaars en roofblei is de huidige dekking vooral telemetrie, beweging en habitat. Brasemgegevens ondersteunen vooral winteractiviteit en habitat-/seizoensbeweging. De voedingslaag moet daarom per soort een eigen bewijsstatus en onzekerheid tonen; ontbrekend direct bewijs mag niet worden ingevuld met telemetrie of groeidata.
+
+Alle gekoppelde registraties blijven `approvedForPrediction: false`. De matrix is een classificatie van bestaande literatuur, geen vrijgave van numerieke modelinvloeden.
 
 
 ## 8. Parameterinventaris bestaande soortprofielen
