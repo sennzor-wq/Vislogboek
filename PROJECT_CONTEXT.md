@@ -1264,3 +1264,8 @@ Deze matrix is een inventarisatie van de bestaande registry, geen meta-analyse e
 Bohl (1979; DOI 10.1007/BF00545241) is als afzonderlijke, niet-goedgekeurde registratie toegevoegd voor juveniele blankvoorn en brasem. De bron meet nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht in kleine Beierse meren. Dit bewijs blijft levensfase-, habitat- en prooitypegebonden en wordt niet gebruikt om een algemene nachtvoorkeur voor volwassen vissen te claimen.
 
 Het bestaande opslag-/typesleutelwoord `Voorn` verwijst naar `Rutilus rutilus` (blankvoorn). De zichtbare profielnaam is daarom gecorrigeerd naar 'Blankvoorn'; ruisvoorn (`Scardinius erythrophthalmus`) is een andere soort en heeft nog geen eigen profiel. Het interne type en bestaande sessiedata zijn niet gewijzigd.
+
+
+## Fase 2 — primaire broncontrole baars/Bodenmeer (16 november 2026)
+
+Bretzel et al. (2021; DOI 10.3389/fenvs.2021.670125) is in volledige tekst gecontroleerd. De 24-uurs voedingsgegevens betreffen juveniele 0+ baars in het pelagische deel van de Obersee en zijn gebaseerd op de herfstcampagne van 2018. De waargenomen dageraad-/schemerpieken en nachtelijke afname mogen niet als adult- of universeel baarsritme worden gebruikt. Maaginhoud blijft een proxy voor recente voedselopname, geen vangstkans. De registratie is op deze scope aangescherpt en blijft `approvedForPrediction: false`.

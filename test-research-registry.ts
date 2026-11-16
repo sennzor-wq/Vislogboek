@@ -285,3 +285,7 @@ if (SPECIES_PROFILES.Voorn.dutchName !== 'Blankvoorn (Rutilus rutilus)' ||
     SPECIES_PROFILES.Voorn.scientificName !== 'Rutilus rutilus') {
   throw new Error('The Voorn profile label must accurately identify blankvoorn without conflating rudd.');
 }
+
+if (!SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.includes('10.3389/fenvs.2021.670125'))) {
+  throw new Error('The perch profile must link the verified juvenile Lake Constance feeding study with its scope limits.');
+}
