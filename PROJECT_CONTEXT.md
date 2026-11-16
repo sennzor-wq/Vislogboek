@@ -1168,3 +1168,8 @@ De UI noemt de bestaande 1–10-uitkomst voortaan 'thermische activiteitspotenti
 ### Fase 2 — thermische fysiologie als aparte evidence-uitkomst (16 november 2026)
 
 Het researchregister onderscheidt nu `metabolic_rate` en `aerobic_scope` van voedingsintensiteit, voedingsritme, foerageren, locomotie en groei. Eerste studies zijn geregistreerd voor karper, snoek, baars, brasem, blankvoorn en snoekbaars, met expliciete beperkingen rond laboratoriumopzet, lichaamsgrootte, levensfase en overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor numerieke modelinvloed. Er zijn geen soortparameters of scores aangepast.
+
+
+### Fase 2 — thermische brondekking per soort vastgelegd (16 november 2026)
+
+De nieuwe metabole/aerobe-scopebronnen zijn aan de canonieke soortprofielen gekoppeld en de audit bevat nu een dekkingstabel voor alle concrete soorten. De bronbasis is ongelijk: baars en snoekbaars hebben directere aerobe-scopegegevens, brasem/voorn SMR/RMR over een temperatuurreeks, terwijl karper/snoek beperkte metabole temperatuurmetingen hebben en zeelt/meerval/roofblei nog geen passende volledige curve in het register. Lichaamsgrootte en levensfase kunnen de respons veranderen. We voegen hiervoor geen verplichte gebruikersvelden toe; bestaande vangstlengtes zijn geen representatieve populatiesteekproef. Geen thermische profielparameters aangepast.
