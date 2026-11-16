@@ -97,7 +97,7 @@ async function run14Scenarios() {
       createManualWaterTemperatureInput(Number.NaN, manualTemperatureRecordedAt) === null,
     '0.1b Ontbrekende of ongeldige handmatige temperatuur wordt niet als invoerobject opgeslagen'
   );
-  const manualFingerprintA = createPrognosisInputFingerprint({ manualWaterTemperatureInput });
+  const manualFingerprintA = createPrognosisInputFingerprint({ manualWaterTemperatureInput: manualTemperatureInput });
   const manualFingerprintB = createPrognosisInputFingerprint({
     manualWaterTemperatureInput: createManualWaterTemperatureInput(15.1, manualTemperatureRecordedAt),
   });
