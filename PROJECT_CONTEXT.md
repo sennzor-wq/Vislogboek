@@ -761,3 +761,14 @@ De eerste lokale uitvoering van `bun run tsx test-core-logic.ts` op de actuele c
 ### Correctie testfixtures watertemperatuur — 16 november 2026
 
 De core-logic fixtures gebruiken voor temperatuurrespons en persoonlijke prognose nu minimaal 72 uur synthetische voorafgaande uurlijkse weersdata zonder een waarde via `userWaterTemp` mee te geven. Dat veld is uitsluitend voor een echte lokale meting. De tests moeten de weather-only modelschattingsroute controleren; directe meting en schatting blijven apart getest. Zie de aanvullende correctie in `FASE0_OPTIMIZATION_AUDIT.md`.
+
+
+## Lokale Quality Gate volledig uitgevoerd — 16 november 2026
+
+De eigenaar heeft alle stappen uit de actuele GitHub Actions Quality Gate lokaal uitgevoerd. De dependency-installatie, beide Bun-audits, TypeScript-typecheck, tests, productiebuild en dist-privacycontrole zijn zonder gemelde fouten voltooid. De drie laatst resterende workflowtests (`test-session-coach-integration.ts`, `test-viscoach-greetings.ts` en `test-weather-enrichment.ts`) zijn eveneens door de eigenaar uitgevoerd zonder fouten.
+
+Belangrijke concrete resultaten: typecheck zonder diagnostiek; dependency-audits zonder kwetsbaarheden op de ingestelde niveaus; alle tests met expliciete tellingen slaagden; clean-startmigratie 16/16; backup-roundtrip 41/41; productiebuild geslaagd; `PASS: No private artifacts detected in dist`. De backup-importtest toonde alle verwachte fixture- en mergecontroles, maar de vastgelegde uitvoer bevatte geen expliciete formele eindtelling. De build gaf alleen niet-blokkerende waarschuwingen over `__dirname` en een JavaScript-chunk van circa 802 kB.
+
+Aanvullend slaagde `test-core-logic.ts` lokaal met 51/51; deze netwerkafhankelijke test blijft buiten de GitHub Actions-workflow zolang Open-Meteo niet wordt gemockt. Er is geen GitHub Actions-run gestart; dit betreft lokale validatie door de eigenaar.
+
+**Status fase 0:** nog in uitvoering. De volledige Quality Gate-validatie sluit de resterende blueprint → code → UI → test-matrix, repositorybrede benchmark-/seedverwijzingsaudit en backup-importregressies uit §19–22 niet af. Fase 1 blijft gesloten totdat die onderdelen zijn afgerond. Zie `FASE0_OPTIMIZATION_AUDIT.md` §23.

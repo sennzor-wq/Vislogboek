@@ -563,3 +563,52 @@ De testfixtures en deze expliciete onzekerheidsnotitie zijn voorbereid in één 
 ### Aanvullende correctie — weather-only fixtures
 
 Bij controle van de thermische invoer bleek dat de vorige testcorrectie voor de temperatuurcurves een waarde via `userWaterTemp` meegaf. Dat veld betekent een echte lokale meting, niet een schatting. Dit was semantisch onjuist voor deze tests. De fixtures zijn daarom aangepast: ze gebruiken nu minimaal 72 uur synthetische voorafgaande weersdata en laten `userWaterTemp` leeg. Daarmee testen ze expliciet de weather-only schattingsroute. De dedicated tests voor een echte lokale meting blijven afzonderlijk bestaan. Deze wijziging is nog niet lokaal uitgevoerd; de suite blijft pending.
+
+
+## 23. Volledige lokale Quality Gate-validatie — 16 november 2026
+
+De eigenaar heeft de volledige set stappen uit de actuele `.github/workflows/ci.yml` lokaal uitgevoerd, omdat de eerder waargenomen GitHub Actions-runner (#529) geen workflowstappen startte. Er is voor deze validatie geen nieuwe GitHub Actions-run gestart.
+
+### 23.1 Dependencycontrole en statische analyse
+- `bun install --frozen-lockfile`: voltooid; 490 installs gecontroleerd over 619 packages, zonder wijzigingen.
+- `bun audit --prod`: geen kwetsbaarheden gevonden (188 packages gecontroleerd).
+- `bun audit --audit-level=high`: geen kwetsbaarheden op high-niveau gevonden (568 packages gecontroleerd; 3 meldingen onder de ingestelde drempel).
+- `bun run lint`: `tsc --noEmit` voltooid zonder TypeScript-diagnostiek.
+
+### 23.2 Lokale tests
+De eigenaar rapporteerde de volgende resultaten:
+- `test-date-time.ts`: 17 geslaagd, 0 mislukt.
+- `test-thermal-and-prognosis.ts`: 40 geslaagd, 0 mislukt.
+- `test-brier-integration.ts`: 48 geslaagd, 0 mislukt.
+- `test-forward-validation.ts`: 28 geslaagd, 0 mislukt.
+- `test-advanced-prognosis-modules.ts`: 80 geslaagd, 0 mislukt.
+- `test-research-registry.ts`: research registry-, soortenbiologie-evidence- en soortprofielbronlinktests voltooid.
+- `test-rod-positioning.ts`: 96 geslaagd, 0 mislukt.
+- `test-water-thermal-coupling.ts`: 32 geslaagd, 0 mislukt.
+- `test-water-temperature-learning.ts`: 15 geslaagd, 0 mislukt.
+- `test-water-history-profile.ts`: 13 geslaagd, 0 mislukt.
+- `test-water-temperature-synthetic-validation.ts`: 12 geslaagd, 0 mislukt.
+- `test-safe-deletion.ts`: 29 geslaagd, 0 mislukt.
+- `test-session-snapshot-commit.ts`: 11 geslaagd, 0 mislukt.
+- `test-viscoach-part1.ts`: 28 geslaagd, 0 mislukt.
+- `test-backup-import.ts`: uitgevoerd; de uitvoer controleerde het v2-backupformaat, aantallen locaties/sessies/vangsten, sessies zonder locatie, onbekende uitkomsten en gewichten, plus een merge-simulatie. De uitvoer bevatte geen expliciete totaaltelling met geslaagd/mislukt; daarom wordt hier geen formele testsamenvatting geclaimd.
+- `test:audit-data-integrity`: 12 geslaagd, 0 mislukt.
+- `test:clean-start-migration`: 16 geslaagd, 0 mislukt.
+- `test-security-backup-validation.ts`: voltooid met melding dat de security-backup-validatietests geslaagd zijn.
+- `test-backup-roundtrip.ts`: 41 geslaagd, 0 mislukt.
+- `test-session-rods.ts`: 10 geslaagd, 0 mislukt.
+- `test-session-coach.ts`: 48 geslaagd, 0 mislukt.
+- `test-session-coach-integration.ts`: door de eigenaar uitgevoerd zonder fouten.
+- `test-viscoach-greetings.ts`: door de eigenaar uitgevoerd zonder fouten.
+- `test-weather-enrichment.ts`: door de eigenaar uitgevoerd zonder fouten.
+- Aanvullend, buiten de workflow: `test-core-logic.ts` is lokaal opnieuw uitgevoerd met 51 geslaagd, 0 mislukt. Deze test blijft buiten de CI-workflow zolang de live Open-Meteo-afhankelijkheid niet geïsoleerd of gemockt is.
+
+### 23.3 Productiebuild en privacycontrole
+- `bun run build`: geslaagd. Vite transformeerde 1699 modules en bouwde de productie-output; de PWA-serviceworker en precache werden gegenereerd.
+- Er waren twee niet-blokkerende waarschuwingen: gebruik van `__dirname` in `vite.config.ts` met de native config loader, en een JavaScript-chunk van circa 802 kB boven de standaardgrens van 500 kB. Dit zijn optimalisatiepunten, geen buildfouten.
+- De controle op privéartefacten in `dist` is uitgevoerd en gaf: `PASS: No private artifacts detected in dist`.
+
+### 23.4 Interpretatie en resterende scope
+De volledige Quality Gate-commandoset is lokaal uitgevoerd zonder gemelde fouten; de drie laatst resterende workflowtests en de productieprivacycontrole zijn eveneens bevestigd. Dit is lokale validatie door de eigenaar, geen GitHub-hosted Actions-run. De backup-importtest heeft geen expliciete formele eindtelling in de vastgelegde uitvoer en wordt daarom apart genuanceerd.
+
+Fase 0 is hiermee **niet automatisch afgerond**. De resterende auditwerkzaamheden uit §19–22 blijven gelden: de volledige blueprint → code → UI → test-matrix, repositorybrede benchmark-/seedverwijzingsaudit, gerichte legacy-backup-importregressies en controle van de eerder gevonden backupvalidatiegrenzen. Ook moet de daadwerkelijke `replaceWithImportData`-flow en het veiligheidsdownloadpad worden afgedekt. Fase 1 blijft gesloten totdat deze auditonderdelen zijn afgerond en beoordeeld.
