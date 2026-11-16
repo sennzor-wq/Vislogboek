@@ -326,8 +326,6 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     species: input.targetSpecies,
     locationId: input.location.id,
     weather: weather.hourly,
-    sessions: input.sessions.map((session) => [session.id, session.updatedAt, session.outcome]),
-    catches: input.catches.map((item) => [item.id, item.timestamp, item.species, item.count]),
   });
 
   const selectedTimeSlot = resolveSelectedTimeSlot(start, end);
