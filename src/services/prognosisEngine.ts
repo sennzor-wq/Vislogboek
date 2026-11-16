@@ -169,7 +169,7 @@ function clamp(val: number, min: number, max: number): number {
 
 function getLocalClockMinutes(value: string | undefined): number | null {
   if (typeof value !== 'string') return null;
-  const match = value.match(/T(\\d{2}):(\\d{2})/);
+  const match = value.match(/T(\d{2}):(\d{2})/);
   if (!match) return null;
   const hours = Number(match[1]);
   const minutes = Number(match[2]);
