@@ -508,3 +508,6 @@ De read-only trace van de bestaande bankWind-, habitatMovement- en rodPositionin
 ### Fase 2 — meettijd-provenance watertemperatuur (16 november 2026)
 
 De read-only controle bevestigt dat historische sessiemetingen momenteel op session.startTime worden gedateerd, terwijl het type een afzonderlijk waterTemperatureMeasuredAt-veld bevat. Snapshot- en sessiebronnen kunnen hierdoor dezelfde fysieke meting als twee verschillende waarnemingen behandelen. Zie [FASE2_PROGNOSE_AUDIT.md §10](FASE2_PROGNOSE_AUDIT.md). Eerst fallback- en deduplicatiebeleid vastleggen; daarna een gerichte fix met tests. Geen code gewijzigd.
+
+
+Aanvulling §10: het meettijdstipveld is in SessionModal optioneel en wordt niet automatisch ingevuld. De fallbackpolicy moet dit expliciet verwerken; session.startTime is geen betrouwbare exacte meettijd.

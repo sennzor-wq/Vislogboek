@@ -368,3 +368,6 @@ Dit is meer dan een administratieve afwijking: het kan de leeftijd van een meeta
 5. Voeg regressietests toe voor een meting halverwege een sessie, ontbrekend meettijdstip, snapshot+sessieduplicaat, benchmarkuitsluiting en het kiezen van het juiste meest recente anker.
 
 **Besluit:** geen code gewijzigd in deze stap. Eerst de fallback-/deduplicatiepolicy vastleggen en daarna als één gerichte data-integriteitsfix implementeren. Tot die tijd moeten sessiemetingen zonder exact meettijdstip als onzeker worden behandeld bij temperatuurhistorie en thermische extrapolatie.
+
+
+**Aanvullende UI-controle:** SessionModal.tsx bevat een handmatig invulbaar veld “Meetdatum en -tijd”. Het veld is optioneel, wordt niet automatisch gevuld en wordt alleen opgeslagen wanneer de gebruiker een waarde invult. Een sessiemeting zonder timestamp is dus een mogelijke normale invoerstatus, niet automatisch een corrupte record. Dit bevestigt dat de fallbackpolicy bewust moet omgaan met ontbrekende meettijdstippen; stilzwijgend session.startTime als exact meetmoment behandelen is niet verantwoord.
