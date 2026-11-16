@@ -108,6 +108,7 @@ async function run() {
 
   const backup = await collectBackupData();
   assert(backup.version === 5, 'Nieuwe export gebruikt backupformaat v5');
+  assert(backup.cleanStartVersion === 1, 'Nieuwe export bevat expliciete clean-startgeneratiemarkering');
   assert(backup.locations.length === 1 && backup.sessions.length === 1,
     'Locaties en sessies uit alle records worden geëxporteerd');
   assert(backup.catches.length === 1,
@@ -232,6 +233,29 @@ async function run() {
     ...backup, catches: [catchItem, { ...catchItem }],
   }));
   assert(!duplicateCatchId.preview.valid, 'Dubbele record-IDs binnen één back-uptabel worden vóór import geweigerd');
+
+  const legacyPreCleanStart = normalizeRawBackup({
+    version: 4, appName: 'Vislogboek', exportedAt: '2026-10-26T10:00:00.000Z',
+    locations: [location], sessions: [session], catches: [catchItem],
+    prognosisSnapshots: [snapshot], presenceObservations: [observation],
+    sessionRods: [rodDetail], plannedSessions: [planned], coachAdviceRecords: [advice],
+  });
+  await restoreBackupData(legacyPreCleanStart);
+  assert(await db.locations.get(location.id) !== undefined, 'Legacy restore behoudt locaties');
+  assert(await db.sessions.count() === 0 && await db.catches.count() === 0,
+    'Legacy pre-clean-start restore brengt geen oude sessies of vangsten terug');
+  assert((await db.prognosisSnapshots.get(snapshot.id))?.linkedSessionId === undefined,
+    'Legacy restore ontkoppelt prognosesnapshots van verwijderde sessies');
+  assert(await db.presenceObservations.get(observation.id) === undefined,
+    'Legacy restore laat sessiegebonden waarnemingen niet verweesd achter');
+  assert((await db.plannedSessions.get(planned.id))?.startedSessionId === undefined,
+    'Legacy restore ontkoppelt geplande sessies van oude sessies');
+  assert(await db.sessionRods.count() === 0 && await db.coachAdviceRecords.count() === 0,
+    'Legacy restore herstelt geen sessiegebonden hengeldetails of coachadviezen');
+  const legacyPreview = await inspectImportFile(JSON.stringify(legacyPreCleanStart));
+  assert(legacyPreview.preview.valid && legacyPreview.preview.cleanStartStatus === 'legacy-pre-clean-start' &&
+    legacyPreview.preview.skippedLegacySessionsCount === 1 && legacyPreview.preview.skippedLegacyCatchesCount === 1,
+    'Importpreview toont expliciet welke oude sessies en vangsten worden overgeslagen');
 
   const future = await inspectImportFile(JSON.stringify({ version: 6, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');

@@ -872,3 +872,8 @@ Audit uitgevoerd op actuele `main` commit `0334b43c006bc172f5ba8d3afa7b800c8302a
 **Vervolg:** eerst een expliciet backupgeneratie-/clean-startcontract vastleggen, zodat oude backups niet ongemerkt historische data terugbrengen en nieuwe records na de migratie niet verloren gaan. Daarna in één codewerkstroom de legacy-normalisatie, payloadlimieten, relationele merge/restore-policy, previewwaarschuwingen en regressietests corrigeren. Zie `VISLOGBOEK_VERBETERPLAN.md` voor de volledige afhankelijkhedenaudit en scope.
 
 **Status fase 1:** afhankelijkhedenaudit grotendeels afgerond; codewerkstroom nog niet gestart. Issue #49 blijft open.
+
+
+### Fase 1 backup/clean-start update — 16 november 2026
+
+Nieuwe exports markeren `cleanStartVersion: 1`; bestaande v5-backups worden ook als post-clean-start beschouwd omdat v5 de clean-startmigratie introduceerde. Backups van v1-v4 blijven bruikbaar voor herstel van instellingen, locaties, weercache en zelfstandige gegevens, maar hun oude sessies/vangsten en sessiegebonden afhankelijke gegevens worden niet teruggezet. Prognoses en geplande sessies blijven behouden waar mogelijk, met oude sessiekoppelingen veilig ontkoppeld. De importpreview toont de status en aantallen overgeslagen records. Merge valideert parentbeschikbaarheid na filtering; limieten omvatten alle persistente collecties. Nieuwe sessies/vangsten in post-clean-startbackups blijven volledig herstelbaar. Gerichte regressietest toegevoegd; tests/build en review moeten nog plaatsvinden. Geen Actions gestart.

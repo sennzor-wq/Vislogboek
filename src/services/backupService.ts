@@ -5,6 +5,8 @@ export interface BackupData {
   version: number;
   appName: string;
   exportedAt: string;
+  /** Explicit marker written by exports created after the v5 clean-start migration. */
+  cleanStartVersion?: number;
   locations: FishingLocation[];
   sessions: FishingSession[];
   catches: CatchItem[];
@@ -24,6 +26,9 @@ export interface ImportPreview {
   valid: boolean;
   version?: number;
   exportedAt?: string;
+  cleanStartStatus: 'post-clean-start' | 'legacy-pre-clean-start';
+  skippedLegacySessionsCount: number;
+  skippedLegacyCatchesCount: number;
   locationsCount: number;
   sessionsCount: number;
   catchesCount: number;
@@ -55,6 +60,7 @@ export async function collectBackupData(): Promise<BackupData> {
     version: 5,
     appName: 'Vislogboek',
     exportedAt: new Date().toISOString(),
+    cleanStartVersion: 1,
     locations, sessions, catches,
     settings: settings || undefined,
     weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords,
@@ -101,6 +107,7 @@ export function normalizeRawBackup(raw: any): BackupData {
       version: envelope.version ?? raw.data.version,
       appName: envelope.appName ?? raw.data.appName ?? envelope.format,
       exportedAt: envelope.exportedAt ?? envelope.exportDate ?? raw.data.exportedAt,
+      cleanStartVersion: envelope.cleanStartVersion ?? raw.data.cleanStartVersion,
       settings: raw.data.settings ?? envelope.settings,
     };
   }
@@ -334,6 +341,8 @@ export function normalizeRawBackup(raw: any): BackupData {
     prognosisSnapshots: Array.isArray(raw.prognosisSnapshots) ? raw.prognosisSnapshots : [],
     presenceObservations: Array.isArray(raw.presenceObservations) ? raw.presenceObservations : [],
     sessionRods: Array.isArray(raw.sessionRods) ? raw.sessionRods : [],
+    plannedSessions: Array.isArray(raw.plannedSessions) ? raw.plannedSessions : [],
+    coachAdviceRecords: Array.isArray(raw.coachAdviceRecords) ? raw.coachAdviceRecords : [],
   };
 }
 
@@ -351,6 +360,8 @@ const BACKUP_COLLECTION_LIMITS: Record<string, number> = {
   prognosisSnapshots: 50_000,
   presenceObservations: 100_000,
   sessionRods: 100_000,
+  plannedSessions: 25_000,
+  coachAdviceRecords: 100_000,
 };
 
 const MAX_BACKUP_TOTAL_RECORDS = 250_000;
@@ -369,6 +380,8 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
     ['prognosisSnapshots', data.prognosisSnapshots || []],
     ['presenceObservations', data.presenceObservations || []],
     ['sessionRods', data.sessionRods || []],
+    ['plannedSessions', data.plannedSessions || []],
+    ['coachAdviceRecords', data.coachAdviceRecords || []],
   ];
 
   let totalRecords = 0;
@@ -485,6 +498,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
           sessionsCount: 0,
           catchesCount: 0,
           hasBenchmark: false,
+          cleanStartStatus: 'legacy-pre-clean-start',
+          skippedLegacySessionsCount: 0,
+          skippedLegacyCatchesCount: 0,
           duplicateSessionCount: 0,
           duplicateLocationCount: 0,
           duplicateCatchCount: 0,
@@ -604,6 +620,7 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     const dupLocations = data.locations.filter((l) => existingLocationIds.has(l.id)).length;
     const dupCatches = data.catches.filter((c) => existingCatchIds.has(c.id)).length;
 
+    const isPostCleanStart = data.cleanStartVersion === 1 || data.version >= 5;
     const hasBenchmark = data.sessions.some((s) => s.isBenchmark === true);
 
     return {
@@ -611,6 +628,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         valid: true,
         version: data.version,
         exportedAt: data.exportedAt,
+        cleanStartStatus: isPostCleanStart ? 'post-clean-start' : 'legacy-pre-clean-start',
+        skippedLegacySessionsCount: isPostCleanStart ? 0 : data.sessions.length,
+        skippedLegacyCatchesCount: isPostCleanStart ? 0 : data.catches.length,
         locationsCount: data.locations.length,
         sessionsCount: data.sessions.length,
         catchesCount: data.catches.length,
@@ -635,6 +655,9 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         sessionsCount: 0,
         catchesCount: 0,
         hasBenchmark: false,
+        cleanStartStatus: 'legacy-pre-clean-start',
+        skippedLegacySessionsCount: 0,
+        skippedLegacyCatchesCount: 0,
         duplicateSessionCount: 0,
         duplicateLocationCount: 0,
         duplicateCatchCount: 0,
@@ -642,6 +665,35 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       },
     };
   }
+}
+
+/**
+ * Oude backups (v1-v4) mogen geen sessies/vangsten van vóór de clean start terugbrengen.
+ * v5-backups zijn ontstaan na de migratie; nieuwe exports dragen daarnaast cleanStartVersion.
+ */
+function applyCleanStartBackupPolicy(data: BackupData): BackupData {
+  const isPostCleanStart = data.cleanStartVersion === 1 || data.version >= 5;
+  if (isPostCleanStart) return data;
+  return {
+    ...data,
+    sessions: [],
+    catches: [],
+    sessionRods: [],
+    coachAdviceRecords: [],
+    presenceObservations: (data.presenceObservations || []).filter((item) => !item.sessionId),
+    prognosisSnapshots: (data.prognosisSnapshots || []).map((snapshot) => ({
+      ...snapshot,
+      linkedSessionId: undefined,
+      actualOutcome: undefined,
+      actualTargetCatchesCount: undefined,
+      evaluationNotes: undefined,
+    })),
+    plannedSessions: (data.plannedSessions || []).map((plan) => ({
+      ...plan,
+      startedSessionId: undefined,
+      startedSessionDeletedAt: plan.startedSessionId ? data.exportedAt : plan.startedSessionDeletedAt,
+    })),
+  };
 }
 
 /**
@@ -653,6 +705,7 @@ export async function mergeImportData(data: BackupData): Promise<{
   addedPlannedSessions: number; addedCoachAdviceRecords: number;
   settingsImported: boolean;
 }> {
+  data = applyCleanStartBackupPolicy(data);
   let addedLocations = 0, addedSessions = 0, addedCatches = 0;
   let addedWeatherCache = 0, addedPrognosisSnapshots = 0, addedPresenceObservations = 0, addedSessionRods = 0;
   let addedPlannedSessions = 0, addedCoachAdviceRecords = 0;
@@ -684,7 +737,9 @@ export async function mergeImportData(data: BackupData): Promise<{
       if (!(await db.weatherCache.get(item.id))) { await db.weatherCache.put(item); addedWeatherCache++; }
     }
     for (const item of data.prognosisSnapshots || []) {
-      if (!(await db.prognosisSnapshots.get(item.id))) { await db.prognosisSnapshots.put(item); addedPrognosisSnapshots++; }
+      const hasLocation = !item.locationId || await db.locations.get(item.locationId);
+      const hasSession = !item.linkedSessionId || await db.sessions.get(item.linkedSessionId);
+      if (!(await db.prognosisSnapshots.get(item.id)) && hasLocation && hasSession) { await db.prognosisSnapshots.put(item); addedPrognosisSnapshots++; }
     }
     for (const item of data.presenceObservations || []) {
       if (!(await db.presenceObservations.get(item.id)) && await db.locations.get(item.locationId) && (!item.sessionId || await db.sessions.get(item.sessionId))) { await db.presenceObservations.put(item); addedPresenceObservations++; }
@@ -693,7 +748,7 @@ export async function mergeImportData(data: BackupData): Promise<{
       if (!(await db.sessionRods.get(item.id)) && await db.sessions.get(item.sessionId)) { await db.sessionRods.put(item); addedSessionRods++; }
     }
     for (const item of data.plannedSessions || []) {
-      if (!(await db.plannedSessions.get(item.id)) && await db.locations.get(item.locationId)) { const { startedSessionId, ...plan } = item; await db.plannedSessions.put({ ...plan, startedSessionId: startedSessionId && await db.sessions.get(startedSessionId) ? startedSessionId : undefined }); addedPlannedSessions++; }
+      if (!(await db.plannedSessions.get(item.id)) && await db.locations.get(item.locationId) && (!item.planSnapshotId || await db.prognosisSnapshots.get(item.planSnapshotId))) { const { startedSessionId, ...plan } = item; await db.plannedSessions.put({ ...plan, startedSessionId: startedSessionId && await db.sessions.get(startedSessionId) ? startedSessionId : undefined }); addedPlannedSessions++; }
     }
     for (const item of data.coachAdviceRecords || []) {
       if (!(await db.coachAdviceRecords.get(item.id)) && await db.sessions.get(item.sessionId) && await db.prognosisSnapshots.get(item.prognosisSnapshotId)) { await db.coachAdviceRecords.put(item); addedCoachAdviceRecords++; }
@@ -712,6 +767,7 @@ export async function mergeImportData(data: BackupData): Promise<{
 
 /** Herstelt een gevalideerde backup atomair. Veiligheidsbackup/download wordt door de UI-flow geregeld. */
 export async function restoreBackupData(data: BackupData): Promise<void> {
+  data = applyCleanStartBackupPolicy(data);
   // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
   const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,

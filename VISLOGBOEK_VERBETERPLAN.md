@@ -410,3 +410,13 @@ Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit 
 - De volgende codewerkstroom wordt pas gestart nadat de backupgeneratie-/compatibiliteitspolicy is vastgelegd. Daarna worden de normalisatie-/limietfouten en relationele merge/restore-fouten samen met gerichte regressietests in één werkpakket opgelost.
 
 **Status:** afhankelijkhedenaudit grotendeels afgerond; concrete import-/restore-risico's bevestigd. Geen code gewijzigd, geen gebruikersdata gewijzigd en geen Actions-run gestart.
+
+
+### Fase 1 — backup/clean-startbeleid vastgelegd en geïmplementeerd (16 november 2026)
+
+- Nieuwe exports krijgen `cleanStartVersion: 1`; v5-backups gelden eveneens als post-clean-start omdat database v5 de eenmalige clean-startmigratie uitvoert.
+- Backups van v1-v4 worden niet geblokkeerd: instellingen, locaties, weercache en zelfstandige gegevens blijven herstelbaar, maar historische sessies en vangsten worden niet teruggezet of samengevoegd. Sessiegebonden details worden overgeslagen; snapshots en plannen worden veilig ontkoppeld.
+- De importpreview meldt de legacy-status en aantallen sessies/vangsten die bewust worden overgeslagen.
+- Merge controleert na filtering ook parentrelaties voor snapshots en geplande sessies. Payloadlimieten omvatten nu alle persistente collecties.
+- Nieuwe post-clean-startbackups blijven volledig herstelbaar, inclusief nieuw ingevoerde sessies en vangsten. Restore blijft beschikbaar; geen algemene blokkade.
+- Gerichte regressietest toegevoegd. Tests/build moeten nog worden uitgevoerd; geen Actions-run gestart.

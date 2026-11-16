@@ -360,6 +360,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               Back-up Bestand Inspectie
             </h3>
 
+            {importPreview.cleanStartStatus === 'legacy-pre-clean-start' && (
+              <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-700/60 text-xs text-amber-100">
+                <strong>Oude back-up van vóór de clean start.</strong>
+                Instellingen, locaties en overige zelfstandige gegevens blijven herstelbaar. {importPreview.skippedLegacySessionsCount} sessies en {importPreview.skippedLegacyCatchesCount} vangsten worden bewust niet teruggezet; gekoppelde evaluatiegegevens worden veilig ontkoppeld.
+              </div>
+            )}
+
             <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-slate-400">Back-up Versie:</span>
