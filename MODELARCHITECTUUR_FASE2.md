@@ -269,3 +269,8 @@ De canonieke dagdeelvoorkeuren zijn herzien op basis van direct voedingsbewijs w
 ## 24. Zonne-relatieve context vóór eventuele tijdvakscoring
 
 Open-Meteo levert voor elke prognosedatum lokale zonsopkomst en zonsondergang. Deze gegevens worden aan de bestaande vaste tijdvakken gekoppeld om te tonen welk tijdvak het brede overgangsvenster rond zonsopkomst/-ondergang omvat. Het venster van ±60 minuten is uitsluitend presentatieve context, geen gevalideerde biologische schemerduur of modelgewicht. De vier vaste klokblokken blijven bestaan; latere tijdvakscoring vereist eerst een beter onderbouwde, zonne-relatieve periode-indeling en chronologische validatie.
+
+
+## 24. Zonne-relatieve perioden: civiele schemering, niet een vaste bonus
+
+De tijdvakcontext gebruikt nu een schatting van civiele dageraad en civiele schemering op basis van de lokale sunrise/sunset-waarden en breedtegraad. De berekening verschuift mee met seizoen en latitude; de bestaande vier klokblokken blijven alleen als presentatielaag bestaan. Een soortvoorkeur voor dageraad, dag, schemering of nacht kan later aan deze zonneperioden worden gekoppeld, maar alleen met passende soortspecifieke gedragsdata. Civiele schemering zelf is geen voedingsbewijs en levert nu geen numerieke factor op.
