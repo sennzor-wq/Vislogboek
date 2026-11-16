@@ -149,3 +149,16 @@ PR [#55](https://github.com/sennzor-wq/Vislogboek/pull/55) introduceert in het c
 Deze classificatie verandert geen prognose-uitkomst en omzeilt `approvedForPrediction` niet. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling. Een studie naar dieet of prooikeuze mag bijvoorbeeld niet worden gebruikt als bewijs voor tijdvakgebonden voedingsintensiteit. De Quality Gate op de PR-head [#43934137768](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934137768) is volledig groen; de Quality Gate op de mergecommit volgt.
 
 **Volgende ontwerpbeslissing:** maak per soort een expliciete evidence-gated voedingscontext. Voedingsintensiteit/-ritme en foraginggedrag blijven gescheiden van dieet/prooikeuze en van telemetrie/habitat. Alleen directe, passende responsvariabelen mogen een kwalitatieve voedingsuitspraak dragen; ontbrekende lokale prooibeschikbaarheid en levensfase blijven onzeker. Geen numerieke tijdvakbonus of samengestelde voedingsscore.
+
+
+## 10. Per-soort evidence-gate voor kwalitatieve voedingscontext
+
+De eerste toepassingsmatrix is vastgelegd in `FASE2_PROGNOSE_AUDIT.md §13`. De runtime mag geen algemene voedingsscore bouwen door alle literatuur samen te voegen. De regels zijn:
+
+1. `feeding_intensity` / `feeding_rhythm`: alleen beschrijvende uitspraken over gemeten voedselopname en tijdritme, met populatie-/habitatbeperking.
+2. `foraging_behavior`: uitsluitend het werkelijk waargenomen foerageer-/graasgedrag; niet gelijkstellen aan maagvulling of totale activiteit.
+3. `diet_composition` / `prey_selection`: alleen prooikeuze/dieetcontext; nooit een voedingsintensiteit of beste tijdvak afleiden.
+4. `locomotor_activity` / `habitat_use`: uitsluitend ruimtelijke/activiteitscontext; geen voedingsproxy.
+5. `growth` / `feeding_physiology`: groeicontext of gecontroleerde fysiologische respons; niet rechtstreeks als veldvoedingsritme toepassen.
+
+Zolang alle relevante bronnen `approvedForPrediction: false` hebben, is deze service informatief en kwalitatief. Ze mag geen `activityScore`, `personalCatchChance`, factorweging of tijdvakrangschikking wijzigen. De eerste code-stap is een pure service met tests voor de toegestane claims en negatieve gevallen (in het bijzonder Roofblei: dieet wel, dagelijkse voedingsintensiteit niet). UI-integratie volgt pas na die service-review.
