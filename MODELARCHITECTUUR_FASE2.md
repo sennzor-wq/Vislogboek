@@ -249,3 +249,8 @@ De prognose-samenvatting maakt onderscheid tussen ontbrekende thermische basisge
 Het researchregister bevat nu aparte tijdgebonden bronnen voor snoek, snoekbaars en roofblei. Elke bron wordt geclassificeerd naar de daadwerkelijk gemeten respons: voedselopname-/verteringscontext, locomotorische activiteit of habitatgebruik. Een bewegingspiek rond schemering is geen automatisch bewijs voor een voedingspiek; een nachtelijke locatie is geen bewijs voor nachtelijke jacht. De snoekbaarsprofieltekst benoemt daarom de schemeringsgerichte bewegingsbevinding met individuele en contextuele variatie, niet een universeel nachtactief patroon.
 
 Alle nieuwe records blijven niet-goedgekeurd voor numerieke voorspelling. De bestaande tijdvakscore en de thermische berekening blijven ongewijzigd. Een volgende modelstap moet zonne-gerelateerde dageraad/schemering kunnen onderscheiden van vaste klokblokken en de gedragsresponsvariabele expliciet behouden.
+
+
+## 21. Directe voedingsritmes: levensfase en seizoen blijven zichtbaar
+
+Nieuwe directe bronnen laten zien dat jonge snoek overdag jaagt en in de planktivore fase een bifasisch voedingsritme kan hebben; dit mag niet worden veralgemeniseerd naar volwassen snoek. Voor snoekbaars in het Ladogameer werd een voedingspiek in de vroege ochtend van juni tot augustus en een tweede avondpiek in september beschreven. Deze lokale, seizoensgebonden uitkomst staat naast telemetrieonderzoek dat beweging rond schemering meet. Beide responsen worden afzonderlijk geregistreerd en niet automatisch tot één universele tijdvakvoorkeur samengevoegd.

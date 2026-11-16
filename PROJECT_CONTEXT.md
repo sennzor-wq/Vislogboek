@@ -1190,3 +1190,8 @@ Een presentatiebug is hersteld: wanneer de tijdvakuitkomst `Geen betekenisvol on
 ### Fase 2 — soortspecifiek dagritmebewijs uitgebreid (16 november 2026)
 
 Nieuwe gecontroleerde bronnen voor snoek, snoekbaars en roofblei zijn in het researchregister en de canonieke soortprofielen gekoppeld. De responsen blijven gescheiden: snoek heeft beperkte directe voedselopname-/verteringscontext en afzonderlijk bewegingsbewijs; snoekbaars heeft telemetriegegevens met vaak een bewegingspiek rond schemering en nachtelijke rustposities; roofblei vertoont in een langjarige noordelijke studie meestal hogere beweging rond dageraad/schemering, maar met duidelijke seizoens-/jaarvariatie. Geen van deze nieuwe bronnen is goedgekeurd als numerieke voorspellingsfactor. De snoekbaarsbeschrijving is genuanceerd van een universele nachtjager naar een schemeringsgerichte maar variabele soortbeschrijving. Regressietests bewaken dat locomotorisch bewijs niet als voedingsritme wordt geclassificeerd.
+
+
+### Fase 2 — directe voedingsritmes voor snoek en snoekbaars toegevoegd (16 november 2026)
+
+Het register bevat nu directe dagritmebronnen voor jonge snoek (dagactieve jacht; bifasisch ritme in planktivore fase) en snoekbaars in het Ladogameer (vroege ochtendpiek juni–augustus, tweede avondpiek in september). De beperkte levensfase-/watercontext is expliciet vastgelegd. Een afzonderlijke snoekstudie naar schemeringsgebonden habitatwisselingen blijft locomotorisch bewijs en wordt niet als voedingsritme geteld. Alle bronnen blijven niet-goedgekeurd voor numerieke modelinvloed.
