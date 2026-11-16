@@ -1210,3 +1210,8 @@ Een pure `dielBehaviorEvidenceService` groepeert per soort direct voedingsritme,
 ### Fase 2 — lokale zonnecontext gekoppeld aan tijdvakken (16 november 2026)
 
 De bestaande dagelijkse zonsopkomst-/zonsonderganggegevens uit de weerrespons worden nu per datum aan de vier kloktijdvakken gekoppeld. De UI kan daardoor laten zien in welk blok het brede overgangsvenster rond dageraad/zonsondergang valt, ongeacht seizoen. Dit is alleen kwalitatieve context; de vaste tijdvakken, scores en rangschikking zijn ongewijzigd. Ontbrekende zonnegegevens blijven onbekend. Een ±60-minutenvenster wordt niet als formele schemerdefinitie of numerieke bonus behandeld.
+
+
+### Fase 2 — civiele schemering seizoensafhankelijk berekend (16 november 2026)
+
+De voorlopige ±60-minutenband rond zonsopkomst/-ondergang is vervangen door een astronomische benadering van civiele dageraad/-schemering (zonmiddelpunt −6°), afgeleid uit lokale Open-Meteo-zonstijden en de breedtegraad van de stek. Regressietests bewaken plausibele winter-/zomerverschillen en dat de context correct in vaste klokblokken valt, inclusief een winterse schemering die in het middagblok kan vallen. Er wordt geen score of bonus toegevoegd.

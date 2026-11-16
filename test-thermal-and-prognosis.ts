@@ -408,13 +408,26 @@ async function run14Scenarios() {
     '2026-10-23', s1Forecasts, 'Snoekbaars', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), {
       sessionDurationHours: 3,
+      location: { id: 'solar-test', name: 'Solar test', latitude: 51.961, longitude: 5.228, createdAt: '', updatedAt: '' },
       dailySolarTimes: [{ date: '2026-10-23', sunrise: '2026-10-23T08:20', sunset: '2026-10-23T18:30' }],
     }
   );
   assert(
-    solarContextPrognosis.timeSlots.Ochtend.timeOfDayFactor.detail.includes('zonsopkomst (08:20)') &&
-      solarContextPrognosis.timeSlots.Avond.timeOfDayFactor.detail.includes('zonsondergang (18:30)'),
-    '12.2a Solar-relative context follows the actual local sunrise and sunset within fixed clock slots'
+    solarContextPrognosis.timeSlots.Ochtend.timeOfDayFactor.detail.includes('civiele dageraad') &&
+      solarContextPrognosis.timeSlots.Avond.timeOfDayFactor.detail.includes('civiele schemering'),
+    '12.2a Solar-relative civil twilight follows the local date and latitude within fixed clock slots'
+  );
+  const winterSolarContext = calculateDayPrognosis(
+    '2026-12-21', s1Forecasts, 'Snoekbaars', tenSessions, undefined, null,
+    new Date('2026-12-21T03:00:00Z'), {
+      sessionDurationHours: 3,
+      location: { id: 'solar-test', name: 'Solar test', latitude: 51.961, longitude: 5.228, createdAt: '', updatedAt: '' },
+      dailySolarTimes: [{ date: '2026-12-21', sunrise: '2026-12-21T08:45', sunset: '2026-12-21T16:30' }],
+    }
+  );
+  assert(
+    winterSolarContext.timeSlots.Middag.timeOfDayFactor.detail.includes('civiele schemering'),
+    '12.2b In winter, civil dusk may fall in the afternoon clock slot rather than the evening slot'
   );
   assert(
     Object.values(solarContextPrognosis.timeSlots).every((slot) => slot.timeOfDayFactor.score === 0),

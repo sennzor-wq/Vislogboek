@@ -51,6 +51,9 @@ jobs:
       - name: Core prognosis and thermal tests
         run: bun run tsx test-thermal-and-prognosis.ts
 
+      - name: Solar time engine tests
+        run: bun run tsx test-solar-time-engine.ts
+
       - name: Brier integration tests
         run: bun run tsx test-brier-integration.ts
 
