@@ -293,3 +293,12 @@ Levensfase wordt niet als verplicht gebruikersveld toegevoegd. De modelarchitect
 ## 27. Volwassen meerval: beweging en voedselopname strikt gescheiden
 
 De volwassen veldtelemetrie van Santos et al. (2025) voegt een seizoensgebonden schemer-/nachtpatroon toe aan de locomotorische en dieptegebruikscontext van Europese meerval. Versnellingsmeters en druksensoren meten activiteit en diepte, niet rechtstreeks voedselopname. Ook wanneer auteurs bewegingspieken als mogelijke predatie/foerageeractiviteit interpreteren, blijft dit bewijs voor beweging/habitat; het mag niet worden samengevoegd met de directe, maar gecontroleerde voedingsmetingen van Boujard (1995). Geen tijdvakscore of voedingsbonus wordt geactiveerd.
+
+
+## 28. Status VisCoach-selectie en bewijs-gating (16 november 2026)
+
+De coachvertaling gebruikt nu het door de gebruiker gekozen sessievenster. Eén geselecteerd tijdvak wordt vertaald via de conclusie van dat tijdvak; een sessie die meerdere tijdvakken omvat krijgt geen geforceerde globale winnaar. De dagprognose blijft intact en wordt niet opnieuw berekend door de coachvertaling.
+
+Levensfase is een optionele interne modifier, nooit een verplichte intake. Alleen expliciet en betrouwbaar bekende levensfasecontext mag een brongebonden nuance activeren. Bij onbekende levensfase blijft het soortbrede profiel gelden met passende onzekerheid; vangstlengte alleen is geen gevalideerde leeftijdsclassificatie.
+
+De meest recente evidence-uitbreiding houdt volwassen meervaltelemetrie gescheiden van voedingsmetingen en koppelt de Ladogameer-voedingsbron apart aan baars. Alle betrokken bronnen blijven niet-goedgekeurd voor numerieke invloed. De volgende stap is een bron-voor-bron overdraagbaarheidsmatrix, niet het toevoegen van modelgewichten. Beoordeel responsvariabele, levensfase, seizoen, habitat/watertype, meetmethode, steekproefopzet en overdraagbaarheid naar Nederlandse binnenwateren. Tegenstrijdige of beperkte bronnen blijven zichtbaar als onzekerheid; geen universele soortvoorkeur construeren uit contextgebonden studies.
