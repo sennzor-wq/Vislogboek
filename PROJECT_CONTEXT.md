@@ -1242,3 +1242,11 @@ De literatuurinventarisatie onderscheidt nu acht soorten met directe tijdgebonde
 ### Fase 2 — baarsbron Ladogameer per soort geregistreerd (16 november 2026)
 
 De studie van Fedorova & Drozzhina (1982) onderzocht zowel snoekbaars als baars. De bron is nu afzonderlijk aan baars gekoppeld en testbaar in de diel-evidence-service. De conclusie voor baars is geen vaste dagpiek: voedselopname was relatief sterker rond schemering en hing samen met prooigedrag. De registratie blijft niet-goedgekeurd voor scoring.
+
+
+## Fase 2 — checkpoint 16 november 2026, PR #70 en #71
+
+- PR [#70](https://github.com/sennzor-wq/Vislogboek/pull/70) is gemerged als `8088f194ecc1d6a08a2ba2f28d8495a8166cd6f3`: de gekozen vistijd stuurt de VisCoach-adviescopy. Bij meerdere tijdvakken wordt geen globale dagwinnaar als sessieadvies gepresenteerd. Levensfase blijft een optionele interne nuance; geen extra intakeveld.
+- PR [#71](https://github.com/sennzor-wq/Vislogboek/pull/71) is gemerged als `4c95d55f513cdde175d1e108a7553a9c87d5bf8b`: volwassen meervaltelemetrie blijft uitsluitend bewegings-/dieptebewijs en de Ladogameerbron is afzonderlijk aan baars gekoppeld.
+- Alle nieuw geregistreerde evidence blijft `approvedForPrediction: false`; er zijn geen scores, tijdvakgewichten of numerieke soortparameters geactiveerd.
+- **Volgende stap binnen fase 2:** systematische overdraagbaarheidsmatrix per soort en bron, met gemeten respons, levensfase, seizoen, habitat/watertype, meetmethode, onderzoeksopzet en toepasbaarheid op Nederlandse binnenwateren. Daarna pas bepalen welke kwalitatieve claims in VisCoach bruikbaar zijn. Numerieke modelinvloed blijft afhankelijk van onafhankelijke, chronologisch gescheiden lokale validatie.

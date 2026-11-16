@@ -2,7 +2,7 @@
 
 **Documentstatus:** goedgekeurde VisCoach-product- en technische blauwdruk; bijgewerkt met de implementatiestatus op `main` tot en met 7 november 2026  
 **Onderzoeksdatum:** 2 november 2026  
-**Implementatiestatus gecontroleerd:** 7 november 2026  
+**Implementatiestatus gecontroleerd:** 16 november 2026  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Doel:** de VisCoach ontwikkelen tot de onderscheidende, persoonlijke advies- en begeleidingslaag van Vislogboek.
 
@@ -1220,7 +1220,7 @@ De uitgebreide read-only baseline-audit op actuele `main` is gestart. De eerste 
 
 De actuele traceerbaarheid van de kernketen prognose → VisCoach → sessie → evaluatie is opgenomen in `FASE0_OPTIMIZATION_AUDIT.md` §25. De App koppelt de bestaande prognose-engine aan VisCoach-planning, startsnapshots, actieve sessieherbeoordeling, adviesfeedback en statistische evaluatie. Service-/databasegedrag heeft gerichte tests; de volledige browserflow is niet end-to-end getest.
 
-Een concrete afwijking is vastgesteld: de planweergave toont het door de gebruiker gekozen tijdvenster, maar de coachaanbeveling gebruikt nog het beste tijdvak van de gehele dagprognose. Dit kan tegenstrijdige tijdadviezen opleveren. Er is tijdens fase 0 geen code aangepast. De overige openstaande matrixdelen staan in audit §25.2.
+Een concrete afwijking was vastgesteld: de planweergave toonde het door de gebruiker gekozen tijdvenster, maar de coachaanbeveling gebruikte nog het beste tijdvak van de gehele dagprognose. Dit is opgelost in PR [#70](https://github.com/sennzor-wq/Vislogboek/pull/70), gemerged als `8088f194ecc1d6a08a2ba2f28d8495a8166cd6f3`. De adviesvertaling gebruikt nu de conclusie van het gekozen tijdvak; bij sessies over meerdere tijdvakken wordt geen globale dagwinnaar als sessieadvies gepresenteerd. Regressietests dekken beide scenario's. De volledige browserflow blijft een afzonderlijk E2E-aandachtspunt; de overige openstaande matrixdelen staan in audit §25.2.
 
 
 ## Aanvullende audit — stekgegevens en geometrie (16 november 2026)
@@ -1255,3 +1255,13 @@ De gebruiker hoeft bij het maken van een eerste VisCoach-plan geen leeftijd of l
 ### Gekozen tijdvak stuurt de coachtekst
 
 De coachtekst moet het door de gebruiker gekozen tijdvak volgen. Bij één herleidbaar tijdvak gebruikt de tekst de conclusie van dat tijdvak. Wanneer de gekozen sessie meerdere tijdvakken bestrijkt, presenteert VisCoach niet automatisch het beste tijdvak van de hele dag als aanbeveling. Een alternatief tijdvak mag alleen worden voorgesteld wanneer de vergelijking binnen dezelfde stek, doelsoort en vergelijkbare inspanning een betekenisvol en onderbouwd verschil laat zien.
+
+
+## Fase 2 — VisCoach-tijdvakcorrectie en aanvullende dagritme-evidence (16 november 2026)
+
+- PR [#70](https://github.com/sennzor-wq/Vislogboek/pull/70) is squash-merged naar `main` als commit [`8088f19`](https://github.com/sennzor-wq/Vislogboek/commit/8088f194ecc1d6a08a2ba2f28d8495a8166cd6f3). De gekozen vistijd stuurt nu de coachtekst; bij een sessie die meerdere tijdvakken bestrijkt wordt geen kunstmatige enkele winnaar genoemd. Regressietests dekken één tijdvak en meerdere tijdvakken.
+- Levensfase is vastgelegd als interne optionele modelnuance. Er is geen verplichte levensfase-/leeftijdsinvoer toegevoegd; onbekende levensfase blijft onbekend en vergroot de onzekerheid.
+- PR [#71](https://github.com/sennzor-wq/Vislogboek/pull/71) is squash-merged naar `main` als commit [`4c95d55`](https://github.com/sennzor-wq/Vislogboek/commit/4c95d55f513cdde175d1e108a7553a9c87d5bf8b). De volwassen meervalbron is uitsluitend als locomotorische activiteit/dieptegebruik geclassificeerd; de Ladogameerbron is ook afzonderlijk aan baars gekoppeld en ondersteunt geen vaste dagelijkse voedingspiek.
+- Alle nieuwe onderzoeksrecords blijven `approvedForPrediction: false`. Er zijn geen biologische scores, tijdvakgewichten of numerieke parameters geactiveerd.
+
+**Volgende uitvoering:** maak de bewijsdekking per soort controleerbaar op responsvariabele, levensfase, seizoen, habitat/watertype, meetmethode en geografische overdraagbaarheid. Identificeer expliciet waar een soort alleen indirecte of contextgebonden dekking heeft. Daarna pas kan worden besloten welke kwalitatieve claims veilig in VisCoach thuishoren; numerieke invloed blijft geblokkeerd totdat lokale, chronologisch gescheiden validatie dat ondersteunt.
