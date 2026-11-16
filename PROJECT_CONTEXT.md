@@ -746,3 +746,8 @@ De eigenaar heeft op de lokale Mac `bun run lint` uitgevoerd; `tsc --noEmit` ein
 De GitHub Quality Gate wordt aangevuld met de bestaande `test:clean-start-migration`-test. De test `test-core-logic.ts` is niet aan de CI toegevoegd zolang deze live Open-Meteo-aanroepen doet; de uitvoering daarvan blijft een afzonderlijke lokale netwerkafhankelijke controle. De eerstvolgende CI-run moet de forward-validationtests, de clean-startmigratietest en de overige bestaande Quality Gate-stappen beoordelen.
 
 **Status:** fase 0 blijft open. Geen fase 1 gestart en geen praktijkvalidatie geclaimd. Zie `FASE0_OPTIMIZATION_AUDIT.md` §20 voor de actuele teststatus en resterende acties.
+
+
+## GitHub Actions-status — 16 november 2026
+
+Quality Gate-run #529 op commit `26576d0` eindigde als failure voordat een workflowstap werd uitgevoerd. De job bevatte nul stappen en er waren geen logs beschikbaar. Dit is geen mislukte testuitslag: de test- en buildstappen zijn niet gestart. De oorzaak is onbekend. Zie `FASE0_OPTIMIZATION_AUDIT.md` §21. De lokale typecheck is wel geslaagd; overige softwarevalidatie blijft open.

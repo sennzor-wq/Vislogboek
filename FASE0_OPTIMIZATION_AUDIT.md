@@ -535,3 +535,15 @@ Deze sectie legt de eerste hercontrole vast. Dit is nadrukkelijk nog geen afrond
 - De volledige blueprint → code → UI → test-matrix, de repositorybrede benchmark-/seedverwijzingsaudit en de concrete backup-importregressies uit §19 zijn nog niet afgetekend.
 
 **Conclusie:** fase 0 blijft in uitvoering. De typecheck is bevestigd; de volledige softwarevalidatie is nog pending. Fase 1 start niet voordat de audit en de vereiste regressiecontroles aantoonbaar zijn afgerond.
+
+
+## 21. Quality Gate-run 529 — runner startte niet (16 november 2026)
+
+De commit `26576d0c78a6c9cbbae42d8a90180fb2248ba782` activeerde Quality Gate-run [#529](https://github.com/sennzor-wq/Vislogboek/actions/runs/43836519603). De run eindigde vrijwel direct met conclusie `failure`.
+
+- De job `Typecheck, tests and production build` is aangemaakt, maar de GitHub Actions-job bevatte nul uitgevoerde stappen.
+- Het ophalen van de joblogs leverde geen beschikbare logblob op (404 / BlobNotFound).
+- Er is dus geen bewijs dat dependencies zijn geïnstalleerd, de typecheck/tests zijn uitgevoerd of de productiebuild is gestart.
+- Dit is geen testfailure en mag niet als applicatiecodefout worden geclassificeerd. De oorzaak van het niet starten is met de beschikbare rungegevens niet vast te stellen; een runner-/accountlimiet is mogelijk maar niet bewezen.
+
+**Vervolg:** laat de deterministische clean-startmigratietest lokaal uitvoeren zolang de GitHub-runner geen stappen start. Daarna kan de audit verder met de lokale core-logic-test (die live Open-Meteo gebruikt) en de resterende code-/UI-matrix. Geen herhaalde CI-runs starten zonder aanwijzing dat de runner weer beschikbaar is.
