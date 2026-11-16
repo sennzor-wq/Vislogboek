@@ -70,6 +70,9 @@ async function run() {
     waterTemperatureMeasurementDepthM: 0.5,
     targetSpecies: ['Karper'],
     technique: 'Feeder / Statisch',
+    baitDirection: 'West',
+    prebaited: true,
+    baitAndFeed: 'Pellets',
     createdAt: nowIso,
     updatedAt: nowIso,
   };
@@ -174,6 +177,15 @@ async function run() {
       preservedMeasurement.measurementDepthM === 0.5 &&
       preservedMeasurement.recordType === 'session',
     'Coach-snapshot bewaart de meetprovenance van het historische sessieanker'
+  );
+  const replayableSessionFeature = reassessmentSnapshot?.inputContext?.historicalSessionFeatures
+    ?.find((feature) => feature.id === session.id);
+  assert(
+    reassessmentSnapshot?.inputContext?.historyFeatureSchemaVersion === 1 &&
+      replayableSessionFeature?.waterTemperatureMeasuredAt === session.waterTemperatureMeasuredAt &&
+      replayableSessionFeature?.baitDirection === 'West' &&
+      replayableSessionFeature?.prebaited === true,
+    'Coach-snapshot bewaart de modelrelevante sessiefeatures voor latere replay'
   );
   assert(
     adviceAfterSecond.some((advice) =>

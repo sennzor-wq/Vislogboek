@@ -5,13 +5,15 @@
  */
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
+  CatchItem,
+  PresenceObservation,
 } from './src/types';
 import fs from 'fs';
 import path from 'path';
@@ -104,6 +106,81 @@ async function run14Scenarios() {
   assert(
     manualFingerprintA !== manualFingerprintB,
     '0.1c Een gewijzigde handmatige watertemperatuur wijzigt de snapshot-inputfingerprint'
+  );
+
+  const historySession: FishingSession = {
+    id: 'history-session-a',
+    locationId: 'spot-lokkershoek',
+    startTime: '2026-10-20T18:00:00Z',
+    endTime: '2026-10-20T22:00:00Z',
+    durationMinutes: 240,
+    outcome: 'catch',
+    targetSpecies: ['Karper'],
+    technique: 'Method feeder',
+    baitDirection: 'West',
+    prebaited: true,
+    baitAndFeed: 'Pellets',
+    waterDepth: 1.2,
+    waterTemperature: 14.2,
+    waterTemperatureMeasuredAt: '2026-10-20T19:00:00Z',
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'thermometer',
+    waterTemperatureMeasurementDepthM: 0.4,
+    notes: 'Persoonlijke notitie mag niet in de model-snapshot terechtkomen',
+    photoUrls: ['data:image/jpeg;base64,private'],
+    createdAt: '',
+    updatedAt: '',
+  };
+  const historyCatch: CatchItem = {
+    id: 'history-catch-a',
+    sessionId: historySession.id,
+    locationId: historySession.locationId,
+    species: 'Karper',
+    count: 2,
+    timestamp: '2026-10-20T20:00:00Z',
+    bait: 'Pellets',
+    technique: 'Method feeder',
+    notes: 'Privénotitie',
+    photoUrl: 'data:image/jpeg;base64,private',
+    createdAt: '',
+  };
+  const historyObservation: PresenceObservation = {
+    id: 'history-observation-a',
+    locationId: historySession.locationId!,
+    sessionId: historySession.id,
+    observationType: 'aasbellen_voedselactiviteit',
+    timestamp: '2026-10-20T19:30:00Z',
+    notes: 'Privénotitie',
+    createdAt: '',
+  };
+  const historyFeatures = createPrognosisHistoryFeatureSnapshot(
+    [historySession],
+    [historyCatch],
+    [historyObservation]
+  );
+  const historyFingerprintA = createPrognosisHistoryFingerprint(
+    [historySession], [historyCatch], [historyObservation]
+  );
+  const historyFingerprintB = createPrognosisHistoryFingerprint(
+    [{ ...historySession, baitDirection: 'Noord', prebaited: false }],
+    [historyCatch],
+    [historyObservation]
+  );
+  assert(
+    historyFeatures.historicalSessionFeatures?.[0].baitDirection === 'West' &&
+      historyFeatures.historicalSessionFeatures?.[0].prebaited === true &&
+      historyFeatures.historicalCatchFeatures?.[0].count === 2 &&
+      historyFeatures.historicalObservationFeatures?.[0].observationType === 'aasbellen_voedselactiviteit',
+    '0.1d Snapshot bewaart modelrelevante sessie-, vangst- en waarnemingskenmerken'
+  );
+  assert(
+    historyFingerprintA !== historyFingerprintB,
+    '0.1e Wijziging van aasrichting of voorvoerstatus wijzigt de historie-fingerprint'
+  );
+  assert(
+    !JSON.stringify(historyFeatures).includes('Privénotitie') &&
+      !JSON.stringify(historyFeatures).includes('base64'),
+    '0.1f Vrije notities en foto-inhoud worden niet in de replaybare modelsnapshot gekopieerd'
   );
 
   assert(unknownDuration === null, '0.1 Onbekende sessieduur blijft null en wordt niet als 3 uur ingevuld');

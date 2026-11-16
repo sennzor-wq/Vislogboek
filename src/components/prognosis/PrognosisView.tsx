@@ -13,7 +13,7 @@ import {
   PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
-import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
+import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import {
@@ -226,9 +226,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       parsedManualWaterTemp !== null && Number.isFinite(parsedManualWaterTemp) ? parsedManualWaterTemp : null,
       calculatedAt
     );
+    const historyFeatures = createPrognosisHistoryFeatureSnapshot(sessions, catches ?? []);
     const inputContext: PrognosisInputContext = {
       calculatedAt,
       manualWaterTemperatureInput,
+      waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLoc.id, activeDayProg.date),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: activeDayProg.date,
       targetSpecies: selectedSpecies,
@@ -243,19 +245,16 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
         waterFacingDirection: selectedLoc.waterFacingDirection,
         habitatFeatures: selectedLoc.habitatFeatures,
       },
-      historicalSessionIds: sessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
-      catchRecordIds: (catches ?? []).map((item) => item.id),
+      historicalSessionIds: historyFeatures.historicalSessionFeatures!.map((item) => item.id),
+      catchRecordIds: historyFeatures.historicalCatchFeatures!.map((item) => item.id),
       observationIds: [],
+      ...historyFeatures,
       presenceObservation: selectedPresenceObs,
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
-      historyFingerprint: createPrognosisInputFingerprint({
-        sessions: sessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-        catches: (catches ?? []).map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
-        historicalWaterTemperatures,
-      }),
+      historyFingerprint: createPrognosisHistoryFingerprint(sessions, catches ?? [], [], historicalWaterTemperatures),
       historySummary: {
-        sessionCount: sessions.filter((item) => item.isBenchmark !== true).length,
-        catchRecordCount: (catches ?? []).length,
+        sessionCount: historyFeatures.historicalSessionFeatures!.length,
+        catchRecordCount: historyFeatures.historicalCatchFeatures!.length,
         observationCount: 0,
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
