@@ -660,6 +660,7 @@ export async function reassessActiveSessions(
         sessionDurationHours: durationHours,
         technique: session.technique ?? null,
         manualWaterTemperatureInput: null, // De sessiemeting is al als historisch anker opgenomen; geen actuele handmatige invoer.
+        waterTemperatureCalibration,
         location: {
           id: location.id,
           latitude: location.latitude,
