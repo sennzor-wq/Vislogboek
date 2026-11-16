@@ -64,6 +64,91 @@ export function createPrognosisInputFingerprint(value: unknown): string {
   return `fnv1a32-${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
+/**
+ * Maakt een minimale, privacybewuste kopie van historische kenmerken die de
+ * prognose-engines daadwerkelijk kunnen beïnvloeden. Vrije notities en foto's
+ * worden nooit in een prognosesnapshot gekopieerd.
+ */
+export function createPrognosisHistoryFeatureSnapshot(
+  sessions: FishingSession[],
+  catches: CatchItem[],
+  observations: PresenceObservation[] = []
+): Pick<PrognosisInputContext,
+  'historicalSessionFeatures' | 'historicalCatchFeatures' |
+  'historicalObservationFeatures' | 'historyFeatureSchemaVersion'
+> {
+  const benchmarkSessionIds = new Set(
+    sessions.filter((session) => session.isBenchmark === true).map((session) => session.id)
+  );
+
+  const historicalSessionFeatures: NonNullable<PrognosisInputContext['historicalSessionFeatures']> =
+    sessions.filter((session) => session.isBenchmark !== true).map((session) => ({
+      id: session.id,
+      locationId: session.locationId,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      durationMinutes: session.durationMinutes,
+      outcome: session.outcome,
+      targetSpecies: session.targetSpecies ? [...session.targetSpecies] : undefined,
+      isBenchmark: false,
+      legacyImportQuality: session.legacyImportQuality ? { ...session.legacyImportQuality } : undefined,
+      technique: session.technique,
+      baitDirection: session.baitDirection,
+      prebaited: session.prebaited,
+      baitAndFeed: session.baitAndFeed,
+      waterDepth: session.waterDepth,
+      waterTemperature: session.waterTemperature,
+      waterTemperatureMeasuredAt: session.waterTemperatureMeasuredAt,
+      waterTemperatureMeasurementSource: session.waterTemperatureMeasurementSource,
+      waterTemperatureMeasurementMethod: session.waterTemperatureMeasurementMethod,
+      waterTemperatureMeasurementDepthM: session.waterTemperatureMeasurementDepthM,
+    })).sort((a, b) => a.id.localeCompare(b.id));
+
+  const historicalCatchFeatures: NonNullable<PrognosisInputContext['historicalCatchFeatures']> =
+    catches.filter((item) => !benchmarkSessionIds.has(item.sessionId)).map((item) => ({
+      id: item.id,
+      sessionId: item.sessionId,
+      locationId: item.locationId,
+      species: item.species,
+      count: item.count,
+      weightKg: item.weightKg,
+      lengthCm: item.lengthCm,
+      timestamp: item.timestamp,
+      bait: item.bait,
+      technique: item.technique,
+      legacyImportQuality: item.legacyImportQuality ? { ...item.legacyImportQuality } : undefined,
+    })).sort((a, b) => a.id.localeCompare(b.id));
+
+  const historicalObservationFeatures: NonNullable<PrognosisInputContext['historicalObservationFeatures']> =
+    observations.filter((item) => !item.sessionId || !benchmarkSessionIds.has(item.sessionId)).map((item) => ({
+      id: item.id,
+      locationId: item.locationId,
+      sessionId: item.sessionId,
+      observationType: item.observationType,
+      timestamp: item.timestamp,
+    })).sort((a, b) => a.id.localeCompare(b.id));
+
+  return {
+    historicalSessionFeatures,
+    historicalCatchFeatures,
+    historicalObservationFeatures,
+    historyFeatureSchemaVersion: 1,
+  };
+}
+
+/** Fingerprint van exact dezelfde whitelisted historie die in de snapshot wordt bewaard. */
+export function createPrognosisHistoryFingerprint(
+  sessions: FishingSession[],
+  catches: CatchItem[],
+  observations: PresenceObservation[] = [],
+  historicalWaterTemperatures: HistoricalWaterTemperatureObservation[] = []
+): string {
+  return createPrognosisInputFingerprint({
+    ...createPrognosisHistoryFeatureSnapshot(sessions, catches, observations),
+    historicalWaterTemperatures,
+  });
+}
+
 export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number; rangeLabel: string }> = {
   Nacht: { start: 0, end: 6, rangeLabel: '00:00 – 06:00' },
   Ochtend: { start: 6, end: 12, rangeLabel: '06:00 – 12:00' },
