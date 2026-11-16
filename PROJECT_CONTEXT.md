@@ -1250,3 +1250,10 @@ De studie van Fedorova & Drozzhina (1982) onderzocht zowel snoekbaars als baars.
 - PR [#71](https://github.com/sennzor-wq/Vislogboek/pull/71) is gemerged als `4c95d55f513cdde175d1e108a7553a9c87d5bf8b`: volwassen meervaltelemetrie blijft uitsluitend bewegings-/dieptebewijs en de Ladogameerbron is afzonderlijk aan baars gekoppeld.
 - Alle nieuw geregistreerde evidence blijft `approvedForPrediction: false`; er zijn geen scores, tijdvakgewichten of numerieke soortparameters geactiveerd.
 - **Volgende stap binnen fase 2:** systematische overdraagbaarheidsmatrix per soort en bron, met gemeten respons, levensfase, seizoen, habitat/watertype, meetmethode, onderzoeksopzet en toepasbaarheid op Nederlandse binnenwateren. Daarna pas bepalen welke kwalitatieve claims in VisCoach bruikbaar zijn. Numerieke modelinvloed blijft afhankelijk van onafhankelijke, chronologisch gescheiden lokale validatie.
+
+
+## Fase 2 — eerste overdraagbaarheidsmatrix dagritme per soort (16 november 2026)
+
+De huidige literatuurregistraties zijn per soort samengebracht in `FASE2_PROGNOSE_AUDIT.md §34`. Acht van de negen concrete soorten hebben een vorm van direct tijdgebonden voedingsbewijs, maar de bronnen verschillen sterk in levensfase, seizoen, habitat, prooiaanbod en meetopzet. Voor roofblei ontbreekt directe dagdeel-resolved voedselopname. Bij snoek, baars, blankvoorn/brasem en meerval zijn levensfase-, seizoens- of habitatverschillen expliciet belangrijk.
+
+Deze matrix is een inventarisatie van de bestaande registry, geen meta-analyse en geen formele modelgoedkeuring. Alle records blijven `approvedForPrediction: false`. Geen numerieke score, tijdvakgewicht of vangstkans is aangepast. De volgende stap is verificatie van de primaire publicaties voor de zwakst overdraagbare claims en een per-claim besluit over de veilige kwalitatieve toepassing. Geen verplichte levensfase-invoer toevoegen.
