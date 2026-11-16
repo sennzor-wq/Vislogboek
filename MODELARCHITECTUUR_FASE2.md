@@ -223,3 +223,17 @@ De eerste bronnen laten soort-, grootte- en levensfaseverschillen zien. Ze worde
 De huidige brondekking is per soort ongelijk. Voor Baars en Snoekbaars is er direct onderzoek naar aerobe scope; bij Baars verschuift de optimale temperatuur met lichaamsmassa en bij Snoekbaars verschillen volwassen en juveniele temperatuurresponsen. Voor Brasem en Voorn zijn SMR/RMR-metingen over 5–23 °C beschikbaar. Voor Karper en Snoek zijn de gevonden metabole studies beperkter en leveren zij geen complete thermische optimumcurve. Voor Zeelt, Meerval en Roofblei ontbreekt momenteel een vergelijkbare soortspecifieke multi-temperatuur aerobe-scopecurve.
 
 De app vraagt geen verplichte lengte-/leeftijdsgegevens voor een prognose. Geregistreerde vangstlengtes vormen geen representatieve steekproef van de aanwezige populatie. We gebruiken daarom geen verzonnen gemiddelde levensfase of lichaamsgroottecorrectie. Huidige soortparameters blijven voorlopig totdat de gekozen responsvariabele, bronoverdracht en onzekerheid per soort verdedigbaar zijn.
+
+
+## 18. Tijdvakprognose: biologisch betekenisvol verschil, geen geforceerde winnaar
+
+Een tijdvak krijgt alleen een hogere biologische voorkeur wanneer een relevante, soortspecifieke factor dat verschil onderbouwt. Een soortgebonden dag-/nacht-/schemeringsritme kan zo'n factor zijn wanneer de bron daadwerkelijk het relevante gedrag meet (bijvoorbeeld voedingsritme of foerageeractiviteit) en de overdraagbaarheid naar de voorspelde situatie verdedigbaar is. Habitat- of locomotiegegevens mogen niet zonder meer als voedingsbewijs worden gebruikt.
+
+De prognose moet niet altijd één 'beste' tijdvak aanwijzen:
+- **Duidelijke voorkeur:** er is voldoende onderbouwd verschil tussen tijdvakken; toon de voorkeur en de bepalende factor(en).
+- **Klein verschil:** toon dat de tijdvakken dicht bij elkaar liggen en vermijd een stellige aanbeveling.
+- **Geen betekenisvol verschil:** presenteer de tijdvakken als gelijkwaardig; geef geen kunstmatige winnaar en suggereer niet dat de gebruiker daarom 's nachts moet vissen.
+
+De visser blijft altijd vrij in de keuze van het vistijdstip. De prognose ondersteunt die keuze, maar schrijft geen tijdstip voor. Een gelijkwaardige uitkomst is een geldige en nuttige prognose-uitkomst, geen tekortkoming die met willekeurige gewichten moet worden opgelost.
+
+Implementatievoorwaarden: vergelijk tijdvakken alleen op factoren die aantoonbaar per tijdvak veranderen; gebruik geen standaard nacht-/schemerbonus; kalibreer soortspecifieke voorkeuren op direct gedragsbewijs; bepaal pas na validatie drempels voor 'klein' versus 'betekenisvol' verschil. Tot die tijd geen numerieke tijdvakscore of rangschikking toevoegen. De UI mag gelijkwaardigheid expliciet communiceren.

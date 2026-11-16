@@ -1173,3 +1173,10 @@ Het researchregister onderscheidt nu `metabolic_rate` en `aerobic_scope` van voe
 ### Fase 2 — thermische brondekking per soort vastgelegd (16 november 2026)
 
 De nieuwe metabole/aerobe-scopebronnen zijn aan de canonieke soortprofielen gekoppeld en de audit bevat nu een dekkingstabel voor alle concrete soorten. De bronbasis is ongelijk: baars en snoekbaars hebben directere aerobe-scopegegevens, brasem/voorn SMR/RMR over een temperatuurreeks, terwijl karper/snoek beperkte metabole temperatuurmetingen hebben en zeelt/meerval/roofblei nog geen passende volledige curve in het register. Lichaamsgrootte en levensfase kunnen de respons veranderen. We voegen hiervoor geen verplichte gebruikersvelden toe; bestaande vangstlengtes zijn geen representatieve populatiesteekproef. Geen thermische profielparameters aangepast.
+
+
+### Fase 2 — ontwerpbesluit tijdvakvoorkeur en gelijkwaardige uitkomsten (16 november 2026)
+
+De prognose hoeft niet altijd één beste tijdvak aan te wijzen. Als omstandigheden tussen tijdvakken praktisch gelijk zijn en er geen relevante soortspecifieke gedragsfactor is die een verschil onderbouwt, toont de app de tijdvakken als gelijkwaardig. De visser kiest dan zelf wanneer hij vist; geen kunstmatige nachtvoorkeur.
+
+Een natuurlijke voorkeur voor ochtend, schemering of nacht mag wel meewegen wanneer direct, soortspecifiek bewijs het relevante gedrag ondersteunt. Voedingsritme is bewijs voor voedingsgedrag; telemetrie/locomotie is niet automatisch bewijs voor meer voedselopname of vangstkans. De app onderscheidt duidelijke voorkeur, kleine/onzekere verschillen en geen betekenisvol verschil. Numerieke drempels en scores volgen pas na bronbeoordeling en validatie; er komt geen standaard tijdvakbonus.
