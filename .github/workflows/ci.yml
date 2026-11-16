@@ -63,6 +63,9 @@ jobs:
       - name: Species biology evidence registry tests
         run: bun run tsx test-research-registry.ts
 
+      - name: Species feeding evidence context tests
+        run: bun run tsx test-feeding-evidence.ts
+
       - name: Rod positioning tests
         run: bun run tsx test-rod-positioning.ts
 
