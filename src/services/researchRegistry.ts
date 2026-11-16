@@ -23,7 +23,9 @@ export type ResearchOutcome =
   | 'locomotor_activity'
   | 'habitat_use'
   | 'growth'
-  | 'feeding_physiology';
+  | 'feeding_physiology'
+  | 'metabolic_rate'
+  | 'aerobic_scope';
 
 export type EvidenceStrength =
   | 'strong'
@@ -184,6 +186,102 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
       'Rijkswaterstaat. Waterdata. https://www.rijkswaterstaat.nl/water/waterdata'
     ],
     reviewedAt: '2026-11-02',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-acute-temperature-metabolism-1983',
+    topic: 'acute-temperatuur-en-metabolisme',
+    measuredOutcomes: ['metabolic_rate'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een respirometrische studie bij karper, geacclimeerd op 19 °C, mat zuurstofverbruik, hartslag en ventilatie tijdens korte acute temperatuurveranderingen van 2–6 °C. De metabole respons veranderde snel met de lichaamstemperatuur; de gerapporteerde Q10 voor metabolisme was 2,61.',
+    limitations: [
+      'De vissen waren geacclimeerd op één uitgangstemperatuur (19 °C); de studie levert geen volledige langetermijn-temperatuurcurve of thermisch optimum.',
+      'Het betreft acute laboratoriumblootstelling van maximaal 60 minuten, geen dagelijkse veldactiviteit of voedselopname.',
+      'De bron ondersteunt temperatuurgevoeligheid van metabolisme, maar valideert niet de huidige karpercurve of haar numerieke parameters.'
+    ],
+    sourceReferences: [
+      'Moffitt, B.P. & Crawshaw, L.I. (1983). Effects of Acute Temperature Changes on Metabolism, Heart Rate, and Ventilation Frequency in Carp Cyprinus carpio L. Physiological Zoology, 56(3), 397–403. https://doi.org/10.1086/physzool.56.3.30152604'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-metabolic-rate-temperature-1982',
+    topic: 'temperatuur-en-metabolisme',
+    measuredOutcomes: ['metabolic_rate'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een laboratoriumstudie bepaalde het metabolisme van snoek met zuurstofverbruik en rantsoenexperimenten. De gepubliceerde onderhoudsmetabolisme-relaties bevatten metingen bij 2 °C en 14 °C.',
+    limitations: [
+      'Twee temperatuurpunten zijn onvoldoende om een volledig optimum, asymmetrische curve of bovengrens vast te stellen.',
+      'De bron onderzoekt energiehuishouding, niet rechtstreeks dagelijkse jachtactiviteit, voedselopname of hengelvangbaarheid.',
+      'De studie rechtvaardigt geen directe numerieke wijziging van het huidige snoekprofiel.'
+    ],
+    sourceReferences: [
+      'Diana, J.S. (1982). An experimental analysis of the metabolic rate and food utilization of northern pike. Comparative Biochemistry and Physiology Part A, 71(3), 395–399. https://doi.org/10.1016/0300-9629(82)90424-8'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-perch-aerobic-scope-size-temperature-2020',
+    topic: 'temperatuur-lichaamsgrootte-en-aerobe-scope',
+    measuredOutcomes: ['metabolic_rate', 'aerobic_scope'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Respirometrisch onderzoek bij Europese baars onderzocht standaard- en maximale stofwisseling, aerobe scope en temperatuurvoorkeur bij acclimatisatietemperaturen van 15–28 °C. De optimale temperatuur voor aerobe scope en de temperatuurvoorkeur daalden met toenemende lichaamsmassa.',
+    limitations: [
+      'De relatie is lichaamsgrootte-afhankelijk; één universeel thermisch optimum voor alle baarzen is niet verdedigbaar.',
+      'Het onderzoek vond plaats onder gecontroleerde laboratoriumomstandigheden en meet fysiologische capaciteit, niet rechtstreeks dagelijkse voedingsactiviteit of hengelvangbaarheid.',
+      'De resultaten zijn een mechanistische prior, geen directe validatie van de bestaande Vislogboek-curve voor Nederlandse wateren.'
+    ],
+    sourceReferences: [
+      'Christensen, E.A.F., Svendsen, M.B.S. & Steffensen, J.F. (2020). The combined effect of body size and temperature on oxygen consumption rates and the size-dependency of preferred temperature in European perch Perca fluviatilis. Journal of Fish Biology, 97(3), 794–803. https://doi.org/10.1111/jfb.14435'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-bream-metabolic-rate-temperature-2006',
+    topic: 'temperatuur-en-metabolisme',
+    measuredOutcomes: ['metabolic_rate'],
+    species: ['Brasem', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Geautomatiseerde respirometrie onderzocht standaard- en routinezuurstofverbruik bij brasem en blankvoorn over 5–23 °C en een brede lichaamsmassaklasse. Beide soorten vertoonden exponentiële temperatuurafhankelijkheid, maar met soort- en levensfaseverschillen in Q10 en massaschaling.',
+    limitations: [
+      'Standaard- en routinezuurstofverbruik zijn fysiologische responsen; zij zijn niet hetzelfde als voedselopname, totale zwemactiviteit of hengelvangbaarheid.',
+      'De studie is gecontroleerd laboratoriumonderzoek; de respons kan niet zonder meer worden vertaald naar een lokale veldcurve of een beste vistijd.',
+      'De resultaten tonen juist soort- en grootteverschillen en ondersteunen geen gedeelde universele curve voor brasem en blankvoorn.'
+    ],
+    sourceReferences: [
+      'Hölker, F. (2006). Effects of body size and temperature on metabolism of bream compared to sympatric roach. Animal Biology, 56(1), 23–37. https://doi.org/10.1163/157075606775904713',
+      'Hölker, F. (2003). The metabolic rate of roach in relation to body size and temperature. Journal of Fish Biology, 62(3), 565–579. https://doi.org/10.1046/j.1095-8649.2003.00048.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'adult-pikeperch-aerobic-scope-temperature-2012',
+    topic: 'temperatuur-en-aerobe-scope-levensfase',
+    measuredOutcomes: ['metabolic_rate', 'aerobic_scope'],
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een gecontroleerde respirometrische studie bij volwassen snoekbaars mat standaard- en maximale stofwisseling bij 13–28 °C. De maximale aerobe scope lag bij 18,8 °C; het bereik met ten minste 80% van die maximale scope liep van 10,4 tot 26,9 °C. De auteurs rapporteerden daarnaast een ontogenetische verschuiving: juveniele snoekbaars heeft een hoger groeitemperatuurbereik dan adulten.',
+    limitations: [
+      'De vissen kwamen uit een commerciële kweekfaciliteit en werden in aquacultuurtanks onderzocht; overdracht naar vrijlevende Nederlandse populaties is onzeker.',
+      'Het optimum betreft aerobe scope, niet een gemeten optimum voor foerageren, jachtactiviteit of hengelvangbaarheid.',
+      'De bron laat zien dat levensfase belangrijk is; de app kent die meestal niet en mag de volwassen curve niet als universeel soortoptimum presenteren.'
+    ],
+    sourceReferences: [
+      'Frisk, M., Skov, P.V. & Steffensen, J.F. (2012). Thermal optimum for pikeperch (Sander lucioperca) and the use of ventilation frequency as a predictor of metabolic rate. Aquaculture, 324–325, 151–157. https://doi.org/10.1016/j.aquaculture.2011.10.024'
+    ],
+    reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
   {

@@ -205,3 +205,14 @@ Dezelfde thermische analyse wordt momenteel voor alle tijdvakken van één doeld
 De bestaande 1–10-uitkomst wordt in de UI aangeduid als **thermische activiteitspotentie**, niet als totale biologische activiteit. De huidige score wordt uitsluitend bepaald door de voorlopige soortspecifieke temperatuurcurve; wind, druk, seizoen, licht/tijdstip, bewolking en neerslag zijn op dit moment verklarende context en tellen numeriek niet mee. Dit onderscheid moet zichtbaar blijven totdat aanvullende gedragslagen afzonderlijk zijn onderbouwd en gevalideerd.
 
 Een lage thermische score mag niet worden vertaald naar bewezen winterrust, volledige inactiviteit of een stop van voedselopname. De score is een relatieve modelschatting, geen directe observatie van visgedrag.
+
+
+## 16. Evidence-classificatie voor thermische fysiologie
+
+Het researchregister onderscheidt nu twee extra gemeten responsen:
+- `metabolic_rate`: standaard-/routinezuurstofverbruik en andere expliciet gemeten metabole responsen;
+- `aerobic_scope`: verschil tussen maximale en standaardmetabolische capaciteit.
+
+Deze uitkomsten blijven gescheiden van `feeding_intensity`, `feeding_rhythm`, `foraging_behavior`, `locomotor_activity` en `growth`. Een hogere metabole snelheid is niet automatisch meer voedselopname, meer spontane activiteit of een hogere vangstkans. Aerobe scope is fysiologische capaciteit, geen rechtstreekse meting van gedrag.
+
+De eerste bronnen laten soort-, grootte- en levensfaseverschillen zien. Ze worden alleen als biologische onderbouwing geregistreerd; alle nieuwe records zijn niet-goedgekeurd voor numeriek voorspellingsgebruik. Exacte soortcurves moeten nog afzonderlijk worden beoordeeld op responsvariabele, experimentele omstandigheden en overdraagbaarheid naar Nederlandse praktijkwateren.
