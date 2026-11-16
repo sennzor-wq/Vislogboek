@@ -318,3 +318,8 @@ Deze dekking betekent niet dat de tijdvakvoorkeur al voorspelbaar of overdraagba
 Bohl (1979; kleine Beierse meren) is nu als aparte bron aan Brasem en Voorn/blankvoorn gekoppeld. De studie combineert echoloodwaarnemingen en maaginhoud bij juveniele vissen en beschrijft nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht. Dit vormt geen tegenspraak die een volwassen dagvoedingsprofiel moet overschrijven: levensfase, habitat en prooitype verschillen. De bron is zichtbaar als context, blijft niet-goedgekeurd voor numerieke voorspelling en activeert geen nachtbonus.
 
 Het interne type `Voorn` blijft voor compatibiliteit bestaan maar staat biologisch voor `Rutilus rutilus` (blankvoorn). De onjuiste zichtbare combinatie 'Blankvoorn / Ruisvoorn' is gecorrigeerd; ruisvoorn is een andere soort en krijgt niet stilzwijgend dezelfde bronnen of profielparameters.
+
+
+## 31. Baars: Bodenmeer-dagritmebron is juveniel en seizoensgebonden
+
+De volledige Bretzel et al. (2021)-publicatie is gecontroleerd. De 24-uurs voedingsanalyse betreft juveniele 0+ baars in pelagisch habitat en is gebaseerd op herfstgegevens uit 2018. Het gemeten patroon (voedingspieken rond dageraad/schemering en afname in de nacht) mag niet als volwassen of universeel baarsprofiel worden gebruikt. Maaginhoud is een proxy voor recente opname; vangstmethode en prooigemeenschap zijn contextbeperkingen. De bron blijft niet-goedgekeurd voor numerieke voorspelling.

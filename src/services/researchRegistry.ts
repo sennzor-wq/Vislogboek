@@ -929,14 +929,16 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Baars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Een volledige 24-uurscyclus van maaginhoud in het pelagische deel van de Obersee (Bodenmeer) liet bij baars in de herfst toenemende voedselinhoud overdag zien met een piek rond de schemering; de laagste maaginhoud werd kort voor zonsopkomst gevonden.',
+    summary: 'Een veldstudie in het pelagische deel van de Obersee (Bodenmeer) onderzocht onder meer juveniele 0+ baars. In de 24-uursanalyse van de herfst vertoonde baars maaginhoud-/voedingspieken rond dageraad en schemering, met een duidelijke afname na 21:00 en een minimum kort voor zonsopkomst. Dit is een seizoens- en levensfasegebonden pelagische waarneming.',
     limitations: [
-      'De tijdreeks betreft een specifieke herfstcampagne, een pelagisch habitat en een lokale prooigemeenschap met driedoornige stekelbaars.',
-      'Maaginhoud is een directe indicator van recente voedselopname, maar de studie beschrijft niet alle seizoenen, wateren of levensfasen.',
+      'De 24-uursanalyse is gebaseerd op herfstgegevens uit 2018; de studie onderzocht juveniele 0+ baars en de uitkomst mag niet worden toegepast op volwassen baars.',
+      'Het betreft het pelagische habitat van één groot, diep meer met een specifieke prooigemeenschap en aanwezigheid van invasieve driedoornige stekelbaars.',
+      'Maaginhoud en maagvulling zijn proxies voor recente voedselopname, niet een directe maat voor totale dagelijkse consumptie of hengelvangbaarheid.',
+      'De auteurs gebruikten verschillende vangstmethoden overdag en ’s nachts; mogelijke verschillen in vangbaarheid zijn een methodische beperking.',
       'De uitkomst mag niet worden vertaald naar een universele schemerbonus of naar alle baarsstekken; prooiaanbod en habitat zijn bepalend.'
     ],
     sourceReferences: [
-      'Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science (2021). https://doi.org/10.3389/fenvs.2021.670125'
+      'Bretzel, J.B. et al. (2021). Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science, 9. https://doi.org/10.3389/fenvs.2021.670125 (juveniele 0+ baars; 24-uursanalyse herfst 2018)'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
