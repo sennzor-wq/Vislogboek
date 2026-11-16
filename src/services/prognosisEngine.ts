@@ -1401,6 +1401,7 @@ export async function createLiveSnapshotForSessionStart(
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
       manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp),
+      waterTemperatureCalibration,
       location: {
         id: location.id,
         latitude: location.latitude,
