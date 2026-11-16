@@ -164,6 +164,15 @@ async function runTestSuite() {
     '2.2 Onzekerheidsnotitie vermeldt expliciet dat watertemperatuur ontbreekt'
   );
   assert(
+    progNoWater.activityScoreAvailable === false,
+    '2.3 Activiteitsindex blijft niet beschikbaar wanneer geen watertemperatuur gemeten of geschat kan worden'
+  );
+  assert(
+    progNoWater.uncertaintyNotes?.some((n) => n.includes('Luchttemperatuur wordt niet als vervanging')) === true &&
+      !progNoWater.uncertaintyNotes?.some((n) => n.includes('berekening gebruikt de luchttemperatuur')),
+    '2.4 Onzekerheidsnotitie suggereert niet langer dat luchttemperatuur als watertemperatuur wordt gebruikt'
+  );
+  assert(
     progWithWater.waterTemperatureInfo?.measured === true && progWithWater.waterTemperatureInfo?.temp === 16.5,
     '2.3 Gemeten watertemperatuur (16.5 °C) wordt correct overgenomen en geverifieerd'
   );

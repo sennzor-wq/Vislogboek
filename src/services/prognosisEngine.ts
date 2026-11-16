@@ -859,7 +859,7 @@ export function calculateDayPrognosis(
       );
     } else {
       uncertaintyNotes.push(
-        'Watertemperatuur is niet gemeten; de berekening gebruikt de luchttemperatuur met verhoogde thermische onzekerheid.'
+        'Watertemperatuur is niet gemeten of verantwoord geschat; de biologische activiteitsindex is niet beschikbaar. Luchttemperatuur wordt niet als vervanging voor watertemperatuur gebruikt.'
       );
     }
   }

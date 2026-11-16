@@ -198,7 +198,7 @@ Dat is een bestaande koppeling tussen biologische activiteit en persoonlijke van
 
 De onderzochte UI en snapshotopslag respecteren `activityScoreAvailable`: bij ontbrekende temperatuur wordt `N/B` getoond en `predictedActivityScore` als `null` opgeslagen. Ook tests controleren dat zonder bruikbare thermische basis geen activiteitsscore of persoonlijke vangstkans als geldig wordt gepresenteerd.
 
-Er is wel een tekstuele inconsistentie in `prognosisEngine.ts`: wanneer zowel meting als schatting ontbreekt, vermeldt een onzekerheidsnotitie dat de berekening de luchttemperatuur gebruikt met verhoogde thermische onzekerheid. Dat botst met de expliciete factor-/conclusietekst dat luchttemperatuur geen vervanging voor watertemperatuur is. De huidige beschikbaarheidsvlag voorkomt dat de placeholder als betrouwbare score wordt getoond, maar deze notitie moet in een gerichte codecorrectie worden aangepast en door tests worden afgedekt. Nog niet gewijzigd.
+De tekstuele inconsistentie is in dezelfde auditwerkstroom gecorrigeerd: wanneer zowel meting als schatting ontbreekt, zegt de onzekerheidsnotitie nu expliciet dat de biologische activiteitsindex niet beschikbaar is en dat luchttemperatuur geen vervanging is. In `test-core-logic.ts` zijn gerichte assertions toegevoegd voor de beschikbaarheidsvlag en de juiste tekst. De wijziging verandert geen score, invoer of prognosegedrag. De aangepaste test is nog niet uitgevoerd; de correctie is dus geïmplementeerd maar nog niet softwarematig gevalideerd.
 
 ### 6.4 Wat bestaande tests al afdekken
 
