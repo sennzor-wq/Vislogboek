@@ -138,6 +138,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             location: selectedLoc,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             historicalWaterTemperatures,
+            dailySolarTimes: weather.dailySummaries,
             presenceObservation: selectedPresenceObs,
             catches,
             prebaitOptions: {
