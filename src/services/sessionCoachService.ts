@@ -549,7 +549,7 @@ export async function reassessActiveSessions(
         species,
         sessions,
         weather.fetchedAt,
-        session.waterTemperature ?? null,
+        null, // Sessiemeting is een historisch anker; nooit opnieuw als actuele meting behandelen.
         now,
         {
           sessionDurationHours: durationHours ?? undefined,

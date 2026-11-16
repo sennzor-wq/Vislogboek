@@ -1031,3 +1031,10 @@ De telemetriestudie van Nolan et al. (2025; online 2024), DOI `10.1007/s10750-02
 Historische watertemperatuurwaarnemingen bewaren nu naast het expliciete meettijdstip ook het oorspronkelijke record-ID en recordtype (sessie/snapshot), registratiemoment, meetbron, meetmethode en meetdiepte. De velden zijn toegevoegd aan `HistoricalWaterTemperatureObservation` en aan de historische meetrecords in `PrognosisInputContext`. De bestaande snapshotbouwers geven de verzamelde observaties rechtstreeks door, zodat de metadata onderdeel wordt van de onveranderlijke inputcontext en fingerprint.
 
 Gerichte regressietests controleren dat sessie- en snapshotrecords hun eigen metadata behouden. Dit verandert niet welke metingen worden toegelaten en verandert geen temperatuur- of visactiviteitsscore. Tests/build zijn niet uitgevoerd; commit gebruikt `[skip ci]`.
+
+
+## Fase 2 — coach-herbeoordeling gebruikt sessiemetingen als historisch anker (16 november 2026)
+
+Een extra provenancecontrole vond dat `sessionCoachService.ts` bij iedere live herbeoordeling de watertemperatuur van de actieve sessie opnieuw als actuele gebruikersmeting doorgaf. Daardoor kon een meting van de sessiestart uren later nog als actueel worden gepresenteerd. Dit is gecorrigeerd: de coach geeft geen sessiewaarde meer door als actuele invoer; de thermische engine gebruikt de sessie via de expliciete meettijd, bron en methode als historisch anker en berekent de latere temperatuur met de beschikbare weersontwikkeling.
+
+De integratietest bevat nu een sessiemeting van een uur eerder en controleert dat de herbeoordelingssnapshot deze als `estimated_from_measurement` met de juiste meettijd en provenance bewaart. Test/build zijn niet uitgevoerd; commit gebruikt `[skip ci]`.

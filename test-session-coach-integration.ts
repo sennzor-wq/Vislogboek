@@ -63,6 +63,11 @@ async function run() {
     locationName: location.name,
     startTime: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
     outcome: 'active',
+    waterTemperature: 16.5,
+    waterTemperatureMeasuredAt: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'thermometer',
+    waterTemperatureMeasurementDepthM: 0.5,
     targetSpecies: ['Karper'],
     technique: 'Feeder / Statisch',
     createdAt: nowIso,
@@ -152,6 +157,23 @@ async function run() {
   assert(
     snapshotsAfterSecond.length === 2 && adviceAfterSecond.length === 2,
     'Bevestigde wijziging bewaart precies één tussentijdse snapshot en één coachadvies'
+  );
+  const reassessmentSnapshot = snapshotsAfterSecond.find((snapshot) => snapshot.runKind === 'session_update');
+  const reassessmentThermal = reassessmentSnapshot?.prognosisData?.thermalAnalysis;
+  const preservedMeasurement = reassessmentSnapshot?.inputContext?.historicalWaterTemperatureSamples
+    .find((sample) => sample.recordId === session.id);
+  assert(
+    reassessmentThermal?.hasMeasuredWaterTemp === false &&
+      reassessmentThermal.waterTemperatureStatus === 'estimated_from_measurement' &&
+      reassessmentThermal.anchorMeasurementTimestamp === session.waterTemperatureMeasuredAt,
+    'Coach-herbeoordeling gebruikt de sessiemeting als tijdgestuurd historisch anker, niet als actuele meting'
+  );
+  assert(
+    preservedMeasurement?.measurementSource === 'manual' &&
+      preservedMeasurement.measurementMethod === 'thermometer' &&
+      preservedMeasurement.measurementDepthM === 0.5 &&
+      preservedMeasurement.recordType === 'session',
+    'Coach-snapshot bewaart de meetprovenance van het historische sessieanker'
   );
   assert(
     adviceAfterSecond.some((advice) =>
