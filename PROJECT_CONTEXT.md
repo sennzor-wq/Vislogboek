@@ -1237,3 +1237,8 @@ Het onderzoeksregister bevat nu Santos et al. (2025) over tien volwassen meerval
 ### Fase 2 — evidence-matrix dag-/nachtvoeding herzien (16 november 2026)
 
 De literatuurinventarisatie onderscheidt nu acht soorten met directe tijdgebonden voedselopname van roofblei, waarvoor momenteel vooral dieet-/prooikeuze en beweging zijn onderbouwd. De studie naar volwassen meerval in een Portugees reservoir meet accelerometeractiviteit en dieptegebruik, geen voedselopname; deze is daarom uitsluitend als beweging/habitat geregistreerd. Alle bronnen blijven niet-goedgekeurd voor scoring. De bijgewerkte soort-/responsmatrix en overdraagbaarheidsgrenzen staan in FASE2_PROGNOSE_AUDIT.md §7 en §32.
+
+
+### Fase 2 — baarsbron Ladogameer per soort geregistreerd (16 november 2026)
+
+De studie van Fedorova & Drozzhina (1982) onderzocht zowel snoekbaars als baars. De bron is nu afzonderlijk aan baars gekoppeld en testbaar in de diel-evidence-service. De conclusie voor baars is geen vaste dagpiek: voedselopname was relatief sterker rond schemering en hing samen met prooigedrag. De registratie blijft niet-goedgekeurd voor scoring.

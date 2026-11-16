@@ -30,6 +30,11 @@ if (!pikeperch.feedingRhythm.some((item) => item.id === 'pikeperch-lake-ladoga-d
   throw new Error('Pikeperch must expose its seasonal feeding rhythm separately from telemetry movement.');
 }
 
+const perch = getSpeciesDielBehaviorEvidenceContext('Baars');
+if (!perch.feedingRhythm.some((item) => item.id === 'perch-lake-ladoga-diel-feeding-1982')) {
+  throw new Error('Perch must expose the Lake Ladoga field feeding study as direct feeding evidence, without assuming a fixed daily peak.');
+}
+
 const asp = getSpeciesDielBehaviorEvidenceContext('Roofblei');
 if (asp.feedingRhythm.length !== 0 || asp.locomotorActivity.length === 0 || asp.temporalEvidenceScope !== 'movement-only') {
   throw new Error('Asp telemetry must remain movement-only, with no invented direct feeding rhythm.');

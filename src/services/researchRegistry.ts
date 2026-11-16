@@ -843,6 +843,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     sourceReferences: ['Fedorova, G.V. & Drozzhina, K.S. (1982). Daily feeding rhythm of pike-perch, Stizostedion lucioperca, and perch, Perca fluviatilis, from Lake Ladoga. Journal of Ichthyology, 22(2), 52–60 (translated from Voprosy Ikhtiologii 22(2), 224–232).'], reviewedAt: '2026-11-16', approvedForPrediction: false,
   },
   {
+    id: 'perch-lake-ladoga-diel-feeding-1982',
+    topic: 'seizoensafhankelijke-voedselopname-en-dagritme',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Maaginhoud-/voedingsritmeonderzoek in het groeiseizoen van het Ladogameer beschreef actieve voedselopname door baars van juni tot september. De hoogste consumptie werd in juli en de laagste in september gevonden. Er waren geen uitgesproken vaste dagelijkse pieken; de voedselopname was relatief sterker tijdens schemeruren, mede door het dagelijkse gedrag van de prooivissen.',
+    limitations: [
+      'De studie betreft één groot Russisch meer en een specifieke vegetatie-/groeiperiode; overdraagbaarheid naar Nederlandse plassen of kanalen is onzeker.',
+      'De auteurs vonden geen duidelijke vaste dagelijkse pieken voor baars; de schemerwaarneming is relatief en gekoppeld aan prooigedrag.',
+      'De beschikbare metadata en samenvatting zijn secundair ontsloten; exacte steekproefomvang en methodedetails moeten bij gebruik van de volledige oorspronkelijke publicatie opnieuw worden gecontroleerd.',
+      'De bron ondersteunt geen universele schemerbonus of vaste tijdvakscore.'
+    ],
+    sourceReferences: [
+      'Fedorova, G.V. & Drozzhina, K.S. (1982). Daily feeding rhythm of pike-perch, Stizostedion lucioperca, and perch, Perca fluviatilis, from Lake Ladoga. Journal of Ichthyology, 22(2), 52–60 (translated from Voprosy Ikhtiologii 22(2), 224–232).'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
     id: 'roach-bream-diel-zooplankton-feeding-2004',
     topic: 'dag-nachtritme-directe-voedselopname',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
