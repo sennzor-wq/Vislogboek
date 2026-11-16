@@ -495,3 +495,6 @@ De eerste literatuurverkenning per soort staat in [FASE2_PROGNOSE_AUDIT.md §7](
 ### Fase 2 — parameterinventaris bestaande profielen (16 november 2026)
 
 De actuele thermische optimum-/breedtewaarden, code-optimum bereiken en voorkeursvakken voor negen soorten plus de fallback `Overig` zijn vastgelegd in [FASE2_PROGNOSE_AUDIT.md §8](FASE2_PROGNOSE_AUDIT.md). Dit zijn huidige codewaarden, geen gevalideerde biologische parameters. De bron-/responsvariabele moet per parameter worden vastgesteld voordat deze als modelinput kan worden vertrouwd. Geen waarden gewijzigd.
+
+
+De illustratieve karperverdeling 30/17/15/12/8/8/10 procent is expliciet in de audit opgenomen als denkkader, niet als gevalideerde parameter of lineaire implementatie. Zie `FASE2_PROGNOSE_AUDIT.md` §5.2.

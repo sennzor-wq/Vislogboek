@@ -960,3 +960,6 @@ De belangrijkste ontwerpconsequentie is dat tijdvakvoorkeuren en seizoensprioren
 ### Parameterinventaris soortprofielen — 16 november 2026
 
 De bestaande thermische profielwaarden voor negen soorten plus de generieke fallback `Overig` zijn geïnventariseerd in `FASE2_PROGNOSE_AUDIT.md` §8. De huidige optimum-/breedtewaarden en tijdvakvoorkeuren zijn voorlopige modelaannames; de gevonden literatuur bevestigt niet automatisch de exacte getallen. Ook wind-, druk-, regen-, bewolkings- en seizoensvelden zijn heuristisch en dragen momenteel niet numeriek bij aan de activiteitsindex. Geen profielwaarden gewijzigd.
+
+
+De besproken karpervoorbeeldverdeling (30/17/15/12/8/8/10 procent over de zeven factorfamilies) is alleen illustratief en wordt niet als modelgewicht geïmplementeerd. Zie `FASE2_PROGNOSE_AUDIT.md` §5.2.
