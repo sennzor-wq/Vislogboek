@@ -33,8 +33,8 @@ if (asp.dietComposition.length === 0 || asp.preySelection.length === 0) {
 }
 
 const pike = getSpeciesFeedingEvidenceContext('Snoek');
-if (pike.feedingIntensity.length === 0 || pike.feedingRhythm.length !== 0) {
-  throw new Error('Pike stomach-fullness evidence must not be turned into a diel feeding rhythm.');
+if (pike.feedingIntensity.length === 0 || !pike.feedingRhythm.some((item) => item.id === 'pike-juvenile-feeding-rhythm-first-year-1998')) {
+  throw new Error('Pike direct feeding evidence must preserve the juvenile-specific diel rhythm without generalising it to adults.');
 }
 
 const tench = getSpeciesFeedingEvidenceContext('Zeelt');
@@ -43,3 +43,9 @@ if (tench.feedingIntensity.length === 0 || tench.feedingRhythm.length === 0) {
 }
 
 console.log('Species feeding evidence context tests passed.');
+
+
+const pikeperch = getSpeciesFeedingEvidenceContext('Snoekbaars');
+if (!pikeperch.feedingRhythm.some((item) => item.id === 'pikeperch-lake-ladoga-daily-feeding-rhythm-1982')) {
+  throw new Error('Pikeperch seasonal daily feeding rhythm must be available as qualitative literature context.');
+}

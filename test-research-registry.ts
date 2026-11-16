@@ -203,9 +203,21 @@ const pikeDirectFeeding = getResearchByOutcome('Snoek', 'feeding_intensity').fin
 if (!pikeDirectFeeding || pikeDirectFeeding.approvedForPrediction || pikeDirectFeeding.measuredOutcomes?.includes('feeding_rhythm')) {
   throw new Error('Pike heart-rate telemetry supports feeding-intensity context, not a quantified diel feeding-rhythm factor.');
 }
+const pikeDielFeeding = getResearchByOutcome('Snoek', 'feeding_rhythm').find((item) => item.id === 'pike-juvenile-feeding-rhythm-first-year-1998');
+if (!pikeDielFeeding || pikeDielFeeding.approvedForPrediction || !pikeDielFeeding.limitations.some((item) => item.includes('jonger dan één jaar'))) {
+  throw new Error('Pike diel feeding evidence must retain its juvenile-only scope and remain non-approved.');
+}
 const pikeMovement = getResearchByOutcome('Snoek', 'locomotor_activity').find((item) => item.id === 'northern-pike-diel-movement-lac-ste-anne-1980');
+const pikeDuskMovement = getResearchByOutcome('Snoek', 'locomotor_activity').find((item) => item.id === 'pike-dusk-habitat-change-visibility-2012');
+if (!pikeDuskMovement || pikeDuskMovement.measuredOutcomes?.includes('feeding_rhythm')) {
+  throw new Error('Pike dusk habitat-change evidence must remain movement/habitat context, not feeding rhythm.');
+}
 if (!pikeMovement || pikeMovement.measuredOutcomes?.includes('feeding_rhythm')) {
   throw new Error('Pike movement evidence must not be misclassified as feeding rhythm.');
+}
+const zanderFeedingRhythm = getResearchByOutcome('Snoekbaars', 'feeding_rhythm').find((item) => item.id === 'pikeperch-lake-ladoga-daily-feeding-rhythm-1982');
+if (!zanderFeedingRhythm || zanderFeedingRhythm.approvedForPrediction || !zanderFeedingRhythm.summary.includes('vroege ochtend')) {
+  throw new Error('Pikeperch feeding rhythm must retain its seasonal morning/evening variation and remain non-approved.');
 }
 const zanderMovement = getResearchByOutcome('Snoekbaars', 'locomotor_activity');
 if (!zanderMovement.some((item) => item.id === 'pikeperch-diel-activity-dusk-drainage-canal-2005') ||
@@ -229,3 +241,15 @@ for (const [species, refs] of Object.entries({
   }
 }
 console.log('Diel behaviour evidence and measured-outcome separation tests passed.');
+
+
+for (const [species, source] of Object.entries({
+  Snoek: ['10.1111/j.1095-8649.2012.03284.x', 'Feeding rhythm and gastric emptying in the pike'],
+  Snoekbaars: ['Daily feeding rhythm of pike-perch'],
+})) {
+  for (const reference of source) {
+    if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((item) => item.includes(reference))) {
+      throw new Error(`The ${species} profile must link its newly reviewed daily-behaviour source ${reference}.`);
+    }
+  }
+}

@@ -823,6 +823,25 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
+
+  {
+    id: 'pike-juvenile-feeding-rhythm-first-year-1998', topic: 'levensfasegebonden-dagritme-en-voedselopname', measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'], species: ['Snoek'], application: 'biology', evidenceStrength: 'limited',
+    summary: 'Onderzoek naar jonge snoek in het eerste levensjaar beschreef dagactieve jacht in de planktivore, insectivore en piscivore ontwikkelingsstadia. In de planktivore fase was het voedingsritme duidelijk bifasisch. Het patroon is expliciet levensfase- en dieetstadiumgebonden.',
+    limitations: ['De studie betreft uitsluitend jonge snoek jonger dan één jaar; dit patroon mag niet als volwassen snoekprofiel worden toegepast.','De voedingsfasen hangen samen met de overgang van plankton naar insecten en vis; de app vraagt niet standaard om levensfase of dieetstadium.','De studie levert geen gevalideerde numerieke tijdvakgewichten voor Nederlandse hengelwateren.'],
+    sourceReferences: ['Coimbra, J.C., Pinto, I.D., Wurdig, N.L. & Do Carmo, D. (1998). Feeding rhythm and gastric emptying in the pike (Esox lucius L.) during the feeding changes below one year of age. Annales de Limnologie, 34(1), 107–116. https://www.limnology-journal.org/articles/limn/pdf/1998/01/limno19981p107.pdf'], reviewedAt: '2026-11-16', approvedForPrediction: false,
+  },
+  {
+    id: 'pike-dusk-habitat-change-visibility-2012', topic: 'schemeringsafhankelijk-habitatwisselen-en-zicht', measuredOutcomes: ['locomotor_activity', 'habitat_use'], species: ['Snoek'], application: 'biology', evidenceStrength: 'moderate',
+    summary: 'Een gecontroleerde studie vond bij snoek de meeste habitatwisselingen tijdens de schemering. Troebel water verminderde de voorkeur voor complex habitat. De proef vond plaats zonder prooien en soortgenoten, zodat het een routine-/habitatrespons meet en geen directe jacht- of voedselopnamepiek.',
+    limitations: ['De proef vond plaats onder gecontroleerde omstandigheden en zonder prooien of soortgenoten; natuurlijke jachtinteracties ontbraken.','Habitatwisselen is geen directe maat voor voedselopname, vangstkans of de aanwezigheid van prooivis.','De uitkomst ondersteunt contextafhankelijke schemeringsbeweging, niet een universele schemerbonus.'],
+    sourceReferences: ['Nilsson, P.A., Baktoft, H., Boel, M., Meier, K., Jacobsen, L., Rokkjær, E.M., Clausen, T. & Skov, C. (2012). Visibility conditions and diel period affect small-scale spatio-temporal behaviour of pike Esox lucius in the absence of prey and conspecifics. Journal of Fish Biology, 80(6), 2384–2389. https://doi.org/10.1111/j.1095-8649.2012.03284.x'], reviewedAt: '2026-11-16', approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-lake-ladoga-daily-feeding-rhythm-1982', topic: 'seizoensafhankelijk-dagritme-voedselopname', measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'], species: ['Snoekbaars'], application: 'biology', evidenceStrength: 'limited',
+    summary: 'Maaginhoud-/voedingsritmeonderzoek in het groeiseizoen van snoekbaars in het Ladogameer vond één dagelijkse voedingspiek in de vroege ochtend van juni tot en met augustus. In september werd een tweede avondpiek beschreven. De auteurs koppelden dit aan lichtomstandigheden en de dagelijkse verspreiding van prooivissen.',
+    limitations: ['De studie betreft één groot Russisch meer en een specifieke vegetatie-/groeiperiode; de uitkomst is niet zonder meer overdraagbaar op Nederlandse plassen of kanalen.','De voedingspiek verschoof tussen maanden; één vaste ochtend-, avond- of nachtvoorkeur is niet gerechtvaardigd.','De reproductieperiode ging samen met lage voedselopname; voortplantingsstatus en prooibeschikbaarheid zijn niet bekend in de app.','De beschikbare metadata en samenvatting zijn secundair ontsloten; exacte steekproefomvang en methodedetails moeten bij hergebruik van de volledige oorspronkelijke publicatie opnieuw worden gecontroleerd.'],
+    sourceReferences: ['Fedorova, G.V. & Drozzhina, K.S. (1982). Daily feeding rhythm of pike-perch, Stizostedion lucioperca, and perch, Perca fluviatilis, from Lake Ladoga. Journal of Ichthyology, 22(2), 52–60 (translated from Voprosy Ikhtiologii 22(2), 224–232).'], reviewedAt: '2026-11-16', approvedForPrediction: false,
+  },
 ];
 
 /**
