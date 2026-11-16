@@ -328,3 +328,10 @@ De volledige Bretzel et al. (2021)-publicatie is gecontroleerd. De 24-uurs voedi
 ## 32. Zeelt: veldritme is beperkt tot één kleine waterlocatie en leeftijdsmix
 
 De primaire publicatie van Bezmaternykh & Shcherbina (2018) is nader gecontroleerd: 90 vissen uit één klein eutroof water in Perm krai gedurende de vegetatieperiode van 2013, met circa drie-uurlijkse kieuwnetbemonstering; 66 vissen hadden voedsel in het spijsverteringskanaal. De avond-/nachtintervallen 18–21 en 00–03 zijn directe maaginhoud-/voedingsindexwaarnemingen, geen continue gedragsobservatie. Voedselkeuze verschilde met leeftijd. De bron blijft contextgebonden en niet-goedgekeurd; geen algemene nachtbonus.
+
+
+## 33. VisCoach gebruikt literatuur als begrensde context, niet als verborgen score
+
+De sessiecoach voegt een compacte biologische context toe vanuit `feedingEvidenceService` en `dielBehaviorEvidenceService`. Directe voedingsritmestudies worden onderscheiden van voedingsintensiteit zonder dagritme en van beweging/habitat/dieet. Wanneer levensfase en lokale voedselcontext onbekend zijn, wordt geen vaste tijdvakvoorkeur afgeleid. Er worden geen brongewichten, tijdvakbonussen of vangstkansen toegevoegd.
+
+Ook opgeslagen sessieadviezen krijgen voortaan het tijdvak uit de echte sessie-start/eindtijd. Een sessie die meerdere tijdvakken bestrijkt krijgt geen globale dagwinnaar. De planweergave en het opgeslagen coachadvies volgen daarmee dezelfde selectie-regel.

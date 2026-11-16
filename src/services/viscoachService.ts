@@ -201,7 +201,9 @@ export function resolveSelectedTimeSlot(start: Date, end: Date | null): import('
     const startMinute = range.start * 60;
     const endMinute = range.end * 60;
     return startParts.minutes >= startMinute &&
-      (endParts ? (endsAtMidnightNextDay ? endMinute === 24 * 60 : endParts.minutes <= endMinute && endParts.minutes > startParts.minutes) : true);
+      (endParts
+        ? (endsAtMidnightNextDay ? endMinute === 24 * 60 : endParts.minutes <= endMinute && endParts.minutes > startParts.minutes)
+        : startParts.minutes < endMinute);
   });
   return slot?.[0];
 }

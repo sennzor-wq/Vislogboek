@@ -1274,3 +1274,8 @@ Bretzel et al. (2021; DOI 10.3389/fenvs.2021.670125) is in volledige tekst gecon
 ## Fase 2 — zeeltveldbron nader geverifieerd (16 november 2026)
 
 Bezmaternykh & Shcherbina (2018; DOI 10.1134/S003294521804001X) is volledig gecontroleerd: 90 zeelten uit één circa 1,9-ha eutroof water in Perm krai, 66 met voedsel in het spijsverteringskanaal, bemonsterd ongeveer iedere drie uur tijdens de vegetatieperiode 2013. De tijdgebonden bevindingen blijven leeftijds-/habitatgebonden en zijn geen vangstkans. Een verschil tussen vertaalde samenvattingen over de laagste maandindex is vastgelegd; die claim wordt niet gebruikt. Geen score- of gewichtsaanpassing.
+
+
+## Fase 2 — VisCoach biologische context en sessietijd-consistentie (16 november 2026)
+
+De volgende codewijziging voegt een korte brongebonden biologische context toe aan VisCoach: directe dagritme-/voedingsmetingen worden gescheiden van beweging, habitat en dieet. Onbekende levensfase en lokale voedselcontext blijven onzeker; geen extra invoerveld en geen scorebonus. Opgeslagen start-/herbeoordelingsadviezen moeten het werkelijke sessietijdvak volgen; bij meerdere tijdvakken geen globale dagwinnaar.

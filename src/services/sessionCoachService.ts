@@ -4,6 +4,7 @@ import {
   CoachAdviceResponse,
   CoachAdviceTrigger,
   DayPrognosis,
+  FishSpecies,
   FishingLocation,
   FishingSession,
   PrognosisSnapshot,
@@ -14,6 +15,9 @@ import { calculateDayPrognosis, createPrognosisHistoryFeatureSnapshot, createPro
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
+import { getSpeciesFeedingEvidenceContext } from './feedingEvidenceService';
+import { getSpeciesDielBehaviorEvidenceContext } from './dielBehaviorEvidenceService';
+import { resolveSelectedTimeSlot } from './viscoachService';
 
 export interface SessionCoachReassessmentResult {
   sessionId: string;
@@ -222,6 +226,40 @@ function explainCoachLimitation(note: string): string | null {
  * Deze laag berekent zelf geen biologie, kansen, windrelaties of tactiek.
  * Ze ordent bestaande uitkomsten, legt vaktermen uit en maakt onzekerheid expliciet.
  */
+
+/**
+ * Korte, brongebonden biologische context voor VisCoach.
+ * Deze tekst duidt de kwaliteit en begrenzing van de literatuur; ze berekent
+ * geen activiteit, voedingskans, tijdvakvoorkeur of vangstkans.
+ */
+export function buildVisCoachBiologicalContext(species: FishSpecies | 'Algemeen'): string {
+  if (species === 'Algemeen') {
+    return 'Er is geen afzonderlijke doelsoort gekozen. Daarom toon ik geen soortspecifieke dagritmevoorkeur; de biologische context blijft algemeen.';
+  }
+  const feeding = getSpeciesFeedingEvidenceContext(species);
+  const diel = getSpeciesDielBehaviorEvidenceContext(species);
+
+  if (diel.feedingRhythm.length > 0) {
+    return 'Er zijn studies die het dagritme van voedselopname bij deze soort meten, maar de resultaten zijn gebonden aan specifieke levensfasen, seizoenen, habitats en prooicontexten. Omdat de levensfase en lokale voedselcontext hier niet betrouwbaar bekend zijn, gebruik ik dit als achtergrondinformatie en niet als vaste tijdvakvoorkeur of scorebonus.';
+  }
+
+  if (feeding.feedingIntensity.length > 0) {
+    return 'Er zijn directe voedingsmetingen bij deze soort, maar in het huidige bronnenregister is geen voldoende onderbouwd dagdeelpatroon beschikbaar. Daarom leid ik hier geen vaste tijdvakvoorkeur uit af.';
+  }
+
+  if (
+    diel.locomotorActivity.length > 0 ||
+    diel.habitatUse.length > 0 ||
+    feeding.foragingBehavior.length > 0 ||
+    feeding.dietComposition.length > 0 ||
+    feeding.preySelection.length > 0
+  ) {
+    return 'De beschikbare studies beschrijven vooral beweging, habitatgebruik, foerageergedrag of dieet; dat is geen directe meting van tijdgebonden voedselopname. Daarom leid ik hier geen vaste tijdvakvoorkeur uit af.';
+  }
+
+  return 'In het huidige bronnenregister ontbreekt directe dagdeelmeting van voedselopname voor deze soort. Er is daarom geen onderbouwde soortspecifieke tijdvakvoorkeur.';
+}
+
 export function buildVisCoachAdviceText(
   prognosis: DayPrognosis,
   weather?: import('../types').WeatherSnapshot | null,
@@ -248,6 +286,7 @@ export function buildVisCoachAdviceText(
           : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
   sections.push(`Wanneer\n${when}`);
+  sections.push(`Biologische context\n${buildVisCoachBiologicalContext(prognosis.species)}`);
 
   const primaryZone = habitat?.primaryZone?.name && !isGenericZone(habitat.primaryZone.name)
     ? habitat.primaryZone.name
@@ -342,7 +381,12 @@ function createAdviceRecord(
   trigger: CoachAdviceTrigger = 'weather_update',
   changedFactors: string[] = []
 ): CoachAdviceRecord {
-  const text = buildVisCoachAdviceText(prognosis, snapshot.predictedConditions, snapshot.technique ?? session.technique);
+  const sessionStart = new Date(session.startTime);
+  const sessionEnd = session.endTime ? new Date(session.endTime) : null;
+  const selectedTimeSlot = Number.isFinite(sessionStart.getTime()) && (!sessionEnd || Number.isFinite(sessionEnd.getTime()))
+    ? resolveSelectedTimeSlot(sessionStart, sessionEnd) ?? null
+    : null;
+  const text = buildVisCoachAdviceText(prognosis, snapshot.predictedConditions, snapshot.technique ?? session.technique, selectedTimeSlot);
   return {
     id: `coach-advice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     sessionId: session.id,
