@@ -461,6 +461,21 @@ async function runTestSuite() {
     '5.3 Karperprofiel-aannames stellen expliciet dat koude lucht niet gelijkstaat aan koude watermassa'
   );
 
+  const coldThermalResponse = calculateThermalEfficiency(2, SPECIES_PROFILES['Karper']);
+  assert(
+    coldThermalResponse.description.includes('geen gevalideerde fysiologische tolerantiegrens') &&
+      coldThermalResponse.description.includes('geen winterrust') &&
+      !/dwingt|spaarstand|foerageerdrang is sterk geremd|winterrust wordt/i.test(coldThermalResponse.description),
+    '5.4 Lage temperatuur wordt niet als bewezen winterrust of stop van voedselopname gepresenteerd'
+  );
+
+  const hotThermalResponse = calculateThermalEfficiency(30, SPECIES_PROFILES['Karper']);
+  assert(
+    hotThermalResponse.description.includes('opgeloste zuurstof wordt niet gemeten') &&
+      !/zuurstofstress bewijst|zuurstofspanning verlagen/i.test(hotThermalResponse.description),
+    '5.5 Hoge temperatuur wordt niet gelijkgesteld aan gemeten zuurstofstress'
+  );
+
   // =========================================================================
   // DEEL 7: WEERSVERLOOP BINNEN EEN TIJDVAK BLIJFT ZICHTBAAR
   // =========================================================================

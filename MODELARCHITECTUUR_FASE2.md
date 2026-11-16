@@ -189,3 +189,12 @@ De huidige sessie-editor bewaart waarnemingen als categorieën op sessieniveau. 
 **Gebruiksgemakbesluit:** er wordt nu geen aparte uitgebreide foerageerregistratie gebouwd. Extra verplichte invoer tijdens het vissen past niet bij het doel van een laagdrempelige app. De bestaande waarnemingen blijven optionele, kwalitatieve context en worden niet gebruikt voor tijdvaktraining. Ontbrekende tijdstippen blijven onbekend; ze worden nooit afgeleid uit sessiestart, sessie-update of registratietijd.
 
 Een eventuele latere uitbreiding moet optioneel en met minimale handelingen kunnen worden vastgelegd. Alleen als gebruikerswaarde en aantoonbare modelverbetering opwegen tegen de invoerlast, onderzoeken we een eenvoudige registratievorm. Tot dat moment geen nieuwe entiteit, migratie, invoerscherm of numerieke modelinvloed.
+
+
+## 14. Thermische curve: expliciete voorlopige status
+
+De huidige asymmetrische Gaussische curve en de per-soort `thermalOptimum`-/breedteparameters zijn een voorlopige modelvorm, geen uit gepubliceerde Nederlandse velddata gefitte respons. Ook de efficiëntievloer en de exponent in de omzetting naar 1–10 zijn technische modelkeuzes. Algemene temperatuur-/voedingsliteratuur onderbouwt het mechanisme, niet deze exacte numerieke waarden.
+
+De profielvelden `optimalTempRange` en `tolerableTempRange` zijn daarom voorlopig en mogen niet worden gelezen als gevalideerde fysiologische grenzen. Teksten mogen uit een lage thermische modelrespons geen bewezen winterrust of stop van voedselopname afleiden. Hoge watertemperatuur is zonder opgeloste-zuurstofmeting evenmin bewijs van zuurstofstress.
+
+Dezelfde thermische analyse wordt momenteel voor alle tijdvakken van één doeldag gebruikt; de bestaande tijdstip-/schemeringsnotities veranderen de score niet. De huidige engine kan daarom geen thermisch onderbouwd beste tijdvak selecteren. Een latere tijdvaklaag vereist directe soortspecifieke gedragsdata en chronologische validatie.

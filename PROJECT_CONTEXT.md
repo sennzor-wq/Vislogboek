@@ -1149,3 +1149,12 @@ De UI leest alleen de pure `feedingEvidenceService`; er is geen koppeling naar d
 Belangrijke databeperking gevonden: huidige sessiewaarnemingen zijn een sessiesamenvatting. `syncSessionPresenceObservations()` gebruikt `session.updatedAt` als `timestamp` bij nieuwe records; dat is niet bewezen het werkelijke moment van waarnemen. Per sessie kan bovendien maar één record per type bestaan en soortidentificatie ontbreekt. Deze records zijn dus geen betrouwbare tijdvaklabels voor voedingskalibratie. De huidige prognose gebruikt ze uitsluitend als kwalitatieve context zonder numerieke bonus.
 
 **Productbesluit:** geen aparte uitgebreide foerageerregistratie in de huidige roadmap. De gebruiker moet tijdens het vissen zo min mogelijk extra handelingen hoeven te verrichten. Bestaande waarnemingen blijven globale context en worden niet gebruikt als tijdgebonden trainingslabels. Een eventuele toekomstige uitbreiding moet optioneel, snel en aantoonbaar gebruiksvriendelijk zijn én voldoende meerwaarde voor de prognose opleveren. Geen nieuwe invoervelden, databasemigratie of modelinvloed zolang die afweging niet positief uitvalt.
+
+
+### Fase 2 — thermische parameter-audit (16 november 2026)
+
+De thermische curve is de enige numerieke factor in de huidige activiteitsindex. De asymmetrische Gaussische vorm, soortoptima, breedteparameters, efficiëntievloer en score-exponent zijn nog niet gefit of gevalideerd met representatieve velddata. De algemene literatuurverwijzingen ondersteunen het temperatuureffect, maar niet automatisch de exacte numerieke waarden per soort/levensfase/watertype. Profielgrenzen zijn voorlopig; ze mogen niet worden geïnterpreteerd als bewezen winterrust- of zuurstofstressgrenzen.
+
+De beschrijvingen bij extreme temperaturen zijn daarom aangescherpt: alleen relatieve thermische modelrespons, geen stellige uitspraak over winterrust, foerageerstop of zuurstofstress zonder passende metingen. De scoreberekening zelf is ongewijzigd.
+
+Ook vastgesteld: één thermische analyse per doeldag wordt gedeeld door alle tijdvakken. Omdat tijdstip-/schemeringsvoorkeuren momenteel geen scorebijdrage hebben, kan de thermische laag geen beste tijdvak onderscheiden. Dit blijft een expliciete modelbeperking totdat direct soortspecifiek gedragsbewijs en chronologische validatie een tijdvaklaag ondersteunen.
