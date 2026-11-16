@@ -428,7 +428,7 @@ async function runTestSuite() {
     `4.5 Viswaarneming verandert de numerieke vangstkans niet zolang een bonus niet empirisch is gevalideerd (${progRolling.personalCatchChance}% === ${progNoSightings.personalCatchChance}%)`
   );
   assert(
-    progRolling.uncertaintyNotes?.some((n) => n.includes('geen numerieke aanwezigheidsbonus') && n.includes('niet empirisch gevalideerd')) === true,
+    progRolling.uncertaintyNotes?.some((n) => n.includes('geen numerieke aanwezigheidsbonus') && n.includes('niet empirisch is gevalideerd')) === true,
     '4.6 Niet-gevalideerde aanwezigheidsbonus wordt expliciet niet toegepast en toegelicht'
   );
 
