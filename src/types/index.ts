@@ -503,6 +503,27 @@ export interface PrognosisInputContext {
   historicalSessionIds: string[];
   catchRecordIds: string[];
   observationIds: string[];
+  /**
+   * Whitelisted, immutable model inputs. Personal notes, photos and free-text
+   * fields are deliberately excluded so a snapshot can be replayed without
+   * copying unrelated personal content.
+   */
+  historicalSessionFeatures?: Array<Pick<FishingSession,
+    | 'id' | 'locationId' | 'startTime' | 'endTime' | 'durationMinutes'
+    | 'outcome' | 'targetSpecies' | 'isBenchmark' | 'legacyImportQuality'
+    | 'technique' | 'baitDirection' | 'prebaited' | 'baitAndFeed' | 'waterDepth'
+    | 'waterTemperature' | 'waterTemperatureMeasuredAt'
+    | 'waterTemperatureMeasurementSource' | 'waterTemperatureMeasurementMethod'
+    | 'waterTemperatureMeasurementDepthM'
+  >>;
+  historicalCatchFeatures?: Array<Pick<CatchItem,
+    | 'id' | 'sessionId' | 'locationId' | 'species' | 'count' | 'weightKg'
+    | 'lengthCm' | 'timestamp' | 'bait' | 'technique' | 'legacyImportQuality'
+  >>;
+  historicalObservationFeatures?: Array<Pick<PresenceObservation,
+    'id' | 'locationId' | 'sessionId' | 'observationType' | 'timestamp'
+  >>;
+  historyFeatureSchemaVersion?: 1;
   presenceObservation?: string | null;
   historicalWaterTemperatureSamples: Array<{
     locationId: string;
