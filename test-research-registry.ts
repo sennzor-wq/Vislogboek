@@ -149,3 +149,31 @@ if (!growthOnly.some((item) => item.id === 'freshwater-fish-temperature-growth-f
   throw new Error('Growth evidence must remain separately classified from feeding intensity.');
 }
 console.log('Measured biological outcome classification tests passed.');
+
+
+const metabolicEvidenceExpectations: Array<[string, string]> = [
+  ['Karper', 'common-carp-acute-temperature-metabolism-1983'],
+  ['Snoek', 'northern-pike-metabolic-rate-temperature-1982'],
+  ['Baars', 'european-perch-aerobic-scope-size-temperature-2020'],
+  ['Brasem', 'roach-bream-metabolic-rate-temperature-2006'],
+  ['Voorn', 'roach-bream-metabolic-rate-temperature-2006'],
+  ['Snoekbaars', 'adult-pikeperch-aerobic-scope-temperature-2012'],
+];
+for (const [species, id] of metabolicEvidenceExpectations) {
+  const entry = getResearchByOutcome(species, 'metabolic_rate').find((item) => item.id === id);
+  if (!entry || entry.approvedForPrediction || entry.limitations.length === 0 || entry.sourceReferences.length === 0) {
+    throw new Error(`Thermal metabolic evidence for ${species} must be discoverable, limited and non-approved.`);
+  }
+}
+for (const species of ['Baars', 'Snoekbaars']) {
+  if (!getResearchByOutcome(species, 'aerobic_scope').some((item) => !item.approvedForPrediction)) {
+    throw new Error(`Aerobic-scope evidence must remain separate and non-approved for ${species}.`);
+  }
+}
+if (getResearchByOutcome('Baars', 'feeding_intensity').some((item) => item.id === 'european-perch-aerobic-scope-size-temperature-2020')) {
+  throw new Error('Aerobic-scope evidence must not be misclassified as feeding intensity.');
+}
+if (getResearchByOutcome('Snoekbaars', 'feeding_intensity').some((item) => item.id === 'adult-pikeperch-aerobic-scope-temperature-2012')) {
+  throw new Error('Metabolic-scope evidence must not be misclassified as feeding intensity.');
+}
+console.log('Thermal physiology evidence classification tests passed.');

@@ -1163,3 +1163,8 @@ Ook vastgesteld: één thermische analyse per doeldag wordt gedeeld door alle ti
 ### Fase 2 — scope van de huidige activiteitsscore verduidelijkt (16 november 2026)
 
 De UI noemt de bestaande 1–10-uitkomst voortaan 'thermische activiteitspotentie'. De score gebruikt alleen de voorlopige thermische soortcurve; overige weers-/seizoens-/tijdsfactoren blijven context en veranderen de score niet. Daarmee wordt voorkomen dat de gebruiker een thermische proxy verwart met totale visactiviteit of foerageergedrag. Ook lage thermische scores worden niet meer vertaald naar een stellige winterrust- of inactiviteitsclaim. De numerieke berekening en bestaande snapshotvelden zijn ongewijzigd.
+
+
+### Fase 2 — thermische fysiologie als aparte evidence-uitkomst (16 november 2026)
+
+Het researchregister onderscheidt nu `metabolic_rate` en `aerobic_scope` van voedingsintensiteit, voedingsritme, foerageren, locomotie en groei. Eerste studies zijn geregistreerd voor karper, snoek, baars, brasem, blankvoorn en snoekbaars, met expliciete beperkingen rond laboratoriumopzet, lichaamsgrootte, levensfase en overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor numerieke modelinvloed. Er zijn geen soortparameters of scores aangepast.
