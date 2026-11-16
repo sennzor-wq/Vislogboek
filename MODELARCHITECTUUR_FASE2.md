@@ -237,3 +237,8 @@ De prognose moet niet altijd één 'beste' tijdvak aanwijzen:
 De visser blijft altijd vrij in de keuze van het vistijdstip. De prognose ondersteunt die keuze, maar schrijft geen tijdstip voor. Een gelijkwaardige uitkomst is een geldige en nuttige prognose-uitkomst, geen tekortkoming die met willekeurige gewichten moet worden opgelost.
 
 Implementatievoorwaarden: vergelijk tijdvakken alleen op factoren die aantoonbaar per tijdvak veranderen; gebruik geen standaard nacht-/schemerbonus; kalibreer soortspecifieke voorkeuren op direct gedragsbewijs; bepaal pas na validatie drempels voor 'klein' versus 'betekenisvol' verschil. Tot die tijd geen numerieke tijdvakscore of rangschikking toevoegen. De UI mag gelijkwaardigheid expliciet communiceren.
+
+
+## 19. Samenvatting is consistent met de tijdvakstatus
+
+De prognose-samenvatting maakt onderscheid tussen ontbrekende thermische basisgegevens, gelijkwaardige beschikbare tijdvakken, een onderbouwd beste toekomstig tijdvak en een dag waarvan alle tijdvakken verstreken zijn. Gelijkwaardige tijdvakken worden expliciet als zodanig beschreven; ze worden niet verward met verstreken tijdvakken. Dit wijzigt geen modelscore of biologische factor.

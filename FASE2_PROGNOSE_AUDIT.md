@@ -591,3 +591,14 @@ Ontwerpuitkomsten:
 3. Geen betekenisvol verschil: tijdvakken gelijkwaardig presenteren.
 
 Er wordt geen standaard nacht-/schemerbonus ingevoerd. Numerieke drempels voor betekenisvolle verschillen worden pas vastgesteld na bronbeoordeling, modelontwerp en validatie; geen arbitraire drempel of gewicht. Dit besluit verandert de huidige berekening niet en heft de bestaande beperking op de gedeelde thermische daganalyse nog niet op.
+
+
+## 22. Correcte samenvatting bij gelijkwaardige tijdvakken (16 november 2026)
+
+De tijdvakselectie kende al de uitkomst `Geen betekenisvol onderscheid`, maar de samenvatting viel voor zowel die uitkomst als 'geen toekomstig tijdvak meer' in dezelfde `else`-tak. Daardoor meldde de UI bij gelijkwaardige scores ten onrechte dat alle tijdvakken verstreken waren. De samenvatting onderscheidt deze situaties nu expliciet:
+- onvoldoende thermische basisgegevens: geen betrouwbare tijdvakduiding;
+- gelijkwaardige beschikbare tijdvakken: geen onderbouwde beste tijd, kies een praktisch passend moment;
+- alle tijdvakken verstreken: bekijk de prognose voor morgen;
+- wel een onderscheidende score: toon het beste toekomstige tijdvak.
+
+Een regressietest bewaakt zowel de gelijkwaardige als de volledig verstreken situatie. De onderliggende scores en tijdvakselectie zijn niet gewijzigd.
