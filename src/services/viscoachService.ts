@@ -291,6 +291,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
     technique: null,
+    manualWaterTemperatureInput: null, // VisCoach vraagt geen actuele handmatige watertemperatuur; niet afleiden.
     location: {
       id: input.location.id,
       latitude: input.location.latitude,
