@@ -382,16 +382,16 @@ export function calculateThermalEfficiency(
 
   if (temp >= optimalTempRange[0] && temp <= optimalTempRange[1]) {
     impact = 'positief';
-    description = `Temperatuur (${temp.toFixed(1)} °C) valt binnen het optimale bereik (${optimalTempRange[0]}–${optimalTempRange[1]} °C) voor ${species} (thermische efficiëntie: ${(efficiency * 100).toFixed(0)}%).`;
+    description = `Temperatuur (${temp.toFixed(1)} °C) valt binnen het voorlopige profielbereik (${optimalTempRange[0]}–${optimalTempRange[1]} °C) voor ${species}. De thermische curve schat hier een relatief hoge efficiëntie (${(efficiency * 100).toFixed(0)}%); dit is geen gemeten activiteit of voedselopname.`;
   } else if (temp < optimalTempRange[0] && temp >= tolerableTempRange[0]) {
     impact = efficiency < 0.45 ? 'negatief' : 'neutraal';
-    description = `Temperatuur (${temp.toFixed(1)} °C) ligt onder het optimum van ${species}. De stofwisseling vertraagt geleidelijk (thermische efficiëntie: ${(efficiency * 100).toFixed(0)}%).`;
+    description = `Temperatuur (${temp.toFixed(1)} °C) ligt onder het voorlopige profieloptimum van ${species}. De thermische curve schat een lagere relatieve efficiëntie dan rond het optimum (${(efficiency * 100).toFixed(0)}%); dit meet niet rechtstreeks hoeveel de vis beweegt of foerageert.`;
   } else if (temp < tolerableTempRange[0]) {
     impact = 'negatief';
-    description = `Lage watertemperatuur (${temp.toFixed(1)} °C) dwingt ${species} tot een sterke spaarstand (thermische efficiëntie: ${(efficiency * 100).toFixed(0)}%). Foerageerdrang is sterk geremd (winterrust wordt fysiologisch gestuurd door koud water, niet direct door koude lucht).`;
+    description = `Watertemperatuur (${temp.toFixed(1)} °C) ligt onder de voorlopige ondergrens van het profiel voor ${species}. De thermische curve schat daardoor een lage relatieve efficiëntie (${(efficiency * 100).toFixed(0)}%). Deze profielgrens is geen gevalideerde fysiologische tolerantiegrens en stelt op zichzelf geen winterrust of stop van voedselopname vast.`;
   } else {
     impact = 'negatief';
-    description = `Zeer hoge temperatuur (${temp.toFixed(1)} °C) kan zuurstofspanning verlagen en vis passief maken.`;
+    description = `Watertemperatuur (${temp.toFixed(1)} °C) ligt boven de voorlopige bovengrens van het profiel voor ${species}. De thermische curve schat een lagere relatieve efficiëntie (${(efficiency * 100).toFixed(0)}%). Hoge temperatuur alleen bewijst hier geen zuurstofstress: opgeloste zuurstof wordt niet gemeten.`;
   }
 
   return { efficiency, description, impact };
