@@ -396,6 +396,14 @@ async function run14Scenarios() {
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
   );
+  const genericTimeContext = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Algemeen', tenSessions, undefined, null,
+    new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
+  );
+  assert(
+    genericTimeContext.timeSlots.Nacht.timeOfDayFactor.detail.includes('geen soortspecifieke tijdvakvoorkeur'),
+    '12.2a Het algemene fallbackprofiel verzint geen biologisch beste tijdvak'
+  );
   assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
     '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
   assert(

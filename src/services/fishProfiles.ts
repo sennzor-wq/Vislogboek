@@ -45,7 +45,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Een lage luchttemperatuur leidt niet automatisch tot winterrust zolang de watermassa warmer blijft; beoordeel dit op basis van gemeten of geschatte watertemperatuur en thermische traagheid.',
       'Een gunstige barometer of wind kan een fysiologische watertemperatuurbeperking nooit compenseren.',
       'Watertemperatuur is een relevante fysiologische contextfactor. Een universeel optimaal bereik voor alle volwassen karpers en Nederlandse wateren is niet vastgesteld in dit profiel.',
-      'Schemering en nachtelijke uren zijn in warme periodes productiever dan felle zon overdag.',
+      'Onderzoek beschrijft onder sommige omstandigheden ochtend- en avondpieken; een andere studie vond meer graastijd overdag dan in de nacht. Een vaste nachtvoorkeur is daarom niet aangetoond.',
     ],
     scientificReferences: [
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
@@ -62,7 +62,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 21.0,
     thermalWidthCold: 5.8,
     thermalWidthWarm: 5.5,
-    preferredSlots: ['Ochtend', 'Avond', 'Nacht'],
+    preferredSlots: ['Ochtend', 'Avond'],
     crepuscularBonus: true,
     preferredWindDirections: ['ZW', 'W', 'Z'],
     disruptiveWindThresholdKmH: 35,
@@ -79,7 +79,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     description: 'Typische scholenvis en bodemazer. Foerageert in een breder temperatuurbereik dan karper, maar is gevoelig voor snelle drukschommelingen.',
     assumptions: [
       'Gedijt goed tussen 12 °C en 21 °C; aast ook in koudere maanden mits aaspresentatie subtiel is.',
-      'Avond- en vroege ochtendschemering zijn natuurlijke foerageerpieken.',
+      'In-situ onderzoek vond overwegend daggebonden voedselopname en duidelijk lagere maagvulling in de nacht; een vaste schemerpiek is daarmee niet aangetoond.',
       'Een directe, voorspelbare relatie tussen korte luchtdrukschommelingen en aasactiviteit is onvoldoende onderbouwd; luchtdruk wordt daarom niet als soortspecifieke bonus/malus gebruikt.',
       'Matige kabbel (10–22 km/u) brengt natuurlijk voedsel in beweging en verlaagt schuwheid.',
     ],
@@ -97,8 +97,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 17.5,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 5.8,
-    preferredSlots: ['Ochtend', 'Avond', 'Nacht'],
-    crepuscularBonus: true,
+    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
+    crepuscularBonus: false,
     preferredWindDirections: ['ZW', 'W', 'NW'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'hoog',
@@ -151,7 +151,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     scientificName: 'Perca fluviatilis',
     description: 'Actieve scholen- en zichtjager. Houdt van dynamische lichtomstandigheden en matige temperaturen.',
     assumptions: [
-      'Actief overdag met duidelijke pieken rond de ochtend- en namiddagschemering.',
+      'Een veldstudie vond ochtend- en avondpieken in mei/juni, maar een verschuiving naar een middagpiek in juli/augustus. Het dagritme verandert dus met seizoen en prooibeschikbaarheid.',
       'Gunstig temperatuurbereik 10–20 °C; in de nazomer en vroege herfst zeer vraatzuchtig.',
       'Een direct effect van stabiele luchtdruk op jachtgedrag is niet betrouwbaar vastgesteld.',
       'Harde storm en troebel water door hevige stortbui belemmeren het visuele jagen.',
@@ -187,7 +187,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     description: 'Flexibele alleseter met hoge tolerantie voor koud water. Blijft de hele winter door foerageren.',
     assumptions: [
       'Gedijt in een breed temperatuurbereik (6–20 °C).',
-      'In het najaar en de winter zijn de middaguren met lichte opwarming vaak het productiefst.',
+      'Een boreale meerstudie vond in de herfst een verschuiving van dagvoeding naar schemering bij afkoeling van circa 20 naar 10 °C en lage nachtelijke voedingsactiviteit rond 5 °C. Dit is habitat- en seizoensgebonden en geen universele Nederlandse winterregel.',
       'Reageert positief op zachte westenwind met lichte kabbel; vermijdt storm.',
     ],
     scientificReferences: [
@@ -221,7 +221,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     description: 'Sterk warmteminnende, schuwe modder- en plantenbewoner. Vrijwel inactief bij koud water.',
     assumptions: [
       'Onder 12 °C daalt de activiteit zeer scherp; optimale voeding vindt plaats tussen 16 °C en 24 °C.',
-      'Vroege ochtend (rond zonsopkomst) en late avondschemering zijn veruit de beste periodes.',
+      'In één klein eutroof water werden de hoogste voedingsintensiteiten gemeten tussen 18:00–21:00 en 00:00–03:00. Dit is een lokale veldbevinding; zeelt vertoonde ook in gecontroleerd onderzoek sterk nachtelijk gedrag, maar dit is geen universele kloktijd voor ieder water.',
       'Kille noordenwind en plotselinge koufronten zetten zeelt vrijwel direct stil.',
     ],
     scientificReferences: [
@@ -236,8 +236,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 20.5,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
-    preferredSlots: ['Ochtend', 'Avond'],
-    crepuscularBonus: true,
+    preferredSlots: ['Avond', 'Nacht'],
+    crepuscularBonus: false,
     preferredWindDirections: ['Z', 'ZW'],
     disruptiveWindThresholdKmH: 30,
     pressureSensitivity: 'hoog',
@@ -350,7 +350,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     scientificName: 'Teleostei',
     description: 'Gemiddeld ecologisch model voor gematigde zoetwatervissen.',
     assumptions: [
-      'Gebruikt een gewogen ecologisch gemiddelde.',
+      'Gebruikt een gewogen ecologisch gemiddelde. Er is geen soortspecifiek dag-/nachtritme voor dit fallbackprofiel vastgesteld.',
       'Matige temperaturen (12–18 °C) en stabiele omstandigheden vormen het nulpunt.',
     ],
     scientificReferences: [
@@ -363,8 +363,8 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
-    preferredSlots: ['Ochtend', 'Avond'],
-    crepuscularBonus: true,
+    preferredSlots: [],
+    crepuscularBonus: false,
     preferredWindDirections: ['ZW', 'W'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'matig',

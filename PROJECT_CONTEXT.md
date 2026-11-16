@@ -1195,3 +1195,8 @@ Nieuwe gecontroleerde bronnen voor snoek, snoekbaars en roofblei zijn in het res
 ### Fase 2 — directe voedingsritmes voor snoek en snoekbaars toegevoegd (16 november 2026)
 
 Het register bevat nu directe dagritmebronnen voor jonge snoek (dagactieve jacht; bifasisch ritme in planktivore fase) en snoekbaars in het Ladogameer (vroege ochtendpiek juni–augustus, tweede avondpiek in september). De beperkte levensfase-/watercontext is expliciet vastgelegd. Een afzonderlijke snoekstudie naar schemeringsgebonden habitatwisselingen blijft locomotorisch bewijs en wordt niet als voedingsritme geteld. Alle bronnen blijven niet-goedgekeurd voor numerieke modelinvloed.
+
+
+### Fase 2 — dagdeelprofielen afgestemd op literatuur en onzekerheid (16 november 2026)
+
+Kwalitatieve tijdvakvoorkeuren zijn gecorrigeerd waar ze botsten met gemeten voedingsritmes: geen algemene nachtvoorkeur voor karper, geen generieke nacht-/schemerpiek voor brasem, avond/nachtcontext voor zeelt, expliciete seizoensverschuivingen voor blankvoorn en baars, en geen verzonnen dagritme voor het algemene fallbackprofiel. De prognose-score en tijdvakrangschikking zijn ongewijzigd; regressietests bewaken de profielwaarden en de neutrale uitleg bij 'Algemeen'.

@@ -254,3 +254,8 @@ Alle nieuwe records blijven niet-goedgekeurd voor numerieke voorspelling. De bes
 ## 21. Directe voedingsritmes: levensfase en seizoen blijven zichtbaar
 
 Nieuwe directe bronnen laten zien dat jonge snoek overdag jaagt en in de planktivore fase een bifasisch voedingsritme kan hebben; dit mag niet worden veralgemeniseerd naar volwassen snoek. Voor snoekbaars in het Ladogameer werd een voedingspiek in de vroege ochtend van juni tot augustus en een tweede avondpiek in september beschreven. Deze lokale, seizoensgebonden uitkomst staat naast telemetrieonderzoek dat beweging rond schemering meet. Beide responsen worden afzonderlijk geregistreerd en niet automatisch tot één universele tijdvakvoorkeur samengevoegd.
+
+
+## 22. Soortspecifieke dagdeelprofielen zijn kwalitatieve hypothesen
+
+De canonieke dagdeelvoorkeuren zijn herzien op basis van direct voedingsbewijs waar beschikbaar. Karper krijgt geen algemene nachtvoorkeur; brasem is in de beschikbare in-situ studie vooral daggebonden; zeelt heeft beperkte maar directe avond-/nachtpieken; blankvoorn en baars vertonen seizoensafhankelijke verschuivingen. Het generieke fallbackprofiel bevat geen eigen dagdeelvoorkeur. Deze gegevens blijven beschrijvende context, geen numerieke tijdvakbonus of score. De vaste klokblokken zijn onvoldoende om zonsopkomst en schemering in alle seizoenen nauwkeurig te representeren.

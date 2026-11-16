@@ -467,9 +467,12 @@ function analyzeTimeSlot(
 
   // Tijdstip en schemering worden als hypothese getoond, niet als vaste bonus/malus.
   const isPreferredSlot = profile.preferredSlots.includes(slot);
-  const timeDetail = isPreferredSlot
-    ? `${slot} staat als voorkeursperiode in het voorlopige profiel van ${species}; de omvang van dit effect is niet gevalideerd en telt niet mee in de score.`
-    : `${slot} staat niet als voorkeursperiode in het voorlopige profiel van ${species}; dit bewijst niet dat activiteit lager is en verandert de score niet.`;
+  const hasSpeciesSlotPreference = profile.preferredSlots.length > 0;
+  const timeDetail = !hasSpeciesSlotPreference
+    ? `Voor ${species} is in dit algemene profiel geen soortspecifieke tijdvakvoorkeur vastgesteld; dit betekent niet dat een tijdvak biologisch slechter is.`
+    : isPreferredSlot
+      ? `${slot} staat als voorlopige voorkeursperiode in het profiel van ${species}; de omvang van dit effect is niet gevalideerd en telt niet mee in de score.`
+      : `${slot} staat niet als voorkeursperiode in het voorlopige profiel van ${species}; dit bewijst niet dat activiteit lager is en verandert de score niet.`;
   const timeOfDayFactor: FactorBreakdown = {
     score: 0,
     impact: 'neutraal',

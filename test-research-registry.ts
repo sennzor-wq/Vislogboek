@@ -253,3 +253,19 @@ for (const [species, source] of Object.entries({
     }
   }
 }
+
+
+// Qualitative daypart profiles follow the measured evidence, but never alter numerical scores.
+if (SPECIES_PROFILES.Karper.preferredSlots.includes('Nacht')) {
+  throw new Error('Carp profile must not claim a general night preference from mixed daytime/morning-evening evidence.');
+}
+if (SPECIES_PROFILES.Brasem.preferredSlots.includes('Nacht') || SPECIES_PROFILES.Brasem.crepuscularBonus) {
+  throw new Error('Bream profile must reflect the available daytime feeding evidence, not a generic night/twilight peak.');
+}
+if (!SPECIES_PROFILES.Zeelt.preferredSlots.includes('Avond') || !SPECIES_PROFILES.Zeelt.preferredSlots.includes('Nacht') || SPECIES_PROFILES.Zeelt.crepuscularBonus) {
+  throw new Error('Tench profile must retain its observed evening/night feeding context without a generic twilight bonus.');
+}
+if (SPECIES_PROFILES.Overig.preferredSlots.length !== 0 || SPECIES_PROFILES.Overig.crepuscularBonus) {
+  throw new Error('The generic fallback must not invent a species-specific daily rhythm.');
+}
+console.log('Species daypart profile evidence checks passed.');
