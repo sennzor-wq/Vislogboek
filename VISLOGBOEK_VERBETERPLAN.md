@@ -341,3 +341,21 @@ Zie `FASE0_OPTIMIZATION_AUDIT.md` §30. De PDF `Watertemperatuur_Schatten_en_Voo
 ## Watertemperatuurdata — beschikbaarheid en validatie — 16 november 2026
 
 Audit §31 bevestigt dat Vislogboek prognosesnapshots kan bewaren met de voorspelde watertemperatuur, exacte uurlijkse weersinvoer en later gemeten temperatuur inclusief meettijdstip, herkomst en methode. De daadwerkelijke gebruikersdata staat echter in lokale browser-IndexedDB en kan niet vanuit GitHub worden geteld. De sessiehistorie heeft bovendien een timestamp-probleem: de historische verzamelaar gebruikt `session.startTime` in plaats van `waterTemperatureMeasuredAt`. Eerst is een read-only telling van een lokale JSON-backup nodig; deel de backup niet op GitHub. Pas daarna beoordelen we of voldoende onafhankelijke meetparen beschikbaar zijn voor empirische validatie. Geen code gewijzigd.
+
+
+## Formele faseovergang — 16 november 2026
+
+**Fase 0: AFGEROND. Fase 1: GESTART.** De producteigenaar heeft de uitgebreide read-only audit in `FASE0_OPTIMIZATION_AUDIT.md` §§1–31 geaccepteerd. De audit is daarmee als fase afgerond; de geregistreerde bevindingen blijven openstaande uitvoerpunten en worden niet als opgelost beschouwd. Praktijkvalidatie is niet geclaimd.
+
+### Start fase 1 — dataveiligheid en obsolete benchmarkdata
+
+Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit plan. De eerste werkstroom is:
+1. Afhankelijkheden van vaste benchmark-/demo-initialisatie en historische uitzonderingen volledig in kaart brengen.
+2. Obsolete vaste benchmarkdata en uitsluitend daaraan gekoppelde productieafhankelijkheden verwijderen; generieke benchmarkfilters voor geïsoleerde testfixtures alleen behouden waar nodig.
+3. Backup-/restore-/merge-importrelaties veilig maken, met bijzondere aandacht voor prognosesnapshots met een ontbrekende of overgeslagen `linkedSessionId`.
+4. Regressietests toevoegen voor migratie, lege/bestaande database, herhaalde initialisatie, backup-import en parent-child-integriteit.
+5. Controleren dat nieuwe gebruikerssessies en vangsten na de clean-startmigratie behouden blijven.
+
+**Niet onderhandelbaar:** de expliciet goedgekeurde eenmalige clean-start blijft intact. Oude sessies en vangsten worden niet teruggebracht; nieuwe records worden niet verwijderd; locaties, instellingen en overige gegevens worden niet buiten de goedgekeurde scope opgeschoond. Geen destructieve wijziging zonder voorafgaande afhankelijkhedenaudit en regressiedekking.
+
+**Voortgang bij start:** uitsluitend documentatie bijgewerkt. Fase-1-codewijzigingen en tests zijn nog niet uitgevoerd. Issue #49 blijft open tot alle fasen en acceptatiecriteria zijn afgerond.

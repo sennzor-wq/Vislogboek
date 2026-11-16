@@ -1,6 +1,6 @@
 # Fase 0 — uitgebreide optimalisatie-audit
 
-**Status:** in uitvoering — read-only  
+**Status:** **afgerond — read-only audit geaccepteerd op 16 november 2026**  
 **Peildatum:** 15 november 2026  
 **Geaudite branch:** `main`  
 **App-codebaseline bij start audit:** `4831fd6d7a200467c29773c574be7090674eca29`  
@@ -986,3 +986,32 @@ De snapshot-evaluatie en het historische profiel zijn twee verschillende datastr
 **Conclusie:** de applicatie heeft de benodigde opslagvelden om echte temperatuurvoorspellingen tegen metingen en de bijbehorende weersinvoer te toetsen, maar de werkelijke omvang en kwaliteit van de persoonlijke dataset zijn vanuit de repository niet vast te stellen. De meettijdstempel-inconsistentie in de sessiehistorie moet eerst worden opgelost. De eerstvolgende praktische stap is een lokale, read-only telling van een actuele backup; pas met die aantallen beslissen we of een empirische vergelijking haalbaar is. Geen code gewijzigd.
 
 **Fasestatus:** fase 0 blijft read-only en in uitvoering.
+
+
+## 32. Formele afronding fase 0 en overdracht naar fase 1 — 16 november 2026
+
+**Besluit producteigenaar:** fase 0 is afgerond en de audituitkomst is geaccepteerd. De uitgebreide read-only audit in §§1–31 vormt de vastgelegde nulmeting en overdracht. Dit besluit betekent dat de auditfase is afgerond; het betekent nadrukkelijk niet dat alle geconstateerde productrisico's al zijn opgelost of dat praktijkvalidatie heeft plaatsgevonden.
+
+### Fase-0-acceptatie
+
+- De actuele repository, productblauwdruk, roadmap, codepaden, UI-koppelingen en aanwezige testdekking zijn onderzocht en de bevindingen zijn in deze audit vastgelegd.
+- De clean-startafspraak is als leidende producteis vastgelegd: de eenmalige goedgekeurde migratie verwijdert de vóór de migratie bestaande sessies en vangsten; daarna ingevoerde gegevens blijven behouden. Oude historische sessies/vangsten of benchmark-/demo-sessies worden niet opnieuw ingevoerd. Locaties en overige niet expliciet genoemde gegevens worden niet generiek verwijderd.
+- De bekende tekortkomingen en onzekerheden zijn expliciet geregistreerd, waaronder backup-importrelaties, onbekende aantallen in statistieken, locatiecoördinaten/habitatinvoer, temperatuurmeet-timestamps, prognosefactoren en ontbrekende empirische validatie.
+- Lokale validatieresultaten zijn alleen als lokaal bevestigd geregistreerd. De GitHub Actions-run die vóór de eerste workflowstap stopte geldt niet als geslaagde of mislukte testuitvoering. Geen praktijknauwkeurigheid is geclaimd.
+- Er is geen wijziging aan productiecode of gebruikersdata onderdeel van de fase-0-audit geweest.
+
+### Overdracht en start fase 1
+
+**FASE 1 GESTART — 16 november 2026**
+
+Fase 1 richt zich op **dataveiligheid en het verwijderen van obsolete ingebouwde benchmarkdata uit het productiepad**, volgens `VISLOGBOEK_VERBETERPLAN.md`. De eerste uitvoeringsstappen zijn:
+1. Maak een afhankelijkhedeninventaris van de vaste benchmarklocatie/sessie/vangsten, seed-, restore-, backupnormalisatie-, UI-, statistiek-, prognose- en evaluatiepaden.
+2. Verwijder uitsluitend obsolete vaste benchmark/demo-initialisatie en bijbehorende hard-coded uitzonderingen nadat iedere afhankelijkheid is gecontroleerd. Generieke `isBenchmark`-ondersteuning mag blijven waar die nodig is voor expliciete geïsoleerde fixtures/importvalidatie.
+3. Herstel backup-importintegriteit, waaronder het niet importeren van snapshots met een ongeldige sessiekoppeling of het veilig ontkoppelen daarvan volgens de domeinregels.
+4. Voeg regressietests toe voor lege en bestaande databases, herhaalde initialisatie, restore/merge-import, parent-child-relaties en behoud van alle nieuwe gebruikersregistraties.
+5. Behoud de clean-startgrens: geen oude historische sessies/vangsten terugbrengen; geen locaties of andere gegevens buiten de expliciet goedgekeurde scope verwijderen; nieuwe gegevens na migratie blijven intact.
+6. Voer per samenhangende wijziging de relevante tests, productiebuild en diff-review uit. Rapporteer lokale en CI-resultaten afzonderlijk; start GitHub Actions alleen na expliciete opdracht.
+
+**Fase-1-beginsel:** eerst de datastroom en alle verwijzingen begrijpen, dan gericht wijzigen. Geen brede database-reset, geen ongerichte verwijdering en geen wijziging van de bestaande persoonlijke data buiten de goedgekeurde clean-startmigratie.
+
+**Status bij overdracht:** fase 0 afgerond; fase 1 gestart. In deze documentatieovergang is nog geen applicatiecode gewijzigd en zijn geen GitHub Actions gestart.

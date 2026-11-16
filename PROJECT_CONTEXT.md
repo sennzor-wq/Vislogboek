@@ -832,3 +832,16 @@ De PDF `Watertemperatuur_Schatten_en_Voorspellen.pdf` is vergeleken met de huidi
 ## Fase-0-vervolg — beschikbaarheid watertemperatuurdata (16 november 2026)
 
 Audit §31 controleert de opslag- en validatieketen. Prognosesnapshots kunnen de exacte weersinvoer en een later gemeten watertemperatuur met meetmetadata bewaren; de gebruikersrecords zelf staan in lokale IndexedDB en zijn niet zichtbaar vanuit GitHub. De werkelijke datasetomvang is dus nog onbekend. Bevestigd is ook dat de historische sessieverzamelaar `session.startTime` gebruikt in plaats van `waterTemperatureMeasuredAt`, wat eerst moet worden gecorrigeerd voordat sessiemetingen als betrouwbare historische waarnemingen worden gebruikt. Vervolg: lokale, read-only backup-telling en daarna bepalen of onafhankelijke empirische validatie haalbaar is. Geen code gewijzigd.
+
+
+## Faseovergang en actuele uitvoeringsstatus — 16 november 2026
+
+**Besluit producteigenaar:** de uitgebreide read-only fase-0-audit is afgerond en geaccepteerd. Zie `FASE0_OPTIMIZATION_AUDIT.md` §32 voor de formele acceptatie en volledige overdracht. De bevindingen uit die audit zijn niet automatisch opgelost; ze vormen de input voor de volgende uitvoeringsfase.
+
+**FASE 1 GESTART — 16 november 2026**
+
+Fase 1 richt zich eerst op dataveiligheid en het verwijderen van obsolete vaste benchmark-/demo-initialisatie uit het productiepad. De aanpak begint met een afhankelijkhedenaudit, gevolgd door gerichte codewijzigingen en regressietests voor database-initialisatie, backup/restore/merge-import en relaties. De bekende snapshot-importkwestie (mogelijk verweesde `linkedSessionId`), de vaste benchmarkreferenties en de clean-startvoorwaarden zijn expliciete aandachtspunten.
+
+De clean-startafspraak blijft ongewijzigd: vóór de eenmalige migratie bestaande sessies en vangsten worden niet teruggebracht; nieuwe sessies en vangsten na de migratie moeten behouden blijven. Geen brede reset en geen verwijdering van locaties of overige gebruikersgegevens buiten de expliciet goedgekeurde scope.
+
+**Uitgevoerd in deze faseovergang:** alleen documentatie bijgewerkt. Er is nog geen fase-1-applicatiecode gewijzigd en er is geen GitHub Actions-run gestart. Issue #49 blijft open.
