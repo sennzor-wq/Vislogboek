@@ -16,12 +16,6 @@ import {
   CalibrationBin,
 } from './src/services/evaluationEngine';
 import {
-  BENCHMARK_SESSION,
-  BENCHMARK_LOCATION,
-  BENCHMARK_CATCHES,
-  BENCHMARK_SESSION_ID,
-} from './src/db/db';
-import {
   FishingSession,
   CatchItem,
   WeatherHourlyForecast,
@@ -477,14 +471,57 @@ async function runTestSuite() {
 
   // Test 6.2: Wiskundige Brier Score verificatie bij N=5 bekende uitkomsten
   const exactSnapshots: PrognosisSnapshot[] = [
-    { id: 's1', forecastTimestamp: '2026-10-01T10:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
-    { id: 's2', forecastTimestamp: '2026-10-02T10:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
-    { id: 's3', forecastTimestamp: '2026-10-03T10:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
-    { id: 's4', forecastTimestamp: '2026-10-04T10:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 3, predictedCatchChance: 20, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
-    { id: 's5', forecastTimestamp: '2026-10-05T10:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 4, predictedCatchChance: 30, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's1', linkedSessionId: 'eval-session-1', forecastTimestamp: '2026-10-01T10:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
+    { id: 's2', linkedSessionId: 'eval-session-2', forecastTimestamp: '2026-10-02T10:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
+    { id: 's3', linkedSessionId: 'eval-session-3', forecastTimestamp: '2026-10-03T10:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's4', linkedSessionId: 'eval-session-4', forecastTimestamp: '2026-10-04T10:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 3, predictedCatchChance: 20, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's5', linkedSessionId: 'eval-session-5', forecastTimestamp: '2026-10-05T10:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 4, predictedCatchChance: 30, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
   ];
 
-  const evalExact = evaluatePrognosisPerformance(exactSnapshots);
+  const baselineSnapshots: PrognosisSnapshot[] = Array.from({ length: 5 }, (_, index) => {
+    const day = String(20 + index).padStart(2, '0');
+    return {
+      id: `baseline-snapshot-${index + 1}`,
+      linkedSessionId: `baseline-session-${index + 1}`,
+      forecastTimestamp: `2026-09-${day}T10:00:00Z`,
+      targetDate: `2026-09-${day}`,
+      targetSpecies: 'Karper',
+      durationHours: 3,
+      predictedActivityScore: 5,
+      predictedCatchChance: 40,
+      source: 'test',
+      modelVersion: 'v2.2',
+      actualOutcome: index < 2 ? 'catch' : 'skunk_confirmed',
+      createdAt: '',
+    };
+  });
+  const baselineSessions: FishingSession[] = baselineSnapshots.map((snapshot, index) => {
+    const day = String(20 + index).padStart(2, '0');
+    return {
+      id: snapshot.linkedSessionId!,
+      startTime: `2026-09-${day}T12:00:00Z`,
+      endTime: `2026-09-${day}T15:00:00Z`,
+      durationMinutes: 180,
+      outcome: index < 2 ? 'catch' : 'skunk_confirmed',
+      targetSpecies: ['Karper'],
+      createdAt: '',
+      updatedAt: '',
+    };
+  });
+  const exactSessions: FishingSession[] = exactSnapshots.map((snapshot) => ({
+    id: snapshot.linkedSessionId!,
+    startTime: `${snapshot.targetDate}T12:00:00Z`,
+    endTime: `${snapshot.targetDate}T15:00:00Z`,
+    durationMinutes: 180,
+    outcome: snapshot.actualOutcome as 'catch' | 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: '',
+    updatedAt: '',
+  }));
+  const evaluationHistory = [...baselineSnapshots, ...exactSnapshots];
+  const evaluationSessions = [...baselineSessions, ...exactSessions];
+
+  const evalExact = evaluatePrognosisPerformance(exactSnapshots, evaluationHistory, evaluationSessions);
   assert(
     evalExact.hasSufficientData === true,
     '6.3 Bij N=5 is hasSufficientData true'
@@ -506,14 +543,14 @@ async function runTestSuite() {
     '6.7 Kalibratietabel bevat exact 5 kanssegmenten'
   );
 
-  // Test 6.8: Lokkershoek Pier sessie wordt nu als normale sessie meegenomen in modelvalidatie
+  // Test 6.8: synthetische evaluaties tellen mee; benchmarkmomentopnames worden uitgesloten
   const snapshotWithBenchmark: PrognosisSnapshot[] = [
     ...exactSnapshots,
     {
       id: 'snap_bench',
-      linkedSessionId: BENCHMARK_SESSION_ID,
-      forecastTimestamp: '2026-10-19T18:00Z',
-      targetDate: '2026-10-19',
+      linkedSessionId: 'test-benchmark-session',
+      forecastTimestamp: '2026-10-06T10:00Z',
+      targetDate: '2026-10-06',
       targetSpecies: 'Karper',
       durationHours: 3,
       predictedActivityScore: 8,
@@ -522,39 +559,23 @@ async function runTestSuite() {
       modelVersion: 'v2.2',
       actualOutcome: 'catch',
       createdAt: '',
-    },
+      isBenchmark: true,
+    } as any,
   ];
-  const evalWithBench = evaluatePrognosisPerformance(snapshotWithBenchmark);
+  const evalWithBench = evaluatePrognosisPerformance(
+    snapshotWithBenchmark,
+    evaluationHistory,
+    evaluationSessions
+  );
   assert(
-    evalWithBench.evaluatedCount === 6,
-    '6.8 Lokkershoek Pier sessie wordt nu als normale sessie meegenomen in modelvalidatie'
+    evalWithBench.evaluatedCount === 5 && evalWithBench.totalSnapshots === 6,
+    '6.8 Vijf geldige synthetische sessies tellen mee; de benchmarkmomentopname wordt uitgesloten'
   );
 
   // ==========================================
-  // DEEL 7: LOKKERSHOEK PIER SESSIE & VANGSTEN
+  // DEEL 7: HENGELVALIDATIE
   // ==========================================
-  console.log('\n--- TESTGROEP 7: Lokkershoek Pier Sessie, Hengels & Vangsten Integriteit ---');
-
-  assert(
-    BENCHMARK_SESSION.id === 'benchmark-session-20261019' && BENCHMARK_SESSION.locationId === 'spot-mvp1g19d-dfemr2',
-    '7.1 Sessie gekoppeld aan Lokkershoek Pier (spot-mvp1g19d-dfemr2)'
-  );
-  assert(
-    BENCHMARK_SESSION.isBenchmark === false,
-    '7.2 Benchmark- en beschermingsstatus succesvol verwijderd (normale historische sessie)'
-  );
-  const totalBenchFish = BENCHMARK_CATCHES.reduce((acc, c) => acc + c.count, 0);
-  assert(
-    totalBenchFish === 8 && BENCHMARK_CATCHES.length === 4,
-    `7.3 Vangsten bevatten exact 8 vissen (werkelijk: ${totalBenchFish}) over 4 registraties`
-  );
-  const brasems = BENCHMARK_CATCHES.filter(c => c.species === 'Brasem').reduce((a, c) => a + c.count, 0);
-  const zeelten = BENCHMARK_CATCHES.filter(c => c.species === 'Zeelt').reduce((a, c) => a + c.count, 0);
-  const karpers = BENCHMARK_CATCHES.filter(c => c.species === 'Karper').reduce((a, c) => a + c.count, 0);
-  assert(
-    brasems === 6 && zeelten === 1 && karpers === 1,
-    '7.4 Exacte verdeling klopt: 6 brasems, 1 zeelt en 1 karper'
-  );
+  console.log('\n--- TESTGROEP 7: Hengelvalidatie ---');
 
   // Test 7.5: Hengelaantal validatie en voorloopnul-preventie
   const parseRodInput = (val: string | number) => {

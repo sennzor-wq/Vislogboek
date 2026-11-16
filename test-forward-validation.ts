@@ -8,7 +8,6 @@ import {
   linkSessionOutcomeToSnapshot,
 } from './src/services/evaluationEngine';
 import { resolveSelectedTimeSlot } from './src/services/viscoachService';
-import { BENCHMARK_SESSION_ID } from './src/db/db';
 import {
   DayPrognosis,
   FishingSession,
@@ -362,7 +361,7 @@ async function runTestSuite() {
 
   // 2.9 Benchmark-sessie wordt geweigerd voor synchronisatie
   const benchmarkSession: FishingSession = {
-    id: BENCHMARK_SESSION_ID,
+    id: 'test-benchmark-session',
     startTime: '2026-10-19T19:00:00Z',
     outcome: 'catch',
     targetSpecies: ['Karper'],
