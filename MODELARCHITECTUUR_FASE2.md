@@ -75,6 +75,12 @@ Deze bronnen onderbouwen de modelstructuur en de noodzaak van soort-/contextspec
 - De bestaande habitat- en positioneringsengines worden verbeterd waar nodig; geen duplicatie.
 - Iedere betekenisvolle modelwijziging krijgt een modelversie en reproduceerbare tests.
 
+### Reproduceerbare historische invoer
+
+Elke prognosesnapshot bewaart naast bronrecord-ID's een compacte whitelist van de historische sessie-, vangst- en waarnemingskenmerken die de bestaande engines kunnen beïnvloeden. Dezelfde canonieke helper wordt gebruikt door de vier snapshotbouwers. De fingerprint wordt uit diezelfde genormaliseerde featurepayload opgebouwd, zodat wijzigingen in bijvoorbeeld aasrichting, voorvoerstatus of meetprovenance niet ongemerkt buiten de invoercontrole vallen.
+
+Vrije notities, foto's en base64-inhoud worden bewust niet gekopieerd. Benchmarksessies en gekoppelde vangsten/waarnemingen worden uitgesloten. De featurestructuur heeft een expliciete schema-versie; temperatuurkalibratie, handmatige invoer, historische watertemperatuurmetingen en de exacte weersinvoer worden afzonderlijk bewaard. Dit maakt de gebruikte data-invoer veel beter reproduceerbaar, maar archiveert niet de uitvoerbare modelcode. Daarom moeten model- en engineversies bij betekenisvolle logica- of parameterwijzigingen worden verhoogd.
+
 ## 5. Geen vaste factorpercentages
 
 Er worden nu geen universele factorpercentages of willekeurige bonussen geactiveerd. De eerder besproken procentuele verdeling was uitsluitend illustratief.
@@ -101,7 +107,7 @@ Waar direct bewijs ontbreekt, blijft een factor context of een expliciete hypoth
 
 1. Corrigeer eerst de gedocumenteerde meettijd-/deduplicatiekwestie van watertemperatuur (zie `FASE2_PROGNOSE_AUDIT.md` §10).
 2. Bouw een evidence matrix per soort en per uitkomst: activiteit, voeding, habitat, groei of vangst.
-3. Rond de factorprovenance af voor alle prognose- en snapshotbouwers.
+3. Rond de factorprovenance en de whitelisted, replaybare historische feature-snapshot af voor alle prognose- en snapshotbouwers.
 4. Herzie thermische profielparameters alleen waar de brondata dat rechtvaardigen; voeg curve- en regressietests toe.
 5. Ontwikkel de voedingslaag met afzonderlijke bewijsklassen en expliciete onzekerheid.
 6. Houd habitatuitvoer voorlopig kwalitatief tot voldoende lokale presence-data bestaan.
