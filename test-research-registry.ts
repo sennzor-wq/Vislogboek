@@ -1,4 +1,4 @@
-import { RESEARCH_REGISTRY, getResearchByTopic, getResearchBySpecies, isApprovedPredictionKnowledge } from './src/services/researchRegistry';
+import { RESEARCH_REGISTRY, getResearchByTopic, getResearchBySpecies, getResearchByOutcome, isApprovedPredictionKnowledge, ResearchOutcome } from './src/services/researchRegistry';
 import { SPECIES_PROFILES } from './src/services/fishProfiles';
 
 const thermalEntries = getResearchByTopic('watertemperatuur');
@@ -116,7 +116,6 @@ console.log('All species profiles link their feeding evidence sources.');
 
 
 // Measured outcomes are explicit study classifications, not inferred from topic wording.
-import { getResearchByOutcome } from './src/services/researchRegistry';
 const outcomeExpectations: Array<[string, string, string]> = [
   ['Karper', 'common-carp-temperature-feeding-rhythm-2012', 'feeding_intensity'],
   ['Brasem', 'bream-roach-in-situ-diel-zooplankton-feeding-2004', 'feeding_intensity'],
@@ -129,7 +128,7 @@ const outcomeExpectations: Array<[string, string, string]> = [
   ['Roofblei', 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018', 'prey_selection'],
 ];
 for (const [species, id, outcome] of outcomeExpectations) {
-  const matches = getResearchByOutcome(species, outcome as import('./src/services/researchRegistry').ResearchOutcome);
+  const matches = getResearchByOutcome(species, outcome as ResearchOutcome);
   if (!matches.some((item) => item.id === id)) {
     throw new Error(`The measured outcome ${outcome} must be explicitly discoverable for ${species}.`);
   }
