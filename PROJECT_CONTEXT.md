@@ -1215,3 +1215,8 @@ De bestaande dagelijkse zonsopkomst-/zonsonderganggegevens uit de weerrespons wo
 ### Fase 2 — civiele schemering seizoensafhankelijk berekend (16 november 2026)
 
 De voorlopige ±60-minutenband rond zonsopkomst/-ondergang is vervangen door een astronomische benadering van civiele dageraad/-schemering (zonmiddelpunt −6°), afgeleid uit lokale Open-Meteo-zonstijden en de breedtegraad van de stek. Regressietests bewaken plausibele winter-/zomerverschillen en dat de context correct in vaste klokblokken valt, inclusief een winterse schemering die in het middagblok kan vallen. Er wordt geen score of bonus toegevoegd.
+
+
+### Fase 2 — literatuurinventarisatie dag-/nachtritmes uitgebreid (16 november 2026)
+
+Het onderzoeksregister bevat nu aanvullende directe voedingsritmegegevens voor blankvoorn/brasem, blankvoorn afzonderlijk, baars en vroege juveniele meerval. Belangrijkste uitkomst: dag-/nachtgedrag blijkt contextafhankelijk; er zijn tegenstrijdige patronen tussen leeftijdsklassen, dieet en habitat. Roofblei- en snoekgegevens bevatten vooral beweging/habitat en mogen niet als directe voedingspieken worden gebruikt. Alle toevoegingen blijven niet-goedgekeurd voor scoring.
