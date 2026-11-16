@@ -842,6 +842,84 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     limitations: ['De studie betreft één groot Russisch meer en een specifieke vegetatie-/groeiperiode; de uitkomst is niet zonder meer overdraagbaar op Nederlandse plassen of kanalen.','De voedingspiek verschoof tussen maanden; één vaste ochtend-, avond- of nachtvoorkeur is niet gerechtvaardigd.','De reproductieperiode ging samen met lage voedselopname; voortplantingsstatus en prooibeschikbaarheid zijn niet bekend in de app.','De beschikbare metadata en samenvatting zijn secundair ontsloten; exacte steekproefomvang en methodedetails moeten bij hergebruik van de volledige oorspronkelijke publicatie opnieuw worden gecontroleerd.'],
     sourceReferences: ['Fedorova, G.V. & Drozzhina, K.S. (1982). Daily feeding rhythm of pike-perch, Stizostedion lucioperca, and perch, Perca fluviatilis, from Lake Ladoga. Journal of Ichthyology, 22(2), 52–60 (translated from Voprosy Ikhtiologii 22(2), 224–232).'], reviewedAt: '2026-11-16', approvedForPrediction: false,
   },
+  {
+    id: 'roach-bream-diel-zooplankton-feeding-2004',
+    topic: 'dag-nachtritme-directe-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Voorn', 'Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'In-situ maaginhoudonderzoek in het Římov-reservoir vond bij subadulte en volwassen blankvoorn en brasem die vrijwel uitsluitend op microcrustaceeën foerageerden een overwegend dagactief zoöplankton-voedingspatroon; maagvulling nam ’s nachts duidelijk af. Het effect werd in specifieke lengteklassen en maanden waargenomen.',
+    limitations: [
+      'De uitkomst geldt voor vis die in dit reservoir vrijwel uitsluitend op plankton foerageerde; andere voedseltypen en habitats kunnen een ander ritme opleveren.',
+      'De steekproef en seizoensdekking zijn beperkt tot specifieke maanden en lengteklassen; leeftijd, grootte, prooiaanbod en licht beïnvloeden het patroon.',
+      'Dit resultaat is niet universeel: ander veldonderzoek bij jonge blankvoorn en brasem vond juist nachtelijke pelagische aanwezigheid en nachtelijke voedselopname.',
+      'De studie ondersteunt contextafhankelijke voedingsritmes, maar geen vaste dagbonus of tijdvakscore voor Nederlandse stekken.'
+    ],
+    sourceReferences: [
+      'Vasek, M. & Kubecka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53(2), 203–214.'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-diel-feeding-cycle-lake-aydat-1990',
+    topic: 'leeftijdsafhankelijk-dag-nachtritme-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Maaginhoudonderzoek bij volwassen blankvoorn in het Franse Lac Aydat vond leeftijdsafhankelijke voedingsperioden: twee- en driejarige vissen aten vooral vanaf de middag tot de schemering, terwijl oudere vissen zowel overdag als ’s nachts voedselfractie innamen.',
+    limitations: [
+      'De studie bemonsterde één meer gedurende twee zomerdagen; dit is beperkte temporele en geografische dekking.',
+      'Leeftijdsgroepen verschilden ook in dieet; jongere vissen aten vooral zoöplankton en oudere vissen een gemengd dieet.',
+      'De aanwezigheid van baars in het bemonsteringsgebied werd als mogelijke contextfactor besproken.',
+      'De app kent de leeftijd en het actuele dieet van de lokale blankvoorn meestal niet; geen vaste schemerbonus toepassen.'
+    ],
+    sourceReferences: [
+      'Jamet, J.L., Gres, P., Lair, N. & Lasserre, G. (1990). Diel feeding cycle of roach (Rutilus rutilus, L.) in eutrophic Lake Aydat (Massif Central, France). Archiv für Hydrobiologie, 118(3), 371–382. https://doi.org/10.1127/archiv-hydrobiol/118/1990/371'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'perch-diel-feeding-lake-constance-2021',
+    topic: 'seizoensgebonden-dagritme-directe-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een volledige 24-uurscyclus van maaginhoud in het pelagische deel van de Obersee (Bodenmeer) liet bij baars in de herfst toenemende voedselinhoud overdag zien met een piek rond de schemering; de laagste maaginhoud werd kort voor zonsopkomst gevonden.',
+    limitations: [
+      'De tijdreeks betreft een specifieke herfstcampagne, een pelagisch habitat en een lokale prooigemeenschap met driedoornige stekelbaars.',
+      'Maaginhoud is een directe indicator van recente voedselopname, maar de studie beschrijft niet alle seizoenen, wateren of levensfasen.',
+      'De uitkomst mag niet worden vertaald naar een universele schemerbonus of naar alle baarsstekken; prooiaanbod en habitat zijn bepalend.'
+    ],
+    sourceReferences: [
+      'Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science (2021). https://doi.org/10.3389/fenvs.2021.670125'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'juvenile-catfish-night-foraging-reservoirs-2025',
+    topic: 'levensfasegebonden-nachtelijke-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'foraging_behavior', 'habitat_use'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Veldonderzoek in drie Tsjechische reservoirs bevestigde nachtelijke pelagische aanwezigheid en voedselopname bij vroege juveniele Europese meerval; maaginhoud bestond uit Chaoborus-larven. De juvenielen werden vooral op 2–4 m diepte aangetroffen.',
+    limitations: [
+      'De bevinding geldt specifiek voor vroege juvenielen, niet voor volwassen meerval.',
+      'Het betreft drie reservoirs en een pelagische juveniele prooi-/habitatcontext; dit is niet automatisch representatief voor Nederlandse oevers of bodemvisserij.',
+      'Nachtelijke aanwezigheid en voedselopname in dit levensstadium geven geen universele nachtbonus voor de soort.'
+    ],
+    sourceReferences: [
+      'Sajdlová, Z., Jůza, T., Blabolil, P., Draštík, V. & Čech, M. (2025). Pelagic distribution and night foraging of early juvenile European catfish (Silurus glanis L.). Journal of Fish Biology, 106(6), 1893–1898. https://doi.org/10.1111/jfb.16072'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
 ];
 
 /**

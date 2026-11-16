@@ -274,3 +274,10 @@ Open-Meteo levert voor elke prognosedatum lokale zonsopkomst en zonsondergang. D
 ## 24. Zonne-relatieve perioden: civiele schemering, niet een vaste bonus
 
 De tijdvakcontext gebruikt nu een schatting van civiele dageraad en civiele schemering op basis van de lokale sunrise/sunset-waarden en breedtegraad. De berekening verschuift mee met seizoen en latitude; de bestaande vier klokblokken blijven alleen als presentatielaag bestaan. Een soortvoorkeur voor dageraad, dag, schemering of nacht kan later aan deze zonneperioden worden gekoppeld, maar alleen met passende soortspecifieke gedragsdata. Civiele schemering zelf is geen voedingsbewijs en levert nu geen numerieke factor op.
+
+
+## 25. Diel gedrag: bewijs per gemeten respons, niet per soortlabel
+
+Het onderzoeksregister onderscheidt directe voedselopname/-ritmiek van locomotorische activiteit en habitatgebruik. De recente bronnen laten zien waarom dit nodig is: blankvoorn/brasem kunnen afhankelijk van levensfase, dieet en pelagisch/littoraal habitat een dag- of nachtpatroon laten zien; baars heeft een directe herfstwaarneming met oplopende maaginhoud richting schemering; vroege juveniele meerval foerageert ’s nachts, maar dat mag niet naar volwassen exemplaren worden geëxtrapoleerd. Voor snoek en roofblei is beweging niet automatisch jacht- of voedingsintensiteit.
+
+Tijdvakmodellering blijft uitgeschakeld totdat het bewijs voldoende overdraagbaar en toetsbaar is. Elke toekomstige voorkeur moet gekoppeld zijn aan de daadwerkelijk gemeten respons, soort, levensfase, seizoen, habitat, lichtconditie en relevante onzekerheid. Tegenstrijdige studies blijven zichtbaar en worden niet gemiddeld tot een schijnbaar universele soortvoorkeur.
