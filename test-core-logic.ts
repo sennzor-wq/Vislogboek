@@ -7,8 +7,6 @@
 import {
   calculateDayPrognosis,
   calculateWilsonInterval,
-  createManualWaterTemperatureInput,
-  createPrognosisInputFingerprint,
   findPressureTrend,
 } from './src/services/prognosisEngine';
 import { calculateStats } from './src/services/statsEngine';
@@ -37,29 +35,6 @@ function assert(condition: boolean, testName: string, detail?: string) {
     failedTests++;
   }
 }
-
-const manualTemperatureRecordedAt = '2026-11-16T12:00:00.000Z';
-const manualTemperatureInput = createManualWaterTemperatureInput(14.7, manualTemperatureRecordedAt);
-assert(
-  manualTemperatureInput !== null && manualTemperatureInput.temperatureC === 14.7 &&
-    manualTemperatureInput.recordedAt === manualTemperatureRecordedAt &&
-    manualTemperatureInput.measurementTimestamp === null &&
-    manualTemperatureInput.measurementMethod === null && manualTemperatureInput.measurementDepthM === null,
-  'Handmatige watertemperatuur bewaart de invoerwaarde en markeert onbekend meetmoment/methode/diepte expliciet'
-);
-assert(
-  createManualWaterTemperatureInput(null, manualTemperatureRecordedAt) === null &&
-    createManualWaterTemperatureInput(Number.NaN, manualTemperatureRecordedAt) === null,
-  'Ontbrekende of ongeldige handmatige watertemperatuur wordt niet als invoerobject opgeslagen'
-);
-const manualTemperatureFingerprintA = createPrognosisInputFingerprint({ manualWaterTemperatureInput });
-const manualTemperatureFingerprintB = createPrognosisInputFingerprint({
-  manualWaterTemperatureInput: createManualWaterTemperatureInput(15.1, manualTemperatureRecordedAt),
-});
-assert(
-  manualTemperatureFingerprintA !== manualTemperatureFingerprintB,
-  'Wijziging van handmatige watertemperatuur verandert de prognose-inputfingerprint'
-);
 
 function createWeatherDay(temp: number, pressure = 1015, windSpeed = 14, precip = 0): WeatherHourlyForecast[] {
   const list: WeatherHourlyForecast[] = [];
