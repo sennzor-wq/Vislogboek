@@ -498,3 +498,8 @@ De actuele thermische optimum-/breedtewaarden, code-optimum bereiken en voorkeur
 
 
 De illustratieve karperverdeling 30/17/15/12/8/8/10 procent is expliciet in de audit opgenomen als denkkader, niet als gevalideerde parameter of lineaire implementatie. Zie `FASE2_PROGNOSE_AUDIT.md` §5.2.
+
+
+### Fase 2 — habitat-/wind-/positioneringsketen gevolgd (16 november 2026)
+
+De read-only trace van de bestaande bankWind-, habitatMovement- en rodPositioning-engines staat in [FASE2_PROGNOSE_AUDIT.md §9](FASE2_PROGNOSE_AUDIT.md). De habitatengine levert kwalitatieve zones en een heuristisch confidence-label, geen gekalibreerde aanwezigheidkans. De positioneringsengine is expliciet gescheiden van de activiteitsindex en Poisson-vangkans. Geen numerieke kans of bonus toegevoegd; fase 2 blijft audit.

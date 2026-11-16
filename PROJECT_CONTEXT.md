@@ -963,3 +963,8 @@ De bestaande thermische profielwaarden voor negen soorten plus de generieke fall
 
 
 De besproken karpervoorbeeldverdeling (30/17/15/12/8/8/10 procent over de zeven factorfamilies) is alleen illustratief en wordt niet als modelgewicht geïmplementeerd. Zie `FASE2_PROGNOSE_AUDIT.md` §5.2.
+
+
+### Fase 2 — habitat-/wind-/positioneringsaudit (16 november 2026)
+
+De bestaande bankWindEngine, habitatMovementEngine en rodPositioningEngine zijn afzonderlijk gevolgd. BankWind berekent oever-/windgeometrie; habitatMovement geeft kwalitatieve primaire/alternatieve zones en bewegingshypothesen; rodPositioning geeft tactische zoek-/hengeladviezen en is expliciet onafhankelijk van activiteitsindex en Poisson-vangkans. De habitat-confidence is heuristisch en geen gekalibreerde aanwezigheidkans. Deze modules zijn bruikbare bestaande bouwstenen, maar mogen niet als numerieke kansvoorspelling worden gepresenteerd. Details en resterende databeperkingen staan in FASE2_PROGNOSE_AUDIT.md §9. Fase 2 blijft audit.
