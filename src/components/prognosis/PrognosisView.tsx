@@ -16,6 +16,7 @@ import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../s
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
+import { getSpeciesFeedingEvidenceContext } from '../../services/feedingEvidenceService';
 import {
   Calendar,
   Clock,
@@ -210,6 +211,28 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
     selectedSpecies !== 'Algemeen'
       ? SPECIES_PROFILES[selectedSpecies]
       : SPECIES_PROFILES['Overig'];
+
+  // Literatuurcontext blijft volledig gescheiden van prognose-uitkomsten.
+  const feedingEvidenceContext = selectedSpecies !== 'Algemeen'
+    ? getSpeciesFeedingEvidenceContext(selectedSpecies)
+    : null;
+  const feedingEvidenceSections = feedingEvidenceContext ? [
+    {
+      title: 'Gemeten voedselopname en voedingsritme',
+      description: 'Onderzoek dat daadwerkelijk voedselopname of een voedingsritme heeft gemeten.',
+      entries: [...feedingEvidenceContext.feedingIntensity, ...feedingEvidenceContext.feedingRhythm],
+    },
+    {
+      title: 'Foerageergedrag',
+      description: 'Waargenomen graas- of zoekgedrag; dit is niet automatisch hetzelfde als voedselopname.',
+      entries: feedingEvidenceContext.foragingBehavior,
+    },
+    {
+      title: 'Dieet en prooikeuze',
+      description: 'Wat de vis eet of selecteert; dit bewijst geen hogere voedingsactiviteit op een bepaald tijdstip.',
+      entries: [...feedingEvidenceContext.dietComposition, ...feedingEvidenceContext.preySelection],
+    },
+  ] : [];
 
   const handleStartSessionFromPrognosis = async () => {
     if (!activeDayProg || !selectedLoc) return;
@@ -714,6 +737,81 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 )}
               </div>
             </div>
+
+            {/* Biologische voedingsliteratuur: informatief, nooit een prognosescore */}
+            <section className="rounded-2xl bg-slate-900/80 border border-amber-800/40 p-4 sm:p-5 space-y-3">
+              <div className="flex items-start gap-2.5">
+                <div className="p-1.5 rounded-lg bg-amber-950/70 border border-amber-800/50 text-amber-300">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider">
+                    Wat zegt onderzoek over voeding bij {selectedSpecies === 'Algemeen' ? 'vissen' : selectedSpecies}?
+                  </h3>
+                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                    Biologische achtergrond uit gepubliceerde studies, geen actuele voedingsvoorspelling voor deze stek of datum.
+                    De onderzochte populaties, wateren en omstandigheden kunnen afwijken van jouw situatie.
+                  </p>
+                </div>
+              </div>
+
+              {feedingEvidenceContext ? (
+                <>
+                  {feedingEvidenceSections.some((group) => group.entries.length > 0) ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+                      {feedingEvidenceSections.filter((group) => group.entries.length > 0).map((group) => (
+                        <div key={group.title} className="rounded-xl bg-slate-800/70 border border-slate-700/70 p-3 space-y-2">
+                          <div>
+                            <h4 className="text-[11px] font-bold text-slate-200">{group.title}</h4>
+                            <p className="text-[10px] text-slate-400 mt-0.5">{group.description}</p>
+                          </div>
+                          {group.entries.map((entry) => (
+                            <details key={entry.id} className="rounded-lg bg-slate-950/60 border border-slate-700/60 p-2">
+                              <summary className="text-[11px] font-semibold text-cyan-200 cursor-pointer">
+                                {entry.topic}
+                              </summary>
+                              <div className="pt-2 space-y-2">
+                                <p className="text-[11px] text-slate-300 leading-relaxed">{entry.summary}</p>
+                                {entry.limitations.length > 0 && (
+                                  <div>
+                                    <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wide">Beperkingen</p>
+                                    <ul className="list-disc pl-4 mt-1 space-y-1 text-[10px] text-slate-400">
+                                      {entry.limitations.map((limitation, index) => (
+                                        <li key={index}>{limitation}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {entry.sourceReferences.length > 0 && (
+                                  <p className="text-[10px] text-slate-500 break-words">
+                                    Bron: {entry.sourceReferences.join(' · ')}
+                                  </p>
+                                )}
+                                <p className="text-[10px] text-slate-500">
+                                  Bewijsstatus: {entry.evidenceStrength === 'strong' ? 'sterk' : entry.evidenceStrength === 'moderate' ? 'matig' : entry.evidenceStrength === 'limited' ? 'beperkt' : 'nog onbekend'} · niet vrijgegeven als automatische voorspellingsfactor
+                                </p>
+                              </div>
+                            </details>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[11px] text-slate-400">
+                      Er is nog geen soortspecifiek voedings- of foerageeronderzoek in het register opgenomen.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-[11px] text-slate-400">
+                  Selecteer een specifieke doelsoort om de bijbehorende onderzoeksbronnen en hun beperkingen te bekijken.
+                </p>
+              )}
+
+              <p className="text-[10px] text-slate-500 border-t border-slate-700/70 pt-2">
+                Deze literatuurcontext verandert de biologische activiteitsindex, beste vistijd en persoonlijke vangstkans niet.
+              </p>
+            </section>
 
             {!showAdvancedDetails && activeDayProg.thermalAnalysis && (
               <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
