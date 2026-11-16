@@ -1097,6 +1097,6 @@ Het centrale researchregister en de evidence matrix zijn uitgebreid met directe 
 - Meerval: directe veld-maaginhoud, seizoensvariatie en lengte-/leeftijdsafhankelijke prooikeuze.
 - Roofblei: maaginhoud/stabiele isotopen tonen een levensfasegebonden verschuiving naar piscivorie.
 
-Alle nieuwe registraties blijven `approvedForPrediction: false`. De bronopzetten verschillen sterk (veld, tank/kweek, maaginhoud, dieet of prooikeuze), en geografische overdraagbaarheid en levensfase zijn belangrijke beperkingen. De matrix maakt expliciet dat dieet geen dagritme bewijst, telemetrie geen voedselopname bewijst en groei geen acute voedingsactiviteit bewijst.
+Alle nieuwe registraties blijven `approvedForPrediction: false`. De bronopzetten verschillen sterk (veld, tank/kweek, maaginhoud, dieet of prooikeuze), en geografische overdraagbaarheid en levensfase zijn belangrijke beperkingen. De bijbehorende bronnen zijn ook gekoppeld aan de canonieke soortprofielen in `fishProfiles.ts`; er zijn geen numerieke profielparameters aangepast. De matrix maakt expliciet dat dieet geen dagritme bewijst, telemetrie geen voedselopname bewijst en groei geen acute voedingsactiviteit bewijst.
 
 **Volgende stap:** een kwalitatieve, soortspecifieke voedingscontext ontwerpen met bronverwijzingen, meettype en onzekerheid. Geen numerieke factor, tijdvakbonus of temperatuurvermenigvuldiger activeren zonder voldoende direct en overdraagbaar bewijs plus lokale validatie.
