@@ -216,3 +216,10 @@ Het researchregister onderscheidt nu twee extra gemeten responsen:
 Deze uitkomsten blijven gescheiden van `feeding_intensity`, `feeding_rhythm`, `foraging_behavior`, `locomotor_activity` en `growth`. Een hogere metabole snelheid is niet automatisch meer voedselopname, meer spontane activiteit of een hogere vangstkans. Aerobe scope is fysiologische capaciteit, geen rechtstreekse meting van gedrag.
 
 De eerste bronnen laten soort-, grootte- en levensfaseverschillen zien. Ze worden alleen als biologische onderbouwing geregistreerd; alle nieuwe records zijn niet-goedgekeurd voor numeriek voorspellingsgebruik. Exacte soortcurves moeten nog afzonderlijk worden beoordeeld op responsvariabele, experimentele omstandigheden en overdraagbaarheid naar Nederlandse praktijkwateren.
+
+
+## 17. Soortspecifieke thermische brondekking en grootte-effecten
+
+De huidige brondekking is per soort ongelijk. Voor Baars en Snoekbaars is er direct onderzoek naar aerobe scope; bij Baars verschuift de optimale temperatuur met lichaamsmassa en bij Snoekbaars verschillen volwassen en juveniele temperatuurresponsen. Voor Brasem en Voorn zijn SMR/RMR-metingen over 5–23 °C beschikbaar. Voor Karper en Snoek zijn de gevonden metabole studies beperkter en leveren zij geen complete thermische optimumcurve. Voor Zeelt, Meerval en Roofblei ontbreekt momenteel een vergelijkbare soortspecifieke multi-temperatuur aerobe-scopecurve.
+
+De app vraagt geen verplichte lengte-/leeftijdsgegevens voor een prognose. Geregistreerde vangstlengtes vormen geen representatieve steekproef van de aanwezige populatie. We gebruiken daarom geen verzonnen gemiddelde levensfase of lichaamsgroottecorrectie. Huidige soortparameters blijven voorlopig totdat de gekozen responsvariabele, bronoverdracht en onzekerheid per soort verdedigbaar zijn.

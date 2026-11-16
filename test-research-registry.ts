@@ -177,3 +177,22 @@ if (getResearchByOutcome('Snoekbaars', 'feeding_intensity').some((item) => item.
   throw new Error('Metabolic-scope evidence must not be misclassified as feeding intensity.');
 }
 console.log('Thermal physiology evidence classification tests passed.');
+
+
+const thermalProfileSourceChecks: Record<string, string[]> = {
+  Karper: ['10.1086/physzool.56.3.30152604'],
+  Snoek: ['10.1016/0300-9629(82)90424-8'],
+  Baars: ['10.1111/jfb.14435'],
+  Brasem: ['10.1163/157075606775904713'],
+  Voorn: ['10.1046/j.1095-8649.2003.00048.x', '10.1163/157075606775904713'],
+  Snoekbaars: ['10.1016/j.aquaculture.2011.10.024'],
+};
+for (const [species, references] of Object.entries(thermalProfileSourceChecks)) {
+  const profile = SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES];
+  for (const reference of references) {
+    if (!profile.scientificReferences.some((source) => source.includes(reference))) {
+      throw new Error(`The ${species} profile must link thermal physiology source ${reference}.`);
+    }
+  }
+}
+console.log('Species thermal physiology profile source links passed.');
