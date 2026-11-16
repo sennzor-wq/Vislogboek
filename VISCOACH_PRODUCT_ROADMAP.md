@@ -1241,3 +1241,8 @@ Zie `FASE0_OPTIMIZATION_AUDIT.md` §28. De huidige persoonlijke vangst-rate gebr
 ## Biologische prognosefactoren — fase-0-audit 16 november 2026
 
 Audit §29 onderscheidt de thermische activiteitsscore van de aparte habitat-, oeverwind-, positionerings-, persoonlijke vangstkans- en voorvoeruitkomsten. Alleen watertemperatuur beïnvloedt de huidige numerieke activiteitsscore. Andere factoren blijven context of beïnvloeden een aparte engine. De score en soortparameters zijn nog niet biologisch gevalideerd op onafhankelijke praktijkdata; een canonieke factorcatalogus en testmatrix ontbreken. Geen code gewijzigd.
+
+
+## PDF-referentie watertemperatuur — audit 16 november 2026
+
+Audit §30 vergelijkt de PDF-relaxatieformule met `waterThermalEngine`. De bestaande engine heeft al meetankers, historische profielen, instraling en onzekerheidsmetadata. De PDF introduceert een continue diepte-/windtijdconstante, maar de dynamische formule en vuistregel spreken elkaar tegen bij windstilte; ook vereisen windeenheden en tijdstap conversie. Eerst experimenteel backtesten op onafhankelijke lokale meetreeksen; geen directe formulevervanging en geen code gewijzigd.

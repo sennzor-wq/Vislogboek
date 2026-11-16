@@ -822,3 +822,8 @@ Er is geen centrale `spotLearningEngine.ts` aangetroffen. Of die nodig is, moet 
 ## Fase-0-vervolg — biologische prognosefactoren (16 november 2026)
 
 Audit §29 bevestigt dat de activiteitsscore alleen de soortspecifieke thermische efficiëntie gebruikt. Weer-, seizoen- en tijdsfactoren blijven context; habitat, oeverwind, persoonlijke vangstkans en voorvoer zijn aparte uitkomsten. De huidige tests tonen vooral softwarematige/synthetische werking en geen biologische praktijkvalidatie. De volledige factorcatalogus, hydrologische invoerhiaten en testlacunes zijn vastgelegd in de audit. Geen code gewijzigd.
+
+
+## Fase-0-vervolg — PDF watertemperatuurmodel (16 november 2026)
+
+De PDF `Watertemperatuur_Schatten_en_Voorspellen.pdf` is vergeleken met de huidige waterthermische engine (audit §30). De engine heeft al lokale meetankers, historische profielen, uurlijkse weerdata, instraling en onzekerheidsmetadata. De PDF voegt vooral een continue diepte-/windsnelheidsafhankelijke relaxatietijdconstante als kandidaat toe. Rechtstreekse overname is niet verantwoord: de PDF-formule verwacht wind in m/s terwijl de app km/u gebruikt, de tijdconstante moet bij uurlijkse stappen naar uren worden omgerekend en de PDF is intern inconsistent bij windstilte (vuistregel 8,75 dagen bij 2,5 m versus 24 dagen uit de dynamische formule). De huidige synthetische tests gebruiken een vaste 65-uursreferentie en bewijzen geen praktijknauwkeurigheid. Aanbeveling: experimentele kandidaatvarianten naast de huidige engine testen op identieke lokale meetankers en chronologische onafhankelijke meetreeksen, met MAE/RMSE/bias per horizon, diepte, wind, seizoen en watertype. Geen code gewijzigd.

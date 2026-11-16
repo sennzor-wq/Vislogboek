@@ -244,3 +244,8 @@ Audit §28 bevestigt bestaande beperkte persoonlijke sessie-/soort-/stekstatisti
 ## Fase-0-vervolg — biologische prognosefactoren (16 november 2026)
 
 Audit §29 bevestigt dat de numerieke activiteitsscore thermisch gedreven is. Wind, druk, seizoen, tijd/licht, bewolking en neerslag leveren geen scorebijdrage; wind/habitat/diepte en waarnemingen beïnvloeden wel aparte ruimtelijke/tactische modules. De huidige tests bewijzen geen biologische juistheid of praktijkvalidatie. Eerst factorcatalogus, databronnen, onzekerheid en interacties vastleggen; nog geen modelgewichten of codewijzigingen.
+
+
+## Fase-0-vervolg — PDF watertemperatuurmodel (16 november 2026)
+
+Audit §30: kandidaatverbetering is een continue diepte-/windafhankelijke thermische tijdconstante. Niet rechtstreeks overnemen: PDF gebruikt m/s versus app km/u, dagconstante versus uurlijkse stappen en bevat interne inconsistentie tussen vuistregel en dynamische formule bij windstilte. Huidige tests zijn synthetisch (vaste 65-uursreferentie), geen praktijkvalidatie. Eerst varianten vergelijken met chronologische onafhankelijke lokale meetdata en MAE/RMSE/bias per horizon en conditie. Geen code gewijzigd.

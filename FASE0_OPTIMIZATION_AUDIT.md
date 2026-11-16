@@ -885,3 +885,69 @@ Een deel van de lokale structuur kan via vrije notities of habitatlabels worden 
 - Pas daarna een modelontwerp, parameters en chronologische backtest vaststellen. Geen scoregewichten of productcode wijzigen in fase 0.
 
 **Fasestatus:** fase 0 blijft read-only en in uitvoering. Geen applicatiecode, gebruikersdata of prognose-uitvoer gewijzigd.
+
+
+## 30. Validatie externe referentie — PDF watertemperatuur schatten en voorspellen (16 november 2026)
+
+Bronbestand: `/vislogboek/Watertemperatuur_Schatten_en_Voorspellen.pdf` (3 pagina's, gebruikerbibliotheek). Read-only vergelijking met `waterThermalEngine.ts`, `waterTemperatureHistory.ts`, `weatherService.ts`, types en bestaande thermische tests op baseline `cc1f20f1a3a50e75d138ad97e2a771c133f8f97d`.
+
+### 30.1 Wat de PDF voorstelt
+
+De PDF beschrijft een vereenvoudigd eerste-orde relaxatiemodel:
+- praktische vuistregel: `Twater,next = Twater + (Tair - Twater) / (depth × factor)`, met factor 3,5 bij windstil, 2,5 bij gemiddelde wind en 1,5 bij harde wind;
+- dynamische tijdconstante: `tau = (48 × depth) / (5 + 3,5 × windSpeed)`;
+- dagelijkse update: `Twater,next = max(0, Twater + (Tair,next - Twater) / tau)`;
+- wind is uitgedrukt in m/s op 10 meter hoogte; diepte in meter.
+
+De PDF benoemt daarnaast warmteoverdracht door lucht, verdamping, windgedreven verticale menging, thermische traagheid, zonnestraling en waterdiepte. Het noemt ook de zoetwaterdichtheidsanomalie rond 4 °C en mogelijke invloed van bodemwarmte.
+
+### 30.2 Vergelijking met de bestaande engine
+
+| PDF-element | Bestaande implementatie | Validatie |
+|---|---|---|
+| Lokale watertemperatuur als startpunt | Laatste echte meting wordt als anker gebruikt en met weerdata geëxtrapoleerd | Aanwezig; timestamp-afwijking staat in §27 |
+| Waterdiepte bepaalt traagheid | Vaste basisconstanten 54/96/150 uur, plus watertype-overrides | Aanwezig, maar diepte is getrapt en niet continu |
+| Wind versnelt respons/menging | Wind in km/u wordt in drie klassen vertaald naar multiplier 1,08/0,92/0,82 | Aanwezig, maar grofmazig en niet gelijk aan PDF-formule |
+| Luchttemperatuur over meerdere dagen | Uurlijkse temperaturen en gemiddelden over 24/72 uur | Aanwezig |
+| Zonnestraling | `shortwaveRadiation` wordt gebruikt in thermische correctie | Aanwezig |
+| Verdamping/luchtvochtigheid | Dauwpunt, relatieve vochtigheid en wind leveren een indicatie `evaporationPotential` | Alleen indicatief; verdamping is geen expliciete warmteflux in de temperatuurupdate |
+| Verticale menging/stratificatie | Windmenging wordt in klassen geclassificeerd; oppervlak/bulk wordt in tekst beschreven | Geen expliciet tweelaags of verticaal temperatuurmodel |
+| Dichtheidsanomalie rond 4 °C | Geen aangetroffen expliciete niet-lineaire dichtheids-/convectielogica | Ontbreekt |
+| Bodemwarmte | Geen aangetroffen expliciete bodemtemperatuur- of bodemwarmteflux | Ontbreekt |
+| Historisch lokaal profiel en onzekerheid | Mediaan van echte historische metingen, bronstatus, onzekerheidsmarge | Bestaande engine gaat hierin verder dan de PDF |
+| Weer-only schatting zonder meetanker | Alleen na voldoende voorafgaande weerdekking; expliciete indicatieve status en geen smalle bandbreedte zonder waterreferentie | Bestaande engine gaat hierin voorzichtiger om dan de PDF |
+
+### 30.3 Eenheden en numerieke vergelijking
+
+De app bewaart `WeatherHourlyForecast.windSpeed` in **km/u**; de PDF-formule verwacht **m/s**. Omrekenen is verplicht (`m/s = km/u ÷ 3,6`). De PDF-tijdconstante is in de getoonde dagstap een aantal **dagen**; bij een uurlijkse implementatie moet deze consistent naar uren worden omgezet en mag de dagformule niet blind per uur worden herhaald.
+
+Illustratieve vergelijking voor een generieke stek van 2,5 m diepte, zonder watertype-override:
+- PDF dynamische formule bij 0 m/s: tau = 24 dagen = 576 uur.
+- PDF bij 3 m/s: tau ≈ 7,74 dagen = 186 uur.
+- PDF bij 8 m/s: tau ≈ 3,64 dagen = 87 uur.
+- Bestaande app: basis 96 uur; met de huidige windklassen ongeveer 104 uur bij <9 km/u, 88 uur bij 9–<20 km/u en 79 uur bij ≥20 km/u.
+
+Dit laat zien dat de modellen niet equivalent zijn. Bij weinig wind reageert de PDF-formule veel trager; bij harde wind komen de waarden dichter bij elkaar. Dit is geen bewijs dat een van beide correct is.
+
+**Interne inconsistentie in de PDF:** de praktische vuistregel geeft bij windstilte `tau = diepte × 3,5` dagen (bij 2,5 m dus 8,75 dagen), terwijl de dynamische formule bij 0 m/s `tau = 48 × 2,5 / 5 = 24` dagen geeft. De twee PDF-methoden leveren dus bij windstilte sterk verschillende tijdconstanten. De constanten 48, 5 en 3,5 worden toegeschreven aan waterwarmtecapaciteit, dichtheid en warmteoverdracht, maar de PDF geeft geen afleiding, brondata of empirische validatie die de formule als universeel fysisch model onderbouwt.
+
+### 30.4 Validatiegrenzen van de huidige tests
+
+- `test-water-temperature-synthetic-validation.ts` gebruikt een onafhankelijke synthetische eerste-orde referentie met vaste tau van 65 uur. De test toetst of de engine die synthetische scenario's binnen de gekozen tolerantie volgt; dit is geen praktijkvalidatie van de natuurconstante.
+- `test-thermal-and-prognosis.ts` en `test-water-history-profile.ts` toetsen gedrag zoals diepteklassen, zonnestraling, windmenging, historie, meetprioriteit en ontbrekende data.
+- Geen aangetroffen test vergelijkt de huidige engine met de PDF-formule over combinaties van diepte, windsnelheid, luchttemperatuurverloop en gemeten watertemperatuur.
+- Geen aangetroffen onafhankelijke dataset met gelijktijdige lokale watermetingen en weerdata valideert de bestaande vaste tijdconstanten of de PDF-constanten.
+
+### 30.5 Aanbevolen verbetering — geen directe formulevervanging
+
+1. Behoud de bestaande meetanker-, historische profiel-, provenance-, onzekerheids- en datakwaliteitslogica. Die onderdelen zijn waardevol en ontbreken grotendeels in de PDF.
+2. Maak een afzonderlijke experimentele relaxatievariant met continue diepte- en windsnelheidsafhankelijkheid. Normaliseer wind expliciet naar m/s en reken de tijdconstante correct om naar uren als de engine uurlijkse stappen blijft gebruiken.
+3. Implementeer de PDF-vuistregel en dynamische formule als twee afzonderlijke kandidaten; los eerst hun interne verschil bij windstilte op en documenteer eenheden en aannames.
+4. Vergelijk de huidige engine, PDF-vuistregel en PDF-dynamische variant op exact dezelfde meetankers en historische uurlijkse weersreeksen. Gebruik chronologische train/validatie-splitsing per stek, niet willekeurig gemixte metingen.
+5. Meet MAE, RMSE en bias per voorspellingstermijn (24/48/72/96 uur), diepteklasse, windklasse, seizoen en watertype. Rapporteer ook hoeveel meetpunten elke uitsplitsing bevat.
+6. Voeg scenario's toe voor snelle windverandering, langdurige windstilte, hoge instraling, droge/winderige lucht, koude perioden rond 4 °C en ontbrekende diepte/weerdata.
+7. Voeg pas na empirische vergelijking de beste variant toe. Behoud de bestaande onzekerheidsmarge en kalibreer die opnieuw op onafhankelijke meetfouten.
+
+**Conclusie:** de PDF bevat bruikbare fysische hypotheses en een kandidaat-relaxatieformule, maar geen bewezen upgrade. De huidige engine heeft al meer databronnen en betere meet-/historie-/onzekerheidsafhandeling. De belangrijkste kans is een continue, toetsbare diepte- en windafhankelijke tijdconstante; de PDF-formule zelf mag pas na correctie van de interne inconsistentie en onafhankelijke backtest worden overwogen. Geen code gewijzigd.
+
+**Fasestatus:** fase 0 blijft read-only en in uitvoering.
