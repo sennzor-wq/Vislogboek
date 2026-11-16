@@ -299,3 +299,14 @@ if (!tenchField ||
     tenchField.approvedForPrediction) {
   throw new Error('The tench field study must retain its sample, three-hour sampling, age and translation limitations.');
 }
+
+const carpDiel = RESEARCH_REGISTRY.find((item) => item.id === 'common-carp-temperature-feeding-rhythm-2012');
+if (!carpDiel ||
+    !carpDiel.summary.includes('Cyprinus carpio haematopterus') ||
+    !carpDiel.summary.includes('630–850 g') ||
+    !carpDiel.summary.includes('61–91 g') ||
+    !carpDiel.limitations.some((item) => item.includes('gepubliceerde abstract')) ||
+    !carpDiel.limitations.some((item) => item.includes('hengelvangbaarheid')) ||
+    carpDiel.approvedForPrediction) {
+  throw new Error('Carp diel-feeding evidence must retain its subspecies, size classes, abstract-only verification and no-catchability limitation.');
+}

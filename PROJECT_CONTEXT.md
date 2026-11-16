@@ -1279,3 +1279,8 @@ Bezmaternykh & Shcherbina (2018; DOI 10.1134/S003294521804001X) is volledig geco
 ## Fase 2 — VisCoach biologische context en sessietijd-consistentie (16 november 2026)
 
 De volgende codewijziging voegt een korte brongebonden biologische context toe aan VisCoach: directe dagritme-/voedingsmetingen worden gescheiden van beweging, habitat en dieet. Onbekende levensfase en lokale voedselcontext blijven onzeker; geen extra invoerveld en geen scorebonus. Opgeslagen start-/herbeoordelingsadviezen moeten het werkelijke sessietijdvak volgen; bij meerdere tijdvakken geen globale dagwinnaar.
+
+
+## Fase 2 — karpervoedingsritme 2012: scope en verificatiestatus (16 november 2026)
+
+Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnieuw gecontroleerd. Het gaat om `Cyprinus carpio haematopterus`, met volwassen (630–850 g) en jonge (61–91 g) vissen, experimenteel onderzocht bij 4–34 °C. De abstract meldt ochtend- en avondpieken en een temperatuurafhankelijke verbreding van het avondinterval onder 10 °C. Dit is geen veldbewijs voor wilde Nederlandse karpers of hengelvangbaarheid. Volledige methodedetails blijven open; de bron blijft `approvedForPrediction: false`.

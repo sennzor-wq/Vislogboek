@@ -49,7 +49,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     ],
     scientificReferences: [
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
-      'Chen, S. et al. (2012). Effect of Water Temperature on Feeding Rhythm in Common Carp. Journal of Northeast Agricultural University (English Edition), 19(1), 57–61. https://doi.org/10.1016/S1006-8104(12)60039-7',
+      'Chen, S., Chen, W. & Fan, Z. (2012). Effect of Water Temperature on Feeding Rhythm in Common Carp (Cyprinus carpio haematopterus Temminck et Schlegel). Journal of Northeast Agricultural University (English Edition), 19(1), 57–61. https://doi.org/10.1016/S1006-8104(12)60039-7 (abstract: 4–34 °C; adult 630–850 g en young 61–91 g; ochtend-/avondpieken; gecontroleerde studie, geen veldvangstdata)',
       'Rahman, M.M. & Meyer, C.G. (2009). Effects of food type on diel behaviours of common carp Cyprinus carpio in simulated aquaculture pond conditions. Journal of Fish Biology, 74(10), 2269–2278. https://doi.org/10.1111/j.1095-8649.2009.02236.x (gesimuleerde vijvercondities; geen wilde veldcurve)',
       'Elliott, J.M. (1994) Quantitative Ecology and the Brown Trout / Teleost Bioenergetics.',
       'Wootton, R.J. (1998) Ecology of Teleost Fishes, 2nd ed. Kluwer Academic Publishers.',
