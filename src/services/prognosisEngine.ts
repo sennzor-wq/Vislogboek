@@ -14,6 +14,7 @@ import {
   HistoricalCatchRateInfo,
   WeatherSnapshot,
   PrognosisInputContext,
+  ManualWaterTemperatureInput,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { db, syncSessionPresenceObservations } from '../db/db';
@@ -29,6 +30,28 @@ import { PrebaitProgramOptions, PresenceObservation } from '../types';
 import { createDataQualityReport } from './dataQualityEngine';
 import { PROGNOSIS_ENGINE_VERSIONS, PROGNOSIS_MODEL_VERSION } from './modelVersions';
 import { addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth } from '../utils/dateTime';
+
+/**
+ * Legt een handmatige watertemperatuur vast zonder het invoermoment te verwarren
+ * met het fysieke meetmoment. Methode, meetdiepte en meettijd blijven onbekend
+ * totdat de gebruiker ze expliciet registreert.
+ */
+export function createManualWaterTemperatureInput(
+  temperatureC: number | null | undefined,
+  recordedAt: string
+): ManualWaterTemperatureInput | null {
+  if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !Number.isFinite(Date.parse(recordedAt))) {
+    return null;
+  }
+  return {
+    temperatureC,
+    recordedAt,
+    measurementTimestamp: null,
+    measurementSource: 'manual',
+    measurementMethod: null,
+    measurementDepthM: null,
+  };
+}
 
 /** Deterministische fingerprint van de invoer die een prognoserun heeft gebruikt. */
 export function createPrognosisInputFingerprint(value: unknown): string {
@@ -1291,6 +1314,7 @@ export async function createLiveSnapshotForSessionStart(
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
+      manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp),
       location: {
         id: location.id,
         latitude: location.latitude,
