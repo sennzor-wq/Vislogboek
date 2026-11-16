@@ -913,3 +913,9 @@ Op `main` is de dode legacy-vertakking `isLokkershoek19 = false` verwijderd uit 
 Generieke `isBenchmark`-compatibiliteit blijft behouden voor oude/ingevoerde records en veilige verwijdering. De wijziging staat klaar voor volledige validatie door de GitHub Quality Gate; de uitkomst wordt pas na controle van de run als geslaagd geregistreerd.
 
 **Volgende:** controleer de resterende merge-/restore-parentrelaties en veilige verwijderpaden tegen de fase-1-acceptatiecriteria; pas daarna fase 1 formeel afronden.
+
+## Faseovergang 1 → 2 — 16 november 2026
+
+**Fase 1: afgerond en geaccepteerd.** De eigenaar heeft de praktische backup/restore-test in de app volledig uitgevoerd en bevestigd dat deze werkt: app openen, sessie aanmaken, backup maken en terugzetten. Dit vormt de app-level controle naast de eerder geslaagde softwarematige regressies en Quality Gate-run [#43886994227](https://github.com/sennzor-wq/Vislogboek/actions/runs/43886994227) op commit `0bf6656407e45aa5f02f81c9fa7e91593862ac99`. De beperkte legacy-opschoning staat op `main`; generieke `isBenchmark`-compatibiliteit blijft bewust behouden. De run op de latere cleanup-commit is niet als geslaagd geregistreerd zonder een bevestigde Actions-uitkomst.
+
+**Fase 2: gestart — read-only audit en factorinventarisatie.** Onderzoek eerst de actuele code op `main`: bestaande activiteitsprognose, soortprofielen, thermische respons, weers-/water-/seizoensfactoren, habitat- en bewegingsmodellen, databronnen, onzekerheidsrepresentatie en chronologische evaluatie. Maak een traceerbare matrix van blueprintfactor → biologische hypothese → soort/tijdschaal → beschikbare meting of schatting → huidige code/UI → tests/evaluatie → status. Maak onderscheid tussen totale activiteit/voedingsactiviteit en habitatkeuze/verplaatsing. Er worden in deze audit geen gewichten verzonnen, geen engine gedupliceerd en geen modelgedrag aangepast.

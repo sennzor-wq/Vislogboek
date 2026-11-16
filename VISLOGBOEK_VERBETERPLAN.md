@@ -176,8 +176,8 @@ Werk:
 | Fase | Status | Opmerking |
 |---|---|---|
 | 0. Baseline en audit | **Afgerond en geaccepteerd (16-11-2026)** | Read-only audit formeel geaccepteerd; overdracht vastgelegd in `FASE0_OPTIMIZATION_AUDIT.md` §32 en de faseovergangsregistratie. Open bevindingen zijn uitvoerpunten, geen reden om fase 0 opnieuw te openen. |
-| 1. Dataveiligheid en benchmarkdata | **In uitvoering — backup/restore-werkstroom geïmplementeerd en Quality Gate geslaagd** | Clean-startbeleid, legacy-compatibiliteit, payloadlimieten, relationele merge/restore-bescherming en previewwaarschuwingen zijn geïmplementeerd en getest. Resterend: finale fase-1-audit van obsolete comments/compatibiliteitsvertakkingen en alle acceptatiepunten. |
-| 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
+| 1. Dataveiligheid en benchmarkdata | **Afgerond en geaccepteerd (16-11-2026)** | Backup/restore- en clean-startbescherming geïmplementeerd; GitHub Quality Gate geslaagd op de gevalideerde werkstroom; legacy-vertakking opgeschoond; app-level export-/restorepraktijktest door eigenaar succesvol uitgevoerd. Generieke `isBenchmark`-compatibiliteit blijft behouden. |
+| 2. Biologische prognose | **Gestart — audit en factorinventarisatie** | Eerst bestaande prognose-engine, soortprofielen, blueprintfactoren, databronnen en validatiepaden in kaart brengen; nog geen modelgewichten of enginewijzigingen. |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |
 | 4. Praktisch VisCoach-advies | Gepland | Wind-/werprichting en geometrie expliciet toetsen |
 | 5. Gesloten leercyclus | Gepland | Praktijkvalidatie vereist |
@@ -451,3 +451,16 @@ Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit 
 - De volledige GitHub Quality Gate wordt op deze bijgewerkte `main`-versie uitgevoerd; tot de uitslag beschikbaar is, blijft deze codewijziging in validatie.
 
 **Volgende:** na de Quality Gate de resterende fase-1-acceptatiepunten nalopen, met speciale aandacht voor parent-child-relaties in merge/restore en veilige verwijdering. Daarna fase 1 formeel beoordelen.
+
+### Faseovergang 1 → 2 — 16 november 2026
+
+**Fase 1 is afgerond en door de producteigenaar geaccepteerd.** De app-level praktijktest is succesvol uitgevoerd: de eigenaar heeft de app geopend, een sessie aangemaakt, een backup geëxporteerd en deze backup teruggezet. De gebruiker bevestigt dat de volledige test werkt.
+
+De fase-1-acceptatie is gebaseerd op:
+- Clean-startgrens en legacy-backupbeleid: oude pre-clean-start sessies/vangsten worden niet ongemerkt teruggebracht; post-clean-startregistraties blijven herstelbaar.
+- Importpreview, payloadlimieten en relationele merge-/restorecontroles zijn geïmplementeerd.
+- Generieke `isBenchmark`-compatibiliteit en veilige verwijderbescherming blijven behouden.
+- Database-initialisatiecomments zijn gecorrigeerd en de dode `isLokkershoek19 = false`-vertakking is verwijderd.
+- GitHub Actions Quality Gate-run [#43886994227](https://github.com/sennzor-wq/Vislogboek/actions/runs/43886994227) slaagde op de backup/restore-werkstroomcommit. De latere beperkte opschoning is apart vastgelegd; de app-level praktijktest is door de eigenaar bevestigd.
+
+**Fase 2 is gestart.** De eerste stap is een read-only inventarisatie van de huidige prognose-engine en alle relevante soortprofielen, factoren, brondata, onzekerheidsbehandeling en chronologische evaluatie. Bestaande engines worden hergebruikt; er worden nog geen arbitraire gewichten of concurrerende engine toegevoegd.
