@@ -1158,3 +1158,8 @@ De thermische curve is de enige numerieke factor in de huidige activiteitsindex.
 De beschrijvingen bij extreme temperaturen zijn daarom aangescherpt: alleen relatieve thermische modelrespons, geen stellige uitspraak over winterrust, foerageerstop of zuurstofstress zonder passende metingen. De scoreberekening zelf is ongewijzigd.
 
 Ook vastgesteld: één thermische analyse per doeldag wordt gedeeld door alle tijdvakken. Omdat tijdstip-/schemeringsvoorkeuren momenteel geen scorebijdrage hebben, kan de thermische laag geen beste tijdvak onderscheiden. Dit blijft een expliciete modelbeperking totdat direct soortspecifiek gedragsbewijs en chronologische validatie een tijdvaklaag ondersteunen.
+
+
+### Fase 2 — scope van de huidige activiteitsscore verduidelijkt (16 november 2026)
+
+De UI noemt de bestaande 1–10-uitkomst voortaan 'thermische activiteitspotentie'. De score gebruikt alleen de voorlopige thermische soortcurve; overige weers-/seizoens-/tijdsfactoren blijven context en veranderen de score niet. Daarmee wordt voorkomen dat de gebruiker een thermische proxy verwart met totale visactiviteit of foerageergedrag. Ook lage thermische scores worden niet meer vertaald naar een stellige winterrust- of inactiviteitsclaim. De numerieke berekening en bestaande snapshotvelden zijn ongewijzigd.

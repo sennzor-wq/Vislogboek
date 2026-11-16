@@ -198,3 +198,10 @@ De huidige asymmetrische Gaussische curve en de per-soort `thermalOptimum`-/bree
 De profielvelden `optimalTempRange` en `tolerableTempRange` zijn daarom voorlopig en mogen niet worden gelezen als gevalideerde fysiologische grenzen. Teksten mogen uit een lage thermische modelrespons geen bewezen winterrust of stop van voedselopname afleiden. Hoge watertemperatuur is zonder opgeloste-zuurstofmeting evenmin bewijs van zuurstofstress.
 
 Dezelfde thermische analyse wordt momenteel voor alle tijdvakken van één doeldag gebruikt; de bestaande tijdstip-/schemeringsnotities veranderen de score niet. De huidige engine kan daarom geen thermisch onderbouwd beste tijdvak selecteren. Een latere tijdvaklaag vereist directe soortspecifieke gedragsdata en chronologische validatie.
+
+
+## 15. Presentatie van de huidige thermische score
+
+De bestaande 1–10-uitkomst wordt in de UI aangeduid als **thermische activiteitspotentie**, niet als totale biologische activiteit. De huidige score wordt uitsluitend bepaald door de voorlopige soortspecifieke temperatuurcurve; wind, druk, seizoen, licht/tijdstip, bewolking en neerslag zijn op dit moment verklarende context en tellen numeriek niet mee. Dit onderscheid moet zichtbaar blijven totdat aanvullende gedragslagen afzonderlijk zijn onderbouwd en gevalideerd.
+
+Een lage thermische score mag niet worden vertaald naar bewezen winterrust, volledige inactiviteit of een stop van voedselopname. De score is een relatieve modelschatting, geen directe observatie van visgedrag.

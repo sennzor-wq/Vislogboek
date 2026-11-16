@@ -314,7 +314,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               Persoonlijke Visprognose
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Drie strikt gescheiden uitkomsten: Biologische activiteit, Persoonlijke vangstkans en Beste toekomstige vistijd.
+              Drie strikt gescheiden uitkomsten: Thermische activiteitspotentie, Persoonlijke vangstkans en Beste toekomstige vistijd.
             </p>
           </div>
 
@@ -565,18 +565,18 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
-                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Activiteitsindex en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
               </div>
             )}
 
             {/* De 3 Gescheiden Voorspellingen Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* VOORSPELLING A: Biologische Activiteitsindex */}
+              {/* VOORSPELLING A: Thermische activiteitspotentie */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                     <Gauge className="w-4 h-4" />
-                    A. Biologische Activiteitsindex
+                    A. Thermische activiteitspotentie
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
@@ -608,7 +608,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                 {showAdvancedDetails && (
 <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                  <strong>Modelmatige indicatie:</strong> Weerspiegelt fysiologische activiteit volgens het biologische temperatuur- en omgevingsmodel van {activeDayProg.species}. Dit is geen vangstkans of gemeten biologische activiteit.
+                  <strong>Modelmatige indicatie:</strong> Deze score weerspiegelt uitsluitend de voorlopige soortspecifieke temperatuurrespons op gemeten of geschatte watertemperatuur. Wind, druk, seizoen, tijdstip, bewolking en neerslag zijn context en veranderen deze score niet. Dit is geen gemeten visactiviteit, voedingsactiviteit of vangstkans.
                 </div>
 )}
               </div>
@@ -715,7 +715,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     <div>
                       <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
                       <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige activiteitsindex. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
+                        De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
                       </p>
                     </div>
                   ) : (
@@ -809,7 +809,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               )}
 
               <p className="text-[10px] text-slate-500 border-t border-slate-700/70 pt-2">
-                Deze literatuurcontext verandert de biologische activiteitsindex, beste vistijd en persoonlijke vangstkans niet.
+                Deze literatuurcontext verandert de thermische activiteitspotentie, beste vistijd en persoonlijke vangstkans niet.
               </p>
             </section>
 

@@ -420,12 +420,12 @@ function analyzeTimeSlot(
 
   // 3. Wind, seizoen, tijdstip, bewolking en neerslag blijven context.
   // De bestaande profielvoorkeuren en vaste modulatoren zijn niet voldoende
-  // soortspecifiek en empirisch gevalideerd om de biologische activiteitsscore te wijzigen.
+  // soortspecifiek en empirisch gevalideerd om de thermische activiteitspotentie te wijzigen.
   let windDetail = '';
   if (!hasWind || avgWindSpeed === null || dominantWindDir === null) {
     windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.';
   } else if (avgWindSpeed > profile.disruptiveWindThresholdKmH) {
-    windDetail = `Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is praktische context en verandert de biologische activiteitsscore niet.`;
+    windDetail = `Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is praktische context en verandert de thermische activiteitspotentie niet.`;
   } else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) {
     windDetail = `Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`;
   } else if (avgWindSpeed < 4) {
@@ -461,7 +461,7 @@ function analyzeTimeSlot(
     score: 0,
     impact: 'neutraal',
     title: 'Seizoensritme',
-    detail: `Seizoen ${season}: de seizoensnotitie voor ${species} is voorlopig. Het afzonderlijke seizoenseffect is niet voldoende gevalideerd en telt niet mee in de activiteitsindex.`,
+    detail: `Seizoen ${season}: de seizoensnotitie voor ${species} is voorlopig. Het afzonderlijke seizoenseffect is niet voldoende gevalideerd en telt niet mee in de thermische activiteitspotentie.`,
     dataAvailable: true,
   };
 
@@ -510,7 +510,7 @@ function analyzeTimeSlot(
     dataAvailable: hasPrecip || hasCloud,
   };
 
-  // --- BIOLOGISCHE ACTIVITEITSINDEX ---
+  // --- THERMISCHE ACTIVITEITSPOTENTIE ---
   // Alleen de soortspecifieke thermische respons beïnvloedt de huidige score.
   // Andere factoren blijven uitlegbare context totdat hun effect afzonderlijk
   // met passende soort-, levensstadium- en watertypegegevens is gevalideerd.
@@ -559,20 +559,20 @@ function analyzeTimeSlot(
 
   // Conclusie
   let conclusion = '';
-  if (!hasKnownWaterTemp) { conclusion = 'Activiteitsindex niet betrouwbaar te bepalen: gemeten of geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
+  if (!hasKnownWaterTemp) { conclusion = 'Thermische activiteitspotentie niet betrouwbaar te bepalen: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
   else if (activityScore >= 8.5) {
     conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel. Licht en overige weersomstandigheden zijn afzonderlijke context en verhogen deze score niet.`;
   } else if (activityScore >= 6.8) {
     conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel.`;
   } else if (activityScore >= 4.8) {
-    conclusion = `Gemiddelde biologische activiteit (${activityScore}/10). ${
-      thermalEff < 0.5 ? 'De relatief lage temperatuur tempert de stofwisseling.' : 'De thermische respons is gematigd; overige omstandigheden worden afzonderlijk als context getoond.'
+    conclusion = `Gemiddelde thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
+      thermalEff < 0.5 ? 'De curve schat een lagere relatieve respons dan rond het profieloptimum.' : 'De curve schat een gematigde respons; overige omstandigheden worden afzonderlijk als context getoond.'
     }`;
   } else {
-    conclusion = `Lage biologische activiteit (${activityScore}/10). ${
+    conclusion = `Lage thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
       thermalEff < 0.4
-        ? `Lage watertemperatuur (${effectiveTemp!.toFixed(1)} °C) dwingt ${species} tot een inactieve winterstand (winterrust wordt fysiologisch gestuurd door watertemperatuur, niet direct door koude luchttemperatuur).`
-        : 'Voorwaarden zijn momenteel biologisch ongunstig.'
+        ? `Watertemperatuur (${effectiveTemp!.toFixed(1)} °C) ligt onder de voorlopige profielgrens; de curve schat een lage relatieve thermische respons. Dit stelt geen winterrust of volledige inactiviteit vast.`
+        : 'De curve schat een relatief lage respons ten opzichte van het voorlopige profieloptimum.'
     }`;
   }
 
@@ -640,7 +640,7 @@ export function getSessionDurationHours(session: FishingSession): number | null 
 
 /**
  * Berekent de volledige dagprognose met strikte scheiding van:
- * 1. Biologische activiteitsindex (1.0 - 10.0, relatieve indicatie)
+ * 1. Thermische activiteitspotentie (1.0 - 10.0, voorlopige relatieve temperatuurrespons)
  * 2. Persoonlijke vangstkans (P(vangst >= 1) voor sessie van opgegeven duur en methode)
  * 3. Beste toekomstige vistijd (uitsluitend niet-verstreken tijdvakken)
  */
@@ -963,11 +963,11 @@ export function calculateDayPrognosis(
   if (!thermalAnalysis.hasMeasuredWaterTemp || thermalAnalysis.measuredWaterTemp === null) {
     if (thermalAnalysis.estimatedWaterTemp !== null) {
       uncertaintyNotes.push(
-        `Watertemperatuur is niet gemeten; de biologische prognose gebruikt een geschatte watertemperatuur (~${thermalAnalysis.estimatedWaterTemp} °C) op basis van thermische analyse en waterdiepte. Karperactiviteit wordt gestuurd door watertemperatuur en raakt niet automatisch in winterrust door een tijdelijke daling van de luchttemperatuur.`
+        `Watertemperatuur is niet gemeten; de thermische component gebruikt een geschatte watertemperatuur (~${thermalAnalysis.estimatedWaterTemp} °C) op basis van thermische analyse en waterdiepte. Dit is een voorlopige temperatuurrespons, geen directe meting of voorspelling van activiteit, foerageren of winterrust.`
       );
     } else {
       uncertaintyNotes.push(
-        'Watertemperatuur is niet gemeten of verantwoord geschat; de biologische activiteitsindex is niet beschikbaar. Luchttemperatuur wordt niet als vervanging voor watertemperatuur gebruikt.'
+        'Watertemperatuur is niet gemeten of verantwoord geschat; de thermische activiteitspotentie is niet beschikbaar. Luchttemperatuur wordt niet als vervanging voor watertemperatuur gebruikt.'
       );
     }
   }
