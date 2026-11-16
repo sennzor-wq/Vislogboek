@@ -176,7 +176,7 @@ Werk:
 | Fase | Status | Opmerking |
 |---|---|---|
 | 0. Baseline en audit | **Afgerond en geaccepteerd (16-11-2026)** | Read-only audit formeel geaccepteerd; overdracht vastgelegd in `FASE0_OPTIMIZATION_AUDIT.md` §32 en de faseovergangsregistratie. Open bevindingen zijn uitvoerpunten, geen reden om fase 0 opnieuw te openen. |
-| 1. Dataveiligheid en benchmarkdata | **In uitvoering — afhankelijkhedenaudit** | Geen vaste productie-seeding aangetroffen; merge-/restore-import en legacy-backupvalidatie bevatten nog concrete integriteitsrisico's. Zie de fase-1-audit hieronder. |
+| 1. Dataveiligheid en benchmarkdata | **In uitvoering — backup/restore-werkstroom geïmplementeerd en Quality Gate geslaagd** | Clean-startbeleid, legacy-compatibiliteit, payloadlimieten, relationele merge/restore-bescherming en previewwaarschuwingen zijn geïmplementeerd en getest. Resterend: finale fase-1-audit van obsolete comments/compatibiliteitsvertakkingen en alle acceptatiepunten. |
 | 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |
 | 4. Praktisch VisCoach-advies | Gepland | Wind-/werprichting en geometrie expliciet toetsen |
@@ -420,3 +420,24 @@ Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit 
 - Merge controleert na filtering ook parentrelaties voor snapshots en geplande sessies. Payloadlimieten omvatten nu alle persistente collecties.
 - Nieuwe post-clean-startbackups blijven volledig herstelbaar, inclusief nieuw ingevoerde sessies en vangsten. Restore blijft beschikbaar; geen algemene blokkade.
 - Gerichte regressietest toegevoegd. Tests/build moeten nog worden uitgevoerd; geen Actions-run gestart.
+
+
+### Fase 1 — backup/restore-werkstroom softwarematig gevalideerd (16 november 2026)
+
+**Uitgevoerd op `main`:**
+- Commit `67c8a18391a7e29fbb22c438516c583e4ca94c2f` (`fix: protect clean-start data during backup restore [skip ci]`) implementeert het expliciete clean-startcontract voor backup-export, restore en merge.
+- Nieuwe exports schrijven `cleanStartVersion: 1`; bestaande v5-backups gelden als post-clean-start. Legacy v1-v4-backups blijven bruikbaar voor zelfstandige gegevens, maar brengen oude sessies/vangsten en sessiegebonden afhankelijke gegevens niet terug.
+- Importpreview toont de legacy-status en aantallen overgeslagen sessies/vangsten.
+- Merge controleert na filtering de aanwezigheid van parentrecords voor snapshots en geplande sessies; payloadlimieten omvatten alle persistente collecties.
+- Regressies voor legacy-restore en post-clean-start roundtrip zijn toegevoegd.
+- Commit `0bf6656407e45aa5f02f81c9fa7e91593862ac99` (`ci: enable manual quality gate runs`) maakt handmatige Quality Gate-runs mogelijk.
+
+**Validatiebewijs:** GitHub Actions Quality Gate-run [#43886994227](https://github.com/sennzor-wq/Vislogboek/actions/runs/43886994227) is op commit `0bf6656407e45aa5f02f81c9fa7e91593862ac99` volledig afgerond met conclusie **success**. De dependency-audits, typecheck, regressie-/integratietests, clean-startmigratie, backupimport-/roundtriptests, productiebuild en controle op private artefacten zijn geslaagd. Dit is softwarematige validatie; de app-level praktijktest van backup exporteren en terugzetten is nog niet uitgevoerd en wordt niet als afgerond geclaimd.
+
+**Status:** deze backup/restore-werkstroom is geïmplementeerd en softwarematig gevalideerd. Fase 1 als geheel blijft open.
+
+**Volgende werkzaamheden fase 1:**
+1. De resterende hard-coded benchmark-/demo-verwijzingen en verouderde database-initialisatiecomments opnieuw controleren op actuele `main`; alleen aantoonbaar dode code verwijderen.
+2. De resterende merge-/restore-relaties en veilige verwijderpaden nalopen tegen de acceptatiecriteria; geen echte gebruikerslocaties of nieuwe sessies/vangsten verwijderen.
+3. De fase-1-diff en tests als geheel reviewen en daarna de app-level backup/restore-praktijktest als afzonderlijke gebruikerscontrole registreren.
+4. Pas na volledige fase-1-acceptatie fase 2 starten: de bestaande biologische prognose-engine en factorcatalogus onderzoeken, zonder nu al arbitraire gewichten toe te voegen.

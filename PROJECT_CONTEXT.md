@@ -877,3 +877,30 @@ Audit uitgevoerd op actuele `main` commit `0334b43c006bc172f5ba8d3afa7b800c8302a
 ### Fase 1 backup/clean-start update — 16 november 2026
 
 Nieuwe exports markeren `cleanStartVersion: 1`; bestaande v5-backups worden ook als post-clean-start beschouwd omdat v5 de clean-startmigratie introduceerde. Backups van v1-v4 blijven bruikbaar voor herstel van instellingen, locaties, weercache en zelfstandige gegevens, maar hun oude sessies/vangsten en sessiegebonden afhankelijke gegevens worden niet teruggezet. Prognoses en geplande sessies blijven behouden waar mogelijk, met oude sessiekoppelingen veilig ontkoppeld. De importpreview toont de status en aantallen overgeslagen records. Merge valideert parentbeschikbaarheid na filtering; limieten omvatten alle persistente collecties. Nieuwe sessies/vangsten in post-clean-startbackups blijven volledig herstelbaar. Gerichte regressietest toegevoegd; tests/build en review moeten nog plaatsvinden. Geen Actions gestart.
+
+
+## Actuele voortgang optimalisatietraject — herbevestigd 16 november 2026
+
+De actuele repository is gecontroleerd: `main` staat op `0bf6656407e45aa5f02f81c9fa7e91593862ac99` en de GitHub-repository staat op **public**. Dit statusblok vervangt eerdere voortgangsnotities in dit document die fase 0 of de backup/restore-werkstroom nog als niet afgerond beschrijven.
+
+### Fase 0
+Afgerond en door de producteigenaar geaccepteerd. De uitgebreide read-only audit en overdracht staan in `FASE0_OPTIMIZATION_AUDIT.md` §32. De bevindingen uit die audit blijven open uitvoerpunten; ze betekenen niet dat fase 0 opnieuw moet worden uitgevoerd.
+
+### Fase 1 — huidige stand
+De eerste samenhangende backup/clean-start-werkstroom is geïmplementeerd in commit `67c8a18391a7e29fbb22c438516c583e4ca94c2f`. De wijzigingen beschermen de eenmalige clean-startgrens bij legacy restore en merge, behouden nieuwe records uit post-clean-startbackups, tonen de gebruiker welke oude records worden overgeslagen en controleren relationele integriteit en payloadlimieten.
+
+De volledige GitHub Actions Quality Gate is daarna geslaagd:
+- Run [#43886994227](https://github.com/sennzor-wq/Vislogboek/actions/runs/43886994227)
+- Getest op commit `0bf6656407e45aa5f02f81c9fa7e91593862ac99`
+- Resultaat: **completed / success**
+- Inclusief audits, typecheck, tests, backup-/restore-regressies, clean-startmigratie, productiebuild en controle dat de build geen private artefacten bevat.
+
+De app-level handmatige controle (in de app een sessie maken, backup exporteren en terugzetten) is nog een afzonderlijke praktijktest. Softwaretests zijn niet hetzelfde als deze gebruikerscontrole.
+
+### Wat nog moet gebeuren
+1. Fase 1 afronden met een laatste gerichte audit van obsolete benchmark-/demo-verwijzingen, verouderde initialisatiecomments en de resterende relatie-/verwijderpaden. Alleen aantoonbaar dode code wordt verwijderd; generieke compatibiliteit en echte gebruikersdata blijven beschermd.
+2. Fase-1-tests en volledige diff opnieuw beoordelen en de fase formeel accepteren wanneer alle criteria aantoonbaar zijn afgedekt.
+3. Daarna fase 2 starten: soortspecifieke biologische activiteit en gedrag. Eerst bestaande prognose- en deel-engines/factoren in kaart brengen; geen tweede engine en geen onbewezen numerieke gewichten.
+4. Fase 3–6 blijven in de vastgelegde volgorde gepland. De productpraktijkvalidatie met echte sessies en lokale watertemperatuurmetingen blijft een afzonderlijke doorlopende bewijsstroom.
+
+**Werkafspraak blijft:** wijzigingen rechtstreeks op GitHub `main`, één atomische commit per werkpakket, documentatie in dezelfde commit, standaard `[skip ci]` tenzij een Quality Gate-run bewust nodig is. Geen GitHub Actions-run claimen zonder het resultaat daadwerkelijk te controleren.
