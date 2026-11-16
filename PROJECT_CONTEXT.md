@@ -1257,3 +1257,10 @@ De studie van Fedorova & Drozzhina (1982) onderzocht zowel snoekbaars als baars.
 De huidige literatuurregistraties zijn per soort samengebracht in `FASE2_PROGNOSE_AUDIT.md §34`. Acht van de negen concrete soorten hebben een vorm van direct tijdgebonden voedingsbewijs, maar de bronnen verschillen sterk in levensfase, seizoen, habitat, prooiaanbod en meetopzet. Voor roofblei ontbreekt directe dagdeel-resolved voedselopname. Bij snoek, baars, blankvoorn/brasem en meerval zijn levensfase-, seizoens- of habitatverschillen expliciet belangrijk.
 
 Deze matrix is een inventarisatie van de bestaande registry, geen meta-analyse en geen formele modelgoedkeuring. Alle records blijven `approvedForPrediction: false`. Geen numerieke score, tijdvakgewicht of vangstkans is aangepast. De volgende stap is verificatie van de primaire publicaties voor de zwakst overdraagbare claims en een per-claim besluit over de veilige kwalitatieve toepassing. Geen verplichte levensfase-invoer toevoegen.
+
+
+## Fase 2 — Bohl-juvenielenbron en Voorn-soortnaam (16 november 2026)
+
+Bohl (1979; DOI 10.1007/BF00545241) is als afzonderlijke, niet-goedgekeurde registratie toegevoegd voor juveniele blankvoorn en brasem. De bron meet nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht in kleine Beierse meren. Dit bewijs blijft levensfase-, habitat- en prooitypegebonden en wordt niet gebruikt om een algemene nachtvoorkeur voor volwassen vissen te claimen.
+
+Het bestaande opslag-/typesleutelwoord `Voorn` verwijst naar `Rutilus rutilus` (blankvoorn). De zichtbare profielnaam is daarom gecorrigeerd naar 'Blankvoorn'; ruisvoorn (`Scardinius erythrophthalmus`) is een andere soort en heeft nog geen eigen profiel. Het interne type en bestaande sessiedata zijn niet gewijzigd.
