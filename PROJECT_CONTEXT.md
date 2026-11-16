@@ -1205,3 +1205,8 @@ Kwalitatieve tijdvakvoorkeuren zijn gecorrigeerd waar ze botsten met gemeten voe
 ### Fase 2 — gescheiden dagritme-evidence service (16 november 2026)
 
 Een pure `dielBehaviorEvidenceService` groepeert per soort direct voedingsritme, locomotorische activiteit en habitatgebruik als afzonderlijke bewijsstromen. Alleen soortgekoppelde bronnen worden meegenomen; goedgekeurde kennis blijft apart en alle huidige records blijven niet-goedgekeurd. De service berekent geen scores en leidt geen voedingsritme af uit telemetrie. Regressietests bewaken onder meer dat roofblei voorlopig alleen bewegingsbewijs heeft en dat `Overig` geen soortspecifiek dagritme erft.
+
+
+### Fase 2 — lokale zonnecontext gekoppeld aan tijdvakken (16 november 2026)
+
+De bestaande dagelijkse zonsopkomst-/zonsonderganggegevens uit de weerrespons worden nu per datum aan de vier kloktijdvakken gekoppeld. De UI kan daardoor laten zien in welk blok het brede overgangsvenster rond dageraad/zonsondergang valt, ongeacht seizoen. Dit is alleen kwalitatieve context; de vaste tijdvakken, scores en rangschikking zijn ongewijzigd. Ontbrekende zonnegegevens blijven onbekend. Een ±60-minutenvenster wordt niet als formele schemerdefinitie of numerieke bonus behandeld.

@@ -264,3 +264,8 @@ De canonieke dagdeelvoorkeuren zijn herzien op basis van direct voedingsbewijs w
 ## 23. Diel evidence service: responsvariabelen blijven gescheiden
 
 `getSpeciesDielBehaviorEvidenceContext()` levert per soort afzonderlijke collecties voor `feeding_rhythm`, `locomotor_activity` en `habitat_use`. Het servicecontract gebruikt alleen expliciet soortgekoppelde research-registerrecords en houdt goedgekeurde kennis apart. Een soort met alleen telemetrie krijgt de scope `movement-only`; het systeem leidt daaruit geen voedingsritme af. Voor `Overig` worden geen soortspecifieke tijdpatronen geërfd. De service bevat geen tijdvakscore of modelgewichten en vormt een gecontroleerde inputlaag voor latere zonne-relatieve tijdvaklogica.
+
+
+## 24. Zonne-relatieve context vóór eventuele tijdvakscoring
+
+Open-Meteo levert voor elke prognosedatum lokale zonsopkomst en zonsondergang. Deze gegevens worden aan de bestaande vaste tijdvakken gekoppeld om te tonen welk tijdvak het brede overgangsvenster rond zonsopkomst/-ondergang omvat. Het venster van ±60 minuten is uitsluitend presentatieve context, geen gevalideerde biologische schemerduur of modelgewicht. De vier vaste klokblokken blijven bestaan; latere tijdvakscoring vereist eerst een beter onderbouwde, zonne-relatieve periode-indeling en chronologische validatie.

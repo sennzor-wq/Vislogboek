@@ -167,6 +167,44 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+function getLocalClockMinutes(value: string | undefined): number | null {
+  if (typeof value !== 'string') return null;
+  const match = value.match(/T(\d{2}):(\d{2})/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (!Number.isInteger(hours) || hours < 0 || hours > 23 || !Number.isInteger(minutes) || minutes < 0 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
+/**
+ * Koppelt vaste kloktijdvakken aan de lokale overgang rond zonsopkomst/-ondergang.
+ * De ±60 minuten is uitsluitend een brede UI-contextband, geen formele astronomische
+ * schemerdefinitie en geen numerieke modelbonus.
+ */
+function getSolarTransitionContext(
+  slot: TimeSlot,
+  solarTimes?: { sunrise: string; sunset: string }
+): string {
+  const sunrise = getLocalClockMinutes(solarTimes?.sunrise);
+  const sunset = getLocalClockMinutes(solarTimes?.sunset);
+  if (sunrise === null || sunset === null) {
+    return 'Zonsopkomst en zonsondergang zijn voor deze datum niet beschikbaar; zonne-relatieve tijdcontext is onbekend.';
+  }
+  const slotStart = TIME_SLOT_HOURS[slot].start * 60;
+  const slotEnd = TIME_SLOT_HOURS[slot].end * 60;
+  const overlap = (start: number, end: number) => Math.max(0, Math.min(slotEnd, end) - Math.max(slotStart, start));
+  const sunriseOverlap = overlap(Math.max(0, sunrise - 60), Math.min(1440, sunrise + 60));
+  const sunsetOverlap = overlap(Math.max(0, sunset - 60), Math.min(1440, sunset + 60));
+  const format = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+  const periods: string[] = [];
+  if (sunriseOverlap > 0) periods.push(`het brede overgangsvenster rond zonsopkomst (${format(sunrise)})`);
+  if (sunsetOverlap > 0) periods.push(`het brede overgangsvenster rond zonsondergang (${format(sunset)})`);
+  return periods.length > 0
+    ? `Dit tijdvak overlapt met ${periods.join(' en ')}. Dit is zonnecontext, geen gevalideerde activiteitsscore.`
+    : `Zonsopkomst is ${format(sunrise)} en zonsondergang ${format(sunset)}; de brede overgangsvensters vallen buiten dit tijdvak. Dit verandert de score niet.`;
+}
+
 // Eén prognoseronde gebruikt dezelfde forecast-array voor alle dagen en tijdvakken.
 // Valide luchtdrukmetingen daarom één keer voorbereiden en hergebruiken.
 const pressureForecastCache = new WeakMap<WeatherHourlyForecast[], WeatherHourlyForecast[]>();
@@ -339,7 +377,8 @@ function analyzeTimeSlot(
   currentDateRef: Date,
   userWaterTemp?: number | null,
   presenceObs?: PresenceObservationType,
-  thermalAnalysis?: WaterThermalAnalysis
+  thermalAnalysis?: WaterThermalAnalysis,
+  solarTimes?: { sunrise: string; sunset: string }
 ): TimeSlotAnalysis {
   const hoursConfig = TIME_SLOT_HOURS[slot];
   const month = getAmsterdamMonth(date) ?? 1;
@@ -468,11 +507,12 @@ function analyzeTimeSlot(
   // Tijdstip en schemering worden als hypothese getoond, niet als vaste bonus/malus.
   const isPreferredSlot = profile.preferredSlots.includes(slot);
   const hasSpeciesSlotPreference = profile.preferredSlots.length > 0;
-  const timeDetail = !hasSpeciesSlotPreference
+  const profileTimeDetail = !hasSpeciesSlotPreference
     ? `Voor ${species} is in dit algemene profiel geen soortspecifieke tijdvakvoorkeur vastgesteld; dit betekent niet dat een tijdvak biologisch slechter is.`
     : isPreferredSlot
       ? `${slot} staat als voorlopige voorkeursperiode in het profiel van ${species}; de omvang van dit effect is niet gevalideerd en telt niet mee in de score.`
       : `${slot} staat niet als voorkeursperiode in het voorlopige profiel van ${species}; dit bewijst niet dat activiteit lager is en verandert de score niet.`;
+  const timeDetail = `${profileTimeDetail} ${getSolarTransitionContext(slot, solarTimes)}`;
   const timeOfDayFactor: FactorBreakdown = {
     score: 0,
     impact: 'neutraal',
@@ -617,6 +657,8 @@ export interface PrognosisOptions {
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
+  dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
   allowUnknownSessionDuration?: boolean;
 }
@@ -729,7 +771,8 @@ export function calculateDayPrognosis(
       slotReferenceDate,
       userWaterTemp,
       presenceObs,
-      thermalAnalysis
+      thermalAnalysis,
+      options?.dailySolarTimes?.find((item) => item.date === dateStr)
     );
   }
 

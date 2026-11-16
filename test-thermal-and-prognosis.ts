@@ -404,6 +404,22 @@ async function run14Scenarios() {
     genericTimeContext.timeSlots.Nacht.timeOfDayFactor.detail.includes('geen soortspecifieke tijdvakvoorkeur'),
     '12.2a Het algemene fallbackprofiel verzint geen biologisch beste tijdvak'
   );
+  const solarContextPrognosis = calculateDayPrognosis(
+    '2026-10-23', s1Forecasts, 'Snoekbaars', tenSessions, undefined, null,
+    new Date('2026-10-23T03:00:00Z'), {
+      sessionDurationHours: 3,
+      dailySolarTimes: [{ date: '2026-10-23', sunrise: '2026-10-23T08:20', sunset: '2026-10-23T18:30' }],
+    }
+  );
+  assert(
+    solarContextPrognosis.timeSlots.Ochtend.timeOfDayFactor.detail.includes('zonsopkomst (08:20)') &&
+      solarContextPrognosis.timeSlots.Avond.timeOfDayFactor.detail.includes('zonsondergang (18:30)'),
+    '12.2a Solar-relative context follows the actual local sunrise and sunset within fixed clock slots'
+  );
+  assert(
+    Object.values(solarContextPrognosis.timeSlots).every((slot) => slot.timeOfDayFactor.score === 0),
+    '12.2b Solar context must not create an unvalidated numerical time-of-day bonus'
+  );
   assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
     '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
   assert(
