@@ -355,3 +355,14 @@ De blankvoornliteratuur bevat drie verschillende responsen die niet tot één da
 3. Jamet et al. (1990): maaginhoud bij 253 vissen; 2–3-jarige blankvoorn voedde vooral vanaf 14:00 tot schemering, oudere vissen zowel dag als nacht.
 
 De gezamenlijke broncontext ondersteunt dat levensfase, voedseltype, helderheid, predatiedruk en habitat het tijdgedrag beïnvloeden. Het model mag zonder betrouwbare levensfase- en lokale context geen vaste middag-, schemer- of nachtvoorkeur toekennen. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling.
+
+
+## 37. Fase 2 Definition of Done
+
+De initiële biologische prognose is gereed wanneer zij de vijf responslagen gescheiden houdt (thermische activiteit, voeding/foerageren, aanwezigheid/habitat, vangstkans en betrouwbaarheid), alleen direct passende bronnen numeriek gebruikt, waterdata met provenance en onzekerheid verwerkt, en de chronologische lokale evaluatie zonder datalekken uitvoert. Onvoldoende onderbouwde factoren blijven uitleg/context of worden uit de numerieke prognose gehouden.
+
+Tijdvakadvies wordt uitsluitend gevoed door soortspecifieke voedings-/foerageerevidence. Bewegings- of habitattelemetrie kan context geven, maar wordt niet omgezet in een voedingsbonus. Bij onvoldoende onderscheid blijven tijdvakken gelijkwaardig. De gekozen tijd stuurt VisCoach; een sessie die meerdere tijdvakken bestrijkt krijgt geen geforceerde globale winnaar.
+
+De gebruiker hoeft geen levensfase of uitgebreide foerageerobservaties te registreren. Levensfase is een optionele interne modifier wanneer betrouwbaar bekend; onbekend betekent soortniveau met extra onzekerheid. Na de clean start wordt lokale kalibratie pas geclaimd zodra nieuwe vergelijkbare sessies voldoende bewijs leveren. Softwareminimums voor evaluatie zijn geen bewijs van statistische robuustheid.
+
+Fase 3 start pas na formele afvinking van de technische/evidence-criteria in FASE2_PROGNOSE_AUDIT.md §43. Tot dat moment worden onbewezen factoren niet numeriek geactiveerd.

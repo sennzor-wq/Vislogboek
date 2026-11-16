@@ -814,3 +814,63 @@ Jamet et al. (1990; DOI 10.1127/archiv-hydrobiol/118/1990/371) onderzochten 253 
 ### Brasem en blankvoorn: Vašek & Kubečka (2004)
 
 De in-situ studie in het meso-eutrofe Římov-stuwmeer vond bij subadulte/volwassen brasem en blankvoorn die vooral microcrustaceeën aten een overwegend daggebonden voedingsritme met lagere nachtelijke maagvulling. De verschillen waren lengteklasse- en maandafhankelijk: bij brasem 220–330 mm en blankvoorn 200–270 mm in mei, en bij kleinere klassen van circa 110–170 mm in augustus. Dit is geen algemene uitspraak over benthische voeding of aasopname door hengelvis. De bron blijft niet-goedgekeurd voor numerieke voorspelling.
+
+
+## 43. Fase 2 — formele acceptatiecriteria en huidige status
+
+Fase 2 is pas geaccepteerd wanneer de initiële biologische prognose aantoonbaar evidence-gestuurd, uitlegbaar, veilig en klaar voor lokale verbetering is. Het is nadrukkelijk niet vereist dat elke soort al een numeriek tijdvakgewicht heeft. Een factor zonder voldoende direct en overdraagbaar bewijs blijft beschrijvend of uitgeschakeld.
+
+### Verplichte acceptatiecriteria
+
+1. **Gescheiden biologische responsen**
+   - Thermische fysiologische activiteit, voedings-/foerageergedrag, aanwezigheid/habitatgeschiktheid, vangstkans en betrouwbaarheid zijn afzonderlijke uitkomsten.
+   - Beweging wordt niet als voedselopname behandeld; habitatgeschiktheid niet als aanwezigheid; groei of verteringsmetabolisme niet als acute vangstactiviteit.
+   - De bestaande persoonlijke Poisson-vangstkans blijft herkenbaar als empirische uitgangswaarde en niet als volledige biologische vangstkans.
+
+2. **Bronkwaliteit en overdraagbaarheid**
+   - Iedere actieve numerieke factor heeft een direct passende gemeten respons en een controleerbare bron.
+   - Per bron zijn soort/populatie, levensfase of grootte, seizoen, watertype/habitat, meetmethode, respons en overdraagbaarheidsbeperkingen vastgelegd. Onbekende kenmerken blijven expliciet onbekend.
+   - Abstract-only of secundair ontsloten bewijs mag als context worden geregistreerd, maar blijft niet-goedgekeurd voor numerieke toepassing totdat de onzekerheid is opgelost.
+   - Alle factoren die niet aan deze eisen voldoen blijven uit de numerieke prognose.
+
+3. **Water- en omgevingsdata**
+   - Watertemperatuur heeft herleidbare herkomst, meettijd en waar beschikbaar methode/diepte; voorspelde waarden tonen hun onzekerheid en actualiteit.
+   - Luchttemperatuur vervangt nooit een ontbrekende watertemperatuur.
+   - Bij onvoldoende thermische basis geeft het systeem geen stellige thermische conclusie.
+
+4. **Tijdvak- en gedragslogica**
+   - Een tijdvakvoorkeur mag alleen steunen op soortspecifiek bewijs voor de relevante voedings-/foerageerrespons.
+   - Dageraad-, schemer- of nachtelijke beweging blijft afzonderlijke context en wordt niet automatisch een voedingsbonus.
+   - Als bewijs geen betekenisvol onderscheid ondersteunt, blijven tijdvakken gelijkwaardig; er wordt geen kunstmatige winnaar gekozen.
+   - De gekozen sessietijd stuurt VisCoach-advies. Bij sessies over meerdere tijdvakken wordt geen globale beste periode opgedrongen.
+
+5. **Lokale leer- en evaluatieketen**
+   - Prognoses bewaren reproduceerbare snapshots; afgeronde sessies en uitkomsten worden correct gekoppeld.
+   - Historische evaluatie gebruikt alleen informatie die op het voorspeltijdstip beschikbaar was; geen toekomstlekken.
+   - Benchmark-/testdata en uitgesloten historische data worden niet als persoonlijke trainingsdata gebruikt.
+   - Brier Skill Score en de bestaande baseline blijven chronologisch berekend. Bij kleine aantallen worden softwareminimums niet gepresenteerd als statistisch bewijs.
+   - Na de clean start is lokale kalibratie pas een claim wanneer voldoende nieuwe, vergelijkbare sessies bestaan; tot die tijd toont het model onzekerheid en blijft het conservatief.
+
+6. **Gebruiksvriendelijkheid en VisCoach**
+   - De gebruiker hoeft geen levensfase, leeftijd of uitgebreid foerageerformulier in te vullen.
+   - De normale invoer blijft beperkt tot doelsoort, stek en gewenste starttijd; aanvullende gegevens zijn optioneel en alleen wanneer ze aantoonbaar waarde toevoegen.
+   - De Visser houdt altijd de keuze; VisCoach ondersteunt en legt uit, maar schrijft geen stek of tijdvak dwingend voor.
+
+7. **Technische borging**
+   - Regressietests bewaken bronclassificatie, ontbrekende data, provenance, sessie-/snapshotkoppeling en chronologische evaluatie.
+   - De Quality Gate slaagt op de exacte PR-head en opnieuw op de mergecommit in main.
+   - Architectuur, audit en hervattingspunt in issue #49 blijven onderling consistent.
+
+### Huidige status
+
+| Onderdeel | Status |
+|---|---|
+| Responslagen en bronclassificatie | **Grotendeels geborgd** |
+| Waterdata-provenance en onzekerheid | **Gerealiseerd** |
+| VisCoach-tijdvakselectie en eenvoudige invoer | **Gerealiseerd** |
+| Primaire bron- en overdraagbaarheidsaudit | **Nog bezig** |
+| Lokale leer-/evaluatieketen | **Technisch gerealiseerd** |
+| Statistische lokale kalibratie na clean start | **Wacht op nieuwe data** |
+| Formele Fase 2-acceptatie | **Nog niet vrijgegeven** |
+
+De ontbrekende lokale sessiedata blokkeren niet de technische bouw van een conservatief initiëel model, maar blokkeren wel claims dat soortspecifieke vangstkansen of numerieke tijdvakgewichten lokaal gevalideerd zijn. Fase 3 start pas nadat de bovenstaande implementatiecriteria zijn afgevinkt en de resterende onzekerheden expliciet als niet-actieve factoren zijn vastgelegd.

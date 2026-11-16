@@ -1304,3 +1304,11 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Vašek & Kubečka (2004) samenvatting en auteursbibliografie gecontroleerd: subadulte/volwassen brasem en blankvoorn, planktonisch dieet, dagvoeding en nachtelijke daling maagvulling; lengteklasse en maand beïnvloeden de bevinding.
 - Registry en tests scheiden feeding intensity/rhythm van locomotor activity/habitat use. Alle bronnen blijven approvedForPrediction false; geen score, tijdvakgewicht of vangstkans gewijzigd.
 - Open bronrisico blijft Chen et al. (2012): volledige methode niet toegankelijk via de gevonden ScienceDirect-weergave/PDF; alleen abstractniveau blijft geverifieerd.
+
+
+### Fase 2 — formele Definition of Done vastgelegd (16 november 2026)
+
+- FASE2_PROGNOSE_AUDIT.md §43 bevat nu de formele acceptatiecriteria: gescheiden responslagen, bronkwaliteit/overdraagbaarheid, waterdata-provenance, tijdvaklogica, lokale leerketen, minimale gebruikersinvoer en technische borging.
+- Huidige status is expliciet: responslagen, provenance, VisCoach-selectie en evaluatieketen zijn technisch geborgd; primaire bron-/overdraagbaarheidsaudit loopt nog; lokale statistische kalibratie wacht op nieuwe sessies na clean start.
+- Geen onbewezen score, tijdvakbonus of vangstkans wordt geactiveerd om de fase kunstmatig af te ronden.
+- Fase 3 blijft geblokkeerd tot de implementatie-/evidence-criteria formeel zijn afgevinkt. Lokale kalibratieclaims blijven afhankelijk van voldoende nieuwe, vergelijkbare sessies.
