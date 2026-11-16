@@ -196,3 +196,36 @@ for (const [species, references] of Object.entries(thermalProfileSourceChecks)) 
   }
 }
 console.log('Species thermal physiology profile source links passed.');
+
+
+// Daily movement evidence must remain separate from measured feeding evidence.
+const pikeDirectFeeding = getResearchByOutcome('Snoek', 'feeding_intensity').find((item) => item.id === 'northern-pike-heart-rate-feeding-day-1991');
+if (!pikeDirectFeeding || pikeDirectFeeding.approvedForPrediction || pikeDirectFeeding.measuredOutcomes?.includes('feeding_rhythm')) {
+  throw new Error('Pike heart-rate telemetry supports feeding-intensity context, not a quantified diel feeding-rhythm factor.');
+}
+const pikeMovement = getResearchByOutcome('Snoek', 'locomotor_activity').find((item) => item.id === 'northern-pike-diel-movement-lac-ste-anne-1980');
+if (!pikeMovement || pikeMovement.measuredOutcomes?.includes('feeding_rhythm')) {
+  throw new Error('Pike movement evidence must not be misclassified as feeding rhythm.');
+}
+const zanderMovement = getResearchByOutcome('Snoekbaars', 'locomotor_activity');
+if (!zanderMovement.some((item) => item.id === 'pikeperch-diel-activity-dusk-drainage-canal-2005') ||
+    !zanderMovement.some((item) => item.id === 'pikeperch-diel-distribution-elbe-river-2008') ||
+    zanderMovement.some((item) => item.measuredOutcomes?.includes('feeding_rhythm'))) {
+  throw new Error('Pikeperch dusk movement and night habitat evidence must remain locomotor/habitat context, not feeding rhythm.');
+}
+const aspMovement = getResearchByOutcome('Roofblei', 'locomotor_activity').find((item) => item.id === 'asp-annual-diel-activity-northern-population-2022');
+if (!aspMovement || aspMovement.approvedForPrediction || aspMovement.measuredOutcomes?.includes('feeding_rhythm')) {
+  throw new Error('Asp diel telemetry must remain non-approved locomotor evidence, not a direct feeding rhythm.');
+}
+for (const [species, refs] of Object.entries({
+  Snoek: ['10.1111/j.1095-8649.1991.tb04366.x', '10.1139/f80-187'],
+  Snoekbaars: ['10.1007/s10750-004-6823-6', '10.1007/s10750-008-9503-0'],
+  Roofblei: ['10.1007/s10641-022-01298-6'],
+})) {
+  for (const ref of refs) {
+    if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((source) => source.includes(ref))) {
+      throw new Error(`The ${species} profile must link its reviewed diel-behaviour source ${ref}.`);
+    }
+  }
+}
+console.log('Diel behaviour evidence and measured-outcome separation tests passed.');

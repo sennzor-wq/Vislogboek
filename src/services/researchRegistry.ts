@@ -727,6 +727,102 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
+
+  {
+    id: 'northern-pike-heart-rate-feeding-day-1991',
+    topic: 'directe-voedselopname-en-dagactiviteit',
+    measuredOutcomes: ['feeding_intensity'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Hartslagtelemetrie bij vrijlevende snoek in twee Schotse meren schatte de voedselopname op circa 1,5% van het natte lichaamsgewicht per dag. Kleine prooien werden overdag gevangen; de daaropvolgende specifieke dynamische werking van voedsel (verteringsmetabolisme) liep door in middag en nacht. Dit is directe voedings-/verteringscontext, geen gekwantificeerde piek in dagelijkse voedselopname per tijdvak.',
+    limitations: [
+      'De telemetrieregistraties duurden maximaal vijf dagen en de studie betrof twee Schotse meren; overdraagbaarheid naar Nederlandse wateren is onzeker.',
+      'De studie ondersteunt geen numerieke ochtend-, schemer- of nachtbonus en meet geen hengelvangbaarheid.',
+      'Tijdstip van prooivangst moet worden onderscheiden van het latere verteringsmetabolisme.'
+    ],
+    sourceReferences: [
+      'Lucas, M.C., Priede, I.G., Armstrong, J.D., Gindy, A.N.Z. & De Vera, L. (1991). Direct measurements of metabolism, activity and feeding behaviour of pike, Esox lucius L., in the wild, by the use of heart rate telemetry. Journal of Fish Biology, 39(3), 325–345. https://doi.org/10.1111/j.1095-8649.1991.tb04366.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-diel-movement-lac-ste-anne-1980',
+    topic: 'dag-nachtritme-locomotorische-activiteit',
+    measuredOutcomes: ['locomotor_activity'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Ultrasone telemetrie bij zes snoeken in Lac Ste. Anne (Alberta), gevolgd gedurende 5–51 dagen, vond dat de vissen gedurende circa 80% van de observatie-intervallen inactief waren. Er was geen regelmatig dagritme in beweging behalve een sterke afname van beweging in de nacht.',
+    limitations: [
+      'Kleine steekproef van zes vissen in één Noord-Amerikaans meer; dit is geen universeel patroon voor Europese of Nederlandse snoek.',
+      'Bewegingsactiviteit is bij een hinderlaagjager geen directe maat voor jacht- of voedingsactiviteit; stilstand kan juist bij foerageren horen.',
+      'De studie rechtvaardigt geen vaste tijdvakscore of vangstbonus.'
+    ],
+    sourceReferences: [
+      'Diana, J.S. (1980). Diel activity pattern and swimming speeds of northern pike (Esox lucius) in Lac Ste. Anne, Alberta. Canadian Journal of Fisheries and Aquatic Sciences, 37(9), 1454–1458. https://doi.org/10.1139/f80-187'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-diel-activity-dusk-drainage-canal-2005',
+    topic: 'schemeringsritme-locomotorische-activiteit',
+    measuredOutcomes: ['locomotor_activity'],
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Akoestische telemetrie van volwassen snoekbaars in een ondiep, troebel Zuid-Frans kanaal tijdens het voorjaar en de paaiperiode vond gemiddeld de hoogste bewegingsactiviteit rond de avondschemering. Individuen verschilden duidelijk; bij vrouwtjes hing het dagritme samen met watertemperatuur.',
+    limitations: [
+      'Van de dertien aanvankelijk getagde vissen konden negen succesvol worden gevolgd; het onderzoek betrof één kanaal en alleen het voorjaar/de paaiperiode.',
+      'De gemeten uitkomst is verplaatsing, niet rechtstreeks voedselopname, jachtsucces of vangstkans.',
+      'De auteurs beschrijven schemering als algemene tendens en niet als strikte regel; individuele variatie is aanwezig.'
+    ],
+    sourceReferences: [
+      'Poulet, N., Arzel, C., Messad, S., Lek, S. & Argillier, C. (2005). Diel activity of adult pikeperch Sander lucioperca (L.) in a drainage canal in the Mediterranean basin during spring. Hydrobiologia, 543, 79–90. https://doi.org/10.1007/s10750-004-6823-6'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-diel-distribution-elbe-river-2008',
+    topic: 'dag-nachtverdeling-en-locomotorische-activiteit',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Jaar-rond radio-telemetrie in de Elbe liet zien dat volwassen snoekbaars overdag vooral dieper in het hoofdkanaal verbleef, tijdens de schemering richting ondieper water bewoog en ’s nachts dicht bij de oever in de littorale zone lag. De bewegingsactiviteit piekte rond twilight en was het laagst in de nacht; de auteurs duidden de nachtelijke ondiepe positie waarschijnlijk als rust, niet als jacht.',
+    limitations: [
+      'Het onderzoek vond plaats in één rivier en betreft volwassen vissen; andere watertypen, populaties en levensfasen kunnen afwijken.',
+      'Verplaatsing en habitatpositie zijn geen directe metingen van voedselopname of jacht.',
+      'Nachtelijke aanwezigheid in ondiep water mag niet automatisch als nachtelijke voedingspiek worden geïnterpreteerd.'
+    ],
+    sourceReferences: [
+      'Horký, P., Slavík, O. & Bartoš, L. (2008). A telemetry study on the diurnal distribution and activity of adult pikeperch, Sander lucioperca (L.), in a riverine environment. Hydrobiologia, 614, 151–157. https://doi.org/10.1007/s10750-008-9503-0'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'asp-annual-diel-activity-northern-population-2022',
+    topic: 'seizoensafhankelijk-dag-nachtritme-locomotorische-activiteit',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Roofblei'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een 32 maanden durende akoestische telemetriestudie van 53 volwassen roofbleien in een noordelijk meer-riviersysteem analyseerde 12.435 bewegingsgebeurtenissen. Bewegingsactiviteit was in de meeste maanden hoger rond dageraad en schemering dan overdag of ’s nachts, maar het patroon wisselde tussen maanden en jaren; in sommige zomermaanden ontbrak een duidelijk dagritme.',
+    limitations: [
+      'De studie betreft één noordelijke, aaneengesloten meer-rivierpopulatie; de sterke migratie- en stromingscontext is niet zonder meer overdraagbaar naar geïsoleerde Nederlandse plassen.',
+      'De uitkomst is locomotorische activiteit/verplaatsing, geen direct gemeten voedselopname of vangstkans.',
+      'Seizoens- en jaarvariatie zijn substantieel; een vaste dagelijkse schemerbonus is niet gerechtvaardigd.'
+    ],
+    sourceReferences: [
+      'Kärgenberg, E., Sandlund, O.T., Thorstad, E.B., Thalfeldt, M., Økland, F., Kaasik, A. & Tambets, M. (2022). Annual and diel activity cycles of a northern population of the large migratory cyprinid fish asp (Leuciscus aspius). Environmental Biology of Fishes, 105, 1697–1711. https://doi.org/10.1007/s10641-022-01298-6'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
 ];
 
 /**

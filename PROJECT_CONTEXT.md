@@ -1185,3 +1185,8 @@ Een natuurlijke voorkeur voor ochtend, schemering of nacht mag wel meewegen wann
 ### Fase 2 — gelijkwaardige tijdvakken correct gecommuniceerd (16 november 2026)
 
 Een presentatiebug is hersteld: wanneer de tijdvakuitkomst `Geen betekenisvol onderscheid` was, meldde de samenvatting ten onrechte dat alle tijdvakken verstreken waren. De samenvatting onderscheidt nu gelijkwaardige tijdvakken van een verstreken dag en van ontbrekende thermische basisgegevens. Regressietests bewaken beide gevallen; scores en modelberekening zijn ongewijzigd.
+
+
+### Fase 2 — soortspecifiek dagritmebewijs uitgebreid (16 november 2026)
+
+Nieuwe gecontroleerde bronnen voor snoek, snoekbaars en roofblei zijn in het researchregister en de canonieke soortprofielen gekoppeld. De responsen blijven gescheiden: snoek heeft beperkte directe voedselopname-/verteringscontext en afzonderlijk bewegingsbewijs; snoekbaars heeft telemetriegegevens met vaak een bewegingspiek rond schemering en nachtelijke rustposities; roofblei vertoont in een langjarige noordelijke studie meestal hogere beweging rond dageraad/schemering, maar met duidelijke seizoens-/jaarvariatie. Geen van deze nieuwe bronnen is goedgekeurd als numerieke voorspellingsfactor. De snoekbaarsbeschrijving is genuanceerd van een universele nachtjager naar een schemeringsgerichte maar variabele soortbeschrijving. Regressietests bewaken dat locomotorisch bewijs niet als voedingsritme wordt geclassificeerd.
