@@ -13,7 +13,7 @@ import {
   PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
-import { calculateDayPrognosis, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
+import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import {
@@ -220,8 +220,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       storedSnapshots,
       locations
     );
+    const calculatedAt = new Date().toISOString();
+    const parsedManualWaterTemp = waterTempInput.trim() !== '' ? parseFloat(waterTempInput.replace(',', '.')) : null;
+    const manualWaterTemperatureInput = createManualWaterTemperatureInput(
+      parsedManualWaterTemp !== null && Number.isFinite(parsedManualWaterTemp) ? parsedManualWaterTemp : null,
+      calculatedAt
+    );
     const inputContext: PrognosisInputContext = {
-      calculatedAt: new Date().toISOString(),
+      calculatedAt,
+      manualWaterTemperatureInput,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: activeDayProg.date,
       targetSpecies: selectedSpecies,
