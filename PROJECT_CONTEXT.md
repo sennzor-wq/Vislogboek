@@ -1052,3 +1052,13 @@ Vóór modelkalibratie wordt een compacte, privacybewuste inputfeature-snapshot 
 De oude audittekst die de oorspronkelijke `session.startTime`-fout beschreef, is vervangen door een actuele status. De implementatie gebruikt nu expliciete meettijdstippen en bekende bron/methode, bewaart de provenance van historische sessie-/snapshotrecords en voorkomt dat live coach-herbeoordeling een oude sessiemeting als actueel behandelt.
 
 Open punten zijn: geen gedeelde fysieke measurement-ID (deduplicatie gebruikt locatie + absoluut meetmoment + temperatuur), handmatige actuele temperatuurinvoer is nog niet overal gestructureerd in inputcontext/fingerprint, en historische sessie-/vangst-/waarnemingsfeatures worden niet volledig als compacte replaybare waarden bewaard. Regressietests zijn toegevoegd maar nog niet uitgevoerd.
+
+## GitHub-werkwijze — CI en commitberichten (afspraak gebruiker, 16 november 2026)
+
+De commitconventie is afhankelijk van de zichtbaarheid van de repository en de beschikbare CI-credits:
+
+- **Repository staat op public:** voeg `[skip ci]` niet standaard toe. CI mag normaal draaien.
+- **Repository staat op private én de beschikbare CI-credits zijn op:** voeg `[skip ci]` toe om onnodige workflowruns te voorkomen.
+- **Repository staat op private maar er zijn nog CI-credits:** `[skip ci]` is niet automatisch vereist; kies bewust op basis van de gewenste validatie en het resterende budget.
+
+Controleer de actuele repositoryzichtbaarheid en credit-situatie voordat je de commitmessage kiest. Deze afspraak geldt voor toekomstige commits; bestaande commitberichten worden niet herschreven. Bundel samenhangende repositorywijzigingen steeds in één enkele commit.
