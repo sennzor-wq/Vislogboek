@@ -1294,3 +1294,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De matrix en VisCoach-context houden volwassen meervaltelemetrie (beweging/diepte/EMG), gecontroleerde voedselopname (levensfase onbekend) en vroege juveniele veldvoeding (pelagisch) gescheiden.
 - Alle bronnen blijven approvedForPrediction false; er zijn geen biologische scores, tijdvakgewichten of vangstkansen gewijzigd.
 - Resterend bronrisico: Chen et al. (2012) karper is nog alleen op abstractniveau geverifieerd; volledige methodedetails blijven open.
+
+
+### Fase 2 — blankvoorn/brasem bronresponsen aangescherpt (16 november 2026)
+
+- Haertel & Eckmann (2002) is in de toegankelijke Wiley-abstract gecontroleerd: direct dieet-/voedingsintensiteitsbewijs en dag-nacht habitatverschuiving in een klein 12-ha mesotroof meer. De studie toont niet dat totale voedselopname universeel hoger is in de nacht.
+- Jacobsen et al. (2004) is afzonderlijk als radio-telemetrische beweging/habitatbron geclassificeerd (12–25 cm vissen, twee ondiepe meren, meerdere 48-uurs meetperioden). Dageraad-/schemerbeweging en helderheidsafhankelijke habitatverdeling zijn geen directe voedingsmetingen.
+- Jamet et al. (1990) metadata/abstract gecontroleerd: 253 blankvoorns, 98–240 mm, vieruursintervallen op 20–21 juli 1988; 2–3-jarige vissen vooral middag tot schemering, oudere vissen dag én nacht. Leeftijd en dieet zijn essentieel voor overdracht.
+- Vašek & Kubečka (2004) samenvatting en auteursbibliografie gecontroleerd: subadulte/volwassen brasem en blankvoorn, planktonisch dieet, dagvoeding en nachtelijke daling maagvulling; lengteklasse en maand beïnvloeden de bevinding.
+- Registry en tests scheiden feeding intensity/rhythm van locomotor activity/habitat use. Alle bronnen blijven approvedForPrediction false; geen score, tijdvakgewicht of vangstkans gewijzigd.
+- Open bronrisico blijft Chen et al. (2012): volledige methode niet toegankelijk via de gevonden ScienceDirect-weergave/PDF; alleen abstractniveau blijft geverifieerd.

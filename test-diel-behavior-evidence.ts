@@ -66,4 +66,25 @@ for (const [species, context] of [['Brasem', bream], ['Voorn', roach]] as const)
       !juvenileNightEvidence.limitations.some((item) => item.includes('juveniele'))) {
     throw new Error(species + ' must expose Bohl juvenile night-feeding evidence with its life-stage limitation.');
   }
+  const adultCyprinidFeeding = context.feedingRhythm.find(
+    (item) => item.id === 'bream-roach-in-situ-diel-zooplankton-feeding-2004'
+  );
+  if (!adultCyprinidFeeding || adultCyprinidFeeding.approvedForPrediction ||
+      !adultCyprinidFeeding.summary.includes('daggebonden') ||
+      !adultCyprinidFeeding.limitations.some((item) => item.includes('lengteklasse'))) {
+    throw new Error(species + ' must retain the adult/subadult plankton-feeding evidence and its size/season limitations.');
+  }
+}
+const roachFeeding = roach.feedingRhythm.find(
+  (item) => item.id === 'roach-diel-diet-and-habitat-shifts-2002-2004'
+);
+const roachMovement = roach.locomotorActivity.find(
+  (item) => item.id === 'roach-diel-movement-clear-turbid-lakes-2004'
+);
+if (!roachFeeding || !roachFeeding.measuredOutcomes?.includes('feeding_intensity') ||
+    roachFeeding.measuredOutcomes.includes('locomotor_activity') ||
+    !roachMovement || !roachMovement.measuredOutcomes?.includes('locomotor_activity') ||
+    roachMovement.measuredOutcomes.includes('feeding_rhythm') ||
+    roach.temporalEvidenceScope !== 'feeding-and-movement') {
+  throw new Error('Roach diel feeding intensity and radio-telemetry movement must remain separate evidence responses.');
 }

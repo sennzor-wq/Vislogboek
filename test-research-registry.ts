@@ -270,6 +270,50 @@ if (SPECIES_PROFILES.Overig.preferredSlots.length !== 0 || SPECIES_PROFILES.Over
 }
 console.log('Species daypart profile evidence checks passed.');
 
+const roachDielFeeding = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'roach-diel-diet-and-habitat-shifts-2002-2004'
+);
+const roachDielMovement = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'roach-diel-movement-clear-turbid-lakes-2004'
+);
+const roachAgeFeeding = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'roach-diel-feeding-cycle-lake-aydat-1990'
+);
+const breamRoachFeeding = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'bream-roach-in-situ-diel-zooplankton-feeding-2004'
+);
+if (!roachDielFeeding ||
+    !roachDielFeeding.measuredOutcomes?.includes('feeding_rhythm') ||
+    !roachDielFeeding.measuredOutcomes?.includes('feeding_intensity') ||
+    roachDielFeeding.measuredOutcomes.includes('locomotor_activity') ||
+    roachDielFeeding.approvedForPrediction ||
+    !roachDielFeeding.sourceReferences.some((source) => source.includes('10.1111/j.1095-8649.2002.tb02415.x'))) {
+  throw new Error('Haertel & Eckmann roach diet/feeding evidence must be direct feeding evidence, not movement telemetry.');
+}
+if (!roachDielMovement ||
+    !roachDielMovement.measuredOutcomes?.includes('locomotor_activity') ||
+    !roachDielMovement.measuredOutcomes?.includes('habitat_use') ||
+    roachDielMovement.measuredOutcomes.includes('feeding_rhythm') ||
+    roachDielMovement.approvedForPrediction ||
+    !roachDielMovement.sourceReferences.some((source) => source.includes('10.1111/j.0022-1112.2004.00436.x'))) {
+  throw new Error('Jacobsen roach radio telemetry must remain movement/habitat evidence only.');
+}
+if (!roachAgeFeeding?.summary.includes('253 blankvoorns') ||
+    !roachAgeFeeding.summary.includes('98–240 mm') ||
+    !roachAgeFeeding.summary.includes('14:00')) {
+  throw new Error('Jamet roach feeding evidence must preserve its sample, size and age-specific time scope.');
+}
+if (!breamRoachFeeding?.summary.includes('110–170 mm') ||
+    !breamRoachFeeding.limitations.some((item) => item.includes('lengteklasse')) ||
+    breamRoachFeeding.approvedForPrediction) {
+  throw new Error('Vašek & Kubečka bream/roach feeding evidence must retain its size-class and seasonal limits.');
+}
+for (const reference of ['10.1111/j.1095-8649.2002.tb02415.x','10.1111/j.0022-1112.2004.00436.x','10.1127/archiv-hydrobiol/118/1990/371']) {
+  if (!SPECIES_PROFILES.Voorn.scientificReferences.some((source) => source.includes(reference))) {
+    throw new Error('The roach profile must link reviewed diel source ' + reference + '.');
+  }
+}
+
 const catfishDiel = RESEARCH_REGISTRY.find(
   (item) => item.id === 'european-catfish-diel-feeding-self-feeder-1995'
 );
