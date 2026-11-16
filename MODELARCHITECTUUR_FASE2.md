@@ -311,3 +311,10 @@ De eerste inventarisatie van het huidige researchregister laat zien dat directe 
 Deze dekking betekent niet dat de tijdvakvoorkeur al voorspelbaar of overdraagbaar is. Elke conclusie moet de gemeten respons, levensfase, seizoen, habitat/watertype, prooiaanbod, meetmethode en geografische context behouden. Een soortlabel alleen is onvoldoende om bronnen samen te voegen. Tegenstrijdige bronnen blijven naast elkaar staan totdat hun context verklaard kan worden.
 
 **Architectuurregel:** het model mag uitsluitend een claim op een responsvariabele baseren die de bron daadwerkelijk heeft gemeten. Directe voedselopname kan een kwalitatieve voedingsclaim ondersteunen; locomotie kan alleen bewegingscontext ondersteunen; habitatdata alleen habitatcontext; dieet/prooikeuze alleen dieetcontext. Geen van deze bronnen is op dit moment numeriek goedgekeurd. De matrix staat in `FASE2_PROGNOSE_AUDIT.md §34`.
+
+
+## 30. Juveniele cypriniden: Bohl-bron geregistreerd met levensfasegrens
+
+Bohl (1979; kleine Beierse meren) is nu als aparte bron aan Brasem en Voorn/blankvoorn gekoppeld. De studie combineert echoloodwaarnemingen en maaginhoud bij juveniele vissen en beschrijft nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht. Dit vormt geen tegenspraak die een volwassen dagvoedingsprofiel moet overschrijven: levensfase, habitat en prooitype verschillen. De bron is zichtbaar als context, blijft niet-goedgekeurd voor numerieke voorspelling en activeert geen nachtbonus.
+
+Het interne type `Voorn` blijft voor compatibiliteit bestaan maar staat biologisch voor `Rutilus rutilus` (blankvoorn). De onjuiste zichtbare combinatie 'Blankvoorn / Ruisvoorn' is gecorrigeerd; ruisvoorn is een andere soort en krijgt niet stilzwijgend dezelfde bronnen of profielparameters.

@@ -883,6 +883,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'juvenile-cyprinid-night-feeding-bavarian-lakes-1979',
+    topic: 'levensfasegebonden-nachtelijke-pelagische-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'habitat_use'],
+    species: ['Voorn', 'Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Twee jaar echoloodonderzoek en maaginhoudanalyse in kleine Beierse meren beschreef bij juveniele blankvoorn en brasem (naast ruisvoorn en alver) nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht, met de hoogste voedingsintensiteit vóór middernacht. De verticale positie hing samen met watertransparantie en lichtintensiteit. In de winter werd geen periodieke migratie of voeding waargenomen.',
+    limitations: [
+      'De resultaten betreffen juveniele vissen en mogen niet worden samengevoegd met het volwassen/subadulte dagvoedingspatroon uit het Římov-reservoir.',
+      'De studie beschrijft vooral nachtelijke pelagische migratie en plankton-/pelagische voedselopname; dit is geen bewijs voor nachtelijke bodemvoeding of hengelvangbaarheid op iedere stek.',
+      'De waarnemingen komen uit kleine Beierse meren; seizoen, lichttransparantie, prooiaanbod en habitat begrenzen de overdraagbaarheid naar Nederlandse wateren.',
+      'De bron ondersteunt een levensfase- en habitatgebonden nachtelijke voedingscontext, geen universele nachtbonus.'
+    ],
+    sourceReferences: [
+      'Bohl, E. (1979). Diel pattern of pelagic distribution and feeding in planktivorous fish. Oecologia, 44(3), 368–375. https://doi.org/10.1007/BF00545241'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
     id: 'roach-diel-feeding-cycle-lake-aydat-1990',
     topic: 'leeftijdsafhankelijk-dag-nachtritme-voedselopname',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],

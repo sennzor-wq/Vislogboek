@@ -269,3 +269,19 @@ if (SPECIES_PROFILES.Overig.preferredSlots.length !== 0 || SPECIES_PROFILES.Over
   throw new Error('The generic fallback must not invent a species-specific daily rhythm.');
 }
 console.log('Species daypart profile evidence checks passed.');
+
+const juvenileCyprinidEvidence = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'juvenile-cyprinid-night-feeding-bavarian-lakes-1979'
+);
+if (!juvenileCyprinidEvidence ||
+    !juvenileCyprinidEvidence.species.includes('Brasem') ||
+    !juvenileCyprinidEvidence.species.includes('Voorn') ||
+    !juvenileCyprinidEvidence.measuredOutcomes?.includes('feeding_rhythm') ||
+    juvenileCyprinidEvidence.approvedForPrediction ||
+    !juvenileCyprinidEvidence.sourceReferences.some((source) => source.includes('10.1007/BF00545241'))) {
+  throw new Error('Bohl juvenile night-feeding evidence must be registered for bream/roach, source-linked and non-approved.');
+}
+if (SPECIES_PROFILES.Voorn.dutchName !== 'Blankvoorn (Rutilus rutilus)' ||
+    SPECIES_PROFILES.Voorn.scientificName !== 'Rutilus rutilus') {
+  throw new Error('The Voorn profile label must accurately identify blankvoorn without conflating rudd.');
+}

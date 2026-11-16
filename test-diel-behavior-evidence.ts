@@ -47,3 +47,15 @@ if (generic.hasSpeciesSpecificTimeEvidence || generic.temporalEvidenceScope !== 
 }
 
 console.log('Species diel behaviour evidence service tests passed.');
+
+const bream = getSpeciesDielBehaviorEvidenceContext('Brasem');
+const roach = getSpeciesDielBehaviorEvidenceContext('Voorn');
+for (const [species, context] of [['Brasem', bream], ['Voorn', roach]] as const) {
+  const juvenileNightEvidence = context.feedingRhythm.find(
+    (item) => item.id === 'juvenile-cyprinid-night-feeding-bavarian-lakes-1979'
+  );
+  if (!juvenileNightEvidence || juvenileNightEvidence.approvedForPrediction ||
+      !juvenileNightEvidence.limitations.some((item) => item.includes('juveniele'))) {
+    throw new Error(species + ' must expose Bohl juvenile night-feeding evidence with its life-stage limitation.');
+  }
+}

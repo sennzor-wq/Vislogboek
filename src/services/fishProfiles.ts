@@ -87,6 +87,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach, bream and bleak. Folia Zoologica, 53, 203–214. (één stuwmeer; zoöplanktonconsumptie)',
+      'Bohl, E. (1979). Diel pattern of pelagic distribution and feeding in planktivorous fish. Oecologia, 44(3), 368–375. https://doi.org/10.1007/BF00545241 (juveniele blankvoorn en brasem; nachtelijke pelagische voeding in Beierse meren)',
       'Lammens, E.H.R.R. (1985) A test of resource partitioning in a gear-selected fish community.',
       'EIFAC Water Quality Criteria for European Freshwater Fish (FAO technical papers).',
       'Nagelkerke, L.A.J. & Sibbing, F.A. (1996) Efficiency of feeding mechanisms in Abramis brama.',
@@ -182,7 +183,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
   },
   Voorn: {
     species: 'Voorn',
-    dutchName: 'Blankvoorn / Ruisvoorn (Rutilus rutilus)',
+    dutchName: 'Blankvoorn (Rutilus rutilus)',
     scientificName: 'Rutilus rutilus',
     description: 'Flexibele alleseter met hoge tolerantie voor koud water. Blijft de hele winter door foerageren.',
     assumptions: [
@@ -196,6 +197,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Goldspink, C.R. (1979) The population density, growth rate and production of roach Rutilus rutilus in Tjeukemeer.',
       'Kubecka, J. (1993) Succession of fish communities in reservoirs of Central and Eastern Europe.',
       'Hautala, A. (2008). Autumnal shift from diurnal to nocturnal peaking feeding activity of Rutilus rutilus in boreal lake littoral zones. Journal of Fish Biology, 73(6), 1407–1418. https://doi.org/10.1111/j.1095-8649.2008.02020.x (boreaal meer; herfst en lichtcontext)',
+      'Bohl, E. (1979). Diel pattern of pelagic distribution and feeding in planktivorous fish. Oecologia, 44(3), 368–375. https://doi.org/10.1007/BF00545241 (juveniele blankvoorn en brasem; nachtelijke pelagische voeding in Beierse meren)',
           'Hölker, F. (2003). The metabolic rate of roach in relation to body size and temperature. Journal of Fish Biology, 62(3), 565–579. https://doi.org/10.1046/j.1095-8649.2003.00048.x (SMR/RMR 5–23 °C; lichaamsgrootte-afhankelijk)',
       'Hölker, F. (2006). Effects of body size and temperature on metabolism of bream compared to sympatric roach. Animal Biology, 56(1), 23–37. https://doi.org/10.1163/157075606775904713 (vergelijkende laboratoriumstudie met brasem)',
 ],

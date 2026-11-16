@@ -745,3 +745,12 @@ De records blijven niet-goedgekeurd voor numerieke voorspelling. Geen activiteit
 De matrix is een broninventarisatie, geen formele meta-analyse of gekwantificeerde kwaliteitsbeoordeling. Voor iedere kandidaat-claim die later in VisCoach zichtbaar wordt, moet de oorspronkelijke publicatie waar mogelijk opnieuw worden gecontroleerd op steekproefomvang, exacte bemonsteringstijden, meetmethode, levensfase, seizoen en habitat. Secundaire samenvattingen en onvolledige bibliografische metadata blijven expliciet gemarkeerd.
 
 **Volgende stap:** controleer de primaire publicaties voor de zwakst overdraagbare claims en maak per kandidaat-claim een expliciet besluit: alleen achtergrondinformatie, kwalitatief bruikbaar met context, of onvoldoende bewijs. Pas na die review kunnen UI-teksten worden aangescherpt. Alle huidige records blijven `approvedForPrediction: false`; geen numerieke tijdvak- of biologische score activeren.
+
+
+## 35. Bohl-bron expliciet geregistreerd en soortnaam Voorn verduidelijkt (16 november 2026)
+
+Bij de primaire broncontrole bleek dat Bohl (1979; DOI 10.1007/BF00545241) al in de literatuurtoelichting werd genoemd, maar nog niet als afzonderlijke registratie in `researchRegistry.ts` stond. De studie is nu expliciet toegevoegd voor de app-profielen Brasem en Voorn, met gemeten uitkomsten `feeding_intensity`, `feeding_rhythm` en `habitat_use`. De bron beschrijft juveniele blankvoorn en brasem (naast ruisvoorn en alver) in kleine Beierse meren: nachtelijke pelagische aanwezigheid en voedselopname vóór middernacht. In de winter werd geen periodieke migratie of voeding gevonden.
+
+De registratie bewaart de cruciale begrenzing: dit is juveniel, pelagisch, plankton-gerelateerd gedrag en geen bewijs voor nachtelijke bodemvoeding bij volwassen brasem of blankvoorn. De bevinding mag daarom naast het overwegend daggebonden subadult/adult Římov-resultaat blijven staan; deze resultaten worden niet tot één universeel dagritme gemiddeld. De bron blijft `approvedForPrediction: false`.
+
+**Soortnaamcontrole:** het bestaande interne type `Voorn` is gekoppeld aan `Rutilus rutilus`, dus blankvoorn. De zichtbare profielnaam is gecorrigeerd van 'Blankvoorn / Ruisvoorn' naar 'Blankvoorn'. Ruisvoorn is een andere soort (`Scardinius erythrophthalmus`) en heeft nog geen afzonderlijk app-profiel; het interne type `Voorn` en bestaande opgeslagen waarden blijven ongewijzigd om compatibiliteit te behouden. Een apart ruisvoorn-profiel vereist later een expliciet datamodel-/UX-besluit.
