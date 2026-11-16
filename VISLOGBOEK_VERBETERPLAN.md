@@ -483,3 +483,10 @@ De producteigenaar heeft het doelbeeld bevestigd: een soortspecifiek biologisch 
 De tweede read-only ronde heeft de gegevensstroom deels gevolgd van PrognosisView via `calculateDayPrognosis()` naar snapshots en evaluatie. De UI en snapshotopslag respecteren de status 'niet beschikbaar' bij ontbrekende watertemperatuur. De persoonlijke Poisson-vangkans gebruikt eigen sessieduur en vangsttempo, met een bestaande beperkte modulatie uit de dagactiviteitsscore. Een tekstuele inconsistentie over luchttemperatuur als fallback is gevonden; gerichte correctie en regressietest zijn nog open. Bestaande tests dekken thermische en habitat-/windscenario's, maar zijn geen praktijkvalidatie. Details en eerste factor-/datamatrix: [FASE2_PROGNOSE_AUDIT.md §6](FASE2_PROGNOSE_AUDIT.md).
 
 **Volgende:** bron-/parameterbeoordeling voor alle tien profielvermeldingen, volledige habitat-/wind-/positioneringsketen en gerichte correctie van de temperatuurfallbacktekst. Geen gewichten of modelgedrag gewijzigd.
+
+
+### Fase 2 — eerste literatuurverkenning (16 november 2026)
+
+De eerste literatuurverkenning per soort staat in [FASE2_PROGNOSE_AUDIT.md §7](FASE2_PROGNOSE_AUDIT.md). De bronnen ondersteunen soortspecifieke verschillen in voedingsritme, beweging, habitat en seizoensgedrag, maar meten verschillende uitkomsten en populaties. Ze valideren niet automatisch de bestaande numerieke thermische, wind-, druk- of seizoensparameters. Het generieke profiel `Overig` moet als fallback worden behandeld, niet als echte soort.
+
+**Volgende:** de bestaande profielwaarden en bronverwijzingen één voor één beoordelen, bewijsstatus toevoegen en de ontbrekende directe voedings-/veldbronnen aanvullen. Geen code of gewichten gewijzigd.

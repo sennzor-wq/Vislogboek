@@ -24,7 +24,7 @@ Bestand: `src/services/prognosisEngine.ts`, in het bijzonder de tijdvakberekenin
 
 Bestand: `src/services/fishProfiles.ts`.
 
-Er zijn tien profielvermeldingen: Karper, Brasem, Snoek, Baars, Voorn, Zeelt, Snoekbaars, Meerval, Roofblei en Overig.
+Er zijn negen concrete vissoorten (Karper, Brasem, Snoek, Baars, Voorn, Zeelt, Snoekbaars, Meerval en Roofblei) plus het generieke terugvalprofiel Overig.
 
 De profielen bevatten onder meer:
 - thermische optimum- en breedteparameters;
@@ -202,7 +202,7 @@ Er is wel een tekstuele inconsistentie in `prognosisEngine.ts`: wanneer zowel me
 
 - `test-thermal-and-prognosis.ts`: thermische traagheid, voorafgaande 24/72-uursontwikkeling, zon/bewolking, warme dagen/koude nachten, afkoeling, diepteverschillen, gemeten versus geschatte watertemperatuur, ontbrekende weerdata en onvoldoende persoonlijke sessiehistorie.
 - `test-advanced-prognosis-modules.ts`: oeveroriëntatie en windrelatie, wind-/werpadvies, habitatzones, seizoens-/temperatuurcontext, directe viswaarnemingen, ontbrekende locatiegegevens en integratie in de dagprognose.
-- `evaluationEngine.ts): chronologische rolling baseline, minimumaantallen, uitsluiten van onvolledige/ongeldige sessies en evaluatie per doelsoort.
+- `evaluationEngine.ts`: chronologische rolling baseline, minimumaantallen, uitsluiten van onvolledige/ongeldige sessies en evaluatie per doelsoort.
 
 Deze testfixtures zijn synthetische softwaretests. Zij bewijzen dat de huidige codepaden en veiligheidsregels functioneren, niet dat een biologische respons of voorspelling in echte vissessies nauwkeurig is.
 
@@ -231,3 +231,44 @@ De repository bevat testfixtures en code voor sessie-/vangsthistorie, maar de pe
 5. Definieer een nulbaseline en evaluatieprotocol voor activiteit, voedselzoekgedrag, habitatvoorspelling en vangstkans afzonderlijk.
 
 **Status:** de gegevensstroom is deels getraceerd en de eerste factor-/datadekking staat hierboven. De volledige bronbeoordeling per soort, alle UI-/snapshotdetails van de habitatketen en het kandidaatmodel zijn nog open. Fase 2 blijft in audit; geen modelgewichten of prognosegedrag gewijzigd.
+
+
+## 7. Eerste literatuur- en bewijsinventaris per soort
+
+**Status:** gerichte literatuurverkenning; geen systematische review en geen modelparameter-validatie. De studies hieronder ondersteunen specifieke biologische relaties, maar hun populaties, levensfasen, watertypen en meetuitkomsten verschillen. Ze mogen niet rechtstreeks worden omgezet naar universele vangstpercentages of thermische gewichten.
+
+### 7.1 Eerste relevante bronnen en overdraagbaarheidsgrenzen
+
+| Soort | Relevante bron(nen) | Wat de bron ondersteunt | Wat de bron niet bewijst |
+|---|---|---|---|
+| Karper | [Chen et al. (2012), temperatuur en voedingsritme](https://doi.org/10.1016/S1006-8104(12)60039-7); [Oyugi et al. (2012), temperatuur en foerageergedrag van juvenielen](https://doi.org/10.1016/j.jtherbio.2011.11.005) | Temperatuur hangt samen met voedingshoeveelheid en dagelijkse voedingspieken; de pieken en respons veranderen bij koudere temperaturen | Geen directe vangstkans voor volwassen karper in Nederlandse buitenwateren; de juvenielenstudie is geen volwassen veldpopulatie |
+| Brasem | [Jurajda et al. (2018), winteractiviteit in reservoir](https://doi.org/10.1111/fme.12275); [Cittadino et al. (2026), seizoensbeweging in verbonden wetland](https://doi.org/10.1007/s10750-026-06142-x) | Brasem kan ook in winter foerageren; temperatuur, zuurstofprofiel, diepte en habitatbeschikbaarheid beïnvloeden waar activiteit wordt waargenomen | Geen universele winter-/zomerweging; beide studies zijn sterk gebonden aan het onderzochte reservoir/wetland |
+| Snoek | [Cittadino et al. (2024), snoek en snoekbaars in gereguleerde laaglandrivier](https://doi.org/10.1007/s10750-024-05533-2) | Seizoen, temperatuur, rivierafvoer en beschikbaarheid van refugia hangen samen met beweging en habitatgebruik | Beweging is niet hetzelfde als voedselopname of vangbaarheid; de beperkte off-channel habitat van de onderzochte rivier is contextspecifiek |
+| Baars | [Jacobsen et al. (2002), activiteit en voedselkeuze via radiotelemetrie](https://orbit.dtu.dk/en/publications/activity-and-food-choice-of-piscivorous-perch-perca-fluviatilis-i/); [Jacobsen et al. (2015), verschil tussen meren](https://doi.org/10.1111/jfb.12613); [globale review (2025)](https://doi.org/10.1007/s11160-025-09924-z) | Dag-/schemerpatronen, licht, temperatuur en habitatgebruik spelen een rol; troebelheid en meertype kunnen het dagritme veranderen | Geen vaste universele voorkeursuren of één constante temperatuursensitiviteit voor alle wateren |
+| Voorn (blankvoorn) | [Diel habitat- en voedingsverschuivingen](https://doi.org/10.1111/j.1095-8649.2002.tb02415.x); [gedragsverschillen tussen heldere en troebele meren](https://doi.org/10.1111/j.0022-1112.2004.00436.x) | Dag-/nachtverplaatsing, voedselkeuze, leeftijd en waterhelderheid beïnvloeden voedings- en habitatpatronen | Geen vaste dag-/nachtregel onafhankelijk van helderheid, predatiedruk, leeftijd en voedseltype |
+| Zeelt | [Herrero et al. (2005), voedingsritme en locomotorische activiteit](https://doi.org/10.1016/j.physbeh.2005.02.015); [USGS soortprofiel](https://nas.er.usgs.gov/Queries/FactSheet.aspx?SpeciesID=652) | Sterke nachtelijke activiteit in gecontroleerde omstandigheden; ondiep, langzaam/stilstaand en vegetatierijk habitat is relevant; tolerantie voor lage zuurstof is beschreven | Laboratoriumritme is niet automatisch een veldvangstcurve; brede tolerantie is geen bewijs voor optimale activiteit |
+| Snoekbaars | [Poulet et al. (2005), telemetrie in drainagekanaal](https://doi.org/10.1007/s10750-004-6823-6); [Cittadino et al. (2024), laaglandrivier](https://doi.org/10.1007/s10750-024-05533-2) | Schemeractiviteit, sekse-/spawningverschillen, temperatuur en seizoensgebonden habitatbeweging kunnen relevant zijn | Een voorjaarsstudie in Zuid-Frankrijk of een specifieke gereguleerde rivier is geen algemene Nederlandse jaarcurve |
+| Meerval | [Boujard (1995), voedingsritme](https://doi.org/10.1016/0031-9384(95)00109-V); [Slavík & Horký (2012), veldtelemetrie en energieverbruik](https://doi.org/10.1111/j.1095-8649.2012.03436.x); [juveniele seizoensactiviteit (2016)](https://doi.org/10.1111/jai.13146) | Nachtelijke voeding is in gecontroleerde studies sterk; velddata tonen individuele variatie en mogelijke relaties met temperatuur en stroming | Niet iedere volwassen meerval is uitsluitend nachtactief; groeps-/individueel gedrag en levensfase verschillen |
+| Roofblei | [Kärgenberg et al. (2020), migratie in rivier-meersysteem](https://doi.org/10.1111/jfb.14454); [diel en seizoensritme in rivier (2016)](https://doi.org/10.1080/03949370.2016.1230560) | Sterke relatie met verbonden rivier-/meerhabitats, stromende paaiplaatsen en seizoensmigratie; activiteit en beweging variëren per seizoen | Migratie- en habitatgebruik is niet gelijk aan dagelijkse voedingsactiviteit of vangstkans op één stek |
+
+### 7.2 Wat dit betekent voor het bestaande profielbestand
+
+- De negen soortprofielen plus `Overig` bevatten al soortspecifieke temperatuurcurves, tijdvakvoorkeuren, windnotities, drukvelden, regen-/bewolkingsnotities en seizoensprioren. Het bestaan van die velden betekent niet dat de precieze getallen door de bronnen worden gedragen.
+- De bronnen voor karper en zeelt bevatten bruikbare aanwijzingen over voedingsritme. Voor baars, blankvoorn, brasem, snoek, snoekbaars, meerval en roofblei zijn de gevonden studies vooral telemetrie, habitat, migratie of algemene ecologie. Die zijn waardevol voor de betreffende modeluitkomst, maar mogen niet als directe voedingscurve worden geïnterpreteerd.
+- Het algemene overzicht van Volkoff & Rønnestad over temperatuur en voeding is achtergrond voor visfysiologie, geen vervanging voor soortspecifieke veldvalidatie.
+- De in het profielbestand genoemde groeistudie voor vier soorten (Tien et al., 2024) meet groei. Groei kan samenhangen met temperatuur en voeding, maar is geen rechtstreekse maat voor dagelijkse activiteit, foerageergedrag of vangbaarheid.
+- `Overig` is geen biologische soort. Het mag daarom niet dezelfde schijn van soortspecifieke nauwkeurigheid krijgen als een geïdentificeerde doelsoort.
+
+### 7.3 Eerste ontwerpconsequenties
+
+1. **Geen vaste voorkeursuren als harde waarheid.** Gebruik tijdvakvoorkeuren als hypotheses met onzekerheid; licht, helderheid, prooien, levensfase en waterbody kunnen het patroon verschuiven.
+2. **Habitat moet soortspecifiek én watertype-afhankelijk zijn.** Dezelfde soort kan ander gedrag vertonen in een helder meer, troebel meer, kanaal of verbonden rivier-/wetlandstelsel.
+3. **Beweging, activiteit en voeding zijn verschillende labels.** Telemetrie meet vaak beweging of locatiegebruik; maaginhoud, voeropname of directe voedingsobservatie meet andere uitkomsten.
+4. **Thermische parameters zijn nog niet gevalideerd.** De literatuur ondersteunt dat temperatuur ertoe doet, maar de huidige Gaussische optimum-/breedtewaarden zijn niet rechtstreeks af te leiden uit de gevonden uiteenlopende studies.
+5. **Levensfase en individuele variatie moeten in bewijsstatus worden vermeld.** Waar het model geen levensfase kent, mag het geen precisie claimen die de bronpopulatie niet ondersteunt.
+
+### 7.4 Nog ontbrekende brondekking
+
+De literatuurverkenning is nog niet compleet voor alle factoren en soorten. Vooral directe veldstudies naar voedselopname/foerageren bij snoek, brasem, blankvoorn, snoekbaars en roofblei onder Nederlandse of vergelijkbare laaglandcondities blijven nodig. Ook onafhankelijke gegevens over drukverandering, wind, zuurstof, stroming, regen en interacties zijn nodig voordat die factoren numeriek kunnen bijdragen.
+
+**Conclusie:** er is voldoende bewijs om soortspecifieke verschillen en habitat-/tijdspatronen serieus te modelleren, maar niet om nu al betrouwbare vaste percentages of exacte responsgewichten te publiceren. De volgende stap is de bestaande parameter- en bronverwijzingen één voor één te auditen en per modeluitkomst een expliciete bewijsstatus toe te kennen.

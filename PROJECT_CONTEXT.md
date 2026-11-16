@@ -948,3 +948,10 @@ De prognoseketen is deels gevolgd van `PrognosisView.tsx` via `calculateDayProgn
 Gevonden tekstuele inconsistentie: één onzekerheidsnotitie in `prognosisEngine.ts` zegt dat luchttemperatuur wordt gebruikt wanneer watertemperatuur niet beschikbaar is, terwijl de score-/UI-regels luchttemperatuur expliciet niet als vervanging behandelen. De UI en snapshot markeren de score wel als niet beschikbaar. Gerichte codecorrectie en regressietest staan open; nog niet gewijzigd.
 
 De bestaande tests dekken veel thermische, habitat-, wind- en ontbrekende-data-scenario's, maar blijven synthetische tests en bewijzen geen praktijknauwkeurigheid. De lokale IndexedDB is niet vanuit de repository-audit uitleesbaar; de nieuwe persoonlijke meetreeks start conform clean-startafspraak opnieuw. De eerste factor-/datadekking en vervolgacties staan in `FASE2_PROGNOSE_AUDIT.md` §6.
+
+
+### Fase 2 — eerste literatuurverkenning (16 november 2026)
+
+De eerste soortgerichte literatuurverkenning is toegevoegd aan `FASE2_PROGNOSE_AUDIT.md` §7. Er zijn relevante studies gevonden over karpervoeding en temperatuur, zeelt- en meervalritmes, baars- en blankvoornactiviteit/habitat, brasem in winter en wetland, en snoek/snoekbaars/roofblei-beweging en habitatgebruik. De uitkomsten zijn niet onderling uitwisselbaar: telemetriebeweging, locomotorische activiteit, voedselopname, groei en vangbaarheid zijn verschillende responsvariabelen. De bestaande soortprofielgetallen zijn daarom nog niet gevalideerd door deze bronnen.
+
+De belangrijkste ontwerpconsequentie is dat tijdvakvoorkeuren en seizoensprioren hypotheses blijven totdat ze soort-, levensfase- en watertype-specifiek zijn getoetst. Het generieke profiel `Overig` mag geen soortspecifieke precisie suggereren. Fase 2 blijft audit; geen modelwaarden gewijzigd.
