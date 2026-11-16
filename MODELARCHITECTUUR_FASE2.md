@@ -129,3 +129,14 @@ Waar direct bewijs ontbreekt, blijft een factor context of een expliciete hypoth
 7. Herzie en kalibreer de vangkans pas met voldoende echte sessies en chronologische backtests.
 
 **Huidige status:** architectuur gekozen en vastgelegd. Er zijn nog geen nieuwe numerieke gewichten, biologische bonussen, gekalibreerde aanwezigheidskansen of vervangende vangstformules geïmplementeerd. Fase 2 blijft open.
+
+
+## 8. Voortgangscheckpoint — 16 november 2026
+
+PR [#54](https://github.com/sennzor-wq/Vislogboek/pull/54) is gemerged als [16c2ebd](https://github.com/sennzor-wq/Vislogboek/commit/16c2ebd63f18a9913fa7234c2774c24ddada4d8a). Het researchregister en de canonieke soortprofielen bevatten nu voedings-/dieetbronnen voor alle negen concrete soorten. De exacte PR-head Quality Gate [#43932012809](https://github.com/sennzor-wq/Vislogboek/actions/runs/43932012809) is volledig groen. De mergecommit Quality Gate [#43933698267](https://github.com/sennzor-wq/Vislogboek/actions/runs/43933698267) was bij vastlegging nog queued; dit blijft een expliciet validatiepunt.
+
+**Niet veranderd:** geen runtime-score, thermische parameter, factorweging of numerieke voedingsbonus. Alle nieuwe bewijsregistraties blijven `approvedForPrediction: false`.
+
+**Eerstvolgende ontwerpstap:** bouw een afzonderlijke kwalitatieve voedings-/foerageercontext, niet een nieuwe totaalprognose. Per soort moet elke runtime-uitspraak verwijzen naar de geregistreerde bron en de daadwerkelijk gemeten respons (voedselopname/voedingsritme versus dieet/prooikeuze). Wanneer de bron alleen dieet of prooikeuze meet, mag de app daaruit geen tijdvakpiek of voedingsintensiteit afleiden. Als leeftijd/levensfase, lokaal prooiaanbod of overdraagbaarheid onbekend is, toon die beperking of laat de uitspraak weg.
+
+Daarna volgen tests op evidence gating en laagseparatie, UI-integratie, chronologische evaluatie en pas ten slotte fase-2-acceptatie. Geen numerieke factor wordt geactiveerd zonder direct bewijs en passende lokale validatie.

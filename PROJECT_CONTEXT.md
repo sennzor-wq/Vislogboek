@@ -1100,3 +1100,11 @@ Het centrale researchregister en de evidence matrix zijn uitgebreid met directe 
 Alle nieuwe registraties blijven `approvedForPrediction: false`. De bronopzetten verschillen sterk (veld, tank/kweek, maaginhoud, dieet of prooikeuze), en geografische overdraagbaarheid en levensfase zijn belangrijke beperkingen. De bijbehorende bronnen zijn ook gekoppeld aan de canonieke soortprofielen in `fishProfiles.ts`; er zijn geen numerieke profielparameters aangepast. De matrix maakt expliciet dat dieet geen dagritme bewijst, telemetrie geen voedselopname bewijst en groei geen acute voedingsactiviteit bewijst.
 
 **Volgende stap:** een kwalitatieve, soortspecifieke voedingscontext ontwerpen met bronverwijzingen, meettype en onzekerheid. Geen numerieke factor, tijdvakbonus of temperatuurvermenigvuldiger activeren zonder voldoende direct en overdraagbaar bewijs plus lokale validatie.
+
+### Fase 2 — checkpoint na PR #54 (16 november 2026)
+
+- PR [#54](https://github.com/sennzor-wq/Vislogboek/pull/54) is squash-merged naar `main` als [16c2ebd](https://github.com/sennzor-wq/Vislogboek/commit/16c2ebd63f18a9913fa7234c2774c24ddada4d8a).
+- Het researchregister en `fishProfiles.ts` bevatten soortspecifieke voedings-/dieetbronnen voor alle negen concrete soorten. Alle nieuwe bronnen blijven `approvedForPrediction: false`; geen runtime-score of numerieke profielparameter is aangepast.
+- Quality Gate op PR-head [#43932012809](https://github.com/sennzor-wq/Vislogboek/actions/runs/43932012809) is volledig groen. Overlappende run #43931990396 is geannuleerd. Mergecommit-run [#43933698267](https://github.com/sennzor-wq/Vislogboek/actions/runs/43933698267) stond bij dit checkpoint nog queued en moet eerst groen worden bevestigd.
+- Volgende actie: ontwerp een aparte kwalitatieve voedings-/foerageeruitkomst die uitsluitend brononderbouwde uitspraken gebruikt. Dieet/prooikeuze mag niet worden vertaald naar een tijdvakpiek of voedingsintensiteit als de studie dat niet heeft gemeten. Onbekende levensfase, lokaal prooiaanbod en overdraagbaarheid blijven expliciet onzeker.
+- Daarna: evidence-gating- en laagseparatietests, UI-integratie en chronologische evaluatie. Fase 2 blijft open; fase 3 start pas na aantoonbare fase-2-acceptatie.
