@@ -1066,6 +1066,21 @@ Controleer de actuele repositoryzichtbaarheid en credit-situatie voordat je de c
 
 ### Fase 2 — handmatige watertemperatuur als reproduceerbare invoer (16 november 2026)
 
-`PrognosisInputContext` bevat nu een afzonderlijk `manualWaterTemperatureInput`-object voor de actuele handmatige invoer. Het bewaart de temperatuur en het registratiemoment van de prognoserun; een onbekend fysiek meettijdstip, meetmethode of meetdiepte blijft expliciet onbekend en wordt niet afgeleid uit het registratiemoment. De prognoseweergave en live sessiestart gebruiken dit contract. De VisCoach-planbuilder en coach-herbeoordeling markeren het veld expliciet als niet van toepassing omdat zij geen actuele handmatige meting ontvangen; bij coach-herbeoordeling loopt de sessiemeting via de historische meetprovenance. De volledige context valt mee in de inputfingerprint. Regressiechecks zijn toegevoegd aan `test-thermal-and-prognosis.ts`, dat in de Quality Gate draait; de CI-uitkomst moet na merge worden gecontroleerd. Resterend: compacte replaybare featurewaarden voor historische sessies, vangsten en waarnemingen.
+`PrognosisInputContext` bevat nu een afzonderlijk `manualWaterTemperatureInput`-object voor de actuele handmatige invoer. Het bewaart de temperatuur en het registratiemoment van de prognoserun; een onbekend fysiek meettijdstip, meetmethode of meetdiepte blijft expliciet onbekend en wordt niet afgeleid uit het registratiemoment. De prognoseweergave en live sessiestart gebruiken dit contract. De VisCoach-planbuilder en coach-herbeoordeling markeren het veld expliciet als niet van toepassing omdat zij geen actuele handmatige meting ontvangen; bij coach-herbeoordeling loopt de sessiemeting via de historische meetprovenance. De volledige context valt mee in de inputfingerprint. Regressiechecks zijn toegevoegd aan `test-thermal-and-prognosis.ts`, dat in de Quality Gate draait. De actuele Quality Gate-uitkomst voor de daaropvolgende replaybare-history-uitbreiding moet nog worden gecontroleerd.
 
 Aanvullende correctie op 16 november 2026: de thermische engine markeert een sessiemeting niet langer als actuele meting alleen omdat deze minder dan zes uur oud is. Bij VisCoach-herbeoordeling blijft zo'n sessiemeting een historisch anker met het expliciete meettijdstip; de latere temperatuur wordt als `estimated_from_measurement` gepresenteerd. Alleen een afzonderlijk ingevoerde meting voor de huidige prognoserun geldt als actuele meting. De integratietest dekt dit scenario af. De volledige Quality Gate op de uiteindelijke fixbranch is groen, inclusief productiebuild en backup-/restore-regressies.
+
+
+## Fase 2 — compacte replaybare historie in prognosesnapshots (16 november 2026)
+
+De vier snapshotbouwers (PrognosisView, live sessiestart, VisCoach-planning en VisCoach-herbeoordeling) gebruiken nu dezelfde helper voor whitelisted historische features. `PrognosisInputContext` kan schema-versie 1 bevatten met:
+- historische sessiekenmerken die modeluitvoer beïnvloeden, waaronder tijd/duur, doelsoorten/uitkomst, techniek, aasrichting, voorvoerstatus en meetprovenance;
+- historische vangstkenmerken zoals sessiekoppeling, soort, aantal, tijdstip, gewicht/lengte, aas/techniek en importkwaliteitsvlaggen;
+- historische waarnemingen met locatie-/sessiekoppeling, type en tijdstip;
+- de exacte lokale watertemperatuurkalibratie die voor de run is gebruikt.
+
+De featurelijsten zijn deterministisch op record-ID gesorteerd. Benchmarkrecords en bijbehorende vangsten/waarnemingen worden uitgesloten. De historie-fingerprint wordt uit dezelfde whitelist opgebouwd. Vrije notities, foto's en base64-inhoud worden niet in prognosesnapshots gekopieerd. De modelinput bevat daarnaast de bestaande handmatige temperatuurprovenance, historische temperatuurmetingen, locatiecontext, exacte weersinvoer en model-/engineversies.
+
+Regressies controleren dat modelrelevante sessiewijzigingen (zoals aasrichting/voorvoerstatus) de fingerprint wijzigen en dat vrije notities/foto-inhoud buiten de feature-snapshot blijven. De VisCoach-integratietest controleert dat de werkelijk opgeslagen snapshot de whitelisted sessiekenmerken bevat.
+
+**Beperking:** de gebruikte historische data-input is nu veel beter te reproduceren, maar de uitvoerbare modelcode zelf wordt niet gearchiveerd. Bij betekenisvolle wijzigingen aan logica of soortparameters moeten `modelVersion`/`engineVersions` worden verhoogd. De Quality Gate voor deze featurebranch moet nog volledig groen zijn voordat deze wijziging wordt gemerged.
