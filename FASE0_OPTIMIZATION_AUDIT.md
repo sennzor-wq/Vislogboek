@@ -734,3 +734,43 @@ Read-only controle op `main` commit `c7ad4a60e07170f8e9ee6e9a5591dfdff453906f`.
 - Houd deze bevindingen read-only tot fase 0 formeel is afgerond en geaccepteerd.
 
 **Fasestatus:** fase 0 blijft in uitvoering; geen applicatiecode of gebruikersdata gewijzigd.
+
+
+## 27. Traceerbaarheidsmatrix — watertemperatuurmeting en prognosehorizon (16 november 2026)
+
+Read-only controle van de temperatuurketen op `main` commit `5de590a0d61e464f9a6191a94d749fc85306f4c6`.
+
+| Blueprint-eis | Code / UI-keten | Testbewijs | Status en beperking |
+|---|---|---|---|
+| Actuele lokale meting heeft voorrang | `PrognosisView.tsx` biedt optionele handmatige temperatuurinvoer; `calculateDayPrognosis()` geeft deze door aan `analyzeWaterThermalDevelopment()`. De thermische engine geeft een geldige actuele meting voorrang op historie en schatting. | `test-water-thermal-coupling.ts`, `test-water-history-profile.ts`, `test-water-temperature-synthetic-validation.ts`. | **Aanwezig en getest** voor de actuele prognose-invoer. |
+| Zonder lokale meting toch een schatting maken | `waterThermalEngine.ts` kan een weerafgeleide schatting maken bij voldoende voorafgaande weersdekking; bij minimaal 72 uur weerhistorie wordt een weather-only schatting gemaakt. Een historisch profiel uit echte metingen kan de schatting als seizoensreferentie verbeteren. Zonder voldoende data blijft de waarde onbekend. | `test-water-thermal-coupling.ts`, `test-water-history-profile.ts`, `test-water-temperature-synthetic-validation.ts`. | **Aanwezig en synthetisch getest.** Een weather-only puntschatting zonder lokale waterreferentie wordt expliciet als indicatief getoond, zonder numeriek onzekerheidsinterval. |
+| Eerdere lokale meting als startpunt voor toekomstige dagen | `waterThermalEngine.ts` zoekt de laatste geldige sessiemeting op dezelfde stek en extrapoleert met de beschikbare uurlijkse weersontwikkeling, mits diepte en weersdekking voldoende zijn. Oudere metingen worden als schattingsanker gebruikt, niet als actuele meting. | `test-water-thermal-coupling.ts` test een meting van de vorige dag, een 48-uurs anker, ontbrekende weerdekking en het verschil tussen vandaag en een toekomstige dag. `test-water-temperature-synthetic-validation.ts` test opwarm- en afkoelscenario's, onzekerheidsmarges en future leakage. | **Aanwezig en getest** op basis van sessiestarttijd als meettijd. Zie de concrete timestamp-afwijking hieronder. |
+| Meting vastleggen met meettijdstip, methode, diepte en herkomst | `SessionModal.tsx` heeft velden voor temperatuur, meetdatum/-tijd, methode, meetdiepte en herkomst. `autoSyncSessionOutcomeToSnapshot()` valideert meettijd, bron en methode en bewaart de echte meettijd op de snapshot. | `test-water-temperature-learning.ts` test evaluatie van voorspelde en later gemeten temperatuur en sluit ontbrekende metadata uit. | **Aanwezig voor registratie en snapshotvalidatie.** De timestamp wordt niet consistent gebruikt door alle daaropvolgende thermische leer-/schattingsroutes. |
+| Historisch seizoensprofiel opbouwen uit echte metingen | `collectHistoricalWaterTemperatureObservations()` combineert snapshotmetingen en sessiemetingen; `deriveHistoricalWaterTemperatureProfile()` filtert benchmark, toekomst, ongeldige waarden en seizoensafstand. Zelfde stek: minimaal 3 metingen; terugval naar vergelijkbaar watertype binnen 50 km: minimaal 5 metingen van minimaal 2 stekken. | `test-water-history-profile.ts`; synthetische validatie in `test-water-temperature-synthetic-validation.ts`. | **Aanwezig en getest**, maar de combinatie van snapshot- en sessiebron kan dezelfde fysieke meting dubbel tellen wanneer hun tijdstempels verschillen. |
+| Temperatuurmodel evalueren en voorzichtig kalibreren | `evaluationEngine.ts` koppelt voorspelde temperatuur aan latere meting met bekende meetmetadata; MAE, RMSE en bias. Lokale seizoenskalibratie pas na minimaal 8 geldige paren. | `test-water-temperature-learning.ts`; `StatsView.tsx` toont metrics in geavanceerde statistieken. | **Aanwezig en getest.** Dit valideert temperatuurfout, niet automatisch de biologische vangstprognose. |
+
+### 27.1 Bevestigde timestamp-inconsistentie
+
+De UI registreert expliciet `waterTemperatureMeasuredAt` en vermeldt dat het meettijdstip niet meer van de sessiestart wordt afgeleid. De verdere thermische keten gebruikt echter niet overal dat veld:
+
+1. `collectHistoricalWaterTemperatureObservations()` voegt een sessiemeting toe met `timestamp: session.startTime`, ook wanneer `session.waterTemperatureMeasuredAt` aanwezig is.
+2. `analyzeWaterThermalDevelopment()` bouwt de meetankers uit `historicalSessions` eveneens met `new Date(session.startTime)`.
+3. `reassessActiveSessions()` geeft `session.waterTemperature` door als `userMeasuredWaterTemp`. De thermische engine kent die invoer de referentietijd `currentDateRef` (het moment van herbeoordeling) toe en controleert hier niet `waterTemperatureMeasuredAt`.
+
+Daarom kunnen twee concrete afwijkingen ontstaan:
+- Een meting die tijdens de sessie later is verricht, wordt als meetanker op de sessiestart gedateerd. De geschatte ouderdom en de weersontwikkeling sinds de meting zijn dan onjuist.
+- Bij een actieve sessie kan dezelfde oude meting bij iedere herbeoordeling opnieuw als actuele meting worden aangeboden, omdat de herbeoordelingsdatum als meettijd wordt gebruikt.
+
+Daarnaast bewaart `autoSyncSessionOutcomeToSnapshot()` de meting met de juiste `waterTemperatureMeasuredAt` op de gekoppelde snapshot. Omdat de collectie-helper ook de sessiemeting op `session.startTime` toevoegt, kan dezelfde fysieke meting tweemaal in het historische profiel terechtkomen als beide tijdstempels verschillen.
+
+**Conclusie: defect/consistentieprobleem bevestigd door statische code-trace.** De bestaande tests dekken de veroudering van een meting op basis van `session.startTime`, maar niet het verschil tussen sessiestart en expliciet meettijdstip, noch het opnieuw actueel maken van een oude meting bij live herbeoordeling. Er is nog geen runtime-regressietest die dit scenario bewijst; de codepaden zijn direct zichtbaar en voldoende om de testlacune en het risico vast te leggen.
+
+### 27.2 Vereiste regressiedekking voor een latere uitvoeringsfase
+
+- Sessie start om 18:00, watertemperatuur gemeten om 20:00: het meetanker moet 20:00 gebruiken.
+- Actieve sessie wordt om 22:00 opnieuw beoordeeld: de meting van 20:00 mag niet als nieuwe meting van 22:00 worden gelabeld.
+- Dezelfde meting bestaat zowel op sessie als snapshot: historisch profiel telt deze één keer, op de echte meettijd.
+- Meting na het prognosetijdstip of na de sessie-eindtijd blijft uitgesloten.
+- Zonder expliciet meettijdstip/methode/herkomst wordt de waarde niet als gevalideerde lokale meting behandeld.
+
+**Fasestatus:** fase 0 blijft read-only en in uitvoering. Er is geen applicatiecode of gebruikersdata gewijzigd.

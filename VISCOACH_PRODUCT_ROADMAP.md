@@ -1226,3 +1226,8 @@ Een concrete afwijking is vastgesteld: de planweergave toont het door de gebruik
 ## Aanvullende audit — stekgegevens en geometrie (16 november 2026)
 
 Zie `FASE0_OPTIMIZATION_AUDIT.md` §26. De wind-, habitat- en positioneringsengines zijn aan de prognose gekoppeld en scenario-getest. De invoer is onvolledig: de standaard locatie-editor biedt geen gestructureerde habitatkenmerken, oeveroriëntatie is alleen vanuit Prognose instelbaar en nieuwe locaties krijgen standaard GPS-coördinaten rond Culemborg. Dit laatste kan een niet-bevestigde locatie als echte GPS-positie opslaan. Geen code gewijzigd; fase 0 blijft read-only.
+
+
+## Watertemperatuur — aanvullende audit (16 november 2026)
+
+Zie `FASE0_OPTIMIZATION_AUDIT.md` §27. De kernlogica voor lokale meting, weather-only schatting, historisch profiel en toekomstextrapolatie is aanwezig en synthetisch getest. Een timestamp-inconsistentie blijft open: het expliciete `waterTemperatureMeasuredAt` wordt bij sessiehistorie en live herbeoordeling niet consequent gebruikt; sessiestart- of herbeoordelingstijd kan daardoor de meettijd vervangen. Ook kan dezelfde fysieke meting via sessie en snapshot dubbel worden geteld. Geen code gewijzigd.
