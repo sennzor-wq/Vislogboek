@@ -175,8 +175,8 @@ Werk:
 
 | Fase | Status | Opmerking |
 |---|---|---|
-| 0. Baseline en audit | **In uitvoering** | De volledige lokale Quality Gate, inclusief tests, audits, typecheck en productiebuild, is op 16 november door de eigenaar uitgevoerd en geslaagd. De inhoudelijke blueprint/code/UI/test-matrix en repositorybrede verwijzingsaudit zijn nog niet afgetekend. De legacy v2-importfout en ontbrekende limietcontroles zijn bevestigd; zie `FASE0_OPTIMIZATION_AUDIT.md` §23–24. |
-| 1. Dataveiligheid en benchmarkdata | Gepland | Benchmarkdata mag na afhankelijkhedenaudit worden verwijderd |
+| 0. Baseline en audit | **Afgerond en geaccepteerd (16-11-2026)** | Read-only audit formeel geaccepteerd; overdracht vastgelegd in `FASE0_OPTIMIZATION_AUDIT.md` §32 en de faseovergangsregistratie. Open bevindingen zijn uitvoerpunten, geen reden om fase 0 opnieuw te openen. |
+| 1. Dataveiligheid en benchmarkdata | **In uitvoering — afhankelijkhedenaudit** | Geen vaste productie-seeding aangetroffen; merge-/restore-import en legacy-backupvalidatie bevatten nog concrete integriteitsrisico's. Zie de fase-1-audit hieronder. |
 | 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |
 | 4. Praktisch VisCoach-advies | Gepland | Wind-/werprichting en geometrie expliciet toetsen |
@@ -359,3 +359,54 @@ Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit 
 **Niet onderhandelbaar:** de expliciet goedgekeurde eenmalige clean-start blijft intact. Oude sessies en vangsten worden niet teruggebracht; nieuwe records worden niet verwijderd; locaties, instellingen en overige gegevens worden niet buiten de goedgekeurde scope opgeschoond. Geen destructieve wijziging zonder voorafgaande afhankelijkhedenaudit en regressiedekking.
 
 **Voortgang bij start:** uitsluitend documentatie bijgewerkt. Fase-1-codewijzigingen en tests zijn nog niet uitgevoerd. Issue #49 blijft open tot alle fasen en acceptatiecriteria zijn afgerond.
+
+
+## Fase-1-afhankelijkhedenaudit — 16 november 2026
+
+**Auditbasis:** actuele GitHub-branch `main`, commit `0334b43c006bc172f5ba8d3afa7b800c8302a1f0`. Dit is een read-only audit; in deze werkstroom is geen applicatiecode gewijzigd en geen GitHub Actions-run gestart.
+
+### 1. Database-initialisatie en clean start
+
+- `initializeDatabaseOnce()` initialiseert uitsluitend `user_settings`. Er worden geen locaties, sessies, vangsten of benchmarkrecords gezaaid.
+- De comments boven de initialisatie verwijzen nog naar een altijd aanwezige beschermde benchmark en historische seeding. Die comments zijn verouderd en moeten met de feitelijke implementatie in overeenstemming worden gebracht.
+- Databaseversie 5 bevat de expliciet goedgekeurde eenmalige clean-startmigratie. Die wist de vóór de upgrade bestaande sessies, vangsten, sessiehengeldetails en coachadviezen; verwijdert sessiegekoppelde aanwezigheidswaarnemingen; ontkoppelt betrokken prognosesnapshots en wist hun evaluatie-uitkomsten; en maakt verwijzingen vanuit geplande sessies naar verwijderde sessies leeg.
+- Gewone locaties, instellingen, weercache, losse locatie-waarnemingen, geplande sessies en prognosesnapshots blijven behouden. De technische locatie-ID `benchmark-location-lokkershoek` wordt alleen verwijderd wanneer geen gepland plan ernaar verwijst. Er vindt geen brede locatiereset plaats.
+- `test-clean-start-migration.ts` dekt een v4-database, verwijdering van oude sessies/vangsten en afhankelijke records, behoud van gewone locaties en losse waarnemingen, ontkoppeling van snapshots/plannen, een lege nieuwe installatie en behoud van nieuw aangemaakte sessies/vangsten na herhaald initialiseren.
+
+### 2. Benchmark-/demo-afhankelijkheden
+
+- In de actuele productie-initialisatie is geen vaste benchmark- of demo-seed aangetroffen. De historische generator en het oude historische datamodulepad staan niet in de actuele repositoryboom.
+- Generieke compatibiliteit met `isBenchmark` bestaat nog in types, prognosehistorie, evaluatie, sessie-/locatie-/snapshotweergave, veilige verwijdering en backupnormalisatie/-merge. Deze code maakt op zichzelf geen benchmarkrecords aan.
+- De generieke uitsluiting van benchmarkrecords uit vergelijkbare sessies en onafhankelijke evaluatie kan voorlopig blijven voor oude/importeerde records en geïsoleerde fixtures. Er is geen reden om deze bescherming breed te verwijderen.
+- Er is een legacy-normalisatievariabele `isLokkershoek19` die momenteel hard op `false` staat; dit is een dode compatibiliteitsvertakking. De geëxporteerde constante `LOKKERSHOEK_PIER_ID` en de technische benchmarklocatie-ID zijn afzonderlijke identifiers; verwijder geen echte gebruikerslocatie op basis van de naam Lokkershoek.
+
+### 3. Backup/export en importvalidatie
+
+- `collectBackupData()` exporteert de persistente tabellen, inclusief geplande sessies en coachadvieshistorie.
+- `normalizeRawBackup()` vult voor oudere formaten standaardarrays voor onder meer weercache, snapshots, waarnemingen en hengeldetails, maar niet voor `plannedSessions` en `coachAdviceRecords`. `inspectImportFile()` eist beide arrays. Daardoor kan een oudere backup die deze tabellen nooit kende na normalisatie alsnog worden afgewezen.
+- `validateBackupPayloadLimits()` neemt `plannedSessions` en `coachAdviceRecords` niet mee in de per-collectiegrenzen, totale recordtelling en recursieve veld-/nestingscontrole. De globale bestandsgroottecontrole blijft wel actief.
+- De importpreview berekent `hasBenchmark`, maar de UI toont deze waarschuwing niet. De preview toont ook geen expliciete waarschuwing dat een backup met een exportdatum van vóór de clean start oude sessies/vangsten kan bevatten.
+
+### 4. Merge-import: bevestigde relationele fout
+
+- `mergeImportData()` slaat benchmarklocaties en benchmarksessies over. Vangsten en de meeste andere afhankelijke tabellen worden alleen toegevoegd als de vereiste parent in de doel-DB bestaat.
+- Prognosesnapshots worden echter uitsluitend op snapshot-ID gecontroleerd en daarna onvoorwaardelijk toegevoegd. Een snapshot die in het backupbestand geldig naar een benchmarksessie of benchmarklocatie verwijst, kan daardoor alsnog worden geïmporteerd nadat die parent tijdens de merge is overgeslagen. Dat kan een verweesde `linkedSessionId` of locatieverwijzing opleveren.
+- De huidige importvalidatie controleert relaties binnen het backupbestand vóór de merge, maar test niet de relationele integriteit ná de benchmarkfilters. De bestaande backup-roundtriptest bevat geen scenario waarin een parent tijdens merge wordt overgeslagen en de child toch wordt ingevoerd.
+- Geplande sessies controleren of de locatie in de doel-DB bestaat en maken een ontbrekende `startedSessionId` leeg. Coachadviezen controleren beide parentrecords. Dit patroon moet consequent worden toegepast op snapshots en eventuele snapshotverwijzingen vanuit plannen.
+
+### 5. Restore-import en clean-startbescherming
+
+- `restoreBackupData()` wist alle tabellen en schrijft daarna de gevalideerde backupcollecties volledig terug, inclusief benchmarkrecords. De UI voert vooraf `inspectImportFile()` uit, maar die validatie staat benchmarkrecords toe; de restore zelf past geen benchmarkfilter toe.
+- Daardoor kan een oude backup via **Volledig Vervangen** historische of benchmark-sessies/vangsten opnieuw in de database brengen. De merge-route sluit benchmarklocaties en -sessies wel uit, maar de restore-route niet.
+- Alleen filteren op `isBenchmark` is onvoldoende voor de clean-startafspraak: historische records uit oudere persoonlijke backups kunnen `isBenchmark: false` of geen vlag hebben. De import moet daarom een expliciet, controleerbaar clean-start-/backupgeneratiecontract krijgen. Ambigue oude backups mogen niet stilzwijgend als post-clean-start worden behandeld.
+- Ontwerpvoorstel voor de eerstvolgende codewerkstroom: voeg een expliciete clean-startgeneratie-/migratiemarkering toe aan nieuwe exports; bepaal een veilige compatibiliteitsregel voor backups zonder die markering; laat merge en restore dezelfde policy gebruiken; toon de importpreview de status en aantallen van uitgesloten records; en blokkeer een volledige vervanging wanneer de herkomst niet veilig kan worden vastgesteld. De precieze compatibiliteitsregel moet voorkomen dat nieuwe records die ná de migratie zijn aangemaakt verloren gaan.
+
+### 6. Testdekking en vervolg
+
+- `test-clean-start-migration.ts` dekt de migratie en behoud van nieuwe records.
+- `test-backup-roundtrip.ts` dekt volledige export/restore, merge-idempotentie en verschillende ongeldige parentrelaties binnen een backupbestand.
+- `test-backup-import.ts` test legacy-normalisatie en een handmatige merge-simulatie; het voert niet de volledige `inspectImportFile()` → `mergeImportData()`-keten uit.
+- Ontbrekende regressies: legacy-normalisatie met ontbrekende optionele tabellen; payloadlimieten voor alle tabellen; benchmarkparent die tijdens merge wordt overgeslagen; snapshot-/planrelaties na merge; restore van benchmarkdata; en backup zonder aantoonbare post-clean-startmarkering.
+- De volgende codewerkstroom wordt pas gestart nadat de backupgeneratie-/compatibiliteitspolicy is vastgelegd. Daarna worden de normalisatie-/limietfouten en relationele merge/restore-fouten samen met gerichte regressietests in één werkpakket opgelost.
+
+**Status:** afhankelijkhedenaudit grotendeels afgerond; concrete import-/restore-risico's bevestigd. Geen code gewijzigd, geen gebruikersdata gewijzigd en geen Actions-run gestart.

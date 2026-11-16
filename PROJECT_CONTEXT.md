@@ -845,3 +845,30 @@ Fase 1 richt zich eerst op dataveiligheid en het verwijderen van obsolete vaste 
 De clean-startafspraak blijft ongewijzigd: vóór de eenmalige migratie bestaande sessies en vangsten worden niet teruggebracht; nieuwe sessies en vangsten na de migratie moeten behouden blijven. Geen brede reset en geen verwijdering van locaties of overige gebruikersgegevens buiten de expliciet goedgekeurde scope.
 
 **Uitgevoerd in deze faseovergang:** alleen documentatie bijgewerkt. Er is nog geen fase-1-applicatiecode gewijzigd en er is geen GitHub Actions-run gestart. Issue #49 blijft open.
+
+
+## Fase-1-afhankelijkhedenaudit — 16 november 2026
+
+Audit uitgevoerd op actuele `main` commit `0334b43c006bc172f5ba8d3afa7b800c8302a1f0`. Dit betreft een read-only code-/testaudit; er is geen applicatiecode of gebruikersdata gewijzigd en geen GitHub Actions-run gestart.
+
+**Database en clean start**
+- De huidige database-initialisatie maakt uitsluitend standaardinstellingen aan; er is geen actieve productie-seed voor historische locaties, sessies, vangsten of benchmarkrecords.
+- De v5-migratie voert de expliciet goedgekeurde clean start uit en heeft een gerichte migratietest. Nieuwe sessies en vangsten blijven behouden bij herhaald initialiseren.
+- Verouderde comments spreken nog over een altijd aanwezige benchmark/historische seeding; deze zijn niet in overeenstemming met de huidige code.
+- De generieke `isBenchmark`-compatibiliteit is nog aanwezig in prognose/evaluatie, UI en veilige verwijdering. Dit is geen actieve seeding en kan voorlopig blijven om oude/importeerde records en fixtures veilig af te handelen.
+
+**Bevestigde backup-/importproblemen**
+1. Legacy-normalisatie vult `plannedSessions` en `coachAdviceRecords` niet standaard met lege arrays, terwijl de importinspectie beide verplicht stelt. Oudere formaten kunnen daardoor na normalisatie onterecht worden afgewezen.
+2. De payloadlimieten controleren deze twee tabellen niet op collectiegrootte, totale recordaantallen en recursieve veld-/nestingslimieten.
+3. Merge slaat benchmarklocaties en -sessies over, maar importeert prognosesnapshots alleen op ID. Een snapshot kan zo verwijzen naar een parent die tijdens dezelfde merge is overgeslagen.
+4. Volledig herstel wist de huidige database en schrijft de backup integraal terug. Benchmarkrecords worden niet uitgesloten; een backup van vóór de clean start kan dus oude sessies/vangsten opnieuw introduceren. Alleen `isBenchmark` filteren is onvoldoende, omdat oude persoonlijke registraties die vlag mogelijk niet hebben.
+5. De importpreview berekent wel `hasBenchmark`, maar toont dit niet. De gebruiker krijgt ook geen expliciete waarschuwing over een backup waarvan de clean-startstatus niet aantoonbaar is.
+
+**Testdekking**
+- De clean-startmigratietest dekt oude records, afhankelijke relaties, lege installatie en behoud van nieuwe records.
+- De roundtriptest dekt restore, merge-idempotentie en relaties binnen een backupbestand, maar niet het overslaan van parents tijdens merge of benchmarkbeveiliging tijdens restore.
+- De legacy-importtest controleert normalisatie en een simulatie, niet de volledige inspectie-/mergeketen.
+
+**Vervolg:** eerst een expliciet backupgeneratie-/clean-startcontract vastleggen, zodat oude backups niet ongemerkt historische data terugbrengen en nieuwe records na de migratie niet verloren gaan. Daarna in één codewerkstroom de legacy-normalisatie, payloadlimieten, relationele merge/restore-policy, previewwaarschuwingen en regressietests corrigeren. Zie `VISLOGBOEK_VERBETERPLAN.md` voor de volledige afhankelijkhedenaudit en scope.
+
+**Status fase 1:** afhankelijkhedenaudit grotendeels afgerond; codewerkstroom nog niet gestart. Issue #49 blijft open.
