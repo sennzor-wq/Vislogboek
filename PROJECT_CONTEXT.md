@@ -955,3 +955,8 @@ De bestaande tests dekken veel thermische, habitat-, wind- en ontbrekende-data-s
 De eerste soortgerichte literatuurverkenning is toegevoegd aan `FASE2_PROGNOSE_AUDIT.md` §7. Er zijn relevante studies gevonden over karpervoeding en temperatuur, zeelt- en meervalritmes, baars- en blankvoornactiviteit/habitat, brasem in winter en wetland, en snoek/snoekbaars/roofblei-beweging en habitatgebruik. De uitkomsten zijn niet onderling uitwisselbaar: telemetriebeweging, locomotorische activiteit, voedselopname, groei en vangbaarheid zijn verschillende responsvariabelen. De bestaande soortprofielgetallen zijn daarom nog niet gevalideerd door deze bronnen.
 
 De belangrijkste ontwerpconsequentie is dat tijdvakvoorkeuren en seizoensprioren hypotheses blijven totdat ze soort-, levensfase- en watertype-specifiek zijn getoetst. Het generieke profiel `Overig` mag geen soortspecifieke precisie suggereren. Fase 2 blijft audit; geen modelwaarden gewijzigd.
+
+
+### Parameterinventaris soortprofielen — 16 november 2026
+
+De bestaande thermische profielwaarden voor negen soorten plus de generieke fallback `Overig` zijn geïnventariseerd in `FASE2_PROGNOSE_AUDIT.md` §8. De huidige optimum-/breedtewaarden en tijdvakvoorkeuren zijn voorlopige modelaannames; de gevonden literatuur bevestigt niet automatisch de exacte getallen. Ook wind-, druk-, regen-, bewolkings- en seizoensvelden zijn heuristisch en dragen momenteel niet numeriek bij aan de activiteitsindex. Geen profielwaarden gewijzigd.

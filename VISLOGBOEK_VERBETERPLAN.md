@@ -490,3 +490,8 @@ De tweede read-only ronde heeft de gegevensstroom deels gevolgd van PrognosisVie
 De eerste literatuurverkenning per soort staat in [FASE2_PROGNOSE_AUDIT.md §7](FASE2_PROGNOSE_AUDIT.md). De bronnen ondersteunen soortspecifieke verschillen in voedingsritme, beweging, habitat en seizoensgedrag, maar meten verschillende uitkomsten en populaties. Ze valideren niet automatisch de bestaande numerieke thermische, wind-, druk- of seizoensparameters. Het generieke profiel `Overig` moet als fallback worden behandeld, niet als echte soort.
 
 **Volgende:** de bestaande profielwaarden en bronverwijzingen één voor één beoordelen, bewijsstatus toevoegen en de ontbrekende directe voedings-/veldbronnen aanvullen. Geen code of gewichten gewijzigd.
+
+
+### Fase 2 — parameterinventaris bestaande profielen (16 november 2026)
+
+De actuele thermische optimum-/breedtewaarden, code-optimum bereiken en voorkeursvakken voor negen soorten plus de fallback `Overig` zijn vastgelegd in [FASE2_PROGNOSE_AUDIT.md §8](FASE2_PROGNOSE_AUDIT.md). Dit zijn huidige codewaarden, geen gevalideerde biologische parameters. De bron-/responsvariabele moet per parameter worden vastgesteld voordat deze als modelinput kan worden vertrouwd. Geen waarden gewijzigd.

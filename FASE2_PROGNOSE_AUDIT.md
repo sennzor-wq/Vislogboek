@@ -272,3 +272,43 @@ De repository bevat testfixtures en code voor sessie-/vangsthistorie, maar de pe
 De literatuurverkenning is nog niet compleet voor alle factoren en soorten. Vooral directe veldstudies naar voedselopname/foerageren bij snoek, brasem, blankvoorn, snoekbaars en roofblei onder Nederlandse of vergelijkbare laaglandcondities blijven nodig. Ook onafhankelijke gegevens over drukverandering, wind, zuurstof, stroming, regen en interacties zijn nodig voordat die factoren numeriek kunnen bijdragen.
 
 **Conclusie:** er is voldoende bewijs om soortspecifieke verschillen en habitat-/tijdspatronen serieus te modelleren, maar niet om nu al betrouwbare vaste percentages of exacte responsgewichten te publiceren. De volgende stap is de bestaande parameter- en bronverwijzingen één voor één te auditen en per modeluitkomst een expliciete bewijsstatus toe te kennen.
+
+
+## 8. Parameterinventaris bestaande soortprofielen
+
+**Bron:** `src/services/fishProfiles.ts` op `main`, geverifieerd 16 november 2026. Dit is een inventaris van huidige codewaarden, geen goedkeuring van de biologische juistheid.
+
+| Profiel | Thermisch optimum (°C) | Koude-/warme breedte | Code-optimum bereik (°C) | Voorkeursvakken (heuristisch) |
+|---|---:|---:|---:|---|
+| Karper | 21,0 | 5,8 / 5,5 | 16–24 | Ochtend, avond, nacht |
+| Brasem | 17,5 | 6,2 / 5,8 | 12–21 | Ochtend, avond, nacht |
+| Snoek | 12,5 | 6,5 / 6,0 | 8–17 | Ochtend, middag, avond |
+| Baars | 16,5 | 6,0 / 5,5 | 11–20 | Ochtend, middag, avond |
+| Voorn | 15,0 | 6,5 / 6,0 | 10–19 | Ochtend, middag, avond |
+| Zeelt | 20,5 | 5,0 / 5,0 | 16–24 | Ochtend, avond |
+| Snoekbaars | 15,0 | 6,2 / 6,0 | 10–18 | Nacht, avond, ochtend |
+| Meerval | 22,0 | 5,0 / 5,0 | 18–26 | Nacht, avond |
+| Roofblei | 18,5 | 5,5 / 5,0 | 14–23 | Ochtend, middag, avond |
+| Overig (fallback) | 16,5 | 6,0 / 5,5 | 12–20 | Ochtend, avond |
+
+### 8.1 Wat de getallen technisch betekenen
+
+- `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` vormen de parameters voor de huidige asymmetrische Gaussische thermische respons.
+- De profielbreedtes bepalen hoe snel de theoretische thermische efficiëntie afneemt aan de koude en warme kant van het optimum.
+- De kolom 'code-optimum bereik' is een apart profielveld voor de uitlegtekst; dit is niet automatisch hetzelfde als een empirisch vastgesteld fysiologisch optimum of een vangstoptimum.
+- De voorkeursvakken zijn beschrijvende hypotheses. De huidige activiteitsscore kent er geen numerieke bonus aan toe.
+- De profielvelden voor windrichting, windsnelheidsdrempel, luchtdruksensitiviteit/-bereik, regen, bewolking en seizoensgewichten zijn eveneens voorlopig. Ze veranderen de huidige numerieke activiteitsscore niet.
+- Het profiel `Overig` gebruikt generieke waarden. Dit is een terugvaloptie wanneer de soort niet is gespecificeerd en geen soortspecifieke biologische voorspelling.
+
+### 8.2 Parameterbeoordeling
+
+Voor geen van de negen concrete soorten is in deze audit al aangetoond dat de huidige combinatie van optimum, koude-/warme breedte en code-optimum bereik rechtstreeks uit een geschikte veldstudie is afgeleid. De literatuurverkenning in §7 ondersteunt dat soortverschillen bestaan, maar bevat uiteenlopende meetuitkomsten en experimentele/veldcontexten. De huidige getallen blijven daarom **voorlopige modelaannames**.
+
+Vervolg per soort:
+1. traceer iedere parameter naar de exacte bron en de gemeten responsvariabele;
+2. noteer soort, levensfase, populatie, watertype, temperatuurgebied, onderzoeksopzet en beperkingen;
+3. bepaal of de bron activiteit, foerageren, groei, overleving of thermische voorkeur meet;
+4. gebruik geen groeidata als directe voedings- of vangstcurve zonder expliciet overdraagbaarheidsargument;
+5. waar directe data ontbreken: markeer de parameter als hypothese en toon hogere onzekerheid, in plaats van een preciezer getal te verzinnen.
+
+**Besluit:** geen enkele huidige profielwaarde wordt in deze audit aangepast. Eerst wordt de herkomst per parameter beoordeeld en een passende validatiebaseline vastgesteld.
