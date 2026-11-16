@@ -31,7 +31,9 @@ export function collectHistoricalWaterTemperatureObservations(
   for (const snapshot of snapshots) {
     if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
     if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
-        !snapshot.actualWaterTemperatureTimestamp) continue;
+        !snapshot.actualWaterTemperatureTimestamp || !Number.isFinite(Date.parse(snapshot.actualWaterTemperatureTimestamp)) ||
+        !snapshot.actualWaterTemperatureMeasurementSource || snapshot.actualWaterTemperatureMeasurementSource === 'unknown' ||
+        !snapshot.actualWaterTemperatureMeasurementMethod || snapshot.actualWaterTemperatureMeasurementMethod === 'unknown') continue;
     const location = locationById.get(snapshot.locationId);
     observations.push({
       locationId: snapshot.locationId,
@@ -46,12 +48,15 @@ export function collectHistoricalWaterTemperatureObservations(
   }
 
   for (const session of sessions) {
-    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number') continue;
+    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number' ||
+        !session.waterTemperatureMeasuredAt || !Number.isFinite(Date.parse(session.waterTemperatureMeasuredAt)) ||
+        !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
+        !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
     const location = locationById.get(session.locationId);
     observations.push({
       locationId: session.locationId,
       temperatureC: session.waterTemperature,
-      timestamp: session.startTime,
+      timestamp: session.waterTemperatureMeasuredAt,
       waterType: location?.waterType,
       waterDepth: session.waterDepth ?? location?.waterDepth,
       latitude: location?.latitude,
@@ -123,13 +128,15 @@ export function deriveHistoricalWaterTemperatureProfile(
   const seen = new Set<string>();
   const valid = observations.filter((observation) => {
     if (observation.isBenchmark === true) return false;
-    const key = `${observation.locationId}|${observation.timestamp}|${observation.temperatureC}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
     const measuredAt = new Date(observation.timestamp).getTime();
     if (!Number.isFinite(measuredAt) || measuredAt >= targetTime) return false;
     if (typeof observation.temperatureC !== 'number' || !Number.isFinite(observation.temperatureC) ||
         observation.temperatureC < 0 || observation.temperatureC > 35) return false;
+    // Normaliseer tijdzones zodat dezelfde fysieke meting uit sessie en snapshot
+    // niet dubbel telt door bijvoorbeeld Z versus +02:00.
+    const key = `${observation.locationId}|${measuredAt}|${observation.temperatureC}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     const measuredMonth = new Date(measuredAt).getMonth() + 1;
     return monthDistance(targetMonth, measuredMonth) <= 1;
   });

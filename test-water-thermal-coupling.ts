@@ -265,6 +265,9 @@ async function runTestSuite() {
     startTime: '2026-10-20T12:00:00',
     outcome: 'unknown',
     waterTemperature: 16.5,
+    waterTemperatureMeasuredAt: '2026-10-20T12:30:00',
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'thermometer',
     createdAt: '2026-10-20T12:00:00',
     updatedAt: '2026-10-20T12:00:00',
   };
@@ -315,6 +318,9 @@ async function runTestSuite() {
     startTime: '2026-10-21T12:00:00',
     outcome: 'unknown',
     waterTemperature: 15.0,
+    waterTemperatureMeasuredAt: '2026-10-21T12:00:00',
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'thermometer',
     createdAt: '2026-10-21T12:00:00',
     updatedAt: '2026-10-21T12:00:00',
   };
@@ -343,6 +349,33 @@ async function runTestSuite() {
     staleAnchorWithoutCoverage.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString() &&
     staleAnchorWithoutCoverage.weatherCoverageRatio === 0,
     '4.7b Herkomst, ouderdom en ontbrekende weersdekking blijven zichtbaar wanneer extrapolatie niet verantwoord is');
+
+
+  const sessionWithoutExactMeasurementTime = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    historicalSessions: [{
+      ...staleSameDaySession,
+      id: 'thermal-missing-measurement-time',
+      waterTemperatureMeasuredAt: undefined,
+    }],
+    currentDateRef: new Date('2026-10-23T12:00:00'),
+  });
+  assert(sessionWithoutExactMeasurementTime.anchorMeasurementTimestamp === null &&
+    sessionWithoutExactMeasurementTime.anchorAgeHours === null,
+    'Een sessietemperatuur zonder expliciet meettijdstip wordt niet stilzwijgend op sessiestart gedateerd');
+
+  const sessionWithUnknownMethod = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    historicalSessions: [{
+      ...staleSameDaySession,
+      id: 'thermal-unknown-measurement-method',
+      waterTemperatureMeasurementMethod: 'unknown',
+    }],
+    currentDateRef: new Date('2026-10-23T12:00:00'),
+  });
+  assert(sessionWithUnknownMethod.anchorMeasurementTimestamp === null &&
+    sessionWithUnknownMethod.anchorAgeHours === null,
+    'Een sessiemeting met onbekende meetmethode wordt niet als thermisch anker gebruikt');
 
   const noThermalData = analyzeWaterThermalDevelopment('2026-10-23', [], {
     location: locLokkershoek,

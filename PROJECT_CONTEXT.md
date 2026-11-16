@@ -994,3 +994,10 @@ De `scientificReferences` in `fishProfiles.ts` blijven profielgebonden verwijzin
 - `FASE2_PROGNOSE_AUDIT.md` §8 — profielbetekenis, voorlopige status en bewijsbeperkingen zonder gekopieerde parameterwaarden.
 
 Deze wijziging is documentatie-only. Geen profielwaarden, bronnen, modeluitkomsten, gebruikersgegevens of app-code zijn gewijzigd.
+
+
+## Fase 2 — watertemperatuur meettijd/provenance-fix (16 november 2026)
+
+De historische temperatuurketen gebruikt voortaan uitsluitend het expliciete sessieveld `waterTemperatureMeasuredAt`; `session.startTime` wordt niet langer als vervangend meetmoment gebruikt. Sessie- en snapshotwaarnemingen worden alleen toegelaten wanneer het meettijdstip parsebaar is en zowel herkomst als meetmethode bekend zijn. Oudere records zonder die metadata blijven behouden, maar leveren geen thermisch anker of historische profielwaarneming totdat ze correct zijn aangevuld. Dit volgt de bestaande UI-uitleg en het typecontract.
+
+Deduplicatie van historische sessie-/snapshotmetingen vergelijkt het absolute tijdstip, zodat equivalente ISO-notaties met verschillende tijdzone-offsets niet dubbel tellen. Regressietests dekken de expliciete meettijd, ontbrekende meettijd, onbekende bron/methode, benchmarkuitsluiting en dubbele snapshot-/sessiewaarneming. De code- en testwijzigingen zijn vastgelegd met `[skip ci]`; tests/build zijn niet als uitgevoerd of geslaagd geregistreerd. Fase 2 blijft open.

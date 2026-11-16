@@ -61,8 +61,11 @@ export function analyzeWaterThermalDevelopment(
     for (const session of historicalSessions) {
       if (session.locationId !== location.id || session.isBenchmark === true) continue;
       if (typeof session.waterTemperature !== 'number' || !Number.isFinite(session.waterTemperature) ||
-          session.waterTemperature < 0 || session.waterTemperature > 35) continue;
-      const timestampMs = new Date(session.startTime).getTime();
+          session.waterTemperature < 0 || session.waterTemperature > 35 ||
+          !session.waterTemperatureMeasuredAt || !Number.isFinite(Date.parse(session.waterTemperatureMeasuredAt)) ||
+          !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
+          !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
+      const timestampMs = new Date(session.waterTemperatureMeasuredAt).getTime();
       if (!Number.isFinite(timestampMs)) continue;
       measurementCandidates.push({ temperature: session.waterTemperature, timestampMs, source: 'session' });
     }

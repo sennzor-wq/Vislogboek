@@ -1,6 +1,6 @@
-import { deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './src/services/waterTemperatureHistory';
+import { collectHistoricalWaterTemperatureObservations, deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './src/services/waterTemperatureHistory';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { FishingLocation, WeatherHourlyForecast } from './src/types';
+import { FishingLocation, FishingSession, PrognosisSnapshot, WeatherHourlyForecast } from './src/types';
 
 let passed = 0;
 let failed = 0;
@@ -18,6 +18,60 @@ const target: FishingLocation = {
   createdAt: '',
   updatedAt: '',
 };
+
+
+const makeMeasuredSession = (
+  id: string,
+  startTime: string,
+  measuredAt: string | undefined,
+  temperature: number,
+  method: FishingSession['waterTemperatureMeasurementMethod'] = 'thermometer',
+  source: FishingSession['waterTemperatureMeasurementSource'] = 'manual',
+  isBenchmark = false,
+): FishingSession => ({
+  id,
+  locationId: target.id,
+  startTime,
+  outcome: 'unknown',
+  waterTemperature: temperature,
+  waterTemperatureMeasuredAt: measuredAt,
+  waterTemperatureMeasurementSource: source,
+  waterTemperatureMeasurementMethod: method,
+  isBenchmark,
+  createdAt: startTime,
+  updatedAt: startTime,
+} as unknown as FishingSession);
+
+const measuredSessions = [
+  makeMeasuredSession('session-a', '2026-06-10T08:00:00Z', '2026-06-10T10:00:00+02:00', 14),
+  makeMeasuredSession('session-b', '2026-06-20T08:00:00Z', '2026-06-20T10:00:00+02:00', 15),
+  makeMeasuredSession('session-c', '2026-07-01T08:00:00Z', '2026-07-01T10:00:00+02:00', 16),
+  makeMeasuredSession('session-no-time', '2026-06-25T10:00:00Z', undefined, 34),
+  makeMeasuredSession('session-unknown-method', '2026-06-26T10:00:00Z', '2026-06-26T10:00:00Z', 33, 'unknown'),
+  makeMeasuredSession('session-unknown-source', '2026-06-27T10:00:00Z', '2026-06-27T10:00:00Z', 32, 'thermometer', 'unknown'),
+  makeMeasuredSession('session-benchmark', '2026-06-28T10:00:00Z', '2026-06-28T10:00:00Z', 35, 'thermometer', 'manual', true),
+];
+const duplicateSnapshot = {
+  id: 'snapshot-session-a',
+  locationId: target.id,
+  linkedSessionId: 'session-a',
+  actualWaterTemperature: 14,
+  actualWaterTemperatureTimestamp: '2026-06-10T08:00:00Z',
+  actualWaterTemperatureMeasurementSource: 'manual',
+  actualWaterTemperatureMeasurementMethod: 'thermometer',
+} as unknown as PrognosisSnapshot;
+const collectedMeasurements = collectHistoricalWaterTemperatureObservations(
+  measuredSessions,
+  [duplicateSnapshot],
+  [target],
+);
+assert(collectedMeasurements.length === 4,
+  'Alleen sessie- en snapshotmetingen met exact meetmoment en bekende herkomst/methode worden verzameld');
+assert(collectedMeasurements.find((item) => item.locationId === target.id && item.temperatureC === 14)?.timestamp === '2026-06-10T10:00:00+02:00',
+  'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
+const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
+assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
+  'Een sessie- en snapshotkopie van dezelfde meting telt door tijdzone-normalisatie slechts eenmaal');
 
 const localHistory: HistoricalWaterTemperatureObservation[] = [
   { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z' },
