@@ -335,3 +335,8 @@ De primaire publicatie van Bezmaternykh & Shcherbina (2018) is nader gecontrolee
 De sessiecoach voegt een compacte biologische context toe vanuit `feedingEvidenceService` en `dielBehaviorEvidenceService`. Directe voedingsritmestudies worden onderscheiden van voedingsintensiteit zonder dagritme en van beweging/habitat/dieet. Wanneer levensfase en lokale voedselcontext onbekend zijn, wordt geen vaste tijdvakvoorkeur afgeleid. Er worden geen brongewichten, tijdvakbonussen of vangstkansen toegevoegd.
 
 Ook opgeslagen sessieadviezen krijgen voortaan het tijdvak uit de echte sessie-start/eindtijd. Een sessie die meerdere tijdvakken bestrijkt krijgt geen globale dagwinnaar. De planweergave en het opgeslagen coachadvies volgen daarmee dezelfde selectie-regel.
+
+
+## 34. Karper: temperatuur- en kloktijd uit de 2012-studie niet als veldvoorkeur behandelen
+
+Chen et al. (2012) rapporteerden bij de ondersoort `Cyprinus carpio haematopterus` ochtend- en avondpieken in experimentele voedselopname bij volwassen (630–850 g) en jonge (61–91 g) vissen. Bij lage temperaturen verschoof/breidde het avondinterval uit; bij 6 °C bleef de opname zeer laag. Dit is directe voedselopname, maar niet hetzelfde als natuurlijke veldactiviteit of vangbaarheid. De abstract is gecontroleerd; volledige methodedetails moeten nog worden geverifieerd. Geen numerieke tijdvakbonus of overdracht naar alle levensfasen/populaties.

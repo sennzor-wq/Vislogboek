@@ -328,9 +328,12 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Karper'],
     application: 'biology',
     evidenceStrength: 'limited',
-    summary: 'Een experimentele studie naar gewone karper rapporteerde dagritmische voedselopname met pieken in de ochtend en avond over een breed getest temperatuurbereik. Bij lage watertemperatuur nam de totale voedselopname sterk af, terwijl het dagritme niet volledig verdween.',
+    summary: 'Een experimentele studie naar de Aziatische ondersoort Cyprinus carpio haematopterus testte voedselopname bij 4–34 °C bij volwassen karpers van 630–850 g en jonge vissen van 61–91 g. In de samenvatting worden twee voedingspieken genoemd: 08:00–11:00 en 19:00–23:00. Onder 10 °C verschoof de avondpiek naar een breder interval tot 04:00; bij 6 °C bleef de gemeten voedselopname zeer laag. De dagelijkse opname was het hoogst bij 28 °C en nam bij 34 °C weer af.',
     limitations: [
-      'De onderzochte ondersoort, populatie en gecontroleerde omstandigheden zijn niet zonder meer representatief voor alle Nederlandse karperpopulaties en natuurlijke wateren.',
+      'De onderzochte ondersoort is Cyprinus carpio haematopterus; de uitkomsten zijn niet zonder meer overdraagbaar op alle Europese/Nederlandse karperpopulaties.',
+      'De samenvatting noemt twee gewichtsklassen (volwassen 630–850 g; jong 61–91 g), maar geeft geen basis om de respons te generaliseren naar alle levensfasen of grote wilde karpers.',
+      'De hier gecontroleerde gegevens zijn afkomstig uit het gepubliceerde abstract; experimentele tank-/voeropzet, acclimatisatieduur, lichtregime en replicatie moeten in de volledige publicatie worden nagegaan voordat de studie zwaarder wordt gewogen.',
+      'De gemelde kloktijden zijn experimentele voedingspieken en geen veldwaarneming van natuurlijke foerageeractiviteit of hengelvangbaarheid.',
       'De studie ondersteunt dat voedselopname temperatuur- en tijdsafhankelijk kan zijn, maar valideert niet de huidige vaste tijdvakbonus of de precieze profielcurves.',
       'Een tijdstipvoorkeur mag pas als numerieke scorefactor worden gebruikt na passende soort-, seizoen- en watertypevalidatie.'
     ],
