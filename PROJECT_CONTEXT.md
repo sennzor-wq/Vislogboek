@@ -1062,3 +1062,8 @@ De commitconventie is afhankelijk van de zichtbaarheid van de repository en de b
 - **Repository staat op private maar er zijn nog CI-credits:** `[skip ci]` is niet automatisch vereist; kies bewust op basis van de gewenste validatie en het resterende budget.
 
 Controleer de actuele repositoryzichtbaarheid en credit-situatie voordat je de commitmessage kiest. Deze afspraak geldt voor toekomstige commits; bestaande commitberichten worden niet herschreven. Bundel samenhangende repositorywijzigingen steeds in één enkele commit.
+
+
+### Fase 2 — handmatige watertemperatuur als reproduceerbare invoer (16 november 2026)
+
+`PrognosisInputContext` bevat nu een afzonderlijk `manualWaterTemperatureInput`-object voor de actuele handmatige invoer. Het bewaart de temperatuur en het registratiemoment van de prognoserun; een onbekend fysiek meettijdstip, meetmethode of meetdiepte blijft expliciet onbekend en wordt niet afgeleid uit het registratiemoment. Zowel de prognoseweergave/sessiestart als de live sessiestart-builder gebruiken dit contract. Coach-herbeoordeling markeert het veld expliciet als niet van toepassing omdat de sessiemeting via de historische meetprovenance loopt. De volledige context valt mee in de inputfingerprint. Regressiechecks zijn toegevoegd; de CI-uitkomst moet na merge worden gecontroleerd. Resterend: compacte replaybare featurewaarden voor historische sessies, vangsten en waarnemingen.
