@@ -232,7 +232,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Benjamin, C., Hill, J. & Ricciardi, A. (2026). Thermal effects on feeding efficiency and body condition in invasive and native benthivorous freshwater fishes. Biological Invasions, 28, 51. https://doi.org/10.1007/s10530-026-03767-w (experimentele voedselopname; beperkte overdraagbaarheid naar Nederlandse veldsituaties)',
       'Neophitou, C. (1993) Some biological data on tench (Tinca tinca L.) in Lake Pamvotis, Greece.',
       'Bryant, P. et al. (1980) Aquaculture of cyprinids: Environmental requirements and feeding of tench.',
-      'Bezmaternykh, V.V. & Shcherbina, G.K. (2018). Feeding of Tench Tinca tinca in a Small Eutrophic Water Body. Journal of Ichthyology, 58(4), 545–551. https://doi.org/10.1134/S003294521804001X (één klein water; voedingspieken 18–21 en 00–03)',
+      'Bezmaternykh, V.V. & Shcherbina, G.K. (2018). Feeding of Tench Tinca tinca (Cyprinidae) in a Small Eutrophic Water Body. Journal of Ichthyology, 58(4), 545–551. https://doi.org/10.1134/S003294521804001X (90 vissen, 66 met voedsel; één 1,9-ha water; 3-uurs bemonstering; pieken 18–21 en 00–03)',
     ],
     optimalTempRange: [16, 24],
     tolerableTempRange: [11, 27],
