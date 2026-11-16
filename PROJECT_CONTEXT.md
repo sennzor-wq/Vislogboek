@@ -1124,3 +1124,12 @@ De Quality Gate op de PR-head [#43934137768](https://github.com/sennzor-wq/Vislo
 De per-soort toepasbaarheidsmatrix staat in [FASE2_PROGNOSE_AUDIT.md §13](FASE2_PROGNOSE_AUDIT.md). Kernbesluit: alleen bronnen met expliciet gemeten voedselopname/-ritme mogen zulke kwalitatieve claims dragen; foraginggedrag blijft een aparte claim; dieet/prooikeuze is uitsluitend dieetcontext; telemetrie/habitat en groei zijn geen voedingsproxy. Roofblei heeft momenteel geen directe dagelijkse voedingsintensiteitsbron; Overig heeft geen soortspecifieke dekking. Alle bronnen blijven `approvedForPrediction: false` en mogen geen numerieke score of tijdvakrangschikking beïnvloeden.
 
 **Volgende actie:** pure, geteste service bouwen die per soort alleen de brongebonden kwalitatieve claims teruggeeft die de `ResearchOutcome`-classificatie ondersteunt. Daarna pas een beperkte UI-presentatie als biologische onderzoekscontext, zonder effect op activiteitsindex of persoonlijke vangstkans.
+
+
+### Fase 2 — pure kwalitatieve voedingsbewijsservice (16 november 2026)
+
+PR [#56](https://github.com/sennzor-wq/Vislogboek/pull/56) is gemerged als [d10e33e](https://github.com/sennzor-wq/Vislogboek/commit/d10e33e4005ab782e1fdbb80aa5457e546ed6f42). `feedingEvidenceService.ts` bundelt per soort direct gemeten voedselopname, voedingsritme, foraginggedrag, dieet en prooikeuze. Alleen expliciet goedgekeurde voedingsbronnen komen in de aparte `approvedFeedingEvidence`-collectie. De service is puur en verandert geen prognose, score, vangstkans of UI.
+
+Quality Gate op de PR-head [#43934866369](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934866369) is volledig groen. De Quality Gate op de mergecommit moet nog worden bevestigd.
+
+**Volgende actie:** review het outputcontract en de veilige UI-presentatie als brongebonden onderzoekscontext (geen voedingsvoorspelling). Pas daarna beperkte UI-integratie toe, zonder numerieke factor of wijziging van de bestaande activiteitsindex/vangkans.

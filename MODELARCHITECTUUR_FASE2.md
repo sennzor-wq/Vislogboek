@@ -162,3 +162,12 @@ De eerste toepassingsmatrix is vastgelegd in `FASE2_PROGNOSE_AUDIT.md §13`. De 
 5. `growth` / `feeding_physiology`: groeicontext of gecontroleerde fysiologische respons; niet rechtstreeks als veldvoedingsritme toepassen.
 
 Zolang alle relevante bronnen `approvedForPrediction: false` hebben, is deze service informatief en kwalitatief. Ze mag geen `activityScore`, `personalCatchChance`, factorweging of tijdvakrangschikking wijzigen. De eerste code-stap is een pure service met tests voor de toegestane claims en negatieve gevallen (in het bijzonder Roofblei: dieet wel, dagelijkse voedingsintensiteit niet). UI-integratie volgt pas na die service-review.
+
+
+## 11. Eerste kwalitatieve voedingsbewijsservice
+
+De pure service `src/services/feedingEvidenceService.ts` is toegevoegd en gemerged in PR [#56](https://github.com/sennzor-wq/Vislogboek/pull/56). Per soort worden vijf bewijsstromen afzonderlijk teruggegeven: gemeten voedselopname, voedingsritme, foraginggedrag, dieetcompositie en prooikeuze. De service maakt daarnaast alleen expliciet goedgekeurde voedingsbronnen beschikbaar in een aparte collectie.
+
+Dit is nog geen voorspellingslaag: de service wijzigt geen activiteit, vangstkans, tijdvakscore of UI. Alle huidige bronnen blijven niet-goedgekeurd. De PR Quality Gate [#43934866369](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934866369) is volledig groen.
+
+**Volgende stap:** review het consumentencontract en bepaal hoe een beperkte, brongebonden onderzoekscontext in de prognose-UI wordt weergegeven zonder de indruk te wekken dat er al een gekalibreerde voedingsprognose bestaat. Pas na die review UI-integratie uitvoeren; geen numerieke factor activeren.
