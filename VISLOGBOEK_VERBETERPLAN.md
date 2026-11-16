@@ -469,3 +469,10 @@ De fase-1-acceptatie is gebaseerd op:
 ### Fase 2 — eerste code-audit (16 november 2026)
 
 De eerste read-only inspectie is vastgelegd in [FASE2_PROGNOSE_AUDIT.md](FASE2_PROGNOSE_AUDIT.md). Bevestigd: de huidige activiteitsindex wordt uitsluitend numeriek gestuurd door de soortspecifieke thermische respons; wind, luchtdruk, seizoen, tijdstip/licht, bewolking en neerslag zijn uitlegbare context zonder scorebijdrage. De bestaande habitatbewegingsengine gebruikt deze context juist voor ruimtelijke/habitatinschatting. De soortprofielen bevatten voorlopige parameters en heuristische velden; hun bronnen bewijzen niet automatisch de numerieke modelwaarden. Volgende stap is de volledige factor → code → UI → data → testmatrix en controle van de scoreketen wanneer watertemperatuur ontbreekt. Er zijn nog geen modelwijzigingen uitgevoerd.
+
+
+### Fase 2 — ontwerpdoel en auditbesluit (16 november 2026)
+
+De producteigenaar heeft het doelbeeld bevestigd: een soortspecifiek biologisch model dat activiteit, voedselzoekgedrag en habitat-/locatiekeuze afzonderlijk beoordeelt en die uitkomsten uitlegbaar samenbrengt. De zeven factorfamilies en architectuur zijn vastgelegd in [FASE2_PROGNOSE_AUDIT.md §5](FASE2_PROGNOSE_AUDIT.md). Voorbeeldpercentages zijn illustratief, geen implementatiegewichten. Geen universele soortweging, geen arbitraire bonussen en geen vangstkans afleiden uit alleen activiteit.
+
+**Status blijft:** fase 2 — audit en factorinventarisatie. Volgende werkstap: volledige code → UI → snapshot → testmatrix, bron-/parameterbeoordeling per soort en inventarisatie van echte evaluatiedata. Pas na die audit volgt een toetsbaar kandidaatmodel met baseline; daarna pas implementatie.

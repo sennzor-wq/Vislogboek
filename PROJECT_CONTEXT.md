@@ -926,3 +926,16 @@ Generieke `isBenchmark`-compatibiliteit blijft behouden voor oude/ingevoerde rec
 De eerste read-only bevindingen staan in [FASE2_PROGNOSE_AUDIT.md](FASE2_PROGNOSE_AUDIT.md). De bestaande activiteitsindex in `prognosisEngine.ts` wordt numeriek alleen door de soortspecifieke thermische efficiëntie bepaald. Wind, druk, seizoen, tijdstip/licht, bewolking en neerslag zijn context; de aparte `habitatMovementEngine.ts` gebruikt wind-, thermiek-, locatie- en waarnemingscontext voor ruimtelijke inschatting. De profielen in `fishProfiles.ts` bevatten voorlopige thermische parameters en heuristische voorkeuren; bronvermeldingen ondersteunen niet automatisch exacte numerieke parameters.
 
 Fase 2 blijft in audit totdat de volledige factor-/blueprintmatrix, UI-/snapshotketen, ontbrekende-temperatuurafhandeling, tests en beschikbare echte evaluatiedata zijn gecontroleerd. Er zijn nog geen modelgewichten gewijzigd en geen engine toegevoegd.
+
+
+## Fase 2 — ontwerpdoel biologisch prognosemodel (16 november 2026)
+
+De producteigenaar heeft bevestigd dat het doel een biologisch onderbouwd, soortspecifiek model is, niet een prognose die uitsluitend op watertemperatuur leunt. Het ontwerp en de auditcriteria staan in `FASE2_PROGNOSE_AUDIT.md` §5.
+
+Het model moet drie afzonderlijke grootheden schatten: (1) totale activiteit, (2) voedselzoek-/foerageeractiviteit en (3) habitat-/locatiegeschiktheid. Een vangstverwachting is een aparte downstream-uitkomst waarin ook sessieduur, methode, presentatie, aas/voer en visserijinspanning meetellen. Geen van deze grootheden mag zonder onderbouwing als synoniem voor een andere worden gebruikt.
+
+De zeven illustratieve factorfamilies zijn: watertemperatuur/verloop; wind/waterbeweging; seizoen/levenscyclus; licht/dag-nachtritme; luchtdruk/verandering; neerslag/weersverandering; zuurstof/stroming/overige watercondities. Eventuele percentages uit een voorbeeld zijn uitsluitend conceptueel en mogen niet als implementatiegewichten worden behandeld. Per soort worden respons, habitat, tijdsvenster, drempels, interacties en onzekerheid afzonderlijk onderbouwd.
+
+Architectuurprincipe: omgevingsdata → soortspecifieke biologische respons → activiteit/foerageren → habitat/beweging → lokale leerlaag → betrouwbaarheid/ onzekerheid. Bestaande engines worden hergebruikt; geen dubbele engine. Factoren mogen interacties hebben en hoeven niet in een simpele gewogen som te passen. Ontbrekende gegevens blijven expliciet onbekend of onzeker.
+
+**Status:** ontwerpdoel vastgelegd; fase 2 blijft audit. Er zijn nog geen gewichten, modelgedragingen of app-code gewijzigd en er is nog geen biologische prestatieverbetering aangetoond.
