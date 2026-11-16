@@ -278,33 +278,22 @@ De literatuurverkenning is nog niet compleet voor alle factoren en soorten. Voor
 
 ## 8. Parameterinventaris bestaande soortprofielen
 
-**Bron:** `src/services/fishProfiles.ts` op `main`, geverifieerd 16 november 2026. Dit is een inventaris van huidige codewaarden, geen goedkeuring van de biologische juistheid.
+**Canonieke bron:** `src/services/fishProfiles.ts` op `main`. Dit bestand is de enige operationele bron van waarheid voor soortprofielwaarden en de thermische responsfunctie.
 
-| Profiel | Thermisch optimum (°C) | Koude-/warme breedte | Code-optimum bereik (°C) | Voorkeursvakken (heuristisch) |
-|---|---:|---:|---:|---|
-| Karper | 21,0 | 5,8 / 5,5 | 16–24 | Ochtend, avond, nacht |
-| Brasem | 17,5 | 6,2 / 5,8 | 12–21 | Ochtend, avond, nacht |
-| Snoek | 12,5 | 6,5 / 6,0 | 8–17 | Ochtend, middag, avond |
-| Baars | 16,5 | 6,0 / 5,5 | 11–20 | Ochtend, middag, avond |
-| Voorn | 15,0 | 6,5 / 6,0 | 10–19 | Ochtend, middag, avond |
-| Zeelt | 20,5 | 5,0 / 5,0 | 16–24 | Ochtend, avond |
-| Snoekbaars | 15,0 | 6,2 / 6,0 | 10–18 | Nacht, avond, ochtend |
-| Meerval | 22,0 | 5,0 / 5,0 | 18–26 | Nacht, avond |
-| Roofblei | 18,5 | 5,5 / 5,0 | 14–23 | Ochtend, middag, avond |
-| Overig (fallback) | 16,5 | 6,0 / 5,5 | 12–20 | Ochtend, avond |
+De negen concrete soortprofielen en de generieke fallback `Overig` bevatten de thermische parameters, beschrijvende tijdvakvoorkeuren en overige voorlopige omgevingsvoorkeuren. De actuele waarden worden bewust niet nogmaals als tabel in deze audit gekopieerd: raadpleeg altijd het bronbestand zelf om verouderde documentatie te voorkomen.
 
-### 8.1 Wat de getallen technisch betekenen
+### 8.1 Wat de profielvelden betekenen
 
 - `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` vormen de parameters voor de huidige asymmetrische Gaussische thermische respons.
 - De profielbreedtes bepalen hoe snel de theoretische thermische efficiëntie afneemt aan de koude en warme kant van het optimum.
-- De kolom 'code-optimum bereik' is een apart profielveld voor de uitlegtekst; dit is niet automatisch hetzelfde als een empirisch vastgesteld fysiologisch optimum of een vangstoptimum.
-- De voorkeursvakken zijn beschrijvende hypotheses. De huidige activiteitsscore kent er geen numerieke bonus aan toe.
-- De profielvelden voor windrichting, windsnelheidsdrempel, luchtdruksensitiviteit/-bereik, regen, bewolking en seizoensgewichten zijn eveneens voorlopig. Ze veranderen de huidige numerieke activiteitsscore niet.
-- Het profiel `Overig` gebruikt generieke waarden. Dit is een terugvaloptie wanneer de soort niet is gespecificeerd en geen soortspecifieke biologische voorspelling.
+- Het code-optimum bereik is een apart profielveld voor de uitlegtekst; het is niet automatisch hetzelfde als een empirisch vastgesteld fysiologisch optimum of een vangstoptimum.
+- Voorkeursvakken zijn beschrijvende hypotheses. De huidige activiteitsscore kent er geen numerieke bonus aan toe.
+- Windrichting, windsnelheidsdrempel, luchtdruksensitiviteit/-bereik, regen, bewolking en seizoensvelden blijven voorlopig en veranderen de huidige numerieke activiteitsscore niet.
+- Het profiel `Overig` is uitsluitend een generieke terugvaloptie en geen soortspecifieke biologische voorspelling.
 
 ### 8.2 Parameterbeoordeling
 
-Voor geen van de negen concrete soorten is in deze audit al aangetoond dat de huidige combinatie van optimum, koude-/warme breedte en code-optimum bereik rechtstreeks uit een geschikte veldstudie is afgeleid. De literatuurverkenning in §7 ondersteunt dat soortverschillen bestaan, maar bevat uiteenlopende meetuitkomsten en experimentele/veldcontexten. De huidige getallen blijven daarom **voorlopige modelaannames**.
+Voor geen van de negen concrete soorten is in deze audit aangetoond dat de huidige combinatie van thermisch optimum, koude-/warme breedte en code-optimum bereik rechtstreeks uit een geschikte veldstudie is afgeleid. De literatuurverkenning in §7 ondersteunt dat soortverschillen bestaan, maar bevat uiteenlopende meetuitkomsten en experimentele/veldcontexten. De huidige getallen blijven daarom **voorlopige modelaannames**.
 
 Vervolg per soort:
 1. traceer iedere parameter naar de exacte bron en de gemeten responsvariabele;
@@ -313,7 +302,7 @@ Vervolg per soort:
 4. gebruik geen groeidata als directe voedings- of vangstcurve zonder expliciet overdraagbaarheidsargument;
 5. waar directe data ontbreken: markeer de parameter als hypothese en toon hogere onzekerheid, in plaats van een preciezer getal te verzinnen.
 
-**Besluit:** geen enkele huidige profielwaarde wordt in deze audit aangepast. Eerst wordt de herkomst per parameter beoordeeld en een passende validatiebaseline vastgesteld.
+**Besluit:** geen profielwaarde wordt aangepast op basis van deze inventaris. De waarden blijven uitsluitend in `fishProfiles.ts`; de audit registreert betekenis, status en bewijsbeperkingen, niet een tweede kopie van de parameters.
 
 
 ## 9. Habitat-, wind- en positioneringsketen

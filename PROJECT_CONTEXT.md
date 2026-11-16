@@ -976,3 +976,21 @@ De hercontrole vond dat waterTemperatureMeasuredAt wel in het sessietype bestaat
 
 
 De SessionModal biedt meetdatum/-tijd voor watertemperatuur als optioneel handmatig veld en vult dit niet automatisch. Ontbrekende meettijdstippen zijn daardoor een normale mogelijke invoerstatus. De fallback moet expliciet en onzekerheidsbewust worden ontworpen; session.startTime mag niet stilzwijgend als exact meetmoment gelden. Zie FASE2_PROGNOSE_AUDIT.md §10.
+
+
+## Fase 2 — canonieke biologische bronnen en documentatieafspraak (16 november 2026)
+
+De validatie op `main` bevestigt dat de bestaande soortprofielen al aanwezig zijn en worden hergebruikt. **`src/services/fishProfiles.ts` is de enige operationele bron van waarheid** voor de negen concrete soorten plus de generieke fallback `Overig`, inclusief thermische parameters, tijdvakvelden en overige voorlopige profielvoorkeuren. Er wordt geen tweede soortprofielbestand of parallelle parametercatalogus aangemaakt.
+
+Het bestaande **`src/services/researchRegistry.ts`** is het centrale wetenschappelijke kennisregister. Het registreert onderwerp, relevante soorten, toepassingsgebied, bewijssterkte, samenvatting, beperkingen, bronverwijzingen, beoordelingsdatum en expliciete goedkeuring voor voorspellingsgebruik. Een bronregistratie betekent niet automatisch dat een factor numeriek in het model mag worden gebruikt. De bestaande `test-research-registry.ts` controleert onder meer de registerfuncties, soortgerichte bewijsopvraging en bronkoppelingen naar bestaande soortprofielen.
+
+De `scientificReferences` in `fishProfiles.ts` blijven profielgebonden verwijzingen voor traceerbaarheid; de inhoudelijke bewijsbeoordeling blijft in `researchRegistry.ts`. Auditdocumenten mogen waarden en bewijsstatus analyseren, maar zijn geen runtimebron. De parameterwaardentabel uit audit §8 is daarom vervangen door een verwijzing naar de canonieke codebron, zodat waarden niet op twee plekken hoeven te worden bijgehouden.
+
+**Gevalideerde bronbestanden:**
+- `src/services/fishProfiles.ts` — operationele soortprofielen.
+- `src/services/researchRegistry.ts` — centraal wetenschappelijk register.
+- `test-research-registry.ts` — bestaande regressiechecks voor register en bronkoppelingen.
+- `MODELARCHITECTUUR_FASE2.md` — modelkeuze en verantwoordelijkheden.
+- `FASE2_PROGNOSE_AUDIT.md` §8 — profielbetekenis, voorlopige status en bewijsbeperkingen zonder gekopieerde parameterwaarden.
+
+Deze wijziging is documentatie-only. Geen profielwaarden, bronnen, modeluitkomsten, gebruikersgegevens of app-code zijn gewijzigd.

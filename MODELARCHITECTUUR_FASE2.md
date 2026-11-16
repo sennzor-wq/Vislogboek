@@ -36,6 +36,15 @@ Deze bronnen onderbouwen de modelstructuur en de noodzaak van soort-/contextspec
 
 ## 4. Gekozen architectuur
 
+### Canonieke bronnen en geen dubbele profieladministratie
+
+- `src/services/fishProfiles.ts` is de enige operationele bron van waarheid voor soortprofielen, profielparameters en de thermische soortrespons. Nieuwe of herziene profielwaarden worden uitsluitend daar aangepast.
+- `src/services/researchRegistry.ts` is het centrale register voor wetenschappelijke kennis, bewijssterkte, beperkingen, bronverwijzingen en expliciete goedkeuring voor eventueel voorspellingsgebruik. Een registratie activeert niet automatisch een modelregel.
+- De `scientificReferences` binnen een soortprofiel zijn traceerbaarheidsverwijzingen bij dat profiel; ze vormen geen tweede verzameling biologische parameterwaarden of een alternatieve bron van bewijsbeoordeling.
+- Audit- en architectuurdocumenten beschrijven bevindingen en besluiten, maar kopiëren geen volledige parameterlijsten. Bij verschil is de actuele codebron leidend voor operationele waarden en het research register leidend voor de geregistreerde bewijsbeoordeling.
+- `src/services/prognosisEngine.ts` consumeert de bestaande profielen; het mag geen eigen tweede soortprofielcatalogus introduceren.
+
+
 ### Laag A — fysiologische activiteitspotentie
 - Hergebruik `calculateThermalEfficiency()` en de bestaande waterthermische engine.
 - De thermische respons wordt per soort onderbouwd en waar nodig herzien.
