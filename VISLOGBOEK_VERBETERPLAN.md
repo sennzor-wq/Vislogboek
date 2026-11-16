@@ -448,6 +448,6 @@ Fase 1 wordt uitgevoerd volgens de bestaande scope en acceptatiecriteria in dit 
 - In `src/db/db.ts` zijn comments bijgewerkt: de initializer richt alleen lokale database-/standaardinstellingen in; er is geen beschermde benchmark of historische seeding in het normale initialisatiepad.
 - In `src/services/backupService.ts` is de hard-coded `isLokkershoek19 = false`-vertakking verwijderd. De legacy-import gebruikt nu rechtstreeks de bestaande `spot_id` en `spot_name`/locatienaam. Omdat de conditie altijd false was, verandert dit geen importuitkomst en wordt geen locatie-ID herschreven.
 - Generieke `isBenchmark`-ondersteuning en bescherming van records met die vlag blijven bewust behouden.
-- Validatie van deze codewijziging volgt via de volledige GitHub Quality Gate; deze wijziging is nog niet als getest of afgerond aangemerkt.
+- De volledige GitHub Quality Gate wordt op deze bijgewerkte `main`-versie uitgevoerd; tot de uitslag beschikbaar is, blijft deze codewijziging in validatie.
 
 **Volgende:** na de Quality Gate de resterende fase-1-acceptatiepunten nalopen, met speciale aandacht voor parent-child-relaties in merge/restore en veilige verwijdering. Daarna fase 1 formeel beoordelen.

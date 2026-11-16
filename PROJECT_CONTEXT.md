@@ -910,6 +910,6 @@ De app-level handmatige controle (in de app een sessie maken, backup exporteren 
 
 Op `main` is de dode legacy-vertakking `isLokkershoek19 = false` verwijderd uit backupnormalisatie. De import gebruikt rechtstreeks de al bestaande locatie-ID en locatienaam uit de backup. De importuitkomst verandert hierdoor niet; er wordt geen Lokkershoek-locatie aangemaakt of verwijderd. De database-initialisatiecomments zijn in overeenstemming gebracht met het werkelijke gedrag: alleen standaardinstellingen worden geïnitialiseerd, geen benchmark- of historische records.
 
-Generieke `isBenchmark`-compatibiliteit blijft behouden voor oude/ingevoerde records en veilige verwijdering. De wijziging moet nog door de volledige GitHub Quality Gate worden gevalideerd.
+Generieke `isBenchmark`-compatibiliteit blijft behouden voor oude/ingevoerde records en veilige verwijdering. De wijziging staat klaar voor volledige validatie door de GitHub Quality Gate; de uitkomst wordt pas na controle van de run als geslaagd geregistreerd.
 
 **Volgende:** controleer de resterende merge-/restore-parentrelaties en veilige verwijderpaden tegen de fase-1-acceptatiecriteria; pas daarna fase 1 formeel afronden.
