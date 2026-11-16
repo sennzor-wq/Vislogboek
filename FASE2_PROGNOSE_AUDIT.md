@@ -399,3 +399,10 @@ De historische profielberekening normaliseert meettijdstippen naar absolute tijd
 Gerichte regressietests zijn toegevoegd in `test-water-history-profile.ts`, `test-water-thermal-coupling.ts`, `test-water-temperature-synthetic-validation.ts` en `test-session-coach-integration.ts`. Tests en build zijn nog niet uitgevoerd. De Quality Gate in `.github/workflows/ci.yml` ondersteunt handmatige uitvoering via `workflow_dispatch`; de codecommits gebruiken conform afspraak `[skip ci]`.
 
 Vóór modelkalibratie moeten de actuele handmatige temperatuurinvoer en de compacte historische feature-snapshot volledig worden vastgelegd. Een gedeelde meet-ID kan later worden toegevoegd als de praktijkdata aantonen dat de huidige deduplicatiesleutel onvoldoende is.
+
+
+### Aanvulling — actuele handmatige watertemperatuur als snapshot-invoer
+
+De handmatige watertemperatuur is nu een afzonderlijk veld in `PrognosisInputContext` en valt daardoor mee in de inputfingerprint. De prognoseweergave en live sessiestart bewaren de ingevoerde temperatuur en het registratiemoment van de prognoserun. Het fysieke meettijdstip, de meetmethode en de meetdiepte blijven expliciet `null` wanneer die gegevens niet zijn opgegeven; het registratiemoment wordt dus nooit ten onrechte als meetmoment gepresenteerd. De VisCoach-planbuilder en coach-herbeoordeling zetten dit veld expliciet op `null`, omdat zij geen actuele handmatige meting ontvangen en de sessiemeting bij herbeoordeling via de historische meetwaarnemingen loopt.
+
+De CI-suite `test-thermal-and-prognosis.ts` controleert dat ontbrekende/ongeldige invoer geen object oplevert en dat een gewijzigde handmatige temperatuur een andere inputfingerprint geeft. De code- en documentatiewijzigingen zijn voorbereid als één wijzigingsset; CI moet de uiteindelijke merge nog valideren. Openstaand blijft de compacte replaybare feature-snapshot van historische sessies, vangsten en waarnemingen.

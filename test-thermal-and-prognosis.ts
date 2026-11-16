@@ -5,7 +5,7 @@
  */
 
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis, getSessionDurationHours } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
@@ -83,6 +83,29 @@ async function run14Scenarios() {
     createdAt: '',
     updatedAt: '',
   });
+  const manualTemperatureRecordedAt = '2026-11-16T12:00:00.000Z';
+  const manualTemperatureInput = createManualWaterTemperatureInput(14.7, manualTemperatureRecordedAt);
+  assert(
+    manualTemperatureInput !== null && manualTemperatureInput.temperatureC === 14.7 &&
+      manualTemperatureInput.recordedAt === manualTemperatureRecordedAt &&
+      manualTemperatureInput.measurementTimestamp === null &&
+      manualTemperatureInput.measurementMethod === null && manualTemperatureInput.measurementDepthM === null,
+    '0.1a Handmatige watertemperatuur bewaart de invoer en markeert onbekende meetmetadata expliciet'
+  );
+  assert(
+    createManualWaterTemperatureInput(null, manualTemperatureRecordedAt) === null &&
+      createManualWaterTemperatureInput(Number.NaN, manualTemperatureRecordedAt) === null,
+    '0.1b Ontbrekende of ongeldige handmatige temperatuur wordt niet als invoerobject opgeslagen'
+  );
+  const manualFingerprintA = createPrognosisInputFingerprint({ manualWaterTemperatureInput });
+  const manualFingerprintB = createPrognosisInputFingerprint({
+    manualWaterTemperatureInput: createManualWaterTemperatureInput(15.1, manualTemperatureRecordedAt),
+  });
+  assert(
+    manualFingerprintA !== manualFingerprintB,
+    '0.1c Een gewijzigde handmatige watertemperatuur wijzigt de snapshot-inputfingerprint'
+  );
+
   assert(unknownDuration === null, '0.1 Onbekende sessieduur blijft null en wordt niet als 3 uur ingevuld');
   assert(inferredDuration === 3.5, '0.2 Geldige start- en eindtijd leveren de geregistreerde duur op');
 

@@ -471,8 +471,21 @@ export interface CoachAdviceRecord {
   engineVersions?: Record<string, string>;
 }
 
+export interface ManualWaterTemperatureInput {
+  temperatureC: number;
+  /** Moment waarop de waarde in deze prognoserun is vastgelegd; niet het fysieke meetmoment. */
+  recordedAt: string;
+  /** null betekent dat de gebruiker geen exact meetmoment heeft opgegeven. */
+  measurementTimestamp: string | null;
+  measurementSource: 'manual';
+  measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown' | null;
+  measurementDepthM: number | null;
+}
+
 export interface PrognosisInputContext {
   calculatedAt: string;
+  /** Afzonderlijke registratie van de handmatige actuele invoer; null wanneer niet opgegeven. */
+  manualWaterTemperatureInput?: ManualWaterTemperatureInput | null;
   timezone: string;
   targetDate: string;
   targetSpecies: FishSpecies | 'Algemeen';
