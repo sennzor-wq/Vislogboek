@@ -140,3 +140,12 @@ PR [#54](https://github.com/sennzor-wq/Vislogboek/pull/54) is gemerged als [16c2
 **Eerstvolgende ontwerpstap:** bouw een afzonderlijke kwalitatieve voedings-/foerageercontext, niet een nieuwe totaalprognose. Per soort moet elke runtime-uitspraak verwijzen naar de geregistreerde bron en de daadwerkelijk gemeten respons (voedselopname/voedingsritme versus dieet/prooikeuze). Wanneer de bron alleen dieet of prooikeuze meet, mag de app daaruit geen tijdvakpiek of voedingsintensiteit afleiden. Als leeftijd/levensfase, lokaal prooiaanbod of overdraagbaarheid onbekend is, toon die beperking of laat de uitspraak weg.
 
 Daarna volgen tests op evidence gating en laagseparatie, UI-integratie, chronologische evaluatie en pas ten slotte fase-2-acceptatie. Geen numerieke factor wordt geactiveerd zonder direct bewijs en passende lokale validatie.
+
+
+## 9. Gemeten uitkomsten als evidence-gate (16 november 2026)
+
+PR [#55](https://github.com/sennzor-wq/Vislogboek/pull/55) introduceert in het centrale researchregister `ResearchOutcome` en `getResearchByOutcome(species, outcome)`. Hiermee wordt niet langer alleen op onderwerptekst gezocht, maar expliciet op de respons die een studie daadwerkelijk heeft gemeten: voedselopname/-ritme, foerageergedrag, dieet/prooikeuze, locomotie, habitatgebruik, groei of voedingsfysiologie.
+
+Deze classificatie verandert geen prognose-uitkomst en omzeilt `approvedForPrediction` niet. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling. Een studie naar dieet of prooikeuze mag bijvoorbeeld niet worden gebruikt als bewijs voor tijdvakgebonden voedingsintensiteit. De Quality Gate op de PR-head [#43934137768](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934137768) is volledig groen; de Quality Gate op de mergecommit volgt.
+
+**Volgende ontwerpbeslissing:** maak per soort een expliciete evidence-gated voedingscontext. Voedingsintensiteit/-ritme en foraginggedrag blijven gescheiden van dieet/prooikeuze en van telemetrie/habitat. Alleen directe, passende responsvariabelen mogen een kwalitatieve voedingsuitspraak dragen; ontbrekende lokale prooibeschikbaarheid en levensfase blijven onzeker. Geen numerieke tijdvakbonus of samengestelde voedingsscore.

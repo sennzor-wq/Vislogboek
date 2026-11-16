@@ -1108,3 +1108,12 @@ Alle nieuwe registraties blijven `approvedForPrediction: false`. De bronopzetten
 - Quality Gate op PR-head [#43932012809](https://github.com/sennzor-wq/Vislogboek/actions/runs/43932012809) is volledig groen. Overlappende run #43931990396 is geannuleerd. Mergecommit-run [#43933698267](https://github.com/sennzor-wq/Vislogboek/actions/runs/43933698267) stond bij dit checkpoint nog queued en moet eerst groen worden bevestigd.
 - Volgende actie: ontwerp een aparte kwalitatieve voedings-/foerageeruitkomst die uitsluitend brononderbouwde uitspraken gebruikt. Dieet/prooikeuze mag niet worden vertaald naar een tijdvakpiek of voedingsintensiteit als de studie dat niet heeft gemeten. Onbekende levensfase, lokaal prooiaanbod en overdraagbaarheid blijven expliciet onzeker.
 - Daarna: evidence-gating- en laagseparatietests, UI-integratie en chronologische evaluatie. Fase 2 blijft open; fase 3 start pas na aantoonbare fase-2-acceptatie.
+
+
+## Fase 2 — gemeten biologische uitkomsten geclassificeerd (16 november 2026)
+
+PR [#55](https://github.com/sennzor-wq/Vislogboek/pull/55) is squash-merged als [f6c959c](https://github.com/sennzor-wq/Vislogboek/commit/f6c959c109fb096c75a6028cfa77cf89efa81574). Het researchregister heeft nu expliciete `ResearchOutcome`-labels en `getResearchByOutcome(species, outcome)`, zodat bronnen worden gefilterd op de respons die daadwerkelijk is gemeten (voedselopname, voedingsritme, foerageren, dieet/prooikeuze, locomotie, habitat, groei of voedingsfysiologie).
+
+De Quality Gate op de PR-head [#43934137768](https://github.com/sennzor-wq/Vislogboek/actions/runs/43934137768) is volledig groen. De mergecommit-Quality-Gate moet nog worden gecontroleerd. De classificatie activeert geen modelinvloed: alle bronnen blijven `approvedForPrediction: false`, en prognose-runtime/UI/scores zijn niet gewijzigd.
+
+**Volgende actie:** bouw een per-soort evidence-gated kwalitatieve voedingscontext. Directe voedingsintensiteit/-ritme, foraginggedrag, dieet/prooikeuze en telemetrie/habitat moeten afzonderlijke claims blijven. Alleen de responsvariabele die een bron werkelijk meet mag worden getoond; geen numerieke bonus of tijdvakscore. Voeg daarna UI- en regressietests toe.
