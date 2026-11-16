@@ -772,3 +772,12 @@ Belangrijke concrete resultaten: typecheck zonder diagnostiek; dependency-audits
 Aanvullend slaagde `test-core-logic.ts` lokaal met 51/51; deze netwerkafhankelijke test blijft buiten de GitHub Actions-workflow zolang Open-Meteo niet wordt gemockt. Er is geen GitHub Actions-run gestart; dit betreft lokale validatie door de eigenaar.
 
 **Status fase 0:** nog in uitvoering. De volledige Quality Gate-validatie sluit de resterende blueprint → code → UI → test-matrix, repositorybrede benchmark-/seedverwijzingsaudit en backup-importregressies uit §19–22 niet af. Fase 1 blijft gesloten totdat die onderdelen zijn afgerond. Zie `FASE0_OPTIMIZATION_AUDIT.md` §23.
+
+
+## Backupimportaudit — bevestigde bevindingen (16 november 2026)
+
+Read-only hercontrole op `main` commit `60ac3c631522b1c2884a2313d91241dbb8053ceb` bevestigt dat de legacy v2-backup met `spots` en geneste `catches` wordt afgewezen voordat de importpreview verschijnt. De legacyroute in `normalizeRawBackup()` vult `plannedSessions` en `coachAdviceRecords` niet, terwijl `inspectImportFile()` beide arrays verplicht stelt. `test-backup-import.ts` controleert alleen normalisatie en mist deze volledige inspectieroute.
+
+Verder ontbreken `plannedSessions` en `coachAdviceRecords` in `validateBackupPayloadLimits()` (per-collectielimieten, totaalrecordtelling en recursieve veldinspectie). De vervangketen `replaceWithImportData()` en de daadwerkelijke veiligheidsdownload zijn niet rechtstreeks end-to-end getest; de round-triptest roept `restoreBackupData()` direct aan.
+
+**Fase 0 blijft read-only:** er is geen code- of testfix uitgevoerd. De bevindingen en vereiste regressiedekking staan in `FASE0_OPTIMIZATION_AUDIT.md` §24. Fase 1 blijft gesloten totdat de volledige audit is afgerond en geaccepteerd.

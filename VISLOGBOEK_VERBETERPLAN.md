@@ -175,7 +175,7 @@ Werk:
 
 | Fase | Status | Opmerking |
 |---|---|---|
-| 0. Baseline en audit | **In uitvoering** | Hercontrole op actuele `main`; vervolgcommit `5dbf3b4` verwijderde historische benchmarktestafhankelijkheden en de ongebruikte historische generator. `bun run lint` is lokaal geslaagd; volledige Quality Gate, clean-startmigratietest, lokale core-logic-test en auditmatrix staan nog open. Zie audit §19–20. |
+| 0. Baseline en audit | **In uitvoering** | De volledige lokale Quality Gate, inclusief tests, audits, typecheck en productiebuild, is op 16 november door de eigenaar uitgevoerd en geslaagd. De inhoudelijke blueprint/code/UI/test-matrix en repositorybrede verwijzingsaudit zijn nog niet afgetekend. De legacy v2-importfout en ontbrekende limietcontroles zijn bevestigd; zie `FASE0_OPTIMIZATION_AUDIT.md` §23–24. |
 | 1. Dataveiligheid en benchmarkdata | Gepland | Benchmarkdata mag na afhankelijkhedenaudit worden verwijderd |
 | 2. Biologische prognose | Gepland | Hoogste inhoudelijke prioriteit |
 | 3. Lerend stekprofiel | Gepland | Bestaande engines en gegevens integreren |

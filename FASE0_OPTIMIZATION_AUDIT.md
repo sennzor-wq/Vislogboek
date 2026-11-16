@@ -612,3 +612,54 @@ De eigenaar rapporteerde de volgende resultaten:
 De volledige Quality Gate-commandoset is lokaal uitgevoerd zonder gemelde fouten; de drie laatst resterende workflowtests en de productieprivacycontrole zijn eveneens bevestigd. Dit is lokale validatie door de eigenaar, geen GitHub-hosted Actions-run. De backup-importtest heeft geen expliciete formele eindtelling in de vastgelegde uitvoer en wordt daarom apart genuanceerd.
 
 Fase 0 is hiermee **niet automatisch afgerond**. De resterende auditwerkzaamheden uit §19–22 blijven gelden: de volledige blueprint → code → UI → test-matrix, repositorybrede benchmark-/seedverwijzingsaudit, gerichte legacy-backup-importregressies en controle van de eerder gevonden backupvalidatiegrenzen. Ook moet de daadwerkelijke `replaceWithImportData`-flow en het veiligheidsdownloadpad worden afgedekt. Fase 1 blijft gesloten totdat deze auditonderdelen zijn afgerond en beoordeeld.
+
+
+## 24. Gerichte hercontrole backup-import en restoreketen — 16 november 2026
+
+Deze controle is read-only uitgevoerd op `main` commit `60ac3c631522b1c2884a2313d91241dbb8053ceb`. Er is geen applicatiecode, testcode, backupbestand of gebruikersdatabase gewijzigd.
+
+### 24.1 Legacy v2-backup: afwijzing vóór importpreview bevestigd
+
+De aanwezige legacyfixture `test-fixtures/legacy/vislogboek-backup-2026-10-26.json` heeft rootvelden `format`, `version`, `exported_at`, `sessions`, `spots`, `settings` en `photos`. Het betreft versie 2 met 5 stekken, 11 sessies en 24 vangsten die genest onder de sessies staan. Er zijn op rootniveau geen platte `locations`-, `catches`-, `plannedSessions`- of `coachAdviceRecords`-collecties.
+
+De feitelijke keten in `src/services/backupService.ts` is:
+1. `inspectImportFile()` parseert het JSON-bestand en roept `normalizeRawBackup()` aan.
+2. De legacyroute (Geval 2: `spots` en geneste `catches`) zet de stekken, sessies en vangsten om.
+3. De returnwaarde van deze route bevat standaardarrays voor `weatherCache`, `prognosisSnapshots`, `presenceObservations` en `sessionRods`, maar niet voor `plannedSessions` en `coachAdviceRecords`.
+4. `inspectImportFile()` eist vervolgens dat alle negen hoofdcollecties arrays zijn, inclusief `plannedSessions` en `coachAdviceRecords`.
+
+**Conclusie: defect bevestigd.** De bestaande versie-2-legacyfixture wordt door de volledige inspectieroute afgewezen voordat de importpreview wordt getoond. Dit is geen theoretisch risico.
+
+### 24.2 Waarom de bestaande test dit niet detecteert
+
+`test-backup-import.ts` leest de legacyfixture en roept alleen `normalizeRawBackup(raw)` aan. De test roept `inspectImportFile()` niet aan en controleert dus niet of het bestand de volledige gebruikersimportvalidatie passeert.
+
+`test-backup-roundtrip.ts` test wel `inspectImportFile()`, maar gebruikt voor de legacygevallen platte v2/v3-objecten met `locations`, `sessions` en `catches`. Het specifieke historische `spots` + geneste `catches`-formaat ontbreekt in die inspectieregressietests.
+
+### 24.3 Backup-limietcontrole mist twee collecties
+
+`validateBackupPayloadLimits()` bouwt zijn collectie-overzicht op uit locaties, sessies, vangsten, weercache, prognosesnapshots, aanwezigheidwaarnemingen en hengeldetails. `plannedSessions` en `coachAdviceRecords` ontbreken zowel in de per-collectielimieten als in de totale recordtelling en de daaropvolgende recursieve inspectie.
+
+De bestandsgroottegrens van 50 MB blijft wel van toepassing. De ontbrekende collectiegrenzen betekenen echter dat deze twee collecties niet dezelfde expliciete aantals-, record-ID-, nesting- en veldvalidatie krijgen als de andere persistente collecties. Dit moet als afzonderlijk beveiligings-/robuustheidspunt worden afgedekt.
+
+### 24.4 Vervang-herstel en veiligheidsdownload
+
+De aangeroepen keten is `SettingsView.handleConfirmReplace()` → `replaceWithImportData()` → `exportDatabaseToJson()` → `restoreBackupData()`.
+
+- `replaceWithImportData()` maakt eerst een veiligheidsbackup via `exportDatabaseToJson()` en start daarna de restore.
+- `exportDatabaseToJson()` maakt de JSON-Blob, start een browserdownload via een tijdelijke anchor en revoke't de object-URL direct na de klik.
+- `restoreBackupData()` wist en vult de tien persistente tabellen in één IndexedDB read/write-transactie.
+- De UI meldt na terugkeer dat de veiligheidsbackup is gedownload.
+- `test-backup-roundtrip.ts` test `restoreBackupData()` rechtstreeks; het test niet `replaceWithImportData()`, de daadwerkelijke downloadtrigger of de complete UI-flow.
+
+**Conclusie:** de codevolgorde is statisch vastgesteld, maar de veiligheidsdownload en de volledige vervang-flow zijn niet end-to-end aangetoond. Dit blijft een expliciet test-/browservalidatiepunt; de audit claimt niet dat de download in iedere browser aantoonbaar is voltooid.
+
+### 24.5 Fase-0-uitkomst en vervolg
+
+Bevestigde bevindingen:
+- Legacy v2 `spots`/geneste-`catches`-backup wordt afgewezen door `inspectImportFile()`.
+- De bestaande legacy-importtest mist de volledige inspectieroute.
+- `plannedSessions` en `coachAdviceRecords` ontbreken in de payloadlimiet- en recursieve inspectie.
+- De volledige `replaceWithImportData()`- en veiligheidsdownloadketen heeft geen directe integratietest.
+
+De bevindingen zijn uitsluitend vastgelegd; **er is bewust geen code- of testfix uitgevoerd**, omdat fase 0 read-only blijft. De correcties en regressietests horen bij de uitvoeringsfase nadat de audit is afgerond en geaccepteerd. Fase 0 blijft open; fase 1 blijft gesloten.
