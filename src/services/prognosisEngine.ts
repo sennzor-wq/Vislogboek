@@ -1391,6 +1391,7 @@ export async function createLiveSnapshotForSessionStart(
       allSnapshots,
       allLocations
     );
+    const historyFeatures = createPrognosisHistoryFeatureSnapshot(allSessions, allCatches);
     const forecastTimestamp = new Date().toISOString();
     const inputContext: PrognosisInputContext = {
       calculatedAt: forecastTimestamp,
@@ -1409,19 +1410,16 @@ export async function createLiveSnapshotForSessionStart(
         waterFacingDirection: location.waterFacingDirection,
         habitatFeatures: location.habitatFeatures,
       },
-      historicalSessionIds: allSessions.filter((item) => item.isBenchmark !== true).map((item) => item.id),
-      catchRecordIds: allCatches.map((item) => item.id),
+      historicalSessionIds: historyFeatures.historicalSessionFeatures!.map((item) => item.id),
+      catchRecordIds: historyFeatures.historicalCatchFeatures!.map((item) => item.id),
       observationIds: [],
+      ...historyFeatures,
       presenceObservation: 'onbekend',
       historicalWaterTemperatureSamples: historicalWaterTemperatures,
-      historyFingerprint: createPrognosisInputFingerprint({
-        sessions: allSessions.map((item) => [item.id, item.updatedAt, item.startTime, item.endTime, item.durationMinutes, item.plannedDurationHours, item.targetSpecies, item.outcome, item.waterTemperature, item.technique]),
-        catches: allCatches.map((item) => [item.id, item.sessionId, item.timestamp, item.species, item.count, item.weightKg, item.lengthCm, item.bait, item.technique]),
-        historicalWaterTemperatures,
-      }),
+      historyFingerprint: createPrognosisHistoryFingerprint(allSessions, allCatches, [], historicalWaterTemperatures),
       historySummary: {
-        sessionCount: allSessions.filter((item) => item.isBenchmark !== true).length,
-        catchRecordCount: allCatches.length,
+        sessionCount: historyFeatures.historicalSessionFeatures!.length,
+        catchRecordCount: historyFeatures.historicalCatchFeatures!.length,
         observationCount: 0,
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
