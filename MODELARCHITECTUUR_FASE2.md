@@ -182,8 +182,10 @@ De sectie is onderzoekscontext, geen voorspelling voor de huidige stek of datum.
 Volgende stap na groene CI: merge, controle mergecommit en daarna verkennen hoe eigen lokale waarnemingen van foerageeractiviteit apart kunnen worden geregistreerd en gevalideerd.
 
 
-## 13. Lokale foerageerobservaties zijn nog geen tijdvaklabels
+## 13. Lokale foerageerobservaties: datakwaliteit en invoerlast
 
-De huidige sessie-editor bewaart waarnemingen als categorieën op sessieniveau. `syncSessionPresenceObservations()` zet bij nieuwe records `session.updatedAt` in het veld `timestamp`; dit is het registratie-/update-moment, niet aantoonbaar het fysieke waarnemingstijdstip. Ook kunnen niet meerdere gebeurtenissen van hetzelfde type binnen één sessie afzonderlijk worden vastgelegd. Deze records zijn bruikbaar als grove sessiecontext, niet als betrouwbare tijdgebonden voedingslabels.
+De huidige sessie-editor bewaart waarnemingen als categorieën op sessieniveau. `syncSessionPresenceObservations()` zet bij nieuwe records `session.updatedAt` in het veld `timestamp`; dit is het registratie-/update-moment, niet aantoonbaar het fysieke waarnemingstijdstip. Ook kunnen niet meerdere gebeurtenissen van hetzelfde type binnen één sessie afzonderlijk worden vastgelegd. Deze records zijn bruikbaar als grove sessiecontext, niet als betrouwbare tijdgebonden voedingslabels. De huidige prognose kent hieraan geen numerieke bonus toe.
 
-Voor toekomstige lokale kalibratie is een afzonderlijke, herhaalbare gebeurtenisregistratie nodig met verplicht `observedAt`, apart `recordedAt`, locatie, optionele sessie, gedragstype, optionele waargenomen soort en identificatiezekerheid, en optionele diepte/zone. Ontbrekend waarnemingstijdstip blijft onbekend; nooit terugvullen met sessie-update/starttijd. De nieuwe entiteit moet in backup/restore, snapshot-whitelist/fingerprint, migraties en verwijderregels worden meegenomen. Geen modelinvloed totdat datakwaliteit en chronologische validatie zijn aangetoond.
+**Gebruiksgemakbesluit:** er wordt nu geen aparte uitgebreide foerageerregistratie gebouwd. Extra verplichte invoer tijdens het vissen past niet bij het doel van een laagdrempelige app. De bestaande waarnemingen blijven optionele, kwalitatieve context en worden niet gebruikt voor tijdvaktraining. Ontbrekende tijdstippen blijven onbekend; ze worden nooit afgeleid uit sessiestart, sessie-update of registratietijd.
+
+Een eventuele latere uitbreiding moet optioneel en met minimale handelingen kunnen worden vastgelegd. Alleen als gebruikerswaarde en aantoonbare modelverbetering opwegen tegen de invoerlast, onderzoeken we een eenvoudige registratievorm. Tot dat moment geen nieuwe entiteit, migratie, invoerscherm of numerieke modelinvloed.
