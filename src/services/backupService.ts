@@ -264,12 +264,10 @@ export function normalizeRawBackup(raw: any): BackupData {
       !s.spot_id && s.location?.label ? `Steklocatie: ${s.location.label}` : null,
     ].filter(Boolean);
 
-    const isLokkershoek19 = false;
-
     sessions.push({
       id: s.id,
-      locationId: isLokkershoek19 ? 'spot-mvp1g19d-dfemr2' : (s.spot_id || undefined), // Gekoppeld aan Lokkershoek Pier
-      locationName: isLokkershoek19 ? 'Lokkershoek Pier' : (s.spot_name || s.location?.label || 'Onbekende stek'),
+      locationId: s.spot_id || undefined,
+      locationName: s.spot_name || s.location?.label || 'Onbekende stek',
       startTime: s.start_time && s.date ? `${s.date}T${s.start_time}:00` : (s.startTime || (s.date ? `${s.date}T00:00:00` : importedAt)),
       endTime: s.end_time && (s.end_date || s.date) ? `${s.end_date || s.date}T${s.end_time}:00` : (s.endTime || null),
       durationMinutes,

@@ -904,3 +904,12 @@ De app-level handmatige controle (in de app een sessie maken, backup exporteren 
 4. Fase 3–6 blijven in de vastgelegde volgorde gepland. De productpraktijkvalidatie met echte sessies en lokale watertemperatuurmetingen blijft een afzonderlijke doorlopende bewijsstroom.
 
 **Werkafspraak blijft:** wijzigingen rechtstreeks op GitHub `main`, één atomische commit per werkpakket, documentatie in dezelfde commit, standaard `[skip ci]` tenzij een Quality Gate-run bewust nodig is. Geen GitHub Actions-run claimen zonder het resultaat daadwerkelijk te controleren.
+
+
+### Fase 1 — kleine opschoning legacycompatibiliteit (16 november 2026)
+
+Op `main` is de dode legacy-vertakking `isLokkershoek19 = false` verwijderd uit backupnormalisatie. De import gebruikt rechtstreeks de al bestaande locatie-ID en locatienaam uit de backup. De importuitkomst verandert hierdoor niet; er wordt geen Lokkershoek-locatie aangemaakt of verwijderd. De database-initialisatiecomments zijn in overeenstemming gebracht met het werkelijke gedrag: alleen standaardinstellingen worden geïnitialiseerd, geen benchmark- of historische records.
+
+Generieke `isBenchmark`-compatibiliteit blijft behouden voor oude/ingevoerde records en veilige verwijdering. De wijziging moet nog door de volledige GitHub Quality Gate worden gevalideerd.
+
+**Volgende:** controleer de resterende merge-/restore-parentrelaties en veilige verwijderpaden tegen de fase-1-acceptatiecriteria; pas daarna fase 1 formeel afronden.

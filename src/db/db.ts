@@ -183,12 +183,12 @@ export async function syncSessionPresenceObservations(session: FishingSession): 
 }
 
 /**
- * Zorgt ervoor dat de initiële database is ingericht en de beschermde benchmark altijd aanwezig is.
+ * Zorgt ervoor dat de lokale database en standaardinstellingen eenmalig per app-runtime zijn ingericht.
  */
 let databaseInitializationPromise: Promise<void> | null = null;
 
 /**
- * Database-initialisatie en historische seeding zijn eenmalig per app-runtime.
+ * Database-initialisatie is eenmalig per app-runtime.
  * Gewone data-refreshes hoeven deze controles/migratiestappen niet opnieuw uit te voeren.
  */
 export function initializeDatabase(): Promise<void> {
