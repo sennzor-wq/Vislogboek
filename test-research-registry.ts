@@ -95,4 +95,22 @@ if (!catfishFeeding?.sourceReferences.some((source) => source.includes('Aquacult
   throw new Error('The catfish feeding study must retain its verified journal metadata.');
 }
 console.log('Direct feeding evidence coverage and non-activation tests passed.');
+const profileFeedingSourceChecks: Record<string, string> = {
+  Karper: '10.1111/j.1095-8649.2009.02236.x',
+  Brasem: 'In situ diel patterns of zooplankton consumption',
+  Snoek: '10.3409/fb_73-3.10',
+  Baars: 'annzool.net/PDF/anzf23/anz23-049-056.pdf',
+  Voorn: '10.1111/j.1095-8649.2008.02020.x',
+  Zeelt: '10.1134/S003294521804001X',
+  Snoekbaars: '10.1111/are.14401',
+  Meerval: '10.1155/anu/4619857',
+  Roofblei: '10.1111/eff.12414',
+};
+for (const [species, reference] of Object.entries(profileFeedingSourceChecks)) {
+  if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((source) => source.includes(reference))) {
+    throw new Error(`The ${species} profile must link its reviewed feeding/diet evidence.`);
+  }
+}
+console.log('All species profiles link their feeding evidence sources.');
+
 
