@@ -289,3 +289,13 @@ if (SPECIES_PROFILES.Voorn.dutchName !== 'Blankvoorn (Rutilus rutilus)' ||
 if (!SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.includes('10.3389/fenvs.2021.670125'))) {
   throw new Error('The perch profile must link the verified juvenile Lake Constance feeding study with its scope limits.');
 }
+
+const tenchField = RESEARCH_REGISTRY.find((item) => item.id === 'tench-field-diel-seasonal-feeding-2018');
+if (!tenchField ||
+    !tenchField.summary.includes('66 maag-/darmkanalen') ||
+    !tenchField.summary.includes('iedere drie uur') ||
+    !tenchField.limitations.some((item) => item.includes('3–7+ jaar')) ||
+    !tenchField.limitations.some((item) => item.includes('vertaalde samenvattingen')) ||
+    tenchField.approvedForPrediction) {
+  throw new Error('The tench field study must retain its sample, three-hour sampling, age and translation limitations.');
+}

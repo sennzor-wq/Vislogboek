@@ -582,10 +582,12 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Zeelt'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Maandelijkse maaginhoudanalyses van 90 zeelten uit één klein eutroof water in Perm beschreven directe dag- en seizoensvariatie in voedselopname. De hoogste voedingsintensiteit werd gemeten tussen 18:00–21:00 en 00:00–03:00; de voedselkeuze verschilde bovendien tussen leeftijdsgroepen.',
+    summary: 'Maaginhoudonderzoek van 90 zeelten in één klein, begroeid eutroof water in Perm krai (vegetatieperiode 2013; 66 maag-/darmkanalen bevatten voedsel) beschreef directe dag- en seizoensvariatie in voedselopname. Vissen werden met vaste kieuwnetten ongeveer iedere drie uur bemonsterd. De hoogste voedingsintensiteit werd gemeten tussen 18:00–21:00 en 00:00–03:00; de voedselkeuze verschilde bovendien tussen leeftijdsgroepen.',
     limitations: [
-      'Het onderzoek betrof één klein, begroeid water en de vegetatieperiode van één jaar; de uitkomst is niet universeel voor Nederlandse wateren.',
-      'Leeftijdsgroepen verschilden in dieet, terwijl de app de leeftijd van de lokale zeeltpopulatie niet kent.',
+      'Het onderzoek betrof één klein, begroeid water van circa 1,9 ha in Perm krai en één vegetatieperiode (2013); slechts 66 van de 90 onderzochte vissen hadden voedsel in het spijsverteringskanaal.',
+      'De vissen werden met vaste kieuwnetten ongeveer iedere drie uur bemonsterd; dit is een maaginhoud-/voedingsindex en geen continue directe observatie van individuele foerageeractiviteit.',
+      'De onderzochte vissen waren 3–7+ jaar oud; voedselkeuze verschilde tussen leeftijdsgroepen, waaronder de groep van 6–7 jaar. Dit ondersteunt geen universele levensfase-onafhankelijke tijdvakvoorkeur.',
+      'De vertaalde samenvattingen verschillen over de maand met de laagste consumptie-index; daarom wordt geen specifieke maandminimumclaim gebruikt.',
       'De gemeten tijdvakken mogen niet zonder lokale validatie als harde scorebonus worden gebruikt.'
     ],
     sourceReferences: [

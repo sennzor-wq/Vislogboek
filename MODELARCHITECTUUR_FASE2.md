@@ -323,3 +323,8 @@ Het interne type `Voorn` blijft voor compatibiliteit bestaan maar staat biologis
 ## 31. Baars: Bodenmeer-dagritmebron is juveniel en seizoensgebonden
 
 De volledige Bretzel et al. (2021)-publicatie is gecontroleerd. De 24-uurs voedingsanalyse betreft juveniele 0+ baars in pelagisch habitat en is gebaseerd op herfstgegevens uit 2018. Het gemeten patroon (voedingspieken rond dageraad/schemering en afname in de nacht) mag niet als volwassen of universeel baarsprofiel worden gebruikt. Maaginhoud is een proxy voor recente opname; vangstmethode en prooigemeenschap zijn contextbeperkingen. De bron blijft niet-goedgekeurd voor numerieke voorspelling.
+
+
+## 32. Zeelt: veldritme is beperkt tot één kleine waterlocatie en leeftijdsmix
+
+De primaire publicatie van Bezmaternykh & Shcherbina (2018) is nader gecontroleerd: 90 vissen uit één klein eutroof water in Perm krai gedurende de vegetatieperiode van 2013, met circa drie-uurlijkse kieuwnetbemonstering; 66 vissen hadden voedsel in het spijsverteringskanaal. De avond-/nachtintervallen 18–21 en 00–03 zijn directe maaginhoud-/voedingsindexwaarnemingen, geen continue gedragsobservatie. Voedselkeuze verschilde met leeftijd. De bron blijft contextgebonden en niet-goedgekeurd; geen algemene nachtbonus.
