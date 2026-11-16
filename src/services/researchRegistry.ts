@@ -536,26 +536,6 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
-    id: 'adult-catfish-diel-activity-belver-reservoir-2025',
-    topic: 'dagritme-activiteit-en-dieptegebruik-volwassen-meerval',
-    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
-    species: ['Meerval'],
-    application: 'biology',
-    evidenceStrength: 'moderate',
-    summary: 'Akoestische biotelemetrie bij tien volwassen Europese meervallen in het Belver-reservoir (Taag, Portugal) registreerde met 3D-versnellingsmeters en druksensoren gedurende ongeveer een jaar activiteit en dieptegebruik. De activiteit piekte doorgaans rond de schemering en lag gemiddeld hoger in de nacht dan overdag; in oktober–december werd ook een kleinere dageraadspiek gezien. Dieptegebruik en dagritme verschilden per seizoen en individu.',
-    limitations: [
-      'De sensoren meten beweging/versnelling en diepte, niet rechtstreeks maaginhoud of voedselopname. De auteurs bespreken predatie/foerageren als waarschijnlijke verklaring voor een deel van de bewegingspieken, maar dit blijft een gedragsinterpretatie.',
-      'Het onderzoek volgde tien volwassen vissen in één Portugees reservoir met een mediterraan klimaat en watertemperaturen van ongeveer 11–23 °C; overdraagbaarheid naar Nederlandse plassen, kanalen en rivieren is beperkt.',
-      'Rivierafvoer, fotoperiode en watertemperatuur verklaren een deel van de variatie; de individuele en seizoensgebonden verschillen verhinderen een universele schemer- of nachtbonus.',
-      'De bron ondersteunt locomotorische activiteit en habitat-/dieptegebruik, niet een directe voedingsritmefactor of vangstkans.'
-    ],
-    sourceReferences: [
-      'Santos, G.S., Ribeiro, F., Pereira, E., Silva, A.F., Almeida, P.R., Ribeiro, D. & Quintella, B.R. (2025; first published 27 November 2024). Behaviour of the Apex Predator European Catfish (Silurus glanis) on a Recently Invaded Reservoir. Ecology of Freshwater Fish, 34(1), e12817. https://doi.org/10.1111/eff.12817'
-    ],
-    reviewedAt: '2026-11-16',
-    approvedForPrediction: false,
-  },
-  {
     id: 'asp-diel-seasonal-movement-river-lake-2016-2020',
     topic: 'dagritme-seizoen-en-migratie',
     measuredOutcomes: ['locomotor_activity', 'habitat_use'],
