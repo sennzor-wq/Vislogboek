@@ -520,20 +520,38 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   },
   {
     id: 'european-catfish-feeding-and-activity-rhythms-1995-2012',
-    topic: 'dagritme-voedingsactiviteit-en-individuele-variatie',
-    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'locomotor_activity'],
+    topic: 'dagritme-locomotorische-activiteit',
+    measuredOutcomes: ['locomotor_activity'],
     species: ['Meerval'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Een gecontroleerde voedingsstudie vond sterk nachtelijke voedselopname bij Europese meerval, terwijl veldtelemetrie in twee rivieren duidelijke individuele verschillen liet zien in dag-/nachtactiviteit. In de veldstudie hing EMG-activiteit samen met temperatuur en stroming.',
+    summary: 'Veldtelemetrie met EMG-fysiologische sensoren bij 20 Europese meervallen in de Elbe en Berounka tijdens voorjaar en zomer onderzocht activiteit in licht- en donkerperioden. De resultaten lieten site-specifieke patronen en duidelijke individuele verschillen zien; circa 35% van de individuen week af van het lokale gemeenschappelijke dagritme.',
     limitations: [
-      'De gecontroleerde voedingsstudie laat zien dat voerregime en sociale context het ritme kunnen veranderen.',
-      'De veldstudie betrof een beperkte groep gezenderde vissen in twee rivieren tijdens voorjaar en zomer; individuele variatie was groot.',
-      'Meerval mag daarom niet als uitsluitend nachtactief worden gemodelleerd en de studies leveren geen directe vangstkans.'
+      'De gemeten EMG-respons is een maat voor spier-/bewegingsactiviteit en geen directe meting van voedselopname, prooiaanvallen of hengelvangbaarheid.',
+      'De veldstudie betrof 20 gezenderde vissen in twee rivieren tijdens voorjaar en zomer; de steekproef en seizoensdekking zijn beperkt.',
+      'Individuele en locatiegebonden verschillen waren substantieel; de soort mag niet als uitsluitend nachtactief worden gemodelleerd.'
     ],
     sourceReferences: [
-      'Boujard, T. (1995). Diel rhythms of feeding activity in the European catfish, Silurus glanis. Physiology & Behavior, 58(4), 641–645. https://doi.org/10.1016/0031-9384(95)00109-V',
       'Slavík, O. & Horký, P. (2012). Diel dualism in the energy consumption of the European catfish Silurus glanis. Journal of Fish Biology, 81, 2223–2234. https://doi.org/10.1111/j.1095-8649.2012.03436.x'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'adult-catfish-diel-activity-reservoir-2025',
+    topic: 'seizoensafhankelijke-dagritme-beweging-en-dieptegebruik',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Akoestische biotelemetrie volgde tien volwassen Europese meervallen in het Belver-stuwmeer aan de Taag (Portugal) van januari 2019 tot juli 2020. Accelerometers en druksensoren leverden ruim 1,3 miljoen geldige detecties voor activiteit en diepte. De activiteit vertoonde doorgaans een schemerpiek en een dagminimum, met uitzonderingen en seizoens-/individuele variatie; het dieptegebruik wisselde tussen winter en zomer.',
+    limitations: [
+      'De studie betreft tien volwassen vissen in één recent gekoloniseerd Portugees stuwmeer; overdracht naar Nederlandse wateren en populaties in het oorspronkelijke verspreidingsgebied is onzeker.',
+      'De gemeten responsen zijn accelerometeractiviteit en dieptegebruik. Ook wanneer korte activiteitspieken mogelijk met predatie samenhangen, is geen directe voedselopname of jachtsucces gemeten.',
+      'Individuele verschillen en seizoensafhankelijke omkering van verticale dag-nachtbeweging zijn substantieel; geen universele nachtelijke habitat- of voedingsclaim afleiden.'
+    ],
+    sourceReferences: [
+      'Santos, G.S., Ribeiro, F., Pereira, E., Silva, A.F., Almeida, P.R., Ribeiro, D. & Quintella, B.R. (2025). Behaviour of the Apex Predator European Catfish (Silurus glanis) on a Recently Invaded Reservoir. Ecology of Freshwater Fish, 34(1), e12817. https://doi.org/10.1111/eff.12817'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
@@ -944,6 +962,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     ],
     sourceReferences: [
       'Bretzel, J.B. et al. (2021). Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science, 9. https://doi.org/10.3389/fenvs.2021.670125 (juveniele 0+ baars; 24-uursanalyse herfst 2018)'
+    ],
+    reviewedAt: '2026-11-16',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-catfish-diel-feeding-self-feeder-1995',
+    topic: 'gecontroleerd-dagritme-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een gecontroleerde voedingsstudie met Europese meerval in individuele en groepshuisvesting en met vrije of tijdsbeperkte toegang tot zelfvoerautomaten rapporteerde sterk nachtelijke voedselopname. Bij overdag voeren nam de vrijwillige opname af; na terugkeer naar vrije toegang hernam het nachtelijke patroon binnen 24 uur. Individueel gehouden vissen konden een minder regelmatig/aritmisch patroon vertonen.',
+    limitations: [
+      'De studie betreft een gecontroleerde zelfvoeropstelling en geen veldmeting van natuurlijke jacht of voedselopname in Nederlandse wateren.',
+      'Levensfase, lichaamslengte/gewicht, seizoen, watertype en exacte temperatuurcontext zijn niet uit de beschikbare abstract vastgesteld.',
+      'Sociale context was relevant: individueel gehouden vissen vertoonden vaker een aritmisch patroon dan vissen in groepen.',
+      'Een nachtelijk voerautomaatritme is geen directe maat voor natuurlijke prooiaanvallen, habitatbezetting of hengelvangbaarheid.'
+    ],
+    sourceReferences: [
+      'Boujard, T. (1995). Diel rhythms of feeding activity in the European catfish, Silurus glanis. Physiology & Behavior, 58(4), 641–645. https://doi.org/10.1016/0031-9384(95)00109-V'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,

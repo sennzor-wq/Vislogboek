@@ -40,6 +40,14 @@ if (asp.feedingRhythm.length !== 0 || asp.locomotorActivity.length === 0 || asp.
   throw new Error('Asp telemetry must remain movement-only, with no invented direct feeding rhythm.');
 }
 
+const catfish = getSpeciesDielBehaviorEvidenceContext('Meerval');
+if (!catfish.feedingRhythm.some((item) => item.id === 'european-catfish-diel-feeding-self-feeder-1995') ||
+    !catfish.locomotorActivity.some((item) => item.id === 'european-catfish-feeding-and-activity-rhythms-1995-2012') ||
+    !catfish.locomotorActivity.some((item) => item.id === 'adult-catfish-diel-activity-reservoir-2025') ||
+    catfish.temporalEvidenceScope !== 'feeding-and-movement') {
+  throw new Error('Catfish controlled feeding rhythm must remain distinct from both adult field telemetry movement sources.');
+}
+
 const generic = getSpeciesDielBehaviorEvidenceContext('Overig');
 if (generic.hasSpeciesSpecificTimeEvidence || generic.temporalEvidenceScope !== 'none' ||
     generic.feedingRhythm.length + generic.locomotorActivity.length + generic.habitatUse.length !== 0) {

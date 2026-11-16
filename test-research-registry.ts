@@ -270,6 +270,45 @@ if (SPECIES_PROFILES.Overig.preferredSlots.length !== 0 || SPECIES_PROFILES.Over
 }
 console.log('Species daypart profile evidence checks passed.');
 
+const catfishDiel = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'european-catfish-diel-feeding-self-feeder-1995'
+);
+if (!catfishDiel ||
+    !catfishDiel.species.includes('Meerval') ||
+    !catfishDiel.measuredOutcomes?.includes('feeding_rhythm') ||
+    !catfishDiel.measuredOutcomes?.includes('feeding_intensity') ||
+    catfishDiel.approvedForPrediction ||
+    !catfishDiel.limitations.some((item) => item.includes('Levensfase')) ||
+    !catfishDiel.limitations.some((item) => item.includes('Sociale context')) ||
+    !catfishDiel.sourceReferences.some((source) => source.includes('10.1016/0031-9384(95)00109-V'))) {
+  throw new Error('Catfish controlled nocturnal feeding evidence must retain its source, social/life-stage limitations and non-approved status.');
+}
+const catfishLegacyMovement = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'european-catfish-feeding-and-activity-rhythms-1995-2012'
+);
+if (!catfishLegacyMovement ||
+    catfishLegacyMovement.measuredOutcomes?.length !== 1 ||
+    !catfishLegacyMovement.measuredOutcomes.includes('locomotor_activity') ||
+    catfishLegacyMovement.sourceReferences.some((source) => source.includes('10.1016/0031-9384(95)00109-V'))) {
+  throw new Error('Catfish EMG telemetry must remain movement-only; Boujard feeding evidence must be separately registered.');
+}
+const catfishAdultTelemetry = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'adult-catfish-diel-activity-reservoir-2025'
+);
+if (!catfishAdultTelemetry ||
+    !catfishAdultTelemetry.measuredOutcomes?.includes('locomotor_activity') ||
+    !catfishAdultTelemetry.measuredOutcomes?.includes('habitat_use') ||
+    catfishAdultTelemetry.measuredOutcomes.includes('feeding_rhythm') ||
+    catfishAdultTelemetry.approvedForPrediction ||
+    !catfishAdultTelemetry.sourceReferences.some((source) => source.includes('10.1111/eff.12817'))) {
+  throw new Error('Adult catfish reservoir telemetry must be source-linked movement/depth evidence, not feeding evidence.');
+}
+for (const reference of ['10.1016/0031-9384(95)00109-V', '10.1111/j.1095-8649.2012.03436.x', '10.1111/eff.12817']) {
+  if (!SPECIES_PROFILES.Meerval.scientificReferences.some((source) => source.includes(reference))) {
+    throw new Error('The catfish profile must link the reviewed source ' + reference + '.');
+  }
+}
+
 const juvenileCyprinidEvidence = RESEARCH_REGISTRY.find(
   (item) => item.id === 'juvenile-cyprinid-night-feeding-bavarian-lakes-1979'
 );

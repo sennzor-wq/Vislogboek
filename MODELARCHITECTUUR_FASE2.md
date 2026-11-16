@@ -340,3 +340,8 @@ Ook opgeslagen sessieadviezen krijgen voortaan het tijdvak uit de echte sessie-s
 ## 34. Karper: temperatuur- en kloktijd uit de 2012-studie niet als veldvoorkeur behandelen
 
 Chen et al. (2012) rapporteerden bij de ondersoort `Cyprinus carpio haematopterus` ochtend- en avondpieken in experimentele voedselopname bij volwassen (630–850 g) en jonge (61–91 g) vissen. Bij lage temperaturen verschoof/breidde het avondinterval uit; bij 6 °C bleef de opname zeer laag. Dit is directe voedselopname, maar niet hetzelfde als natuurlijke veldactiviteit of vangbaarheid. De abstract is gecontroleerd; volledige methodedetails moeten nog worden geverifieerd. Geen numerieke tijdvakbonus of overdracht naar alle levensfasen/populaties.
+
+
+## 35. Meerval: gecontroleerd voedingsritme naast gescheiden veldresponsen
+
+Boujard (1995) levert direct bewijs voor nachtelijke voedselopname in een gecontroleerde zelfvoeropstelling, maar de beschikbare abstract specificeert de levensfase niet en laat zien dat individuele versus groepshuisvesting het ritme beïnvloedt. De vroege juveniele veldstudie meet nachtelijke pelagische voedselopname. Twee volwassen veldtelemetriebronnen (Slavík & Horký, 2012; Santos et al., 2025) meten EMG-/accelerometeractiviteit en diepte, niet rechtstreeks voedselopname. Deze responsen blijven afzonderlijk in de registry en in VisCoach. Volwassen telemetrie mag niet als voedingsritme worden gelezen en de gecontroleerde voerautomaatstudie mag niet als veldvangstbewijs worden gepresenteerd. Alle records blijven niet-goedgekeurd voor numerieke voorspelling.

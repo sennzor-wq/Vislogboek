@@ -1284,3 +1284,13 @@ De volgende codewijziging voegt een korte brongebonden biologische context toe a
 ## Fase 2 — karpervoedingsritme 2012: scope en verificatiestatus (16 november 2026)
 
 Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnieuw gecontroleerd. Het gaat om `Cyprinus carpio haematopterus`, met volwassen (630–850 g) en jonge (61–91 g) vissen, experimenteel onderzocht bij 4–34 °C. De abstract meldt ochtend- en avondpieken en een temperatuurafhankelijke verbreding van het avondinterval onder 10 °C. Dit is geen veldbewijs voor wilde Nederlandse karpers of hengelvangbaarheid. Volledige methodedetails blijven open; de bron blijft `approvedForPrediction: false`.
+
+
+### Fase 2 — primaire broncontrole roofblei en meerval (16 november 2026)
+
+- Kärgenberg et al. (2022; DOI 10.1007/s10641-022-01298-6) is in volledige beschikbare tekst gecontroleerd. De studie volgt volwassen roofblei in het Estse Emajõgi-meer-riviersysteem; 54 vissen getagd, 53 met 12.435 bewegingsgebeurtenissen geanalyseerd. Dageraad-/schemerpatronen verschillen per maand en jaar; de gemeten respons is verplaatsing, niet voedselopname. De bron blijft uitsluitend locomotorisch/habitatbewijs.
+- Boujard (1995; DOI 10.1016/0031-9384(95)00109-V) is als directe maar gecontroleerde voedingsritmebron voor meerval geregistreerd. Nachtelijke voedselopname in een zelfvoeropstelling, met duidelijke invloed van individuele versus groepshuisvesting. De abstract stelt levensfase en volledige omgevingsopzet niet vast.
+- Santos et al. (2025; DOI 10.1111/eff.12817) is als afzonderlijke volwassen veldtelemetriebron geregistreerd (tien volwassen vissen, accelerometeractiviteit en diepte). Slavík & Horký (2012) is eveneens uitsluitend als EMG-bewegingsbewijs geclassificeerd.
+- De matrix en VisCoach-context houden volwassen meervaltelemetrie (beweging/diepte/EMG), gecontroleerde voedselopname (levensfase onbekend) en vroege juveniele veldvoeding (pelagisch) gescheiden.
+- Alle bronnen blijven approvedForPrediction false; er zijn geen biologische scores, tijdvakgewichten of vangstkansen gewijzigd.
+- Resterend bronrisico: Chen et al. (2012) karper is nog alleen op abstractniveau geverifieerd; volledige methodedetails blijven open.
