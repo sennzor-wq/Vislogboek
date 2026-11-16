@@ -240,7 +240,7 @@ export interface WeatherDataQuality {
 export interface TimeSlotAnalysis {
   slot: TimeSlot;
   timeRange: string;              // bijv. "06:00 – 12:00"
-  activityScore: number;          // 1.0 – 10.0 (alleen presenteren wanneer activityScoreAvailable true is)
+  activityScore: number;          // 1.0 – 10.0 voorlopige thermische activiteitspotentie (geen gemeten visactiviteit)
   activityScoreAvailable?: boolean;
   isPast?: boolean;               // Is dit tijdvak reeds volledig verstreken?
   remainingHours?: number;        // Aantal resterende uren in dit tijdvak
