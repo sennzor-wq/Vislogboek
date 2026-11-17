@@ -253,16 +253,17 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Baars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Respirometrisch onderzoek bij Europese baars onderzocht standaard- en maximale stofwisseling, aerobe scope en temperatuurvoorkeur bij acclimatisatietemperaturen van 15–28 °C. De optimale temperatuur voor aerobe scope en de temperatuurvoorkeur daalden met toenemende lichaamsmassa.',
+    summary: 'Volledige primaire studie: respirometrie bij 120 Europese baarzen van 5–882 g bij acclimatisatie op 15, 20, 25 en 28 °C; daarnaast temperatuurkeuze bij 37 kleinere baarzen van 3–74 g. Aerobe-scopeoptimum daalde met lichaamsmassa bij de gemodelleerde klassen 40–640 g; onder 40 g werd geen daling/optimum gevonden. Temperatuurvoorkeur is apart gemeten en daalde eveneens met lichaamsmassa.',
     limitations: [
-      'De relatie is lichaamsgrootte-afhankelijk; één universeel thermisch optimum voor alle baarzen is niet verdedigbaar.',
+      'De relatie is lichaamsgrootte-afhankelijk: voor de gemodelleerde klassen 40–640 g daalde het aerobe-scopeoptimum met massa; bij de klassen onder 40 g werd geen optimum gevonden omdat aerobe scope niet afnam binnen het onderzochte bereik.',
+      'De 37 vissen in de shuttle-box (3–74 g) leverden een aparte temperatuurvoorkeurmeting; die uitkomst mag niet worden verward met de aerobe-scopecurve uit respirometrie.',
       'Het onderzoek vond plaats onder gecontroleerde laboratoriumomstandigheden en meet fysiologische capaciteit, niet rechtstreeks dagelijkse voedingsactiviteit of hengelvangbaarheid.',
       'De resultaten zijn een mechanistische prior, geen directe validatie van de bestaande Vislogboek-curve voor Nederlandse wateren.'
     ],
     sourceReferences: [
       'Christensen, E.A.F., Svendsen, M.B.S. & Steffensen, J.F. (2020). The combined effect of body size and temperature on oxygen consumption rates and the size-dependency of preferred temperature in European perch Perca fluviatilis. Journal of Fish Biology, 97(3), 794–803. https://doi.org/10.1111/jfb.14435'
     ],
-    reviewedAt: '2026-11-16',
+    reviewedAt: '2026-11-17',
     approvedForPrediction: false,
   },
   {
@@ -292,16 +293,17 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Een gecontroleerde respirometrische studie bij volwassen snoekbaars mat standaard- en maximale stofwisseling bij 13–28 °C. De maximale aerobe scope lag bij 18,8 °C; het bereik met ten minste 80% van die maximale scope liep van 10,4 tot 26,9 °C. De auteurs rapporteerden daarnaast een ontogenetische verschuiving: juveniele snoekbaars heeft een hoger groeitemperatuurbereik dan adulten.',
+    summary: 'Volledige primaire studie: 70 volwassen kweek-snoekbaarzen verdeeld over temperatuurbehandelingen; zes bruikbare meetgroepen van 13–28 °C, na minimaal drie weken acclimatisatie. De berekende maximale aerobe scope lag bij 18,8 °C en het afgeleide 80%-bereik bij 10,4–26,9 °C. Belangrijke nuance: er was geen statistisch significant verschil in aerobe scope tussen 13 en 25 °C; bij 28 °C resteerden slechts drie complete dieren. Juveniele groeitemperaturen zijn hoger dan die van adulten.',
     limitations: [
-      'De vissen kwamen uit een commerciële kweekfaciliteit en werden in aquacultuurtanks onderzocht; overdracht naar vrijlevende Nederlandse populaties is onzeker.',
+      'De vissen kwamen uit een commerciële kweekfaciliteit en werden in aquacultuurtanks onderzocht; overdracht naar vrijlevende Nederlandse populaties is onzeker. De dieren acclimatiseerden minimaal drie weken, kregen 24 uur per dag dimlicht en werden voorafgaand aan de respirometrie minimaal drie dagen gevast.',
+      'Hoewel het afgeleide modelmaximum 18,8 °C is, was aerobe scope niet significant verschillend tussen 13 en 25 °C. De 28 °C-groep leverde slechts drie complete metingen; bij 31 °C overleefde geen dier het volledige protocol.',
       'Het optimum betreft aerobe scope, niet een gemeten optimum voor foerageren, jachtactiviteit of hengelvangbaarheid.',
       'De bron laat zien dat levensfase belangrijk is; de app kent die meestal niet en mag de volwassen curve niet als universeel soortoptimum presenteren.'
     ],
     sourceReferences: [
       'Frisk, M., Skov, P.V. & Steffensen, J.F. (2012). Thermal optimum for pikeperch (Sander lucioperca) and the use of ventilation frequency as a predictor of metabolic rate. Aquaculture, 324–325, 151–157. https://doi.org/10.1016/j.aquaculture.2011.10.024'
     ],
-    reviewedAt: '2026-11-16',
+    reviewedAt: '2026-11-17',
     approvedForPrediction: false,
   },
   {

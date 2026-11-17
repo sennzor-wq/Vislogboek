@@ -1108,3 +1108,13 @@ Regressietest bewaakt beide kanten: oude modelversie wordt niet gescoord, maar e
 De Brier-evaluatie rapporteert nu afzonderlijk het totale aantal opgeslagen prognosemomentopnames, het aantal momentopnames van de actuele modelversie en het aantal oudere/afwijkende versies dat buiten de actuele modelscores blijft. De statistiekenweergave toont deze aantallen direct bij de Brier-sectie, zodat het totaal aan bewaarde historie niet wordt verward met de steekproef die de huidige Brier-score voedt.
 
 Oudere snapshots worden niet verwijderd. Hun afgeronde, tijdig bekende sessie-uitkomsten kunnen nog steeds in de chronologische naïeve baseline dienen; alleen hun oude voorspelde kansen worden niet in de score van de actuele modelversie gemengd. Een regressietest bewaakt de tellingen en de versie-isolatie.
+
+
+## 57. Volledige primaire thermische broncontrole baars en snoekbaars (17 november 2026)
+
+De volledige beschikbare primaire publicaties van Christensen et al. (2020; baars) en Frisk et al. (2012; snoekbaars) zijn opnieuw gecontroleerd. De registry bevat nu de exacte steekproef-, maatklasse-, acclimatisatie- en meetresponsdetails.
+
+- **Baars:** respirometrie bij 120 vissen van 5–882 g op 15, 20, 25 en 28 °C. Het berekende aerobe-scopeoptimum daalde met lichaamsmassa voor gemodelleerde klassen van 40–640 g; onder 40 g werd geen optimum gevonden omdat aerobe scope binnen het onderzochte bereik niet afnam. De aparte shuttle-box temperatuurvoorkeur is bij 37 vissen van 3–74 g gemeten en is niet dezelfde respons als aerobe scope.
+- **Snoekbaars:** 70 volwassen kweekvissen; zes meetgroepen 13–28 °C, na minimaal drie weken acclimatisatie. Het berekende maximum van aerobe scope lag op 18,8 °C met een breed afgeleid 80%-bereik van 10,4–26,9 °C. De aerobe scope verschilde statistisch niet tussen 13 en 25 °C; de 28 °C-groep leverde slechts drie complete metingen. De studie gebruikte 24 uur dimlicht en aquacultuurcondities.
+
+Deze bevindingen bevestigen dat een vaste soortbrede Gaussische curve onvoldoende is: bij baars is lichaamsmassa essentieel en bij volwassen snoekbaars is het optimum eerder een breed plateau dan een scherp piekpunt. Beide bronnen meten fysiologische capaciteit, niet directe voedselopname, dagelijkse activiteit of hengelvangbaarheid. Alle registry-items blijven `approvedForPrediction: false`. Geen bestaande `thermalOptimum`, curvebreedte, activiteitsscore of vangstkans is aangepast. De huidige curves blijven voorlopige priors totdat overdraagbaarheid en onafhankelijke lokale validatie zijn aangetoond.

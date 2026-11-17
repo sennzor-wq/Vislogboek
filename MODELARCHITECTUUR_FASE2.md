@@ -459,3 +459,10 @@ Werkelijk afgeronde uitkomsten van oudere modelversies mogen wel worden gebruikt
 ## 50. Transparante telling van modelversies in evaluatie
 
 De evaluatie-uitvoer onderscheidt `totalSnapshots`, `currentModelSnapshotCount` en `outdatedVersionCount`. De statistiekenweergave toont opgeslagen historie, actuele modelmomentopnames en oudere/afwijkende versies die niet in de huidige Brier-score meetellen. Dit is uitsluitend transparantie over de evaluatiesteekproef; het verwijdert of muteert geen historische gegevens.
+
+
+## 51. Primaire aerobe-scopebronnen: omvang, levensfase en responsvorm
+
+De volledige studies van Christensen et al. (2020) en Frisk et al. (2012) tonen waarom één vaste temperatuurpiek per soort te simplistisch is. Bij baars verschuift het aerobe-scopeoptimum met lichaamsmassa en is bij de gemodelleerde vissen onder 40 g geen optimum binnen het onderzochte bereik gevonden. Bij volwassen snoekbaars is de berekende 18,8 °C-piek onderdeel van een breed 80%-bereik (10,4–26,9 °C), terwijl de scope van 13–25 °C statistisch niet verschilde en de 28 °C-groep klein was (n=3). De aparte baars-temperatuurvoorkeurmeting is geen aerobe-scope-uitkomst.
+
+Beide bronnen blijven mechanistische, laboratorium-/aquacultuurpriors; ze valideren geen directe voeding, activiteit in het wild of vangstkans. Geen numerieke curveparameters worden hieruit automatisch overgenomen. De bestaande profielen blijven voorlopig en niet-goedgekeurd voor voorspelling.
