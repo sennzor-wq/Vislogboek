@@ -825,7 +825,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
-                <span className="text-slate-400">Betrouwbaarheid: {activeDayProg.thermalAnalysis.trendConfidence}</span>
+                <span
+                  className="text-slate-400"
+                  title="Kwalitatieve databasis op basis van meetbron, dekking en ouderdom; geen statistisch betrouwbaarheidspercentage."
+                >Databasis watertemperatuur: {activeDayProg.thermalAnalysis.trendConfidence}</span>
               </div>
             )}
             {showAdvancedDetails && (<>
@@ -943,7 +946,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-slate-400">Betrouwbaarheid advies:</span>
+                    <span
+                      className="text-[11px] text-slate-400"
+                      title="Kwalitatieve inschatting van de onderbouwing van het stekadvies; geen gekalibreerde kans."
+                    >Onderbouwing stekadvies:</span>
                     <span
                       className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
                         activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
@@ -1408,7 +1414,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                       }`}
                     >
-                      {ha.confidenceLevel} modelbetrouwbaarheid
+                      Onderbouwing habitatinschatting: {ha.confidenceLevel}
                     </span>
                   </div>
 

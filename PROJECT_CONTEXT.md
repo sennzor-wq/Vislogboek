@@ -1391,3 +1391,9 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Nieuw veld `poissonSessionCount` telt exact de sessies met bekende duur én bruikbare vangstaantallen. De categoriegrenzen worden op dit aantal toegepast.
 - Wilson-interval blijft apart: historische sessiesuccesfractie, niet de onzekerheid rond de Poisson-duurkans.
 - Regressietest bewaakt het verschil tussen 11 vergelijkbare sessies en 9 bruikbare Poisson-sessies.
+
+### Fase 2 — modelonderbouwing en betrouwbaarheid gescheiden (17 november 2026)
+
+- De UI noemt thermische bronkwaliteit nu 'Databasis watertemperatuur' en de kwalitatieve labels voor positionering/habitat 'Onderbouwing'.
+- Deze labels zijn geen gekalibreerde kansen of statistische betrouwbaarheidspercentages. De Wilson-interval blijft uitsluitend voor historische sessiesuccesfractie; Poisson-vangkans toont de eigen steekproefbasis.
+- Alleen presentatietekst/tooltips gewijzigd; geen prognoseberekening of modelparameter gewijzigd.
