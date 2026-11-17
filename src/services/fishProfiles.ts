@@ -1,4 +1,4 @@
-import { FishSpecies, TimeSlot } from '../types';
+import { FishSpecies } from '../types';
 
 export interface SpeciesProfile {
   species: FishSpecies;
@@ -15,8 +15,6 @@ export interface SpeciesProfile {
   thermalOptimum: number;
   thermalWidthCold: number;
   thermalWidthWarm: number;
-  preferredSlots: TimeSlot[];
-  crepuscularBonus: boolean;            // Schemering bonus (ochtend/avond)
   // Deze voorkeuren zijn voorlopig heuristisch. Windrichting en luchtdruk worden
   // niet gebruikt als automatische biologische bonus/malus in de activiteitsindex.
   preferredWindDirections: string[];
@@ -62,8 +60,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 21.0,
     thermalWidthCold: 5.8,
     thermalWidthWarm: 5.5,
-    preferredSlots: ['Ochtend', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['ZW', 'W', 'Z'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'matig',
@@ -98,8 +94,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 17.5,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 5.8,
-    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
-    crepuscularBonus: false,
     preferredWindDirections: ['ZW', 'W', 'NW'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'hoog',
@@ -136,8 +130,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 12.5,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
-    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['ZW', 'W', 'NW', 'N'],
     disruptiveWindThresholdKmH: 38,
     pressureSensitivity: 'matig',
@@ -172,8 +164,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
-    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['ZW', 'W', 'O'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'matig',
@@ -211,8 +201,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 15.0,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
-    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
-    crepuscularBonus: false,
     preferredWindDirections: ['ZW', 'W', 'Z'],
     disruptiveWindThresholdKmH: 32,
     pressureSensitivity: 'laag',
@@ -243,8 +231,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 20.5,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
-    preferredSlots: ['Avond', 'Nacht'],
-    crepuscularBonus: false,
     preferredWindDirections: ['Z', 'ZW'],
     disruptiveWindThresholdKmH: 30,
     pressureSensitivity: 'hoog',
@@ -280,8 +266,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 15.0,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 6.0,
-    preferredSlots: ['Ochtend', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['W', 'ZW', 'NW'],
     disruptiveWindThresholdKmH: 36,
     pressureSensitivity: 'hoog',
@@ -313,8 +297,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 22.0,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
-    preferredSlots: ['Nacht', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['Z', 'ZW'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'hoog',
@@ -344,8 +326,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 18.5,
     thermalWidthCold: 5.5,
     thermalWidthWarm: 5.0,
-    preferredSlots: ['Ochtend', 'Middag', 'Avond'],
-    crepuscularBonus: true,
     preferredWindDirections: ['W', 'ZW'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'laag',
@@ -373,8 +353,6 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
-    preferredSlots: [],
-    crepuscularBonus: false,
     preferredWindDirections: ['ZW', 'W'],
     disruptiveWindThresholdKmH: 35,
     pressureSensitivity: 'matig',
