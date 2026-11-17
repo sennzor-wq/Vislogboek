@@ -918,3 +918,16 @@ De volledige beschikbare tekst van Poulet et al. (2005) en Horký et al. (2008) 
 - De twee onafhankelijke telemetriestudies ondersteunen een terugkerende schemeringspiek in **beweging** bij volwassen snoekbaars in twee verschillende systemen. Zij bewijzen geen schemerpiek in voedselopname, jachtsucces of hengelvangbaarheid. Het Ladogameer-voedingsonderzoek blijft een aparte, secundair ontsloten bron met seizoensgebonden voedingsritme.
 
 De registry vermeldt nu de steekproef, meetfrequentie, periode en beperkingen explicieter. Tests bewaken dat beide studies uitsluitend als locomotorische/habitatcontext beschikbaar zijn. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling; er is geen score, tijdvakgewicht of vangstkans aangepast.
+
+
+## 46. Tijdvakfactor losgekoppeld van verouderde profielvoorkeuren (17 november 2026)
+
+De systematische codecontrole vond dat prognosisEngine.ts de velden preferredSlots en crepuscularBonus uit fishProfiles.ts nog gebruikte voor de verklarende tijdvaktekst. Deze velden wijzigden de numerieke score niet, maar konden wel een schijnbare soortvoorkeur communiceren die niet aansloot op de recent aangescherpte responsclassificatie. Met name beweging/telemetrie mocht daardoor te gemakkelijk als schemer- of voedingsvoorkeur worden gelezen.
+
+De oude profielvelden zijn verwijderd. De tijdvakfactor gebruikt nu uitsluitend de soortgekoppelde dielBehaviorEvidenceService:
+- directe tijdgebonden voedingsmetingen worden als context genoemd, met expliciete waarschuwing dat alle huidige bronnen niet-goedgekeurd en contextgebonden zijn;
+- uitsluitend bewegings-/habitatbewijs wordt expliciet niet als voedingsvoorkeur vertaald;
+- zonder soortspecifiek tijdgebonden bewijs wordt geen voorkeur afgeleid;
+- de numerieke tijdvakfactor blijft in alle gevallen neutraal; zonne-/schemercontext blijft afzonderlijk beschrijvend.
+
+Regressietests bewaken karper (direct maar niet-goedgekeurd voedingsritme), roofblei (beweging zonder voedingsritme) en de generieke fallback. Er zijn geen thermische scores, tijdvakrangschikkingen, profieltemperaturen of persoonlijke vangstkansen gewijzigd.
