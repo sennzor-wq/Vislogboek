@@ -129,6 +129,26 @@ export interface ResearchRegistryEntry {
  * directe toepassing als voorspellingsregel.
  */
 export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
+
+  {
+    id: 'lake-temperature-models-multi-lake-calibration-2025',
+    topic: 'watertemperatuur-modelkalibratie',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'strong',
+    summary: 'Een internationale kalibratiestudie vergeleek vier eendimensionale meerwatertemperatuurmodellen op 73 meren. Parameterwaarden, modelprestaties en parametersensitiviteit verschilden tussen modellen en clusters van meerkenmerken; geen model presteerde in alle meren het best.',
+    limitations: [
+      'De studie betreft meren met beschikbare temperatuurdata en valideert niet rechtstreeks de vereenvoudigde Vislogboek-engine of een specifieke Nederlandse stek.',
+      'De resultaten ondersteunen model- en locatiespecifieke kalibratie, maar leveren geen kant-en-klare responsgewichten of tijdconstanten voor Vislogboek.',
+      'Dit is omgevings-/modelkalibratiebewijs, geen directe vissoort-, voedings- of vangstkansfactor.'
+    ],
+    sourceReferences: [
+      'Feldbauer, J., Mesman, J.P., Andersen, T.K. & Ladwig, R. (2025). Learning from a large-scale calibration effort of multiple lake temperature models. Hydrology and Earth System Sciences, 29, 1183–1199. https://doi.org/10.5194/hess-29-1183-2025'
+    ],
+    reviewedAt: '2026-11-17',
+    approvedForPrediction: false,
+  },
+
   {
     id: 'lake-thermal-models-piccolroaz-2024',
     topic: 'watertemperatuur',
