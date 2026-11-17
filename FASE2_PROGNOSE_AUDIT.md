@@ -1049,3 +1049,15 @@ In het soortprofielpaneel worden de interne waarden alleen nog getoond als **voo
 Windpresentatie is nu soortneutraal en feitelijk: gemeten richting en snelheid plus een uitleg dat praktische invloed afhangt van stek, oever en methode. Er is geen soortafhankelijke harde-winddrempel of windvoorkeur meer. Seizoen, regen en bewolking krijgen geen niet-onderbouwde profielnotitie.
 
 Regressietests bewaken de neutrale temperatuurimpact en het behoud van de thermische berekening. Geen numerieke thermische parameters, activiteitsscores of persoonlijke vangstkansen gewijzigd.
+
+## 51. Doorwerking van watertemperatuuronzekerheid naar thermische score (17 november 2026)
+
+Wanneer de watertemperatuur geschat is en de waterthermische engine een onder- en bovengrens levert, toont de temperatuurfactor nu ook een indicatieve thermische scoreband. De band wordt berekend door de bestaande voorlopige soortcurve op de grenzen en, indien binnen het interval, de modelpiek toe te passen. De centrale score blijft berekend op de centrale geschatte watertemperatuur en verandert niet.
+
+De tekst benoemt expliciet:
+- het temperatuurinterval waarop de band is gebaseerd;
+- de bijbehorende relatieve thermische activiteitsscoreband;
+- dat dit uitsluitend de doorwerking van watertemperatuuronzekerheid toont;
+- dat het geen statistisch betrouwbaarheidsinterval is en de onzekerheid in de soortcurve zelf niet omvat.
+
+Bij een rechtstreeks gemeten watertemperatuur wordt geen geschatte scoreband getoond. Er is geen vangstkans, biologisch gewicht of numerieke modelparameter gewijzigd.

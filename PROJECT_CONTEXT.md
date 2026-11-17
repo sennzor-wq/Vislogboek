@@ -1370,3 +1370,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Windcontext is soortneutraal; geen per-vissoort harde-winddrempel of voorkeursrichting meer. Seizoen, druk, regen en bewolking wijzigen de thermische score niet.
 - De actieve voorlopige Gaussische thermische curve (modelpiek en curvebreedtes) blijft exact behouden. Temperatuurimpact-label wordt neutraal omdat geen gevalideerde fysiologische grens bestaat; de activiteitsscore zelf verandert niet.
 - Het profielpaneel noemt de waarden nu voorlopige modelinstellingen en toont geen optimale temperatuurzone of barometerbereik. Regressietest controleert neutrale impact.
+
+### Fase 2 — thermische scoreband bij geschatte watertemperatuur (17 november 2026)
+
+- Bij geschatte watertemperatuur met een beschikbaar temperatuurinterval toont de temperatuurfactor nu ook een indicatieve thermische scoreband.
+- De band wordt door de bestaande curve berekend op de intervalgrenzen en de modelpiek indien die binnen het interval ligt. De centrale score blijft gelijk.
+- De band is nadrukkelijk geen statistisch betrouwbaarheidsinterval en omvat niet de onzekerheid van de voorlopige soortcurve. Bij gemeten watertemperatuur wordt geen geschatte band getoond.
+- Regressietest controleert dat de watertemperatuuronzekerheid transparant wordt getoond; geen modelparameters of vangstkans gewijzigd.

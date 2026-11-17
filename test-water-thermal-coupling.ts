@@ -124,6 +124,13 @@ async function runTestSuite() {
       (progColdSnap.thermalAnalysis?.estimatedWaterTemp ?? 0) < 16.0,
     `1.2 Geschatte watertemperatuur (${progColdSnap.thermalAnalysis?.estimatedWaterTemp} °C) dempt de koude lucht (4 °C) via thermische traagheid`
   );
+  const estimatedThermalDetail = progColdSnap.timeSlots['Ochtend'].temperatureFactor.detail;
+  assert(
+    estimatedThermalDetail.includes('Indicatieve thermische scoreband') &&
+      estimatedThermalDetail.includes('geen statistisch betrouwbaarheidsinterval') &&
+      estimatedThermalDetail.includes('onzekerheid in de voorlopige soortcurve is niet inbegrepen'),
+    '1.2a Geschatte watertemperatuuronzekerheid wordt transparant doorgegeven aan de thermische scoreband'
+  );
   assert(
     progColdSnap.activityScore >= 4.0,
     `1.3 Karperactiviteit (${progColdSnap.activityScore}/10) weerspiegelt trage watermassa en raakt NIET in winterrust door koude lucht`
