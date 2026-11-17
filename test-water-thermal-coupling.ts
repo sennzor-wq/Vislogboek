@@ -126,10 +126,8 @@ async function runTestSuite() {
   );
   const estimatedThermalDetail = progColdSnap.timeSlots['Ochtend'].temperatureFactor.detail;
   assert(
-    estimatedThermalDetail.includes('Indicatieve thermische scoreband') &&
-      estimatedThermalDetail.includes('geen statistisch betrouwbaarheidsinterval') &&
-      estimatedThermalDetail.includes('onzekerheid in de voorlopige soortcurve is niet inbegrepen'),
-    '1.2a Geschatte watertemperatuuronzekerheid wordt transparant doorgegeven aan de thermische scoreband'
+    !estimatedThermalDetail.includes('Indicatieve thermische scoreband'),
+    '1.2a Zonder beschikbaar temperatuurinterval wordt geen scoreband verzonnen'
   );
   assert(
     progColdSnap.activityScore >= 4.0,
@@ -283,6 +281,22 @@ async function runTestSuite() {
     historicalSessions: [measuredAnchorSession],
     currentDateRef: new Date('2026-10-20T12:00:00'),
   });
+  const anchoredForecastPrognosis = calculateDayPrognosis(
+    '2026-10-21',
+    coldSnapForecasts,
+    'Karper',
+    [measuredAnchorSession],
+    undefined,
+    null,
+    new Date('2026-10-20T12:00:00'),
+    { location: locLokkershoek }
+  );
+  assert(
+    anchoredForecastPrognosis.thermalAnalysis?.estimatedRange != null &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Indicatieve thermische scoreband') &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen statistisch betrouwbaarheidsinterval'),
+    '4.0a Een lokaal verankerde schatting met temperatuurinterval toont een niet-statistische thermische scoreband'
+  );
 
   assert(
     anchoredEstimate.hasMeasuredWaterTemp === false &&
