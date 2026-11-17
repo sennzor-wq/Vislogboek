@@ -1207,3 +1207,36 @@ Een evaluatieresultaat mag niet achteraf de voorspelling wijzigen die het beoord
 - Resultaten moeten per soort en waar relevant per levensfase, seizoen, habitat en tijdvak te inspecteren zijn; kleine aantallen blijven expliciet voorlopig.
 - De evaluatie mag geen verborgen automatische zelftraining worden. Eventuele toekomstige submodelkalibratie moet expliciet afgebakend, chronologisch, versieerbaar en onafhankelijk toetsbaar zijn.
 - **Fase 2 blijft geblokkeerd** totdat de vangstkans-evaluatie aan §58 voldoet en de voor de uiteindelijke prognose geclaimde deeluitkomsten aantoonbaar een passende onafhankelijke validatiemethode hebben. Niet elk biologisch mechanisme hoeft al een numerieke score te krijgen; zonder valide waarneming blijft het een transparant onderbouwde hypothese, geen bewezen voorspelling.
+
+
+## 60. Technische data-readiness per evaluatielaag (17 november 2026)
+
+Deze audit beschrijft wat de huidige types en evaluatie-engine daadwerkelijk vastleggen. Aanwezigheid van een veld betekent niet automatisch dat de waarde compleet, tijdnauwkeurig of geschikt is als onafhankelijke validatielabel.
+
+### Wat al technisch aanwezig is
+
+- **Vangkans:** PrognosisSnapshot.predictedCatchChance, actualOutcome, linkedSessionId, forecastTimestamp, modelVersion en de gekoppelde FishingSession.startTime/endTime vormen de basis voor Brier. De evaluator controleert dat de voorspelling vóór sessiestart is gemaakt, sluit benchmarks/ongeldige uitkomsten uit en kiest de vroegste snapshot per sessie en doelsoort.
+- **Temperatuur:** de snapshot bewaart de vooraf geschatte watertemperatuur en meetprovenance; de sessie kan een werkelijk gemeten temperatuur met meettijd, bron, methode en diepte opslaan. evaluateWaterTemperaturePerformance() berekent MAE/RMSE/bias. getWaterTemperatureCalibration() gebruikt uitsluitend eerdere geldige paren op dezelfde stek en in hetzelfde seizoen.
+- **Tijd- en inspanningscontext:** snapshots hebben targetSlot, targetWindowStart/End, durationHours en durationKnown; sessies hebben startTime, endTime, durationMinutes, plannedDurationHours en plannedEndTime. Deze velden bieden een basis voor de noodzakelijke vergelijkbaarheidscontrole, maar de huidige Brier-evaluator gebruikt ze nog niet om geplande en werkelijke duur/tijdvensters te vergelijken.
+- **Dag- en tijdvakuitvoer:** PrognosisSnapshot.prognosisData bewaart de volledige DayPrognosis, inclusief dagadvies, bestTimeSlot, de vier timeSlots en hun thermische activiteitspotentie. De snapshot heeft daarnaast één targetSlot en één predictedActivityScore.
+
+### Wat nog niet valideerbaar is met de huidige registratie
+
+1. **Brier op vergelijkbare sessieduur:** de huidige evaluator controleert start/eindtijd, maar sluit een mismatch tussen voorspelde duur/tijdvenster en werkelijk bevistijd nog niet uit. Dit blijft de eerste technische prioriteit uit §58.
+2. **Brier per doelsoort:** de rolling baseline is intern soortspecifiek, maar EvaluationResult rapporteert de primaire Brier-score en kalibratie momenteel geaggregeerd. Een soortspecifieke diagnostische uitsplitsing ontbreekt nog.
+3. **Tijdvakrangschikking:** de dagprognose bewaart activiteitspotentie per tijdvak, maar niet een afzonderlijke, vooraf vastgelegde vangstkans per tijdvak. Een sessie-uitkomst kan bovendien meerdere tijdvakken omvatten. De huidige gegevens rechtvaardigen dus geen claim dat de app al weet welk tijdvak de hoogste vangstkans had.
+4. **Werkelijke inspanning per tijdvak:** FishingSession bewaart sessiestart/-einde en geplande duur. Optionele SessionRod.activeIntervals kunnen hengelinzet per tijdvak verfijnen, maar zijn niet gegarandeerd aanwezig. Zonder passende inspanningsregistratie zijn vangstaantallen tussen tijdvakken niet eerlijk vergelijkbaar.
+5. **Vangsttijdstip:** CatchItem.timestamp en optionele hengelgebeurtenissen kunnen tijdinformatie bevatten. Hun volledigheid en bronbetrouwbaarheid moeten eerst worden geaudit; vangsttijd alleen levert geen nulvangst- of blootstellingslabel voor elk ander tijdvak.
+6. **Habitat/aanwezigheid:** habitatAnalysis is kwalitatieve modeluitvoer. Aanwezigheidsobservaties bestaan, maar de sessie-sync kan session.updatedAt als observatietijd gebruiken; dat is niet noodzakelijk het fysieke waarnemingsmoment. Er is geen gegarandeerd soortspecifiek, tijdgestempeld detectie-/afwezigheidslabel.
+7. **Voeding/foerageren en activiteit:** de bestaande sessieobservaties zijn grove context zonder betrouwbare gebeurtenistijd of expliciete soortidentificatie. Ze zijn niet geschikt als tijdvakgebonden voedingslabels. Er bestaat geen continue onafhankelijke meting van dagelijkse activiteit of directe voedselopname in de sessiedata.
+8. **Richting/relatieve omstandigheden:** de snapshots bewaren de modeluitvoer en context, maar de actuele sessie-uitkomst alleen is een ruwe vangstproxy. Voor eerlijke vergelijking zijn herhaalde sessies, vergelijkbare inspanning en controle voor soort, stek, seizoen en techniek nodig; een individuele sessie kan geen alternatieve voorspelling als counterfactual valideren.
+
+### Uitvoeringsvolgorde
+
+1. Maak eerst de Brier-eligible set strikt vergelijkbaar op voorspeld en werkelijk tijdvenster/duur, met expliciete tellingen van uitgesloten gevallen en regressietests.
+2. Voeg soortspecifieke Brier- en kalibratiediagnostiek toe zonder de bestaande totaalscore te verbergen.
+3. Audit de feitelijke betrouwbaarheid van CatchItem.timestamp, SessionRod.activeIntervals en hengelgebeurtenissen voordat tijdvak- of inspanningsvalidatie wordt ontworpen.
+4. Ontwerp daarna pas de minimale aanvullende snapshot-/registratievelden voor tijdvakrangschikking. Geen nieuwe verplichte gebruikersinvoer toevoegen zolang bestaande data en optionele automatische registratie volstaan.
+5. Houd habitat-, voedings- en fysiologische activiteitsevaluatie geblokkeerd totdat onafhankelijke waarnemingslabels met passende tijd- en soortresolutie beschikbaar zijn.
+
+**Besluit:** de huidige code heeft twee echte evaluatiemodules (vangstkans en watertemperatuur). De overige prognoselagen zijn nog niet afzonderlijk gevalideerd. De aanwezigheid van vier tijdvakken in DayPrognosis maakt ze nog niet tot vier onafhankelijk geëvalueerde vangstprognoses.
