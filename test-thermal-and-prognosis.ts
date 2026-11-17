@@ -4,6 +4,7 @@
  * en de thermische waterontwikkelingsmodule.
  */
 
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
