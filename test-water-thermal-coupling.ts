@@ -451,7 +451,7 @@ async function runTestSuite() {
 
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
-    slotMorning.temperatureFactor.title === 'Temperatuur & Metabolisme' &&
+    slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
       slotMorning.temperatureFactor.detail.includes('via thermische traagheid'),
     '5.2 Tijdvakfactoren vermelden geschatte watertemperatuur via thermische traagheid'
   );

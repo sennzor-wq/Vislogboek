@@ -66,6 +66,9 @@ jobs:
       - name: Species biology evidence registry tests
         run: bun run tsx test-research-registry.ts
 
+      - name: Species thermal evidence context tests
+        run: bun run tsx test-thermal-evidence-context.ts
+
       - name: Species feeding evidence context tests
         run: bun run tsx test-feeding-evidence.ts
 

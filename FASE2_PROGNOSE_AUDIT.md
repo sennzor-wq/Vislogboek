@@ -1027,3 +1027,13 @@ De huidige Gaussische curve gebruikt per soort een `thermalOptimum` en twee bree
 - Volgende modelstap: ontwerp een evidence-aware thermische respons waarbij directe aerobe-scopecurves, metabole Q10-gegevens en voedingsresponsen gescheiden blijven. Gebruik SMR/RMR-only bronnen niet als bewijs voor een fysiologisch optimum. Voor soorten zonder geschikte curve blijft de onzekerheid expliciet en wordt geen schijnprecisie toegevoegd.
 - Voor de waterthermische engine volgt een lokale validatie op echte, tijdgestempelde metingen; pas daarna mogen tijdconstanten en warmtefluxcoëfficiënten worden herfit.
 - Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling. Fase 2 blijft open; Fase 3 start niet.
+
+## 49. Thermische bronstatus zichtbaar gemaakt in de prognose (17 november 2026)
+
+De temperatuurfactor toont naast de watertemperatuurrespons een korte soortspecifieke bronstatus. Dit is uitsluitend uitleg; de thermische curve, score, factorimpact, tijdvakken en vangstkans veranderen niet.
+
+- **Baars en snoekbaars:** direct aerobe-scopeonderzoek is geregistreerd, maar de bronnen zijn contextgebonden en niet goedgekeurd voor numerieke voorspelling. Bij baars is lichaamsgrootte relevant; bij snoekbaars gaat het onder meer om volwassen kweekvissen en levensfase.
+- **Karper, snoek, brasem en blankvoorn:** metabole temperatuurmetingen zijn geregistreerd, maar geen directe aerobe-scopecurve. SMR/RMR is niet hetzelfde als activiteit of voedselopname en bewijst geen activiteitoptimum.
+- **Zeelt, meerval, roofblei en Overig:** geen soortspecifieke meer-temperaturenmeting van aerobe scope of metabolisme in het huidige register. De curve blijft een voorlopige prior en wordt niet als soortspecifiek gevalideerd gepresenteerd.
+
+De factornaam is verduidelijkt van 'Temperatuur & Metabolisme' naar **'Thermische activiteitspotentie'**. Regressietests bewaken de bronclassificatie en non-approval. Er is geen numerieke modelwijziging uitgevoerd.

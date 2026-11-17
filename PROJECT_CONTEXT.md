@@ -1356,3 +1356,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De KNMI-verificatie van circa 1 °C geldt voor het eigen operationele model voor stilstaand zoet buitenwater, niet voor de vereenvoudigde Vislogboek-engine. De review van Piccolroaz et al. (2024) en de kalibratiestudie van Feldbauer et al. (2025; vier modellen, 73 meren) onderbouwen dat modelparameters en prestaties per model/watertype verschillen en lokale validatie nodig is.
 - De soortcurves zijn niet volledig brongefit. SMR/RMR, aerobe scope en voedselopname blijven afzonderlijke responsvariabelen. Baars toont grootteafhankelijk aerobe-scopeoptimum; adulte snoekbaars heeft in een gecontroleerde kweekstudie een piek bij 18,8 °C en een breed 80%-bereik, terwijl juvenielen een ander optimum hebben. De huidige snoekbaarsprofielpiek van 15 °C is daarom gemarkeerd voor herbeoordeling, niet automatisch aangepast.
 - Geen numerieke parameter of score gewijzigd. Volgende stap: evidence-aware thermische modelvorm ontwerpen en lokale waterthermische parameters valideren met echte tijdgestempelde metingen. Fase 2 blijft open; Fase 3 start niet.
+
+### Fase 2 — thermische bronstatus in de prognose (17 november 2026)
+
+- De temperatuurfactor toont per soort of het register directe aerobe-scopegegevens, alleen metabole temperatuurmetingen of geen vergelijkbare geregistreerde temperatuurdata bevat.
+- Baars en snoekbaars tonen contextgebonden, niet-goedgekeurde aerobe-scopebronnen. Karper, snoek, brasem en blankvoorn tonen alleen metabole data; zeelt, meerval, roofblei en Overig tonen expliciet de ontbrekende bronbasis.
+- De factor heet nu 'Thermische activiteitspotentie'. De toelichting verandert geen score, profielcurve, tijdvak of vangstkans.
+- Regressietest bewaakt bronclassificatie en non-approval. Volgende stap blijft evidence-aware curve-ontwerp; geen numerieke parameters wijzigen zonder passende responsdata en validatie.
