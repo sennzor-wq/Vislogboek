@@ -382,3 +382,8 @@ Alle registraties blijven niet-goedgekeurd voor numerieke voorspelling. Onbekend
 De twee beschikbare primaire telemetriestudies zijn nu methodologisch explicieter vastgelegd. Poulet et al. (2005) volgden 9 van 13 getagde volwassen snoekbaarzen in een Zuid-Frans kanaal tijdens de paaiperiode, met 24-uursessies en posities per twee uur. Horký et al. (2008) volgden 8 volwassen vissen in de Elbe gedurende 12 maanden en 47 volledige 24-uurscycli, met posities per circa drie uur. Beide vonden hogere beweging tijdens twilight; de Elbe-studie vond nachtelijke ondiepe oeverposities die waarschijnlijk rust vertegenwoordigden.
 
 Dit versterkt de betrouwbaarheid van de **bewegingsbeschrijving**, niet van een voedings- of vangstkansclaim. De app mag de schemeringspiek niet als directe voedingsbonus gebruiken. Individuele variatie, adulte levensfase, paaiperiode in de kanaalstudie en verschil tussen rivier en kanaal blijven expliciete transferbeperkingen.
+
+
+## 40. Tijdvakcontext gebruikt uitsluitend geclassificeerd dagritmebewijs
+
+De tijdvakfactor haalt zijn verklarende context nu uit dielBehaviorEvidenceService en niet meer uit de verouderde preferredSlots-/crepuscularBonus-velden in de soortprofielen. Directe tijdgebonden voedingsmetingen blijven contextueel en niet-goedgekeurd; telemetrie voor beweging/habitat levert geen voedingsvoorkeur op; zonder passend bewijs wordt geen voorkeur afgeleid. De numerieke tijdvakfactor blijft neutraal en de astronomische lichtcontext blijft apart. Regressietests bewaken karper, roofblei en Overig.
