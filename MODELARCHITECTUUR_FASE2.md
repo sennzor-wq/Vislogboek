@@ -414,3 +414,9 @@ De huidige waterthermische schatter gebruikt heuristische tijdconstanten, respon
 De visfysiologische curve gebruikt per soort een Gaussisch optimum en koude-/warme breedte. De literatuur meet per soort verschillende responsvariabelen: SMR/RMR, aerobe scope, voedselopname of beweging. Deze uitkomsten zijn niet onderling uitwisselbaar. Met name SMR/RMR-data die exponentieel stijgen over een temperatuurtraject bewijzen geen optimum voor activiteit. Baars en snoekbaars hebben directer aerobe-scopebewijs, maar tonen ook grootte-/levensfase- en aquacultuurbeperkingen. De huidige snoekbaarsparameter wijkt af van de gemeten adulte piek van 18,8 °C; dit blijft een reviewflag totdat overdraagbaarheid naar wilde populaties is beoordeeld.
 
 **Modelregel voor de volgende iteratie:** pas alleen een thermische responsvorm toe die past bij de gemeten uitkomst. Gebruik aerobe scope voor fysiologische prestatiepotentie, SMR/RMR uitsluitend voor metabole temperatuurgevoeligheid, en voedselopname uitsluitend in de voedingslaag. Geen van deze uitkomsten mag rechtstreeks als vangstkans worden geïnterpreteerd. Waar een soortspecifieke curve ontbreekt, toon onzekerheid in plaats van een precies ogend optimum te fabriceren.
+
+## 43. Bronstatus bij thermische activiteitspotentie
+
+De prognose toont bij de temperatuurfactor een compacte, soortspecifieke toelichting op de werkelijk geregistreerde fysiologische responsvariabelen. Directe aerobe-scopecijfers worden onderscheiden van uitsluitend SMR/RMR-metingen en van soorten zonder vergelijkbare geregistreerde temperatuurdata. Alle huidige bronnen blijven niet-goedgekeurd voor numerieke voorspelling.
+
+Deze bronstatus is alleen verklarend: ze wijzigt de voorlopige thermische curve, activiteitsscore, tijdvakrangschikking of vangstkans niet. De factor heet daarom **thermische activiteitspotentie**. SMR/RMR, aerobe scope, voedselopname en hengelvangbaarheid blijven afzonderlijke responsen.

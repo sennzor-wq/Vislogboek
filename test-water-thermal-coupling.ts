@@ -449,9 +449,10 @@ async function runTestSuite() {
     '5.1 Onzekerheidsnotitie vermeldt expliciet dat karper niet automatisch in winterrust raakt door koude lucht'
   );
 
+  // The UI label describes thermal activity potential, not metabolism alone.
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
-    slotMorning.temperatureFactor.title === 'Temperatuur & Metabolisme' &&
+    slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
       slotMorning.temperatureFactor.detail.includes('via thermische traagheid'),
     '5.2 Tijdvakfactoren vermelden geschatte watertemperatuur via thermische traagheid'
   );

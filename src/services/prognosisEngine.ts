@@ -18,6 +18,7 @@ import {
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
+import { getSpeciesThermalEvidenceContextText } from './thermalEvidenceService';
 import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
@@ -431,8 +432,13 @@ function analyzeTimeSlot(
   const hasKnownWaterTemp = effectiveTemp !== null;
   const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
   const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
-  const tempDetailText = !hasKnownWaterTemp ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.' : tempSource === 'gemeten' ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).' : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).';
-  const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Temperatuur & Metabolisme', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
+  const thermalEvidenceDetail = getSpeciesThermalEvidenceContextText(species);
+  const tempDetailText = (!hasKnownWaterTemp
+    ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'
+    : tempSource === 'gemeten'
+      ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).'
+      : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).') + ` ${thermalEvidenceDetail}`;
+  const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Thermische activiteitspotentie', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
   // en vangstactiviteit is onvoldoende vastgesteld.
