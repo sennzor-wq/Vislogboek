@@ -430,3 +430,9 @@ De bestaande thermische modelpiek en curvebreedtes blijven voorlopig actief als 
 ## 45. Propagatie van watertemperatuuronzekerheid
 
 Bij een geschatte watertemperatuur met een beschikbaar modelinterval wordt de bestaande thermische curve geëvalueerd over dat interval. De gebruiker ziet naast de centrale score een indicatieve scoreband die uitsluitend de doorwerking van watertemperatuuronzekerheid weergeeft. Dit is geen statistisch betrouwbaarheidsinterval en omvat niet de onzekerheid van de soortspecifieke curve. Gemeten watertemperatuur krijgt geen geschatte scoreband. De centrale scoreberekening blijft ongewijzigd.
+
+## 46. Persoonlijke Poisson-vangkans blijft empirisch gescheiden
+
+De persoonlijke Poisson-vangkans wordt berekend uit het eigen historische vangsttempo per geregistreerd visuur en de geplande sessieduur. De eerdere vaste thermische multiplier is verwijderd omdat de relatie tussen de voorlopige thermische activiteitsscore en persoonlijke vangstfrequentie niet empirisch is gevalideerd.
+
+Thermische activiteit, voeding en habitat blijven afzonderlijke responsen. Ze worden niet als numerieke correctie op de persoonlijke Poisson-baseline toegepast totdat een reproduceerbare koppeling chronologisch is gevalideerd. De vangstkans is dus een historische persoonlijke baseline, geen geïntegreerde biologische vangstprognose.

@@ -275,6 +275,24 @@ async function runTestSuite() {
       (prog6h.expectedCatches ?? 0) > (prog2h.expectedCatches ?? 0),
     `3.6 Vangsttempo per uur blijft constant (${prog2h.hourlyCatchRate}/u); totale verwachte vangst stijgt met duur (2u: ~${prog2h.expectedCatches} vs 6u: ~${prog6h.expectedCatches})`
   );
+  const progCold2h = calculateDayPrognosis('2026-10-26', createWeatherHistory(5), 'Karper', carpSessions, undefined, undefined, new Date(), {
+    sessionDurationHours: 2,
+    catches: carpCatches,
+  });
+  assert(
+    progCold2h.activityScore !== prog2h.activityScore,
+    '3.6a Een andere thermische dagscore wordt apart berekend'
+  );
+  assert(
+    progCold2h.personalCatchChance === prog2h.personalCatchChance &&
+      progCold2h.expectedCatches === prog2h.expectedCatches &&
+      progCold2h.hourlyCatchRate === prog2h.hourlyCatchRate,
+    '3.6b Thermische activiteit wijzigt de persoonlijke Poisson-vangkans niet zonder gevalideerde koppeling'
+  );
+  assert(
+    prog2h.uncertaintyNotes?.some((note) => note.includes('historische Poisson-baseline') && note.includes('niet empirisch is gevalideerd')) === true,
+    '3.6c De historische basis van de persoonlijke vangstkans wordt expliciet toegelicht'
+  );
 
   const progDefault = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), { catches: carpCatches });
   const progZero = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', carpSessions, undefined, undefined, new Date(), {
