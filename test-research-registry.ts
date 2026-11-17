@@ -18,6 +18,18 @@ if (!RESEARCH_REGISTRY.includes(entry)) {
 }
 console.log('Research registry tests passed.');
 
+const lakeCalibrationEvidence = getResearchByTopic('watertemperatuur-modelkalibratie').find(
+  (item) => item.id === 'lake-temperature-models-multi-lake-calibration-2025'
+);
+if (!lakeCalibrationEvidence ||
+    lakeCalibrationEvidence.approvedForPrediction ||
+    isApprovedPredictionKnowledge(lakeCalibrationEvidence) ||
+    !lakeCalibrationEvidence.limitations.some((item) => item.includes('73 meren') || item.includes('Nederlandse stek')) ||
+    !lakeCalibrationEvidence.sourceReferences.some((source) => source.includes('10.5194/hess-29-1183-2025'))) {
+  throw new Error('Multi-lake model calibration evidence must be discoverable, scoped and non-approved for prediction.');
+}
+
+
 const carpEvidence = getResearchBySpecies('Karper');
 if (!carpEvidence.some((item) => item.id === 'common-carp-temperature-feeding-rhythm-2012')) {
   throw new Error('Carp-specific feeding-rhythm evidence must be discoverable by species.');

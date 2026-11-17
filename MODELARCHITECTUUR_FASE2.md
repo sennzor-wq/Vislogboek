@@ -406,3 +406,11 @@ De tijdvakken delen momenteel dezelfde thermische analyse voor de doeldag. Zonde
 De huidige Poisson-vangkans wordt alleen als persoonlijke historische baseline gepresenteerd. De thermische dagscore beïnvloedt het geschatte vangsttempo beperkt, maar de voedings- en habitatlaag zijn nog niet numeriek geïntegreerd. De bestaande confidence-labels en intervallen mogen niet worden samengevoegd tot één totaalbetrouwbaarheidspercentage.
 
 Volgende technische stap: parameterherkomstmatrix voor de actieve waterthermische en visfysiologische numerieke aannames; daarna opruimen van niet-aangesloten profielvelden en een expliciete testmatrix voor de vijf responslagen.
+
+## 42. Thermische parameterherkomst en evidence-aware modelrichting
+
+De huidige waterthermische schatter gebruikt heuristische tijdconstanten, responsgewichten, zonnestralings- en windmengingscorrecties. KNMI ondersteunt de fysische factorfamilies, maar niet de concrete Vislogboek-coëfficiënten. De KNMI-verificatie van circa 1 °C geldt voor het operationele KNMI-model en mag niet op deze vereenvoudigde implementatie worden geprojecteerd. Lokale biascorrectie is nog geen kalibratie van de onderliggende fysische parameters.
+
+De visfysiologische curve gebruikt per soort een Gaussisch optimum en koude-/warme breedte. De literatuur meet per soort verschillende responsvariabelen: SMR/RMR, aerobe scope, voedselopname of beweging. Deze uitkomsten zijn niet onderling uitwisselbaar. Met name SMR/RMR-data die exponentieel stijgen over een temperatuurtraject bewijzen geen optimum voor activiteit. Baars en snoekbaars hebben directer aerobe-scopebewijs, maar tonen ook grootte-/levensfase- en aquacultuurbeperkingen. De huidige snoekbaarsparameter wijkt af van de gemeten adulte piek van 18,8 °C; dit blijft een reviewflag totdat overdraagbaarheid naar wilde populaties is beoordeeld.
+
+**Modelregel voor de volgende iteratie:** pas alleen een thermische responsvorm toe die past bij de gemeten uitkomst. Gebruik aerobe scope voor fysiologische prestatiepotentie, SMR/RMR uitsluitend voor metabole temperatuurgevoeligheid, en voedselopname uitsluitend in de voedingslaag. Geen van deze uitkomsten mag rechtstreeks als vangstkans worden geïnterpreteerd. Waar een soortspecifieke curve ontbreekt, toon onzekerheid in plaats van een precies ogend optimum te fabriceren.

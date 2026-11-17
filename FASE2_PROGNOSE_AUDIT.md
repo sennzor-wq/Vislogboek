@@ -974,3 +974,56 @@ Een specifiek aandachtspunt is `disruptiveWindThresholdKmH`: de grens verschilt 
 6. Fase 2 blijft open. Fase 3 start pas nadat de actieve parameters, vijf responslagen, snapshot-reproduceerbaarheid, datakwaliteit en forward validation aantoonbaar zijn geaccepteerd.
 
 De volledige Quality Gate op PR #84 mergecommit `7f7f774ae6e0c2bf49f8248b62504ba2b092cf27` is bevestigd: push-run #652 (`44088544933`) is volledig geslaagd, inclusief audits, typecheck, alle regressies en productiebuild.
+
+## 48. Herkomstmatrix actieve thermische parameters (17 november 2026)
+
+### 48.1 Watertemperatuurschatting: codeparameters versus fysische onderbouwing
+
+De huidige `waterThermalEngine.ts` is een vereenvoudigde, heuristische schatter. De fysische richting van de gebruikte factoren is herkenbaar uit de literatuur, maar de concrete coëfficiënten zijn niet afkomstig uit het KNMI-model en zijn nog niet lokaal gefit.
+
+| Onderdeel in code | Huidige instelling | Status / beperking |
+|---|---|---|
+| Dagelijkse respons op luchttemperatuur | Diepte/watertype kiest `responseWeight` 0,45 / 0,28 / 0,18 | Heuristische fracties; niet gekalibreerd op Lokkershoek of een representatieve Nederlandse plas. |
+| Thermische tijdconstante | 54 / 96 / 150 uur afhankelijk van diepteklasse | Heuristische tijdconstanten; geen gemeten warmtecapaciteit of lokale temperatuurprofiel-fit. |
+| Historische temperatuurweging | 24-uursgemiddelde 0,65 en 72-uursgemiddelde 0,35 | Technische smoothing-keuze, geen universele fysische verhouding. |
+| Zonnestralingsbijdrage | 0,35 bij opwarming en 0,12 bij afkoeling; aanvullende dieptebonussen 0,8 / 0,4 | Heuristische coëfficiënten; geen gevalideerde netto-warmtebalans. |
+| Windmenging | Multipliers 0,82 / 0,92 / 1,08 bij grenzen 20 en 9 km/u | Heuristische correctie; werkelijke menging hangt ook af van fetch, vorm, diepte, stratificatie en oeverbeschutting. |
+| Onzekerheidsmarge | Onder meer 0,45 °C basis, 0,009 °C per verstreken uur en extra marge bij beperkte dekking | Modelmatige onzekerheidsmarge, geen statistisch gekalibreerd voorspellingsinterval. |
+| Lokale temperatuurkalibratie | Minimaal 8 eerdere geldige paren; shrinkage n/(n+8); correctie begrensd op ±1,5 °C | Corrigeert gemiddelde bias per locatie/seizoen. Dit kalibreert niet de fysieke tijdconstanten, warmtefluxen of soortcurve. |
+
+De KNMI-beschrijving ondersteunt kwalitatief dat lucht-waterwarmte-uitwisseling, verdamping, straling, wind en waterdiepte belangrijk zijn. Het KNMI rapporteert circa 1 °C verificatie voor **het eigen operationele model voor stilstaand zoet buitenwater**; die nauwkeurigheid mag niet aan Vislogboek worden toegeschreven. De huidige implementatie is geen kopie van dat model en gebruikt niet dezelfde gedocumenteerde volledige warmtebalans.
+
+Piccolroaz et al. (2024) beschrijven verschillende modelklassen, waaronder 0.5D- en 1D-modellen, waarin stratificatie en verticale menging expliciet kunnen worden meegenomen. Feldbauer et al. (2025) kalibreerden vier 1D-modellen op 73 meren en vonden dat parameters en modelprestaties verschillen tussen modellen en meerclusters; geen enkel model presteerde overal het best. Dit ondersteunt lokale kalibratie en onzekerheidsbewaking, niet het overnemen van één universele set coëfficiënten.
+
+### 48.2 Soortspecifieke thermische curve: wat de bronnen wel en niet dragen
+
+De huidige Gaussische curve gebruikt per soort een `thermalOptimum` en twee breedtes. De onderzochte bronnen meten echter verschillende responsen. SMR/RMR is niet hetzelfde als aerobe scope; aerobe scope is niet hetzelfde als voedselopname; geen van beide is automatisch hengelvangbaarheid.
+
+| Soort | Beschikbare relevante temperatuurdata | Wat ontbreekt voor de huidige curve |
+|---|---|---|
+| Karper | Moffitt & Crawshaw (1983): acute metabole respons na acclimatisatie op 19 °C, Q10 2,61. Chen et al. (2012): temperatuurafhankelijke voedselopname bij een Aziatische ondersoort in gecontroleerde omstandigheden. | Geen complete, overdraagbare Nederlandse aerobe-scopecurve. De huidige optimum- en breedtewaarden zijn priors, geen gefitte respons. |
+| Brasem | Hölker (2006): SMR/RMR bij 5–23 °C en 1–560 g; exponentiële temperatuurafhankelijkheid en grootte-/levensfaseverschillen. | Geen direct gemeten aerobe-scopeoptimum dat de huidige Gaussische top en breedtes valideert. |
+| Snoek | Diana (1982): metabole metingen bij onder meer 2 en 14 °C; oudere syntheses bundelen aanvullende zuurstofverbruiksmetingen uit verschillende populaties. | Geen uniforme, gecontroleerde aerobe-scopecurve waarmee een soortbreed optimum en twee Gaussische breedtes kunnen worden gefit. |
+| Baars | Christensen et al. (2020): SMR, MMR en aerobe scope bij 15–28 °C. Het optimum voor aerobe scope verschuift met lichaamsmassa; vissen onder 40 g vertoonden geen daling van aerobe scope tot 28 °C. | Een vast optimum voor alle lengtes/levensfasen is niet verdedigbaar; de huidige curve is geen populatie- of groottegecorrigeerde fit. |
+| Blankvoorn | Hölker (2003): SMR/RMR bij 5–23 °C en 3–200 g; exponentiële temperatuurafhankelijkheid en lichaamsgrootte-effecten. | Metabole onderhoudsrespons is geen directe aerobe-scope- of voedingsoptimumcurve. |
+| Zeelt | Er is beperkte metabole informatie bij een enkele warme meetconditie en aanvullend voedings-/gedragsbewijs. | Geen vergelijkbare multi-temperatuur aerobe-scopecurve; huidige optimum en breedtes blijven heuristisch. |
+| Snoekbaars | Frisk et al. (2012): volwassen kweekvissen, zes temperatuurcondities tussen 13 en 28 °C; maximale aerobe scope bij 18,8 °C en 80%-bereik 10,4–26,9 °C. Eerder juveniel kweekonderzoek rapporteerde een hoger optimum. | De huidige profielpiek van 15 °C en het smallere profielbereik sluiten niet aan op de volwassen studie. Maar de bron betreft aquacultuur; overdracht naar vrijlevende Nederlandse vissen en levensfasen is onzeker. Geen parameter wordt zonder verdere validatie aangepast. |
+| Meerval | Er zijn afzonderlijke metabole/zuurstof- en bewegingsbronnen, maar geen vergelijkbare soortspecifieke multi-temperatuur aerobe-scopecurve in het huidige register. | Geen onderbouwde soortbrede Gaussische piek of koude-/warme breedte. |
+| Roofblei | Geen direct bruikbare soortspecifieke multi-temperatuur aerobe-scopecurve in het huidige register. | Huidige piek en breedtes zijn heuristische fallback-priors. |
+| Overig | Geen doelsoortspecifieke fysiologische bron. | Generieke curve mag niet als biologische parameter van een concrete soort worden geïnterpreteerd. |
+
+### 48.3 Belangrijkste modelconclusie
+
+1. De huidige per-soort `thermalOptimum` en `thermalWidthCold/Warm` zijn voorlopige modelpriors. De exacte waarden en curvevorm zijn voor geen van de negen concrete soorten volledig gevalideerd met een passende Nederlandse veldrespons.
+2. Een stijgende SMR/RMR met temperatuur bewijst niet dat totale activiteit, aerobe capaciteit of voedselopname tot hetzelfde optimum stijgt. Een Gaussische piek mag niet uit uitsluitend SMR/RMR-data worden afgeleid.
+3. Baars en snoekbaars hebben directer aerobe-scopebewijs, maar ook daar zijn lichaamsgrootte, levensfase en gecontroleerde kweekomstandigheden belangrijke transferbeperkingen.
+4. De huidige snoekbaarsprofielpiek wijkt af van het gepubliceerde adulte aerobe-scopeoptimum. Dit is een concrete reviewflag, geen opdracht om de waarde nu automatisch te vervangen.
+5. De watertemperatuurschatter en de visfysiologische respons moeten apart worden gekalibreerd. Een goede lokale temperatuurfit valideert niet automatisch de biologische curve.
+
+### 48.4 Besluit en volgende stap
+
+- Geen bestaande numerieke parameter, score, tijdvakrangschikking of vangstkans gewijzigd.
+- De 2025-meer-modelkalibratiestudie is aan het researchregister toegevoegd als omgevings-/kalibratiekennis, niet als directe voorspellingsregel.
+- Volgende modelstap: ontwerp een evidence-aware thermische respons waarbij directe aerobe-scopecurves, metabole Q10-gegevens en voedingsresponsen gescheiden blijven. Gebruik SMR/RMR-only bronnen niet als bewijs voor een fysiologisch optimum. Voor soorten zonder geschikte curve blijft de onzekerheid expliciet en wordt geen schijnprecisie toegevoegd.
+- Voor de waterthermische engine volgt een lokale validatie op echte, tijdgestempelde metingen; pas daarna mogen tijdconstanten en warmtefluxcoëfficiënten worden herfit.
+- Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling. Fase 2 blijft open; Fase 3 start niet.
