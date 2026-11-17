@@ -1,5 +1,5 @@
 import { ALL_SPECIES } from './src/types';
-import { getSpeciesDielBehaviorEvidenceContext } from './src/services/dielBehaviorEvidenceService';
+import { getSpeciesDielBehaviorEvidenceContext, getSpeciesDielTimeContextText } from './src/services/dielBehaviorEvidenceService';
 
 for (const species of ALL_SPECIES) {
   const context = getSpeciesDielBehaviorEvidenceContext(species);
@@ -87,4 +87,25 @@ if (!roachFeeding || !roachFeeding.measuredOutcomes?.includes('feeding_intensity
     roachMovement.measuredOutcomes.includes('feeding_rhythm') ||
     roach.temporalEvidenceScope !== 'feeding-and-movement') {
   throw new Error('Roach diel feeding intensity and radio-telemetry movement must remain separate evidence responses.');
+}
+
+
+const carpTimeContext = getSpeciesDielTimeContextText('Karper');
+if (!carpTimeContext.includes('tijdgebonden voedselopname') ||
+    !carpTimeContext.includes('niet goedgekeurd') ||
+    !carpTimeContext.includes('score neutraal')) {
+  throw new Error('Carp time-slot context must explain unapproved direct feeding-rhythm evidence without creating a preference.');
+}
+
+const aspTimeContext = getSpeciesDielTimeContextText('Roofblei');
+if (!aspTimeContext.includes('beweging of habitatgebruik') ||
+    !aspTimeContext.includes('geen voedingsvoorkeur') ||
+    aspTimeContext.includes('voedingsritme geregistreerd')) {
+  throw new Error('Asp movement telemetry must never be presented as a feeding-time preference.');
+}
+
+const genericTimeContext = getSpeciesDielTimeContextText('Overig');
+if (!genericTimeContext.includes('geen soortspecifiek tijdgebonden voedingsritme') ||
+    genericTimeContext.includes('voorkeursperiode')) {
+  throw new Error('The generic profile must not inherit a species-specific time preference.');
 }
