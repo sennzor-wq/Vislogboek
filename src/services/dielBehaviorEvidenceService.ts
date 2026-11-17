@@ -66,3 +66,26 @@ export function getSpeciesDielBehaviorEvidenceContext(
     hasSpeciesSpecificTimeEvidence: feedingRhythm.length > 0 || hasMovementEvidence,
   };
 }
+
+
+/**
+ * Neutrale uitleg voor de tijdvakfactor. Oude profielvoorkeuren zijn geen
+ * voorspellingsbewijs; alleen de gemeten respons in het researchregister
+ * bepaalt welke biologische context veilig kan worden getoond.
+ */
+export function getSpeciesDielTimeContextText(species: FishSpecies): string {
+  const context = getSpeciesDielBehaviorEvidenceContext(species);
+
+  if (context.feedingRhythm.length > 0) {
+    const approvalNote = context.approvedFeedingRhythm.length > 0
+      ? 'Er is ten minste één bron voor deze voedingsrespons goedgekeurd, maar een tijdvakverschil wordt alleen toegepast als de bron ook qua seizoen, levensfase en habitat past.'
+      : 'Deze bronnen zijn nog niet goedgekeurd als numerieke voorspellingsfactor.';
+    return `Voor ${species} zijn studies met tijdgebonden voedselopname of voedingsritme geregistreerd. De uitkomsten zijn contextgebonden en bewijzen geen universele voorkeur voor dit tijdvak. ${approvalNote} Daarom blijft de tijdvakscore neutraal.`;
+  }
+
+  if (context.locomotorActivity.length > 0 || context.habitatUse.length > 0) {
+    return `Voor ${species} beschrijven de beschikbare dagritmestudies vooral beweging of habitatgebruik, niet rechtstreeks tijdgebonden voedselopname. Daaruit leid ik geen voedingsvoorkeur of tijdvakbonus af; de tijdvakscore blijft neutraal.`;
+  }
+
+  return `In het huidige bronnenregister is voor ${species} geen soortspecifiek tijdgebonden voedingsritme vastgesteld. Dat betekent niet dat een tijdvak slechter is; er wordt geen tijdvakvoorkeur afgeleid en de score blijft neutraal.`;
+}
