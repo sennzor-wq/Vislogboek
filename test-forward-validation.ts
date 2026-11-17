@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import {
   savePrognosisSnapshot,
   calculateDayPrognosis,

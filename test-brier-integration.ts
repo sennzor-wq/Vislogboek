@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import { db, initializeDatabase, deleteSessionSafely, LOKKERSHOEK_PIER_ID } from './src/db/db';
 import { autoSyncSessionOutcomeToSnapshot, evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { FishingSession, PrognosisSnapshot, CatchItem, WeatherSnapshot } from './src/types';

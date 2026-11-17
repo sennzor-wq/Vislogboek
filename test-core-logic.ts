@@ -4,6 +4,7 @@
  * visual presence observations, Wilson score intervals, and Brier score calibration.
  */
 
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import {
   calculateDayPrognosis,
   calculateWilsonInterval,
