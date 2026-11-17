@@ -893,23 +893,23 @@ export function calculateDayPrognosis(
         uncertaintyNotes.push('De gewenste sessieduur is onbekend; vangstkans en verwacht aantal vangsten worden daarom niet voor een fictieve duur berekend.');
       }
 
-      if (durationSessions.length >= 30) confidence = 'Hoog';
-      else if (durationSessions.length >= 18) confidence = 'Redelijk';
-      else if (durationSessions.length >= 10) confidence = 'Matig';
+      if (poissonSessions.length >= 30) confidence = 'Hoog';
+      else if (poissonSessions.length >= 18) confidence = 'Redelijk';
+      else if (poissonSessions.length >= 10) confidence = 'Matig';
       else confidence = 'Laag';
 
       uncertaintyNotes.push(
         `Het Wilson-betrouwbaarheidsinterval [${uncertaintyInterval[0]}% – ${uncertaintyInterval[1]}%] kwantificeert de binomiale steekproefvariantie van het historische sessiesucces bij N=${sessionCount}. Dit is géén betrouwbaarheidsinterval rond de Poisson-duurkans.`
       );
       uncertaintyNotes.push(
-        `Poisson-blootstellingsmodel gebruikt ${durationSessions.length} sessies met bekende duur (totale geregistreerde visduur: ${totalDurationHours.toFixed(1)} uur, vangsttempo: ${hourlyCatchRate}/uur).`
+        `Poisson-blootstellingsmodel gebruikt ${poissonSessions.length} sessies met bekende duur en bruikbare vangstaantallen (totale geregistreerde visduur: ${totalDurationHours.toFixed(1)} uur, vangsttempo: ${hourlyCatchRate}/uur).`
       );
       uncertaintyNotes.push(
-        'De persoonlijke vangstkans is een historische Poisson-baseline. Thermische activiteit, voeding en habitat worden niet als numerieke vangstcorrectie toegepast omdat deze koppeling nog niet empirisch is gevalideerd.'
+        `De persoonlijke vangstkans is een historische Poisson-baseline. Het steekproeflabel is gebaseerd op ${poissonSessions.length} bruikbare sessies en is geen statistische betrouwbaarheidsmaat voor de voorspelde kans. Thermische activiteit, voeding en habitat worden niet als numerieke vangstcorrectie toegepast omdat deze koppeling nog niet empirisch is gevalideerd.`
       );
     } else {
       uncertaintyNotes.push(
-        `Er zijn ${sessionCount} vergelijkbare sessies, maar slechts ${durationSessions.length} hebben een bekende sessieduur. Minimaal 5 sessies met bekende duur zijn nodig voor een betrouwbare blootstellingsschatting; vangsttempo en vangstkans blijven daarom onbekend.`
+        `Er zijn ${sessionCount} vergelijkbare sessies, maar slechts ${poissonSessions.length} hebben zowel een bekende duur als bruikbare vangstaantallen. Minimaal 5 zulke sessies zijn nodig voor een blootstellingsschatting; vangsttempo en vangstkans blijven daarom onbekend.`
       );
     }
   } else {
@@ -1192,6 +1192,7 @@ export function calculateDayPrognosis(
     personalCatchConfidence: confidence,
     catchUncertaintyInterval: uncertaintyInterval,
     relevantSessionCount: sessionCount,
+    poissonSessionCount: poissonSessions.length,
     averageRelevantSessionDurationMin: avgDurationMinutes,
     plannedDurationHours: sessionDuration,
     expectedCatches,

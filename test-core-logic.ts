@@ -275,6 +275,10 @@ async function runTestSuite() {
       (prog6h.expectedCatches ?? 0) > (prog2h.expectedCatches ?? 0),
     `3.6 Vangsttempo per uur blijft constant (${prog2h.hourlyCatchRate}/u); totale verwachte vangst stijgt met duur (2u: ~${prog2h.expectedCatches} vs 6u: ~${prog6h.expectedCatches})`
   );
+  assert(
+    prog2h.poissonSessionCount === 10,
+    `3.6d Poisson-steekproef telt alleen sessies met bekende duur en bruikbare vangstaantallen (N=${prog2h.poissonSessionCount})`
+  );
   const progCold2h = calculateDayPrognosis('2026-10-26', createWeatherHistory(5), 'Karper', carpSessions, undefined, undefined, new Date(), {
     sessionDurationHours: 2,
     catches: carpCatches,
@@ -397,6 +401,26 @@ async function runTestSuite() {
   assert(
     progMixed.relevantSessionCount === 5,
     `3.14 Actieve, onbekende en benchmark sessies strikt uitgesloten van vangststatistiek (N=5 van 8, berekend: ${progMixed.relevantSessionCount})`
+  );
+  const countUnknownSessions: FishingSession[] = [
+    ...carpSessions.slice(0, 9),
+    { id: 'count_unknown_1', startTime: '2026-09-20T12:00', durationMinutes: 180, outcome: 'catch', targetSpecies: ['Karper'], createdAt: '', updatedAt: '' },
+    { id: 'count_unknown_2', startTime: '2026-09-21T12:00', durationMinutes: 180, outcome: 'catch', targetSpecies: ['Karper'], createdAt: '', updatedAt: '' },
+  ];
+  const countUnknownCatches: CatchItem[] = [
+    ...carpCatches,
+    { id: 'unknown_count_c1', sessionId: 'count_unknown_1', species: 'Karper', count: 1, timestamp: '2026-09-20T13:00', createdAt: '', legacyImportQuality: { speciesKnown: true, countKnown: false, timestampKnown: false } },
+    { id: 'unknown_count_c2', sessionId: 'count_unknown_2', species: 'Karper', count: 1, timestamp: '2026-09-21T13:00', createdAt: '', legacyImportQuality: { speciesKnown: true, countKnown: false, timestampKnown: false } },
+  ];
+  const progCountUnknown = calculateDayPrognosis('2026-10-26', createWeatherHistory(18), 'Karper', countUnknownSessions, undefined, undefined, new Date(), {
+    sessionDurationHours: 2,
+    catches: countUnknownCatches,
+  });
+  assert(
+    progCountUnknown.relevantSessionCount === 11 &&
+      progCountUnknown.poissonSessionCount === 9 &&
+      progCountUnknown.personalCatchConfidence === 'Laag',
+    `3.14a Confidence/steekproeflabel volgt de 9 bruikbare Poisson-sessies, niet de 11 vergelijkbare sessies (N=${progCountUnknown.poissonSessionCount}, label=${progCountUnknown.personalCatchConfidence})`
   );
 
   // 3.15 Pure bevestigde nulvangsten resulteren in 0% vangkans en 0 vangsttempo

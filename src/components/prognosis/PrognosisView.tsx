@@ -619,7 +619,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    B. Geschatte Vangstkans (≥1 vis)
+                    B. Persoonlijke Poisson-vangkans (≥1 vis)
                   </div>
 
                   {activeDayProg.personalCatchChance !== null ? (
@@ -635,8 +635,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           95% Wilson-interval basissessies: [{activeDayProg.catchUncertaintyInterval[0]}% – {activeDayProg.catchUncertaintyInterval[1]}%]
                         </div>
                       )}
-                      <div className="text-[11px] text-slate-300 mt-1">
-                        Betrouwbaarheid: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.relevantSessionCount} vergelijkbare sessies)
+                      <div
+                        className="text-[11px] text-slate-300 mt-1"
+                        title="Categorie op basis van het aantal sessies met bekende duur en bruikbare vangstaantallen; geen statistische betrouwbaarheid van de voorspelde Poisson-kans."
+                      >
+                        Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
                       </div>
                       {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1">
