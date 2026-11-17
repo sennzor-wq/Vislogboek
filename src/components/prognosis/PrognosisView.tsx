@@ -2001,27 +2001,18 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
                 <div className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/40">
-                  <span className="text-[11px] text-slate-400 block font-semibold">Thermisch Optimum</span>
+                  <span className="text-[11px] text-slate-400 block font-semibold">Voorlopige modelpiek</span>
                   <span className="font-bold text-white">{currentProfile.thermalOptimum} °C</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/40">
-                  <span className="text-[11px] text-slate-400 block font-semibold">Optimale Zone</span>
-                  <span className="font-bold text-white">
-                    {currentProfile.optimalTempRange[0]} – {currentProfile.optimalTempRange[1]} °C
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/40">
-                  <span className="text-[11px] text-slate-400 block font-semibold">Barometerbereik</span>
-                  <span className="font-bold text-white">
-                    {currentProfile.optimalPressureRange[0]} – {currentProfile.optimalPressureRange[1]} hPa
-                  </span>
+                  <span className="text-[11px] text-slate-400 block font-semibold">Curvebreedte koud / warm</span>
+                  <span className="font-bold text-white">{currentProfile.thermalWidthCold} / {currentProfile.thermalWidthWarm}</span>
                 </div>
               </div>
-
-              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/30 text-xs text-emerald-200">
-                <strong>Wetenschappelijke nuance:</strong> Dit model hanteert een continue fysiologische Gaussische respons. Temperatuur fungeert als snelheidsbepalende fysiologische factor (rate-limiting biological constraint): bij temperaturen ver onder het optimum kan een vissoort geen maximale activiteit vertonen, ongeacht gunstige wind of barometerstand.
+              <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-800/30 text-xs text-amber-200">
+                <strong>Modelbeperking:</strong> De modelpiek en curvebreedtes zijn voorlopige modelinstellingen, geen empirisch gevalideerde optimale of fysiologische tolerantiegrenzen. De curve geeft alleen een relatieve thermische activiteitspotentie; geen voedselopname, aanwezigheid of vangstkans. Luchtdruk-, wind-, regen-, bewolkings- en seizoensvoorkeuren worden niet als numerieke profielcorrecties gebruikt.
               </div>
             </div>
 

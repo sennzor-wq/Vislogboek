@@ -1037,3 +1037,15 @@ De temperatuurfactor toont naast de watertemperatuurrespons een korte soortspeci
 - **Zeelt, meerval, roofblei en Overig:** geen soortspecifieke meer-temperaturenmeting van aerobe scope of metabolisme in het huidige register. De curve blijft een voorlopige prior en wordt niet als soortspecifiek gevalideerd gepresenteerd.
 
 De factornaam is verduidelijkt van 'Temperatuur & Metabolisme' naar **'Thermische activiteitspotentie'**. Regressietests bewaken de bronclassificatie en non-approval. Er is geen numerieke modelwijziging uitgevoerd.
+
+## 50. Verwijderen van niet-onderbouwde profielvoorkeuren en grenzen (17 november 2026)
+
+De ongebruikte of misleidende profielvelden zijn verwijderd: seizoensgewichten, drukgevoeligheid/-bereik, soortspecifieke windvoorkeuren/-drempels en regen-/bewolkingsvoorkeuren. Ze leverden geen gevalideerde biologische scorebijdrage; enkele werden alleen als voorlopige tekst getoond. Wind-, seizoen-, druk-, bewolkings- en neerslaggegevens blijven feitelijke context zonder profielbonus.
+
+Ook de niet-gevalideerde optimale en tolerabele temperatuurzones zijn uit de soortprofielen verwijderd. De thermische responsberekening behoudt dezelfde voorlopige Gaussische curveparameters (`thermalOptimum`, `thermalWidthCold`, `thermalWidthWarm`), zodat de bestaande numerieke thermische activiteitsscore bij dezelfde temperatuur niet verandert. De temperatuurfactor krijgt voortaan altijd een neutrale impactclassificatie; een positieve/negatieve grens zou een gevalideerd fysiologisch optimum of tolerantie suggereren dat de bronnen niet dragen.
+
+In het soortprofielpaneel worden de interne waarden alleen nog getoond als **voorlopige modelpiek** en **curvebreedtes**, met een expliciete waarschuwing dat dit geen empirisch gevalideerde optimum- of tolerantiegrenzen zijn. Het barometerbereik en de optimale temperatuurzone zijn verwijderd.
+
+Windpresentatie is nu soortneutraal en feitelijk: gemeten richting en snelheid plus een uitleg dat praktische invloed afhangt van stek, oever en methode. Er is geen soortafhankelijke harde-winddrempel of windvoorkeur meer. Seizoen, regen en bewolking krijgen geen niet-onderbouwde profielnotitie.
+
+Regressietests bewaken de neutrale temperatuurimpact en het behoud van de thermische berekening. Geen numerieke thermische parameters, activiteitsscores of persoonlijke vangstkansen gewijzigd.
