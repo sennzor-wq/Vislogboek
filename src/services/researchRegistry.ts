@@ -796,16 +796,17 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Akoestische telemetrie van volwassen snoekbaars in een ondiep, troebel Zuid-Frans kanaal tijdens het voorjaar en de paaiperiode vond gemiddeld de hoogste bewegingsactiviteit rond de avondschemering. Individuen verschilden duidelijk; bij vrouwtjes hing het dagritme samen met watertemperatuur.',
+    summary: "Akoestische telemetrie volgde volwassen snoekbaars in het ondiepe, sterk troebele Fumemorte-kanaal in de Rhône-delta. Van 13 getagde vissen werden er 9 succesvol gevolgd tijdens maandelijkse 24-uursessies van maart tot juni 2002, met positiebepaling om de twee uur. Beide seksen vertoonden gemiddeld de hoogste bewegingsactiviteit rond de avondschemering; de individuele patronen verschilden en bij vrouwtjes hing het dagritme samen met watertemperatuur.",
     limitations: [
-      'Van de dertien aanvankelijk getagde vissen konden negen succesvol worden gevolgd; het onderzoek betrof één kanaal en alleen het voorjaar/de paaiperiode.',
+      'Het onderzoek betrof uitsluitend volwassen snoekbaars in één ondiep Zuid-Frans kanaal tijdens de paaiperiode in het voorjaar; dit is geen jaar-rond of Nederlands populatieprofiel.',
+      'Van de 13 getagde vissen werden 9 succesvol gevolgd. De posities werden om de twee uur bepaald; de berekende verplaatsing is een minimale afstand en onderschat werkelijke beweging.',
       'De gemeten uitkomst is verplaatsing, niet rechtstreeks voedselopname, jachtsucces of vangstkans.',
-      'De auteurs beschrijven schemering als algemene tendens en niet als strikte regel; individuele variatie is aanwezig.'
+      'Individuele dagritmes verschilden; schemering was een gemiddelde tendens en geen strikte regel.',
     ],
     sourceReferences: [
       'Poulet, N., Arzel, C., Messad, S., Lek, S. & Argillier, C. (2005). Diel activity of adult pikeperch Sander lucioperca (L.) in a drainage canal in the Mediterranean basin during spring. Hydrobiologia, 543, 79–90. https://doi.org/10.1007/s10750-004-6823-6'
     ],
-    reviewedAt: '2026-11-16',
+    reviewedAt: '2026-11-17',
     approvedForPrediction: false,
   },
   {
@@ -815,16 +816,17 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Jaar-rond radio-telemetrie in de Elbe liet zien dat volwassen snoekbaars overdag vooral dieper in het hoofdkanaal verbleef, tijdens de schemering richting ondieper water bewoog en ’s nachts dicht bij de oever in de littorale zone lag. De bewegingsactiviteit piekte rond twilight en was het laagst in de nacht; de auteurs duidden de nachtelijke ondiepe positie waarschijnlijk als rust, niet als jacht.',
+    summary: "Radio-telemetrie volgde 8 volwassen snoekbaarzen in de Elbe gedurende 12 maanden. In totaal werden 47 volledige 24-uurscycli geregistreerd, met positiebepaling per circa drie uur. Overdag verbleven de vissen vooral in dieper water van het hoofdkanaal, tijdens dageraad/schemering verplaatsten zij zich naar ondieper water en 's nachts lagen zij in de ondiepe oeverzone. De gemeten verplaatsingsactiviteit piekte significant tijdens beide schemerperioden en was het laagst in de nacht.",
     limitations: [
-      'Het onderzoek vond plaats in één rivier en betreft volwassen vissen; andere watertypen, populaties en levensfasen kunnen afwijken.',
-      'Verplaatsing en habitatpositie zijn geen directe metingen van voedselopname of jacht.',
-      'Nachtelijke aanwezigheid in ondiep water mag niet automatisch als nachtelijke voedingspiek worden geïnterpreteerd.'
+      'De studie volgde 8 volwassen vissen in één gereguleerde rivier; andere watertypen, populaties en levensfasen kunnen afwijken.',
+      'De 47 24-uurscycli met posities per circa drie uur beschrijven ruimtelijke verplaatsing en habitatgebruik, niet de volledige continue activiteit.',
+      'De gemeten uitkomst is locomotorische activiteit/habitatpositie, geen directe voedselopname, prooiaanval of hengelvangbaarheid.',
+      'De auteurs interpreteren de nachtelijke ondiepe positie waarschijnlijk als rust en niet als bewijs van nachtelijke jacht.',
     ],
     sourceReferences: [
       'Horký, P., Slavík, O. & Bartoš, L. (2008). A telemetry study on the diurnal distribution and activity of adult pikeperch, Sander lucioperca (L.), in a riverine environment. Hydrobiologia, 614, 151–157. https://doi.org/10.1007/s10750-008-9503-0'
     ],
-    reviewedAt: '2026-11-16',
+    reviewedAt: '2026-11-17',
     approvedForPrediction: false,
   },
   {

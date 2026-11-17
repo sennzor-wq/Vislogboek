@@ -1323,3 +1323,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Dubbele Poulet et al. (2005)-registratie verwijderd; canonieke bron blijft uitsluitend locomotorisch bewijs.
 - Regressietests borgen deze classificaties en bronbeperkingen. Alle bronnen blijven niet-goedgekeurd voor voorspelling; geen score, tijdvakgewicht of vangstkans gewijzigd.
 - Volgende broncontrole: volledige methoden/steekproefdetails waar mogelijk verifiëren en de resterende soortprofielen op onjuiste extrapolatie nalopen. Fase 2 blijft open; Fase 3 start niet.
+
+
+### Fase 2 — snoekbaars-telemetrie volledig op methodescope gecontroleerd (17 november 2026)
+
+- Poulet et al. (2005) volledige beschikbare paper gecontroleerd: 13 volwassen snoekbaarzen getagd, 9 gevolgd; maart–juni tijdens paaiperiode; 24-uursessies met posities om de twee uur; gemiddelde avondschemeringspiek in beweging met individuele variatie; verplaatsingsmaat is minimale afstand.
+- Horký et al. (2008) volledige paper gecontroleerd: 8 volwassen snoekbaarzen in de Elbe, 47 volledige 24-uurscycli verspreid over 12 maanden, posities per circa drie uur; beweging piekte bij dageraad/schemering; nachtelijke ondiepe positie waarschijnlijk rust, niet jacht.
+- Registry, tests en architectuur/auditdocumentatie bijgewerkt. Beide studies blijven uitsluitend movement/habitat evidence en niet-goedgekeurd voor voorspelling. Geen modelscore, tijdvakgewicht of vangstkans gewijzigd.
