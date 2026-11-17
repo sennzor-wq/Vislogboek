@@ -907,3 +907,14 @@ Deze controle verfijnt de overdraagbaarheid van dagritmebronnen. Zij activeert g
 - Tests bewaken de unieke registratie, de scheiding tussen snoekprooivangst en vertering, en de contextbeperkingen van blankvoorn-/brasemvoeding.
 - Alle genoemde bronnen blijven `approvedForPrediction: false`. Geen operationele profielparameter, activiteitsscore, tijdvakrangschikking of persoonlijke vangstkans is gewijzigd.
 - De primaire broncontrole is nog niet compleet: de volledige methoden van Vašek & Kubečka (2004), de oorspronkelijke tekst van Fedorova & Drozhzina (1982) en verdere soort-/watertype-overdraagbaarheid blijven open.
+
+
+## 45. Snoekbaars — volledige methodescope van twee telemetriestudies (17 november 2026)
+
+De volledige beschikbare tekst van Poulet et al. (2005) en Horký et al. (2008) is gecontroleerd. Beide zijn directe telemetriemetingen van verplaatsing, geen directe voedingsmetingen.
+
+- **Poulet et al. (2005), Fumemorte-kanaal (Rhônedelta):** 13 volwassen snoekbaarzen werden getagd; 9 konden succesvol worden gevolgd. De studie liep van maart tot juni 2002 tijdens de paaiperiode. Maandelijks werden 24-uursessies uitgevoerd met positiebepaling om de twee uur. Beide seksen vertoonden gemiddeld een bewegingspiek rond avondschemering, maar individuele patronen weken af. De berekende afstand tussen opeenvolgende posities is een minimale afstand en onderschat de werkelijke verplaatsing.
+- **Horký et al. (2008), Elbe:** 8 volwassen snoekbaarzen werden radio-getagd en gedurende 12 maanden gevolgd in 47 volledige 24-uurscycli, met posities per circa drie uur. Verplaatsingsactiviteit was significant hoger bij dageraad en schemering dan overdag en 's nachts. De vissen gebruikten overdag dieper water, verplaatsten zich bij twilight richting ondiep water en verbleven 's nachts in de littorale oeverzone. De auteurs interpreteerden die nachtelijke positie waarschijnlijk als rust, niet als jacht.
+- De twee onafhankelijke telemetriestudies ondersteunen een terugkerende schemeringspiek in **beweging** bij volwassen snoekbaars in twee verschillende systemen. Zij bewijzen geen schemerpiek in voedselopname, jachtsucces of hengelvangbaarheid. Het Ladogameer-voedingsonderzoek blijft een aparte, secundair ontsloten bron met seizoensgebonden voedingsritme.
+
+De registry vermeldt nu de steekproef, meetfrequentie, periode en beperkingen explicieter. Tests bewaken dat beide studies uitsluitend als locomotorische/habitatcontext beschikbaar zijn. Alle bronnen blijven niet-goedgekeurd voor numerieke voorspelling; er is geen score, tijdvakgewicht of vangstkans aangepast.

@@ -433,3 +433,25 @@ if (!adultCyprinidPlankton ||
     adultCyprinidPlankton.approvedForPrediction) {
   throw new Error('Bream/roach daytime plankton-feeding evidence must retain its prey and transferability limits.');
 }
+
+
+// Full-text scope checks for the two independent pikeperch telemetry studies.
+const pikeperchCanalTelemetry = RESEARCH_REGISTRY.find((item) => item.id === 'pikeperch-diel-activity-dusk-drainage-canal-2005');
+if (!pikeperchCanalTelemetry ||
+    !pikeperchCanalTelemetry.summary.includes('9 succesvol gevolgd') ||
+    !pikeperchCanalTelemetry.summary.includes('twee uur') ||
+    !pikeperchCanalTelemetry.limitations.some((item) => item.includes('minimale afstand')) ||
+    pikeperchCanalTelemetry.measuredOutcomes?.includes('feeding_rhythm') ||
+    pikeperchCanalTelemetry.approvedForPrediction) {
+  throw new Error('Poulet et al. pikeperch telemetry must retain sample, two-hour tracking, movement-only and underestimation limits.');
+}
+
+const pikeperchElbeTelemetry = RESEARCH_REGISTRY.find((item) => item.id === 'pikeperch-diel-distribution-elbe-river-2008');
+if (!pikeperchElbeTelemetry ||
+    !pikeperchElbeTelemetry.summary.includes('8 volwassen') ||
+    !pikeperchElbeTelemetry.summary.includes('47 volledige') ||
+    !pikeperchElbeTelemetry.limitations.some((item) => item.includes('waarschijnlijk als rust')) ||
+    pikeperchElbeTelemetry.measuredOutcomes?.includes('feeding_rhythm') ||
+    pikeperchElbeTelemetry.approvedForPrediction) {
+  throw new Error('Elbe pikeperch telemetry must retain its sample/observation scope and night-rest interpretation, not feeding rhythm.');
+}

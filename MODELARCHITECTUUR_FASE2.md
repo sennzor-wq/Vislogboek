@@ -375,3 +375,10 @@ De bronlaag onderscheidt bij blankvoorn/brasem de directe voedingsrespons van ha
 Bij snoek wordt het tijdstip van prooivangst onderscheiden van het latere verteringsmetabolisme (Lucas et al., 1991). Bij snoekbaars blijft het Ladogameer-voedingsritme seizoenscontext met beperkte bronverificatie: vroege ochtend in juni–augustus en een tweede avondpiek in september. Dezelfde Poulet et al. (2005)-telemetriestudie heeft één canonieke registratie als bewegingsbewijs; beweging is geen voedingsmeting.
 
 Alle registraties blijven niet-goedgekeurd voor numerieke voorspelling. Onbekende lokale prooisoort, levensfase, reproductiestatus, helderheid en habitat verhogen de onzekerheid. De volledige bron- en methodencontrole blijft onderdeel van Fase 2; er worden geen scores of gewichten geactiveerd.
+
+
+## 39. Snoekbaars-telemetrie: steekproef en meetresolutie
+
+De twee beschikbare primaire telemetriestudies zijn nu methodologisch explicieter vastgelegd. Poulet et al. (2005) volgden 9 van 13 getagde volwassen snoekbaarzen in een Zuid-Frans kanaal tijdens de paaiperiode, met 24-uursessies en posities per twee uur. Horký et al. (2008) volgden 8 volwassen vissen in de Elbe gedurende 12 maanden en 47 volledige 24-uurscycli, met posities per circa drie uur. Beide vonden hogere beweging tijdens twilight; de Elbe-studie vond nachtelijke ondiepe oeverposities die waarschijnlijk rust vertegenwoordigden.
+
+Dit versterkt de betrouwbaarheid van de **bewegingsbeschrijving**, niet van een voedings- of vangstkansclaim. De app mag de schemeringspiek niet als directe voedingsbonus gebruiken. Individuele variatie, adulte levensfase, paaiperiode in de kanaalstudie en verschil tussen rivier en kanaal blijven expliciete transferbeperkingen.
