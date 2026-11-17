@@ -1061,3 +1061,11 @@ De tekst benoemt expliciet:
 - dat het geen statistisch betrouwbaarheidsinterval is en de onzekerheid in de soortcurve zelf niet omvat.
 
 Bij een rechtstreeks gemeten watertemperatuur wordt geen geschatte scoreband getoond. Er is geen vangstkans, biologisch gewicht of numerieke modelparameter gewijzigd.
+
+## 52. Persoonlijke vangstkans losgekoppeld van de voorlopige thermische score (17 november 2026)
+
+De Poisson-vangkans gebruikte eerder een vaste thermische multiplier `0,88 + (dagScore / 10) × 0,24`. Deze 0,88–1,12-schaal was niet empirisch afgeleid en koppelde een voorlopige thermische profielcurve rechtstreeks aan persoonlijke vangstfrequentie.
+
+De multiplier is verwijderd. De persoonlijke Poisson-baseline gebruikt nu uitsluitend het historische vangsttempo per geregistreerd visuur en de geplande sessieduur. `hourlyCatchRate` blijft het ruwe historische tempo; `expectedCatches` en `personalCatchChance` worden rechtstreeks uit dit tempo berekend. De thermische activiteitspotentie blijft een afzonderlijke prognoserespons en beïnvloedt de persoonlijke vangstkans niet.
+
+De onzekerheidsnotitie in de app benoemt dat voeding en habitat evenmin numeriek zijn geïntegreerd. Een toekomstige koppeling vereist directe data en chronologische validatie; er wordt geen vervangende multiplier toegevoegd. Regressietest controleert dat een andere thermische dagscores de historische Poisson-vangkans niet wijzigt wanneer historische sessies, soort en duur gelijk blijven.

@@ -883,12 +883,11 @@ export function calculateDayPrognosis(
       const rawLambdaPerHour = totalDurationHours > 0 ? totalTargetCatches / totalDurationHours : 0;
       hourlyCatchRate = Math.round(rawLambdaPerHour * 100) / 100;
 
-      const actFactor = 0.88 + (dayScore / 10) * 0.24;
-      const effectiveLambda = rawLambdaPerHour * actFactor;
+      // Catch chance stays a personal empirical baseline until a biological coupling is validated.
       if (sessionDuration !== null) {
-        let durationAdjusted = effectiveLambda > 0 ? 1 - Math.exp(-effectiveLambda * sessionDuration) : 0;
+        let durationAdjusted = rawLambdaPerHour > 0 ? 1 - Math.exp(-rawLambdaPerHour * sessionDuration) : 0;
         durationAdjusted = clamp(durationAdjusted, 0, 0.95);
-        expectedCatches = Math.round(effectiveLambda * sessionDuration * 10) / 10;
+        expectedCatches = Math.round(rawLambdaPerHour * sessionDuration * 10) / 10;
         catchChance = Math.round(durationAdjusted * 100);
       } else {
         uncertaintyNotes.push('De gewenste sessieduur is onbekend; vangstkans en verwacht aantal vangsten worden daarom niet voor een fictieve duur berekend.');
@@ -904,6 +903,9 @@ export function calculateDayPrognosis(
       );
       uncertaintyNotes.push(
         `Poisson-blootstellingsmodel gebruikt ${durationSessions.length} sessies met bekende duur (totale geregistreerde visduur: ${totalDurationHours.toFixed(1)} uur, vangsttempo: ${hourlyCatchRate}/uur).`
+      );
+      uncertaintyNotes.push(
+        'De persoonlijke vangstkans is een historische Poisson-baseline. Thermische activiteit, voeding en habitat worden niet als numerieke vangstcorrectie toegepast omdat deze koppeling nog niet empirisch is gevalideerd.'
       );
     } else {
       uncertaintyNotes.push(

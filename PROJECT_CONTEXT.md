@@ -1377,3 +1377,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De band wordt door de bestaande curve berekend op de intervalgrenzen en de modelpiek indien die binnen het interval ligt. De centrale score blijft gelijk.
 - De band is nadrukkelijk geen statistisch betrouwbaarheidsinterval en omvat niet de onzekerheid van de voorlopige soortcurve. Bij gemeten watertemperatuur wordt geen geschatte band getoond.
 - Regressietest controleert dat de watertemperatuuronzekerheid transparant wordt getoond; geen modelparameters of vangstkans gewijzigd.
+
+### Fase 2 — persoonlijke vangkans zuiver empirisch gehouden (17 november 2026)
+
+- De vaste thermische multiplier (0,88–1,12) is uit het Poisson-vangstmodel verwijderd wegens ontbrekende empirische validatie.
+- Persoonlijke vangstkans en verwacht aantal vangsten worden nu uitsluitend berekend uit historisch vangsttempo per geregistreerd visuur en de geplande sessieduur.
+- Thermische activiteit blijft een aparte prognoselaag; voeding en habitat worden nog niet numeriek in de persoonlijke vangstkans geïntegreerd.
+- Regressietest controleert dat verschillende thermische dagscores bij dezelfde historische sessies en duur dezelfde Poisson-vangkans geven.
