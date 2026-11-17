@@ -473,3 +473,8 @@ Beide bronnen blijven mechanistische, laboratorium-/aquacultuurpriors; ze valide
 De persoonlijke Poisson-vangkans wordt berekend voor de vooraf geplande sessieduur. De primaire Brier-score telt daarom alleen afgeronde sessies waarvan de werkelijke duur (endTime - startTime) op minuutprecisie gelijk is aan de duur in de onveranderlijke prognosesnapshot. Duurafwijkingen en ontbrekende/expliciet onbekende duur worden apart geteld en uitgesloten; de kans wordt niet achteraf omgerekend en er wordt geen willekeurige tolerantie toegepast. De huidige vangstkans is niet per tijdvak berekend, dus targetSlot wordt niet als Brier-eligibilitycriterium gebruikt.
 
 Naast de totaalscore worden Brier-score, gemiddelde voorspelde kans, gerealiseerde vangstfractie en sessieaantal per doelsoort getoond. Deze soortdiagnostiek is beschrijvend, geen automatische feedback of zelftraining. Kleine aantallen blijven expliciet onzeker.
+
+
+## 53. Tijdelijke uitzondering voor één betwiste dependency-advisory
+
+De CI dependency-audits sluiten uitsluitend `GHSA-fc5q-39xc-vjpf` voor transitieve dependency `picomatch@4.0.7` tijdelijk uit. De advisory blijft als High gepubliceerd; upstream betwist de classificatie en er was geen bevestigde patchrelease beschikbaar bij vastlegging. Dit is een gedocumenteerde risico-uitzondering, geen veiligheidsverklaring. Alle andere production- en full-auditcontroles blijven actief. Herbeoordeel en verwijder de uitzondering zodra een gepatchte release beschikbaar is of de advisory formeel wordt ingetrokken/gewijzigd. Merge blijft afhankelijk van een volledig groene Quality Gate op PR-head én mergecommit.

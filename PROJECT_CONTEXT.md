@@ -1426,3 +1426,11 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Geen achteraf omrekening van de kans, geen willekeurige tolerantie en geen tijdvakbonus; de bestaande vangstkans is niet per tijdvak voorspeld.
 - Soortspecifieke Brier-score, gemiddelde voorspelde kans, gerealiseerde vangstfractie en N worden naast de totaalscore gerapporteerd.
 - Dit is uitsluitend evaluatie achteraf; prognoseberekeningen en biologische gewichten worden niet aangepast.
+
+
+### Tijdelijke CI-uitzondering — GHSA-fc5q-39xc-vjpf (17 november 2026)
+
+- De dependency-audit blokkeerde op de ReDoS-advisory voor transitieve dependency `picomatch@4.0.7`; upstream betwist de classificatie en er was geen bevestigde gepubliceerde patchrelease.
+- Met expliciete toestemming wordt alleen `GHSA-fc5q-39xc-vjpf` tijdelijk genegeerd in beide Bun-auditstappen. Alle andere dependency-audits blijven actief.
+- Dit lost de melding niet op en verklaart de dependency niet veilig. Herbeoordeel en verwijder de uitzondering zodra een gepatchte release beschikbaar is of de advisory formeel wordt ingetrokken/gewijzigd.
+- PR #96 blijft geblokkeerd voor merge totdat alle Quality Gate-stappen op de exacte PR-head en daarna op de mergecommit slagen.

@@ -1271,3 +1271,14 @@ De huidige vangstkans is een persoonlijke Poisson-baseline die expliciet is bere
 - De soortuitsplitsing moet dezelfde gevalideerde Brier-eligible set gebruiken als de totaalscore.
 
 **Status bij implementatie:** de codewijziging wordt pas geaccepteerd na een groene Quality Gate op de exacte PR-head en een groene Quality Gate op de mergecommit. Tot die tijd blijft Fase 2 geblokkeerd.
+
+
+## 62. Tijdelijke, gerichte dependency-audituitzondering (17 november 2026)
+
+De Quality Gate blokkeerde vóór typecheck en tests op GitHub Advisory `GHSA-fc5q-39xc-vjpf` voor transitieve dependency `picomatch@4.0.7` (ReDoS-melding). De melding is nog gepubliceerd als High, maar de upstream-onderhouder betwist de kwetsbaarheidsclassificatie; tijdens deze wijziging was geen bevestigde gepubliceerde patchrelease beschikbaar.
+
+**Besluit:** uitsluitend deze ene GHSA wordt tijdelijk uitgesloten van beide Bun dependency-audits in `.github/workflows/ci.yml`. Alle andere meldingen en auditniveaus blijven actief. Dit is een expliciete risico-uitzondering, geen bewijs dat de dependency veilig of de melding opgelost is.
+
+**Herbeoordeling verplicht:** verwijder de uitzondering zodra (a) een gepatchte picomatch-release beschikbaar is en de dependencyboom daarop kan worden bijgewerkt, of (b) GitHub/upstream de advisory formeel intrekt of inhoudelijk wijzigt. Controleer de dependencyboom en advisory opnieuw bij iedere relevante dependency-update. Geen brede audit-uitschakeling, geen globale ignore en geen wijziging aan productieprognoses.
+
+De uitzondering maakt alleen de resterende Quality Gate-stappen uitvoerbaar; de PR mag pas worden samengevoegd nadat typecheck, alle regressietests, productiebuild en de volledige Quality Gate op de exacte PR-head groen zijn. Daarna is ook een groene Quality Gate op de mergecommit vereist.

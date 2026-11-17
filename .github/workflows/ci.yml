@@ -34,11 +34,16 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # Temporary, narrowly scoped exception: GHSA-fc5q-39xc-vjpf affects
+      # picomatch@4.0.7. Upstream disputes the finding and no patched release
+      # is available at this time. Reassess and remove this exception as soon
+      # as the advisory is withdrawn/clarified or a fixed release is published.
+      # All other production and full dependency advisories remain enforced.
       - name: Production dependency vulnerability audit
-        run: bun audit --prod
+        run: bun audit --prod --ignore GHSA-fc5q-39xc-vjpf
 
       - name: Full dependency audit (fail on high and critical)
-        run: bun audit --audit-level=high
+        run: bun audit --audit-level=high --ignore GHSA-fc5q-39xc-vjpf
 
       - name: TypeScript typecheck
         run: bun run lint
