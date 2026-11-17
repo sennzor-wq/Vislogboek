@@ -273,6 +273,6 @@ export function calculateThermalEfficiency(
   const diff = temp - thermalOptimum;
   const rawEfficiency = Math.exp(-(diff * diff) / (2 * width * width));
   const efficiency = Math.max(0.08, Math.min(1.0, rawEfficiency));
-  const description = `Watertemperatuur (${temp.toFixed(1)} °C): de voorlopige thermische profielcurve voor ${species} schat een relatieve respons van ${(efficiency * 100).toFixed(0)}%. De modelpiek en curvebreedtes zijn geen gemeten optimum of gevalideerde fysiologische tolerantiegrens. Dit is geen directe meting van activiteit of voedselopname; lage temperatuur bewijst geen winterrust en hoge temperatuur bewijst geen zuurstofstress.`;
+  const description = `Watertemperatuur (${temp.toFixed(1)} °C): de voorlopige thermische profielcurve voor ${species} schat een relatieve respons van ${(efficiency * 100).toFixed(0)}%. De modelpiek en curvebreedtes zijn geen gemeten optimum; er bestaat voor deze profielcurve geen gevalideerde fysiologische tolerantiegrens. Dit is geen directe meting van activiteit of voedselopname; lage temperatuur bewijst geen winterrust. Opgeloste zuurstof wordt niet gemeten, dus hoge temperatuur alleen bewijst geen zuurstofstress.`;
   return { efficiency, description, impact: 'neutraal' };
 }
