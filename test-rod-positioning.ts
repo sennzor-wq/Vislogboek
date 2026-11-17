@@ -698,8 +698,10 @@ console.log('\n--- TESTGROEP 11: Geactiveerde Profielparameters in Prognose-Engi
 const carpProg = calculateDayPrognosis('2026-07-15', fc1, 'Karper', []);
 const carpWindSlot = carpProg.timeSlots.Middag.windFactor;
 assert(
-  carpWindSlot.detail.includes('voorlopige profielnotitie voor Karper'),
-  '11.1 Voorkeurswindrichting (ZW) wordt actief herkend in het winddetail'
+  carpWindSlot.detail.includes('Wind (ZW,') &&
+    carpWindSlot.detail.includes('geen soortspecifieke windvoorkeur') &&
+    !carpWindSlot.detail.includes('profielnotitie'),
+  '11.1 Wind wordt feitelijk getoond zonder ongevalideerde soortvoorkeur'
 );
 
 // 11.2 Bewolkingsvoorkeur
@@ -707,8 +709,9 @@ const pikeOvercastForecast = createHourlyForecasts('2026-10-20', 12, 14, 'ZW', 8
 const pikeProg = calculateDayPrognosis('2026-10-20', pikeOvercastForecast, 'Snoek', []);
 const pikePrecipSlot = pikeProg.timeSlots.Middag.precipitationFactor;
 assert(
-  pikePrecipSlot.detail.includes('profielvoorkeur voor bewolking (bewolkt) is voorlopig'),
-  '11.2 Voorlopige bewolkingsvoorkeur voor Snoek blijft zichtbaar als context'
+  pikePrecipSlot.detail.includes('bewolking 85%') &&
+    !pikePrecipSlot.detail.includes('profielvoorkeur'),
+  '11.2 Bewolking blijft feitelijke context zonder ongevalideerde soortvoorkeur'
 );
 
 assert(
@@ -718,12 +721,12 @@ assert(
 assert(
   pikeProg.timeSlots.Middag.seasonFactor.score === 0 &&
   pikeProg.timeSlots.Middag.seasonFactor.impact === 'neutraal',
-  '11.4 Voorlopige seizoensgewichten beïnvloeden de centrale activiteitsscore niet'
+  '11.4 Seizoen blijft neutrale context zonder zelfstandige scorecorrectie'
 );
 assert(
   pikeProg.timeSlots.Middag.timeOfDayFactor.score === 0 &&
   pikeProg.timeSlots.Middag.timeOfDayFactor.impact === 'neutraal',
-  '11.5 Voorlopige tijdvakvoorkeuren beïnvloeden de centrale activiteitsscore niet'
+  '11.5 Tijdvakcontext blijft neutraal en beïnvloedt de numerieke score niet'
 );
 assert(
   pikeProg.timeSlots.Middag.windFactor.score === 0 &&
