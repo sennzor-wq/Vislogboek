@@ -401,7 +401,7 @@ async function run14Scenarios() {
     new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
   );
   assert(
-    genericTimeContext.timeSlots.Nacht.timeOfDayFactor.detail.includes('geen soortspecifieke tijdvakvoorkeur'),
+    genericTimeContext.timeSlots.Nacht.timeOfDayFactor.detail.includes('geen soortspecifiek tijdgebonden voedingsritme'),
     '12.2a Het algemene fallbackprofiel verzint geen biologisch beste tijdvak'
   );
   const solarContextPrognosis = calculateDayPrognosis(
