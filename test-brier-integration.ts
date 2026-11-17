@@ -358,20 +358,20 @@ async function runBrierIntegrationTest() {
   const oldVersionSnapshot: PrognosisSnapshot = {
     ...linkedSnapshots[0],
     id: 'test_brier_old_model_version',
-    forecastTimestamp: '2026-10-20T07:00:00.000Z',
-    targetDate: '2026-10-20',
+    forecastTimestamp: '2026-10-17T07:00:00.000Z',
+    targetDate: '2026-10-17',
     linkedSessionId: 'test_brier_old_version_session',
     actualOutcome: 'catch',
     modelVersion: 'v2.4-water-thermal-history',
   };
   const oldVersionSession: FishingSession = {
     id: 'test_brier_old_version_session',
-    startTime: '2026-10-20T08:00:00.000Z',
-    endTime: '2026-10-20T12:00:00.000Z',
+    startTime: '2026-10-17T08:00:00.000Z',
+    endTime: '2026-10-17T12:00:00.000Z',
     outcome: 'catch',
     targetSpecies: ['Karper'],
-    createdAt: '2026-10-20T08:00:00.000Z',
-    updatedAt: '2026-10-20T12:00:00.000Z',
+    createdAt: '2026-10-17T08:00:00.000Z',
+    updatedAt: '2026-10-17T12:00:00.000Z',
   };
   const versionScopedEval = evaluatePrognosisPerformance(
     [...linkedSnapshots, oldVersionSnapshot],
