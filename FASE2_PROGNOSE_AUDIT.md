@@ -1069,3 +1069,15 @@ De Poisson-vangkans gebruikte eerder een vaste thermische multiplier `0,88 + (da
 De multiplier is verwijderd. De persoonlijke Poisson-baseline gebruikt nu uitsluitend het historische vangsttempo per geregistreerd visuur en de geplande sessieduur. `hourlyCatchRate` blijft het ruwe historische tempo; `expectedCatches` en `personalCatchChance` worden rechtstreeks uit dit tempo berekend. De thermische activiteitspotentie blijft een afzonderlijke prognoserespons en beïnvloedt de persoonlijke vangstkans niet.
 
 De onzekerheidsnotitie in de app benoemt dat voeding en habitat evenmin numeriek zijn geïntegreerd. Een toekomstige koppeling vereist directe data en chronologische validatie; er wordt geen vervangende multiplier toegevoegd. Regressietest controleert dat een andere thermische dagscores de historische Poisson-vangkans niet wijzigt wanneer historische sessies, soort en duur gelijk blijven.
+
+## 53. Poisson-steekproefbasis en betrouwbaarheidslabel gecorrigeerd (17 november 2026)
+
+De eerdere UI noemde het categorie-label 'Laag/Matig/Redelijk/Hoog' **betrouwbaarheid** en toonde daarbij het aantal vergelijkbare sessies. Dat was niet exact: het label werd berekend uit sessies met bekende duur, terwijl de Poisson-rate alleen sessies gebruikt met zowel bekende duur als bruikbare vangstaantallen. Het aantal vergelijkbare sessies voor de Wilson-basissessiefractie kan dus verschillen van de Poisson-steekproef.
+
+De implementatie is gecorrigeerd:
+- `poissonSessionCount` registreert expliciet het aantal sessies dat daadwerkelijk in de Poisson-rate wordt gebruikt.
+- De categoriegrenzen voor de steekproefbasis gebruiken nu `poissonSessions.length`, niet het bredere aantal sessies met alleen bekende duur.
+- De UI noemt dit **Steekproefbasis**, toont het aantal bruikbare Poisson-sessies en vermeldt via tooltip dat dit geen statistische betrouwbaarheid van de voorspelde Poisson-kans is.
+- De Wilson-interval blijft afzonderlijk gekoppeld aan het historische sessiesucces over alle vergelijkbare sessies; dit is geen interval rond de Poisson-duurkans.
+
+Regressietest bevat nu een geval waarin 11 sessies vergelijkbaar zijn, maar slechts 9 bruikbare Poisson-sessies hebben. De steekproefbasis moet dan 'Laag' blijven op basis van N=9.

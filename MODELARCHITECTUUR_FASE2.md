@@ -436,3 +436,9 @@ Bij een geschatte watertemperatuur met een beschikbaar modelinterval wordt de be
 De persoonlijke Poisson-vangkans wordt berekend uit het eigen historische vangsttempo per geregistreerd visuur en de geplande sessieduur. De eerdere vaste thermische multiplier is verwijderd omdat de relatie tussen de voorlopige thermische activiteitsscore en persoonlijke vangstfrequentie niet empirisch is gevalideerd.
 
 Thermische activiteit, voeding en habitat blijven afzonderlijke responsen. Ze worden niet als numerieke correctie op de persoonlijke Poisson-baseline toegepast totdat een reproduceerbare koppeling chronologisch is gevalideerd. De vangstkans is dus een historische persoonlijke baseline, geen geïntegreerde biologische vangstprognose.
+
+## 47. Poisson-steekproefbasis is geen betrouwbaarheidspercentage
+
+Het label bij de persoonlijke Poisson-vangkans beschrijft uitsluitend de omvang van de bruikbare historische steekproef. Het aantal getoonde Poisson-sessies is exact het aantal sessies met bekende duur en bruikbare vangstaantallen dat de vangsttempo-schatting voedt. De categorie wordt niet aangeduid als statistische betrouwbaarheid.
+
+Het 95%-Wilson-interval blijft een afzonderlijke maat voor de historische binomiale sessiesuccesfractie op basis van vergelijkbare sessies. Het is geen onzekerheidsinterval rond de Poisson-kans voor de geplande duur.

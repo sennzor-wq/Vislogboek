@@ -1384,3 +1384,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Persoonlijke vangstkans en verwacht aantal vangsten worden nu uitsluitend berekend uit historisch vangsttempo per geregistreerd visuur en de geplande sessieduur.
 - Thermische activiteit blijft een aparte prognoselaag; voeding en habitat worden nog niet numeriek in de persoonlijke vangstkans geïntegreerd.
 - Regressietest controleert dat verschillende thermische dagscores bij dezelfde historische sessies en duur dezelfde Poisson-vangkans geven.
+
+### Fase 2 — Poisson-steekproefbasis verduidelijkt (17 november 2026)
+
+- De UI noemt de categorie voortaan 'Steekproefbasis' in plaats van 'Betrouwbaarheid' en toont het aantal bruikbare Poisson-sessies.
+- Nieuw veld `poissonSessionCount` telt exact de sessies met bekende duur én bruikbare vangstaantallen. De categoriegrenzen worden op dit aantal toegepast.
+- Wilson-interval blijft apart: historische sessiesuccesfractie, niet de onzekerheid rond de Poisson-duurkans.
+- Regressietest bewaakt het verschil tussen 11 vergelijkbare sessies en 9 bruikbare Poisson-sessies.

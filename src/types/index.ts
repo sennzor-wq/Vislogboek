@@ -286,6 +286,7 @@ export interface DayPrognosis {
   personalCatchConfidence: 'Onvoldoende gegevens' | 'Zeer laag' | 'Laag' | 'Matig' | 'Redelijk' | 'Gemiddeld' | 'Hoog';
   catchUncertaintyInterval?: [number, number] | null; // 95% Wilson-interval bijv. [38, 96]%
   relevantSessionCount: number;
+  poissonSessionCount?: number; // Sessies met bekende duur en bruikbare vangstaantallen voor de Poisson-rate
   averageRelevantSessionDurationMin?: number;
   plannedDurationHours?: number | null; // null wanneer de gebruiker geen eindtijd/duur heeft opgegeven
   expectedCatches?: number | null;     // Verwacht aantal vangsten (E[N] = lambda * t) bij voldoende data
