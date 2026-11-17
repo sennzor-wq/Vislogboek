@@ -585,7 +585,7 @@ async function run14Scenarios() {
       actualOutcome: outcomes[index],
       linkedSessionId: sessionId,
       source: 'synthetic-ten-session-test',
-      modelVersion: 'test-production-engine',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: forecastTimestamp,
     });
     sequentialSessions.push(session);
