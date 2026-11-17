@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import { db, deleteSessionSafely, deletePrognosisSnapshotSafely } from './src/db/db';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod, PlannedFishingSession, CoachAdviceRecord } from './src/types';
@@ -35,7 +36,7 @@ async function runTestSuite() {
     predictedActivityScore: 7.5,
     predictedCatchChance: 65,
     source: 'live_prognosis',
-    modelVersion: 'v2.2',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
     actualOutcome: 'catch',
     linkedSessionId: 'sess_keep_001',
     createdAt: new Date().toISOString(),
@@ -106,7 +107,7 @@ async function runTestSuite() {
     predictedActivityScore: 6.8,
     predictedCatchChance: 55,
     source: 'live_prognosis',
-    modelVersion: 'v2.2',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
     linkedSessionId: 'sess_del_002',
     actualOutcome: 'catch',
     createdAt: new Date().toISOString(),
@@ -156,7 +157,7 @@ async function runTestSuite() {
     predictedActivityScore: 6.5,
     predictedCatchChance: 50,
     source: 'viscoach-plan',
-    modelVersion: 'v2.2',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
     createdAt: new Date().toISOString(),
     runKind: 'plan',
   };
@@ -233,7 +234,7 @@ async function runTestSuite() {
     predictedActivityScore: 8.0,
     predictedCatchChance: 40,
     source: 'live_prognosis',
-    modelVersion: 'v2.2',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
     createdAt: new Date().toISOString(),
   };
   await db.prognosisSnapshots.put(snapUnrelated);
@@ -307,12 +308,12 @@ async function runTestSuite() {
   await db.prognosisSnapshots.clear();
 
   const sixSnapshots: PrognosisSnapshot[] = [
-    { id: 's_eval_1', forecastTimestamp: '2026-10-01T07:00:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, actualOutcome: 'catch', linkedSessionId: 's_eval_session_1', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_2', forecastTimestamp: '2026-10-02T07:00:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'catch', linkedSessionId: 's_eval_session_2', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_3', forecastTimestamp: '2026-10-03T07:00:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_3', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_4', forecastTimestamp: '2026-10-04T07:00:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 5, predictedCatchChance: 20, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_4', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_5', forecastTimestamp: '2026-10-05T07:00:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 50, actualOutcome: 'catch', linkedSessionId: 's_eval_session_5', source: '', modelVersion: 'v2.2', createdAt: '' },
-    { id: 's_eval_6', forecastTimestamp: '2026-10-06T07:00:00Z', targetDate: '2026-10-06', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, actualOutcome: 'catch', linkedSessionId: 's_eval_session_6', source: '', modelVersion: 'v2.2', createdAt: '' },
+    { id: 's_eval_1', forecastTimestamp: '2026-10-01T07:00:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, actualOutcome: 'catch', linkedSessionId: 's_eval_session_1', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
+    { id: 's_eval_2', forecastTimestamp: '2026-10-02T07:00:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'catch', linkedSessionId: 's_eval_session_2', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
+    { id: 's_eval_3', forecastTimestamp: '2026-10-03T07:00:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_3', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
+    { id: 's_eval_4', forecastTimestamp: '2026-10-04T07:00:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 5, predictedCatchChance: 20, actualOutcome: 'skunk_confirmed', linkedSessionId: 's_eval_session_4', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
+    { id: 's_eval_5', forecastTimestamp: '2026-10-05T07:00:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 50, actualOutcome: 'catch', linkedSessionId: 's_eval_session_5', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
+    { id: 's_eval_6', forecastTimestamp: '2026-10-06T07:00:00Z', targetDate: '2026-10-06', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, actualOutcome: 'catch', linkedSessionId: 's_eval_session_6', source: '', modelVersion: PROGNOSIS_MODEL_VERSION, createdAt: '' },
   ];
   const evaluationSessions: FishingSession[] = sixSnapshots.map((snapshot, index) => ({
     id: snapshot.linkedSessionId!,
@@ -411,7 +412,7 @@ async function runTestSuite() {
     predictedActivityScore: 8,
     predictedCatchChance: 90,
     source: '',
-    modelVersion: 'v2.2',
+    modelVersion: PROGNOSIS_MODEL_VERSION,
     isBenchmark: true,
     createdAt: '',
   } as any;
