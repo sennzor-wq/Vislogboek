@@ -1147,3 +1147,63 @@ De huidige implementatie is pas geschikt als volwaardige validatiepoort wanneer 
 - Eerstvolgende technische actie: audit van de snapshot- en sessievelden voor geplande duur, werkelijke duur, start/eindtijd en tijdvak; daarna een regressietestmatrix voor gelijke duur, kortere/l langere sessie, verschoven tijdvak, onvolledige sessie en onbekende uitkomst. Implementeer alleen een uitsluitings-/herleidingsregel die door die gegevens en tests wordt gedragen.
 - Daarna per-soort rapportage en kalibratie beoordelen op basis van beschikbare aantallen. Geen arbitraire minimumsteekproef of tolerantie toevoegen zonder onderbouwing.
 - **Fase 2-acceptatie blijft geblokkeerd** totdat de duur-/tijdvakvergelijkbaarheid, chronologische integriteit, modelversie-isolatie en soortspecifieke diagnostiek aantoonbaar zijn getest. Fase 3 start niet eerder.
+
+
+## 59. Onafhankelijk evaluatiekader voor de volledige prognose (17 november 2026)
+
+### Hoofdprincipe: voorspellen en beoordelen blijven gescheiden
+
+De prognose-engine maakt zelfstandig een voorspelling op basis van de vooraf beschikbare biologische, thermische, habitat- en omgevingsinformatie. De evaluatielaag beoordeelt die vastgelegde voorspelling pas achteraf tegen onafhankelijke waarnemingen. De Brier-score is dus geen onderdeel van de prognoseberekening, geen stuurvariabele en geen automatische trainingslus.
+
+Een evaluatieresultaat mag niet achteraf de voorspelling wijzigen die het beoordeelt. Een wijziging aan een voorspellend onderdeel vraagt een expliciete, inhoudelijk onderbouwde hypothese, een nieuwe model-/engineversie en nieuwe chronologische forward validation. De bestaande, beperkte watertemperatuurbiascorrectie is een afzonderlijke submodelkalibratie op uitsluitend eerdere temperatuurmeetparen; zij is geen Brier-feedback en mag niet worden veralgemeniseerd naar biologische scores of vangstkansen.
+
+### Evaluatielagen — ieder zijn eigen uitkomstmaat
+
+1. **Vangkans / gerealiseerde vangst**
+   - Bestaande basis: Brier-score, chronologische Brier Skill Score en kalibratiegroepen voor de vooraf vastgelegde binaire kans op minimaal één doelvis.
+   - Dit beoordeelt de kansuitspraak, niet automatisch de juistheid van elke biologische tussenlaag.
+   - De voorwaarden uit §58 blijven gelden, waaronder vergelijkbaarheid van voorspelde en werkelijk bevistijd/-duur.
+
+2. **Watertemperatuur / thermische omgevingsvoorspelling**
+   - Bestaande basis: MAE, RMSE en gemiddelde bias tegenover later, fysiek gemeten watertemperatuur.
+   - De meting moet een betrouwbaar meetmoment, bron en methode hebben en na de voorspelling liggen.
+   - De bestaande lokale biascorrectie gebruikt alleen eerdere meetparen op dezelfde stek en in hetzelfde seizoen; deze blijft begrensd en chronologisch.
+
+3. **Prognoserichting en relatieve omstandigheden**
+   - Nog niet als zelfstandige evaluatie geïmplementeerd.
+   - Doel: toetsen of vooraf als gunstiger/ongunstiger of hoger/lager gerangschikte omstandigheden achteraf een overeenkomstig verschil in relevante uitkomsten laten zien.
+   - Dit vereist vooraf opgeslagen, vergelijkbare voorspellingen en voldoende herhaalde waarnemingen. Vergelijkingen moeten rekening houden met soort, stek, seizoen, werkelijke visduur, techniek en andere relevante verschillen.
+   - Een enkele vangst of nulvangst bewijst niet dat de voorspelde richting juist of onjuist was; toeval en detectie-/vangstinspanning blijven meespelen. Geen score of drempel invoeren voordat de uitkomstdefinitie en statistische methode zijn vastgelegd.
+
+4. **Tijdvakvoorspelling**
+   - Nog niet als zelfstandige uitkomstvalidatie geïmplementeerd. De bestaande tijdvakcontext en adviezen zijn geen bewijs dat het gekozen tijdvak achteraf het beste was.
+   - Toetsing vraagt vooraf vastgelegde tijdvakrangschikkingen en herhaalde, vergelijkbare sessies per soort en context. Vergelijk alleen werkelijk bevistijd en inspanning die bij het voorspelde tijdvak passen.
+   - Een sessie in één tijdvak vertelt niet wat dezelfde visser op hetzelfde moment in een alternatief tijdvak had gevangen. Dat niet-waargenomen alternatief is een counterfactual en mag niet als gemeten waarheid worden behandeld.
+
+5. **Habitat / aanwezigheid op de stek**
+   - Nog geen gekalibreerde zelfstandige aanwezigheidsvalidatie.
+   - Hiervoor zijn tijdgestempelde, soortspecifieke aanwezigheid- of afwezigheidswaarnemingen nodig, met aandacht voor waarnemingsinspanning en detectiekans. 'Niet gezien' is niet automatisch 'niet aanwezig'.
+   - Vangstregistraties alleen zijn een onvolmaakte proxy voor aanwezigheid: niet vangen bewijst niet dat de soort niet op de stek was.
+
+6. **Voeding / foerageergedrag**
+   - Nog geen zelfstandige kwantitatieve validatie.
+   - Alleen directe, voldoende nauwkeurige en tijdgestempelde voedingswaarnemingen kunnen een voorspelling over voedingsactiviteit rechtstreeks toetsen. Beweging, dieptegebruik, habitatkeuze, maagvulling en vangsten zijn verschillende proxies met eigen beperkingen; ze mogen niet zonder onderbouwing als gelijkwaardige voedingslabels worden gebruikt.
+   - De bestaande grove sessieobservaties hebben geen betrouwbare gebeurtenistijd en worden daarom niet achteraf omgezet in tijdvakgebonden trainingslabels.
+
+7. **Thermische biologische activiteit**
+   - De bestaande thermische activiteitspotentie is een modeluitvoer, geen rechtstreeks gemeten dagelijkse activiteit.
+   - MAE/RMSE van watertemperatuur valideert de temperatuurinput, niet de biologische activiteitsscore. Validatie van de activiteitsscore vraagt een passende, onafhankelijke fysiologische of gedragsmatige referentiemaat en een soort-/levensfase-/contextspecifieke overdraagbaarheidsbeoordeling.
+
+8. **Databasis en onzekerheid**
+   - Bronbeschikbaarheid, steekproefomvang, ontbrekende gegevens en modelonzekerheid worden apart gerapporteerd.
+   - Een kwalitatief label 'onderbouwing' of 'databasis' is geen statistische betrouwbaarheid. Een onzekerheidsinterval moet afzonderlijk op dekking en kalibratie worden getoetst zodra voldoende data beschikbaar is.
+
+### Technische volgorde en acceptatie
+
+- Behoud de bestaande temperatuur- en vangstevaluaties als afzonderlijke modules; voeg geen tweede algemene prognosescore toe die verschillende uitkomsten door elkaar mengt.
+- Eerst de open Brier-voorwaarden uit §58 oplossen, in het bijzonder voorspelde versus werkelijk bevistijd/-duur, chronologie en soortspecifieke diagnose.
+- Daarna per laag vastleggen: voorspelde grootheid, onafhankelijke waarneming/label, tijdresolutie, vergelijkbaarheid, uitsluitingsregels, geschikte maatstaf en vereiste steekproefbasis.
+- Pas daarna afzonderlijke evaluatiemodules en regressietests implementeren. Geen willekeurige scoregewichten, drempels of minimale aantallen verzinnen.
+- Resultaten moeten per soort en waar relevant per levensfase, seizoen, habitat en tijdvak te inspecteren zijn; kleine aantallen blijven expliciet voorlopig.
+- De evaluatie mag geen verborgen automatische zelftraining worden. Eventuele toekomstige submodelkalibratie moet expliciet afgebakend, chronologisch, versieerbaar en onafhankelijk toetsbaar zijn.
+- **Fase 2 blijft geblokkeerd** totdat de vangstkans-evaluatie aan §58 voldoet en de voor de uiteindelijke prognose geclaimde deeluitkomsten aantoonbaar een passende onafhankelijke validatiemethode hebben. Niet elk biologisch mechanisme hoeft al een numerieke score te krijgen; zonder valide waarneming blijft het een transparant onderbouwde hypothese, geen bewezen voorspelling.
