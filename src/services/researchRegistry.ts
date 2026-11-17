@@ -293,7 +293,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Snoekbaars'],
     application: 'biology',
     evidenceStrength: 'moderate',
-    summary: 'Volledige primaire studie: 70 volwassen kweek-snoekbaarzen verdeeld over temperatuurbehandelingen; zes bruikbare meetgroepen van 13–28 °C, na minimaal drie weken acclimatisatie. De berekende maximale aerobe scope lag bij 18,8 °C en het afgeleide 80%-bereik bij 10,4–26,9 °C. Belangrijke nuance: aerobe scope verschilde statistisch niet tussen 13 en 25 °C; bij 28 °C resteerden slechts drie complete dieren. Juveniele groeitemperaturen zijn hoger dan die van adulten.',
+    summary: 'Volledige primaire studie: 70 volwassen kweek-snoekbaarzen verdeeld over temperatuurbehandelingen; zes bruikbare meetgroepen van 13–28 °C, na minimaal drie weken acclimatisatie. De berekende maximale aerobe scope lag bij 18,8 °C en het afgeleide 80%-bereik bij 10,4–26,9 °C. Belangrijke nuance: er was geen statistisch significant verschil in aerobe scope tussen 13 en 25 °C; bij 28 °C resteerden slechts drie complete dieren. Juveniele groeitemperaturen zijn hoger dan die van adulten.',
     limitations: [
       'De vissen kwamen uit een commerciële kweekfaciliteit en werden in aquacultuurtanks onderzocht; overdracht naar vrijlevende Nederlandse populaties is onzeker. De dieren acclimatiseerden minimaal drie weken, kregen 24 uur per dag dimlicht en werden voorafgaand aan de respirometrie minimaal drie dagen gevast.',
       'Hoewel het afgeleide modelmaximum 18,8 °C is, was aerobe scope niet significant verschillend tussen 13 en 25 °C. De 28 °C-groep leverde slechts drie complete metingen; bij 31 °C overleefde geen dier het volledige protocol.',
