@@ -380,6 +380,8 @@ async function runBrierIntegrationTest() {
   );
   assert(
     versionScopedEval.totalSnapshots === 8 &&
+      versionScopedEval.currentModelSnapshotCount === 7 &&
+      versionScopedEval.outdatedVersionCount === 1 &&
       versionScopedEval.evaluatedCount === 7 &&
       versionScopedEval.disclaimers.some((item) => item.includes(PROGNOSIS_MODEL_VERSION) && item.includes('1 momentopname(s) van andere modelversies')),
     '4.8a Alleen actuele modelversie wordt gescoord; oude modelversie wordt uitgesloten'

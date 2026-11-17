@@ -20,6 +20,8 @@ export interface CalibrationBin {
 
 export interface EvaluationResult {
   totalSnapshots: number;
+  currentModelSnapshotCount: number;
+  outdatedVersionCount: number;
   evaluatedCount: number;    // Aantal met bekende uitkomst ('catch' of 'skunk_confirmed')
   pendingCount: number;      // Aantal nog zonder sessie of actieve sessie
   hasSufficientData: boolean;// True als evaluatedCount >= 5
@@ -107,6 +109,8 @@ export function evaluatePrognosisPerformance(
     );
     return {
       totalSnapshots,
+      currentModelSnapshotCount: currentModelSnapshots.length,
+      outdatedVersionCount,
       evaluatedCount,
       pendingCount,
       hasSufficientData: false,
@@ -234,6 +238,8 @@ export function evaluatePrognosisPerformance(
 
   return {
     totalSnapshots,
+    currentModelSnapshotCount: currentModelSnapshots.length,
+    outdatedVersionCount,
     evaluatedCount,
     pendingCount,
     hasSufficientData: true,

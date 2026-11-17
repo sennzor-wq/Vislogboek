@@ -1404,3 +1404,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Brier-evaluatie scoort uitsluitend snapshots van de actuele modelversie. Oudere modelversies worden apart uitgesloten en gerapporteerd.
 - Afgeronde uitkomsten van oudere modelversies mogen wel als historische waarnemingen in de chronologische rolling baseline dienen; hun oude voorspelde kans wordt niet gebruikt.
 - Regressietest controleert uitsluiting van oude modelversies en behoud van hun geldige historische uitkomsten voor de baseline.
+
+
+### Fase 2 — modelversies zichtbaar in statistieken (17 november 2026)
+
+- De Brier-sectie toont nu het totaal aan opgeslagen snapshots, hoeveel van de actuele modelversie zijn en hoeveel oudere/afwijkende versies buiten de actuele score blijven.
+- De tellingen zijn expliciet opgenomen in `EvaluationResult` en regressietests bewaken de verdeling.
+- Historische snapshots blijven bewaard; alleen de actuele modelversie wordt gescoord. Geldige oude sessie-uitkomsten blijven bruikbaar voor de chronologische baseline.
