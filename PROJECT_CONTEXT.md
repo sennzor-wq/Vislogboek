@@ -1339,3 +1339,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De tijdvakscore blijft neutraal; geen activiteitsscore, rangschikking of vangstkans aangepast.
 - Regressietests toegevoegd voor karper, roofblei en de generieke fallback.
 - Volgende stap: resterende soortprofielen nalopen op andere claims die niet door de actuele registry worden gedekt; daarna de volledige vijf-responsketen en chronologische evaluatie als één geheel toetsen. Fase 2 blijft open; Fase 3 start niet.
+
+
+### Fase 2 — volledige responsketen en parameteraudit (17 november 2026)
+
+- De soortprofielen zijn gecontroleerd op actieve versus uitsluitend beschrijvende velden. Alleen `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` sturen rechtstreeks de voorlopige visfysiologische thermische curve; temperatuur-ranges beïnvloeden alleen de uitleg/classificatie. Wind, druk, seizoen, bewolking en neerslag leveren geen numerieke biologische scorebijdrage. `seasonalWeights`, `pressureSensitivity` en `optimalPressureRange` zijn niet aangesloten op de actuele numerieke prognoseketen.
+- Geconstateerd dat de per-soort `disruptiveWindThresholdKmH` alleen praktische windtekst stuurt (aasaanbieding/lijncontrole), niet een biologische score. De soortafhankelijke grens is daarom een opruimpunt; geen windbonus of vangstcorrectie is geactiveerd.
+- De vijf responslagen zijn opnieuw als keten gecontroleerd: (1) voorlopige thermische activiteitspotentie, (2) voedings-/foerageerliteratuur als context zonder numerieke voedingsprognose, (3) kwalitatieve habitat-/bewegingshypothesen zonder aanwezigheidskans, (4) persoonlijke historische Poisson-vangkans met beperkte thermische dagscoreschaal, en (5) afzonderlijke datakwaliteit-, steekproef- en forward-evaluatiesignalen.
+- De huidige Poisson-baseline is nog niet gesegmenteerd op techniek, aas/rig of gekozen tijdvak en integreert geen numerieke voedings- of habitatkans. Het Wilson-interval betreft historische sessiesuccesfractie, niet de Poisson-kans voor de geplande sessieduur.
+- De thermische daganalyse wordt gedeeld door de vier kloktijdvakken; zonder gevalideerde tijdafhankelijke respons blijven gelijke tijdvakken gelijkwaardig.
+- Volgende stap: herkomstmatrix van alle actieve numerieke aannames in de waterthermische schatting én visfysiologische curve. Daarna niet-aangesloten/misleidende profielvelden opruimen en de vijf lagen afzonderlijk testen. Fase 2 blijft open; Fase 3 start niet.

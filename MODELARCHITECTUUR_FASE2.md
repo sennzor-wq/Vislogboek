@@ -387,3 +387,22 @@ Dit versterkt de betrouwbaarheid van de **bewegingsbeschrijving**, niet van een 
 ## 40. Tijdvakcontext gebruikt uitsluitend geclassificeerd dagritmebewijs
 
 De tijdvakfactor haalt zijn verklarende context nu uit dielBehaviorEvidenceService en niet meer uit de verouderde preferredSlots-/crepuscularBonus-velden in de soortprofielen. Directe tijdgebonden voedingsmetingen blijven contextueel en niet-goedgekeurd; telemetrie voor beweging/habitat levert geen voedingsvoorkeur op; zonder passend bewijs wordt geen voorkeur afgeleid. De numerieke tijdvakfactor blijft neutraal en de astronomische lichtcontext blijft apart. Regressietests bewaken karper, roofblei en Overig.
+
+
+## 41. Vijf responslagen: expliciete implementatiestatus en koppelgrenzen
+
+De prognose wordt ontworpen rond vijf afzonderlijke responsen. Hun huidige volwassenheidsniveau verschilt:
+
+1. **Thermische activiteitspotentie** — numeriek aanwezig, maar de soortcurves zijn voorlopige mechanistische/modelpriors. De waterthermische schatting en de visfysiologische responscurve hebben elk eigen aannames en moeten apart worden gevalideerd.
+2. **Voeding en foerageren** — de research registry en `feedingEvidenceService` classificeren de werkelijk gemeten respons per soort. Er is nog geen lokale numerieke voedings- of foerageerprognose.
+3. **Aanwezigheid en habitatgeschiktheid** — bestaande habitat-/bewegings-/oeverwind-/positioneringsengines leveren kwalitatieve hypothesen, geen gekalibreerde aanwezigheidskans.
+4. **Vangkans** — persoonlijke historische Poisson-baseline, met een beperkte thermische dagscorecorrectie. Dit is nog geen geïntegreerde berekening van aanwezigheid, voeding, techniek, aas en uitvoering.
+5. **Betrouwbaarheid en evaluatie** — provenance, datakwaliteit, onzekerheidsnotities, steekproeflabels en chronologische Brier-evaluatie zijn afzonderlijke signalen. Er bestaat nog geen gevalideerde samengestelde betrouwbaarheidsscore.
+
+**Koppelregel:** geen laag mag stilzwijgend als vervanging voor een andere respons worden gebruikt. Thermische efficiëntie is geen voedingsintensiteit; locomotie is geen jacht- of voedingssucces; habitatgeschiktheid is geen actuele aanwezigheid; historische vangstkans is geen zuiver biologische kans.
+
+De tijdvakken delen momenteel dezelfde thermische analyse voor de doeldag. Zonder gevalideerde tijdafhankelijke voedings-/foerageerrespons blijven tijdvakken gelijkwaardig wanneer de thermische scores gelijk zijn. De gebruiker houdt de keuze; het model forceert geen beste tijdvak.
+
+De huidige Poisson-vangkans wordt alleen als persoonlijke historische baseline gepresenteerd. De thermische dagscore beïnvloedt het geschatte vangsttempo beperkt, maar de voedings- en habitatlaag zijn nog niet numeriek geïntegreerd. De bestaande confidence-labels en intervallen mogen niet worden samengevoegd tot één totaalbetrouwbaarheidspercentage.
+
+Volgende technische stap: parameterherkomstmatrix voor de actieve waterthermische en visfysiologische numerieke aannames; daarna opruimen van niet-aangesloten profielvelden en een expliciete testmatrix voor de vijf responslagen.

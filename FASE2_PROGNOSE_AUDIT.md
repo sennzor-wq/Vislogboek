@@ -931,3 +931,46 @@ De oude profielvelden zijn verwijderd. De tijdvakfactor gebruikt nu uitsluitend 
 - de numerieke tijdvakfactor blijft in alle gevallen neutraal; zonne-/schemercontext blijft afzonderlijk beschrijvend.
 
 Regressietests bewaken karper (direct maar niet-goedgekeurd voedingsritme), roofblei (beweging zonder voedingsritme) en de generieke fallback. Er zijn geen thermische scores, tijdvakrangschikkingen, profieltemperaturen of persoonlijke vangstkansen gewijzigd.
+
+
+## 47. Audit resterende profielvelden en volledige vijf-responsketen (17 november 2026)
+
+### 47.1 Wat de soortprofielen daadwerkelijk doen
+
+De codecontrole onderscheidt actieve modelparameters van verklarende profielnotities:
+
+- **Actief in de thermische visrespons:** `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` voeden de asymmetrische Gaussische efficiëntiecurve. De uitkomst gaat via `1 + 9 × efficiency^0.85` naar de voorlopige thermische activiteitspotentie. Deze waarden zijn nog geen per soort, levensfase en watertype empirisch gefitte Nederlandse veldcurves.
+- **Alleen verklarende classificatie:** `optimalTempRange` en `tolerableTempRange` beïnvloeden de tekst en positief/neutraal/negatief-classificatie van de temperatuurfactor, maar niet de berekende thermische efficiëntie zelf. Het zijn voorlopige profielgrenzen, geen gevalideerde fysiologische grenzen.
+- **Alleen context / geen biologische scorebijdrage:** windrichting, winddrempel, druk, seizoen, bewolking en neerslag wijzigen de thermische activiteitsscore niet. De profielnotities voor wind, bewolking en regen kunnen wel in tekst verschijnen.
+- **Niet aangesloten op de prognoseberekening:** `seasonalWeights`, `pressureSensitivity` en `optimalPressureRange` zijn in de actuele prognoseketen geen numerieke factoren. Een profielwaarde die alleen in het type/object bestaat, is geen actief modelbewijs.
+
+Een specifiek aandachtspunt is `disruptiveWindThresholdKmH`: de grens verschilt per doelsoort, terwijl de bijbehorende tekst gaat over praktische zaken als aasaanbieding, lijncontrole en beetregistratie. Dat zijn geen aangetoonde soortspecifieke biologische drempels. Dit mag niet worden gelezen als een biologische windgevoeligheid of vangstcorrectie.
+
+### 47.2 De vijf responslagen — huidige implementatiestatus
+
+| Responslaag | Huidige implementatie | Wat de uitkomst nadrukkelijk niet betekent |
+|---|---|---|
+| 1. Thermische activiteitspotentie | Eén voorlopige soortcurve op basis van watertemperatuur; de waterthermische engine levert gemeten/geschatte temperatuur en provenance. | Geen directe meting van totale beweging, voedselopname of vangstkans. |
+| 2. Voeding / foerageren | `feedingEvidenceService` toont per soort de geregistreerde responsvariabelen en goedkeuringsstatus. Er wordt nog geen numerieke voedingsintensiteit of foerageerkans berekend. | Een geregistreerde studie of voedingsritme is nog geen lokale, actuele voedingsprognose. |
+| 3. Aanwezigheid / habitat | `habitatMovementEngine`, `bankWindEngine` en `rodPositioningEngine` leveren kwalitatieve habitat-, bewegings- en positioneringshypothesen. | Geen gekalibreerde kans dat de doelvis op de gekozen stek aanwezig is. De confidenceLevel is heuristisch. |
+| 4. Vangkans | Persoonlijke Poisson-baseline uit vergelijkbare, afgeronde sessies met bekende duur en doelsoortvangsten. De uurvangstsnelheid wordt vermenigvuldigd met een beperkte factor uit de thermische dagscores en omgezet naar een sessieduurkans. | Geen geïntegreerd biologisch model van aanwezigheid × foerageren × aas/techniek. De huidige historie is niet volledig gesegmenteerd op tijdvak of techniek. |
+| 5. Betrouwbaarheid / evaluatie | Datakwaliteitsrapport, bron/provenance, onzekerheidsnotities, steekproefgebaseerd catch-confidence-label, Wilson-interval voor historisch sessiesucces en chronologische Brier-/rolling-baseline-evaluatie. | Geen enkel gekalibreerd totaalbetrouwbaarheidspercentage. Het Wilson-interval hoort bij historische sessiesuccesfractie, niet bij de Poisson-duurkans. De softwareminimums bewijzen geen statistische robuustheid. |
+
+### 47.3 Koppelingen en beperkingen die expliciet blijven
+
+- De thermische analyse wordt op dit moment eenmaal voor de doeldag berekend en gedeeld door de vier kloktijdvakken. Omdat de numerieke tijdvakfactor neutraal is, ontstaat geen biologisch tijdvakverschil uit de huidige thermische laag. Gelijke tijdvakken zijn dus een geldige uitkomst; een willekeurige winnaar toevoegen is niet toegestaan.
+- De persoonlijke vangstkans gebruikt de thermische dagscore als beperkte correctie op het historische vangsttempo. Voeding en habitat-aanwezigheid zijn daarin nog geen afzonderlijke gekwantificeerde componenten.
+- De persoonlijke vangstkans gebruikt de geselecteerde doelsoort en, waar gekozen, stek; de huidige Poisson-baseline is niet afzonderlijk gekalibreerd op techniek, aas, rig of gekozen tijdvak.
+- De waterthermische schatting bevat eigen aannames over waterdiepte, thermische traagheid, weersdekking en warmte-uitwisseling. De lokale temperatuurkalibratie is een aparte temperatuurcorrectie en valideert niet automatisch de soortspecifieke visresponscurve.
+- Een ontbrekende waarneming blijft onbekend. Geen vis zien is geen bewijs van afwezigheid; sessie-waarnemingen zonder expliciet observatietijdstip zijn geen tijdgebonden trainingslabels.
+
+### 47.4 Vervolg en acceptatievoorwaarden
+
+1. Maak een herkomstmatrix voor alle **actieve** numerieke parameters in zowel de waterthermische schatting als de soortspecifieke visresponscurve. Leg per parameter vast: bron/responsvariabele, meetcontext, soort, levensfase, watertype, overdraagbaarheid, onzekerheid en status (mechanistische prior, empirisch gekalibreerd of uitsluitend heuristisch).
+2. Ruim daarna de niet-aangesloten of misleidende profielnotities op. Praktische windpresentatie mag niet afhangen van een niet-onderbouwde soortspecifieke biologische drempel. Verwijder ongebruikte configuratievelden in een afzonderlijke geteste wijziging.
+3. Houd de vijf responslagen gescheiden totdat er voor een koppeling directe data, een reproduceerbaar inputcontract en chronologische validatie bestaan.
+4. Presenteer de huidige persoonlijke vangstkans expliciet als historische, thermisch gecorrigeerde baseline; niet als geïntegreerde kans uit alle vijf lagen.
+5. Breid forward validation alleen uit met echte, chronologisch geldige sessies. Geen synthetische vangsten, teruggeplaatste historie of willekeurige gewichten.
+6. Fase 2 blijft open. Fase 3 start pas nadat de actieve parameters, vijf responslagen, snapshot-reproduceerbaarheid, datakwaliteit en forward validation aantoonbaar zijn geaccepteerd.
+
+De volledige Quality Gate op PR #84 mergecommit `7f7f774ae6e0c2bf49f8248b62504ba2b092cf27` is bevestigd: push-run #652 (`44088544933`) is volledig geslaagd, inclusief audits, typecheck, alle regressies en productiebuild.
