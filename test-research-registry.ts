@@ -461,7 +461,7 @@ if (!perchScope || perchScope.approvedForPrediction || !perchScope.summary.inclu
   throw new Error('The full perch paper scope, size dependence and separate preferred-temperature sample must remain explicit and non-approved.');
 }
 const pikeperchScope = RESEARCH_REGISTRY.find((item) => item.id === 'adult-pikeperch-aerobic-scope-temperature-2012');
-if (!pikeperchScope || pikeperchScope.approvedForPrediction || !pikeperchScope.summary.includes('70 volwassen') || !pikeperchScope.summary.includes('niet significant') || !pikeperchScope.limitations.some((item) => item.includes('slechts drie complete metingen'))) {
+if (!pikeperchScope || pikeperchScope.approvedForPrediction || !pikeperchScope.summary.includes('70 volwassen') || !pikeperchScope.summary.includes('geen statistisch significant verschil') || !pikeperchScope.limitations.some((item) => item.includes('slechts drie complete metingen'))) {
   throw new Error('The full pikeperch paper scope, broad plateau and small 28 C sample must remain explicit and non-approved.');
 }
 console.log('Primary perch and pikeperch thermal-study scope tests passed.');
