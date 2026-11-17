@@ -221,7 +221,7 @@ async function runBrierIntegrationTest() {
       predictedCatchChance: tc.predictedChance,
       predictedConditions: tc.weather,
       source: 'test_integration',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: tc.weather.capturedAt,
     };
     await db.prognosisSnapshots.put(snapshot);
@@ -354,6 +354,39 @@ async function runBrierIntegrationTest() {
   }));
   const recordedSessions = await db.sessions.toArray();
   const evalResult = evaluatePrognosisPerformance(linkedSnapshots, baselineTrainingSnapshots, [...baselineTrainingSessions, ...recordedSessions]);
+  const oldVersionSnapshot: PrognosisSnapshot = {
+    ...linkedSnapshots[0],
+    id: 'test_brier_old_model_version',
+    forecastTimestamp: '2026-10-20T07:00:00.000Z',
+    targetDate: '2026-10-20',
+    linkedSessionId: 'test_brier_old_version_session',
+    actualOutcome: 'catch',
+    modelVersion: 'v2.4-water-thermal-history',
+  };
+  const oldVersionSession: FishingSession = {
+    id: 'test_brier_old_version_session',
+    startTime: '2026-10-20T08:00:00.000Z',
+    endTime: '2026-10-20T12:00:00.000Z',
+    outcome: 'catch',
+    targetSpecies: ['Karper'],
+    createdAt: '2026-10-20T08:00:00.000Z',
+    updatedAt: '2026-10-20T12:00:00.000Z',
+  };
+  const versionScopedEval = evaluatePrognosisPerformance(
+    [...linkedSnapshots, oldVersionSnapshot],
+    [...baselineTrainingSnapshots.slice(0, 4), oldVersionSnapshot],
+    [...baselineTrainingSessions.slice(0, 4), oldVersionSession, ...recordedSessions]
+  );
+  assert(
+    versionScopedEval.totalSnapshots === 8 &&
+      versionScopedEval.evaluatedCount === 7 &&
+      versionScopedEval.disclaimers.some((item) => item.includes(PROGNOSIS_MODEL_VERSION) && item.includes('1 momentopname(s) van andere modelversies')),
+    '4.8a Alleen actuele modelversie wordt gescoord; oude modelversie wordt uitgesloten'
+  );
+  assert(
+    versionScopedEval.baselineEvaluatedCount === 7,
+    '4.8b Afgeronde uitkomsten van oudere modelversies mogen wel in de chronologische rolling baseline meetellen'
+  );
 
   const fiveSessionResult = evaluatePrognosisPerformance(
     linkedSnapshots.slice(0, 5),

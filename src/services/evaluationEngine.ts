@@ -6,6 +6,7 @@
 
 import { PrognosisSnapshot, FishingSession } from '../types';
 import { db } from '../db/db';
+import { PROGNOSIS_MODEL_VERSION } from './modelVersions';
 
 export interface CalibrationBin {
   rangeLabel: string;        // bijv. "0% – 20%"
@@ -43,10 +44,12 @@ export function evaluatePrognosisPerformance(
   trainingSessions: FishingSession[] = []
 ): EvaluationResult {
   const totalSnapshots = snapshots.length;
+  const currentModelSnapshots = snapshots.filter((snapshot) => snapshot.modelVersion === PROGNOSIS_MODEL_VERSION);
+  const outdatedVersionCount = totalSnapshots - currentModelSnapshots.length;
   const sessionsById = new Map<string, FishingSession>(
     trainingSessions.map((session): [string, FishingSession] => [session.id, session])
   );
-  const eligibleSnapshots = snapshots.filter((snapshot) => {
+  const eligibleSnapshots = currentModelSnapshots.filter((snapshot) => {
     if (snapshot.predictedCatchChance === null || typeof snapshot.predictedCatchChance !== 'number') return false;
     if (!Number.isFinite(snapshot.predictedCatchChance) || snapshot.predictedCatchChance < 0 || snapshot.predictedCatchChance > 100) return false;
     if ((snapshot as any).isBenchmark === true || !snapshot.linkedSessionId) return false;
@@ -75,11 +78,11 @@ export function evaluatePrognosisPerformance(
     }
   }
   const validEvaluated = Array.from(earliestBySessionAndSpecies.values());
-  const excludedCount = totalSnapshots - snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length - eligibleSnapshots.length;
+  const excludedCount = currentModelSnapshots.length - currentModelSnapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length - eligibleSnapshots.length;
   const duplicateCount = eligibleSnapshots.length - validEvaluated.length;
 
   const evaluatedCount = validEvaluated.length;
-  const pendingCount = snapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length;
+  const pendingCount = currentModelSnapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length;
   const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
     'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve, aan een afgeronde sessie gekoppelde uitkomsten.',
@@ -88,6 +91,7 @@ export function evaluatePrognosisPerformance(
     `${excludedCount} momentopname(s) uitgesloten wegens ontbrekende/ongeldige koppeling, sessie-uitkomst of voorspellingstijd.`,
     `${duplicateCount} dubbele momentopname(s) uitgesloten omdat dezelfde sessie en doelsoort al meetellen.`,
     'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen gekoppelde sessies van dezelfde doelsoort die vóór het prognosetijdstip zijn beëindigd tellen mee.',
+    `Alleen momentopnames van modelversie ${PROGNOSIS_MODEL_VERSION} worden gescoord; ${outdatedVersionCount} momentopname(s) van andere modelversies zijn uitgesloten. Afgeronde uitkomsten van oudere versies mogen wel als historische waarneming in de rolling baseline meetellen.`,
     `Per voorspelling zijn minimaal ${minimumTrainingSamples} eerdere gekoppelde sessie-uitkomsten nodig voor een baseline.`,
   ];
 
@@ -141,6 +145,7 @@ export function evaluatePrognosisPerformance(
   for (const pair of pairs) {
     const forecastTimestampMs = Date.parse(pair.snapshot.forecastTimestamp);
     if (!Number.isFinite(forecastTimestampMs)) continue;
+    // De rolling baseline gebruikt uitsluitend waargenomen uitkomsten; de modelversie van de oude voorspelling is daarvoor niet relevant.
     const seenSessions = new Set<string>();
     const priorOutcomes: number[] = [];
     for (const historical of trainingHistory) {

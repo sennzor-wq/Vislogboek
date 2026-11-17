@@ -539,7 +539,7 @@ async function runTestSuite() {
       predictedActivityScore: 6.5,
       predictedCatchChance: 50,
       source: 'test',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       actualOutcome: 'catch',
       createdAt: '',
     },
@@ -552,7 +552,7 @@ async function runTestSuite() {
       predictedActivityScore: 4.5,
       predictedCatchChance: 30,
       source: 'test',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       actualOutcome: 'skunk_confirmed',
       createdAt: '',
     },
@@ -570,11 +570,11 @@ async function runTestSuite() {
 
   // Test 6.2: Wiskundige Brier Score verificatie bij N=5 bekende uitkomsten
   const exactSnapshots: PrognosisSnapshot[] = [
-    { id: 's1', linkedSessionId: 'eval-session-1', forecastTimestamp: '2026-10-01T10:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
-    { id: 's2', linkedSessionId: 'eval-session-2', forecastTimestamp: '2026-10-02T10:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, source: 'test', modelVersion: 'v2.2', actualOutcome: 'catch', createdAt: '' },
-    { id: 's3', linkedSessionId: 'eval-session-3', forecastTimestamp: '2026-10-03T10:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
-    { id: 's4', linkedSessionId: 'eval-session-4', forecastTimestamp: '2026-10-04T10:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 3, predictedCatchChance: 20, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
-    { id: 's5', linkedSessionId: 'eval-session-5', forecastTimestamp: '2026-10-05T10:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 4, predictedCatchChance: 30, source: 'test', modelVersion: 'v2.2', actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's1', linkedSessionId: 'eval-session-1', forecastTimestamp: '2026-10-01T10:00Z', targetDate: '2026-10-01', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 8, predictedCatchChance: 80, source: 'test', modelVersion: PROGNOSIS_MODEL_VERSION, actualOutcome: 'catch', createdAt: '' },
+    { id: 's2', linkedSessionId: 'eval-session-2', forecastTimestamp: '2026-10-02T10:00Z', targetDate: '2026-10-02', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 6, predictedCatchChance: 60, source: 'test', modelVersion: PROGNOSIS_MODEL_VERSION, actualOutcome: 'catch', createdAt: '' },
+    { id: 's3', linkedSessionId: 'eval-session-3', forecastTimestamp: '2026-10-03T10:00Z', targetDate: '2026-10-03', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 7, predictedCatchChance: 70, source: 'test', modelVersion: PROGNOSIS_MODEL_VERSION, actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's4', linkedSessionId: 'eval-session-4', forecastTimestamp: '2026-10-04T10:00Z', targetDate: '2026-10-04', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 3, predictedCatchChance: 20, source: 'test', modelVersion: PROGNOSIS_MODEL_VERSION, actualOutcome: 'skunk_confirmed', createdAt: '' },
+    { id: 's5', linkedSessionId: 'eval-session-5', forecastTimestamp: '2026-10-05T10:00Z', targetDate: '2026-10-05', targetSpecies: 'Karper', durationHours: 3, predictedActivityScore: 4, predictedCatchChance: 30, source: 'test', modelVersion: PROGNOSIS_MODEL_VERSION, actualOutcome: 'skunk_confirmed', createdAt: '' },
   ];
 
   const baselineSnapshots: PrognosisSnapshot[] = Array.from({ length: 5 }, (_, index) => {
@@ -589,7 +589,7 @@ async function runTestSuite() {
       predictedActivityScore: 5,
       predictedCatchChance: 40,
       source: 'test',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       actualOutcome: index < 2 ? 'catch' : 'skunk_confirmed',
       createdAt: '',
     };
@@ -655,7 +655,7 @@ async function runTestSuite() {
       predictedActivityScore: 8,
       predictedCatchChance: 90,
       source: 'test',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       actualOutcome: 'catch',
       createdAt: '',
       isBenchmark: true,

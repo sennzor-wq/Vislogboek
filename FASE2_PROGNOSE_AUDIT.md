@@ -1091,3 +1091,13 @@ De gebruikerslabels voor waterthermische kwaliteit, stekpositionering en habitat
 - Habitat: **Onderbouwing habitatinschatting**, een kwalitatieve indicatie bij een ruimtelijke zoekhypothese.
 
 De persoonlijke Poisson-vangkans blijft afzonderlijk gekoppeld aan de expliciete historische steekproefbasis en het Wilson-interval voor historisch sessiesucces. Er is geen modelberekening gewijzigd.
+
+## 55. Modelversie gescheiden in Brier-evaluatie (17 november 2026)
+
+De persoonlijke Poisson-vangkans is gewijzigd door de ongevalideerde thermische multiplier te verwijderen. Daarom is de prognoseversie verhoogd naar `v2.5-personal-poisson-baseline` en de prognosis-engineversie naar `1.1.0`.
+
+De Brier-evaluatie scoort voortaan uitsluitend momentopnames van de actuele `PROGNOSIS_MODEL_VERSION`. Momentopnames van oudere of afwijkende modelversies worden uitgesloten van de huidige modelscores en expliciet gerapporteerd. Zo worden kansen uit de oude thermisch vermenigvuldigde formule niet vermengd met de nieuwe zuiver historische Poisson-baseline.
+
+De chronologische naive baseline mag nog wel afgeronde sessie-uitkomsten uit oudere modelversies gebruiken: die baseline gebruikt uitsluitend de werkelijk waargenomen uitkomst van een eerder beëindigde sessie, niet de oude voorspelde kans. De traininggeschiedenis blijft dus bruikbaar zonder modelversies te mengen in de te beoordelen voorspellingen.
+
+Regressietest bewaakt beide kanten: oude modelversie wordt niet gescoord, maar een afgeronde oude sessie mag wel als eerdere uitkomst in de rolling baseline dienen.
