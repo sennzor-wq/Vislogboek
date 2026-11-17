@@ -1312,3 +1312,14 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Huidige status is expliciet: responslagen, provenance, VisCoach-selectie en evaluatieketen zijn technisch geborgd; primaire bron-/overdraagbaarheidsaudit loopt nog; lokale statistische kalibratie wacht op nieuwe sessies na clean start.
 - Geen onbewezen score, tijdvakbonus of vangstkans wordt geactiveerd om de fase kunstmatig af te ronden.
 - Fase 3 blijft geblokkeerd tot de implementatie-/evidence-criteria formeel zijn afgevinkt. Lokale kalibratieclaims blijven afhankelijk van voldoende nieuwe, vergelijkbare sessies.
+
+
+### Fase 2 — broncontrole dagritme brasem, blankvoorn, snoek en snoekbaars (17 november 2026)
+
+- Vašek & Kubečka (2004) is gecontroleerd via de beschikbare auteurs-/bibliografische informatie en samenvatting: daggebonden zoöplanktonvoeding bij subadulte/volwassen brasem en blankvoorn, met lengteklasse- en maandafhankelijkheid. Volledige methodedetails zijn nog niet onafhankelijk geverifieerd.
+- Haertel & Eckmann (2002) en Hautala (2008) zijn op de uitgeverssamenvattingen gecontroleerd. Dieet/habitatverschuiving en voedingsintensiteit blijven gescheiden; de herfstverschuiving van blankvoorn naar schemer/nacht is boreaal en contextafhankelijk.
+- Lucas et al. (1991) volledige uitgeverssamenvatting gecontroleerd: kleine prooien bij snoek overdag gevangen; verteringsmetabolisme loopt door in middag/nacht. Geen gekwantificeerde voedingspiek per tijdvak.
+- Fedorova & Drozhzina (1982) voor snoekbaars blijft secundair ontsloten en methodologisch beperkt: vroege ochtendpiek juni–augustus, tweede avondpiek september; geen vaste tijdvakregel.
+- Dubbele Poulet et al. (2005)-registratie verwijderd; canonieke bron blijft uitsluitend locomotorisch bewijs.
+- Regressietests borgen deze classificaties en bronbeperkingen. Alle bronnen blijven niet-goedgekeurd voor voorspelling; geen score, tijdvakgewicht of vangstkans gewijzigd.
+- Volgende broncontrole: volledige methoden/steekproefdetails waar mogelijk verifiëren en de resterende soortprofielen op onjuiste extrapolatie nalopen. Fase 2 blijft open; Fase 3 start niet.
