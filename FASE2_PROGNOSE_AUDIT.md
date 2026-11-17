@@ -1118,3 +1118,32 @@ De volledige beschikbare primaire publicaties van Christensen et al. (2020; baar
 - **Snoekbaars:** 70 volwassen kweekvissen; zes meetgroepen 13–28 °C, na minimaal drie weken acclimatisatie. Het berekende maximum van aerobe scope lag op 18,8 °C met een breed afgeleid 80%-bereik van 10,4–26,9 °C. De aerobe scope verschilde statistisch niet tussen 13 en 25 °C; de 28 °C-groep leverde slechts drie complete metingen. De studie gebruikte 24 uur dimlicht en aquacultuurcondities.
 
 Deze bevindingen bevestigen dat een vaste soortbrede Gaussische curve onvoldoende is: bij baars is lichaamsmassa essentieel en bij volwassen snoekbaars is het optimum eerder een breed plateau dan een scherp piekpunt. Beide bronnen meten fysiologische capaciteit, niet directe voedselopname, dagelijkse activiteit of hengelvangbaarheid. Alle registry-items blijven `approvedForPrediction: false`. Geen bestaande `thermalOptimum`, curvebreedte, activiteitsscore of vangstkans is aangepast. De huidige curves blijven voorlopige priors totdat overdraagbaarheid en onafhankelijke lokale validatie zijn aangetoond.
+
+
+## 58. Brier-evaluatie: voorwaarden voor geldige forward validation (17 november 2026)
+
+De Brier-score blijft de onafhankelijke proper scoring rule voor de vooraf vastgelegde kans op minimaal één gevangen exemplaar van de gekozen doelsoort. De uitkomst is binair: bevestigde vangst = 1, bevestigde nulvangst = 0. Onbekende of niet betrouwbaar vastgestelde uitkomsten worden niet gescoord. De score beoordeelt voorspellingen; hij past zelf geen modelparameters, gewichten of prognoses aan.
+
+### Plaats in de roadmap en harde acceptatievoorwaarde
+
+Dit hoort bij **Fase 2 — validatie- en kwaliteitsgate van de prognoseketen**, direct na de versiezuivere snapshot-evaluatie (§§55–56) en vóór Fase 2 als geheel kan worden geaccepteerd of Fase 3 start. Het is geen nieuwe biologische responslaag en geen runtime-correctiefactor. De Brier-evaluatie is de onafhankelijke meetlat voor de voorspelde uitkomstkans.
+
+De huidige implementatie is pas geschikt als volwaardige validatiepoort wanneer aan alle onderstaande voorwaarden is voldaan:
+
+1. **Voorspelling vooraf vastgelegd:** gebruik uitsluitend onveranderlijke prognosesnapshots die aantoonbaar vóór de bijbehorende vissessie zijn gemaakt. Bewaar modelversie, voorspelde kans, voorspeld tijdvak/duur en relevante prognosecontext.
+2. **Uitkomst betrouwbaar:** score alleen afgeronde sessies met bekende doelsoort en expliciet bekende vangstuitkomst. Een bevestigde nulvangst telt als 0; ontbrekende/onbekende vangstregistratie telt niet als nul.
+3. **Voorspelde en werkelijk bevistijdvak vergelijkbaar:** de kans voor een geplande sessieduur mag niet zonder correctie worden vergeleken met een wezenlijk andere werkelijke visduur. Registreer/behoud geplande duur en werkelijke visduur afzonderlijk. Totdat een vooraf vastgelegde, gevalideerde methode bestaat om kansen naar de werkelijk bevistijd te herleiden, worden sessies met een materiële duur- of tijdvakafwijking uitgesloten van de primaire Brier-score en apart geteld. Stel geen willekeurige tolerantiegrens in. Een eventuele duurherleiding moet uitsluitend de vooraf opgeslagen voorspelling en informatie van vóór de sessie gebruiken, nooit de vangstuitkomst.
+4. **Geen datalek of look-ahead:** de rolling naive baseline gebruikt alleen werkelijke uitkomsten van sessies die aantoonbaar vóór het prognosetijdstip zijn afgerond. De te beoordelen voorspelling en toekomstige sessies mogen de baseline niet beïnvloeden.
+5. **Modelversie-isolatie:** de primaire Brier-score bevat uitsluitend snapshots van de actuele prognosemodelversie. Oudere versies blijven zichtbaar als uitgesloten aantallen; hun geldige, eerder bekende uitkomsten mogen alleen als historische waarnemingen voor een latere chronologische baseline dienen.
+6. **Soortspecifieke diagnose:** rapporteer naast de totaalscore ook aantallen en Brier-resultaten per doelsoort zodra er voldoende bruikbare waarnemingen zijn. Een totaalgemiddelde mag een verslechtering bij één soort niet verbergen. Kleine aantallen worden expliciet als voorlopig getoond; de bestaande technische ondergrens van vijf is geen bewijs van statistische robuustheid.
+7. **Baseline en kalibratie:** toon Brier Skill Score alleen ten opzichte van een correct chronologisch berekende referentie. Voeg kalibratie-inzicht toe: vergelijk voorspelde kansniveaus met de werkelijk waargenomen frequentie, maar toon geen misleidende kalibratiegroepen bij te kleine aantallen. Brier-score, skill score, steekproefbasis en kalibratie zijn verschillende zaken.
+8. **Geen automatische zelftraining:** een lagere of hogere Brier-score wijzigt nooit rechtstreeks een biologische factor, profielparameter, tijdvakbonus of vangstkans. Eerst volgt foutdiagnose (datakwaliteit, duur-/tijdvakmismatch, soort, modelversie, onzekerheid en toeval); een modelwijziging vereist een onderbouwde hypothese, nieuwe versie en nieuwe chronologische validatie.
+
+### Huidige status en eerstvolgende acties
+
+- De formule, binaire uitkomstdefinitie, actuele-modelversie-isolatie en chronologische naive baseline vormen een correcte basis.
+- De huidige persoonlijke Poisson-kans blijft een beperkte historische baseline en is nog niet de uiteindelijke geïntegreerde biologische vangstprognose.
+- De expliciete controle op overeenkomst tussen geplande en werkelijk bevistijd/-duur is nog een open validatiepunt; de huidige evaluatie mag dit niet stilzwijgend als opgelost presenteren.
+- Eerstvolgende technische actie: audit van de snapshot- en sessievelden voor geplande duur, werkelijke duur, start/eindtijd en tijdvak; daarna een regressietestmatrix voor gelijke duur, kortere/l langere sessie, verschoven tijdvak, onvolledige sessie en onbekende uitkomst. Implementeer alleen een uitsluitings-/herleidingsregel die door die gegevens en tests wordt gedragen.
+- Daarna per-soort rapportage en kalibratie beoordelen op basis van beschikbare aantallen. Geen arbitraire minimumsteekproef of tolerantie toevoegen zonder onderbouwing.
+- **Fase 2-acceptatie blijft geblokkeerd** totdat de duur-/tijdvakvergelijkbaarheid, chronologische integriteit, modelversie-isolatie en soortspecifieke diagnostiek aantoonbaar zijn getest. Fase 3 start niet eerder.
