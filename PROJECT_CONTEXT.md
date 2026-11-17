@@ -1397,3 +1397,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De UI noemt thermische bronkwaliteit nu 'Databasis watertemperatuur' en de kwalitatieve labels voor positionering/habitat 'Onderbouwing'.
 - Deze labels zijn geen gekalibreerde kansen of statistische betrouwbaarheidspercentages. De Wilson-interval blijft uitsluitend voor historische sessiesuccesfractie; Poisson-vangkans toont de eigen steekproefbasis.
 - Alleen presentatietekst/tooltips gewijzigd; geen prognoseberekening of modelparameter gewijzigd.
+
+### Fase 2 — versiezuivere Brier-validatie (17 november 2026)
+
+- Prognoseversie verhoogd naar `v2.5-personal-poisson-baseline`; prognosis-engine naar `1.1.0` na verwijdering van de thermische multiplier uit de vangkans.
+- Brier-evaluatie scoort uitsluitend snapshots van de actuele modelversie. Oudere modelversies worden apart uitgesloten en gerapporteerd.
+- Afgeronde uitkomsten van oudere modelversies mogen wel als historische waarnemingen in de chronologische rolling baseline dienen; hun oude voorspelde kans wordt niet gebruikt.
+- Regressietest controleert uitsluiting van oude modelversies en behoud van hun geldige historische uitkomsten voor de baseline.

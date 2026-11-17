@@ -448,3 +448,9 @@ Het 95%-Wilson-interval blijft een afzonderlijke maat voor de historische binomi
 De labels voor waterthermische databasis, positioneringsadvies en habitatinschatting beschrijven kwalitatief de beschikbare bronbasis en context. Ze mogen niet worden gelezen als gekalibreerde kansen of statistische betrouwbaarheidspercentages. De UI gebruikt daarom 'Databasis watertemperatuur' en 'Onderbouwing stekadvies/habitatinschatting'.
 
 De statistische Wilson-interval blijft uitsluitend gekoppeld aan de historische sessiesuccesfractie. De Poisson-vangkans toont haar eigen bruikbare steekproefomvang.
+
+## 49. Versiezuivere forward validation
+
+Elke wijziging van de berekeningslogica die de voorspelde vangkans beïnvloedt, verhoogt de prognosemodelversie en de bijbehorende engineversie. De Brier-score wordt uitsluitend berekend over momentopnames van de actuele modelversie. Oudere versies worden expliciet uitgesloten van de huidige modelscore.
+
+Werkelijk afgeronde uitkomsten van oudere modelversies mogen wel worden gebruikt als historische waarnemingen in de chronologische naive baseline, mits de gekoppelde sessie aantoonbaar vóór het nieuwe prognosetijdstip is beëindigd. De oude voorspelde kans zelf wordt niet als trainingsuitkomst gebruikt.

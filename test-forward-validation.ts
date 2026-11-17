@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import {
   savePrognosisSnapshot,
   calculateDayPrognosis,
@@ -132,8 +133,8 @@ async function runTestSuite() {
   );
 
   assert(
-    snap1.modelVersion === 'v2.4-water-thermal-history',
-    '1.4 Modelversie expliciet geregistreerd als v2.4-water-thermal-history'
+    snap1.modelVersion === PROGNOSIS_MODEL_VERSION,
+    `1.4 Modelversie expliciet geregistreerd als ${PROGNOSIS_MODEL_VERSION}`
   );
 
   // 1.5 Duplicatenpreventie: herhaalde startactie hergebruikt hetzelfde snapshot
@@ -272,7 +273,7 @@ async function runTestSuite() {
       predictedActivityScore: 7,
       predictedCatchChance: 50,
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       linkedSessionId: activeSession.id,
       actualOutcome: activeSession.outcome,
       createdAt: '',
@@ -286,7 +287,7 @@ async function runTestSuite() {
       predictedActivityScore: 7,
       predictedCatchChance: 50,
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       linkedSessionId: unknownSession.id,
       actualOutcome: unknownSession.outcome,
       createdAt: '',
@@ -453,7 +454,7 @@ async function runTestSuite() {
       actualOutcome: 'catch',
       linkedSessionId: 'evaluation-session-1',   // o = 1.0 -> (0.7 - 1)^2 = 0.09
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
     {
@@ -467,7 +468,7 @@ async function runTestSuite() {
       actualOutcome: 'skunk_confirmed',
       linkedSessionId: 'evaluation-session-2', // o = 0.0 -> (0.4 - 0)^2 = 0.16
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
     {
@@ -481,7 +482,7 @@ async function runTestSuite() {
       actualOutcome: 'catch',   // o = 1.0 -> (0.6 - 1)^2 = 0.16
       linkedSessionId: 'evaluation-session-3',
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
     {
@@ -495,7 +496,7 @@ async function runTestSuite() {
       actualOutcome: 'skunk_confirmed', // o = 0.0 -> (0.2 - 0)^2 = 0.04
       linkedSessionId: 'evaluation-session-4',
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
     {
@@ -509,7 +510,7 @@ async function runTestSuite() {
       actualOutcome: 'catch',   // o = 1.0 -> (0.5 - 1)^2 = 0.25
       linkedSessionId: 'evaluation-session-5',
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
   ];
@@ -644,7 +645,7 @@ async function runTestSuite() {
       predictedCatchChance: 90,
       actualOutcome: 'catch',
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
       isBenchmark: true,
     } as any,
@@ -669,7 +670,7 @@ async function runTestSuite() {
       predictedCatchChance: null, // Geen statistische kans berekend wegens te weinig data
       actualOutcome: 'catch',
       source: '',
-      modelVersion: 'v2.2',
+      modelVersion: PROGNOSIS_MODEL_VERSION,
       createdAt: '',
     },
   ];
