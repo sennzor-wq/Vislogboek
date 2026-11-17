@@ -1240,3 +1240,34 @@ Deze audit beschrijft wat de huidige types en evaluatie-engine daadwerkelijk vas
 5. Houd habitat-, voedings- en fysiologische activiteitsevaluatie geblokkeerd totdat onafhankelijke waarnemingslabels met passende tijd- en soortresolutie beschikbaar zijn.
 
 **Besluit:** de huidige code heeft twee echte evaluatiemodules (vangstkans en watertemperatuur). De overige prognoselagen zijn nog niet afzonderlijk gevalideerd. De aanwezigheid van vier tijdvakken in DayPrognosis maakt ze nog niet tot vier onafhankelijk geëvalueerde vangstprognoses.
+
+
+## 61. Brier-blootstellingsvergelijking en soortdiagnostiek (17 november 2026)
+
+De huidige vangstkans is een persoonlijke Poisson-baseline die expliciet is berekend voor een vooraf geplande sessieduur. De primaire Brier-score mag daarom alleen een sessie vergelijken waarvan de werkelijke bevistijd overeenkomt met die vooraf voorspelde duur.
+
+### Definitieve vergelijkbaarheidsregel
+
+- De voorspelde duur komt uit de onveranderlijke snapshot (durationHours; 0 of expliciet onbekend is niet bruikbaar).
+- De werkelijke duur wordt bepaald uit de gekoppelde sessie (endTime - startTime), niet uit een achteraf gewijzigde geplande duur.
+- Vergelijk beide op minuutprecisie. Alleen gelijke duur telt mee in de primaire Brier-score.
+- Een afwijkende duur wordt uitgesloten en apart geteld; een ontbrekende/onbekende voorspelde duur wordt eveneens apart geteld.
+- Er wordt geen willekeurige tolerantie gekozen en de voorspelde kans wordt niet achteraf naar de werkelijke duur omgerekend. Een dergelijke omzetting vereist eerst een afzonderlijk gevalideerde methode.
+- De huidige vangstkans is niet per tijdvak berekend. targetSlot of de vier thermische tijdvakindices worden daarom niet gebruikt om de Brier-eligible set te bepalen. Tijdvakrangschikking blijft een aparte, nog niet gevalideerde evaluatielaag.
+
+### Soortspecifieke diagnose
+
+- Behoud de bestaande totaalscore, rolling baseline en kalibratietabel.
+- Rapporteer daarnaast per doelsoort het aantal geldige sessies, de beschrijvende Brier-score, gemiddelde voorspelde kans en gerealiseerde vangstfractie.
+- Toon de aantallen altijd naast de scores. Kleine soortsteekproeven blijven beschrijvend; ze bewijzen geen robuuste prestatie.
+- Een soortspecifieke score mag de prognose niet bijsturen en wordt niet gebruikt als automatische modeltraining.
+
+### Regressie-acceptatie
+
+- Exact gelijke voorspelde/werkelijke duur telt mee.
+- Een sessie met afwijkende duur telt niet mee en verhoogt uitsluitend de mismatchteller.
+- Een onbekende of ontbrekende voorspelde duur telt niet mee en verhoogt uitsluitend de onbekende-duurteller.
+- Oude modelversies, benchmarks, onvolledige koppelingen, onbekende uitkomsten en niet-vooraf gemaakte voorspellingen blijven uitgesloten.
+- De soortuitsplitsing moet dezelfde gevalideerde Brier-eligible set gebruiken als de totaalscore.
+
+**Status bij implementatie:** de codewijziging wordt pas geaccepteerd na een groene Quality Gate op de exacte PR-head en een groene Quality Gate op de mergecommit. Tot die tijd blijft Fase 2 geblokkeerd.

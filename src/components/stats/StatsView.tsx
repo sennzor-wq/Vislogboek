@@ -387,6 +387,19 @@ export const StatsView: React.FC<StatsViewProps> = ({
               </div>
             </div>
 
+            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3 text-xs text-slate-400">
+              Vergelijkbare sessieduur: {evaluation.evaluatedCount} meegenomen · {evaluation.durationMismatchCount} duurafwijkingen uitgesloten · {evaluation.durationUnknownCount} onbekende duur uitgesloten.
+              De Brier-score telt alleen sessies mee waarbij de vooraf voorspelde en werkelijk bevistijd op minuutprecisie gelijk zijn.
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Brier per doelsoort</h4>
+              <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60"><table className="w-full text-left text-xs">
+                <thead className="bg-slate-800/80 text-slate-300 font-semibold border-b border-slate-700"><tr><th className="p-3">Doelsoort</th><th className="p-3">Sessies</th><th className="p-3">Brier-score</th><th className="p-3">Gem. voorspeld</th><th className="p-3">Gerealiseerde vangstfractie</th></tr></thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {evaluation.speciesBreakdown.map((item) => <tr key={item.species}><td className="p-3 font-medium text-white">{item.species}</td><td className="p-3">{item.evaluatedCount}</td><td className="p-3">{item.brierScore !== null ? item.brierScore.toFixed(3) : '—'}</td><td className="p-3">{item.averageForecastProbability !== null ? `${item.averageForecastProbability}%` : '—'}</td><td className="p-3">{item.observedCatchRate !== null ? `${item.observedCatchRate}%` : '—'}</td></tr>)}
+                </tbody></table></div>
+              <p className="mt-2 text-[11px] text-slate-500">Soortscores zijn beschrijvend en moeten altijd samen met het aantal sessies worden gelezen; kleine aantallen bewijzen geen betrouwbare soortspecifieke prestaties.</p>
+            </div>
             {/* Kalibratietabel */}
             <div>
               <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">

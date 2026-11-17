@@ -1418,3 +1418,11 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Christensen et al. (2020) volledig gecontroleerd: 120 baars voor respirometrie (5–882 g, 15–28 °C) en afzonderlijk 37 vissen voor temperatuurkeuze (3–74 g). Aerobe-scopeoptimum is grootteafhankelijk; onder 40 g werd geen optimum gevonden binnen het onderzochte bereik.
 - Frisk et al. (2012) volledig gecontroleerd: 70 volwassen kweek-snoekbaarzen, zes bruikbare temperatuurbehandelingen 13–28 °C; berekend maximum 18,8 °C maar geen significant verschil in aerobe scope tussen 13 en 25 °C; bij 28 °C slechts n=3.
 - Beide bronnen blijven fysiologische capaciteit, niet directe voeding of vangstkans. `approvedForPrediction:false`; geen numerieke modelparameter gewijzigd.
+
+
+### Fase 2 — Brier-blootstellingsvergelijking en soortdiagnostiek (17 november 2026)
+
+- Primaire Brier-evaluatie vereist gelijke vooraf voorspelde en werkelijk bevistijd op minuutprecisie; mismatch en onbekende duur worden apart geteld en uitgesloten.
+- Geen achteraf omrekening van de kans, geen willekeurige tolerantie en geen tijdvakbonus; de bestaande vangstkans is niet per tijdvak voorspeld.
+- Soortspecifieke Brier-score, gemiddelde voorspelde kans, gerealiseerde vangstfractie en N worden naast de totaalscore gerapporteerd.
+- Dit is uitsluitend evaluatie achteraf; prognoseberekeningen en biologische gewichten worden niet aangepast.
