@@ -318,11 +318,11 @@ export const StatsView: React.FC<StatsViewProps> = ({
               Brier-score & modelvergelijking (voorlopige evaluatie)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Toetst of voorspelde vangstkansen daadwerkelijk overeenkomen met gerealiseerde sessies.
+              Toetst voorspelde vangstkansen van de actuele modelversie aan gerealiseerde sessies; oudere modelversies blijven bewaard maar tellen niet mee in deze score.
             </p>
           </div>
           <span className="text-xs font-semibold px-3 py-1 rounded-full bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 self-start sm:self-center">
-            {snapshots.length} momentopname(s) geregistreerd
+            {evaluation?.totalSnapshots ?? snapshots.length} opgeslagen · {evaluation?.currentModelSnapshotCount ?? 0} actueel · {evaluation?.outdatedVersionCount ?? 0} oudere versies uitgesloten
           </span>
         </div>
 

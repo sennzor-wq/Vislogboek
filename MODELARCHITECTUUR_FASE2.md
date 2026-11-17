@@ -454,3 +454,8 @@ De statistische Wilson-interval blijft uitsluitend gekoppeld aan de historische 
 Elke wijziging van de berekeningslogica die de voorspelde vangkans beïnvloedt, verhoogt de prognosemodelversie en de bijbehorende engineversie. De Brier-score wordt uitsluitend berekend over momentopnames van de actuele modelversie. Oudere versies worden expliciet uitgesloten van de huidige modelscore.
 
 Werkelijk afgeronde uitkomsten van oudere modelversies mogen wel worden gebruikt als historische waarnemingen in de chronologische naive baseline, mits de gekoppelde sessie aantoonbaar vóór het nieuwe prognosetijdstip is beëindigd. De oude voorspelde kans zelf wordt niet als trainingsuitkomst gebruikt.
+
+
+## 50. Transparante telling van modelversies in evaluatie
+
+De evaluatie-uitvoer onderscheidt `totalSnapshots`, `currentModelSnapshotCount` en `outdatedVersionCount`. De statistiekenweergave toont opgeslagen historie, actuele modelmomentopnames en oudere/afwijkende versies die niet in de huidige Brier-score meetellen. Dit is uitsluitend transparantie over de evaluatiesteekproef; het verwijdert of muteert geen historische gegevens.
