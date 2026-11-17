@@ -10,26 +10,9 @@ export interface SpeciesProfile {
   // Modelinstellingen, geen universele soortgrenzen. Behandel als voorlopige
   // responsparameters totdat per soort/levensstadium/watertype een bron de exacte
   // waarden ondersteunt. De uitkomst is een relatieve modelschatting, geen gemeten activiteit.
-  optimalTempRange: [number, number];
-  tolerableTempRange: [number, number];
   thermalOptimum: number;
   thermalWidthCold: number;
   thermalWidthWarm: number;
-  // Deze voorkeuren zijn voorlopig heuristisch. Windrichting en luchtdruk worden
-  // niet gebruikt als automatische biologische bonus/malus in de activiteitsindex.
-  preferredWindDirections: string[];
-  disruptiveWindThresholdKmH: number;
-  pressureSensitivity: 'hoog' | 'matig' | 'laag';
-  optimalPressureRange: [number, number];
-  rainPreference: 'licht_positief' | 'neutraal' | 'negatief';
-  cloudPreference: 'bewolkt' | 'wisselend' | 'zonnig';
-  seasonalWeights: {
-    // Voorlopige relatieve seizoensprior (1-10), niet gelijk aan vangstkans.
-    lente: number;
-    zomer: number;
-    herfst: number;
-    winter: number;
-  };
 }
 
 export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
@@ -55,18 +38,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'FAO Fisheries Synopsis No. 12 (1981) Biology and Culture of Cyprinus carpio.',
           'Moffitt, B.P. & Crawshaw, L.I. (1983). Effects of Acute Temperature Changes on Metabolism, Heart Rate, and Ventilation Frequency in Carp Cyprinus carpio L. Physiological Zoology, 56(3), 397–403. https://doi.org/10.1086/physzool.56.3.30152604 (acute respons na acclimatisatie op 19 °C; geen volledige temperatuurcurve)',
 ],
-    optimalTempRange: [16, 24],
-    tolerableTempRange: [8, 28],
     thermalOptimum: 21.0,
     thermalWidthCold: 5.8,
     thermalWidthWarm: 5.5,
-    preferredWindDirections: ['ZW', 'W', 'Z'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'matig',
-    optimalPressureRange: [1008, 1018],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 7.5, zomer: 8.5, herfst: 8.0, winter: 2.5 },
   },
   Brasem: {
     species: 'Brasem',
@@ -89,18 +63,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Nagelkerke, L.A.J. & Sibbing, F.A. (1996) Efficiency of feeding mechanisms in Abramis brama.',
           'Hölker, F. (2006). Effects of body size and temperature on metabolism of bream compared to sympatric roach. Animal Biology, 56(1), 23–37. https://doi.org/10.1163/157075606775904713 (SMR/RMR 5–23 °C; laboratoriumrespons)',
 ],
-    optimalTempRange: [12, 21],
-    tolerableTempRange: [6, 26],
     thermalOptimum: 17.5,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 5.8,
-    preferredWindDirections: ['ZW', 'W', 'NW'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'hoog',
-    optimalPressureRange: [1010, 1020],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 8.0, zomer: 8.0, herfst: 7.5, winter: 4.0 },
   },
   Snoek: {
     species: 'Snoek',
@@ -125,18 +90,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Craig, J.F. (1996) Pike: Biology and Exploitation. Chapman & Hall.',
           'Diana, J.S. (1982). An experimental analysis of the metabolic rate and food utilization of northern pike. Comparative Biochemistry and Physiology Part A, 71(3), 395–399. https://doi.org/10.1016/0300-9629(82)90424-8 (metabolisme bij beperkte temperatuurpunten; geen volledig optimum)',
 ],
-    optimalTempRange: [8, 17],
-    tolerableTempRange: [3, 22],
     thermalOptimum: 12.5,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
-    preferredWindDirections: ['ZW', 'W', 'NW', 'N'],
-    disruptiveWindThresholdKmH: 38,
-    pressureSensitivity: 'matig',
-    optimalPressureRange: [1006, 1018],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 6.5, zomer: 5.0, herfst: 9.0, winter: 8.0 },
   },
   Baars: {
     species: 'Baars',
@@ -159,18 +115,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Bretzel, J.B. et al. (2021). Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science, 9. https://doi.org/10.3389/fenvs.2021.670125 (juveniele 0+ baars; 24-uursanalyse herfst 2018)',
           'Christensen, E.A.F., Svendsen, M.B.S. & Steffensen, J.F. (2020). The combined effect of body size and temperature on oxygen consumption rates and the size-dependency of preferred temperature in European perch Perca fluviatilis. Journal of Fish Biology, 97(3), 794–803. https://doi.org/10.1111/jfb.14435 (aerobe scope en temperatuurvoorkeur zijn lichaamsgrootte-afhankelijk)',
 ],
-    optimalTempRange: [11, 20],
-    tolerableTempRange: [4, 25],
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
-    preferredWindDirections: ['ZW', 'W', 'O'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'matig',
-    optimalPressureRange: [1012, 1022],
-    rainPreference: 'neutraal',
-    cloudPreference: 'wisselend',
-    seasonalWeights: { lente: 7.5, zomer: 8.0, herfst: 8.5, winter: 5.0 },
   },
   Voorn: {
     species: 'Voorn',
@@ -196,18 +143,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Jamet, J.L., Gres, P., Lair, N. & Lasserre, G. (1990). Diel feeding cycle of roach in eutrophic Lake Aydat. Archiv für Hydrobiologie, 118(3), 371–382. https://doi.org/10.1127/archiv-hydrobiol/118/1990/371 (leeftijdsafhankelijk; 253 vissen, 98–240 mm)',
       'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach, bream and bleak. Folia Zoologica, 53, 203–214. https://www.hbu.cas.cz/publikace/strana-7/?employeeId=651 (subadult/adult; lengte- en maandafhankelijk)',
 ],
-    optimalTempRange: [10, 19],
-    tolerableTempRange: [4, 24],
     thermalOptimum: 15.0,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
-    preferredWindDirections: ['ZW', 'W', 'Z'],
-    disruptiveWindThresholdKmH: 32,
-    pressureSensitivity: 'laag',
-    optimalPressureRange: [1008, 1022],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'wisselend',
-    seasonalWeights: { lente: 8.0, zomer: 7.5, herfst: 8.0, winter: 6.0 },
   },
   Zeelt: {
     species: 'Zeelt',
@@ -226,18 +164,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Bryant, P. et al. (1980) Aquaculture of cyprinids: Environmental requirements and feeding of tench.',
       'Bezmaternykh, V.V. & Shcherbina, G.K. (2018). Feeding of Tench Tinca tinca (Cyprinidae) in a Small Eutrophic Water Body. Journal of Ichthyology, 58(4), 545–551. https://doi.org/10.1134/S003294521804001X (90 vissen, 66 met voedsel; één 1,9-ha water; 3-uurs bemonstering; pieken 18–21 en 00–03)',
     ],
-    optimalTempRange: [16, 24],
-    tolerableTempRange: [11, 27],
     thermalOptimum: 20.5,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
-    preferredWindDirections: ['Z', 'ZW'],
-    disruptiveWindThresholdKmH: 30,
-    pressureSensitivity: 'hoog',
-    optimalPressureRange: [1010, 1020],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 7.5, zomer: 9.0, herfst: 5.0, winter: 1.0 },
   },
   Snoekbaars: {
     species: 'Snoekbaars',
@@ -261,18 +190,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Vašek, M. et al. (2018). Stable isotopes and gut contents indicate differential resource use by coexisting asp and pikeperch. Ecology of Freshwater Fish, 27, 1054–1065. https://doi.org/10.1111/eff.12414 (levensfase-/prooikeuze in twee reservoirs)',
           'Frisk, M., Skov, P.V. & Steffensen, J.F. (2012). Thermal optimum for pikeperch (Sander lucioperca) and the use of ventilation frequency as a predictor of metabolic rate. Aquaculture, 324–325, 151–157. https://doi.org/10.1016/j.aquaculture.2011.10.024 (volwassen kweekvis; aerobe scope en ontogenetische verschuiving)',
 ],
-    optimalTempRange: [10, 18],
-    tolerableTempRange: [5, 24],
     thermalOptimum: 15.0,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 6.0,
-    preferredWindDirections: ['W', 'ZW', 'NW'],
-    disruptiveWindThresholdKmH: 36,
-    pressureSensitivity: 'hoog',
-    optimalPressureRange: [1010, 1020],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 7.0, zomer: 7.0, herfst: 8.5, winter: 6.5 },
   },
   Meerval: {
     species: 'Meerval',
@@ -292,18 +212,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Kestemont, P. (1995) Nutrition and growth of Silurus glanis in European waters.',
       'Yazici, R. et al. (2025). Exploring Prey Selectivity and Feeding Habits of Wels Catfish in a Deep Anatolian Reservoir. Aquaculture Nutrition, 2025, Article 4619857. https://doi.org/10.1155/anu/4619857 (maaginhoud; lengte-/leeftijds- en seizoenscontext)',
     ],
-    optimalTempRange: [18, 26],
-    tolerableTempRange: [12, 28],
     thermalOptimum: 22.0,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
-    preferredWindDirections: ['Z', 'ZW'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'hoog',
-    optimalPressureRange: [1005, 1015],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 6.5, zomer: 9.0, herfst: 6.0, winter: 1.5 },
   },
   Roofblei: {
     species: 'Roofblei',
@@ -321,18 +232,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Kärgenberg, E. et al. (2022). Annual and diel activity cycles of a northern population of the large migratory cyprinid fish asp (Leuciscus aspius). Environmental Biology of Fishes, 105, 1697–1711. https://doi.org/10.1007/s10641-022-01298-6 (53 volwassen vissen; seizoensafhankelijke bewegingspieken rond dageraad/schemering)',
       'Pinder, A.C. (2001) Keys to larval and juvenile stages of British freshwater fishes.',
     ],
-    optimalTempRange: [14, 23],
-    tolerableTempRange: [8, 27],
     thermalOptimum: 18.5,
     thermalWidthCold: 5.5,
     thermalWidthWarm: 5.0,
-    preferredWindDirections: ['W', 'ZW'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'laag',
-    optimalPressureRange: [1010, 1022],
-    rainPreference: 'neutraal',
-    cloudPreference: 'wisselend',
-    seasonalWeights: { lente: 7.0, zomer: 8.5, herfst: 7.5, winter: 2.5 },
   },
   Overig: {
     species: 'Overig',
@@ -348,18 +250,9 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Huet, M. (1970) Traité de Pisciculture. Éditions Ch. de Wyngaert, Bruxelles.',
       'Wootton, R.J. (1998) Ecology of Teleost Fishes. Kluwer Academic Publishers.',
     ],
-    optimalTempRange: [12, 20],
-    tolerableTempRange: [6, 25],
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
-    preferredWindDirections: ['ZW', 'W'],
-    disruptiveWindThresholdKmH: 35,
-    pressureSensitivity: 'matig',
-    optimalPressureRange: [1010, 1020],
-    rainPreference: 'licht_positief',
-    cloudPreference: 'bewolkt',
-    seasonalWeights: { lente: 7.5, zomer: 7.5, herfst: 8.0, winter: 4.5 },
   },
 };
 
@@ -367,35 +260,19 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
  * Berekent de fysiologische temperatuurefficiëntie E_temp (0.08 - 1.0)
  * via een continue Gaussische responsfunctie.
  */
+/**
+ * Voorlopige asymmetrische Gaussische profielprior. Parameters zijn geen
+ * gemeten optimum- of tolerantiegrenzen; de uitkomst is geen gemeten activiteit.
+ */
 export function calculateThermalEfficiency(
   temp: number,
   profile: SpeciesProfile
 ): { efficiency: number; description: string; impact: 'positief' | 'neutraal' | 'negatief' } {
-  const { thermalOptimum, thermalWidthCold, thermalWidthWarm, optimalTempRange, tolerableTempRange, species } = profile;
-  const isCold = temp < thermalOptimum;
-  const width = isCold ? thermalWidthCold : thermalWidthWarm;
+  const { thermalOptimum, thermalWidthCold, thermalWidthWarm, species } = profile;
+  const width = temp < thermalOptimum ? thermalWidthCold : thermalWidthWarm;
   const diff = temp - thermalOptimum;
-
-  // Bounded smooth Gaussian response [0.08, 1.0]
   const rawEfficiency = Math.exp(-(diff * diff) / (2 * width * width));
   const efficiency = Math.max(0.08, Math.min(1.0, rawEfficiency));
-
-  let description = '';
-  let impact: 'positief' | 'neutraal' | 'negatief' = 'neutraal';
-
-  if (temp >= optimalTempRange[0] && temp <= optimalTempRange[1]) {
-    impact = 'positief';
-    description = `Temperatuur (${temp.toFixed(1)} °C) valt binnen het voorlopige profielbereik (${optimalTempRange[0]}–${optimalTempRange[1]} °C) voor ${species}. De thermische curve schat hier een relatief hoge efficiëntie (${(efficiency * 100).toFixed(0)}%); dit is geen gemeten activiteit of voedselopname.`;
-  } else if (temp < optimalTempRange[0] && temp >= tolerableTempRange[0]) {
-    impact = efficiency < 0.45 ? 'negatief' : 'neutraal';
-    description = `Temperatuur (${temp.toFixed(1)} °C) ligt onder het voorlopige profieloptimum van ${species}. De thermische curve schat een lagere relatieve efficiëntie dan rond het optimum (${(efficiency * 100).toFixed(0)}%); dit meet niet rechtstreeks hoeveel de vis beweegt of foerageert.`;
-  } else if (temp < tolerableTempRange[0]) {
-    impact = 'negatief';
-    description = `Watertemperatuur (${temp.toFixed(1)} °C) ligt onder de voorlopige ondergrens van het profiel voor ${species}. De thermische curve schat daardoor een lage relatieve efficiëntie (${(efficiency * 100).toFixed(0)}%). Deze profielgrens is geen gevalideerde fysiologische tolerantiegrens en stelt op zichzelf geen winterrust of stop van voedselopname vast.`;
-  } else {
-    impact = 'negatief';
-    description = `Watertemperatuur (${temp.toFixed(1)} °C) ligt boven de voorlopige bovengrens van het profiel voor ${species}. De thermische curve schat een lagere relatieve efficiëntie (${(efficiency * 100).toFixed(0)}%). Hoge temperatuur alleen bewijst hier geen zuurstofstress: opgeloste zuurstof wordt niet gemeten.`;
-  }
-
-  return { efficiency, description, impact };
+  const description = `Watertemperatuur (${temp.toFixed(1)} °C): de voorlopige thermische profielcurve voor ${species} schat een relatieve respons van ${(efficiency * 100).toFixed(0)}%. De modelpiek en curvebreedtes zijn geen gemeten optimum; er bestaat voor deze profielcurve geen gevalideerde fysiologische tolerantiegrens. Dit is geen directe meting van activiteit of voedselopname; lage temperatuur bewijst geen winterrust. opgeloste zuurstof wordt niet gemeten, dus hoge temperatuur alleen bewijst geen zuurstofstress.`;
+  return { efficiency, description, impact: 'neutraal' };
 }

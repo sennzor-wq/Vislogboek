@@ -420,3 +420,9 @@ De visfysiologische curve gebruikt per soort een Gaussisch optimum en koude-/war
 De prognose toont bij de temperatuurfactor een compacte, soortspecifieke toelichting op de werkelijk geregistreerde fysiologische responsvariabelen. Directe aerobe-scopecijfers worden onderscheiden van uitsluitend SMR/RMR-metingen en van soorten zonder vergelijkbare geregistreerde temperatuurdata. Alle huidige bronnen blijven niet-goedgekeurd voor numerieke voorspelling.
 
 Deze bronstatus is alleen verklarend: ze wijzigt de voorlopige thermische curve, activiteitsscore, tijdvakrangschikking of vangstkans niet. De factor heet daarom **thermische activiteitspotentie**. SMR/RMR, aerobe scope, voedselopname en hengelvangbaarheid blijven afzonderlijke responsen.
+
+## 44. Geen niet-gevalideerde profielgrenzen of weersvoorkeuren
+
+De soortprofielen bevatten geen ongevalideerde optimale/tolerabele temperatuurzones, barometerbereiken, seizoensgewichten of soortspecifieke wind-/regen-/bewolkingsvoorkeuren meer. Deze velden gaven schijnprecisie en droegen niet bij aan een gevalideerde biologische score.
+
+De bestaande thermische modelpiek en curvebreedtes blijven voorlopig actief als modelprior; de gebruikersweergave labelt ze expliciet als zodanig. Omdat er geen onderbouwde fysiologische grenswaarden zijn, blijft de impactclassificatie van de temperatuurfactor neutraal. De relatieve thermische score blijft ongewijzigd. Wind, druk, seizoen, bewolking en neerslag zijn uitsluitend context, zonder soortspecifieke profielbonus.

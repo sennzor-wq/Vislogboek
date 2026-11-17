@@ -460,44 +460,23 @@ function analyzeTimeSlot(
   let windDetail = '';
   if (!hasWind || avgWindSpeed === null || dominantWindDir === null) {
     windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.';
-  } else if (avgWindSpeed > profile.disruptiveWindThresholdKmH) {
-    windDetail = `Harde wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan aasaanbieding, lijncontrole en beetregistratie bemoeilijken. Dit is praktische context en verandert de thermische activiteitspotentie niet.`;
-  } else if (avgWindSpeed >= 9 && avgWindSpeed <= 22) {
-    windDetail = `Matige wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u) kan lokaal golfslag en verplaatsing van oppervlaktevoedsel veroorzaken; het effect hangt af van stek en oever.`;
-  } else if (avgWindSpeed < 4) {
-    windDetail = `Weinig wind (${Math.round(avgWindSpeed)} km/u). Dit zegt op zichzelf niet dat vis minder actief is; let vooral op zichtbaarheid, verstoring en waargenomen visactiviteit.`;
   } else {
-    windDetail = `Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u); geen generieke biologische scorecorrectie toegepast.`;
-  }
-  if (hasWind) {
+    windDetail = `Wind (${dominantWindDir}, ${Math.round(avgWindSpeed)} km/u). Het praktische effect hangt af van stekorientatie, oever, wateroppervlak en vismethode; er wordt geen soortspecifieke windvoorkeur of biologische scorecorrectie toegepast.`;
     const directionSequence = windSamples.reduce<string[]>((directions, sample) => {
       const direction = sample.windDirectionText.trim();
       if (directions[directions.length - 1] !== direction) directions.push(direction);
       return directions;
     }, []);
-    if (directionSequence.length > 1) {
-      windDetail += ` De wind draait binnen dit tijdvak: ${directionSequence.join(' → ')}; de windrichting is dus niet de hele periode gelijk.`;
-    }
-    if (profile.preferredWindDirections.includes(dominantWindDir!)) {
-      windDetail += ` De representatieve windrichting ${dominantWindDir} komt overeen met een voorlopige profielnotitie voor ${species}; dit is context, geen scorebonus.`;
-    }
+    if (directionSequence.length > 1) windDetail += ` De wind draait binnen dit tijdvak: ${directionSequence.join(' → ')}; de windrichting is dus niet de hele periode gelijk.`;
   }
-  const windFactor: FactorBreakdown = {
-    score: 0,
-    impact: 'neutraal',
-    title: 'Wind & Oppervlakte',
-    detail: windDetail,
-    dataAvailable: hasWind,
-  };
+  const windFactor: FactorBreakdown = { score: 0, impact: 'neutraal', title: 'Wind & Oppervlakte', detail: windDetail, dataAvailable: hasWind };
 
-  // Seizoensprofielen blijven zichtbaar als voorlopige achtergrondcontext.
-  // Ze tellen niet mee: seizoensinvloed is deels al vervat in watertemperatuur
-  // en de vaste profielgewichten zijn nog niet voldoende gevalideerd.
+  // Seizoen blijft context; geen gevalideerde zelfstandige seizoenscorrectie.
   const seasonFactor: FactorBreakdown = {
     score: 0,
     impact: 'neutraal',
     title: 'Seizoensritme',
-    detail: `Seizoen ${season}: de seizoensnotitie voor ${species} is voorlopig. Het afzonderlijke seizoenseffect is niet voldoende gevalideerd en telt niet mee in de thermische activiteitspotentie.`,
+    detail: `Seizoen ${season} wordt als context getoond. Er wordt geen zelfstandige seizoensbonus of -aftrek toegepast.`,
     dataAvailable: true,
   };
 
@@ -528,12 +507,6 @@ function analyzeTimeSlot(
       contextParts.push(`bewolking ${Math.round(avgCloud!)}%`);
     }
     precipDetail = `${contextParts.join(', ')}. Dit blijft weerscontext; zonder gevalideerde soort- en watertypegebonden relatie wordt geen biologische bonus of aftrek toegepast.`;
-    if (hasCloud && profile.cloudPreference) {
-      precipDetail += ` De profielvoorkeur voor bewolking (${profile.cloudPreference}) is voorlopig en wordt alleen beschrijvend getoond.`;
-    }
-    if (hasPrecip && profile.rainPreference) {
-      precipDetail += ` De profielvoorkeur voor regen (${profile.rainPreference}) is voorlopig en wordt alleen beschrijvend getoond.`;
-    }
   }
 
   const precipitationFactor: FactorBreakdown = {

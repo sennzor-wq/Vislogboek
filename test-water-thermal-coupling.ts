@@ -464,6 +464,7 @@ async function runTestSuite() {
   );
 
   const coldThermalResponse = calculateThermalEfficiency(2, SPECIES_PROFILES['Karper']);
+  assert(coldThermalResponse.impact === 'neutraal', 'Temperature impact labels stay neutral while thermal thresholds remain unvalidated');
   assert(
     coldThermalResponse.description.includes('geen gevalideerde fysiologische tolerantiegrens') &&
       coldThermalResponse.description.includes('geen winterrust') &&
