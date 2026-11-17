@@ -442,3 +442,9 @@ Thermische activiteit, voeding en habitat blijven afzonderlijke responsen. Ze wo
 Het label bij de persoonlijke Poisson-vangkans beschrijft uitsluitend de omvang van de bruikbare historische steekproef. Het aantal getoonde Poisson-sessies is exact het aantal sessies met bekende duur en bruikbare vangstaantallen dat de vangsttempo-schatting voedt. De categorie wordt niet aangeduid als statistische betrouwbaarheid.
 
 Het 95%-Wilson-interval blijft een afzonderlijke maat voor de historische binomiale sessiesuccesfractie op basis van vergelijkbare sessies. Het is geen onzekerheidsinterval rond de Poisson-kans voor de geplande duur.
+
+## 48. Kwalitatieve onderbouwing is geen statistische betrouwbaarheid
+
+De labels voor waterthermische databasis, positioneringsadvies en habitatinschatting beschrijven kwalitatief de beschikbare bronbasis en context. Ze mogen niet worden gelezen als gekalibreerde kansen of statistische betrouwbaarheidspercentages. De UI gebruikt daarom 'Databasis watertemperatuur' en 'Onderbouwing stekadvies/habitatinschatting'.
+
+De statistische Wilson-interval blijft uitsluitend gekoppeld aan de historische sessiesuccesfractie. De Poisson-vangkans toont haar eigen bruikbare steekproefomvang.

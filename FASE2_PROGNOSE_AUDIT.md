@@ -1081,3 +1081,13 @@ De implementatie is gecorrigeerd:
 - De Wilson-interval blijft afzonderlijk gekoppeld aan het historische sessiesucces over alle vergelijkbare sessies; dit is geen interval rond de Poisson-duurkans.
 
 Regressietest bevat nu een geval waarin 11 sessies vergelijkbaar zijn, maar slechts 9 bruikbare Poisson-sessies hebben. De steekproefbasis moet dan 'Laag' blijven op basis van N=9.
+
+## 54. Modelonderbouwing onderscheiden van statistische betrouwbaarheid (17 november 2026)
+
+De gebruikerslabels voor waterthermische kwaliteit, stekpositionering en habitatbeweging zijn verduidelijkt. Deze categorieën zijn kwalitatieve indicaties van de beschikbare databasis of onderbouwing; ze zijn geen gekalibreerde waarschijnlijkheden of statistische betrouwbaarheidspercentages.
+
+- Watertemperatuur: **Databasis watertemperatuur**, gebaseerd op meetbron, weersdekking, ouderdom en beschikbaarheid van lokale ankers.
+- Positionering: **Onderbouwing stekadvies**, afhankelijk van onder meer oevergeometrie, windinformatie en lokale context.
+- Habitat: **Onderbouwing habitatinschatting**, een kwalitatieve indicatie bij een ruimtelijke zoekhypothese.
+
+De persoonlijke Poisson-vangkans blijft afzonderlijk gekoppeld aan de expliciete historische steekproefbasis en het Wilson-interval voor historisch sessiesucces. Er is geen modelberekening gewijzigd.
