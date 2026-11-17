@@ -1330,3 +1330,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Poulet et al. (2005) volledige beschikbare paper gecontroleerd: 13 volwassen snoekbaarzen getagd, 9 gevolgd; maart–juni tijdens paaiperiode; 24-uursessies met posities om de twee uur; gemiddelde avondschemeringspiek in beweging met individuele variatie; verplaatsingsmaat is minimale afstand.
 - Horký et al. (2008) volledige paper gecontroleerd: 8 volwassen snoekbaarzen in de Elbe, 47 volledige 24-uurscycli verspreid over 12 maanden, posities per circa drie uur; beweging piekte bij dageraad/schemering; nachtelijke ondiepe positie waarschijnlijk rust, niet jacht.
 - Registry, tests en architectuur/auditdocumentatie bijgewerkt. Beide studies blijven uitsluitend movement/habitat evidence en niet-goedgekeurd voor voorspelling. Geen modelscore, tijdvakgewicht of vangstkans gewijzigd.
+
+
+### Fase 2 — tijdvakfactor opgeschoond op bronclassificatie (17 november 2026)
+
+- De laatste runtime-verwijzing naar de verouderde preferredSlots- en crepuscularBonus-velden is verwijderd; de velden zijn uit de soortprofielen geschrapt.
+- De verklarende tijdvaktekst gebruikt nu de geclassificeerde diel-evidence: directe voedingsmetingen blijven contextgebonden en niet-goedgekeurd, beweging/habitat wordt niet als voedingsvoorkeur gepresenteerd en ontbrekend bewijs levert geen voorkeur op.
+- De tijdvakscore blijft neutraal; geen activiteitsscore, rangschikking of vangstkans aangepast.
+- Regressietests toegevoegd voor karper, roofblei en de generieke fallback.
+- Volgende stap: resterende soortprofielen nalopen op andere claims die niet door de actuele registry worden gedekt; daarna de volledige vijf-responsketen en chronologische evaluatie als één geheel toetsen. Fase 2 blijft open; Fase 3 start niet.
