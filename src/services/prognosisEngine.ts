@@ -433,11 +433,31 @@ function analyzeTimeSlot(
   const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
   const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
   const thermalEvidenceDetail = getSpeciesThermalEvidenceContextText(species);
+  let thermalScoreBandDetail = '';
+  if (tempSource === 'geschat' && thermalAnalysis?.estimatedRange) {
+    const [rangeA, rangeB] = thermalAnalysis.estimatedRange;
+    if (Number.isFinite(rangeA) && Number.isFinite(rangeB)) {
+      const rangeMin = Math.min(rangeA, rangeB);
+      const rangeMax = Math.max(rangeA, rangeB);
+      const sampleTemperatures = [rangeMin, rangeMax];
+      if (profile.thermalOptimum >= rangeMin && profile.thermalOptimum <= rangeMax) {
+        sampleTemperatures.push(profile.thermalOptimum);
+      }
+      if (effectiveTemp !== null) sampleTemperatures.push(effectiveTemp);
+      const possibleScores = sampleTemperatures.map((sampleTemp) => {
+        const efficiency = calculateThermalEfficiency(sampleTemp, profile).efficiency;
+        return Math.round(Math.max(1, Math.min(10, 1 + 9 * Math.pow(efficiency, 0.85))) * 10) / 10;
+      });
+      const scoreMin = Math.min(...possibleScores);
+      const scoreMax = Math.max(...possibleScores);
+      thermalScoreBandDetail = ` Indicatieve thermische scoreband op basis van de geschatte watertemperatuurband (${rangeMin.toFixed(1)}–${rangeMax.toFixed(1)} °C): ${scoreMin.toFixed(1)}–${scoreMax.toFixed(1)}/10. Dit is alleen de doorwerking van watertemperatuuronzekerheid, geen statistisch betrouwbaarheidsinterval; onzekerheid in de voorlopige soortcurve is niet inbegrepen.`;
+    }
+  }
   const tempDetailText = (!hasKnownWaterTemp
     ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'
     : tempSource === 'gemeten'
       ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).'
-      : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).') + ` ${thermalEvidenceDetail}`;
+      : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).') + ` ${thermalScoreBandDetail} ${thermalEvidenceDetail}`;
   const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Thermische activiteitspotentie', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend

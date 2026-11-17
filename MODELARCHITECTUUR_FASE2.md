@@ -426,3 +426,7 @@ Deze bronstatus is alleen verklarend: ze wijzigt de voorlopige thermische curve,
 De soortprofielen bevatten geen ongevalideerde optimale/tolerabele temperatuurzones, barometerbereiken, seizoensgewichten of soortspecifieke wind-/regen-/bewolkingsvoorkeuren meer. Deze velden gaven schijnprecisie en droegen niet bij aan een gevalideerde biologische score.
 
 De bestaande thermische modelpiek en curvebreedtes blijven voorlopig actief als modelprior; de gebruikersweergave labelt ze expliciet als zodanig. Omdat er geen onderbouwde fysiologische grenswaarden zijn, blijft de impactclassificatie van de temperatuurfactor neutraal. De relatieve thermische score blijft ongewijzigd. Wind, druk, seizoen, bewolking en neerslag zijn uitsluitend context, zonder soortspecifieke profielbonus.
+
+## 45. Propagatie van watertemperatuuronzekerheid
+
+Bij een geschatte watertemperatuur met een beschikbaar modelinterval wordt de bestaande thermische curve geëvalueerd over dat interval. De gebruiker ziet naast de centrale score een indicatieve scoreband die uitsluitend de doorwerking van watertemperatuuronzekerheid weergeeft. Dit is geen statistisch betrouwbaarheidsinterval en omvat niet de onzekerheid van de soortspecifieke curve. Gemeten watertemperatuur krijgt geen geschatte scoreband. De centrale scoreberekening blijft ongewijzigd.

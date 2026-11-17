@@ -124,6 +124,11 @@ async function runTestSuite() {
       (progColdSnap.thermalAnalysis?.estimatedWaterTemp ?? 0) < 16.0,
     `1.2 Geschatte watertemperatuur (${progColdSnap.thermalAnalysis?.estimatedWaterTemp} °C) dempt de koude lucht (4 °C) via thermische traagheid`
   );
+  const estimatedThermalDetail = progColdSnap.timeSlots['Ochtend'].temperatureFactor.detail;
+  assert(
+    !estimatedThermalDetail.includes('Indicatieve thermische scoreband'),
+    '1.2a Zonder beschikbaar temperatuurinterval wordt geen scoreband verzonnen'
+  );
   assert(
     progColdSnap.activityScore >= 4.0,
     `1.3 Karperactiviteit (${progColdSnap.activityScore}/10) weerspiegelt trage watermassa en raakt NIET in winterrust door koude lucht`
@@ -276,6 +281,22 @@ async function runTestSuite() {
     historicalSessions: [measuredAnchorSession],
     currentDateRef: new Date('2026-10-20T12:00:00'),
   });
+  const anchoredForecastPrognosis = calculateDayPrognosis(
+    '2026-10-21',
+    coldSnapForecasts,
+    'Karper',
+    [measuredAnchorSession],
+    undefined,
+    null,
+    new Date('2026-10-20T12:00:00'),
+    { location: locLokkershoek }
+  );
+  assert(
+    anchoredForecastPrognosis.thermalAnalysis?.estimatedRange != null &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Indicatieve thermische scoreband') &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen statistisch betrouwbaarheidsinterval'),
+    '4.0a Een lokaal verankerde schatting met temperatuurinterval toont een niet-statistische thermische scoreband'
+  );
 
   assert(
     anchoredEstimate.hasMeasuredWaterTemp === false &&
