@@ -874,3 +874,36 @@ Fase 2 is pas geaccepteerd wanneer de initiële biologische prognose aantoonbaar
 | Formele Fase 2-acceptatie | **Nog niet vrijgegeven** |
 
 De ontbrekende lokale sessiedata blokkeren niet de technische bouw van een conservatief initiëel model, maar blokkeren wel claims dat soortspecifieke vangstkansen of numerieke tijdvakgewichten lokaal gevalideerd zijn. Fase 3 start pas nadat de bovenstaande implementatiecriteria zijn afgevinkt en de resterende onzekerheden expliciet als niet-actieve factoren zijn vastgelegd.
+
+
+## 44. Primaire broncontrole — brasem, blankvoorn, snoek en snoekbaars (17 november 2026)
+
+Deze controle verfijnt de overdraagbaarheid van dagritmebronnen. Zij activeert geen score, tijdvakgewicht of vangstkans.
+
+### Brasem en blankvoorn
+
+- **Vašek & Kubečka (2004)**: de beschikbare samenvatting beschrijft in-situ maagvulling en zoöplanktonconsumptie in het meso-eutrofe Římov-stuwmeer. Subadulte/volwassen brasem en blankvoorn die vrijwel uitsluitend microcrustaceeën aten, vertoonden overdag meer voeding en 's nachts een duidelijke daling van maagvulling. De verschillen traden op bij specifieke lengteklassen en maanden. Dit ondersteunt geen algemene dagbonus voor bodemvisserij of aasopname; gedetailleerde steekproef- en bemonsteringsmethoden zijn nog niet onafhankelijk uit de volledige paper geverifieerd.
+- De bron wordt daarom uitsluitend als contextspecifiek direct voedingsbewijs behandeld: prooitype, lengteklasse, maand en watertype zijn bepalend. De geregistreerde uitkomst blijft niet-goedgekeurd voor voorspelling.
+
+### Blankvoorn — seizoens- en habitatcontext
+
+- **Haertel & Eckmann (2002)**: de uitgeverssamenvatting van de volledige publicatie beschrijft een klein mesotroof meer van circa 12 ha. Blankvoorn gebruikte overdag vooral het litoraal en 's nachts het pelagiaal; dieet en voedingsintensiteit verschilden per seizoen. Op geselecteerde dagen werden dieetcompositie en voedingsintensiteit over 24 uur met een maagledigingsmethode kwantitatief gevolgd.
+- De studie toont dat dieet- en habitatverschuivingen de berekening van dagelijkse rantsoenen beïnvloeden. Zij rechtvaardigt niet dat nachtelijke pelagische aanwezigheid als hogere totale voedselopname of betere vangstkans wordt geïnterpreteerd.
+- **Hautala (2008)**: de uitgeverssamenvatting beschrijft vangst-/trappingonderzoek in de oeverzone van een groot boreaal meer. In de herfst verschoof de blankvoornvoeding van dag naar schemering toen de watertemperatuur ongeveer van 20 naar 10 °C daalde; rond 5 °C bleef later in de herfst een laag maar stabiel niveau van nachtelijke activiteit bestaan. De auteurs noemen predatierisico, voedselvraag en voedselbeschikbaarheid als mogelijke verklaringen. De studie is geen bewijs dat temperatuur op zichzelf de verschuiving veroorzaakt en is niet één-op-één overdraagbaar naar Nederlandse wateren.
+
+### Snoek
+
+- **Lucas et al. (1991)**: de volledige uitgeverssamenvatting is gecontroleerd. Hartslagtelemetrie bij snoek in Lochs Kinord en Davan (Schotland), met registraties tot vijf dagen, schatte voedselopname op circa 1,5% van het natte lichaamsgewicht per dag. Kleine prooien werden overdag gevangen; de specifieke dynamische werking van voedsel/verteringsmetabolisme liep door in middag en nacht.
+- Dit is directe voedingscontext, maar geen gekwantificeerde verdeling van voedselopname over de dag. Het tijdstip waarop prooien werden gevangen mag niet worden verward met de latere vertering. De beperkte duur en twee meren begrenzen overdracht.
+
+### Snoekbaars
+
+- **Fedorova & Drozhzina (1982)**: de beschikbare secundair ontsloten samenvatting beschrijft een seizoensafhankelijk voedingsritme in het Ladogameer: één vroege ochtendpiek in juni–augustus en een tweede avondpiek in september. In juni speelde reproductieve vastenperiode bij volwassen vissen mee; prooivisverdeling werd als mogelijke verklaring genoemd.
+- Omdat de oorspronkelijke volledige publicatie en methodedetails in deze controle niet rechtstreeks zijn geverifieerd, blijft de registratie beperkt bewijs. Geen vaste ochtend-, avond- of schemerbonus; seizoen, reproductiestatus en prooigedrag zijn relevante maar in de app doorgaans onbekende context.
+
+### Registerkwaliteit en besluit
+
+- Een dubbele registratie van dezelfde Poulet et al. (2005)-telemetriestudie is verwijderd. De overblijvende canonieke registratie houdt de gemeten uitkomst expliciet op locomotorische activiteit; zij wordt niet als voedingsritme geteld.
+- Tests bewaken de unieke registratie, de scheiding tussen snoekprooivangst en vertering, en de contextbeperkingen van blankvoorn-/brasemvoeding.
+- Alle genoemde bronnen blijven `approvedForPrediction: false`. Geen operationele profielparameter, activiteitsscore, tijdvakrangschikking of persoonlijke vangstkans is gewijzigd.
+- De primaire broncontrole is nog niet compleet: de volledige methoden van Vašek & Kubečka (2004), de oorspronkelijke tekst van Fedorova & Drozhzina (1982) en verdere soort-/watertype-overdraagbaarheid blijven open.

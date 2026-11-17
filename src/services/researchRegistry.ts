@@ -517,25 +517,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
-  {
-    id: 'pikeperch-diel-activity-drainage-canal-2005',
-    topic: 'dagritme-activiteit-en-spawning-habitat',
-    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
-    species: ['Snoekbaars'],
-    application: 'biology',
-    evidenceStrength: 'limited',
-    summary: 'Akoestische telemetrie onderzocht de activiteit en beweging van volwassen snoekbaars in een drainagekanaal in Zuid-Frankrijk tijdens het voorjaar. De studie levert soortspecifieke informatie over dagritme, beweging en paaicontext.',
-    limitations: [
-      'De studie is beperkt tot één kanaal, één seizoen en een zuidelijk mediterraan klimaat.',
-      'Beweging en paaigedrag zijn niet hetzelfde als dagelijkse voedselopname of vangbaarheid.',
-      'De uitkomst mag niet als algemene Nederlandse jaarcurve of vaste schemerbonus worden gebruikt.'
-    ],
-    sourceReferences: [
-      'Poulet, N., Arzel, C., Messad, S., Lek, S. & Argillier, C. (2005). Diel activity of adult pikeperch Sander lucioperca (L.) in a drainage canal in the Mediterranean basin during spring. Hydrobiologia, 543, 79–90. https://doi.org/10.1007/s10750-004-6823-6'
-    ],
-    reviewedAt: '2026-11-16',
-    approvedForPrediction: false,
-  },
+
   {
     id: 'european-catfish-feeding-and-activity-rhythms-1995-2012',
     topic: 'dagritme-locomotorische-activiteit',

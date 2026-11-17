@@ -366,3 +366,12 @@ Tijdvakadvies wordt uitsluitend gevoed door soortspecifieke voedings-/foerageere
 De gebruiker hoeft geen levensfase of uitgebreide foerageerobservaties te registreren. Levensfase is een optionele interne modifier wanneer betrouwbaar bekend; onbekend betekent soortniveau met extra onzekerheid. Na de clean start wordt lokale kalibratie pas geclaimd zodra nieuwe vergelijkbare sessies voldoende bewijs leveren. Softwareminimums voor evaluatie zijn geen bewijs van statistische robuustheid.
 
 Fase 3 start pas na formele afvinking van de technische/evidence-criteria in FASE2_PROGNOSE_AUDIT.md §43. Tot dat moment worden onbewezen factoren niet numeriek geactiveerd.
+
+
+## 38. Verfijnde overdraagbaarheid van dagritmebronnen
+
+De bronlaag onderscheidt bij blankvoorn/brasem de directe voedingsrespons van habitat- en dieetverschuivingen. Vašek & Kubečka (2004) ondersteunen daggebonden zoöplanktonvoeding bij specifieke lengteklassen en maanden in één meso-eutroof stuwmeer; Haertel & Eckmann (2002) beschrijven seizoensafhankelijke dieet- en voedingsintensiteitsveranderingen bij blankvoorn in een klein mesotroof meer. Hautala (2008) beschrijft een herfstverschuiving van dagvoeding naar schemering en later beperkte nachtactiviteit in een boreale oeverzone. Geen van deze bronnen rechtvaardigt een universele tijdvakbonus voor Nederlandse stekken.
+
+Bij snoek wordt het tijdstip van prooivangst onderscheiden van het latere verteringsmetabolisme (Lucas et al., 1991). Bij snoekbaars blijft het Ladogameer-voedingsritme seizoenscontext met beperkte bronverificatie: vroege ochtend in juni–augustus en een tweede avondpiek in september. Dezelfde Poulet et al. (2005)-telemetriestudie heeft één canonieke registratie als bewegingsbewijs; beweging is geen voedingsmeting.
+
+Alle registraties blijven niet-goedgekeurd voor numerieke voorspelling. Onbekende lokale prooisoort, levensfase, reproductiestatus, helderheid en habitat verhogen de onzekerheid. De volledige bron- en methodencontrole blijft onderdeel van Fase 2; er worden geen scores of gewichten geactiveerd.

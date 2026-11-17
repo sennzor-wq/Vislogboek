@@ -393,3 +393,43 @@ if (!carpDiel ||
     carpDiel.approvedForPrediction) {
   throw new Error('Carp diel-feeding evidence must retain its subspecies, size classes, abstract-only verification and no-catchability limitation.');
 }
+
+
+// Source-audit regression: one canonical registry entry per pikeperch drainage-canal telemetry study.
+const pikeperchCanalRecords = RESEARCH_REGISTRY.filter((item) =>
+  item.id.includes('pikeperch-diel-activity-') &&
+  item.sourceReferences.some((source) => source.includes('10.1007/s10750-004-6823-6'))
+);
+if (pikeperchCanalRecords.length !== 1 ||
+    pikeperchCanalRecords[0].id !== 'pikeperch-diel-activity-dusk-drainage-canal-2005' ||
+    pikeperchCanalRecords[0].measuredOutcomes?.includes('feeding_rhythm') ||
+    pikeperchCanalRecords[0].approvedForPrediction) {
+  throw new Error('The single pikeperch drainage-canal study record must remain movement-only and non-approved.');
+}
+
+const pikeWildFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-heart-rate-feeding-day-1991');
+if (!pikeWildFeeding ||
+    !pikeWildFeeding.summary.includes('overdag gevangen') ||
+    !pikeWildFeeding.summary.includes('middag en nacht') ||
+    pikeWildFeeding.measuredOutcomes?.includes('feeding_rhythm') ||
+    pikeWildFeeding.approvedForPrediction) {
+  throw new Error('Wild pike feeding capture time must remain distinct from later digestion metabolism.');
+}
+
+const roachAutumnShift = RESEARCH_REGISTRY.find((item) => item.id === 'roach-autumnal-diel-feeding-shift-2008');
+if (!roachAutumnShift ||
+    !roachAutumnShift.summary.includes('20 naar 10 °C') ||
+    !roachAutumnShift.summary.includes('circa 5 °C') ||
+    !roachAutumnShift.limitations.some((item) => item.includes('predatierisico')) ||
+    roachAutumnShift.approvedForPrediction) {
+  throw new Error('The roach autumnal day-to-twilight shift must retain its boreal/light/predation scope and remain non-approved.');
+}
+
+const adultCyprinidPlankton = RESEARCH_REGISTRY.find((item) => item.id === 'bream-roach-in-situ-diel-zooplankton-feeding-2004');
+if (!adultCyprinidPlankton ||
+    !adultCyprinidPlankton.summary.includes('microcrustaceeën') ||
+    !adultCyprinidPlankton.summary.includes('lengteklasse') ||
+    !adultCyprinidPlankton.limitations.some((item) => item.includes('aasopname')) ||
+    adultCyprinidPlankton.approvedForPrediction) {
+  throw new Error('Bream/roach daytime plankton-feeding evidence must retain its prey and transferability limits.');
+}
