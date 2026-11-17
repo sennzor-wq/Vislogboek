@@ -454,3 +454,14 @@ if (!pikeperchElbeTelemetry ||
     pikeperchElbeTelemetry.approvedForPrediction) {
   throw new Error('Elbe pikeperch telemetry must retain its sample/observation scope and night-rest interpretation, not feeding rhythm.');
 }
+
+
+const perchScope = RESEARCH_REGISTRY.find((item) => item.id === 'european-perch-aerobic-scope-size-temperature-2020');
+if (!perchScope || perchScope.approvedForPrediction || !perchScope.summary.includes('120 Europese baarzen') || !perchScope.summary.includes('onder 40 g') || !perchScope.limitations.some((item) => item.includes('37 vissen'))) {
+  throw new Error('The full perch paper scope, size dependence and separate preferred-temperature sample must remain explicit and non-approved.');
+}
+const pikeperchScope = RESEARCH_REGISTRY.find((item) => item.id === 'adult-pikeperch-aerobic-scope-temperature-2012');
+if (!pikeperchScope || pikeperchScope.approvedForPrediction || !pikeperchScope.summary.includes('70 volwassen') || !pikeperchScope.summary.includes('niet significant') || !pikeperchScope.limitations.some((item) => item.includes('slechts drie complete metingen'))) {
+  throw new Error('The full pikeperch paper scope, broad plateau and small 28 C sample must remain explicit and non-approved.');
+}
+console.log('Primary perch and pikeperch thermal-study scope tests passed.');

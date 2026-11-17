@@ -1411,3 +1411,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De Brier-sectie toont nu het totaal aan opgeslagen snapshots, hoeveel van de actuele modelversie zijn en hoeveel oudere/afwijkende versies buiten de actuele score blijven.
 - De tellingen zijn expliciet opgenomen in `EvaluationResult` en regressietests bewaken de verdeling.
 - Historische snapshots blijven bewaard; alleen de actuele modelversie wordt gescoord. Geldige oude sessie-uitkomsten blijven bruikbaar voor de chronologische baseline.
+
+
+### Fase 2 — primaire thermische broncontrole baars en snoekbaars (17 november 2026)
+
+- Christensen et al. (2020) volledig gecontroleerd: 120 baars voor respirometrie (5–882 g, 15–28 °C) en afzonderlijk 37 vissen voor temperatuurkeuze (3–74 g). Aerobe-scopeoptimum is grootteafhankelijk; onder 40 g werd geen optimum gevonden binnen het onderzochte bereik.
+- Frisk et al. (2012) volledig gecontroleerd: 70 volwassen kweek-snoekbaarzen, zes bruikbare temperatuurbehandelingen 13–28 °C; berekend maximum 18,8 °C maar geen significant verschil in aerobe scope tussen 13 en 25 °C; bij 28 °C slechts n=3.
+- Beide bronnen blijven fysiologische capaciteit, niet directe voeding of vangstkans. `approvedForPrediction:false`; geen numerieke modelparameter gewijzigd.
