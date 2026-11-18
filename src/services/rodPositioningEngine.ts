@@ -257,32 +257,12 @@ function determineTacticalHypothesis(
     };
   }
 
-  if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
-    return {
-      recommendedZone: 'Aanlandige oeverzone (windkant) als mogelijke zoekzone',
-      rationale: `Een aanhoudende bries (${windDirText} ${avgWindSpeed} km/u${maxWindSpeed !== null && maxWindSpeed > avgWindSpeed ? `, stoten tot ~${maxWindSpeed} km/u` : ''}) kan oppervlaktewater en zwevend voedsel richting de oever verplaatsen. Dit veroorzaakt lichte troebeling en zuurstofinbreng, wat foerageergedrag kan triggeren. Belangrijke nuance: aan de oppervlakte waait het water aanlandig, maar nabij de bodem ontstaat in dieper water vaak een compenserende retourstroom in tegengestelde richting. Behandel de windkant daarom als kansrijke zoekzone, niet als vaststaande garantie. (Zoekhypothese voor aanlandige wind).`,
-      alternativeOption:
-        'Luwe oeverzone direct achter een rietkraag of een dieper talud, zeker als hevige golfslag het bodemaas verplaatst of vuil de hoofdlijn belaagt.',
-      confidenceLevel: 'Matig',
-    };
-  }
-
-  if (season === 'Zomer' && isCalmWind && isWarmConditions) {
-    return {
-      recommendedZone: 'Zuurstofrijke overgangszones, dieper water of schaduwrijke overkappingen',
-      rationale: `Bij weinig wind (${avgWindSpeed} km/u) en warm water (~${effectiveWaterTemp.toFixed(1)} °C) kan in ondiep, stilstaand water zuurstofafname optreden. Vis zoekt vaak beschutting in diepere kuilen, bij waterplantenvelden of onder overhangende bomen. Let op: weinig wind betekent niet automatisch stilstaand water; thermische circulatie kan nabij de bodem nog steeds voor lichte waterverplaatsing zorgen. (Zoekhypothese voor warme luwte).`,
-      alternativeOption:
-        'Vroeg in de ochtend of laat in de avond foerageert vis vaak kort op de ondieptes wanneer het oppervlak iets afkoelt.',
-      confidenceLevel: 'Matig',
-    };
-  }
-
   // Algemene / stabiele condities
   return {
-    recommendedZone: 'Aanlandige zone of diepere taluds',
-    rationale: `Bij een matige wind (${windDirText} ${avgWindSpeed} km/u) en een ${thermalTrend.toLowerCase()} zijn de omstandigheden evenwichtig. Vis kan zowel langs overgangszones aan de windkant foerageren als rusten bij diepere taluds. Voorkom vastpinnen op één enkele zone. (Zoekhypothese voor overgangsperiode).`,
+    recommendedZone: 'Lokale habitatstructuur of diepteovergang',
+    rationale: `Wind (${windDirText} ${avgWindSpeed} km/u) is relevant voor presentatie en lijncontrole, maar bewijst niet dat vis aan de windkant of in de luwte ligt. Gebruik geregistreerde lokale structuur of een ter plaatse vastgestelde diepteovergang als startpunt; zonder lokale gegevens wordt geen specifieke viszone aangewezen.`,
     alternativeOption:
-      'De luwe zijde van een eiland, rietkraag of brugpeiler waar natuurlijk voedsel neerslaat.',
+      'Vergelijk de aanlandige oever alleen als tweede zoekzone wanneer je ter plaatse bevestigt dat de wind daar daadwerkelijk op de oever staat en er bruikbare structuur of visactiviteit is.'
     confidenceLevel: 'Matig',
   };
 }
@@ -501,12 +481,12 @@ export function buildWindCastingGuidance(
   } else if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     isWindwardFavorable = false;
     windwardAssessment = `Geringe voorkeur. In het voorjaar warmen ondiepe, zonbeschenen oeverzones en beschutte baaien uit de wind sneller op dan een aanlandige oever met kille kabbel. Vis concentreert zich vaak in de opwarmende luwtes.`;
-  } else if ((season === 'Zomer' || season === 'Herfst') && avgWindSpeed >= 12 && !isColdWind) {
-    isWindwardFavorable = true;
-    windwardAssessment = `Gunstige zoekzone. Een aanhoudende bries (${avgWindSpeed} km/u) stuwt warm oppervlaktewater, zoöplankton, fytoplankton en zwevend natuurlijk voedsel naar de ${meta.oppositeFull.toLowerCase()}elijke oever. Troebeling en golfslag verminderen de argwaan van foeragerende vis. (Let bij diep water wel op mogelijke retourstroom nabij de bodem).`;
+  } else if (season === 'Zomer' || season === 'Herfst') {
+    isWindwardFavorable = false;
+    windwardAssessment = `Aanlandige wind (${avgWindSpeed} km/u) kan oppervlaktebeweging en drift richting de ${meta.oppositeFull.toLowerCase()}elijke oever veroorzaken. Dat is geen bewijs dat vis zich daar bevindt of dat voedselopname toeneemt. Gebruik deze oever hooguit als tweede vergelijkingszone wanneer lokale structuur of directe waarnemingen dat ondersteunen.`;
   } else if (season === 'Zomer' && isCalmWind && isWarmConditions) {
     isWindwardFavorable = false;
-    windwardAssessment = `Neutraal tot risicovol wegens windstilte. Bij warmte en weinig wind (${avgWindSpeed} km/u) stagneert het wateroppervlak. Zoek eerder zuurstofrijke overgangszones, diepere kuilen of schaduwrijke overkappingen.`;
+    windwardAssessment = `Bij warm water en weinig wind (${avgWindSpeed} km/u) is de zuurstofstatus niet bekend. Windstilte bewijst geen zuurstoftekort en rechtvaardigt geen advies over zuurstofrijke zones. Gebruik lokale structuur en diepte als uitgangspunt; beoordeel zuurstof alleen met een directe meting.`;
   } else {
     isWindwardFavorable = false;
     windwardAssessment = `Gematigd / neutraal. De windkant biedt lichte troebeling, maar bij stabiele milde condities foerageert vis evengoed langs diepere taluds of in luwe overgangszones.`;
@@ -535,14 +515,14 @@ export function buildWindCastingGuidance(
   }
 
   const scenarioGuidance = {
-    standingLeewardBank: `Sta je aan de luwe oever (wind in de rug)? Werp met de wind mee richting ${meta.oppositeFull.toLowerCase()} het open water op. Dit werpt stil en ver, waarbij natuurlijk aangedreven voedsel van je af het water in waait.${!isWindwardFavorable ? ' In de huidige omstandigheden (kou/voorjaarsluwte) is dit een verantwoorde keuze.' : ''}`,
-    standingWindwardBank: `Sta je aan de windkant (wind in je gezicht op de ${meta.oppositeFull.toLowerCase()}oever)? Vis kort op het oevertalud of werp schuin tegen de wind in. ${isWindwardFavorable ? 'De branding woelt hier bodemleven los waar actieve vis vlak onder de kant op afkomt.' : 'Wees voorzichtig: door koud water of afkoeling is deze oever momenteel kil en woelig; vis zoekt waarschijnlijk beschutting in diepte of luwte.'}`,
+    standingLeewardBank: `Sta je aan de luwe oever (wind in de rug)? De rugwind kan comfortabeler en nauwkeuriger werpen mogelijk maken. Werp naar de doelzone die op basis van lokale habitatkenmerken of waarnemingen is gekozen; de wind bepaalt die zone niet.`,
+    standingWindwardBank: `Sta je aan de windkant (wind in je gezicht op de ${meta.oppositeFull.toLowerCase()}oever)? Houd rekening met golfslag en lijnbocht en pas je werphoek daarop aan. Vis niet automatisch kort onder de kant: presenteer op de gekozen doelzone en test de oever alleen wanneer lokale structuur of visactiviteit dat ondersteunt.`,
   };
 
   const onSiteChecklist = [
     `Controleer de feitelijke kabbel en golfslag op het wateroppervlak (bomenrijen, rietkragen of dijken kunnen de ${meta.fullName.toLowerCase()}enwind lokaal afbuigen of breken).`,
     `Kijk waar schuimkragen of troebeling tegen de kant slaan (de actuele aanlandige oever aan de ${meta.oppositeFull.toLowerCase()}zijde) en waar het water spiegelglad blijft (de luwte aan de ${meta.fullName.toLowerCase()}zijde).`,
-    `Houd rekening met watertemperatuur en seizoen: bij koud water (<8 °C) is de luwte of een diepere kuil fysiologisch rustiger dan de koude windkant.`,
+    `Gebruik watertemperatuur en directe waarnemingen als context; leid uit windrichting alleen niet af waar vis zich ophoudt.`,
     `Peil het bodemverloop: zoek het eerste talud, een mosselbank of een dieper plateau binnen jouw comfortabele werpbereik.`,
   ];
 
