@@ -950,7 +950,14 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                                   Reactie: {advice.response === 'accepted' ? 'Opgevolgd' : advice.response === 'adapted' ? 'Aangepast' : advice.response === 'ignored' ? 'Niet gevolgd' : 'Niet vastgelegd'}
                                 </span>
                               </div>
-                              <p className="text-sm font-semibold text-white">{advice.recommendation}</p>
+                              {advice.advice || advice.tactics ? (
+                                <div className="space-y-2">
+                                  {advice.advice && <p className="text-sm text-white whitespace-pre-line"><span className="font-bold text-emerald-300">Advies: </span>{advice.advice}</p>}
+                                  {advice.tactics && <p className="text-sm text-white whitespace-pre-line"><span className="font-bold text-cyan-300">Tactiek: </span>{advice.tactics}</p>}
+                                </div>
+                              ) : (
+                                <p className="text-sm font-semibold text-white">{advice.recommendation}</p>
+                              )}
                               {advice.summary && <p className="text-xs text-slate-400">{advice.summary}</p>}
                               {advice.executedTactic ? (
                                 <p className="text-xs text-emerald-300">Uitgevoerd: {advice.executedTactic}</p>
