@@ -17,6 +17,7 @@ import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognos
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import { getSpeciesFeedingEvidenceContext } from '../../services/feedingEvidenceService';
+import { getSpeciesThermalEvidenceContextText } from '../../services/thermalEvidenceService';
 import {
   Calendar,
   Clock,
@@ -2026,6 +2027,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             <div className="mt-4 space-y-4 text-xs sm:text-sm">
               <p className="text-slate-300 leading-relaxed bg-slate-800/60 p-3.5 rounded-2xl border border-slate-700/40">
                 {currentProfile.description}
+              </p>
+
+              <p className="text-[11px] leading-relaxed text-sky-200/90 bg-sky-950/20 border border-sky-800/30 rounded-xl p-3">
+                {getSpeciesThermalEvidenceContextText(currentProfile.species)}
               </p>
 
               <p className="text-[11px] leading-relaxed text-amber-200/90 bg-amber-950/20 border border-amber-800/30 rounded-xl p-3">
