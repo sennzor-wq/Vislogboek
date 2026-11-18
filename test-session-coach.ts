@@ -167,7 +167,7 @@ async function run() {
   assert(first?.engineVersions?.waterThermal === '1.0.0' && first.engineVersions.prognosis === '1.0.0',
     'Coachadvies bewaart de volledige engineversiekaart van de gebruikte snapshot');
   assert(second?.id === first?.id && stored.length === 1, 'Herhaald opslaan maakt geen dubbele startadviezen');
-  assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0, 'Advies bevat een aanbeveling en herleidbare reden');
+  assert(!!first && first.recommendation.length > 0 && first.rationale.length > 0 && Boolean(first.advice?.includes('Wanneer')) && Boolean(first.tactics?.includes('Als het niet werkt')), 'Opgeslagen coachrecord bevat afzonderlijk advies, tactiek en een herleidbare reden');
 
   const feedbackSaved = first
     ? await updateCoachAdviceFeedback(first.id, { response: 'adapted', executedTactic: 'Hengelpunt verplaatst naar de diepere overgangszone' })
@@ -181,7 +181,8 @@ async function run() {
     'Daadwerkelijk uitgevoerde tactiek wordt afzonderlijk met tijdstip vastgelegd'
   );
   assert(
-    feedbackSaved?.prognosisSnapshotId === snapshot.id && feedbackSaved?.recommendation === first?.recommendation,
+    feedbackSaved?.prognosisSnapshotId === snapshot.id && feedbackSaved?.recommendation === first?.recommendation &&
+    feedbackSaved?.advice === first?.advice && feedbackSaved?.tactics === first?.tactics,
     'Feedback wijzigt de oorspronkelijke prognoseverwijzing en adviesinhoud niet'
   );
 
@@ -245,9 +246,20 @@ async function run() {
   } as any, { windSpeed: 24, windDirection: 225, windDirectionText: 'Zuidwest' } as any, 'Method feeder');
   const translatedText = [
     translatedAdvice.summary,
+    translatedAdvice.advice,
+    translatedAdvice.tactics,
     translatedAdvice.recommendation,
     translatedAdvice.rationale,
   ].join(' ').toLowerCase();
+  assert(
+    translatedAdvice.advice.includes('Wanneer') &&
+    translatedAdvice.advice.includes('Waar beginnen') &&
+    !translatedAdvice.recommendation.includes('Biologische context') &&
+    translatedAdvice.tactics.includes('Wind en werprichting') &&
+    translatedAdvice.tactics.includes('Voeren en aas') &&
+    translatedAdvice.tactics.includes('Als het niet werkt'),
+    'Advies en tactiek zijn afzonderlijk, samenhangend en zonder zelfstandig biologisch literatuurblok beschikbaar'
+  );
   assert(
     translatedText.includes('avond') &&
     translatedText.includes('rietkraag') &&
@@ -303,14 +315,36 @@ async function run() {
     ...baselinePrognosis,
     positioningAdvice: {
       recommendedZone: 'Algemene zoekzone',
-      windContext: { directionText: 'Noord', speedKmH: 5, isStrongWind: false, isColdWind: false },
+      windContext: { directionText: 'Noord', speedKmH: 5, isStrongWind: false, isCalmWind: true, isColdWind: false },
     },
   } as any);
   assert(
-    !calmAdvice.recommendation.includes('Wind en werprichting'),
+    !calmAdvice.tactics.includes('Wind en werprichting'),
     'Bij zwakke wind wordt geen onnodig wind- of werprichtingadvies getoond'
   );
 
+  const moderateWindAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    positioningAdvice: {
+      recommendedZone: 'Algemene zoekzone',
+      windContext: { directionText: 'Zuidwest', speedKmH: 15, isStrongWind: false, isCalmWind: false, isColdWind: false },
+    },
+    bankWindAnalysis: {
+      isConfigured: true,
+      windOriginDirection: 'Zuidwest',
+      windDestinationDirection: 'Noordoost',
+      windSpeedKmH: 15,
+      rodPlacementAdvice: { primaryPosition: 'Kies de oever met voldoende ruimte voor een veilige presentatie.', castingDirectionAdvice: 'Vis schuin langs de aanlandige oever.' },
+      bankAssessment: { explanation: 'De wind kan voedsel richting deze oever verplaatsen.' },
+      missingInformation: [],
+      fieldChecklist: [],
+    },
+  } as any);
+  assert(
+    moderateWindAdvice.tactics.includes('Wind en werprichting') &&
+    moderateWindAdvice.tactics.includes('De wind kan de oeverkeuze en werprichting beïnvloeden.'),
+    'Ook matige wind krijgt tactische aandacht wanneer de bestaande oeveranalyse is geconfigureerd'
+  );
   assert(
     changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
     'Kleine scorefluctuatie en gewijzigde toelichting veroorzaken geen nieuw praktisch advies'
