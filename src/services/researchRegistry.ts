@@ -694,7 +694,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     sourceReferences: [
       'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214. Author publication list: https://www.hbu.cas.cz/publikace/strana-7/?employeeId=651; bibliographic record: https://nas.er.usgs.gov/queries/references/ReferenceViewer.aspx?refnum=35171'
     ],
-    reviewedAt: '2026-11-16',
+    reviewedAt: '2026-11-18',
     approvedForPrediction: false,
   },
   {
