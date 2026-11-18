@@ -645,3 +645,8 @@ Gewenst gedrag: bij alleen een prognosewijziging mag een nieuw snapshot worden b
 Fase 2 biologische prognose blijft het hoofdspoor en is nog niet formeel geaccepteerd. Fase 3 blijft geblokkeerd. De eerstvolgende inhoudelijke fase-2-stap is de resterende meteorologische/hydrologische factorinventaris per soort afronden: neerslag, bewolking, opgeloste zuurstof en stroming, met strikte scheiding tussen fysiologische activiteit, voedselopname, habitat/beweging en vangbaarheid. Daarna de volledige factor-/bewijs-/datadekkingsmatrix sluiten en pas dan een kandidaatmodel plus chronologisch validatieprotocol ontwerpen. Geen numerieke factor of tijdvakbonus activeren zonder directe onderbouwing en onafhankelijke validatie.
 
 Alle bronnen in het research register blijven `approvedForPrediction: false` totdat de relevante bewijs- en validatiecriteria aantoonbaar zijn gehaald.
+
+
+## Correctie na wind-/doelzone-consistentiecontrole (18 november 2026)
+
+Na PR #124 bleek een oude implementatielaag nog aanlandige wind als primaire zoekzone te gebruiken en bij warme windstilte zuurstofrijke zones te suggereren zonder directe zuurstofmeting. De correctie is uitgewerkt in PR #128: primaire zone op basis van lokale habitat/waarnemingen; wind uitsluitend voor presentatie, werphoek, lijncontrole en hengelpositie; geen zuurstofconclusie zonder meting. De regressies dekken wind-only zonewijzigingen en behoud van tactische windinformatie. Geen prognoseberekeningen of biologische parameters gewijzigd.
