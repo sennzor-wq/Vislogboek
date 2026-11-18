@@ -1545,3 +1545,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Geavanceerde weergave bevat de onderzoekssectie per vissoort (gemeten voedselopname/voedingsritme en foerageergedrag), wetenschappelijke bronnen, uitgebreide prognose-uitleg, factoren, modelaannames en onzekerheidsdetails.
 - Alleen de presentatie verandert. Berekeningen, biologische scores, modelgewichten, prognosehistorie en onderzoeksgegevens veranderen niet.
 - Bij ontbrekende essentiële gegevens blijft in standaardweergave een korte waarschuwing zichtbaar; technische datakwaliteit en uitgebreide onzekerheidsuitleg blijven geavanceerd.
+
+
+### VisCoach — dynamische sessiecoaching geaudit (18 november 2026)
+
+- PR #125 squash-merged als `751852d2e68bbeb518efb971aa5e8a318136c1fe`; exacte PR-head Quality Gate run #44373580579 slaagde volledig, inclusief dependency-audits, typecheck, tests en productiebuild.
+- De bestaande herbeoordelingscoördinator hergebruikt forecast/prognose en actuele tijdvakcontext; sessiecontext, techniek, temperatuur, stek, vangsten en waarnemingen worden meegenomen. Forecast-kandidaten worden conservatief bevestigd; hervatten van de app geldt niet als tweede forecastbevestiging.
+- Open codepunten: techniek ontbreekt in `prognosisSignature()`; een gewijzigde prognosesignature maakt nu een adviesrecord zonder eerst de daadwerkelijke advies-/tactiekuitkomst te vergelijken; de signature dekt niet alle concrete presentatie- en voeruitkomsten.
+- Gewenste scheiding: snapshotwijziging is niet automatisch advieswijziging. Geen nieuw advies wanneer de praktische aanpak gelijk blijft; wel een nieuw herleidbaar advies wanneer de gebruiker daadwerkelijk iets anders kan doen.
+- De PWA kan niet doorlopend verwerken wanneer volledig gesloten; bij hervatten kan zij de actuele context opnieuw beoordelen.
+- Dit is audit/voorbereiding. Het centrale fase-2-biologiemodel blijft hoofdspoor; centrale fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
