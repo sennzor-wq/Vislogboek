@@ -517,3 +517,14 @@ Deze metadata verandert geen score, tijdvakrangschikking, Brier-uitkomst of biol
 Een hengel zonder geregistreerde actieve intervallen heeft onbekende inzet; de app mag dit niet als nul hengeluren presenteren. Alleen expliciet geregistreerde, parseerbare en positieve intervallen leveren uren op. Onvolledige intervallen worden uitgesloten en geteld. Intervallen buiten sessiegrenzen worden begrensd en afzonderlijk gemeld; ongeldige sessiegrenzen maken de aanwezige intervallen niet valideerbaar. Bij gedeeltelijke registratie is het totaal uitsluitend een geregistreerd subtotaal, geen volledige sessie-inzet.
 
 Deze kwaliteitsmetadata is beschrijvend. Zij activeert geen tijdvakscore, catch probability of biologische modelparameter en voegt geen verplichte gebruikershandeling toe.
+
+
+## 58. Tijdvakvalidatie: blootstelling en vangstlabels gescheiden houden
+
+Een toekomstige tijdvakdiagnose mag alleen expliciet geregistreerde hengelintervallen als blootstelling gebruiken en moet ontbrekende inzet als onbekend houden. Intervallen worden op absolute tijdstempels gesplitst naar de bestaande tijdvakken in `Europe/Amsterdam`; DST mag niet via vaste UTC-offsets worden benaderd. Bij gedeeltelijke registratie is het resultaat een geregistreerd subtotaal, geen volledige blootstelling.
+
+Vangsttijd-herkomst blijft essentieel: `automatic` is formulier-openmoment, `user_adjusted` is een gebruikersgerapporteerd tijdstip en oudere records zonder status blijven ongeclassificeerd. Geen van beide statussen is onafhankelijke verificatie. Een vangst in één tijdvak bewijst niet dat andere tijdvakken nulvangst hadden. Alleen expliciet bevestigde nulvangstsessies kunnen sessiebrede nuluitkomsten leveren, en alleen waar tijdvakblootstelling aantoonbaar is.
+
+Soortspecifieke hengeluren zijn met de huidige datastructuur alleen veilig te vergelijken voor sessies met één doelsoort; per-hengel doelsoorttoewijzing ontbreekt. Hengelgebeurtenissen worden niet naast CatchItem-vangsten opgeteld zolang er geen unieke koppeling bestaat. Groepsvangsten blijven één geregistreerd tijdstip voor het opgegeven aantal.
+
+Deze diagnose is beschrijvend en offline. Zij verandert geen Brier-score, vangstkans, tijdvakrangschikking of biologische parameter.

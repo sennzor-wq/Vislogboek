@@ -1471,3 +1471,14 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Onvolledige intervallen en intervallen buiten sessiegrenzen worden expliciet geteld; ongeldige sessiegrenzen maken bestaande intervallen niet valideerbaar.
 - Bij gedeeltelijke registratie toont de UI alleen het bruikbare geregistreerde subtotaal met waarschuwing, niet een misleidend volledig sessietotaal.
 - Regressietests uitgebreid. Geen prognose-, biologische of tijdvakscore gewijzigd; geen verplichte invoer toegevoegd.
+
+
+### Fase 2 — tijdvakdatakwaliteit en ontwerpgrenzen (18 november 2026)
+
+- Huidige persoonlijke tijdvakervaring groepeert volledige sessies op starttijd; het is geen tijdvakvangstkans.
+- Hengelintervallen kunnen geregistreerde hengeluren opleveren, maar ontbreken/partiële invoer blijven onbekend of onvolledig.
+- Automatische vangsttijd is het moment waarop het formulier opent; aangepaste tijd is gebruikersrapportage. Geen van beide is onafhankelijk geverifieerd.
+- Hengelgebeurtenissen zijn niet gekoppeld aan vangstrecords en mogen niet dubbel worden geteld.
+- Meersoortige sessies hebben geen doelsoorttoewijzing per hengel; soortspecifieke inspanningsanalyse wordt daarom voorlopig beperkt tot sessies met één doelsoort.
+- Een vangst in één tijdvak rechtvaardigt geen nulvangstlabel in andere tijdvakken. Alleen expliciet bevestigde nulvangstsessies kunnen sessiebreed nul leveren, naast bekende blootstelling.
+- Volgende stap: beschrijvende offline tijdvakblootstellingsdiagnose, zonder prognosefeedback of extra verplichte invoer.
