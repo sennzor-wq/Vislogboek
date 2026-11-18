@@ -1143,10 +1143,12 @@ De huidige implementatie is pas geschikt als volwaardige validatiepoort wanneer 
 
 - De formule, binaire uitkomstdefinitie, actuele-modelversie-isolatie en chronologische naive baseline vormen een correcte basis.
 - De huidige persoonlijke Poisson-kans blijft een beperkte historische baseline en is nog niet de uiteindelijke geïntegreerde biologische vangstprognose.
-- De expliciete controle op overeenkomst tussen geplande en werkelijk bevistijd/-duur is nog een open validatiepunt; de huidige evaluatie mag dit niet stilzwijgend als opgelost presenteren.
-- Eerstvolgende technische actie: audit van de snapshot- en sessievelden voor geplande duur, werkelijke duur, start/eindtijd en tijdvak; daarna een regressietestmatrix voor gelijke duur, kortere/l langere sessie, verschoven tijdvak, onvolledige sessie en onbekende uitkomst. Implementeer alleen een uitsluitings-/herleidingsregel die door die gegevens en tests wordt gedragen.
-- Daarna per-soort rapportage en kalibratie beoordelen op basis van beschikbare aantallen. Geen arbitraire minimumsteekproef of tolerantie toevoegen zonder onderbouwing.
-- **Fase 2-acceptatie blijft geblokkeerd** totdat de duur-/tijdvakvergelijkbaarheid, chronologische integriteit, modelversie-isolatie en soortspecifieke diagnostiek aantoonbaar zijn getest. Fase 3 start niet eerder.
+- De duurvergelijkbaarheid is geïmplementeerd: de werkelijke sessieduur moet op minuutprecisie overeenkomen met de vooraf vastgelegde duur; afwijkingen en onbekende duur worden afzonderlijk geteld en uitgesloten.
+- De aanvullende tijdvenstercontrole is in PR-werk voorbereid: bij exacte targetWindowStart/targetWindowEnd worden werkelijke start/eindtijd op minuutprecisie vergeleken; oudere snapshots vallen terug op het vooraf gekozen targetSlot. Zonder beide vormen van tijdcontext wordt de waarneming als tijdvenster-onbekend uitgesloten. Er wordt geen willekeurige tolerantie of achteraf omgerekende kans gebruikt.
+- De VisCoach-snapshotroute gaf de geplande tijdvensterwaarden nog niet door aan de persistente sessiesnapshot; dit wordt in dezelfde wijziging hersteld.
+- De regressietests dekken gelijke duur, afwijkende duur, onbekende duur, verschoven tijdvenster bij gelijke duur en fallback op het gekozen tijdvak. De Quality Gate moet deze wijziging nog bevestigen.
+- Daarna blijft de beoordeling van lokale kalibratie afhankelijk van voldoende echte, vergelijkbare sessies. Geen arbitraire minimumsteekproef of tolerantie toevoegen.
+- **Fase 2-acceptatie blijft geblokkeerd** totdat de Quality Gate groen is, de overige criteria zijn afgevinkt en de resterende wetenschappelijke beperkingen expliciet zijn geaccepteerd. Fase 3 start niet eerder.
 
 
 ## 59. Onafhankelijk evaluatiekader voor de volledige prognose (17 november 2026)
@@ -1222,8 +1224,8 @@ Deze audit beschrijft wat de huidige types en evaluatie-engine daadwerkelijk vas
 
 ### Wat nog niet valideerbaar is met de huidige registratie
 
-1. **Brier op vergelijkbare sessieduur:** de huidige evaluator controleert start/eindtijd, maar sluit een mismatch tussen voorspelde duur/tijdvenster en werkelijk bevistijd nog niet uit. Dit blijft de eerste technische prioriteit uit §58.
-2. **Brier per doelsoort:** de rolling baseline is intern soortspecifiek, maar EvaluationResult rapporteert de primaire Brier-score en kalibratie momenteel geaggregeerd. Een soortspecifieke diagnostische uitsplitsing ontbreekt nog.
+1. **Brier op vergelijkbare sessieduur en tijdvenster:** duur- en tijdvenstermismatches worden uitgesloten; onbekende tijdcontext wordt apart geteld. Exacte vensters worden op minuutprecisie vergeleken; oudere snapshots gebruiken targetSlot als fallback. Nieuwe VisCoach-sessies bewaren de geplande start/eindtijd nadat de snapshot-persistentieregel is hersteld.
+2. **Brier per doelsoort:** EvaluationResult rapporteert inmiddels aantallen, Brier-score, gemiddelde voorspelde kans, waargenomen vangstfrequentie en kalibratiebins per doelsoort. De uitsplitsing blijft beschrijvend en is bij kleine aantallen geen statistisch bewijs.
 3. **Tijdvakrangschikking:** de dagprognose bewaart activiteitspotentie per tijdvak, maar niet een afzonderlijke, vooraf vastgelegde vangstkans per tijdvak. Een sessie-uitkomst kan bovendien meerdere tijdvakken omvatten. De huidige gegevens rechtvaardigen dus geen claim dat de app al weet welk tijdvak de hoogste vangstkans had.
 4. **Werkelijke inspanning per tijdvak:** FishingSession bewaart sessiestart/-einde en geplande duur. Optionele SessionRod.activeIntervals kunnen hengelinzet per tijdvak verfijnen, maar zijn niet gegarandeerd aanwezig. Zonder passende inspanningsregistratie zijn vangstaantallen tussen tijdvakken niet eerlijk vergelijkbaar.
 5. **Vangsttijdstip:** CatchItem.timestamp en optionele hengelgebeurtenissen kunnen tijdinformatie bevatten. Hun volledigheid en bronbetrouwbaarheid moeten eerst worden geaudit; vangsttijd alleen levert geen nulvangst- of blootstellingslabel voor elk ander tijdvak.
@@ -1786,3 +1788,28 @@ Naast de bron-/parameterinventaris in §48 is de actuele codeketen gecontroleerd
 4. De lokale statistische kalibratie blijft geblokkeerd door de clean start totdat voldoende echte, vergelijkbare sessies beschikbaar zijn. Kleine softwareminimums mogen die blokkade niet opheffen.
 
 **Conclusie:** de actieve numerieke omzettingen zijn nu expliciet onderscheiden in biologische prior, empirische persoonlijke baseline en technische presentatieregel. Geen numerieke parameter, score, plafond of drempel gewijzigd. Fase 2 blijft open.
+
+## 85. Formele Fase-2-acceptatiecontrole — eerste technische crosswalk (18 november 2026)
+
+Deze controle koppelt de zes formele criteria uit §43 aan de huidige code, tests en bewijsstatus. 'Technisch gerealiseerd' betekent niet automatisch wetenschappelijk gevalideerd of lokaal gekalibreerd.
+
+| Criterium | Technische status | Bewijs-/praktijkstatus | Open punt |
+|---|---|---|---|
+| 1. Gescheiden biologische responsen | **Grotendeels gerealiseerd**: thermische activiteit, voedings-/foerageercontext, habitat/beweging, persoonlijke vangstbaseline en onzekerheid zijn aparte lagen/services. | De onderlinge begrenzing is expliciet gedocumenteerd en deels door regressies bewaakt. | Controleer nog de volledige UI-/engineketen op ongewenste vermenging; geen onafhankelijke validatie voor alle tussenlagen. |
+| 2. Bronkwaliteit en overdraagbaarheid | **Register en bronclassificatie gerealiseerd; numerieke goedkeuring niet**. | 71 records voor negen soorten; populatie-, respons- en contextbeperkingen zijn vastgelegd. Alle 71 records blijven approvedForPrediction: false. | De actieve thermische soortcurves zijn voorlopige priors en niet onafhankelijk gefit aan Nederlandse velddata. Hun rol moet expliciet als beperkte mechanistische prior worden geaccepteerd of verder worden teruggebracht; geen nieuwe voedings-/habitatfactor activeren. |
+| 3. Water- en omgevingsdata | **Technisch gerealiseerd** voor herkomst, meettijd, bron/methode/diepte waar beschikbaar, onzekerheid en onbekende watertemperatuur. | Waterthermische foutmaten en chronologische lokale biascorrectie zijn afzonderlijk ingericht. | Lokale kalibratie wacht op voldoende nieuwe meetparen; lucht- en weersdata vervangen geen ontbrekende watermeting. |
+| 4. Tijdvak- en gedragslogica | **Grotendeels gerealiseerd**: gekozen sessiestart stuurt de tijdgevoelige VisCoach-context; meerdere tijdvakken worden niet als één bewezen universele beste periode behandeld. | Tijdvakclaims blijven beperkt tot soortspecifiek passend bewijs; geen kunstmatige winnaar of ongefundeerde bonus. | Controleer de volledige UI-/enginepaden en de tijdvenstervergelijkbaarheid in Brier na de nieuwe regressies. |
+| 5. Lokale leer- en evaluatieketen | **Technisch grotendeels gerealiseerd; laatste tijdvenstercontrole in deze PR**. | Snapshots, koppeling, chronologische baseline, modelversie-isolatie, benchmarkuitsluiting en soortdiagnostiek bestaan. | De PR moet groen worden. Lokale Brier-validatie en kalibratie wachten op voldoende echte, vergelijkbare sessies na clean start. |
+| 6. Gebruiksvriendelijkheid en VisCoach | **Technisch gerealiseerd in de huidige invoerflow**: doelsoort, stek en gewenste starttijd; eindtijd optioneel; geen verplichte levensfase- of uitgebreid voedingsformulier. | De visser behoudt de keuze; de app gebruikt alleen aanwezige context. | Geen extra invoervelden toevoegen tenzij aantoonbaar noodzakelijk en gebruiksvriendelijk. |
+
+### Brier-tijdvenstercontrole — implementatie in deze PR
+
+- Exacte targetWindowStart en optionele targetWindowEnd worden op minuutprecisie vergeleken met de werkelijke sessiestart/eindtijd. Er is geen arbitraire tolerantie en geen achteraf omgerekende kans.
+- Als een exact venster ontbreekt, wordt het opgeslagen gekozen targetSlot gebruikt om het werkelijke Amsterdamse starttijdvak te toetsen.
+- Als zowel exact venster als gekozen tijdvak ontbreken, wordt de waarneming als tijdvenster-onbekend uitgesloten en apart geteld.
+- De VisCoach-route geeft nu de geplande vensterwaarden door bij het atomair opslaan van de sessie en snapshot.
+- Regressies testen gelijke duur met verschoven venster, afwijkende/ontbrekende duur en de fallback op het gekozen tijdvak. Quality Gate-resultaat volgt na PR-creatie.
+
+### Voorlopige acceptatie-uitkomst
+
+Criteria 1, 3 en 6 zijn technisch grotendeels gerealiseerd; criterium 4 is grotendeels gerealiseerd; criterium 5 is afhankelijk van de Quality Gate voor de laatste tijdvensterwijziging. Criterium 2 blijft inhoudelijk begrensd door de voorlopige thermische priors en het ontbreken van goedgekeurde numerieke biologische bronnen. De formele Fase 2 is **niet geaccepteerd**. Lokale praktijkvalidatie hoeft niet vooraf volledig beschikbaar te zijn om de softwarefase af te ronden, maar claims van lokale nauwkeurigheid blijven geblokkeerd. Fase 3 start niet voordat de resterende technische en ontwerpbesluiten expliciet zijn afgerond.
