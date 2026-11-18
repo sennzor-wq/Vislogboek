@@ -515,9 +515,11 @@ export async function persistCoachReassessment(
       location.id,
       location.name,
       session.technique,
-      prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid'
-        ? undefined
-        : prognosis.bestTimeSlot,
+      inputContext.targetTimeSlot ?? (
+        prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid'
+          ? undefined
+          : prognosis.bestTimeSlot
+      ),
       session.weatherSnapshot,
       {
         runKind: 'session_update',
@@ -587,6 +589,7 @@ export async function reassessActiveSessions(
       }
 
       const now = new Date();
+      const targetTimeSlot = resolveSelectedTimeSlot(now, null);
       const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
       const species = session.targetSpecies?.[0] ?? 'Algemeen';
       const durationHours = getSessionDurationHours(session);
@@ -607,6 +610,7 @@ export async function reassessActiveSessions(
         {
           sessionDurationHours: durationHours ?? undefined,
           allowUnknownSessionDuration: true,
+          targetTimeSlot,
           locationId: location.id,
           location,
           catches,
@@ -624,6 +628,7 @@ export async function reassessActiveSessions(
         locationId: location.id,
         durationHours,
         startTime: session.startTime,
+        targetTimeSlot: targetTimeSlot ?? null,
         technique: session.technique ?? null,
         waterTemperature: session.waterTemperature ?? null,
         locationContext: [location.waterType, location.waterDepth, location.waterFacingDirection, location.habitatFeatures],
@@ -709,6 +714,7 @@ export async function reassessActiveSessions(
         calculatedAt: now.toISOString(),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
         targetDate: date,
+        targetTimeSlot: targetTimeSlot ?? null,
         targetSpecies: species,
         sessionDurationHours: durationHours,
         technique: session.technique ?? null,

@@ -242,6 +242,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   );
   const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, input.location.id, date);
   const now = new Date();
+  const tacticalStartSlot = resolveSelectedTimeSlot(start, null);
   const prognosis = calculateDayPrognosis(
     date,
     weather.hourly,
@@ -253,6 +254,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     {
       sessionDurationHours: durationHours ?? undefined,
       allowUnknownSessionDuration: true,
+      targetTimeSlot: tacticalStartSlot,
       locationId: input.location.id,
       location: input.location,
       catches: input.catches,
@@ -292,6 +294,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     calculatedAt: new Date().toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
     targetDate: date,
+    targetTimeSlot: tacticalStartSlot ?? null,
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
     technique: null,
@@ -338,7 +341,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     durationHours: durationHours ?? 0,
     durationKnown: durationHours !== null,
     locationName: input.location.name,
-    chosenSlot: selectedTimeSlot,
+    chosenSlot: tacticalStartSlot,
     targetWindowStart: start.toISOString(),
     targetWindowEnd: end?.toISOString() ?? null,
     conditions,

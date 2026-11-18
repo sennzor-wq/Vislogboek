@@ -1349,3 +1349,16 @@ De huidige test-session-coach.ts controleert onder meer tijdvaktekst, sterke win
 6. Voeg regressietests toe voor de genoemde gaten en controleer de volledige gebruikersflow.
 
 **Fasestatus:** dit is een parallelle, read-only VisCoach-audit en voorbereiding. Het verandert de hoofdvolgorde van VISLOGBOEK_VERBETERPLAN.md niet: fase 2 blijft het hoofdspoor, fase 3 start pas na formele fase-2-acceptatie. Er is geen nieuwe prognose-, biologische of tactiekengine gestart.
+
+## Implementatie-update — gekozen starttijd stuurt tactische deel-engines
+
+De eerste technische correctie uit de implementatie-audit is uitgewerkt in de geselecteerde-starttijdwijziging:
+
+- De vooraf gemaakte VisCoach-prognose geeft het tijdvak van de gekozen starttijd door aan de bestaande positionerings-, habitat-, oeverwind- en voorvoerberekeningen. Bij een sessie die meerdere tijdvakken beslaat, blijft de starttijd het tactische uitgangspunt; tijdens de sessie kan de coach opnieuw beoordelen.
+- Bij start van een live sessie en bij sessieherbeoordeling wordt het actuele lokale tijdvak gebruikt.
+- Windrichting, windsnelheid, bewolking en druktrend voor de tactische deelanalyse worden waar mogelijk uit het gekozen tijdvak gehaald, in plaats van uit een daggemiddelde.
+- Het gebruikte tijdvak wordt als optionele invoer in de prognosesnapshot bewaard, zodat de tactische context reproduceerbaar blijft. Ook het sessiesnapshot legt het gekozen/actuele tijdvak vast.
+- De dagbrede thermische activiteitsscore, de algemene beste-tijdvakuitkomst en de algemene Prognose-tab veranderen niet. Zonder expliciet coach-tijdvak blijft het bestaande gedrag behouden.
+- Regressietests controleren dat een avondwind van 18 km/u voor de coachanalyse wordt gebruikt in plaats van het daggemiddelde van 8 km/u, terwijl de dagbrede beste-tijdvakuitkomst gelijk blijft. Een sessieherbeoordeling bewaart daarnaast het actuele tijdvak in de snapshot.
+
+Deze wijziging voegt geen biologische windbonus, activiteitsscore of nieuwe tactiekengine toe. Zij zorgt ervoor dat bestaande tactische engines de juiste tijdscontext ontvangen.

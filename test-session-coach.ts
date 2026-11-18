@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine';
 import {
   changedSignatureFactors,
   buildVisCoachAdviceText,
@@ -471,7 +471,7 @@ async function run() {
     location,
     durationHours: null,
     weatherInput: [{ time: '2026-11-05T12:00', temperature: 10, pressure: 1015, windSpeed: 8, windDirection: 225, precipitation: 0, precipitationProbability: 0, cloudCover: 40, weatherCode: 1 }] as any,
-    inputContext: {} as any,
+    inputContext: { targetTimeSlot: 'Avond' } as any,
     previousSnapshot: snapshot,
     previousAdvice: first ?? undefined,
     trigger: 'manual_reanalysis' as const,
@@ -487,7 +487,8 @@ async function run() {
     );
     assert(
       persisted.snapshot.inputFingerprint === updateInput.inputFingerprint &&
-      persisted.snapshot.supersedesSnapshotId === snapshot.id,
+      persisted.snapshot.supersedesSnapshotId === snapshot.id &&
+      persisted.snapshot.inputContext?.targetTimeSlot === 'Avond',
       'Tussentijdse snapshot bewaart invoerfingerprint en voorganger'
     );
   }
@@ -570,6 +571,73 @@ async function run() {
       newerUnadvisedSnapshot
     )?.id === snapshot.id,
     'Vergelijkingsbasis blijft het snapshot van het laatst getoonde advies, niet een nieuwere onbeoordeelde snapshot'
+  );
+
+  const slotForecasts = Array.from({ length: 24 }, (_, hour) => ({
+    time: `2026-07-20T${String(hour).padStart(2, '0')}:00:00`,
+    temperature: 20,
+    relativeHumidity: 70,
+    dewPoint: 14,
+    shortwaveRadiation: hour >= 6 && hour < 18 ? 150 : 0,
+    pressure: 1013,
+    windSpeed: hour < 6 ? 2 : hour < 12 ? 4 : hour < 18 ? 8 : 18,
+    windDirection: 180,
+    windDirectionText: 'Zuid',
+    precipitation: 0,
+    precipitationProbability: 0,
+    cloudCover: 40,
+    weatherCode: 1,
+  }));
+  const slotLocation = {
+    id: 'coach-slot-location',
+    name: 'Tijdvaktestwater',
+    latitude: 51.9,
+    longitude: 5.2,
+    waterType: 'Plas/Zandafgraving',
+    waterDepth: 2,
+    waterFacingDirection: 'Noord',
+    habitatFeatures: ['open_water', 'talud'],
+  } as any;
+  const slotNow = new Date('2026-07-20T00:00:00+02:00');
+  const slotBaseOptions = {
+    sessionDurationHours: 4,
+    allowUnknownSessionDuration: true,
+    locationId: slotLocation.id,
+    location: slotLocation,
+    catches: [],
+    prebaitOptions: { availableDaysBefore: 2, planningDate: '2026-07-20' },
+  };
+  const dayWidePrognosis = calculateDayPrognosis(
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow, slotBaseOptions
+  );
+  const selectedEveningPrognosis = calculateDayPrognosis(
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow,
+    { ...slotBaseOptions, targetTimeSlot: 'Avond' }
+  );
+  assert(
+    dayWidePrognosis.bestTimeSlot === selectedEveningPrognosis.bestTimeSlot,
+    'Het gekozen VisCoach-starttijdvak verandert de dagbrede beste-tijdvakprognose niet'
+  );
+  assert(
+    dayWidePrognosis.bankWindAnalysis?.windSpeedKmH === 8 &&
+    selectedEveningPrognosis.bankWindAnalysis?.windSpeedKmH === 18,
+    'De VisCoach-oeverwindanalyse gebruikt het gekozen tijdvak in plaats van het daggemiddelde'
+  );
+  assert(
+    selectedEveningPrognosis.positioningAdvice?.windContext.speedKmH === 18,
+    'De hengelpositionering gebruikt de wind van het gekozen starttijdvak'
+  );
+  const partialEveningForecasts = slotForecasts.filter((forecast) => Number(forecast.time.slice(11, 13)) >= 20);
+  const partialEveningPrognosis = calculateDayPrognosis(
+    '2026-07-20', partialEveningForecasts, 'Karper', [], '2026-07-20T20:00:00.000Z', 20,
+    new Date('2026-07-20T20:00:00+02:00'),
+    { ...slotBaseOptions, targetTimeSlot: 'Avond' }
+  );
+  assert(
+    partialEveningPrognosis.positioningAdvice?.missingInformation.includes(
+      'De tactische weersanalyse gebruikt alleen de resterende beschikbare uren van het gekozen tijdvak; een volledig tijdvakgemiddelde is niet beschikbaar.'
+    ) ?? false,
+    'Een onvolledig resterend tijdvak wordt expliciet als beperkte tactische weersdekking gemeld'
   );
 
   await db.delete();

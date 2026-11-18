@@ -161,6 +161,14 @@ export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number; ran
   Avond: { start: 18, end: 24, rangeLabel: '18:00 – 24:00' },
 };
 
+/** Bepaalt het lokale tijdvak voor een actueel sessiemoment; geen prognosevoorkeur. */
+function getTimeSlotAtAmsterdamDate(date: Date): TimeSlot | undefined {
+  const hour = getAmsterdamHour(date);
+  if (hour === null) return undefined;
+  return (Object.entries(TIME_SLOT_HOURS) as Array<[TimeSlot, { start: number; end: number; rangeLabel: string }]>)
+    .find(([, range]) => hour >= range.start && hour < range.end)?.[0];
+}
+
 function getSeason(month: number): 'winter' | 'lente' | 'zomer' | 'herfst' {
   if (month === 12 || month === 1 || month === 2) return 'winter';
   if (month >= 3 && month <= 5) return 'lente';
@@ -646,6 +654,8 @@ export interface PrognosisOptions {
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
   allowUnknownSessionDuration?: boolean;
+  /** Gekozen starttijdvak voor tijdgevoelige coach-tactiek; verandert de dagbrede beste-tijdvakscore niet. */
+  targetTimeSlot?: TimeSlot;
 }
 
 /**
@@ -1000,6 +1010,25 @@ export function calculateDayPrognosis(
     summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
   }
 
+  // De coach kan een expliciet starttijdvak meegeven. De algemene dagprognose
+  // behoudt haar dagbrede context en beste tijdvak; alleen tijdgevoelige tactiek
+  // gebruikt dan de gekozen startperiode.
+  const defaultTacticalSlot = bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid'
+    ? bestSlot as TimeSlot
+    : undefined;
+  const explicitTargetTimeSlot = options?.targetTimeSlot;
+  const tacticalTargetSlot = explicitTargetTimeSlot ?? defaultTacticalSlot;
+  const tacticalForecasts = explicitTargetTimeSlot
+    ? dayForecasts.filter((forecast) => {
+        const hour = parseInt(forecast.time.slice(11, 13), 10);
+        const range = TIME_SLOT_HOURS[explicitTargetTimeSlot];
+        return hour >= range.start && hour < range.end;
+      })
+    : dayForecasts;
+  const tacticalForecastCoverageNote = explicitTargetTimeSlot && tacticalForecasts.length > 0 && tacticalForecasts.length < 6
+    ? 'De tactische weersanalyse gebruikt alleen de resterende beschikbare uren van het gekozen tijdvak; een volledig tijdvakgemiddelde is niet beschikbaar.'
+    : undefined;
+
   // Onzekerheden
   if (!thermalAnalysis.hasMeasuredWaterTemp || thermalAnalysis.measuredWaterTemp === null) {
     if (thermalAnalysis.estimatedWaterTemp !== null) {
@@ -1013,7 +1042,10 @@ export function calculateDayPrognosis(
     }
   }
   const midDaySample = dayForecasts[Math.floor(dayForecasts.length / 2)];
-  const presTrend = findPressureTrend(midDaySample?.time || `${dateStr}T12:00`, forecasts);
+  const tacticalReferenceSample = explicitTargetTimeSlot && tacticalForecasts.length > 0
+    ? tacticalForecasts[Math.floor(tacticalForecasts.length / 2)]
+    : midDaySample;
+  const presTrend = findPressureTrend(tacticalReferenceSample?.time || `${dateStr}T12:00`, forecasts);
   if (!presTrend.known) {
     uncertaintyNotes.push('Luchtdruktrend over de voorafgaande 12-24 uur is niet beschikbaar in de weerdataset.');
   }
@@ -1057,21 +1089,24 @@ export function calculateDayPrognosis(
     thermalAnalysis,
     historicalSessions,
     historicalCatches: options?.catches ?? [],
-    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : undefined,
+    targetSlot: tacticalTargetSlot,
   });
 
-  // Dagwaarden voor de tactische deelmodules; ontbrekende waarden blijven onbekend.
-  const validWindForecasts = dayForecasts.filter(h =>
+  if (tacticalForecastCoverageNote) positioningAdvice.missingInformation.push(tacticalForecastCoverageNote);
+
+  // Tactische weerwaarden: bij de VisCoach het gekozen starttijdvak, anders de bestaande daggemiddelden.
+  const validWindForecasts = tacticalForecasts.filter(h =>
     Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200 &&
     Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection < 360
   );
-  const hasDayWindData = validWindForecasts.length >= 6;
-  const avgWindSpeed = hasDayWindData
+  const requiredWindSamples = explicitTargetTimeSlot ? Math.min(6, tacticalForecasts.length) : 6;
+  const hasWindDataForTacticalWindow = tacticalForecasts.length > 0 && validWindForecasts.length >= requiredWindSamples;
+  const avgWindSpeed = hasWindDataForTacticalWindow
     ? Math.round((validWindForecasts.reduce((sum, h) => sum + h.windSpeed, 0) / validWindForecasts.length) * 10) / 10
     : null;
 
   let avgWindDeg: number | undefined;
-  if (hasDayWindData) {
+  if (hasWindDataForTacticalWindow) {
     const sinMean = validWindForecasts.reduce((sum, h) => sum + Math.sin(h.windDirection * Math.PI / 180), 0) / validWindForecasts.length;
     const cosMean = validWindForecasts.reduce((sum, h) => sum + Math.cos(h.windDirection * Math.PI / 180), 0) / validWindForecasts.length;
     if (Math.hypot(sinMean, cosMean) > 1e-6) {
@@ -1080,7 +1115,7 @@ export function calculateDayPrognosis(
   }
   const compassPoints = ['N', 'NO', 'O', 'ZO', 'Z', 'ZW', 'W', 'NW'];
   const windDirText = avgWindDeg === undefined
-    ? (hasDayWindData ? 'Wisselend' : 'Onbekend')
+    ? (hasWindDataForTacticalWindow ? 'Wisselend' : 'Onbekend')
     : compassPoints[Math.round(avgWindDeg / 45) % 8];
 
   const effectiveWaterTempForModules =
@@ -1090,9 +1125,10 @@ export function calculateDayPrognosis(
         ? thermalAnalysis.estimatedWaterTemp
         : null;
   const hasThermalDataForModules = effectiveWaterTempForModules !== null;
-  const validCloudForecasts = dayForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
-  const hasDayCloudData = validCloudForecasts.length >= 6;
-  const avgCloudCover = hasDayCloudData
+  const validCloudForecasts = tacticalForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
+  const requiredCloudSamples = explicitTargetTimeSlot ? Math.min(6, tacticalForecasts.length) : 6;
+  const hasCloudDataForTacticalWindow = tacticalForecasts.length > 0 && validCloudForecasts.length >= requiredCloudSamples;
+  const avgCloudCover = hasCloudDataForTacticalWindow
     ? validCloudForecasts.reduce((sum, h) => sum + h.cloudCover, 0) / validCloudForecasts.length
     : undefined;
   const seasonNL = date.getMonth() === 11 || date.getMonth() <= 1 ? 'Winter' : date.getMonth() >= 2 && date.getMonth() <= 4 ? 'Voorjaar' : date.getMonth() >= 5 && date.getMonth() <= 7 ? 'Zomer' : 'Herfst';
@@ -1103,7 +1139,7 @@ export function calculateDayPrognosis(
 
   // Module 2: wind ten opzichte van de oever. Zonder bekende thermische basis,
   // geldige windrichting of geregistreerd watertype wordt geen oeverrelatie verzonnen.
-  const bankWindAnalysis = hasDayWindData && avgWindDeg !== undefined &&
+  const bankWindAnalysis = hasWindDataForTacticalWindow && avgWindDeg !== undefined &&
     hasThermalDataForModules && Boolean(location?.waterType) && avgWindSpeed !== null
     ? analyzeBankWind(location, avgWindDeg, avgWindSpeed, {
         effectiveWaterTemp: effectiveWaterTempForModules!,
@@ -1129,23 +1165,31 @@ export function calculateDayPrognosis(
     location,
     bankWind: bankWindAnalysis,
     thermalAnalysis,
-    targetSlot: bestSlot !== 'Geen toekomstig tijdvak meer vandaag' ? (bestSlot as TimeSlot) : undefined,
+    targetSlot: tacticalTargetSlot,
     observations: options?.observations,
     sessionObservations: presenceObs !== 'onbekend' ? [presenceObs] : [],
     historicalSessions,
     avgWindSpeedKmH: avgWindSpeed ?? undefined,
-    windDirText: hasDayWindData ? windDirText : undefined,
+    windDirText: hasWindDataForTacticalWindow ? windDirText : undefined,
     pressureTrend: presTrendType,
     cloudCoverPercent: avgCloudCover,
   });
 
+  if (tacticalForecastCoverageNote) habitatAnalysis.missingInformation.push(tacticalForecastCoverageNote);
+
   // Ontbrekende context verlaagt de zekerheid, maar overschrijft geen directe
   // gebruikerswaarnemingen of de voorzichtige lokale zoekhypothese uit de engines.
-  if (!hasDayWindData || !hasThermalDataForModules || !hasDayCloudData || !presTrend.known || !location?.waterType) {
+  if (!hasWindDataForTacticalWindow || !hasThermalDataForModules || !hasCloudDataForTacticalWindow || !presTrend.known || !location?.waterType) {
+    const windMissingMessage = explicitTargetTimeSlot
+      ? 'Windgegevens voor het gekozen starttijdvak ontbreken of hebben onvoldoende geldige uurmetingen.'
+      : 'Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen.';
+    const cloudMissingMessage = explicitTargetTimeSlot
+      ? 'Bewolkingsgegevens voor het gekozen starttijdvak ontbreken of hebben onvoldoende geldige uurmetingen.'
+      : 'Bewolkingsgegevens ontbreken; licht-/zoncontext is onbekend.';
     const limitations = [
-      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen.'] : []),
+      ...(!hasWindDataForTacticalWindow ? [windMissingMessage] : []),
       ...(!hasThermalDataForModules ? ['Geen gemeten of verantwoord geschatte watertemperatuur; thermische duiding blijft onbekend.'] : []),
-      ...(!hasDayCloudData ? ['Bewolkingsgegevens ontbreken; licht-/zoncontext is onbekend.'] : []),
+      ...(!hasCloudDataForTacticalWindow ? [cloudMissingMessage] : []),
       ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
       ...(!location?.waterType ? ['Watertype onbekend; stromend of stilstaand water wordt niet aangenomen.'] : []),
     ];
@@ -1172,7 +1216,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : 'Ochtend',
+         tacticalTargetSlot ?? 'Ochtend',
         options?.catches ?? []
       ) ?? undefined
     : undefined;
@@ -1426,7 +1470,9 @@ export async function createLiveSnapshotForSessionStart(
       db.prognosisSnapshots.toArray(),
       db.locations.toArray(),
     ]);
-    const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+    const now = new Date();
+    const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
+    const targetTimeSlot = getTimeSlotAtAmsterdamDate(now);
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       allSessions,
@@ -1434,11 +1480,12 @@ export async function createLiveSnapshotForSessionStart(
       allLocations
     );
     const historyFeatures = createPrognosisHistoryFeatureSnapshot(allSessions, allCatches);
-    const forecastTimestamp = new Date().toISOString();
+    const forecastTimestamp = now.toISOString();
     const inputContext: PrognosisInputContext = {
       calculatedAt: forecastTimestamp,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: todayStr,
+      targetTimeSlot: targetTimeSlot ?? null,
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
@@ -1475,9 +1522,10 @@ export async function createLiveSnapshotForSessionStart(
       allSessions,
       weather.fetchedAt,
       userWaterTemp ?? null,
-      new Date(),
+      now,
       {
         sessionDurationHours: durationHours,
+        targetTimeSlot,
         allowUnknownSessionDuration: true,
         locationId: location.id,
         location,
@@ -1487,10 +1535,11 @@ export async function createLiveSnapshotForSessionStart(
       }
     );
 
-    const chosenSlot =
+    const chosenSlot = targetTimeSlot ?? (
       prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
-        : undefined;
+        : undefined
+    );
 
     // Nog niets naar IndexedDB schrijven: de sessie en deze snapshot worden samen
     // door saveSessionWithPrognosisSnapshot in één transactie opgeslagen.
