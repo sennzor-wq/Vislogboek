@@ -1828,3 +1828,10 @@ Alle thermische fysiologieregistraties blijven niet-goedgekeurd voor numerieke v
 ### Resterend acceptatiebesluit
 
 De huidige formele eis dat iedere actieve numerieke factor direct passende meetrespons en traceerbare bron heeft, is strenger dan de status van de huidige thermische prioren. Er is daarom een expliciet ontwerpbesluit nodig: (a) de huidige curve als transparante, niet-gevalideerde mechanistische prior behouden voor een initiële relatieve activiteitspotentie, met deze duidelijke beperkingen, of (b) numerieke thermische activiteit uitschakelen voor soorten zonder voldoende directe fysiologische basis totdat passend bewijs beschikbaar is. Geen van beide keuzes mag als lokaal gevalideerde soortcurve worden gepresenteerd. Er is in deze wijziging geen score, parameter of modeluitkomst aangepast.
+## 87. Thermische tijdvakuitvoer onderscheiden van een bewezen vistijd (18 november 2026)
+
+De algemene dagprognose kiest intern een tijdvak met de hoogste relatieve thermische activiteitspotentie. Dit is geen gemeten voedingsritme, geen aangetoonde foerageerpiek en geen vangstkans. De gebruikerskaart en samenvatting noemen dit daarom nu expliciet het **thermisch gunstigste tijdvak**, niet de 'beste vistijd'. Bij gelijkwaardige thermische tijdvakken wordt geen winnaar geforceerd.
+
+De knop 'Start sessie op dit moment' legt nu het werkelijke huidige Amsterdamse starttijdvak vast in targetTimeSlot/targetSlot. Zij gebruikt niet langer het latere thermisch gunstigste tijdvak als sessiestartmetadata. Dit voorkomt dat de snapshot een tijdvak registreert waarin de sessie feitelijk niet begon. De sessie- en VisCoach-tactiek blijven gebaseerd op de werkelijk gekozen/gestarte sessietijd; bij een sessie over meerdere tijdvakken wordt geen globaal dagwinnaar opgedrongen.
+
+Geen thermische berekening, score, profielparameter, voedingsclaim of vangstkans gewijzigd. De tijdvakuitvoer blijft uitsluitend een relatieve thermische vergelijking; een soortspecifieke voedings-/foerageervoorkeur wordt alleen als brongebonden context getoond wanneer passend bewijs bestaat.
