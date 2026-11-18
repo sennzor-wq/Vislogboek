@@ -1249,7 +1249,108 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-18',
     approvedForPrediction: false,
   },
+,
 
+  {
+    id: 'common-carp-winter-oxygen-deficiency-telemetry-2006',
+    topic: 'opgeloste-zuurstof-winteractiviteit-en-voedselopname',
+    measuredOutcomes: ['locomotor_activity', 'feeding_intensity', 'habitat_use'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Radio-telemetrie volgde gewone karper in één met ijs en sneeuw bedekte aquacultuurvijver tijdens een winterse zuurstofcrisis. Karpers verplaatsten zich vanuit diepere delen naar ondiep water bij een instromende beek met beter zuurstofgehalte; voedselopname stopte tijdens de zuurstofcrisis en de totale activiteit correleerde significant met opgeloste zuurstof.',
+    limitations: [
+      'Dit is één aquacultuurvijver en een uitzonderlijke winterse zuurstofcrisis; de bevinding is geen normale dagelijkse zuurstofrespons voor Nederlandse recreatiewateren.',
+      'De bron ondersteunt een verband met activiteit, habitatverplaatsing en het stoppen van voeding tijdens ernstige zuurstofproblemen, maar levert geen universele zuurstofdrempel voor karper.',
+      'Andere veldtelemetrie toont dat karper in een andere context zeer zuurstofarme waterlagen kan benutten; tolerantie en habitatkeuze zijn dus contextafhankelijk.',
+      'Zuurstof mag niet uit luchttemperatuur, watertemperatuur, regen of bewolking worden afgeleid. Zonder directe meting blijft deze factor onbekend.',
+      'De studie meet geen hengelvangbaarheid en rechtvaardigt geen numerieke activiteit- of vangstkansbonus.'
+    ],
+    sourceReferences: [
+      'Bauer, C. & Schlott, G. (2006). Reaction of common carp (Cyprinus carpio, L.) to oxygen deficiency in winter as an example for the suitability of radio telemetry for monitoring the reaction of fish to stress factors in pond aquaculture. Aquaculture Research, 37(3), 248–254. https://doi.org/10.1111/j.1365-2109.2005.01426.x'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-flow-activity-depth-reservoir-2015',
+    topic: 'stroming-en-activiteit-habitatgebruik',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een 19 maanden durende akoestische telemetriestudie in één klein reservoir aan de Ebro onderzocht activiteit en dieptegebruik van gewone karper. Activiteit en habitatgebruik verschilden tussen individuen en waren significant gerelateerd aan stroming; bij hogere stroming waren karpers gemiddeld minder actief en gebruikten zij ondieper water.',
+    limitations: [
+      'De studie betreft één stromingsgevoelig reservoir op een grote Spaanse rivier; de uitkomst is niet zonder meer overdraagbaar naar stilstaand Nederlands plaswater.',
+      'De studie meet locomotorische activiteit en diepte-/habitatgebruik, niet rechtstreeks voedselopname, aasbezoek of hengelvangbaarheid.',
+      'Individuele variatie was substantieel; de richting en omvang mogen niet als universele karperregel worden toegepast.',
+      'De studie rapporteert ook gebruik van sterk hypoxische waterlagen door karper; dit waarschuwt tegen één algemene zuurstofgrens voor de soort.',
+      'Geen numerieke stromingsbonus of -malus activeren zonder lokale stromingsdata en onafhankelijke validatie.'
+    ],
+    sourceReferences: [
+      'Benito, J., Benejam, L., Zamora, L. & García-Berthou, E. (2015). Diel Cycle and Effects of Water Flow on Activity and Use of Depth by Common Carp. Transactions of the American Fisheries Society, 144(3), 491–501. https://doi.org/10.1080/00028487.2015.1017656'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'freshwater-river-flow-movement-activity-meta-analysis-2012',
+    topic: 'stroming-en-visbeweging-meta-analyse',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'moderate',
+    summary: 'Een random-effects meta-analyse onderzocht rivierafvoer in relatie tot niet-migrerende verplaatsing, opwaartse en neerwaartse migratie en fijne-schaalactiviteit. Hogere afvoer hing samen met meer niet-migrerende verplaatsing en opwaartse migratie, maar niet significant met neerwaartse migratie of fijne-schaalactiviteit.',
+    limitations: [
+      'De respons verschilde per bewegingscategorie; meer verplaatsing betekent niet automatisch meer dagelijkse activiteit of voedselopname.',
+      'De analyses voor fijne-schaalactiviteit en neerwaartse migratie omvatten elk slechts vijf effectgroottes; heterogeniteit en mogelijke publicatie-/inclusiebias waren aanwezig.',
+      'De meta-analyse gaat over stromende rivieren en is niet rechtstreeks toepasbaar op stilstaand water.',
+      'Geen universele stromingsbonus, tijdvakvoorkeur of vangstkansregel afleiden.'
+    ],
+    sourceReferences: [
+      'Taylor, M.K. & Cooke, S.J. (2012). Meta-analyses of the effects of river flow on fish movement and activity. Environmental Reviews, 20(4), 211–219. https://doi.org/10.1139/a2012-009'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'freshwater-fish-foodscape-flow-accessibility-review-2025',
+    topic: 'voedselbeschikbaarheid-en-toegankelijkheid-in-rivieren',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'moderate',
+    summary: 'Een review beschrijft voedselbeschikbaarheid voor vissen als de combinatie van voedselabundantie, toegankelijkheid en kwaliteit. Stroming, snelheid, turbulentie, zicht, habitatstructuur en waterkwaliteit beïnvloeden of vissen voedsel kunnen ontmoeten, vangen en consumeren; flow kan ook prooien verplaatsen en toegang tot zijwateren veranderen.',
+    limitations: [
+      'Dit is een conceptuele review van rivier-voedselnetwerken, geen soortspecifieke veldmeting of gekalibreerde responsfunctie.',
+      'De auteurs gebruiken veel voorbeelden uit Noord-Amerikaanse stromende systemen; overdraagbaarheid naar Nederlandse stilstaande wateren en individuele Vislogboek-soorten moet afzonderlijk worden beoordeeld.',
+      'Voedseltoegankelijkheid is niet hetzelfde als totale visactiviteit, daadwerkelijke voedselopname of hengelvangbaarheid.',
+      'De review ondersteunt geen numerieke flow-, zuurstof- of zichtbonus.'
+    ],
+    sourceReferences: [
+      'Ouellet, V. et al. (2025). Food for fish: Challenges and opportunities for quantifying foodscapes in river networks. WIREs Water, 12(1), e1752. https://doi.org/10.1002/wat2.1752'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-freshwater-spawning-migration-environmental-triggers-meta-analysis-2026',
+    topic: 'omgevingsfactoren-en-paaimigratie',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'limited',
+    summary: 'Een Europese meta-analyse combineerde 112 studies, 685.333 individuen, 953 effectgroottes en 50 soorten om omgevingsfactoren bij paaigerelateerde migratie te onderzoeken. Watertemperatuur was de meest consistente trigger; stroming liet soort- en gildeafhankelijke reacties zien. Voor regen en bewolking waren de aantallen studies zeer klein (respectievelijk twee en één), waardoor geen betrouwbare algemene conclusie mogelijk is.',
+    limitations: [
+      'De onderzochte respons is paaigerelateerde migratie, niet dagelijkse locomotorische activiteit, voedselopname, foerageren of hengelvangbaarheid.',
+      'Regen, bewolking en troebelheid hadden te weinig studies voor betekenisvolle formele meta-analyses; een niet-significant of zwak resultaat bewijst geen afwezigheid van effect.',
+      'De stromingsrespons verschilde sterk tussen soorten en stromingsgilden; dit mag niet als universele factor worden toegepast.',
+      'De huidige registry heeft geen afzonderlijk outcome-type voor spawning migration; daarom wordt deze bron niet ten onrechte als algemene locomotorische activiteit geclassificeerd.',
+      'Geen regen-, bewolking-, stromings- of tijdvakbonus activeren op basis van deze bron.'
+    ],
+    sourceReferences: [
+      'Schlautmann, C. et al. (2026). A Meta-Analysis on Environmental Triggers of Spawning Migrations Reveals a New Classification of Thermal Guilds in European Freshwater Fishes. Fish and Fisheries, 27(3), 478–495. https://doi.org/10.1111/faf.70063'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
 ];
 
 /**
