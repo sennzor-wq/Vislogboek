@@ -242,6 +242,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   );
   const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, input.location.id, date);
   const now = new Date();
+  const tacticalStartSlot = resolveSelectedTimeSlot(start, null);
   const prognosis = calculateDayPrognosis(
     date,
     weather.hourly,
