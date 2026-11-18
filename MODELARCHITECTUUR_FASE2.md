@@ -575,6 +575,11 @@ De veldstudie van Monk & Arlinghaus (2017) ondersteunt expliciet dat het ontmoet
 De nieuwe uitkomst `angler_vulnerability` blijft gescheiden van `feeding_rhythm`. Beide bronnen zijn informatief en niet goedgekeurd als numerieke voorspelfactor.
 
 
+## 67. Meerval: noordelijke veldtelemetrie blijft beweging-/habitatbewijs
+
+Bergström et al. (2024) voegt langdurige diepte-/temperatuurtelemetrie van volwassen meerval uit één noordelijke Zweedse populatie toe. De seizoens- en dagritmepatronen verfijnen de habitat-/bewegingscontext, maar de meetmethode registreert geen directe voedselopname. De bron is daarom alleen gekoppeld aan `locomotor_activity` en `habitat_use`, niet aan `feeding_rhythm` of `feeding_intensity`. De auteursinterpretatie van nachtelijke beweging als waarschijnlijk foerageren wordt niet als gemeten voedingsrespons behandeld. De registratie blijft niet-goedgekeurd; geen numerieke tijdvakbonus of thermische parameter volgt hieruit.
+
+
 ## 66. Presentatielaag: standaard versus geavanceerd
 
 De prognose heeft één rekenmodel en één gegevensbasis, maar twee presentatieniveaus. De bestaande instelling `showAdvancedPrognosisDetails` schakelt uitsluitend uitgebreide UI-informatie aan of uit.
