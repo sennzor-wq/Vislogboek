@@ -125,6 +125,9 @@ jobs:
       - name: Time-slot exposure diagnostic tests
         run: bun run tsx test-time-slot-exposure.ts
 
+      - name: Time-slot catch evidence audit tests
+        run: bun run tsx test-time-slot-catch-evidence.ts
+
       - name: VisCoach session advice tests
         run: bun run tsx test-session-coach.ts
       - name: VisCoach live reassessment integration tests

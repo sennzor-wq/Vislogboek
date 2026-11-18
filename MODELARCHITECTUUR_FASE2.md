@@ -535,3 +535,12 @@ Deze diagnose is beschrijvend en offline. Zij verandert geen Brier-score, vangst
 `calculateTimeSlotRodExposure()` verdeelt uitsluitend expliciet geregistreerde actieve hengelintervallen over de vier Amsterdamse tijdvakken. Overlap wordt per hengel samengevoegd; meerdere hengels blijven afzonderlijke blootstelling. Onbekende en onvolledige registraties worden apart gerapporteerd. De berekening gebruikt absolute ISO-tijden en de `Europe/Amsterdam`-tijdzone, inclusief DST-overgangen.
 
 Dit is een technische bouwsteen voor latere datakwaliteitsanalyse, geen prognose-input. Er zijn geen vangstlabels, soortspecifieke conclusies of negatieve uitkomsten aan gekoppeld.
+
+
+## 60. Vangstbewijs per tijdvak: uitsluitend positieve gebruikersrapportage of bevestigde sessiebrede nul
+
+De tijdvak-audit onderscheidt formulier-openmomenten (`automatic`) van door de gebruiker aangepaste vangsttijden (`user_adjusted`). Alleen de laatste kan een positief, gebruikersgerapporteerd tijdvaksignaal opleveren; dit is niet onafhankelijk geverifieerd. Ontbrekende/legacy-herkomst, automatische tijden, ongeldige tijden en tijden buiten de sessie blijven buiten de tijdvaklabels.
+
+Een vangst in één tijdvak rechtvaardigt geen nulvangst in de overige tijdvakken. Een bevestigde nulvangstsessie zonder gekoppelde vangstrecords kan nuluitkomst geven uitsluitend voor tijdvakken met geregistreerde hengelblootstelling. Bijvangst wordt niet als doelsoortvangst gebruikt; meersoortige sessies worden niet soortspecifiek ingedeeld. Groepsvangsten behouden één registratiemoment voor het groepsaantal.
+
+Deze helper is diagnostisch, niet voorspellend en heeft geen invloed op Brier, catch chance of biologische activiteit.

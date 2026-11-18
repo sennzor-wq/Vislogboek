@@ -1490,3 +1490,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Overlap wordt per hengel samengevoegd; ontbrekende/ongeldige intervallen blijven onbekend en krijgen kwaliteitscounts.
 - Nog niet aangesloten op prognose, VisCoach of UI; geen vangstlabel, tijdvakscore, Brier- of biologische parameterwijziging.
 - Nieuwe regressiesuite toegevoegd aan Quality Gate.
+
+
+### Fase 2 — tijdvak-vangstbewijs gescheiden geclassificeerd (18 november 2026)
+
+- Nieuwe audithelper onderscheidt automatische formulier-open-tijden, aangepaste gebruikersrapportages, legacy/onbekende tijden en ongeldige/buiten-sessie tijden.
+- Alleen aangepaste gebruikersrapportage kan een positief tijdvaksignaal opleveren; andere tijdvakken blijven onbekend, nooit automatisch nul.
+- Alleen expliciet bevestigde nulvangstsessies zonder gekoppelde vangsten leveren nul-labels op voor tijdvakken met geregistreerde blootstelling.
+- Bijvangst, meersoortige sessies en groepsvangsten worden expliciet en voorzichtig behandeld.
+- Diagnostisch/offline; geen prognose- of Brier-feedback.
