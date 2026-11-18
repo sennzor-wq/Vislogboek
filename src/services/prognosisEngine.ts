@@ -1024,6 +1024,9 @@ export function calculateDayPrognosis(
         return hour >= range.start && hour < range.end;
       })
     : dayForecasts;
+  const tacticalForecastCoverageNote = explicitTargetTimeSlot && tacticalForecasts.length > 0 && tacticalForecasts.length < 6
+    ? 'De tactische weersanalyse gebruikt alleen de resterende beschikbare uren van het gekozen tijdvak; een volledig tijdvakgemiddelde is niet beschikbaar.'
+    : undefined;
 
   // Onzekerheden
   if (!thermalAnalysis.hasMeasuredWaterTemp || thermalAnalysis.measuredWaterTemp === null) {
@@ -1087,6 +1090,8 @@ export function calculateDayPrognosis(
     historicalCatches: options?.catches ?? [],
     targetSlot: tacticalTargetSlot,
   });
+
+  if (tacticalForecastCoverageNote) positioningAdvice.missingInformation.push(tacticalForecastCoverageNote);
 
   // Tactische weerwaarden: bij de VisCoach het gekozen starttijdvak, anders de bestaande daggemiddelden.
   const validWindForecasts = tacticalForecasts.filter(h =>
@@ -1168,6 +1173,8 @@ export function calculateDayPrognosis(
     pressureTrend: presTrendType,
     cloudCoverPercent: avgCloudCover,
   });
+
+  if (tacticalForecastCoverageNote) habitatAnalysis.missingInformation.push(tacticalForecastCoverageNote);
 
   // Ontbrekende context verlaagt de zekerheid, maar overschrijft geen directe
   // gebruikerswaarnemingen of de voorzichtige lokale zoekhypothese uit de engines.
