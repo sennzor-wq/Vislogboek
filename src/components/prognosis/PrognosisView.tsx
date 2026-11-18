@@ -645,12 +645,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           95% Wilson-interval basissessies: [{activeDayProg.catchUncertaintyInterval[0]}% – {activeDayProg.catchUncertaintyInterval[1]}%]
                         </div>
                       )}
-                      <div
-                        className="text-[11px] text-slate-300 mt-1"
-                        title="Categorie op basis van het aantal sessies met bekende duur en bruikbare vangstaantallen; geen statistische betrouwbaarheid van de voorspelde Poisson-kans."
-                      >
-                        Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
-                      </div>
+                      {showAdvancedDetails && (
+                        <div
+                          className="text-[11px] text-slate-300 mt-1"
+                          title="Categorie op basis van het aantal sessies met bekende duur en bruikbare vangstaantallen; geen statistische betrouwbaarheid van de voorspelde Poisson-kans."
+                        >
+                          Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
+                        </div>
+                      )}
                       {showAdvancedDetails && activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1">
                           Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
@@ -680,17 +682,19 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
                         Nog onvoldoende vergelijkbare eigen sessies om een persoonlijke vangstkans te berekenen.
                       </p>
-                      {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 ? (
-                        <div className="text-[11px] text-slate-300 mt-2">
-                          Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">
-                            (Minimaal 5 sessies vereist voor Poisson-vangsttempo en vangkans)
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="text-[11px] text-slate-400 mt-2">
-                          Nog geen eerdere bevestigde sessies voor deze doelsoort en stek.
-                        </div>
+                      {showAdvancedDetails && (
+                        activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 ? (
+                          <div className="text-[11px] text-slate-300 mt-2">
+                            Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">
+                              (Minimaal 5 sessies vereist voor Poisson-vangsttempo en vangkans)
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-400 mt-2">
+                            Nog geen eerdere bevestigde sessies voor deze doelsoort en stek.
+                          </div>
+                        )
                       )}
                     </div>
                   )}
