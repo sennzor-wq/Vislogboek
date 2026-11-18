@@ -375,6 +375,14 @@ export function buildVisCoachAdviceText(
       windAdvice = `${windIntro} ${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
     }
   }
+  const hasKnownTargetZone = Boolean(primaryZone && !isGenericZone(primaryZone));
+  if (windAdvice && hasKnownTargetZone) {
+    windAdvice += ` De windrichting helpt je werphoek en lijncontrole bepalen, maar bepaalt niet automatisch waar de vis ligt. Houd ${explainZone(primaryZone!)} als doelzone en corrigeer je worp alleen voor wind en lijnbocht.`;
+  } else if (windAdvice) {
+    windAdvice += ' De windrichting helpt je werphoek en lijncontrole bepalen, maar is op zichzelf geen aanwijzing waar de vis ligt. Kies ter plaatse een herkenbare doelzone; ik geef geen exacte werprichting zolang de oever en structuur niet voldoende bekend zijn.';
+  } else if (windIsCalm && hasKnownTargetZone) {
+    windAdvice = `Er staat weinig wind; je hoeft je werprichting niet op de wind af te stemmen. Richt je presentatie op ${explainZone(primaryZone!)} en houd de lijn zo dat je aanbeten goed kunt registreren.`;
+  }
   if (windAdvice) tacticSections.push(`Wind en werprichting\n${windAdvice}`);
 
   const feeding: string[] = [];

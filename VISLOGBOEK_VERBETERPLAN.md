@@ -596,3 +596,8 @@ Nieuwe productverbetering naar aanleiding van praktijktest van het gegenereerde 
 - De tactiek blijft opgebouwd uit voorvoeren vóór de sessie, voeren/presenteren tijdens de sessie, hengelpositionering/werprichting en bijsturen tijdens de sessie. De prognose- en voerengine blijven de bron; er komt geen tweede biologische of voerengine.
 
 **Uitvoering in deze wijzigingsset:** dynamische beschikbare voorbereidingsdagen in VisCoach, verbeterde ontbrekende-watertype-vertaling, zichtbare indicatieve timing bij matige zekerheid en regressietests voor drie dagen vooruit en koude instant-opties. Geen numerieke biologische parameters of prognose-/Brier-logica gewijzigd. Fase 2 blijft het hoofdspoor; fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
+
+
+### VisCoach — doelzone en werprichting (18 november 2026)
+
+Tactische verfijning: de werprichting moet voortkomen uit de gekozen zoekzone, niet automatisch uit de windrichting. Wind en oeveroriëntatie ondersteunen de keuze van vispositie, werphoek en lijncontrole. Bij zwakke wind is een windgestuurde kompasrichting overbodig; bij merkbare wind gebruikt de coach de bestaande oever-/positioneringsanalyse. Als de oever of doelzone onbekend is, geen exacte richting, afstand of diepte verzinnen. Regressietests toegevoegd voor zwakke wind met/zonder bruikbare doelzone en matige wind met bekende doelzone. Geen wijziging aan prognoseberekeningen of biologische parameters.
