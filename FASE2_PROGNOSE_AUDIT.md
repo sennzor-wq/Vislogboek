@@ -1757,6 +1757,7 @@ De kolom dieet/prooikeuze combineert hier uitsluitend voor compacte weergave `di
 
 ### Volgende stap
 
-1. Audit de replaybaarheid van prognose-inputs: welke compacte, reproduceerbare featurewaarden moeten bij een prognosesnapshot worden bewaard om latere chronologische evaluatie mogelijk te maken?
-2. Ontwerp daarna de voedings-/foerageerlaag als afzonderlijke responslaag, met per feature bron, context, invoerbeschikbaarheid en onzekerheid. Gebruik alleen bestaande engines en geen dubbele modelberekening.
-3. Maak vervolgens een kandidaatmodel en valideer dit chronologisch op echte, gekoppelde sessies. Fase 3 start pas na het behalen van alle Fase-2-acceptatiecriteria.
+1. **Replaybaarheid — code-audit uitgevoerd (18 november 2026):** de vier snapshotroutes bewaren de voor de run beschikbare whitelist-features, exacte weersinvoer, locatie-/temperatuurcontext, provenance en model-/engineversies. De bestaande tests bewaken whitelist, fingerprint, privacy en tijdstempelherkomst. Geen aantoonbaar ontbrekend modelinputveld gevonden; de modelcode zelf wordt niet gearchiveerd en versiebeheer blijft daarom essentieel.
+2. Beoordeel de resterende Fase-2-acceptatiecriteria en scheid technische afronding van onderdelen die wachten op voldoende echte, chronologisch gekoppelde sessies.
+3. Ontwerp en valideer eventuele verdere voedings-/foerageerkoppeling alleen als afzonderlijke responslaag met passende directe evidence; geen dubbele modelberekening of numerieke bonus zonder validatie.
+4. Fase 3 start pas na formele Fase-2-acceptatie.
