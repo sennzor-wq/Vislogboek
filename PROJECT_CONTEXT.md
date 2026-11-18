@@ -1520,3 +1520,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Trzebiatowski & Leszczewicz (1976) toegevoegd als beperkte veldbron voor seizoensgebonden dieetcompositie van roofblei.
 - Alleen `diet_composition`; geen voedingsintensiteit, diel-rhythm of foraging score.
 - Roofblei blijft zonder directe geregistreerde soortspecifieke diel-feedingbron; geen tijdvakvoorkeur of voorspelfactor geactiveerd.
+
+
+### Fase 2 — wild-karpervoeding beter onderbouwd (18 november 2026)
+
+- Bajer et al. 2010 toegevoegd: directe nachtelijke voedselopname bij vrijlevende karper in één meer, met kunstmatig maïsvoer en beperkte meetperiode.
+- Hundt et al. 2022 toegevoegd: PIT-waarnemingen bij bijgevoerd meerstations, vooral schemer/nacht, met grote individuele verschillen.
+- Rahman et al. 2008 toegevoegd als gecontroleerd tegenbewijs: jonge karper graasde dag en nacht zonder duidelijke piek.
+- Žák 2021 toegevoegd als afzonderlijk `angler_catch_distribution`-resultaat, niet als directe voedingsmeting.
+- Alle bronnen blijven `approvedForPrediction: false`; geen nachtbonus, biologische score of tijdvakgewicht geactiveerd.

@@ -559,3 +559,10 @@ Het research register mag dezelfde publicatie niet als meerdere onafhankelijke b
 ## 63. Roofblei: seizoensdieet is geen dagritme
 
 De veldstudie uit de Szczecin Firth (1976) is als beperkte dieetcompositiebron geregistreerd. Zij beschrijft prooifrequenties per seizoen, maar meet geen dagelijkse voedingsintensiteit of tijdstipgebonden voedselopname. De roofblei blijft daarom `diet-only` in de voedingscontext; de telemetriestudies blijven `movement-only` voor tijdgebonden gedrag. Er volgt geen tijdvakvoorkeur uit deze bronnen.
+
+
+## 64. Karper: veldvoeding, aasstationgedrag en wedstrijdvangst strikt scheiden
+
+Het register bevat nu directe veldstudies naar karpervoeding (Bajer et al. 2010; Hundt et al. 2022), gecontroleerd tegenbewijs zonder duidelijke dagpiek bij jonge karpers (Rahman et al. 2008), en wedstrijdvangstverdeling als afzonderlijke uitkomst (Žák 2021). De wedstrijdstudie is geen directe feeding-rhythm meting en krijgt daarom het eigen outcome-type `angler_catch_distribution`, dat niet door de voedings- of diel-feeding-services wordt gelezen.
+
+De veldstudies ondersteunen een nachtelijk foerageersignaal onder specifieke omstandigheden, vooral bij bijgevoerd voedsel, maar individuele variatie, aasstations, seizoen, water en populatie begrenzen overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor voorspelling; er wordt geen nachtbonus of numerieke factor toegevoegd.

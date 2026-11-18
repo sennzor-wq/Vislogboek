@@ -1447,3 +1447,16 @@ Dit wijzigt geen bewijsgoedkeuring, numerieke parameter, voedingsscore of tijdva
 Een oudere veldstudie uit de Szczecin Firth (materiaal 1972 en 1974–1975) is toegevoegd als beperkte bron voor dieetcompositie. De auteurs onderzochten expliciet voedselcompositie en frequentie van prooien: zomerdiëten bevatten meerdere vissoorten, terwijl in andere seizoenen vooral spiering werd aangetroffen.
 
 De bron is uitsluitend geregistreerd als `diet_composition`. Zij meet geen voedingsintensiteit, tijdstipgebonden voedselopname of dag-nachtritme. De bestaande conclusie blijft daarom ongewijzigd: voor roofblei is in het register geen directe soortspecifieke diel-feedingbron aanwezig; telemetrie blijft bewegingsbewijs en dieet blijft dieetbewijs. De bron blijft `approvedForPrediction: false`.
+
+
+## 73. Wild-karpervoeding en wedstrijdvangsten als aparte bewijssoorten (18 november 2026)
+
+De karper-evidencelaag is uitgebreid met drie contextueel verschillende studies:
+
+- **Bajer et al. (2010):** directe veldmeting van maïconsumptie per twee uur gedurende vijf dagen in een meer; consumptie nam sterk toe na zonsondergang en piekte midden in de nacht. Een tweede experiment volgde 34 radio-gemerkte karpers bij een nieuw bijgevoerd punt.
+- **Hundt et al. (2022):** PIT-monitoring van 344 karpers bij kunstmatig bijgevoerd gemonitorde stations in Parley Lake; aggregaties waren het actiefst van schemering tot zonsopkomst, met korte voedselbezoeken en grote individuele verschillen.
+- **Rahman et al. (2008):** jonge karpers in gesimuleerde vijvers graasden zowel dag als nacht zonder duidelijke dagelijkse piek. Dit vormt gecontroleerd, levensfase-/opzetgebonden tegenbewijs tegen een universeel nachtpatroon.
+
+Daarnaast is **Žák (2021)** geregistreerd onder een nieuw, afzonderlijk uitkomsttype `angler_catch_distribution`: 14 Europese karperwedstrijden lieten meer nachtelijke landingen zien. Dit is wedstrijdvangstverdeling, geen directe meting van voedselopname. De gegevens leveren geen algemeen gevalideerde hengeluren-noemer per tijdvak en mogen daarom niet als feeding-rhythm bron of tijdvakvangstkans worden gebruikt.
+
+Alle vier registraties blijven `approvedForPrediction: false`. De studies ondersteunen een contextgebonden veldhypothese voor nachtelijk foerageren bij volwassen/wilde karper, maar tonen ook verschillen tussen veld, aasstation, wedstrijd en jonge karper in gesimuleerde vijvers. Er is geen universele nachtbonus of modelgewicht geactiveerd.
