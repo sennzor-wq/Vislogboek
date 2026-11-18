@@ -372,7 +372,7 @@ if (!catfishNorthernFringe ||
     !catfishNorthernFringe.sourceReferences.some((source) => source.includes('10.3390/fishes9070280'))) {
   throw new Error('Northern-fringe catfish telemetry must remain seasonally scoped movement/habitat evidence, not direct feeding evidence.');
 }
-for (const reference of ['10.1016/0031-9384(95)00109-V', '10.1111/j.1095-8649.2012.03436.x', '10.1111/eff.12817']) {
+for (const reference of ['10.1016/0031-9384(95)00109-V', '10.1111/j.1095-8649.2012.03436.x', '10.1111/eff.12817', '10.3390/fishes9070280']) {
   if (!SPECIES_PROFILES.Meerval.scientificReferences.some((source) => source.includes(reference))) {
     throw new Error('The catfish profile must link the reviewed source ' + reference + '.');
   }
