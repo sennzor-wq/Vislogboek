@@ -1470,3 +1470,21 @@ Twee aanvullende veldstudies verfijnen de karperlaag:
 - **Monk & Arlinghaus (2017):** whole-lake telemetrie en experimenteel vissen op vaste bijgevoerd-locaties lieten zien dat karper en zeelt het aas bezochten, maar dat gemeten ontmoetings-/bewegingskenmerken individuele vangbaarheid niet significant verklaarden. Gedrag ná het ontmoeten van aas, zoals daadwerkelijke opname, kan bepalender zijn.
 
 Voor de tweede studie is een apart uitkomsttype `angler_vulnerability` toegevoegd. De bron wordt niet als feeding-rhythm of habitatbonus gelezen. Beide bronnen blijven `approvedForPrediction: false`; geen score, tijdvakbonus of modelgewicht verandert.
+
+
+## 75. Scheiding standaard- en geavanceerde prognoseweergave (18 november 2026)
+
+Productbesluit: de bestaande instelling `showAdvancedPrognosisDetails` is de centrale schakelaar voor detailniveau op de prognosepagina. De instelling verandert uitsluitend de presentatie; berekeningen, modelinputs, opgeslagen prognosesnapshots en biologische onderzoeksregistraties blijven gelijk.
+
+**Standaardweergave**
+- Kernuitkomsten: activiteitspotentie, persoonlijke vangkans, beste vistijd en compacte praktische stek-/voeradviezen.
+- Geen literatuurkaarten, bronbeperkingen, modelaannames, technische factoruitleg, onzekerheidsdiagnostiek of uitgebreide statistische duiding.
+- Bij onvoldoende watertemperatuur blijft een korte, duidelijke waarschuwing zichtbaar; de onderliggende technische datakwaliteit blijft geavanceerd.
+
+**Geavanceerde weergave**
+- De volledige sectie “Wat zegt onderzoek over voeding bij [vissoort]?” met de twee gevraagde groepen: gemeten voedselopname/voedingsritme en foerageergedrag.
+- Uitgebreide uitleg bij prognose-elementen, tijdvakfactoren, datakwaliteit, onzekerheid, thermische ontwikkeling, habitat-/windanalyses, wetenschappelijke bronnen en biologische modelaannames.
+
+Dieet-/prooikeuze blijft in het onderzoeksregister beschikbaar als wetenschappelijke context, maar wordt niet als extra derde kaart op de prognosepagina getoond. De standaardweergave toont geen verborgen lege uitklapvlakken; tijdvakdetails zijn alleen uitklapbaar in de geavanceerde weergave.
+
+Er zijn geen prognoseberekeningen, biologische scores, factoren of modelgewichten aangepast.

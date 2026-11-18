@@ -573,3 +573,13 @@ De veldstudies ondersteunen een nachtelijk foerageersignaal onder specifieke oms
 De veldstudie van Monk & Arlinghaus (2017) ondersteunt expliciet dat het ontmoeten of bezoeken van een bijgevoerd aas niet voldoende is om individuele hengelvangbaarheid te verklaren. Daarom blijven in de architectuur gescheiden: (1) aanwezigheid/habitat, (2) foerageer- en daadwerkelijke aasopname, en (3) vangbaarheid/aanbeet en uitvoering. Ghosal et al. (2018) levert directe, maar contextgebonden consumptiemetingen bij één maïs-baitsite; de consumptiegegevens waren descriptief en mogen niet als universele tijdvakcurve worden gebruikt.
 
 De nieuwe uitkomst `angler_vulnerability` blijft gescheiden van `feeding_rhythm`. Beide bronnen zijn informatief en niet goedgekeurd als numerieke voorspelfactor.
+
+
+## 66. Presentatielaag: standaard versus geavanceerd
+
+De prognose heeft één rekenmodel en één gegevensbasis, maar twee presentatieniveaus. De bestaande instelling `showAdvancedPrognosisDetails` schakelt uitsluitend uitgebreide UI-informatie aan of uit.
+
+- **Standaard:** kernuitkomsten en praktische aanbevelingen, met alleen noodzakelijke waarschuwingen wanneer gegevens ontbreken.
+- **Geavanceerd:** verklaringen per prognose-element, wetenschappelijke voedingsbronnen (gemeten voedselopname/voedingsritme en foerageergedrag), factoranalyses, bronbeperkingen, modelaannames en onzekerheids-/datakwaliteitsdiagnostiek.
+
+Onderzoeksdata, berekeningen en opgeslagen prognoses blijven identiek. Dit is geen modelvariant, geen andere voorspelling en geen invloed op evaluatie. De UI mag in standaardmodus geen uitgebreide details of lege uitklapvlakken tonen.

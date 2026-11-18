@@ -1536,3 +1536,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Ghosal et al. 2018 toegevoegd als directe maar contextgebonden veldmeting van volwassen-karperconsumptie bij een maïsbaitsite.
 - Monk & Arlinghaus 2017 toegevoegd als `angler_vulnerability`-bewijs: aasontmoeting/bezoek alleen verklaarde individuele vangbaarheid niet significant.
 - Aanwezigheid, voedselopname en vangbaarheid blijven aparte modelstappen; beide bronnen niet goedgekeurd voor numerieke voorspelling.
+
+
+### Productbesluit 18 november 2026 — standaard- en geavanceerde prognoseweergave
+
+- De bestaande instelling voor geavanceerde prognosedetails blijft de enige schakelaar; geen tweede instelling of aparte prognose-engine.
+- Standaardweergave is gericht op snel begrijpen en handelen tijdens het vissen: kernuitkomsten en compacte praktische adviezen.
+- Geavanceerde weergave bevat de onderzoekssectie per vissoort (gemeten voedselopname/voedingsritme en foerageergedrag), wetenschappelijke bronnen, uitgebreide prognose-uitleg, factoren, modelaannames en onzekerheidsdetails.
+- Alleen de presentatie verandert. Berekeningen, biologische scores, modelgewichten, prognosehistorie en onderzoeksgegevens veranderen niet.
+- Bij ontbrekende essentiële gegevens blijft in standaardweergave een korte waarschuwing zichtbaar; technische datakwaliteit en uitgebreide onzekerheidsuitleg blijven geavanceerd.

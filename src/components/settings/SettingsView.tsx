@@ -276,7 +276,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           className="w-full flex items-center justify-between gap-4 p-3 rounded-2xl bg-slate-900 border border-slate-700 text-left cursor-pointer hover:border-emerald-600/60 transition">
           <span>
             <span className="block text-sm font-semibold text-white">{showAdvancedPrognosisDetails ? "Geavanceerde weergave" : "Standaardweergave"}</span>
-            <span className="block text-[11px] text-slate-400 mt-0.5">{showAdvancedPrognosisDetails ? "Technische analyses, modeldetails en onzekerheden zijn zichtbaar." : "Praktische prognose en adviezen; technische modeluitleg is verborgen."}</span>
+            <span className="block text-[11px] text-slate-400 mt-0.5">{showAdvancedPrognosisDetails ? "Onderzoeksbronnen, biologische uitleg, technische analyses en modeldetails zijn zichtbaar." : "Alleen de belangrijkste prognose en praktische adviezen; uitgebreide uitleg en onderzoek zijn verborgen."}</span>
           </span>
           <span className={"relative w-11 h-6 rounded-full shrink-0 transition " + (showAdvancedPrognosisDetails ? "bg-emerald-600" : "bg-slate-700")}>
             <span className={"absolute top-1 w-4 h-4 rounded-full bg-white transition " + (showAdvancedPrognosisDetails ? "left-6" : "left-1")} />

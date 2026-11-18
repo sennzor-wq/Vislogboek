@@ -228,11 +228,6 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       description: 'Waargenomen graas- of zoekgedrag; dit is niet automatisch hetzelfde als voedselopname.',
       entries: feedingEvidenceContext.foragingBehavior,
     },
-    {
-      title: 'Dieet en prooikeuze',
-      description: 'Wat de vis eet of selecteert; dit bewijst geen hogere voedingsactiviteit op een bepaald tijdstip.',
-      entries: Array.from(new Map([...feedingEvidenceContext.dietComposition, ...feedingEvidenceContext.preySelection].map((entry) => [entry.id, entry] as const)).values()),
-    },
   ] : [];
 
   const handleStartSessionFromPrognosis = async () => {
@@ -315,7 +310,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               Persoonlijke Visprognose
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Drie strikt gescheiden uitkomsten: Thermische activiteitspotentie, Persoonlijke vangstkans en Beste toekomstige vistijd.
+              {showAdvancedDetails
+                ? 'Drie gescheiden uitkomsten: thermische activiteitspotentie, persoonlijke vangstkans en beste toekomstige vistijd.'
+                : 'Bekijk de verwachte activiteit, je persoonlijke vangstkans en een geschikt vistijdvak.'}
             </p>
           </div>
 
@@ -330,13 +327,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               Weer vernieuwen
             </button>
 
-            <button
-              onClick={() => setShowAssumptionsModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-xs sm:text-sm font-medium text-emerald-300 transition border border-emerald-700/50 cursor-pointer"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Soortprofiel & Bronnen
-            </button>
+            {showAdvancedDetails && (
+              <button
+                onClick={() => setShowAssumptionsModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-xs sm:text-sm font-medium text-emerald-300 transition border border-emerald-700/50 cursor-pointer"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Soortprofiel & Bronnen
+              </button>
+            )}
           </div>
         </div>
 
@@ -561,12 +560,18 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
             </div>
 
-            {activeDayProg.weatherDataQuality && (
+            {showAdvancedDetails && activeDayProg.weatherDataQuality && (
               <div className={`rounded-xl border p-3 text-xs ${activeDayProg.weatherDataQuality.status === 'Volledig' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-200' : activeDayProg.weatherDataQuality.status === 'Gedeeltelijk' ? 'bg-amber-950/30 border-amber-800/50 text-amber-200' : 'bg-rose-950/30 border-rose-800/50 text-rose-200'}`}>
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
                 {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+              </div>
+            )}
+
+            {!showAdvancedDetails && activeDayProg.activityScoreAvailable === false && (
+              <div className="rounded-xl border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">
+                Onvoldoende watertemperatuurgegevens om activiteit en beste vistijd betrouwbaar te bepalen.
               </div>
             )}
 
@@ -577,7 +582,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                     <Gauge className="w-4 h-4" />
-                    A. Thermische activiteitspotentie
+                    Activiteitspotentie
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
@@ -619,7 +624,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    B. Persoonlijke Poisson-vangkans (≥1 vis)
+                    Persoonlijke vangkans
                   </div>
 
                   {activeDayProg.personalCatchChance !== null ? (
@@ -627,7 +632,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <div className="text-3xl sm:text-4xl font-black text-cyan-300">
                         {activeDayProg.personalCatchChance}%
                       </div>
-                      {activeDayProg.catchUncertaintyInterval && (
+                      {showAdvancedDetails && activeDayProg.catchUncertaintyInterval && (
                         <div
                           className="text-xs font-semibold text-cyan-400/90 mt-1 cursor-help"
                           title="Binomiaal Wilson-interval van het historische sessiesucces (geen betrouwbaarheidsinterval van de Poisson-duurkans)"
@@ -635,13 +640,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           95% Wilson-interval basissessies: [{activeDayProg.catchUncertaintyInterval[0]}% – {activeDayProg.catchUncertaintyInterval[1]}%]
                         </div>
                       )}
-                      <div
-                        className="text-[11px] text-slate-300 mt-1"
-                        title="Categorie op basis van het aantal sessies met bekende duur en bruikbare vangstaantallen; geen statistische betrouwbaarheid van de voorspelde Poisson-kans."
-                      >
-                        Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
-                      </div>
-                      {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
+                      {showAdvancedDetails && (
+                        <div
+                          className="text-[11px] text-slate-300 mt-1"
+                          title="Categorie op basis van het aantal sessies met bekende duur en bruikbare vangstaantallen; geen statistische betrouwbaarheid van de voorspelde Poisson-kans."
+                        >
+                          Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
+                        </div>
+                      )}
+                      {showAdvancedDetails && activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1">
                           Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
                         </div>
@@ -651,7 +658,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           <span className="text-slate-400">Verwachte vangstopbrengst:</span>
                           <span className="font-bold text-cyan-200">
                             ~{activeDayProg.expectedCatches} {activeDayProg.species.toLowerCase()} over {activeDayProg.plannedDurationHours ?? selectedDurationHours}u
-                            {activeDayProg.hourlyCatchRate !== null && activeDayProg.hourlyCatchRate !== undefined && (
+                            {showAdvancedDetails && activeDayProg.hourlyCatchRate !== null && activeDayProg.hourlyCatchRate !== undefined && (
                               <span className="text-[10px] text-cyan-300/80 font-normal ml-1">
                                 (vangsttempo: ~{activeDayProg.hourlyCatchRate}/u)
                               </span>
@@ -666,19 +673,21 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         Onvoldoende gegevens
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
-                        Er zijn nog onvoldoende vergelijkbare eigen vissessies ({activeDayProg.relevantSessionCount} van minimaal 5 bevestigde sessies) om een verantwoorde vangstkans of vangsttempo te berekenen.
+                        Nog onvoldoende vergelijkbare eigen sessies om een persoonlijke vangstkans te berekenen.
                       </p>
-                      {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 ? (
-                        <div className="text-[11px] text-slate-300 mt-2">
-                          Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">
-                            (Minimaal 5 sessies vereist voor Poisson-vangsttempo en vangkans)
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="text-[11px] text-slate-400 mt-2">
-                          Nog geen eerdere bevestigde sessies voor deze doelsoort en stek.
-                        </div>
+                      {showAdvancedDetails && (
+                        activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 ? (
+                          <div className="text-[11px] text-slate-300 mt-2">
+                            Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">
+                              (Minimaal 5 sessies vereist voor Poisson-vangsttempo en vangkans)
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-slate-400 mt-2">
+                            Nog geen eerdere bevestigde sessies voor deze doelsoort en stek.
+                          </div>
+                        )
                       )}
                     </div>
                   )}
@@ -696,7 +705,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
                     <Clock className="w-4 h-4" />
-                    C. Beste Toekomstige Vistijd
+                    Beste vistijd
                   </div>
 
                   {activeDayProg.activityScoreAvailable === false ? (
@@ -707,9 +716,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         {activeDayProg.bestTimeSlot}
                       </div>
                       <div className="text-xs text-amber-300 font-semibold mt-0.5">
-                        {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.timeRange} (Score: {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.activityScore}/10)
+                        {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.timeRange}
+                        {showAdvancedDetails && `(Score: ${activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.activityScore}/10)`}
                       </div>
-                      {activeDayProg.alternativeTimeSlots.length > 0 && (
+                      {showAdvancedDetails && activeDayProg.alternativeTimeSlots.length > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1.5">
                           Alternatief: {activeDayProg.alternativeTimeSlots.join(', ')}
                         </div>
@@ -718,18 +728,22 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   ) : activeDayProg.bestTimeSlot === 'Geen betekenisvol onderscheid' ? (
                     <div>
                       <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
-                      </p>
+                      {showAdvancedDetails && (
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div>
                       <div className="text-sm font-bold text-slate-300">
                         Geen toekomstig tijdvak meer vandaag
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de tijdvakken van morgen voor de beste toekomstige opties.
-                      </p>
+                      {showAdvancedDetails && (
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                          Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de tijdvakken van morgen voor de beste toekomstige opties.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -743,79 +757,81 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             </div>
 
             {/* Biologische voedingsliteratuur: informatief, nooit een prognosescore */}
-            <section className="rounded-2xl bg-slate-900/80 border border-amber-800/40 p-4 sm:p-5 space-y-3">
-              <div className="flex items-start gap-2.5">
-                <div className="p-1.5 rounded-lg bg-amber-950/70 border border-amber-800/50 text-amber-300">
-                  <BookOpen className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider">
-                    Wat zegt onderzoek over voeding bij {selectedSpecies === 'Algemeen' ? 'vissen' : selectedSpecies}?
-                  </h3>
-                  <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Biologische achtergrond uit gepubliceerde studies, geen actuele voedingsvoorspelling voor deze stek of datum.
-                    De onderzochte populaties, wateren en omstandigheden kunnen afwijken van jouw situatie.
-                  </p>
-                </div>
-              </div>
-
-              {feedingEvidenceContext ? (
-                <>
-                  {feedingEvidenceSections.some((group) => group.entries.length > 0) ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
-                      {feedingEvidenceSections.filter((group) => group.entries.length > 0).map((group) => (
-                        <div key={group.title} className="rounded-xl bg-slate-800/70 border border-slate-700/70 p-3 space-y-2">
-                          <div>
-                            <h4 className="text-[11px] font-bold text-slate-200">{group.title}</h4>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{group.description}</p>
-                          </div>
-                          {group.entries.map((entry) => (
-                            <details key={entry.id} className="rounded-lg bg-slate-950/60 border border-slate-700/60 p-2">
-                              <summary className="text-[11px] font-semibold text-cyan-200 cursor-pointer">
-                                {entry.topic}
-                              </summary>
-                              <div className="pt-2 space-y-2">
-                                <p className="text-[11px] text-slate-300 leading-relaxed">{entry.summary}</p>
-                                {entry.limitations.length > 0 && (
-                                  <div>
-                                    <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wide">Beperkingen</p>
-                                    <ul className="list-disc pl-4 mt-1 space-y-1 text-[10px] text-slate-400">
-                                      {entry.limitations.map((limitation, index) => (
-                                        <li key={index}>{limitation}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                {entry.sourceReferences.length > 0 && (
-                                  <p className="text-[10px] text-slate-500 break-words">
-                                    Bron: {entry.sourceReferences.join(' · ')}
-                                  </p>
-                                )}
-                                <p className="text-[10px] text-slate-500">
-                                  Bewijsstatus: {entry.evidenceStrength === 'strong' ? 'sterk' : entry.evidenceStrength === 'moderate' ? 'matig' : entry.evidenceStrength === 'limited' ? 'beperkt' : 'nog onbekend'} · {entry.approvedForPrediction ? 'beoordeeld voor voorspellingsgebruik' : 'nog niet vrijgegeven als voorspellingsfactor'}
-                                </p>
-                              </div>
-                            </details>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-[11px] text-slate-400">
-                      Er is nog geen soortspecifiek voedings- of foerageeronderzoek in het register opgenomen.
+            {showAdvancedDetails && (
+              <section className="rounded-2xl bg-slate-900/80 border border-amber-800/40 p-4 sm:p-5 space-y-3">
+                <div className="flex items-start gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-amber-950/70 border border-amber-800/50 text-amber-300">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider">
+                      Wat zegt onderzoek over voeding bij {selectedSpecies === 'Algemeen' ? 'vissen' : selectedSpecies}?
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                      Biologische achtergrond uit gepubliceerde studies, geen actuele voedingsvoorspelling voor deze stek of datum.
+                      De onderzochte populaties, wateren en omstandigheden kunnen afwijken van jouw situatie.
                     </p>
-                  )}
-                </>
-              ) : (
-                <p className="text-[11px] text-slate-400">
-                  Selecteer een specifieke doelsoort om de bijbehorende onderzoeksbronnen en hun beperkingen te bekijken.
+                  </div>
+                </div>
+  
+                {feedingEvidenceContext ? (
+                  <>
+                    {feedingEvidenceSections.some((group) => group.entries.length > 0) ? (
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+                        {feedingEvidenceSections.filter((group) => group.entries.length > 0).map((group) => (
+                          <div key={group.title} className="rounded-xl bg-slate-800/70 border border-slate-700/70 p-3 space-y-2">
+                            <div>
+                              <h4 className="text-[11px] font-bold text-slate-200">{group.title}</h4>
+                              <p className="text-[10px] text-slate-400 mt-0.5">{group.description}</p>
+                            </div>
+                            {group.entries.map((entry) => (
+                              <details key={entry.id} className="rounded-lg bg-slate-950/60 border border-slate-700/60 p-2">
+                                <summary className="text-[11px] font-semibold text-cyan-200 cursor-pointer">
+                                  {entry.topic}
+                                </summary>
+                                <div className="pt-2 space-y-2">
+                                  <p className="text-[11px] text-slate-300 leading-relaxed">{entry.summary}</p>
+                                  {entry.limitations.length > 0 && (
+                                    <div>
+                                      <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wide">Beperkingen</p>
+                                      <ul className="list-disc pl-4 mt-1 space-y-1 text-[10px] text-slate-400">
+                                        {entry.limitations.map((limitation, index) => (
+                                          <li key={index}>{limitation}</li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {entry.sourceReferences.length > 0 && (
+                                    <p className="text-[10px] text-slate-500 break-words">
+                                      Bron: {entry.sourceReferences.join(' · ')}
+                                    </p>
+                                  )}
+                                  <p className="text-[10px] text-slate-500">
+                                    Bewijsstatus: {entry.evidenceStrength === 'strong' ? 'sterk' : entry.evidenceStrength === 'moderate' ? 'matig' : entry.evidenceStrength === 'limited' ? 'beperkt' : 'nog onbekend'} · {entry.approvedForPrediction ? 'beoordeeld voor voorspellingsgebruik' : 'nog niet vrijgegeven als voorspellingsfactor'}
+                                  </p>
+                                </div>
+                              </details>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-400">
+                        Er is nog geen soortspecifiek voedings- of foerageeronderzoek in het register opgenomen.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-[11px] text-slate-400">
+                    Selecteer een specifieke doelsoort om de bijbehorende onderzoeksbronnen en hun beperkingen te bekijken.
+                  </p>
+                )}
+  
+                <p className="text-[10px] text-slate-500 border-t border-slate-700/70 pt-2">
+                  Deze literatuurcontext verandert de thermische activiteitspotentie, beste vistijd en persoonlijke vangstkans niet.
                 </p>
-              )}
-
-              <p className="text-[10px] text-slate-500 border-t border-slate-700/70 pt-2">
-                Deze literatuurcontext verandert de thermische activiteitspotentie, beste vistijd en persoonlijke vangstkans niet.
-              </p>
-            </section>
+              </section>
+            )}
 
             {!showAdvancedDetails && activeDayProg.thermalAnalysis && (
               <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
@@ -825,10 +841,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
-                <span
-                  className="text-slate-400"
-                  title="Kwalitatieve databasis op basis van meetbron, dekking en ouderdom; geen statistisch betrouwbaarheidspercentage."
-                >Databasis watertemperatuur: {activeDayProg.thermalAnalysis.trendConfidence}</span>
+                {showAdvancedDetails && (
+                  <span
+                    className="text-slate-400"
+                    title="Kwalitatieve databasis op basis van meetbron, dekking en ouderdom; geen statistisch betrouwbaarheidspercentage."
+                  >Databasis watertemperatuur: {activeDayProg.thermalAnalysis.trendConfidence}</span>
+                )}
               </div>
             )}
             {showAdvancedDetails && (<>
@@ -940,28 +958,32 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <span className="text-xs font-bold text-white uppercase tracking-wider block">
                         Hengelpositionering & Visbeweging
                       </span>
-                      <span className="text-[11px] text-slate-400">
-                        Tactisch advies op basis van wind, stroming, waterlaag en diepte
-                      </span>
+                      {showAdvancedDetails && (
+                        <span className="text-[11px] text-slate-400">
+                          Tactisch advies op basis van wind, stroming, waterlaag en diepte
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-[11px] text-slate-400"
-                      title="Kwalitatieve inschatting van de onderbouwing van het stekadvies; geen gekalibreerde kans."
-                    >Onderbouwing stekadvies:</span>
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                      }`}
-                    >
-                      {activeDayProg.positioningAdvice.confidenceLevel}
-                    </span>
-                  </div>
+                  {showAdvancedDetails && (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[11px] text-slate-400"
+                        title="Kwalitatieve inschatting van de onderbouwing van het stekadvies; geen gekalibreerde kans."
+                      >Onderbouwing stekadvies:</span>
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        }`}
+                      >
+                        {activeDayProg.positioningAdvice.confidenceLevel}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Hoofdadvies en Alternatief */}
@@ -973,9 +995,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     <span className="text-sm font-bold text-white block mb-1.5">
                       {activeDayProg.positioningAdvice.recommendedZone}
                     </span>
-                    <p className="text-slate-300 leading-relaxed text-[11px]">
-                      {activeDayProg.positioningAdvice.rationale}
-                    </p>
+                    {showAdvancedDetails && (
+                      <p className="text-slate-300 leading-relaxed text-[11px]">
+                        {activeDayProg.positioningAdvice.rationale}
+                      </p>
+                    )}
                   </div>
 
                   <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
@@ -987,26 +1011,28 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         {activeDayProg.positioningAdvice.alternativeOption}
                       </p>
                     </div>
-                    <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1 text-[10px] text-slate-400">
-                      <div className="flex items-center justify-between">
-                        <span>
-                          {activeDayProg.positioningAdvice.windContext.speedKmH === null ? 'Windgegevens: onbekend' : `Wind: ${activeDayProg.positioningAdvice.windContext.directionText} ${activeDayProg.positioningAdvice.windContext.speedKmH} km/u`}
-                          {activeDayProg.positioningAdvice.windContext.gustsKmH &&
-                            ` (stoten ~${activeDayProg.positioningAdvice.windContext.gustsKmH} km/u)`}
-                        </span>
-                        <span>Seizoen: {activeDayProg.positioningAdvice.thermalContext.season}</span>
+                    {showAdvancedDetails && (
+                      <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1 text-[10px] text-slate-400">
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {activeDayProg.positioningAdvice.windContext.speedKmH === null ? 'Windgegevens: onbekend' : `Wind: ${activeDayProg.positioningAdvice.windContext.directionText} ${activeDayProg.positioningAdvice.windContext.speedKmH} km/u`}
+                            {activeDayProg.positioningAdvice.windContext.gustsKmH &&
+                              ` (stoten ~${activeDayProg.positioningAdvice.windContext.gustsKmH} km/u)`}
+                          </span>
+                          <span>Seizoen: {activeDayProg.positioningAdvice.thermalContext.season}</span>
+                        </div>
+                        {activeDayProg.positioningAdvice.windContext.intraSessionNote && (
+                          <p className="text-cyan-300/80 text-[10px]">
+                            {activeDayProg.positioningAdvice.windContext.intraSessionNote}
+                          </p>
+                        )}
                       </div>
-                      {activeDayProg.positioningAdvice.windContext.intraSessionNote && (
-                        <p className="text-cyan-300/80 text-[10px]">
-                          {activeDayProg.positioningAdvice.windContext.intraSessionNote}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
 
                 {/* Persoonlijke Leerresultaten (>=11 sessies drempel) */}
-                {activeDayProg.positioningAdvice.personalEvidence && (
+                {showAdvancedDetails && activeDayProg.positioningAdvice.personalEvidence && (
                   <div className="p-3 rounded-xl bg-slate-850 border border-slate-700/70 text-xs">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1">
@@ -1174,7 +1200,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
 
 </>
-)}                {/* Expliciete Beperkingen & Ontbrekende Informatie */}
+)}                {showAdvancedDetails && (
+                <>
+                {/* Expliciete Beperkingen & Ontbrekende Informatie */}
                 <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/40 text-[11px] text-slate-400 space-y-1">
                   <span className="font-semibold text-slate-300 block">
                     Belangrijke nuance & ontbrekende gegevens:
@@ -1185,6 +1213,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     ))}
                   </ul>
                 </div>
+                </>
+                )}
               </div>
             )}
 
@@ -1591,10 +1621,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {/* Biologische conclusie */}
                   <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
                     <div className="font-bold text-white text-sm">{pp.campaignSummary}</div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">{pp.biologicalRationale}</p>
-                    <p className="text-emerald-300/90 text-[11px] pt-1 border-t border-slate-700/50">
-                      <strong>Temperatuurinvloed:</strong> {pp.temperatureFactorExplanation}
-                    </p>
+                    {showAdvancedDetails && (
+                      <>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">{pp.biologicalRationale}</p>
+                        <p className="text-emerald-300/90 text-[11px] pt-1 border-t border-slate-700/50">
+                          <strong>Temperatuurinvloed:</strong> {pp.temperatureFactorExplanation}
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   {/* Alleen voorafgaande voermomenten; de visdag staat in het aparte sessieadvies */}
@@ -1646,7 +1680,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   </div>
 
-                  {pp.missingInformation.length > 0 && (
+                  {showAdvancedDetails && pp.missingInformation.length > 0 && (
                     <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/40 text-amber-100 text-[11px] leading-relaxed">
                       <strong className="block mb-1">Beperkingen van dit voeradvies</strong>
                       <ul className="list-disc pl-4 space-y-1">
@@ -1655,7 +1689,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   )}
 
-                  {pp.personalEvidence && (
+                  {showAdvancedDetails && pp.personalEvidence && (
                     <div className="p-3 rounded-xl bg-slate-850 border border-slate-700/70 text-xs">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">Eigen logboekervaring</span>
@@ -1706,11 +1740,13 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-emerald-400" />
-                Uitklapbare Analyse per Tijdvak
+{showAdvancedDetails ? 'Uitklapbare Analyse per Tijdvak' : 'Tijdvakken'}
               </h3>
-              <span className="text-xs text-slate-400">
-                Toont fysiologische temperatuurefficiëntie en niet-lineaire omgevingsfactoren
-              </span>
+              {showAdvancedDetails && (
+                <span className="text-xs text-slate-400">
+                  Toont fysiologische temperatuurefficiëntie en niet-lineaire omgevingsfactoren
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-3.5">
@@ -1744,7 +1780,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   >
                     {/* Header bar */}
                     <button
-                      onClick={() => toggleSlot(slot)}
+                      onClick={() => { if (showAdvancedDetails) toggleSlot(slot); }}
+                      aria-expanded={showAdvancedDetails && isExpanded}
+                      aria-label={showAdvancedDetails ? `${slot} details tonen` : slot}
                       className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-700/30 transition cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
@@ -1767,9 +1805,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                               </span>
                             ) : null}
                           </div>
-                          <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
-                            {analysis.conclusion}
-                          </p>
+                          {showAdvancedDetails && (
+                            <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                              {analysis.conclusion}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -1780,18 +1820,20 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                             <span className="text-xs text-slate-400 font-normal">/10</span>
                           </div>
                         </div>
-                        <div className="p-1 rounded-lg text-slate-400 hover:text-white">
-                          {isExpanded ? (
-                            <ChevronUp className="w-5 h-5" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5" />
-                          )}
-                        </div>
+                        {showAdvancedDetails && (
+                          <div className="p-1 rounded-lg text-slate-400 hover:text-white">
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </button>
 
                     {/* Expanded details */}
-                    {isExpanded && (
+                    {showAdvancedDetails && isExpanded && (
                       <div className="p-4 pt-2 border-t border-slate-700/50 bg-slate-900/40 space-y-4">
 {showAdvancedDetails && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1960,7 +2002,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       )}
 
       {/* Modal voor Biologische Soortprofielen, Aannames & Wetenschappelijke Bronnen */}
-      {showAssumptionsModal && (
+      {showAdvancedDetails && showAssumptionsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
           <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl bg-slate-900 border border-slate-700 p-6 shadow-2xl text-slate-100">
             <div className="flex items-center justify-between pb-4 border-b border-slate-800">
