@@ -1304,3 +1304,48 @@ Het plan moet deze twee onderdelen logisch met elkaar verbinden: de omstandighed
 4. Relevante prognose-informatie wordt door de coach benut zonder de gebruiker te dwingen alle technische prognosedetails te bekijken.
 5. De standaard coachervaring blijft begrijpelijk en actiegericht; volledige technische herleiding blijft optioneel beschikbaar via de bestaande geavanceerde weergave.
 6. Berekeningen, modelgewichten, opgeslagen prognosesnapshots en Brier-validatie veranderen niet door deze product-/presentatiekeuze.
+
+---
+
+## Implementatie-audit VisCoach — 18 november 2026
+
+**Scope:** read-only controle van de actuele coachstartpagina, planopbouw, sessiecoach, prognosekoppeling, tactische deel-engines en bestaande regressietests. Deze audit verandert geen berekeningen, biologische parameters, scores, snapshots of gebruikersgegevens.
+
+### Bevestigd aanwezig
+
+- src/App.tsx opent standaard op de VisCoach-tab; de Prognose-tab is afzonderlijk beschikbaar en hoeft niet eerst te worden doorlopen.
+- src/components/viscoach/VisCoachView.tsx vraagt alleen doelvis, stek en gewenste starttijd. De eindtijd is optioneel.
+- src/services/viscoachService.ts hergebruikt calculateDayPrognosis() en bouwt de reproduceerbare invoer/snapshot op. Er is geen tweede prognose-engine.
+- Dezelfde vertaalservice wordt gebruikt voor het vooraf gemaakte visplan en voor opgeslagen start-/herbeoordelingsadviezen tijdens de sessie.
+- De bestaande engines leveren afzonderlijke uitkomsten voor thermische activiteit, habitat, oeverwind, hengelpositionering en voorvoer.
+
+### Geconstateerde implementatieverschillen met het productbesluit
+
+1. **Advies en tactiek zijn nog geen afzonderlijke gegevens.** VisCoachAdviceText bevat alleen summary, recommendation en rationale. De planweergave en actieve sessie tonen één samengestelde aanbeveling. De gebruiker kan daardoor niet helder onderscheiden waarom/waar te vissen van hoe de hengel te presenteren.
+2. **Biologische context staat nog in het gewone plan.** buildVisCoachAdviceText() voegt een zelfstandig onderdeel Biologische context toe. Dit botst met het besluit van 18 november dat literatuur en bewijsbeperkingen interne coachkennis zijn en niet als apart blok in het gewone visplan verschijnen.
+3. **De gekozen starttijd stuurt nog niet alle tactische berekeningen.** De gekozen tijdslotconclusie wordt in de coachtekst gebruikt, maar calculateDayPrognosis() geeft voor analyzeRodPositioning(), analyzeHabitatMovement() en calculatePrebaitPlan() nog het beste tijdvak van de dagprognose door. De coach kan daardoor de juiste tijdvaktekst tonen terwijl onderliggende zone-/voeradviezen op een ander tijdvak zijn gebaseerd. Dit moet worden gecorrigeerd zonder de dagbrede bestTimeSlot-uitkomst te veranderen.
+4. **Windadvies is te sterk aan isStrongWind gekoppeld.** De tekstbouwer toont de windsectie alleen bij sterke wind. De bestaande test dekt zwakke wind (5 km/u), maar geen matige wind waarbij een geconfigureerde oever-/windanalyse wel relevant kan zijn. Het centrale verbeterplan verlangt dat bruikbaar windadvies niet onnodig bij matige wind wordt onderdrukt. Gebruik de bestaande wind-/oeveruitkomsten; introduceer geen nieuwe willekeurige windbonus of drempel.
+5. **Habitat en wind worden nog niet expliciet tot één logisch plan verbonden.** De tekst kiest de primaire habitatzone vóór de positioneringszone en toont wind/werprichting als aparte sectie. Er is geen expliciete uitleg hoe de coach handelt wanneer habitat- en winduitkomsten verschillende startzones suggereren. De oplossing moet de verschillende rollen respecteren: habitat als aanwijzing voor waar vis zich kan ophouden, wind/oever als context voor positionering en presentatie. Bij onvoldoende bewijs mag geen schijnzekere winnaar worden geforceerd.
+6. **De voorvoeruitkomst wordt slechts gedeeltelijk benut.** De coach gebruikt sessionDayGuidance.advice en een algemene method-feederuitleg. De bestaande prebaitPlan bevat daarnaast onder meer geschiktheid, voorbereidingstermijn, voerprogramma, momenten, samenstelling, hoeveelheid, betrouwbaarheid en ontbrekende informatie. Per veld moet worden vastgesteld wanneer het voldoende betrouwbaar en praktisch relevant is om in het plan te gebruiken; geen hoeveelheid of voorvoeradvies tonen zonder passende onderbouwing.
+7. **De gewone planweergave toont nog losse scorekaarten.** De activiteitsscore en persoonlijke vangkans worden direct naast de coachtekst getoond. Beoordeel bij de UX-uitwerking of deze compacte cijfers in het gewone coachplan thuishoren of beter bij de optionele verdiepende analyse passen. Geen score of berekening wijzigen als onderdeel van deze presentatiebeslissing.
+
+### Testdekking en resterende gaten
+
+De huidige test-session-coach.ts controleert onder meer tijdvaktekst, sterke wind, zwakke wind, ontbrekende oeveroriëntatie, geschatte watertemperatuur, beperkte persoonlijke historie en een praktisch alternatief. De bestaande tests bewijzen nog niet:
+- dat het gekozen starttijdvak ook de positionerings-, habitat- en voorvoerberekeningen stuurt;
+- dat advies en tactiek afzonderlijk en tegelijk samenhangend worden opgeslagen en weergegeven;
+- dat biologische literatuur niet als zelfstandig standaardblok verschijnt;
+- dat relevante matige wind wordt benut terwijl zwakke wind geen onnodig advies oplevert;
+- hoe tegenstrijdige habitat- en windsignalen worden uitgelegd;
+- welke voorvoeronderdelen veilig in het gewone plan thuishoren.
+
+### Uitvoeringsvolgorde voor deze zijstroom
+
+1. Geef de gekozen starttijd door aan de bestaande tactische deel-engines; behoud de dagbrede prognose en bestTimeSlot.
+2. Maak advies en tactiek afzonderlijke, gestructureerde coachuitkomsten. Behoud compatibiliteit met oudere opgeslagen recommendation-records.
+3. Verbind habitat, wind/oever en positionering in één uitlegbare startaanpak; behandel matige wind op basis van bestaande engine-uitkomsten.
+4. Vertaal de relevante voorvoeruitkomsten naar een praktische keuze vóór de sessie en voerstrategie tijdens de sessie, met expliciete onzekerheidsgrenzen.
+5. Werk de standaardweergave uit als een kort, begrijpelijk visplan; laat technische scores, literatuur en uitgebreide diagnostiek optioneel.
+6. Voeg regressietests toe voor de genoemde gaten en controleer de volledige gebruikersflow.
+
+**Fasestatus:** dit is een parallelle, read-only VisCoach-audit en voorbereiding. Het verandert de hoofdvolgorde van VISLOGBOEK_VERBETERPLAN.md niet: fase 2 blijft het hoofdspoor, fase 3 start pas na formele fase-2-acceptatie. Er is geen nieuwe prognose-, biologische of tactiekengine gestart.
