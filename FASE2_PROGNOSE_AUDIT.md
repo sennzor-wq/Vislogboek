@@ -1410,3 +1410,19 @@ Er is een pure, beschrijvende helper toegevoegd die geldige hengelintervallen sp
 - geeft uitsluitend geregistreerde blootstelling terug, zonder vangstlabels of soorttoewijzing.
 
 De helper is nog niet aangesloten op de prognose, VisCoach of UI. Er wordt geen catch rate, nulvangst per tijdvak, voedingsactiviteit of Brier-score berekend. De regressietests dekken normale tijdvakgrenzen, overlap, gedeeltelijke dekking, ongeldige invoer en beide DST-overgangen.
+
+
+## 69. Beschrijvende tijdvak-vangstbewijsdiagnose (18 november 2026)
+
+Er is een aparte audithelper toegevoegd om vangsttijdregistraties niet te verwarren met bewezen vangstmomenten. De helper werkt alleen op afgeronde, niet-benchmark sessies met precies één doelsoort en een valide sessievenster.
+
+- `automatic` wordt uitsluitend geteld als formulier-open-/registratietijd; het levert geen tijdvakvangstlabel op.
+- `user_adjusted` kan een positief, expliciet als gebruikersgerapporteerd signaal opleveren als het tijdstip binnen de sessie valt. Het blijft geen onafhankelijke verificatie.
+- Oude/herkomstloze en legacy-onbekende tijden, ongeldige tijden en tijden buiten de sessie worden uitgesloten en apart geteld.
+- Een vangst in één tijdvak maakt andere tijdvakken niet tot nulvangst; die blijven onbekend.
+- Alleen een expliciet bevestigde nulvangstsessie zonder gekoppelde vangstregistraties kan nulvangstlabels leveren, en alleen voor tijdvakken met geregistreerde hengelblootstelling.
+- Bijvangst van een andere soort wordt niet als doelsoortvangst behandeld. Meersoortige sessies worden uitgesloten van soortspecifieke tijdvaklabels.
+- Groepsvangst blijft één geregistreerd tijdstip; groepsaantal wordt apart vermeld.
+- Tegenstrijdige sessie-uitkomsten (bijvoorbeeld `skunk_confirmed` met gekoppelde vangsten) worden uitgesloten.
+
+De helper is alleen beschrijvend en offline. Geen catch rate, Brier-score, prognosegewicht of biologische leerlabel wordt berekend of geactiveerd.
