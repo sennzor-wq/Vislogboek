@@ -592,7 +592,7 @@ async function run() {
     name: 'Tijdvaktestwater',
     latitude: 51.9,
     longitude: 5.2,
-    waterType: 'Stilstaand',
+    waterType: 'Plas/Zandafgraving',
     waterDepth: 2,
     waterFacingDirection: 'Noord',
     habitatFeatures: ['open_water', 'talud'],
