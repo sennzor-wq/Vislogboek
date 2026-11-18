@@ -1455,3 +1455,10 @@ Een nieuwe adviesregistratie mag dus niet uitsluitend worden veroorzaakt door ee
 5. Controleer daarna de actieve-sessie-UI: oorspronkelijk plan, huidig advies, wat veranderde, waarom en wat de gebruiker kan doen. De gebruiker houdt altijd de keuze; geen automatische hengelverplaatsing of tactiekuitvoering.
 
 **Faseregie:** dit is een verdiepende audit en voorbereiding binnen de VisCoach-productzijstroom. Het start fase 3 niet. Het hoofdspoor fase 2 blijft leidend en fase 3 blijft geblokkeerd tot formele fase-2-acceptatie. Tot die tijd worden geen nieuwe biologische regels, numerieke drempels of parallelle prognose-/tactiekengines ingevoerd.
+
+
+## Regie en fasenamen — verduidelijking (18 november 2026)
+
+De fasen in dit document beschrijven de **VisCoach-productroadmap** en zijn niet één-op-één dezelfde fasen als de overkoepelende optimalisatiefasen in `VISLOGBOEK_VERBETERPLAN.md`. Gebruik voor de projectbrede volgorde, formele faseacceptatie en blokkades altijd het centrale verbeterplan en issue #49. De VisCoach-roadmap blijft leidend voor de inhoudelijke productervaring van de coach.
+
+De actuele code-audit voor dynamische advies- en tactiekbijsturing tijdens een actieve sessie staat hierboven onder **Dynamische sessiecoach — aanvullende code-audit**. Deze audit is voorbereidende productanalyse, geen vrijgave van een volgende projectfase. Fase 2 van het centrale verbeterplan blijft leidend; de centrale fase 3 start niet voordat fase 2 formeel is geaccepteerd.
