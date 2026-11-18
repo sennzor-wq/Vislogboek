@@ -562,6 +562,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'adult-catfish-northern-fringe-seasonal-diel-movement-2024',
+    topic: 'seizoensgebonden-dagritme-en-dieptegebruik-noordelijke-meervalpopulatie',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een veldstudie in het Zweedse Möckelnmeer volgde volwassen Europese meerval aan dataloggers. Van 55 gemerkte dieren werden 15 loggers teruggevonden; 11 bevatten langdurige hoogfrequente gedragsgegevens. Dieptemeting per minuut en temperatuurmeting per vijf minuten lieten seizoensafhankelijk verticaal gedrag zien: in februari–maart en juli–oktober was activiteit vaker hoger in de nacht, in april–juni was er geen dag-nachtverschil en in december–januari was de activiteit zeer laag. Van juli tot oktober stegen de vissen rond schemering van de bodem naar de bovenste waterlaag en keerden rond dageraad terug.',
+    limitations: [
+      'De studie betreft één geïsoleerde, genetisch onderscheiden noordelijke Zweedse populatie; de patronen zijn niet rechtstreeks overdraagbaar op Midden-/Zuid-Europese of Nederlandse meervalpopulaties.',
+      'Hoewel 55 volwassen dieren werden gemerkt, leverden 15 teruggevonden loggers bruikbare data en hadden 11 loggers langdurige hoogfrequente gegevens.',
+      'De sensoren maten diepte, temperatuur en daaruit afgeleide verticale beweging. Dit is locomotorisch-/habitatbewijs, geen directe meting van voedselopname, aascontact of vangbaarheid.',
+      'De auteurs interpreteren het nachtelijke verticale gedrag in warme maanden als waarschijnlijk foerageren, maar dit blijft een gedragsinterpretatie en geen gemeten voedingsritme.'
+    ],
+    sourceReferences: [
+      'Bergström, K., Berggren, H., Nordahl, O., Koch-Schmidt, P., Tibblin, P. & Larsson, P. (2024). Seasonal and Daily Movement Patterns by Wels Catfish (Silurus glanis) at the Northern Fringe of Its Distribution Range. Fishes, 9(7), 280. https://doi.org/10.3390/fishes9070280'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
     id: 'adult-catfish-diel-activity-reservoir-2025',
     topic: 'seizoensafhankelijke-dagritme-beweging-en-dieptegebruik',
     measuredOutcomes: ['locomotor_activity', 'habitat_use'],

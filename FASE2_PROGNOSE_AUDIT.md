@@ -1497,3 +1497,12 @@ Kwak et al. (1992) is toegevoegd aan het centrale research register als directe 
 Deze bron nuanceert de eerder geregistreerde nachtelijke consumptie bij volwassen wilde karper op kunstmatig bijgevoerd meerpunten (Bajer 2010; Ghosal 2018) en de schemer-/nachtelijke detecties bij bijgevoerd gemonitorde stations (Hundt 2022). Ze staat ook naast de studie met jonge karpers in gesimuleerde vijvers waarin geen duidelijke dagelijkse graaspiek werd gevonden (Rahman 2008). De verschillen zijn contextgebonden; ze ondersteunen geen universele nacht-, ochtend- of schemerbonus.
 
 De bron is geclassificeerd als `feeding_intensity`, `feeding_rhythm` en `habitat_use`, niet als hengelvangbaarheid. De registratie blijft `approvedForPrediction: false`. De uitkomst is niet zonder meer overdraagbaar van één Illinois-rivier naar Nederlandse stilstaande wateren, Lokkershoek of method-feederpresentatie. Er zijn geen score, tijdvakvoorkeur, modelgewicht of vangstkans gewijzigd.
+
+
+## 77. Meerval: noordelijke veldtelemetrie verfijnt seizoensgebonden dieptegebruik (18 november 2026)
+
+Bergström et al. (2024) is toegevoegd als veldbron voor locomotorische activiteit en habitatgebruik bij volwassen Europese meerval in het Zweedse Möckelnmeer. Van 55 gemerkte dieren werden 15 dataloggers teruggevonden; 11 bevatten langdurige hoogfrequente gegevens. Diepte werd per minuut en temperatuur per vijf minuten geregistreerd. De noordelijke populatie vertoonde seizoensafhankelijk gedrag: hogere nachtelijke verticale activiteit in februari–maart en juli–oktober, geen dag-nachtverschil in april–juni en zeer lage activiteit in december–januari. In juli–oktober stegen dieren rond schemering vanuit diepere bodemlagen naar de bovenste waterlaag en keerden rond dageraad terug.
+
+De auteurs interpreteren het patroon in de warme maanden als waarschijnlijk foerageergedrag. De sensoren maten echter diepte en beweging, niet daadwerkelijke voedselopname. De bron is daarom uitsluitend geregistreerd als `locomotor_activity` en `habitat_use`; niet als `feeding_rhythm`, `feeding_intensity` of vangbaarheid. Dit is bovendien één genetisch onderscheiden noordelijke Zweedse populatie met beperkte teruggewonnen tagreeksen en geen directe overdracht naar Nederlandse wateren.
+
+De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschrijving van seizoens-/dieptegedrag, maar levert geen nachtbonus, voedingsscore, thermische parameter of numerieke modelbijdrage op.
