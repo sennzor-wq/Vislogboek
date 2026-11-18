@@ -418,11 +418,13 @@ export function buildVisCoachAdviceText(
   }
   if (feeding.length > 0) tacticSections.push(`Voeren en aas\n${feeding.join(' ')}`);
 
-  const alternative = positioning?.alternativeOption
-    ? cleanCoachText(positioning.alternativeOption)
-    : habitat?.alternativeZone?.name && !isGenericZone(habitat.alternativeZone.name)
-      ? `Probeer daarna ${explainZone(habitat.alternativeZone.name)}.`
-      : '';
+  const alternative = zoneResolution.secondaryZone
+    ? `Vergelijk daarna ${explainZone(zoneResolution.secondaryZone)}.`
+    : positioning?.alternativeOption && !isGenericZone(positioning.alternativeOption)
+      ? cleanCoachText(positioning.alternativeOption)
+      : habitat?.alternativeZone?.name && !isGenericZone(habitat.alternativeZone.name)
+        ? `Probeer daarna ${explainZone(habitat.alternativeZone.name)}.`
+        : '';
   const fallback = alternative
     ? `Als je op de eerste plek geen activiteit ziet of geen aanbeten krijgt, probeer dan deze tweede optie: ${alternative}`
     : 'Zie je geen activiteit of krijg je geen aanbeten, controleer dan eerst opnieuw de omgeving en probeer een tweede herkenbare structuur of diepteovergang. Verander niet steeds van aanpak door kleine weersschommelingen.';
@@ -441,9 +443,15 @@ export function buildVisCoachAdviceText(
       reasons.push(`De watertemperatuur is geschat op ongeveer ${thermal.estimatedWaterTemp.toFixed(1)} °C en niet op deze stek gemeten. De invloed van temperatuur is daarom onzeker.`);
     }
   }
-  const explanation = cleanCoachText(habitat?.primaryZone?.whyLikely || positioning?.rationale);
+  const explanation = cleanCoachText(zoneResolution.explanation);
   if (explanation && !/aanvullende locatiegegevens|onbekend/i.test(explanation)) reasons.push(explanation);
-  if (strongWind && wind?.isConfigured && wind.bankAssessment?.explanation) {
+  if (zoneResolution.hasConflict) {
+    const secondaryReason = zoneResolution.source === 'habitat'
+      ? cleanCoachText(positioning?.rationale)
+      : cleanCoachText(habitat?.primaryZone?.whyLikely);
+    if (secondaryReason && !/aanvullende locatiegegevens|onbekend/i.test(secondaryReason)) reasons.push(secondaryReason);
+  }
+  if (windInfluencesTactics && wind?.isConfigured && wind.bankAssessment?.explanation) {
     reasons.push(cleanCoachText(wind.bankAssessment.explanation));
   }
   const limitations = (prognosis.uncertaintyNotes ?? [])
