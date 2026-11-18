@@ -445,8 +445,28 @@ async function run() {
     prebaitTactics.tactics.includes('1 dag vooraf: circa 250 gram') &&
     prebaitTactics.tactics.includes('Voersamenstelling: Een kleine mix') &&
     prebaitTactics.tactics.includes('Eigen sessiehistorie:') &&
-    prebaitTactics.tactics.includes('Method feeder blijft een instant presentatie'),
+    prebaitTactics.tactics.includes('Method feeder blijft een instant presentatie') &&
+    !prebaitTactics.tactics.includes('Niet tonen in het standaardplan') &&
+    !prebaitTactics.tactics.includes('Niet tonen.'),
     'De coach vertaalt campagne, sessievoer, mix en voldoende persoonlijke historie naar praktische tactiek'
+  );
+  const noPrebaitTactics = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    prebaitPlan: {
+      ...confidentPrebaitPlan,
+      suitability: 'Niet aanbevolen (instant vissen aanbevolen)',
+      shouldPrebait: false,
+      campaignSummary: 'Niet voorvoeren. Kies voor een puur instant tactiek met minimaal haakaas.',
+      moments: [],
+      sessionDayGuidance: { feedDuringSession: false, recommendedAmountGrams: 0, amountDisplay: 'Geen extra voer', advice: 'Niet bijvoeren. Gebruik een kleine single hookbait of micro-PVA-presentatie vlak bij de haak.' },
+      feedCompositionAdvice: { recommendedMix: 'Geen voorvoermengsel; alleen minimaal haakaas.', digestibilityNote: '', particleSizeNote: '' },
+      personalEvidence: { ...confidentPrebaitPlan.personalEvidence, hasSufficientData: false },
+    },
+  } as any, null, null, 'Avond', null);
+  assert(
+    noPrebaitTactics.tactics.includes('Niet voorvoeren. Kies voor een puur instant tactiek') &&
+    !noPrebaitTactics.tactics.includes('Voorvoeren niet aanbevolen: Niet voorvoeren'),
+    'Wanneer voorvoeren niet passend is, adviseert de coach expliciet een instant presentatie zonder dubbele formulering'
   );
   const uncertainPrebaitTactics = buildVisCoachAdviceText({
     ...baselinePrognosis,
