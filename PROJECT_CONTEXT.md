@@ -1513,3 +1513,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De Římov 2004-studie voor brasem/blankvoorn stond tweemaal in het research register; dit is één canonieke bronregistratie geworden.
 - Beide soorten behouden de bron en de beperking dat juveniele veldresultaten een tegengesteld nachtpatroon tonen.
 - Geen bron goedgekeurd voor voorspelling; geen numerieke voedings- of tijdvakscore gewijzigd. Regressietest toegevoegd.
+
+
+### Fase 2 — extra veldbewijs dieet roofblei (18 november 2026)
+
+- Trzebiatowski & Leszczewicz (1976) toegevoegd als beperkte veldbron voor seizoensgebonden dieetcompositie van roofblei.
+- Alleen `diet_composition`; geen voedingsintensiteit, diel-rhythm of foraging score.
+- Roofblei blijft zonder directe geregistreerde soortspecifieke diel-feedingbron; geen tijdvakvoorkeur of voorspelfactor geactiveerd.

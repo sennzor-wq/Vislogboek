@@ -736,6 +736,25 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'asp-diet-seasonal-stettin-firth-1976',
+    topic: 'seizoensgebonden-dieet-en-prooicompositie',
+    measuredOutcomes: ['diet_composition'],
+    species: ['Roofblei'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Veldonderzoek in de Szczecin Firth op materiaal uit 1972 en 1974–1975 beschreef de dieetcompositie en frequentie van prooien bij roofblei. In de zomer bestond het hoofdvoedsel uit onder meer spiering, blankvoorn, stekelbaars, baars, alver en pos; in andere seizoenen werd vrijwel uitsluitend spiering aangetroffen. De studie onderzocht geen dagritme of tijdstipgebonden voedselopname.',
+    limitations: [
+      'De studie betreft één estuarium en historische bemonsteringen uit 1972 en 1974–1975; de prooigemeenschap is niet rechtstreeks overdraagbaar naar Nederlandse plassen of rivieren.',
+      'De auteurs beperkten de voedingsanalyse tot voedselcompositie en frequentie van prooien; dit is geen meting van voedingsintensiteit, dagelijkse voedselopname of dag-nachtritme.',
+      'Seizoensgebonden prooifrequentie weerspiegelt ook de lokale beschikbaarheid van prooien en rechtvaardigt geen vaste seizoens- of tijdvakbonus.'
+    ],
+    sourceReferences: [
+      'Trzebiatowski, R. & Leszczewicz, T.L. (1976). A contribution to knowledge of biology and economic importance of Aspius aspius (L.) of the Szczecin Firth. Acta Ichthyologica et Piscatoria, 6(2), 103–118. https://doi.org/10.3750/aip1976.06.2.08'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
     id: 'asp-pikeperch-ontogenetic-diet-two-reservoirs-2018',
     topic: 'levensfase-en-prooikeuze',
     measuredOutcomes: ['diet_composition', 'prey_selection'],

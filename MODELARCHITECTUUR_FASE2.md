@@ -554,3 +554,8 @@ De UI noemt de maat nu "Eigen sessie-uitkomsten bij starts in dit tijdvak". Het 
 ## 62. Bronnen tellen op studie, niet op registratierecord
 
 Het research register mag dezelfde publicatie niet als meerdere onafhankelijke bewijsbronnen laten meetellen doordat zij onder verschillende ID's of soortvolgordes is geregistreerd. De Římov 2004-voedingsstudie voor brasem/blankvoorn is daarom één canoniek record dat aan beide soorten gekoppeld is. Tegenstrijdige levensfase-/habitatbevindingen blijven in de beperkingen zichtbaar. Deze consolidatie wijzigt geen goedkeuring of score.
+
+
+## 63. Roofblei: seizoensdieet is geen dagritme
+
+De veldstudie uit de Szczecin Firth (1976) is als beperkte dieetcompositiebron geregistreerd. Zij beschrijft prooifrequenties per seizoen, maar meet geen dagelijkse voedingsintensiteit of tijdstipgebonden voedselopname. De roofblei blijft daarom `diet-only` in de voedingscontext; de telemetriestudies blijven `movement-only` voor tijdgebonden gedrag. Er volgt geen tijdvakvoorkeur uit deze bronnen.
