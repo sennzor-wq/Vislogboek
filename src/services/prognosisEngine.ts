@@ -1434,6 +1434,8 @@ export async function saveSessionWithPrognosisSnapshot(
         inputFingerprint: pending.inputFingerprint,
         supersedesSnapshotId: pending.supersedesSnapshotId,
         forecastTimestamp,
+        targetWindowStart: pending.targetWindowStart,
+        targetWindowEnd: pending.targetWindowEnd,
       }
     );
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
