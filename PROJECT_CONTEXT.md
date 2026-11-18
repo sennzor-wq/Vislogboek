@@ -1690,3 +1690,10 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Zeelt, meerval en roofblei: geen vergelijkbare soortspecifieke thermische fysiologiebron in het register.
 - Geen thermische curve, score, parameter of vangstkans gewijzigd. De expliciete keuze om voorlopige priors te behouden of bij onvoldoende bewijs uit te schakelen staat open in FASE2_PROGNOSE_AUDIT.md §86.
 - Correctie acceptatiecrosswalk: §43 bevat zeven verplichte criteria; de crosswalk in §85 omvat ook criterium 7 (technische borging, tests, exacte PR-head/mergecommit Quality Gates en documentconsistentie).
+
+### Fase 2 — thermische tijdvaktaal en startmetadata (18 november 2026)
+
+- De kaart en samenvatting noemen de thermisch hoogste relatieve periode nu 'thermisch gunstigste tijdvak', niet 'beste vistijd'. Het blijft een temperatuurrespons, geen voedingspiek of vangstkans.
+- 'Start sessie op dit moment' is alleen beschikbaar bij de prognose voor vandaag en bewaart het actuele Amsterdamse starttijdvak in de snapshot; het gebruikt niet langer het latere thermisch gunstigste tijdvak als startmetadata.
+- VisCoach blijft de gekozen sessietijd volgen; bij sessies over meerdere tijdvakken wordt geen globale dagwinnaar opgedrongen.
+- Geen thermische berekening, score, parameter of vangstkans gewijzigd. Zie FASE2_PROGNOSE_AUDIT.md §87.

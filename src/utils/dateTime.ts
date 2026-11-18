@@ -103,6 +103,18 @@ export function getAmsterdamHour(value: Date | string): number | null {
   return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null;
 }
 
+export type AmsterdamTimeSlot = 'Nacht' | 'Ochtend' | 'Middag' | 'Avond';
+
+/** Geeft het starttijdvak in Europe/Amsterdam; gebruikt dezelfde grenzen als de app. */
+export function getAmsterdamTimeSlot(value: Date | string): AmsterdamTimeSlot | null {
+  const hour = getAmsterdamHour(value);
+  if (hour === null) return null;
+  if (hour < 6) return 'Nacht';
+  if (hour < 12) return 'Ochtend';
+  if (hour < 18) return 'Middag';
+  return 'Avond';
+}
+
 /** Geeft de kalendermaand (1–12) in Europe/Amsterdam of uit een date-only string. */
 export function getAmsterdamMonth(value: Date | string): number | null {
   const dateKey = getAmsterdamDateKey(value);

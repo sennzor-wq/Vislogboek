@@ -318,13 +318,13 @@ export function buildVisCoachAdviceText(
   const when = selectedTimeSlot
     ? selectedSlotAnalysis?.conclusion
       ? `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak geldt: ${selectedSlotAnalysis.conclusion}`
-      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het beste tijdvak van de hele dag.`
+      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het thermisch gunstigste tijdvak van de hele dag.`
     : selectedTimeSlot === null
-      ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het beste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
+      ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het thermisch gunstigste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
       : prognosis.bestTimeSlot &&
         prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
         prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
-          ? `Volgens de prognose is ${prognosis.bestTimeSlot.toLowerCase()} het gunstigste tijdvak. Dat betekent niet dat je op andere momenten geen vis kunt vangen.`
+          ? `Volgens de thermische prognose heeft ${prognosis.bestTimeSlot.toLowerCase()} de hoogste relatieve temperatuurrespons. Dit is geen bewezen voedingspiek of vangstvoorkeur; andere tijdvakken kunnen eveneens geschikt zijn.`
           : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
   adviceSections.push(`Wanneer\n${when}`);
