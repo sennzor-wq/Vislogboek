@@ -1460,3 +1460,13 @@ De karper-evidencelaag is uitgebreid met drie contextueel verschillende studies:
 Daarnaast is **Žák (2021)** geregistreerd onder een nieuw, afzonderlijk uitkomsttype `angler_catch_distribution`: 14 Europese karperwedstrijden lieten meer nachtelijke landingen zien. Dit is wedstrijdvangstverdeling, geen directe meting van voedselopname. De gegevens leveren geen algemeen gevalideerde hengeluren-noemer per tijdvak en mogen daarom niet als feeding-rhythm bron of tijdvakvangstkans worden gebruikt.
 
 Alle vier registraties blijven `approvedForPrediction: false`. De studies ondersteunen een contextgebonden veldhypothese voor nachtelijk foerageren bij volwassen/wilde karper, maar tonen ook verschillen tussen veld, aasstation, wedstrijd en jonge karper in gesimuleerde vijvers. Er is geen universele nachtbonus of modelgewicht geactiveerd.
+
+
+## 74. Volwassen-karpervoeropname en aasontmoeting versus vangbaarheid (18 november 2026)
+
+Twee aanvullende veldstudies verfijnen de karperlaag:
+
+- **Ghosal et al. (2018):** 30 volwassen karpers werden in een meer van 67 ha met radiozenders gevolgd. Bij een kunstmatig bijgevoerd maïspunt werd voedselconsumptie iedere zes uur gewogen gedurende zeven dagen. De nachtelijke consumptie nam sterk toe en bereikte tegen dag zeven ongeveer tienmaal de dagwaarde. De consumptiereeks was echter descriptief en niet formeel statistisch getoetst; één meer, één baiting-opzet.
+- **Monk & Arlinghaus (2017):** whole-lake telemetrie en experimenteel vissen op vaste bijgevoerd-locaties lieten zien dat karper en zeelt het aas bezochten, maar dat gemeten ontmoetings-/bewegingskenmerken individuele vangbaarheid niet significant verklaarden. Gedrag ná het ontmoeten van aas, zoals daadwerkelijke opname, kan bepalender zijn.
+
+Voor de tweede studie is een apart uitkomsttype `angler_vulnerability` toegevoegd. De bron wordt niet als feeding-rhythm of habitatbonus gelezen. Beide bronnen blijven `approvedForPrediction: false`; geen score, tijdvakbonus of modelgewicht verandert.

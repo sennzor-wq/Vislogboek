@@ -117,3 +117,10 @@ if (!carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-wild-night-f
     carpDiel.temporalEvidenceScope !== 'feeding-and-movement') {
   throw new Error('Wild carp feeding evidence must be exposed separately from angling landings and movement evidence.');
 }
+
+
+if (!carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-adult-bait-site-night-feeding-2018') ||
+    !carpDiel.habitatUse.some((item) => item.id === 'common-carp-bait-encounter-angling-vulnerability-2017') ||
+    carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-bait-encounter-angling-vulnerability-2017')) {
+  throw new Error('Carp bait-site feeding rhythm and encounter/vulnerability evidence must remain separate.');
+}

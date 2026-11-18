@@ -566,3 +566,10 @@ De veldstudie uit de Szczecin Firth (1976) is als beperkte dieetcompositiebron g
 Het register bevat nu directe veldstudies naar karpervoeding (Bajer et al. 2010; Hundt et al. 2022), gecontroleerd tegenbewijs zonder duidelijke dagpiek bij jonge karpers (Rahman et al. 2008), en wedstrijdvangstverdeling als afzonderlijke uitkomst (Žák 2021). De wedstrijdstudie is geen directe feeding-rhythm meting en krijgt daarom het eigen outcome-type `angler_catch_distribution`, dat niet door de voedings- of diel-feeding-services wordt gelezen.
 
 De veldstudies ondersteunen een nachtelijk foerageersignaal onder specifieke omstandigheden, vooral bij bijgevoerd voedsel, maar individuele variatie, aasstations, seizoen, water en populatie begrenzen overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor voorspelling; er wordt geen nachtbonus of numerieke factor toegevoegd.
+
+
+## 65. Aanwezigheid, aasopname en vangbaarheid zijn afzonderlijke stappen
+
+De veldstudie van Monk & Arlinghaus (2017) ondersteunt expliciet dat het ontmoeten of bezoeken van een bijgevoerd aas niet voldoende is om individuele hengelvangbaarheid te verklaren. Daarom blijven in de architectuur gescheiden: (1) aanwezigheid/habitat, (2) foerageer- en daadwerkelijke aasopname, en (3) vangbaarheid/aanbeet en uitvoering. Ghosal et al. (2018) levert directe, maar contextgebonden consumptiemetingen bij één maïs-baitsite; de consumptiegegevens waren descriptief en mogen niet als universele tijdvakcurve worden gebruikt.
+
+De nieuwe uitkomst `angler_vulnerability` blijft gescheiden van `feeding_rhythm`. Beide bronnen zijn informatief en niet goedgekeurd als numerieke voorspelfactor.
