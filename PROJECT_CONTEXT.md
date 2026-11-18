@@ -1573,3 +1573,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - PR #128 verwijdert deze automatische zonekeuze en de betreffende 11/12/15 km/u-drempels. Lokale habitat, diepteovergang en directe waarnemingen bepalen de primaire doelzone; wind ondersteunt presentatie, werphoek, lijnbocht en hengelpositie.
 - Windkant blijft hooguit een tweede vergelijkingszone wanneer lokale structuur/waarnemingen dit ondersteunen. Zuurstof wordt niet uit windstilte of temperatuur afgeleid.
 - Regressies controleren dat de primaire habitatzone niet door wind alleen verandert en dat wind-/werpadvies behouden blijft. Geen biologische score of vangstkans gewijzigd.
+
+
+### Fase 2 — soortdekking en invoerbaarheid omgevingsfactoren (18 november 2026)
+
+- Research registry: 64 records; 0 goedgekeurd voor directe voorspelling.
+- Alle negen doelsoorten hebben geregistreerde voedings-/dieetcontext en beweging-/habitatcontext, maar de gemeten respons verschilt per bron. Dit is geen gelijkwaardige dekking van dagelijkse voedselopname of hengelvangbaarheid.
+- Directe hengelvangbaarheidsregistraties zijn momenteel geconcentreerd bij karper en zeelt; voor zeven andere doelsoorten is deze uitkomst nog niet vergelijkbaar in de registry vertegenwoordigd.
+- Weerservice bevat wind, regen, bewolking, luchtdruk en temperatuur, maar geen opgeloste zuurstof of lokale stromingssnelheid/afvoer.
+- Zuurstof en stroming blijven daarom buiten numerieke prognose zolang betrouwbare lokale meetinvoer ontbreekt; regen en bewolking blijven context, niet dagelijkse voedings- of vangstscore.
+- De volgende fase-2-actie is het sluiten van de volledige factor-/bewijs-/datadekkingsmatrix per soort en gemeten respons. Geen gewichten, drempels of tijdvakbonussen geactiveerd.
