@@ -1372,3 +1372,29 @@ De bestaande intervalberekening telde alleen geldige periodes, maar de UI presen
 De UI noemt nul uur niet langer als er geen intervalregistraties zijn. De berekening blijft beschrijvend en wordt niet gebruikt voor prognosescores, vangstkansen of tijdvakrangschikking. Er is geen nieuwe verplichte gebruikersinvoer toegevoegd.
 
 Regressietests dekken lege sets, gedeeltelijke invoer, lege eindtijd, ongeldige sessiegrenzen en intervallen buiten de sessie.
+
+
+## 67. Databeschikbaarheid voor eerlijke tijdvakvalidatie (18 november 2026)
+
+### Wat de huidige data wel en niet zegt
+
+1. **Huidige persoonlijke tijdvakervaring:** `getSimilarSessions()` deelt de hele afgeronde sessie in op het lokale startuur. Dit is een sessiestart-cohort en geen uitkomst per tijdvak. Een sessie die Avond en Nacht omvat, wordt niet over beide tijdvakken verdeeld.
+2. **Hengelblootstelling:** `SessionRod.activeIntervals` kan expliciete hengeluren leveren. De berekening is nu datakwaliteitsbewust: geen interval betekent onbekende inzet; gedeeltelijke registratie levert alleen een bruikbaar geregistreerd subtotaal; ongeldige intervallen worden uitgesloten en geteld. De intervallen zijn handmatig ingevoerd en niet onafhankelijk gecontroleerd.
+3. **Vangsttijd:** `timestampEntryMode=automatic` betekent dat het tijdstip bij openen van het vangstformulier is ingevuld. Dat is een registratiemoment, niet noodzakelijk het exacte vangstmoment. `user_adjusted` betekent dat de gebruiker het tijdstip heeft aangepast; dit blijft een gebruikersrapportage en geen onafhankelijke verificatie. Oude records zonder herkomststatus blijven ongeclassificeerd.
+4. **Hengelgebeurtenissen:** gebeurtenissen hebben tijdstip en herkomststatus, maar zijn niet aan een `CatchItem` gekoppeld. Een gebeurtenis van type `catch` mag daarom niet naast een vangstrecord worden opgeteld; dat kan dezelfde vangst dubbel tellen.
+5. **Meerdere doelsoorten:** één sessie kan meerdere `targetSpecies` bevatten, terwijl actieve intervallen per hengel geen doelsoort vastleggen. Dezelfde hengeluren zonder meer aan elke soort toeschrijven zou soortspecifieke blootstelling overschatten.
+
+### Veilige ontwerpregels voor een toekomstige beschrijvende tijdvakdiagnose
+
+- Splits alleen geldige actieve hengelintervallen over de bestaande lokale tijdvakken in `Europe/Amsterdam` (Nacht 00–06, Ochtend 06–12, Middag 12–18, Avond 18–24). Gebruik absolute ISO-momenten en de Amsterdamse tijdzone; DST-dagen mogen niet met een vaste UTC-offset worden verwerkt.
+- Rapporteer blootstelling als **geregistreerde hengeluren** per tijdvak, met expliciete aantallen intervallen/hengels zonder registratie, onvolledige intervallen en sessies met gedeeltelijke dekking. Nooit ontbrekende intervallen aanvullen vanuit sessieduur of `rodCount`.
+- Voor een soortspecifieke blootstellingsvergelijking is de huidige veilige scope beperkt tot sessies met precies één doelsoort. Meersoortige sessies blijven buiten de soortspecifieke noemer totdat hengel-/inspanningstoewijzing betrouwbaar bestaat.
+- Automatische vangsttijdstippen niet behandelen als bewezen vangstmoment. `user_adjusted` mag hoogstens in een apart, expliciet als gebruikersgerapporteerd gemarkeerd positief-vangstsignaal worden onderzocht; het is geen gevalideerd voedings- of vangsttijdlabel.
+- Een vangstregistratie in een tijdvak bewijst niet dat in andere tijdvakken van dezelfde sessie geen vangsten plaatsvonden. Bij een vangstsessie mogen tijdvakken zonder geregistreerde vangst daarom niet als nulvangst worden gelabeld.
+- Een expliciet bevestigde nulvangstsessie (`skunk_confirmed`) kan een sessiebrede nuluitkomst leveren. Toewijzing aan tijdvakken vereist daarnaast valide geregistreerde blootstelling in die tijdvakken; ontbrekende blootstelling blijft onbekend.
+- Groepsvangsten met `count > 1` hebben één geregistreerd tijdstip voor de groep. De aantallen kunnen niet worden verdeeld over verschillende tijdstippen.
+- Brier-validatie blijft op sessieniveau en gebruikt de bestaande blootstellings-/duurvoorwaarden. Deze tijdvakdiagnose mag geen Brier-score of prognosegewicht aanpassen.
+
+### Besluit
+
+Er is nog geen betrouwbare tijdvakgebonden catch rate of voedingsactiviteit-label beschikbaar. De volgende implementatiestap is uitsluitend een offline, beschrijvende datakwaliteits-/blootstellingsdiagnose met expliciete dekking en uitsluitingen. Pas na controle van die uitkomsten kan worden besloten of een afzonderlijke tijdvakprestatiemaat valideerbaar is. Geen prognosescore, modelparameter of gebruikersinvoer wijzigen in deze stap.
