@@ -648,3 +648,12 @@ Alle 71 registry-records blijven `approvedForPrediction: false`. Er worden geen 
 **Replaybaarheid gecontroleerd (18 november 2026):** de huidige snapshotroutes bewaren de voor iedere run beschikbare whitelist-features, exacte uurlijkse weersinvoer, locatie-/temperatuurcontext, meetprovenance en model-/engineversies. De tests dekken whitelist, fingerprint, privacyuitsluiting en tijdstempelherkomst. Geen aantoonbaar ontbrekend modelinputveld gevonden; uitvoerbare modelcode wordt niet gearchiveerd.
 
 **Volgende technische stap:** toets de resterende Fase-2-acceptatiecriteria en bepaal welke onderdelen alleen wachten op voldoende echte, chronologisch gekoppelde sessies. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
+
+
+## 74. Numerieke schaal en vangstkans: expliciete status
+
+De thermische activiteitsschaal `clamp(1 + 9 × thermalEfficiency^0.85, 1, 10)` is een technische omzetting van de voorlopige thermische curve. De exponent 0,85 en de schaal 1–10 zijn niet empirisch gekalibreerd en vormen geen biologische gewichtsfactor. De uitkomst is uitsluitend relatieve thermische activiteitspotentie.
+
+De persoonlijke vangstkans blijft een afzonderlijke empirische Poisson-baseline: bekende doelvis-aantallen gedeeld door geldige geregistreerde visduur leveren `lambda`; vervolgens wordt `1 − exp(−lambda × sessieduur)` berekend. De Poisson-aanname is niet lokaal gevalideerd. Het plafond 0,95 en de minimum-/vertrouwensdrempels zijn technische guards, geen wetenschappelijke limieten of betrouwbaarheidsclaims.
+
+De volledige parameterstatus en acceptatieconsequenties staan in `FASE2_PROGNOSE_AUDIT.md` §84. Geen koppeling met de thermische score, voedingscontext of habitatlaag wordt geactiveerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies.

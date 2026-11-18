@@ -1656,3 +1656,12 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Geen codewijziging nodig uit deze audit.
 
 **Volgende stap:** resterende Fase-2-acceptatiecriteria beoordelen en technische afronding scheiden van onderdelen die wachten op voldoende echte, chronologisch gekoppelde sessies. Fase 3 blijft geblokkeerd tot formele acceptatie.
+
+
+### Fase 2 — audit actieve numerieke omzettingen (18 november 2026)
+
+- De actieve thermische schaal `1 + 9 × thermalEfficiency^0.85` is aangemerkt als technische omzetting van een voorlopige soortcurve; exponent en 1–10-schaal zijn niet empirisch gekalibreerd.
+- De persoonlijke Poisson-vangkans blijft een afzonderlijke empirische baseline op basis van bekende doelvisvangsten per geldige visduur. De Poisson-aanname is lokaal niet gevalideerd.
+- Het 0,95-plafond en de steekproef-/vertrouwensdrempels zijn technische guards, geen wetenschappelijke limieten of statistische betrouwbaarheidsclaims.
+- Geen berekening, parameter of UI-score gewijzigd. Zie `FASE2_PROGNOSE_AUDIT.md` §84.
+- Fase 2 blijft open; lokale statistische kalibratie wacht op voldoende echte, vergelijkbare sessies.
