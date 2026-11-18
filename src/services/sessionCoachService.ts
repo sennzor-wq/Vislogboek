@@ -303,7 +303,8 @@ export function buildVisCoachAdviceText(
   prognosis: DayPrognosis,
   weather?: import('../types').WeatherSnapshot | null,
   technique?: string | null,
-  selectedTimeSlot?: TimeSlot | null
+  selectedTimeSlot?: TimeSlot | null,
+  sessionDurationHours?: number | null
 ): VisCoachAdviceText {
   const positioning = prognosis.positioningAdvice;
   const habitat = prognosis.habitatAnalysis;
@@ -400,7 +401,9 @@ export function buildVisCoachAdviceText(
 
     const sessionFeeding = cleanCoachText(prebait.sessionDayGuidance.advice);
     if (sessionFeeding) {
+      const hasKnownSessionDuration = typeof sessionDurationHours === 'number' && Number.isFinite(sessionDurationHours) && sessionDurationHours > 0;
       const amountGuidance = prebait.confidenceLevel === 'Redelijk' &&
+        hasKnownSessionDuration &&
         prebait.sessionDayGuidance.feedDuringSession &&
         prebait.sessionDayGuidance.recommendedAmountGrams > 0
         ? ` Indicatieve hoeveelheid tijdens de sessie: ${prebait.sessionDayGuidance.amountDisplay}; pas aan op activiteit, bodem en natuurlijk voedsel.`
@@ -488,7 +491,11 @@ function createAdviceRecord(
   const selectedTimeSlot = Number.isFinite(sessionStart.getTime()) && (!sessionEnd || Number.isFinite(sessionEnd.getTime()))
     ? resolveSelectedTimeSlot(sessionStart, sessionEnd) ?? null
     : null;
-  const text = buildVisCoachAdviceText(prognosis, snapshot.predictedConditions, snapshot.technique ?? session.technique, selectedTimeSlot);
+  const recordedDuration = snapshot.inputContext?.sessionDurationHours;
+  const sessionDurationHours = typeof recordedDuration === 'number' && Number.isFinite(recordedDuration) && recordedDuration > 0
+    ? recordedDuration
+    : null;
+  const text = buildVisCoachAdviceText(prognosis, snapshot.predictedConditions, snapshot.technique ?? session.technique, selectedTimeSlot, sessionDurationHours);
   return {
     id: `coach-advice-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     sessionId: session.id,
