@@ -1471,3 +1471,18 @@ Een gerichte controle na PR #124 vond nog oude, conflicterende regels in `rodPos
 De correctie verwijdert die automatische windgestuurde zonekeuze en de bijbehorende 11/12/15 km/u-drempels uit de primaire zonebeslissing. De primaire doelzone volgt uit lokale habitatkenmerken, diepteovergangen en directe waarnemingen. Wind blijft beschikbaar voor oeverrelatie, oppervlaktedrift als voorzichtige context, werphoek, lijnbocht en hengelpositionering. De windkant mag alleen als tweede vergelijkingszone worden genoemd wanneer lokale structuur of waarnemingen dat ondersteunen. Zuurstofstatus wordt niet uit windstilte of warm water afgeleid.
 
 Regressies controleren dat dezelfde warme stek bij kalme of stevige wind dezelfde primaire habitatzone behoudt, dat er geen zuurstofclaim zonder meting verschijnt en dat wind-/werpadvies beschikbaar blijft. Dit verandert geen biologische activiteitsscore of vangstkans.
+
+
+## Later te verbeteren — betekenisvolle weersverandering tijdens een sessie (18 november 2026)
+
+Dit is een **niet-blokkerende productverbetering** voor de latere verfijning van dynamische VisCoach-advies- en tactiekbijsturing. Het is geen must voor de huidige fase en mag fase 2 of andere lopende acceptatiecriteria niet vertragen.
+
+Maak bij toekomstige uitwerking expliciet onderscheid tussen:
+
+1. **Meet-/forecastmoment:** een nieuwe meting of forecastwaarde wordt geregistreerd. Dit is op zichzelf geen reden voor een nieuw advies.
+2. **Functioneel relevante verandering:** een factor passeert een inhoudelijk betekenisvolle grens waardoor een bestaande praktische tactiek mogelijk verandert. Voor wind kan dit bijvoorbeeld een verandering in de bruikbare presentatie, werphoek, lijncontrole of hengelpositie zijn; wind bepaalt niet zelfstandig de primaire visdoelzone.
+3. **Praktische adviesverandering:** pas nadat de bestaande prognose- en tactiekmodules opnieuw zijn beoordeeld, wordt bepaald of de gebruiker daadwerkelijk iets anders kan doen.
+
+Een kleine numerieke wijziging, kompasverschil of nieuw meetmoment mag dus niet automatisch een adviesrecord of melding veroorzaken. Een gewijzigde prognose zonder gewijzigde praktische aanpak kan hoogstens een nieuwe interne snapshot rechtvaardigen. Alleen een werkelijk gewijzigde, voor de gebruiker relevante aanpak leidt tot een nieuw coachadvies.
+
+Onderzoek later per factor de functionele grens en eventuele hysterese/bevestiging, aansluitend op de bestaande classificaties en forecastbevestiging. **Geen arbitraire km/u-delta, universele drempel of nieuwe numerieke regel invoeren zonder code-audit, onderbouwing en regressievalidatie.** Deze verfijning wordt pas ingepland na afronding van het huidige hoofdspoor en wanneer de dynamische coachlaag aan de beurt is.
