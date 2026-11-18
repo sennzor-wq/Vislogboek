@@ -181,7 +181,7 @@ async function run() {
   const replayableSessionFeature = reassessmentSnapshot?.inputContext?.historicalSessionFeatures
     ?.find((feature) => feature.id === session.id);
   assert(
-    reassessmentSnapshot?.inputContext?.historyFeatureSchemaVersion === 1 &&
+    reassessmentSnapshot?.inputContext?.historyFeatureSchemaVersion === 2 &&
       replayableSessionFeature?.waterTemperatureMeasuredAt === session.waterTemperatureMeasuredAt &&
       replayableSessionFeature?.baitDirection === 'West' &&
       replayableSessionFeature?.prebaited === true,
