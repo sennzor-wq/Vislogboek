@@ -81,7 +81,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
         plan.prognosis,
         plan.pendingSnapshot.conditions,
         plan.pendingSnapshot.inputContext?.technique,
-        plan.selectedTimeSlot ?? null
+        plan.selectedTimeSlot ?? null,
+        plan.durationHours
       )
     : null;
 
