@@ -1519,10 +1519,11 @@ export async function createLiveSnapshotForSessionStart(
       }
     );
 
-    const chosenSlot =
+    const chosenSlot = targetTimeSlot ?? (
       prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
-        : undefined;
+        : undefined
+    );
 
     // Nog niets naar IndexedDB schrijven: de sessie en deze snapshot worden samen
     // door saveSessionWithPrognosisSnapshot in één transactie opgeslagen.
