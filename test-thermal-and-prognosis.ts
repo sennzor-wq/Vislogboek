@@ -646,6 +646,7 @@ async function run14Scenarios() {
       runKind: 'session_start',
       forecastTimestamp,
       targetDate: date,
+      targetSlot: 'Ochtend',
       targetSpecies: 'Karper',
       locationId: testLocationId,
       locationName: 'Geïsoleerde synthetische teststek',
