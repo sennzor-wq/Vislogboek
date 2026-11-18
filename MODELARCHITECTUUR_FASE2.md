@@ -588,3 +588,19 @@ De prognose heeft één rekenmodel en één gegevensbasis, maar twee presentatie
 - **Geavanceerd:** verklaringen per prognose-element, wetenschappelijke voedingsbronnen (gemeten voedselopname/voedingsritme en foerageergedrag), factoranalyses, bronbeperkingen, modelaannames en onzekerheids-/datakwaliteitsdiagnostiek.
 
 Onderzoeksdata, berekeningen en opgeslagen prognoses blijven identiek. Dit is geen modelvariant, geen andere voorspelling en geen invloed op evaluatie. De UI mag in standaardmodus geen uitgebreide details of lege uitklapvlakken tonen.
+
+
+## 68. Omgevingsfactoren: meetbaarheid begrenst de modelrol (18 november 2026)
+
+De weather service haalt onder meer temperatuur, neerslag, neerslagkans, bewolking, zoninstraling, luchtdruk en windrichting/-snelheid op. De huidige invoerketen bevat geen directe opgeloste-zuurstofmeting en geen lokale stroomsnelheid of afvoer. Het veld `waterType` (bijvoorbeeld rivier/kanaal versus plas) is geen vervanging voor een stromingsmeting.
+
+Daarom gelden de volgende grenzen:
+
+- **Opgeloste zuurstof:** alleen een gemeten waarde kan een lokale zuurstofstatus vaststellen. Weer en windstilte mogen geen zuurstoftekort of zuurstofrijke refugia invullen.
+- **Stroming:** zonder lokale stromingsdata blijft dit een kwalitatieve watertype-/habitatcontext. Riviermeta-analyses zijn niet rechtstreeks toepasbaar op stilstaand water.
+- **Regen en bewolking:** beschikbaar als weerscontext, maar de gevonden kwantitatieve synthese betreft vooral paaigerelateerde migratie en heeft zeer beperkte dekking voor regen/bewolking. Geen dagelijkse voedings- of vangstscore.
+- **Wind:** blijft een presentatie-/lijncontrolefactor en kan oppervlaktedrift helpen duiden; lokale habitat en directe waarnemingen bepalen de primaire doelzone.
+
+De research registry telt 64 records en alle records blijven niet-goedgekeurd voor directe voorspelling. De soortdekking verschilt per responsvariabele. Voor iedere toekomstige koppeling moet de gemeten respons passen bij de modeluitkomst: fysiologische activiteit is geen voedselopname, beweging is geen foerageren en voedselopname is geen hengelvangbaarheid.
+
+De volledige dekking en invoerbeperkingen staan in `FASE2_PROGNOSE_AUDIT.md` §81. Geen bestaande score, gewicht of thermische parameter wordt door deze documentatie gewijzigd.
