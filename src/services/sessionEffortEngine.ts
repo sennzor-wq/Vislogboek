@@ -104,7 +104,7 @@ export function closeOpenRodIntervals(rods: SessionRod[], sessionEndTime: string
     ...rod,
     activeIntervals: (rod.activeIntervals || []).map((interval) => {
       const start = Date.parse(interval.startTime);
-      return !interval.endTime && Number.isFinite(start) && start <= end
+      return (interval.endTime === undefined || interval.endTime === null) && Number.isFinite(start) && start <= end
         ? { ...interval, endTime: sessionEndTime }
         : interval;
     }),

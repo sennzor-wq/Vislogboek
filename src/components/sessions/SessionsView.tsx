@@ -845,7 +845,7 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                           <div className="space-y-1.5 border-t border-slate-700/60 pt-2">
                             {rodsForSession.map((rod) => (
                               <div key={rod.id} className="rounded-lg bg-slate-900/60 p-2">
-                                <div className="font-semibold text-white">Hengel {rod.rodNumber} · {rod.activeIntervals.length === 0 ? 'inzet onbekend (geen periode geregistreerd)' : effort.perRodHours[rod.id] !== undefined ? `${effort.perRodHours[rod.id].toFixed(2)} uur geregistreerd` : 'inzet onbekend (interval ongeldig)'}</div>
+                                <div className="font-semibold text-white">Hengel {rod.rodNumber} · {(rod.activeIntervals?.length ?? 0) === 0 ? 'inzet onbekend (geen periode geregistreerd)' : effort.perRodHours[rod.id] !== undefined ? `${effort.perRodHours[rod.id].toFixed(2)} uur geregistreerd` : 'inzet onbekend (interval ongeldig)'}</div>
                                 <div className="text-[11px] text-slate-400">
                                   {[rod.positionZone, rod.technique, rod.baitPresentation].filter(Boolean).join(' · ') || 'Geen positie, techniek of aas/presentatie vastgelegd'}
                                 </div>

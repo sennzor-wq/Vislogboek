@@ -88,6 +88,11 @@ assert(intervalClosure[1].activeIntervals[0].endTime === '2026-11-02T10:00:00.00
   'Bestaande handmatig beëindigde hengelintervallen blijven ongewijzigd');
 assert(intervalClosure[2].activeIntervals[0].endTime === null,
   'Een interval zonder geldige starttijd wordt niet automatisch als inzet geregistreerd');
+const blankEndClosure = closeOpenRodIntervals([
+  rod('blank-end', 4, [{ id: 'blank-end', startTime: '2026-11-02T09:00:00.000Z', endTime: '' }]),
+], closedAt);
+assert(blankEndClosure[0].activeIntervals[0].endTime === '',
+  'Een lege eindtijdstring wordt niet stilzwijgend als expliciet open interval gesloten');
 
 console.log(`Session rod effort tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
