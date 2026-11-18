@@ -1434,3 +1434,21 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Met expliciete toestemming wordt alleen `GHSA-fc5q-39xc-vjpf` tijdelijk genegeerd in beide Bun-auditstappen. Alle andere dependency-audits blijven actief.
 - Dit lost de melding niet op en verklaart de dependency niet veilig. Herbeoordeel en verwijder de uitzondering zodra een gepatchte release beschikbaar is of de advisory formeel wordt ingetrokken/gewijzigd.
 - PR #96 blijft geblokkeerd voor merge totdat alle Quality Gate-stappen op de exacte PR-head en daarna op de mergecommit slagen.
+
+
+### Fase 2 — audit vangsttijdstippen en hengelblootstelling (18 november 2026)
+
+- Nieuwe vangsten krijgen standaard het moment waarop het vangstformulier wordt geopend; de gebruiker kan de tijd wijzigen, maar normale records bewaren geen expliciete bron-/bevestigingsstatus. `createdAt` is afzonderlijk het opslagmoment.
+- Vangsttijd wordt niet tegen de sessiegrenzen gevalideerd. Legacy-imports hebben wel een expliciete `timestampKnown`-kwaliteitsvlag.
+- Hengelperioden en gebeurtenissen zijn optioneel en handmatig. Gebeurtenissen worden niet automatisch gekoppeld aan vangstrecords; actieve intervallen tellen alleen mee als ze geldig zijn en worden binnen de sessiegrenzen begrensd.
+- De bestaande hengeluren zijn geregistreerde intervallen, geen geverifieerde feitelijke inspanning. Geen ontbrekende hengeluren afleiden uit sessieduur × hengelaantal.
+- Brier op sessie-uitkomst en totale sessieduur blijft onafhankelijk van deze velden. Tijdvak-/voedingsvalidatie blijft geblokkeerd totdat tijdherkomst en volledigheid beter zijn geborgd.
+- Geen verplichte extra gebruikersinvoer of prognose-/biologische scorewijziging toegevoegd. Volgende stap: minimaal ontwerp voor automatische tijdherkomst en regressietests voor tijdvalidatie.
+
+
+### Fase 2 — tijdvakervaring op sessiestart verduidelijkt (18 november 2026)
+
+- De bestaande persoonlijke ervaring per tijdvak groepeert hele sessies op het lokale startuur. Sessies die meerdere tijdvakken beslaan worden niet over de tijdvakken verdeeld.
+- De maat is een sessiesuccesfractie, geen tijdvakgebonden vangstkans. Zij beïnvloedt de thermische tijdvakscore of `bestTimeSlot` niet.
+- UI-tekst verduidelijkt naar 'sessies gestart in dit tijdvak' en benoemt indeling op starttijd.
+- Regressietest toegevoegd voor een zes uur durende sessie die Avond en Nacht beslaat; geen prognoseberekening of biologische parameter gewijzigd.

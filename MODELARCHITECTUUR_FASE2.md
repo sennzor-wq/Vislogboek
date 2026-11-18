@@ -478,3 +478,26 @@ Naast de totaalscore worden Brier-score, gemiddelde voorspelde kans, gerealiseer
 ## 53. Tijdelijke uitzondering voor één betwiste dependency-advisory
 
 De CI dependency-audits sluiten uitsluitend `GHSA-fc5q-39xc-vjpf` voor transitieve dependency `picomatch@4.0.7` tijdelijk uit. De advisory blijft als High gepubliceerd; upstream betwist de classificatie en er was geen bevestigde patchrelease beschikbaar bij vastlegging. Dit is een gedocumenteerde risico-uitzondering, geen veiligheidsverklaring. Alle andere production- en full-auditcontroles blijven actief. Herbeoordeel en verwijder de uitzondering zodra een gepatchte release beschikbaar is of de advisory formeel wordt ingetrokken/gewijzigd. Merge blijft afhankelijk van een volledig groene Quality Gate op PR-head én mergecommit.
+
+
+## 54. Datakwaliteit van vangsttijd en hengelblootstelling
+
+De huidige vangsttijd (`CatchItem.timestamp`) wordt bij een nieuwe invoer standaard gevuld met het moment waarop het formulier wordt geopend. De tijd is aanpasbaar, maar normale vangsten bewaren geen expliciete bron-/bevestigingsstatus. `createdAt` is het opslagmoment en kan vertraagde invoer signaleren, maar bewijst de werkelijke vangsttijd niet. Sessiegrenzen worden bij opslaan niet gecontroleerd. Legacy-imports kunnen via `legacyImportQuality.timestampKnown` expliciet onbekende tijdstippen markeren.
+
+Hengelgebeurtenissen en actieve perioden zijn optionele, handmatige details. Gebeurtenissen worden niet automatisch aan vangstrecords gekoppeld en hebben geen volledigheidsstatus. Actieve perioden tellen alleen mee als het interval geldig is; de bestaande effort-engine begrenst op sessiegrenzen en voegt overlap per hengel samen, maar kan de feitelijke juistheid van handmatig ingevoerde tijden niet vaststellen.
+
+Daarom geldt:
+- Brier-validatie op sessie-uitkomst en totale sessieduur blijft onafhankelijk van deze velden.
+- Vangsttijd is nog geen betrouwbaar onafhankelijk label voor tijdvak-/voedingsvalidatie.
+- Hengeluren zijn geregistreerde inspanning, geen geverifieerde meetwaarde.
+- Geen ontbrekende inzet afleiden uit sessieduur × hengelaantal.
+- Tijdvak- en voedingsvalidatie blijft geblokkeerd tot tijdherkomst, volledigheid en sessiegrenzen voldoende zijn geborgd.
+
+Een toekomstige verbetering moet de tijdherkomst zo veel mogelijk automatisch vastleggen, zonder extra verplichte gebruikersinvoer.
+
+
+## 55. Persoonlijke tijdvakervaring: starttijdindeling is geen blootstellingsvalidatie
+
+De persoonlijke ervaring die per tijdvak wordt getoond, groepeert afgeronde sessies op het lokale uur van `FishingSession.startTime`. De volledige sessie wordt aan dat starttijdvak toegewezen, ook wanneer zij meerdere tijdvakken beslaat. De maat is het percentage succesvolle sessies, geen tijdvakgebonden vangstkans of vangsttempo. Vangsttijdstippen en actieve hengelintervallen verdelen de sessie momenteel niet over tijdvakken.
+
+Deze ervaring is uitsluitend beschrijvend. De thermische tijdvakscore en `bestTimeSlot` worden er niet door aangepast. De UI maakt de starttijdindeling expliciet; regressietests borgen dat een sessie over meerdere tijdvakken de thermische rangschikking niet beïnvloedt.
