@@ -25,7 +25,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Afkoeling verlaagt doorgaans metabolisme en voedselopname. Acclimatisatie, lichaamsgrootte, conditie en watertype beïnvloeden de respons; een universele grens voor winterrust is niet vastgesteld.',
       'Veldstudies tonen verschillende dagritmes: wilde rivierkarper kan pieken rond zonsopkomst en zonsondergang; bijgevoerd meeronderzoek vond vaker nachtelijke consumptie; jonge karper in gesimuleerde vijvers vertoonde geen duidelijke dagelijkse piek. Er is geen vaste nachtvoorkeur.',
       'De thermische optimum- en breedtewaarden in dit profiel zijn voorlopige modelprioren, geen gemeten optimum voor volwassen karper in Nederlandse wateren.',
-      'Algemene datakwaliteitsregel: koude lucht niet gelijkstaat aan koude watermassa. Gebruik gemeten of geschatte watertemperatuur; dit is geen karperspecifieke biologische voorkeur.',
+      'Algemene datakwaliteitsregel: koude lucht niet gelijkstaat aan koude watermassa; lage luchttemperatuur leidt niet automatisch tot winterrust zolang de watermassa warmer blijft. Gebruik gemeten of geschatte watertemperatuur; dit is geen karperspecifieke biologische voorkeur.',
       'Wind en luchtdruk zijn geen gevalideerde zelfstandige compensatie voor een thermische beperking en leveren geen numerieke activiteitbonus.',
     ],
     scientificReferences: [
