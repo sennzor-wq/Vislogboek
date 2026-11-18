@@ -293,16 +293,16 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             </p>
             {planAdvice?.advice || planAdvice?.tactics ? (
               <div className="space-y-3">
-                {planAdvice.advice && (
+                {planAdvice?.advice && (
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wide text-emerald-300 mb-1">Advies</h4>
-                    <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">{planAdvice.advice}</p>
+                    <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">{planAdvice?.advice}</p>
                   </div>
                 )}
-                {planAdvice.tactics && (
+                {planAdvice?.tactics && (
                   <div>
                     <h4 className="text-xs font-bold uppercase tracking-wide text-cyan-300 mb-1">Tactiek</h4>
-                    <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">{planAdvice.tactics}</p>
+                    <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-line">{planAdvice?.tactics}</p>
                   </div>
                 )}
               </div>
