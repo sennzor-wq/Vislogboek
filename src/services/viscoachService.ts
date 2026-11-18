@@ -341,7 +341,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     durationHours: durationHours ?? 0,
     durationKnown: durationHours !== null,
     locationName: input.location.name,
-    chosenSlot: selectedTimeSlot,
+    chosenSlot: tacticalStartSlot,
     targetWindowStart: start.toISOString(),
     targetWindowEnd: end?.toISOString() ?? null,
     conditions,
