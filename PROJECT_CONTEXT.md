@@ -1555,3 +1555,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Gewenste scheiding: snapshotwijziging is niet automatisch advieswijziging. Geen nieuw advies wanneer de praktische aanpak gelijk blijft; wel een nieuw herleidbaar advies wanneer de gebruiker daadwerkelijk iets anders kan doen.
 - De PWA kan niet doorlopend verwerken wanneer volledig gesloten; bij hervatten kan zij de actuele context opnieuw beoordelen.
 - Dit is audit/voorbereiding. Het centrale fase-2-biologiemodel blijft hoofdspoor; centrale fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
+
+
+### Fase 2 — zuurstof, stroming, regen en bewolking beoordeeld (18 november 2026)
+
+- Vijf bronnen toegevoegd aan `src/services/researchRegistry.ts`: karpertelemetrie tijdens een winterse zuurstofcrisis (Bauer & Schlott 2006), karperactiviteit/dieptegebruik bij stroming (Benito et al. 2015), meta-analyse van rivierstroming en visbeweging (Taylor & Cooke 2012), foodscape-review (Ouellet et al. 2025) en Europese meta-analyse van paaigerelateerde migratietriggers (Schlautmann et al. 2026).
+- Zuurstof is alleen bruikbaar als gemeten waterkwaliteitscontext; de karperbronnen tonen contextafhankelijke tolerantie en ondersteunen geen universele grens.
+- Stroming kan beweging, habitatgebruik en voedseltoegankelijkheid beïnvloeden, maar beweging is niet gelijk aan voedselopname of vangstkans; stromende systemen zijn niet uitwisselbaar met stilstaand water.
+- Regen en bewolking zijn in de nieuwe meta-analyse zeer schaars onderzocht en de respons betreft paaigerelateerde migratie, niet dagelijkse voeding of hengelvangst.
+- Alle vijf bronnen blijven `approvedForPrediction: false`; geen numerieke modelparameters of prognoseberekeningen gewijzigd.
