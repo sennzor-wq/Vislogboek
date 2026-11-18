@@ -650,3 +650,10 @@ Alle bronnen in het research register blijven `approvedForPrediction: false` tot
 ## Correctie na wind-/doelzone-consistentiecontrole (18 november 2026)
 
 Na PR #124 bleek een oude implementatielaag nog aanlandige wind als primaire zoekzone te gebruiken en bij warme windstilte zuurstofrijke zones te suggereren zonder directe zuurstofmeting. De correctie is uitgewerkt in PR #128: primaire zone op basis van lokale habitat/waarnemingen; wind uitsluitend voor presentatie, werphoek, lijncontrole en hengelpositie; geen zuurstofconclusie zonder meting. De regressies dekken wind-only zonewijzigingen en behoud van tactische windinformatie. Geen prognoseberekeningen of biologische parameters gewijzigd.
+
+
+### Later te verbeteren — betekenisvolle verandering in dynamisch advies (18 november 2026)
+
+Als niet-blokkerende verbetering voor de latere VisCoach-uitwerking vastgelegd: onderscheid tussen een nieuw meet-/forecastmoment, een functioneel relevante verandering in een factor en een daadwerkelijke wijziging van het praktische advies of de tactiek. Een nieuwe windmeting of kleine wijziging in snelheid/richting is niet automatisch een reden voor een nieuw advies. Alleen wanneer herbeoordeling met de bestaande prognose- en tactiekmodules tot een andere praktische actie leidt, wordt een nieuw coachadvies gemaakt; een interne prognosewijziging kan zonder advieswijziging als snapshot worden bewaard.
+
+De exacte factorgrenzen, hysterese en bevestigingsregels worden later per factor onderzocht en gevalideerd. Geen arbitraire windsnelheidsdelta of universele drempel invoeren. Dit is geen must voor fase 2 en blokkeert de huidige voortgang niet.
