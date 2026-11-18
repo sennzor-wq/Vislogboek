@@ -1426,3 +1426,8 @@ Er is een aparte audithelper toegevoegd om vangsttijdregistraties niet te verwar
 - Tegenstrijdige sessie-uitkomsten (bijvoorbeeld `skunk_confirmed` met gekoppelde vangsten) worden uitgesloten.
 
 De helper is alleen beschrijvend en offline. Geen catch rate, Brier-score, prognosegewicht of biologische leerlabel wordt berekend of geactiveerd.
+
+
+## 70. Persoonlijke tijdvakervaring explicieter gelabeld (18 november 2026)
+
+De prognosekaart noemde dit blok eerder "Eigen Vangsthistorie in dit tijdvak", terwijl de berekening volledige sessies op hun starttijd groepeert. De kop is gewijzigd naar "Eigen sessie-uitkomsten bij starts in dit tijdvak". De toelichting noemt nu expliciet doelsoortvangst en bij voldoende waarnemingen het percentage sessiesucces, niet een tijdvakgebonden vangstkans of vangsttempo. De onderliggende berekening blijft ongewijzigd: hele sessies worden ingedeeld op starttijd en beïnvloeden geen biologische score of tijdvakrangschikking.
