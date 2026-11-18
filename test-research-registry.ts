@@ -519,8 +519,7 @@ if (getResearchByOutcome('Baars', 'feeding_intensity').some((item) => item.id ==
 const turbidityReview = RESEARCH_REGISTRY.find((item) => item.id === 'freshwater-fish-turbidity-predator-prey-review-2024');
 if (!turbidityReview ||
     turbidityReview.species.length !== 0 ||
-    !turbidityReview.measuredOutcomes?.includes('foraging_behavior') ||
-    !turbidityReview.measuredOutcomes?.includes('habitat_use') ||
+    Boolean(turbidityReview.measuredOutcomes?.length) ||
     turbidityReview.approvedForPrediction ||
     !turbidityReview.summary.includes('281 peer-reviewed studies') ||
     !turbidityReview.limitations.some((item) => item.includes('geen universele'))) {
