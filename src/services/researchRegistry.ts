@@ -16,6 +16,7 @@
 
 export type ResearchOutcome =
   | 'feeding_intensity'
+  | 'feeding_incidence'
   | 'feeding_rhythm'
   | 'foraging_behavior'
   | 'diet_composition'
@@ -1405,6 +1406,27 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     ],
     sourceReferences: [
       'Lucas, J., Ros, A., Geist, J. & Brinker, A. (2026). Capture Probability and Effects of Bait Type on Learning Behavior in an Unexploited Population of Northern Pike (Esox lucius). Fisheries Management and Ecology. First published 17 September 2026. https://doi.org/10.1111/fme.70108'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+
+
+  {
+    id: 'asp-seasonal-feeding-incidence-danube-2010',
+    topic: 'seasonal-feeding-incidence-and-diet-asp',
+    measuredOutcomes: ['feeding_incidence', 'diet_composition', 'growth'],
+    species: ['Roofblei'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een veldstudie onderzocht 198 roofbleien uit een 28,5 km lang deel van de Donau, met lengtes van 90–405 mm en leeftijden van 0+ tot 4+; de steekproef bestond voornamelijk uit subadulten. De onderzoekers rapporteerden een seizoensgebonden vacuïteitsindex (aandeel lege magen): 94,1% in november tegenover 35,6% in juli. Dit geeft een indirecte maat voor seizoensgebonden voedingsincidentie, naast dieetcompositie, conditie en groei.',
+    limitations: [
+      'De vacuïteitsindex meet het aandeel lege magen in de bemonstering; dit is geen directe hoeveelheid gegeten voedsel, individuele voedingsintensiteit of dagelijkse voedselopname.',
+      'De studie bemonsterde voornamelijk subadulte roofblei (0+ tot 4+) in één Donau-traject; overdraagbaarheid naar volwassen roofblei, Nederlandse plassen en andere prooigemeenschappen is onzeker.',
+      'De studie meet geen dag-nachtritme, hengelvangbaarheid of vangstkans en rechtvaardigt geen seizoens- of tijdvakbonus.'
+    ],
+    sourceReferences: [
+      'Krpo-Ćetković, J., Hegediš, A. & Lenhardt, M. (2010). Diet and growth of asp, Aspius aspius (Linnaeus, 1758), in the Danube River near the confluence with the Sava River (Serbia). Journal of Applied Ichthyology, 26(4), 513–521. https://doi.org/10.1111/j.1439-0426.2010.01456.x'
     ],
     reviewedAt: '2026-11-18',
     approvedForPrediction: false,
