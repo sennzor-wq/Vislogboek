@@ -604,3 +604,10 @@ Daarom gelden de volgende grenzen:
 De research registry telt 64 records en alle records blijven niet-goedgekeurd voor directe voorspelling. De soortdekking verschilt per responsvariabele. Voor iedere toekomstige koppeling moet de gemeten respons passen bij de modeluitkomst: fysiologische activiteit is geen voedselopname, beweging is geen foerageren en voedselopname is geen hengelvangbaarheid.
 
 De volledige dekking en invoerbeperkingen staan in `FASE2_PROGNOSE_AUDIT.md` §81. Geen bestaande score, gewicht of thermische parameter wordt door deze documentatie gewijzigd.
+
+
+## 69. Bewijsdekking telt per gemeten respons, niet als algemene soortdekking
+
+De registry bevat 64 records, maar een soort die zowel dieet-, beweging- als habitatcontext heeft, heeft daarmee niet automatisch direct bewijs voor voedingsintensiteit, voedingsritme of hengelvangbaarheid. De auditmatrix in `FASE2_PROGNOSE_AUDIT.md` §82 splitst records daarom uit naar de expliciet gemeten respons. Vooral roofblei heeft momenteel uitsluitend dieet-/prooikeuze- en bewegings-/habitatcontext; directe voedingsintensiteit, voedingsritme en foerageergedrag ontbreken in de registry. De telemetrie van roofblei blijft locomotorische activiteit/habitatgebruik en wordt niet als voeding gemodelleerd.
+
+De aantallen registry-records zijn geen aantallen onafhankelijke studies en geen bewijsgewichten. Bronkwaliteit, populatie, levensfase, seizoen, watertype en meetmethode blijven leidend. Hengelvangbaarheid blijft gescheiden van aanwezigheid, beweging en voedselopname. Alle records blijven niet-goedgekeurd voor directe voorspelling; er worden geen biologische gewichten of tijdvakbonussen geactiveerd.
