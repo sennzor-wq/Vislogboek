@@ -318,7 +318,7 @@ export function buildVisCoachAdviceText(
   const when = selectedTimeSlot
     ? selectedSlotAnalysis?.conclusion
       ? `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak geldt: ${selectedSlotAnalysis.conclusion}`
-      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het beste tijdvak van de hele dag.`
+      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het thermisch gunstigste tijdvak van de hele dag.`
     : selectedTimeSlot === null
       ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het thermisch gunstigste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
       : prognosis.bestTimeSlot &&
