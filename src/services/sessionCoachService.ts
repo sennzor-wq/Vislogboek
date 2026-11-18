@@ -216,13 +216,13 @@ function resolveCoachStartZone(
   const positioningZone = positioning?.recommendedZone && !isGenericZone(positioning.recommendedZone)
     ? positioning.recommendedZone
     : null;
-  const hasDirectPresence = (habitat?.dataProvenance?.userObservations?.length ?? 0) > 0;
+  const hasLocalObservationEvidence = (habitat?.dataProvenance?.userObservations?.length ?? 0) > 0 || /actieve waarnemingszone|visuele hotspot/i.test(habitatName ?? '');
   // Directe lokale waarnemingen en een bruikbaar habitatprofiel gaan vóór een
   // generieke wind-/soortzone. Alleen bij lage habitatzekerheid en redelijke
   // positioneringszekerheid krijgt de positioneringszone voorrang.
   const preferPositioning = Boolean(positioningZone) && (
     !habitatZone ||
-    (!hasDirectPresence && habitat?.confidenceLevel === 'Laag' && positioning?.confidenceLevel === 'Redelijk')
+    (!hasLocalObservationEvidence && habitat?.confidenceLevel === 'Laag' && positioning?.confidenceLevel === 'Redelijk')
   );
   const primaryZone = preferPositioning ? positioningZone : habitatZone ?? positioningZone;
   const secondaryCandidate = preferPositioning ? habitatZone : positioningZone;
@@ -235,7 +235,7 @@ function resolveCoachStartZone(
     : source === 'positioning'
       ? cleanCoachText(positioning?.rationale)
       : '';
-  return { primaryZone, secondaryZone, source, confidenceLevel, hasDirectPresence, explanation };
+  return { primaryZone, secondaryZone, source, confidenceLevel, hasLocalObservationEvidence, explanation };
 }
 
 function explainCoachLimitation(note: string): string | null {
@@ -340,7 +340,7 @@ export function buildVisCoachAdviceText(
       ? `De wind-/positioneringsanalyse wijst daarnaast op ${explainZone(zoneResolution.secondaryZone)}. Houd dat als tweede zoekzone; gebruik de wind vooral om je presentatie af te stemmen en verlaat de lokale habitatzone niet automatisch.`
       : `De lokale habitatanalyse noemt ${explainZone(zoneResolution.secondaryZone)}, maar die inschatting heeft lage zekerheid. Houd die zone als tweede controlepunt.`
     : '';
-  const confidenceNote = zoneResolution.confidenceLevel === 'Laag' && !zoneResolution.hasDirectPresence
+  const confidenceNote = zoneResolution.confidenceLevel === 'Laag' && !zoneResolution.hasLocalObservationEvidence
     ? 'De zekerheid is laag; behandel dit als een eerste test en controleer ter plaatse op activiteit en structuur.'
     : '';
   const where = primaryZone
