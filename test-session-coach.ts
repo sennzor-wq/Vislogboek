@@ -345,7 +345,7 @@ async function run() {
   assert(
     calmWindKnownZoneAdvice.tactics.includes('Wind en werprichting') &&
     calmWindKnownZoneAdvice.tactics.includes('Er staat weinig wind') &&
-    calmWindKnownZoneAdvice.tactics.includes('diepere en rustigere deel van het water') &&
+    calmWindKnownZoneAdvice.tactics.includes('een dieper en rustiger deel van het water') &&
     !calmWindKnownZoneAdvice.tactics.includes('werprichting Noord'),
     'Bij weinig wind geeft VisCoach wel een doelzone, maar verzint geen windgestuurde kompasrichting'
   );
