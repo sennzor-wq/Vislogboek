@@ -34,6 +34,19 @@ const carpEvidence = getResearchBySpecies('Karper');
 if (!carpEvidence.some((item) => item.id === 'common-carp-temperature-feeding-rhythm-2012')) {
   throw new Error('Carp-specific feeding-rhythm evidence must be discoverable by species.');
 }
+const carpWildRiver = RESEARCH_REGISTRY.find((item) => item.id === 'common-carp-wild-river-diel-feeding-1992');
+if (
+  !carpWildRiver ||
+  !carpWildRiver.species.includes('Karper') ||
+  !carpWildRiver.measuredOutcomes?.includes('feeding_rhythm') ||
+  !carpWildRiver.measuredOutcomes?.includes('feeding_intensity') ||
+  carpWildRiver.approvedForPrediction ||
+  !carpWildRiver.summary.includes('zonsopkomst') ||
+  !carpWildRiver.limitations.some((item) => item.includes('Illinois')) ||
+  !carpWildRiver.sourceReferences.some((source) => source.includes('10.1139/f92-157'))
+) {
+  throw new Error('Wild-river carp feeding evidence must retain its measured outcome, source scope and non-approved status.');
+}
 const breamEvidence = getResearchBySpecies('Brasem');
 const growthStudy = breamEvidence.find((item) => item.id === 'freshwater-fish-temperature-growth-four-species-tien-2024');
 if (!growthStudy || growthStudy.approvedForPrediction) {
