@@ -1644,3 +1644,15 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 3. Bestaande thermische, habitat-, oeverwind- en hengelpositioneringsengines hergebruiken; geen tweede model of dubbele berekening introduceren.
 4. Pas daarna kandidaatmodel en chronologische validatie op echte, gekoppelde sessies uitwerken. Geen synthetische vangsten of willekeurige gewichten.
 5. Fase 3 blijft geblokkeerd totdat alle Fase-2-acceptatiecriteria zijn aangetoond.
+
+
+### Fase 2 — replaybaarheid-inputs gecontroleerd (18 november 2026)
+
+- Read-only audit uitgevoerd op `prognosisEngine.ts`, `sessionCoachService.ts`, `PrognosisView.tsx`, types en regressietests.
+- De vier snapshotroutes bewaren de voor die run beschikbare whitelisted historie, locatie-/stekcontext, tijdvak/duur/techniek, handmatige temperatuurprovenance, temperatuurkalibratie, historische watertemperatuurmetingen, exacte uurlijkse weersinvoer, ophaaltijd en model-/engineversies.
+- Historische features zijn deterministisch gesorteerd; benchmarkdata, vrije notities en foto's worden uitgesloten. Schema v2 bewaart ook automatische versus aangepaste vangsttijdstempelherkomst.
+- Tests bewaken whitelist, fingerprint, privacyuitsluiting, tijdstempelherkomst en opgeslagen sessiesnapshots.
+- Geen aantoonbaar ontbrekend modelinputveld gevonden dat nu een wijziging vereist. De uitvoerbare modelcode wordt niet gearchiveerd; expliciete model-/engineversies blijven noodzakelijk.
+- Geen codewijziging nodig uit deze audit.
+
+**Volgende stap:** resterende Fase-2-acceptatiecriteria beoordelen en technische afronding scheiden van onderdelen die wachten op voldoende echte, chronologisch gekoppelde sessies. Fase 3 blijft geblokkeerd tot formele acceptatie.
