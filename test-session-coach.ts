@@ -427,7 +427,10 @@ async function run() {
     campaignSummary: 'Een bescheiden campagne van één tot twee dagen kan zinvol zijn; bouw rustig op.',
     biologicalRationale: 'Niet tonen in het standaardplan.',
     temperatureFactorExplanation: 'Niet tonen in het standaardplan.',
-    moments: [],
+    moments: [
+      { dayOffset: -1, date: '2026-07-19', dayLabel: '1 dag vooraf', suggestedTime: 'Avond', feedType: 'Pellets', amountGrams: 250, amountDisplay: 'circa 250 gram', purpose: 'Kleine voerbeurt.' },
+      { dayOffset: 0, date: '2026-07-20', dayLabel: 'Visdag zelf', suggestedTime: 'Tijdens de sessie', feedType: 'Instant', amountGrams: 100, amountDisplay: 'circa 100 gram', purpose: 'Sessiepresentatie.' },
+    ],
     sessionDayGuidance: { feedDuringSession: true, recommendedAmountGrams: 100, amountDisplay: 'circa 100 gram', advice: 'Begin met een kleine portie en voer alleen bij wanneer aanbeten of vangsten daar aanleiding toe geven.' },
     feedCompositionAdvice: { recommendedMix: 'Een kleine mix van pellets en boiliekruim', digestibilityNote: 'Niet tonen.', particleSizeNote: 'Niet tonen.' },
     confidenceLevel: 'Redelijk',
@@ -439,6 +442,7 @@ async function run() {
   assert(
     prebaitTactics.tactics.includes('Voorvoeren: Een bescheiden campagne') &&
     prebaitTactics.tactics.includes('circa 100 gram') &&
+    prebaitTactics.tactics.includes('1 dag vooraf: circa 250 gram') &&
     prebaitTactics.tactics.includes('Voersamenstelling: Een kleine mix') &&
     prebaitTactics.tactics.includes('Eigen sessiehistorie:') &&
     prebaitTactics.tactics.includes('Method feeder blijft een instant presentatie'),
@@ -454,6 +458,7 @@ async function run() {
   } as any, null, null, 'Avond');
   assert(
     !uncertainPrebaitTactics.tactics.includes('circa 100 gram') &&
+    !uncertainPrebaitTactics.tactics.includes('circa 250 gram') &&
     uncertainPrebaitTactics.tactics.includes('De exacte hoeveelheid is nog onzeker'),
     'Exacte voerhoeveelheden worden alleen getoond bij voldoende invoerkwaliteit'
   );
