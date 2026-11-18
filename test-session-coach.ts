@@ -488,7 +488,7 @@ async function run() {
     assert(
       persisted.snapshot.inputFingerprint === updateInput.inputFingerprint &&
       persisted.snapshot.supersedesSnapshotId === snapshot.id &&
-      persisted.snapshot.targetSlot === 'Avond',
+      persisted.snapshot.inputContext?.targetTimeSlot === 'Avond',
       'Tussentijdse snapshot bewaart invoerfingerprint en voorganger'
     );
   }
