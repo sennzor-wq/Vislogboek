@@ -615,3 +615,33 @@ Twee concrete aandachtspunten zijn gevonden voor de latere fase-3-uitwerking:
 De vervolgaanpak is daarom: volledige triggerketen inventariseren; prognose- en advieswijziging scheiden; techniek- en tactiekuitkomsten expliciet meenemen; en regressies toevoegen voor methodewijziging, alleen gewijzigde dagwinnaar, doelzone-/voerwijziging, herhaalde forecasts en prognosewijziging zonder tactiekwijziging. De actieve sessie moet vervolgens kort tonen wat veranderde, waarom en welke actie eventueel zinvol is.
 
 **Faseregie blijft ongewijzigd:** dit is audit/voorbereiding en geen start van fase 3. Fase 2 blijft het hoofdspoor; fase 3 wacht op formele fase-2-acceptatie. Er zijn in deze audit geen code of prognoseberekeningen gewijzigd.
+
+
+## Voortgangscheckpoint — dynamische VisCoach-audit afgerond (18 november 2026)
+
+PR #125 is squash-merged op `main` als commit `751852d2e68bbeb518efb971aa5e8a318136c1fe`. De exacte PR-head Quality Gate (run #44373580579, job #135046625307) is volledig geslaagd: dependency-audits, TypeScript-typecheck, alle regressie-/integratietests en productiebuild. De mergecommit is gecontroleerd; de connector rapporteerde geen afzonderlijke push-run/statuscheck voor die mergecommit. De merge is dus gebaseerd op de volledig groene exacte PR-head gate.
+
+### VisCoach-productzijstroom — dynamische sessiecoaching
+
+De read-only audit is vastgelegd in `VISCOACH_PRODUCT_ROADMAP.md`. De bestaande coördinator hergebruikt de weerservice en prognoseketen, rekent met het actuele tijdvak, neemt sessiecontext en techniek mee en hanteert conservatieve bevestiging van forecast-wijzigingen. De PWA kan niet continu herbeoordelen wanneer zij volledig gesloten is; bij hervatten kan de actuele context opnieuw worden beoordeeld.
+
+De belangrijkste openstaande codepunten zijn:
+- Techniek staat in de invoerfingerprint, maar niet in `prognosisSignature()`; een techniekwijziging alleen kan daardoor buiten de praktische adviesvergelijking vallen.
+- Een gewijzigde signature leidt nu tot een nieuw snapshot én adviesrecord zonder eerst de feitelijke, voor de gebruiker zichtbare advies-/tactiekuitkomst met het vorige advies te vergelijken.
+- De signature dekt niet alle concrete presentatie-, aas- en sessievoeruitkomsten.
+- De coach moet onderscheid maken tussen geen praktische wijziging, alleen een gewijzigde prognose en een werkelijk gewijzigd handelingsadvies.
+
+Gewenst gedrag: bij alleen een prognosewijziging mag een nieuw snapshot worden bewaard, maar er komt geen nieuw advies/melding als de aanpak gelijk blijft. Een techniek- of tactiekwijziging moet zelfstandig worden beoordeeld. Een werkelijk gewijzigd advies verwijst naar het juiste snapshot en vorige advies en benoemt kort wat veranderde, waarom en welke actie mogelijk zinvol is. De gebruiker houdt altijd de regie.
+
+### Laatste VisCoach-wijzigingen op main
+
+- PR #122: voorvoerhorizon tot maximaal drie kalenderdagen, correcte omgang met ontbrekend watertype en alternatieve kleine PVA-/method-feederpresentatie waar de bestaande planner een voorzichtige koude-waterstrategie onderbouwt.
+- PR #123: veiligheidsnuance; onbekende watertemperatuur alleen is geen bewijs voor koudwatergedrag.
+- PR #124: doelzone bepaalt waar het aas wordt gepresenteerd; wind en oeveroriëntatie ondersteunen positie/werphoek en lijncontrole, niet automatisch de vislocatie.
+- PR #125: bovenstaande dynamische sessiecoach-audit gedocumenteerd.
+
+### Hoofdspoor en volgende acties
+
+Fase 2 biologische prognose blijft het hoofdspoor en is nog niet formeel geaccepteerd. Fase 3 blijft geblokkeerd. De eerstvolgende inhoudelijke fase-2-stap is de resterende meteorologische/hydrologische factorinventaris per soort afronden: neerslag, bewolking, opgeloste zuurstof en stroming, met strikte scheiding tussen fysiologische activiteit, voedselopname, habitat/beweging en vangbaarheid. Daarna de volledige factor-/bewijs-/datadekkingsmatrix sluiten en pas dan een kandidaatmodel plus chronologisch validatieprotocol ontwerpen. Geen numerieke factor of tijdvakbonus activeren zonder directe onderbouwing en onafhankelijke validatie.
+
+Alle bronnen in het research register blijven `approvedForPrediction: false` totdat de relevante bewijs- en validatiecriteria aantoonbaar zijn gehaald.
