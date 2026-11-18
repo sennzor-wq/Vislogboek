@@ -300,28 +300,17 @@ export function analyzeHabitatMovement(
       whyLikely: 'Een overgang kan vissen toegang geven tot verschillende dieptes zonder een vaste diepte aan te nemen.',
     };
   } else if (isSummerWarm) {
-    // Zomer
-    if (bankWind?.isConfigured && bankWind.relation.includes('aanlandig') && typeof avgWindSpeedKmH === 'number' && avgWindSpeedKmH >= 12) {
-      primaryZone = {
-        name: 'Aanlandige oeverzone (actieve branding & voedseldrift)',
-        habitatType: 'Foerageerzone',
-        description: `Door de wind (${avgWindSpeedKmH} km/u) wordt warm water, plankton en zwevend voedsel tegen de oever gedrukt. Golven verminderen argwaan en brengen zuurstof.`,
-        depthProfileNote: 'Lokale oeverzone; diepte en bodemvorm zijn niet ingemeten.',
-        structureNote: 'Feitelijke brandingrand en aanwezige bodemstructuur ter plaatse controleren',
-        whyLikely: 'Wind kan oppervlaktevoedsel verplaatsen; het effect op bodemvoedsel en vispositie hangt af van diepte en lokale stroming.',
-      };
-    } else {
-      primaryZone = {
-        name: targetSlot === 'Middag' ? 'Schaduwrijke structuurzone (indien aanwezig)' : 'Lokale oeverstructuurzone',
-        habitatType: targetSlot === 'Middag' ? 'Holding / rustzone' : 'Foerageerzone',
-        description: targetSlot === 'Middag'
-          ? 'Bij fel licht kan aanwezige schaduw dekking bieden; alleen toepassen waar bomen, vegetatie of andere schaduw werkelijk aanwezig zijn.'
-          : 'Rond schemering kunnen sommige soorten langs lokale oeverstructuren foerageren; dit is geen vaste route voor iedere soort.',
-        depthProfileNote: targetSlot === 'Middag' ? 'Diepte onder de aanwezige schaduw is niet geregistreerd.' : 'Lokale diepte en taludverloop ter plaatse vaststellen.',
-        structureNote: hasTrees ? 'Geregistreerde overhangende bomen' : hasLilies ? 'Geregistreerde waterplanten' : 'Schaduw en lokale structuur ter plaatse vaststellen',
-        whyLikely: 'Licht en lokale dekking kunnen het zonegebruik beïnvloeden; de exacte stekstructuur bepaalt of dit advies toepasbaar is.',
-      };
-    }
+    // Zomer: de wind bepaalt de presentatie, niet automatisch de primaire viszone.
+    primaryZone = {
+      name: targetSlot === 'Middag' ? 'Schaduwrijke structuurzone (indien aanwezig)' : 'Lokale oeverstructuurzone',
+      habitatType: targetSlot === 'Middag' ? 'Holding / rustzone' : 'Foerageerzone',
+      description: targetSlot === 'Middag'
+        ? 'Bij fel licht kan aanwezige schaduw dekking bieden; alleen toepassen waar bomen, vegetatie of andere schaduw werkelijk aanwezig zijn.'
+        : 'Gebruik geregistreerde lokale oeverstructuren als startpunt; rond schemering kunnen sommige soorten daar foerageren, maar een vaste route wordt niet aangenomen.',
+      depthProfileNote: targetSlot === 'Middag' ? 'Diepte onder de aanwezige schaduw is niet geregistreerd.' : 'Lokale diepte en taludverloop ter plaatse vaststellen.',
+      structureNote: hasTrees ? 'Geregistreerde overhangende bomen' : hasLilies ? 'Geregistreerde waterplanten' : 'Schaduw en lokale structuur ter plaatse vaststellen',
+      whyLikely: 'Licht en lokale dekking kunnen het zonegebruik beïnvloeden; windrichting alleen bewijst geen vispositie.',
+    };
 
     alternativeZone = {
       name: 'Open-water overgang (indien lokaal aanwezig)',
@@ -384,9 +373,7 @@ export function analyzeHabitatMovement(
 
   windInfluence = typeof avgWindSpeedKmH === 'number' && Number.isFinite(avgWindSpeedKmH)
     ? hasUsableWindDirection
-      ? avgWindSpeedKmH >= 15
-        ? `Stevige wind (${avgWindSpeedKmH} km/u uit ${windDirText}) kan oppervlaktevoedsel verplaatsen; de lokale uitwerking hangt af van oevergeometrie en stroming.`
-        : `Wind ${avgWindSpeedKmH} km/u uit ${windDirText}; zonder lokale oever- en stromingsgegevens wordt geen vaste bewegingsrichting aangenomen.`
+      ? `Windcontext ${avgWindSpeedKmH} km/u uit ${windDirText}; mogelijke oppervlakteverplaatsing hangt af van lokale oevergeometrie en stroming. Er wordt geen vaste visverplaatsing afgeleid.`
       : `Windsnelheid ${avgWindSpeedKmH} km/u; richting is wisselend of onbekend, dus geen vaste windgestuurde verplaatsing aangenomen.`
     : 'Onbekend: windsnelheid ontbreekt; geen windgestuurde verplaatsing aangenomen.';
 
