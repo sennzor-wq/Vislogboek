@@ -585,3 +585,44 @@ if (getResearchByOutcome('Roofblei', 'feeding_incidence').every((item) => item.i
   throw new Error('Asp feeding-incidence evidence must be discoverable by species and measured outcome.');
 }
 console.log('Asp feeding-incidence evidence scope tests passed.');
+
+
+// Field bream feeding rhythms, seasonal pikeperch feeding intensity and
+// laboratory catfish rhythms must retain their distinct evidence scopes.
+const breamDielFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'bream-in-situ-diel-zooplankton-consumption-2004');
+if (!breamDielFeeding ||
+    !breamDielFeeding.measuredOutcomes?.includes('feeding_intensity') ||
+    !breamDielFeeding.measuredOutcomes?.includes('feeding_rhythm') ||
+    breamDielFeeding.approvedForPrediction ||
+    !breamDielFeeding.summary.includes('in-situ') ||
+    !breamDielFeeding.limitations.some((item) => item.includes('microcrustaceeën'))) {
+  throw new Error('Bream diel feeding evidence must retain its in-situ zooplankton context and transferability limits.');
+}
+if (getResearchByOutcome('Brasem', 'feeding_rhythm').every((item) => item.id !== 'bream-in-situ-diel-zooplankton-consumption-2004')) {
+  throw new Error('Bream in-situ diel feeding evidence must be discoverable by species and outcome.');
+}
+const pikeperchFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'pikeperch-feeding-intensity-size-gonad-season-2012');
+if (!pikeperchFeeding ||
+    !pikeperchFeeding.measuredOutcomes?.includes('feeding_intensity') ||
+    !pikeperchFeeding.measuredOutcomes?.includes('diet_composition') ||
+    pikeperchFeeding.approvedForPrediction ||
+    !pikeperchFeeding.summary.includes('19 cm') ||
+    !pikeperchFeeding.limitations.some((item) => item.includes('voortplantingscyclus'))) {
+  throw new Error('Pikeperch seasonal feeding evidence must retain size and reproductive context.');
+}
+if (getResearchByOutcome('Snoekbaars', 'feeding_intensity').every((item) => item.id !== 'pikeperch-feeding-intensity-size-gonad-season-2012')) {
+  throw new Error('Pikeperch feeding-intensity evidence must be discoverable by species and outcome.');
+}
+const catfishDielFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'wels-catfish-diel-feeding-rhythm-self-feeders-1995');
+if (!catfishDielFeeding ||
+    !catfishDielFeeding.measuredOutcomes?.includes('feeding_rhythm') ||
+    catfishDielFeeding.measuredOutcomes.includes('feeding_intensity') ||
+    catfishDielFeeding.approvedForPrediction ||
+    !catfishDielFeeding.summary.includes('laboratoriumstudie') ||
+    !catfishDielFeeding.limitations.some((item) => item.includes('geen veldmeting'))) {
+  throw new Error('Catfish diel feeding evidence must remain laboratory rhythm evidence, not field intensity or angling catchability.');
+}
+if (getResearchByOutcome('Meerval', 'feeding_rhythm').every((item) => item.id !== 'wels-catfish-diel-feeding-rhythm-self-feeders-1995')) {
+  throw new Error('Catfish diel rhythm evidence must be discoverable by species and outcome.');
+}
+console.log('Bream, pikeperch and catfish feeding evidence scope tests passed.');

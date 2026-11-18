@@ -1432,6 +1432,65 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+
+  {
+    id: 'bream-in-situ-diel-zooplankton-consumption-2004',
+    topic: 'in-situ-diel-feeding-rhythm-and-zooplankton-consumption',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een veldstudie in het Římov-reservoir onderzocht in-situ dagelijkse zoöplanktonconsumptie en maagvulling bij subadulte en adulte brasem, blankvoorn en kolblei. De onderzochte brasems vertoonden overdag een voedingsperiodiciteit en een duidelijke afname van maagvulling in de nacht; de gemeten dagelijkse consumptie varieerde met soort en lengteklasse.',
+    limitations: [
+      'De studie betreft brasems die vrijwel uitsluitend microcrustaceeën aten in één Tsjechisch reservoir; het patroon is niet zonder meer overdraagbaar naar andere wateren of aas-/voerstrategieën.',
+      'De waargenomen dagperiodiciteit is afhankelijk van prooitype, lengteklasse, seizoen en lichtcondities; dit is geen universele dagbonus voor alle brasems.',
+      'Zoöplanktonconsumptie is geen directe meting van hengelvangbaarheid of interesse in door vissers aangeboden aas.'
+    ],
+    sourceReferences: [
+      'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214.'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-feeding-intensity-size-gonad-season-2012',
+    topic: 'seasonal-feeding-intensity-diet-and-ontogeny',
+    measuredOutcomes: ['feeding_intensity', 'diet_composition'],
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een jaar lang werden maandelijks snoekbaarzen bemonsterd met kieuwnetten met verschillende maaswijdten. De studie vond duidelijke verschillen in dieet tussen lengteklassen: vis werd belangrijker boven 19 cm, terwijl kleinere exemplaren relatief meer Diptera en mysiden aten. De maagvullings-/voedingsintensiteit varieerde door het jaar, met pieken in oktober en maart en een daling tussen oktober en februari die door de auteurs in verband werd gebracht met de voortplantingsperiode.',
+    limitations: [
+      'De studie vond plaats in één Turks watergebied en gebruikte experimentele kieuwnetbemonstering; overdraagbaarheid naar Nederlandse binnenwateren en individuele visserijsessies is onzeker.',
+      'De seizoensrelatie is gekoppeld aan de lokale voortplantingscyclus en populatie; piekmaanden zijn geen universele snoekbaarskalender.',
+      'Maagvulling en dieet beschrijven voedselopname en prooikeuze, niet rechtstreeks dagelijkse vangbaarheid of het beste hengelaas.'
+    ],
+    sourceReferences: [
+      'Özyurt, C. E., Mavruk, S. & Kiyağa, V. B. (2012). Effects of Predator Size and Gonad Maturation on Food Preference and Feeding Intensity of Sander lucioperca (Linnaeus, 1758). Turkish Journal of Fisheries and Aquatic Sciences, 12(2), 315–322. https://doi.org/10.4194/1303-2712-v12_2_17'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'wels-catfish-diel-feeding-rhythm-self-feeders-1995',
+    topic: 'diel-feeding-rhythm-and-voluntary-feed-intake',
+    measuredOutcomes: ['feeding_rhythm'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een gecontroleerde laboratoriumstudie onderzocht het dagelijkse voedingsritme van Europese meerval, alleen of in groepen, met vrije of tijdsbeperkte toegang tot zelfvoederautomaten. Bij vrije toegang was de voedingsactiviteit sterk nachtelijk. Na training op dagvoedering daalde de vrijwillige voedselopname en keerde het nachtelijke patroon na herstel van vrije toegang binnen minder dan 24 uur terug; sociale huisvesting beïnvloedde de regelmaat.',
+    limitations: [
+      'Dit is gecontroleerd laboratoriumonderzoek met zelfvoederautomaten en geen veldmeting van natuurlijk foerageren of hengelvangbaarheid.',
+      'Groepssamenstelling, isolatie, voederbeschikbaarheid en trainingsregime beïnvloedden het ritme; de sterke nachtelijke uitkomst mag niet als vaste nachtbonus worden toegepast.',
+      'De studie levert geen lokale seizoens-, watertemperatuur- of habitatcorrectie voor Nederlandse meervalwateren.'
+    ],
+    sourceReferences: [
+      'Boujard, T. (1995). Diel rhythms of feeding activity in the European catfish, Silurus glanis. Physiology & Behavior, 58(4), 641–645. https://doi.org/10.1016/0031-9384(95)00109-V'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
