@@ -270,6 +270,7 @@ async function runTestSuite() {
       targetDate: '',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 7,
       predictedCatchChance: 50,
       source: '',
