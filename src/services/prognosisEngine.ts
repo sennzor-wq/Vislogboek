@@ -1199,7 +1199,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         location,
         bankWindAnalysis,
-        bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' ? (bestSlot as TimeSlot) : 'Ochtend',
+         tacticalTargetSlot ?? 'Ochtend',
         options?.catches ?? []
       ) ?? undefined
     : undefined;
@@ -1453,7 +1453,9 @@ export async function createLiveSnapshotForSessionStart(
       db.prognosisSnapshots.toArray(),
       db.locations.toArray(),
     ]);
-    const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(new Date());
+    const now = new Date();
+    const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
+    const targetTimeSlot = getTimeSlotAtAmsterdamDate(now);
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       allSessions,
@@ -1461,11 +1463,12 @@ export async function createLiveSnapshotForSessionStart(
       allLocations
     );
     const historyFeatures = createPrognosisHistoryFeatureSnapshot(allSessions, allCatches);
-    const forecastTimestamp = new Date().toISOString();
+    const forecastTimestamp = now.toISOString();
     const inputContext: PrognosisInputContext = {
       calculatedAt: forecastTimestamp,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: todayStr,
+      targetTimeSlot: targetTimeSlot ?? null,
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
@@ -1502,9 +1505,10 @@ export async function createLiveSnapshotForSessionStart(
       allSessions,
       weather.fetchedAt,
       userWaterTemp ?? null,
-      new Date(),
+      now,
       {
         sessionDurationHours: durationHours,
+        targetTimeSlot,
         allowUnknownSessionDuration: true,
         locationId: location.id,
         location,
