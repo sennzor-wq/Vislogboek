@@ -1789,7 +1789,7 @@ Naast de bron-/parameterinventaris in §48 is de actuele codeketen gecontroleerd
 
 ## 85. Formele Fase-2-acceptatiecontrole — eerste technische crosswalk (18 november 2026)
 
-Deze controle koppelt de zes formele criteria uit §43 aan de huidige code, tests en bewijsstatus. 'Technisch gerealiseerd' betekent niet automatisch wetenschappelijk gevalideerd of lokaal gekalibreerd.
+Deze controle koppelt de zeven formele criteria uit §43 aan de huidige code, tests en bewijsstatus. 'Technisch gerealiseerd' betekent niet automatisch wetenschappelijk gevalideerd of lokaal gekalibreerd.
 
 | Criterium | Technische status | Bewijs-/praktijkstatus | Open punt |
 |---|---|---|---|
@@ -1799,6 +1799,7 @@ Deze controle koppelt de zes formele criteria uit §43 aan de huidige code, test
 | 4. Tijdvak- en gedragslogica | **Grotendeels gerealiseerd**: gekozen sessiestart stuurt de tijdgevoelige VisCoach-context; meerdere tijdvakken worden niet als één bewezen universele beste periode behandeld. | Tijdvakclaims blijven beperkt tot soortspecifiek passend bewijs; geen kunstmatige winnaar of ongefundeerde bonus. | Controleer nog de volledige UI-/enginepaden op consistente toepassing van de gekozen sessietijd; de Brier-tijdvenstervergelijking zelf is gerealiseerd en getest. |
 | 5. Lokale leer- en evaluatieketen | **Technisch gerealiseerd voor de huidige evaluatiepoort**. | Snapshots, koppeling, chronologische baseline, modelversie-isolatie, benchmarkuitsluiting, duur-/tijdvenstervergelijking en soortdiagnostiek zijn getest. | Lokale Brier-validatie en kalibratie wachten op voldoende echte, vergelijkbare sessies na clean start. |
 | 6. Gebruiksvriendelijkheid en VisCoach | **Technisch gerealiseerd in de huidige invoerflow**: doelsoort, stek en gewenste starttijd; eindtijd optioneel; geen verplichte levensfase- of uitgebreid voedingsformulier. | De visser behoudt de keuze; de app gebruikt alleen aanwezige context. | Geen extra invoervelden toevoegen tenzij aantoonbaar noodzakelijk en gebruiksvriendelijk. |
+| 7. Technische borging | **Gerealiseerd voor de huidige wijzigingen**: regressies, typecheck, dependency-audits, productiebuild en artifactcontrole zijn uitgevoerd; PR-head- en main-mergecommit-gates zijn groen. | PR #138 en #139 zijn volledig gevalideerd; issue #49 en de drie leidende documenten zijn bijgewerkt. | Iedere volgende codewijziging blijft dezelfde exacte-head- en mergecommit-gate vereisen; hervattingspunt en issue moeten synchroon blijven. |
 
 ### Brier-tijdvenstercontrole — implementatie in deze PR
 
@@ -1811,7 +1812,7 @@ Deze controle koppelt de zes formele criteria uit §43 aan de huidige code, test
 
 ### Voorlopige acceptatie-uitkomst
 
-Criteria 1, 3, 5 en 6 zijn technisch grotendeels of volledig gerealiseerd; criterium 4 is grotendeels gerealiseerd. Criterium 2 blijft inhoudelijk begrensd door de voorlopige thermische priors en het ontbreken van goedgekeurde numerieke biologische bronnen. De formele Fase 2 is **niet geaccepteerd**. Lokale praktijkvalidatie hoeft niet vooraf volledig beschikbaar te zijn om de softwarefase af te ronden, maar claims van lokale nauwkeurigheid blijven geblokkeerd. Fase 3 start niet voordat de resterende technische en ontwerpbesluiten expliciet zijn afgerond.
+Criteria 1, 3, 5, 6 en 7 zijn technisch grotendeels of volledig gerealiseerd; criterium 4 is grotendeels gerealiseerd. Criterium 2 blijft inhoudelijk begrensd door de voorlopige thermische priors en het ontbreken van goedgekeurde numerieke biologische bronnen. De formele Fase 2 is **niet geaccepteerd**. Lokale praktijkvalidatie hoeft niet vooraf volledig beschikbaar te zijn om de softwarefase af te ronden, maar claims van lokale nauwkeurigheid blijven geblokkeerd. Fase 3 start niet voordat de resterende technische en ontwerpbesluiten expliciet zijn afgerond.
 ## 86. Thermische bronstatus per soort zichtbaar gemaakt (18 november 2026)
 
 De soortprofielmodal toont nu ook de status uit getSpeciesThermalEvidenceContextText(). Daarmee wordt onderscheid gemaakt tussen directe aerobe-scopegegevens, uitsluitend metabole gegevens en ontbrekende vergelijkbare thermische fysiologiebronnen. De bestaande algemene waarschuwing blijft staan: een bronvermelding is geen goedkeuring van de exacte curveparameters.
