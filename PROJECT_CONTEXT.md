@@ -1668,7 +1668,7 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 
 ### Fase 2 — formele acceptatiecontrole en Brier-tijdvenster (18 november 2026)
 
-- De formele crosswalk van de zes acceptatiecriteria staat in FASE2_PROGNOSE_AUDIT.md §85.
+- De formele crosswalk van de zeven acceptatiecriteria staat in FASE2_PROGNOSE_AUDIT.md §85.
 - De Brier-evaluator controleert naast voorspelde/werkelijke duur ook het geplande/werkelijke tijdvenster: exact op minuutprecisie, of via het opgeslagen targetSlot als oudere snapshot geen exact venster heeft.
 - Waarnemingen zonder tijdvenster én zonder gekozen tijdvak worden apart geteld en uitgesloten; er wordt geen tolerantie of kansherleiding verzonnen.
 - Een ontbrekende overdracht van geplande VisCoach-start/eindtijd naar de opgeslagen sessiesnapshot is hersteld.
@@ -1689,3 +1689,4 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Karper, snoek, brasem en blankvoorn: metabole gegevens, geen aerobe-scopecurve; dit is geen directe maat voor activiteit, voedselopname of vangbaarheid.
 - Zeelt, meerval en roofblei: geen vergelijkbare soortspecifieke thermische fysiologiebron in het register.
 - Geen thermische curve, score, parameter of vangstkans gewijzigd. De expliciete keuze om voorlopige priors te behouden of bij onvoldoende bewijs uit te schakelen staat open in FASE2_PROGNOSE_AUDIT.md §86.
+- Correctie acceptatiecrosswalk: §43 bevat zeven verplichte criteria; de crosswalk in §85 omvat ook criterium 7 (technische borging, tests, exacte PR-head/mergecommit Quality Gates en documentconsistentie).
