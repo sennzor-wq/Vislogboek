@@ -1582,3 +1582,36 @@ Bronnen:
 - Zanghi, C. & Ioannou, C.C. (2024). *The impact of increasing turbidity on the predator–prey interactions of freshwater fishes*. Freshwater Biology, 70(1), e14354. https://doi.org/10.1111/fwb.14354
 
 **Status:** deze drie bronnen zijn toegevoegd aan het research register met expliciete beperkingen en `approvedForPrediction: false`. Er zijn geen activiteitsscores, thermische parameters, tijdvakbonussen of gewichten aangepast.
+
+## 80. Gerichte audit zuurstof, stroming, regen en bewolking (18 november 2026)
+
+### Opgeloste zuurstof: mogelijk relevant, maar alleen met echte meting
+
+- **Bauer & Schlott (2006):** radio-telemetrie in één met ijs/sneeuw bedekte aquacultuurvijver volgde karper tijdens een winterse zuurstofcrisis. De vissen verplaatsten zich naar ondieper water bij een instromende beek met beter zuurstofgehalte; voeding stopte tijdens de crisis en totale activiteit correleerde significant met opgeloste zuurstof.
+- **Benito et al. (2015):** volwassen karpers in één Ebro-reservoir benutten juist ook sterk hypoxische waterlagen (gerapporteerd onder 1,1 mg/L), vooral 's nachts. Stroming en habitatgebruik verschilden tussen individuen.
+- **Modelconclusie:** zuurstof kan onder specifieke omstandigheden activiteit, voedselopname en habitatkeuze beïnvloeden, maar karperrespons is contextafhankelijk. Deze twee studies ondersteunen geen universele zuurstofdrempel of algemene zuurstofbonus. Zuurstof mag niet uit temperatuur, regen, bewolking of luchtdruk worden afgeleid. Zonder directe meting blijft de factor onbekend en buiten de numerieke prognose.
+
+### Stroming: beweging, fijne activiteit en voedseltoegankelijkheid scheiden
+
+- **Taylor & Cooke (2012):** meta-analyse van rivierafvoer. Niet-migrerende verplaatsing nam gemiddeld toe bij hogere afvoer (27 effectgroottes) en opwaartse migratie eveneens (8). Neerwaartse migratie en fijne-schaalactiviteit waren niet significant (elk 5 effectgroottes); heterogeniteit en mogelijke inclusie-/publicatiebias bleven aanwezig.
+- **Benito et al. (2015):** in één stromingsgevoelig reservoir waren karpers bij hogere stroming gemiddeld minder actief en gebruikten zij ondieper water; individuele variatie was substantieel.
+- **Ouellet et al. (2025):** de foodscape-review beschrijft hoe snelheid en turbulentie de energetische kosten en toegankelijkheid van prooien beïnvloeden, terwijl stromingsverandering prooien kan verplaatsen en toegang tot zijhabitats kan veranderen. Dit is een algemeen rivierkader, geen soortspecifieke responsfunctie.
+- **Modelconclusie:** stroming kan lokale verplaatsing, habitatkeuze en voedseltoegankelijkheid beïnvloeden, maar meer beweging is niet gelijk aan meer voedselopname of vangstkans. Dit is vooral relevant in stromende systemen; geen algemene bonus voor stilstaand water of een exacte wind-/stromingsregel zonder lokale meting.
+
+### Regen en bewolking: huidige meta-evidence is migratiespecifiek en schaars
+
+- **Schlautmann et al. (2026):** Europese meta-analyse met 112 studies, 685.333 individuen, 953 effectgroottes en 50 soorten onderzocht paaigerelateerde migratie. Watertemperatuur was de meest consistente trigger. Stromingsreacties verschilden tussen soorten en stromingsgilden. Voor regen waren slechts twee studies en voor bewolking één studie beschikbaar; formele conclusies voor deze factoren zijn daardoor niet robuust.
+- **Modelconclusie:** paaigerelateerde migratie is niet hetzelfde als dagelijkse activiteit of voedselopname. De lage dekking voor regen en bewolking rechtvaardigt geen dagelijkse activiteitsscore, tijdvakbonus of vangstkansaanpassing. Regen kan hoogstens indirecte context leveren wanneer lokale veranderingen in peil, stroming, troebelheid of habitattoegang daadwerkelijk bekend zijn. Bewolking blijft lichtcontext en mag niet los van soort, zicht en daglicht worden gewogen.
+
+### Bijgewerkte factorstatus
+
+| Factor | Veilige huidige rol | Niet toegestaan op basis van deze bronnen |
+|---|---|---|
+| Opgeloste zuurstof | Gemeten waterkwaliteit-/habitatcontext; potentieel relevante stressor bij aantoonbare afwijking | Afleiden uit weer/temperatuur; universele drempel of karperbonus |
+| Stroming/afvoer | Lokale beweging, habitat en voedseltoegankelijkheid in stromende systemen | Universele activiteit- of vangstbonus; overdracht naar stilstaand water |
+| Regen | Indirecte context via gemeten/verifieerbare peil-, stromings- of troebelheidsverandering | Zelfstandige dagelijkse activiteit- of voedingsbonus |
+| Bewolking | Lichtcontext, eventueel soortspecifiek te onderzoeken | Algemene bewolkingbonus of vaste tijdvakvoorkeur |
+
+**Registry:** vijf bronnen zijn toegevoegd met expliciete meetuitkomsten en beperkingen. De migratiestudie wordt niet als algemene locomotorische activiteit geclassificeerd omdat de registry nog geen afzonderlijk outcome-type voor paaigerelateerde migratie heeft. Alle nieuwe registraties blijven `approvedForPrediction: false`.
+
+**Modelstatus:** geen thermische parameters, activiteitsscores, factorgewichten, tijdvakvoorkeuren of vangstkansen gewijzigd. De volgende stap is de resterende soortspecifieke dekking en beschikbaarheid van meetdata te toetsen en de volledige factor-/bewijs-/datadekkingsmatrix te sluiten.
