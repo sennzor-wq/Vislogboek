@@ -627,6 +627,18 @@ async function run() {
     selectedEveningPrognosis.positioningAdvice?.windContext.speedKmH === 18,
     'De hengelpositionering gebruikt de wind van het gekozen starttijdvak'
   );
+  const partialEveningForecasts = slotForecasts.filter((forecast) => Number(forecast.time.slice(11, 13)) >= 20);
+  const partialEveningPrognosis = calculateDayPrognosis(
+    '2026-07-20', partialEveningForecasts, 'Karper', [], '2026-07-20T20:00:00.000Z', 20,
+    new Date('2026-07-20T20:00:00+02:00'),
+    { ...slotBaseOptions, targetTimeSlot: 'Avond' }
+  );
+  assert(
+    partialEveningPrognosis.positioningAdvice?.missingInformation.includes(
+      'De tactische weersanalyse gebruikt alleen de resterende beschikbare uren van het gekozen tijdvak; een volledig tijdvakgemiddelde is niet beschikbaar.'
+    ),
+    'Een onvolledig resterend tijdvak wordt expliciet als beperkte tactische weersdekking gemeld'
+  );
 
   await db.delete();
   console.log(`Session coach tests: ${passed} geslaagd, ${failed} gefaald`);
