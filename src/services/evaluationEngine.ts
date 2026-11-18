@@ -7,6 +7,7 @@
 import { PrognosisSnapshot, FishingSession, FishSpecies } from '../types';
 import { db } from '../db/db';
 import { PROGNOSIS_MODEL_VERSION } from './modelVersions';
+import { getAmsterdamHour } from '../utils/dateTime';
 
 export interface CalibrationBin {
   rangeLabel: string;        // bijv. "0% – 20%"
@@ -27,6 +28,43 @@ export interface SpeciesBrierEvaluation {
   calibrationBins: CalibrationBin[];
 }
 
+function getTimeSlotForTimestamp(timestamp: string): PrognosisSnapshot['targetSlot'] | undefined {
+  const hour = getAmsterdamHour(timestamp);
+  if (hour === null) return undefined;
+  if (hour < 6) return 'Nacht';
+  if (hour < 12) return 'Ochtend';
+  if (hour < 18) return 'Middag';
+  return 'Avond';
+}
+
+function getMinuteTimestamp(timestamp: string): number | null {
+  const milliseconds = Date.parse(timestamp);
+  return Number.isFinite(milliseconds) ? Math.round(milliseconds / 60000) : null;
+}
+
+/** Exacte geplande tijdvensters krijgen voorrang; oudere snapshots vallen terug op het gekozen starttijdvak. */
+function getTimeWindowComparison(
+  snapshot: PrognosisSnapshot,
+  session: FishingSession
+): 'comparable' | 'mismatch' | 'unknown' {
+  if (snapshot.targetWindowStart !== undefined) {
+    const plannedStart = getMinuteTimestamp(snapshot.targetWindowStart);
+    const actualStart = getMinuteTimestamp(session.startTime);
+    if (plannedStart === null || actualStart === null || plannedStart !== actualStart) return 'mismatch';
+    if (snapshot.targetWindowEnd !== undefined && snapshot.targetWindowEnd !== null) {
+      const plannedEnd = getMinuteTimestamp(snapshot.targetWindowEnd);
+      const actualEnd = session.endTime ? getMinuteTimestamp(session.endTime) : null;
+      if (plannedEnd === null || actualEnd === null || plannedEnd !== actualEnd) return 'mismatch';
+    }
+    return 'comparable';
+  }
+  if (snapshot.targetSlot) {
+    const actualSlot = getTimeSlotForTimestamp(session.startTime);
+    return actualSlot === undefined || actualSlot !== snapshot.targetSlot ? 'mismatch' : 'comparable';
+  }
+  return 'unknown';
+}
+
 export interface EvaluationResult {
   totalSnapshots: number;
   currentModelSnapshotCount: number;
@@ -34,6 +72,8 @@ export interface EvaluationResult {
   evaluatedCount: number;    // Aantal met bekende uitkomst en vergelijkbare geplande/werkelijke duur
   durationMismatchCount: number;
   durationUnknownCount: number;
+  timeWindowMismatchCount: number;
+  timeWindowUnknownCount: number;
   speciesBreakdown: SpeciesBrierEvaluation[];
   pendingCount: number;      // Aantal nog zonder sessie of actieve sessie
   hasSufficientData: boolean;// True als evaluatedCount >= 5
@@ -83,10 +123,17 @@ export function evaluatePrognosisPerformance(
   }
   const earliestCoreSnapshots = Array.from(earliestBySessionAndSpecies.values());
   const duplicateCount = coreEligibleSnapshots.length - earliestCoreSnapshots.length;
-  // Vangkans is voorspeld voor de geplande sessieduur. Alleen gelijke werkelijke blootstelling telt mee.
-  // Vergelijk op minuutprecisie; geen willekeurige tolerantie of achteraf omgerekende kans.
-  const durationUnknownSnapshots = earliestCoreSnapshots.filter((snapshot) => snapshot.durationKnown === false || !Number.isFinite(snapshot.durationHours) || snapshot.durationHours <= 0);
-  const durationComparableSnapshots = earliestCoreSnapshots.filter((snapshot) => snapshot.durationKnown !== false && Number.isFinite(snapshot.durationHours) && snapshot.durationHours > 0);
+  // Zowel de voorspelde duur als het voorspelde tijdvenster moeten overeenkomen met de werkelijke blootstelling.
+  // Exacte tijdstempels worden op minuutprecisie vergeleken; er wordt geen willekeurige tolerantie of kansherleiding toegepast.
+  const timeWindowComparisons = new Map(earliestCoreSnapshots.map((snapshot) => {
+    const session = sessionsById.get(snapshot.linkedSessionId!);
+    return [snapshot.id, session ? getTimeWindowComparison(snapshot, session) : 'unknown'] as const;
+  }));
+  const timeWindowMismatchCount = Array.from(timeWindowComparisons.values()).filter((value) => value === 'mismatch').length;
+  const timeWindowUnknownCount = Array.from(timeWindowComparisons.values()).filter((value) => value === 'unknown').length;
+  const timeWindowComparableSnapshots = earliestCoreSnapshots.filter((snapshot) => timeWindowComparisons.get(snapshot.id) === 'comparable');
+  const durationUnknownSnapshots = timeWindowComparableSnapshots.filter((snapshot) => snapshot.durationKnown === false || !Number.isFinite(snapshot.durationHours) || snapshot.durationHours <= 0);
+  const durationComparableSnapshots = timeWindowComparableSnapshots.filter((snapshot) => snapshot.durationKnown !== false && Number.isFinite(snapshot.durationHours) && snapshot.durationHours > 0);
   const durationMismatchSnapshots = durationComparableSnapshots.filter((snapshot) => {
     const linkedSession = sessionsById.get(snapshot.linkedSessionId!);
     if (!linkedSession?.endTime) return true;
@@ -114,6 +161,7 @@ export function evaluatePrognosisPerformance(
     `${excludedCount} momentopname(s) met bekende uitkomst uitgesloten wegens ontbrekende/ongeldige koppeling, sessie of voorspellingstijd.`,
     `${durationMismatchCount} momentopname(s) uitgesloten omdat de werkelijke sessieduur afwijkt van de vooraf voorspelde duur. Vergelijking gebeurt op minuutprecisie; er wordt geen kans achteraf omgerekend.`,
     `${durationUnknownCount} momentopname(s) uitgesloten omdat de vooraf voorspelde sessieduur ontbreekt of expliciet onbekend is.`,
+    `${timeWindowMismatchCount} momentopname(s) uitgesloten wegens afwijking tussen gepland en werkelijk tijdvenster; ${timeWindowUnknownCount} momentopname(s) uitgesloten omdat tijdvenster en gekozen tijdvak ontbreken.`,
     `${duplicateCount} dubbele momentopname(s) uitgesloten omdat dezelfde sessie en doelsoort al meetellen.`,
     'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen gekoppelde sessies van dezelfde doelsoort die vóór het prognosetijdstip zijn beëindigd tellen mee.',
     `Alleen momentopnames van modelversie ${PROGNOSIS_MODEL_VERSION} worden gescoord; ${outdatedVersionCount} momentopname(s) van andere modelversies zijn uitgesloten. Afgeronde uitkomsten van oudere versies mogen wel als historische waarneming in de rolling baseline meetellen.`,
@@ -137,6 +185,8 @@ export function evaluatePrognosisPerformance(
       evaluatedCount,
       durationMismatchCount,
       durationUnknownCount,
+      timeWindowMismatchCount,
+      timeWindowUnknownCount,
       speciesBreakdown,
       pendingCount,
       hasSufficientData: false,
@@ -251,6 +301,8 @@ export function evaluatePrognosisPerformance(
     evaluatedCount,
     durationMismatchCount,
     durationUnknownCount,
+    timeWindowMismatchCount,
+    timeWindowUnknownCount,
     speciesBreakdown,
     pendingCount,
     hasSufficientData: true,
