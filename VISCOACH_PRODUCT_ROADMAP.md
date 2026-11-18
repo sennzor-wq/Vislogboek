@@ -1398,3 +1398,8 @@ De voerstrategie bestaat uit twee samenhangende delen: **voorbereiding vóór de
 - Geen nieuwe biologische temperatuurgrenzen, gewichten, voerhoeveelheden of vangstbonussen introduceren. Hergebruik de bestaande voerplanner en maak de huidige heuristische status/zekerheid zichtbaar. Geen extra verplichte gebruikersinvoer.
 
 **Acceptatiecriteria:** een plan op dezelfde dag, één dag, drie dagen en meer dan drie dagen vooruit wordt correct afgehandeld; het bestaande maximum van drie voorbereidingsdagen blijft gelden; lagere datakwaliteit verbergt grammen maar niet noodzakelijk de timing; ontbrekend watertype leidt niet tot een onjuiste opdracht om een nieuwe stek te kiezen; PVA en method feeder worden als alternatieve instant-presentaties uitgelegd wanneer de techniek onbekend is; voorvoeren en sessiepresentatie blijven afzonderlijk; regressietests dekken deze gevallen. De Prognose-engine, biologische scores en Brier-evaluatie blijven ongewijzigd.
+
+
+### Veiligheidsnuance — onbekende temperatuur is geen koudwaterevidence (18 november 2026)
+
+De aanvullende PVA-/method-feederalternatieven voor een voorzichtige koude-waterstrategie worden alleen getoond wanneer de bestaande voerplannertekst daadwerkelijk een lagere voedselopname bij lage temperatuur onderbouwt. De status 'niet aanbevolen (instant vissen aanbevolen)' kan ook ontstaan doordat de watertemperatuur onbekend is; die status alleen is dus onvoldoende om koude-watergedrag te claimen. Bij onbekende temperatuur blijft de coach algemeen en terughoudend, zonder een koude-waterreden te verzinnen.

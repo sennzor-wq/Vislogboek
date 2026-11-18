@@ -435,8 +435,7 @@ export function buildVisCoachAdviceText(
     } else if (
       !technique?.trim() &&
       prognosis.species === 'Karper' &&
-      (prebait.suitability === 'Niet aanbevolen (instant vissen aanbevolen)' ||
-        /voedselopname en vertering doorgaans lager/i.test(prebait.temperatureFactorExplanation ?? ''))
+      /voedselopname en vertering doorgaans lager|voedselopname van karperachtigen doorgaans sterk vertraagd/i.test(prebait.temperatureFactorExplanation ?? '')
     ) {
       feeding.push('Kies één passende instant-presentatie: bij een karperrig een klein PVA-zakje rond het haakaas; bij method feeder een minimaal en compact gevulde korf rond het haakaas. Dit zijn alternatieven, geen combinatie en geen apart voerbed.');
     }
