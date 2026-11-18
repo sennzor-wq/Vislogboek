@@ -543,3 +543,10 @@ Deze zijstroom ondersteunt de hoofdroadmap, maar verandert de fasevolgorde niet 
 **Volgende acties VisCoach-zijstroom:** gerichte tijdvakdoorgifte naar de bestaande tactische engines; gestructureerde, achterwaarts compatibele advies-/tactiekvelden; begrijpelijke samenvoeging van habitat-, wind- en positioneringsuitkomsten; onderbouwde matige-windduiding; selectieve benutting van voorvoeruitkomsten; standaard-/geavanceerde presentatie en regressietests. Geen tweede prognose- of tactiekengine.
 
 **Regie:** fase 2 blijft het hoofdspoor. De VisCoach-audit en productvoorbereiding lopen parallel. Fase 3 begint uitsluitend na formele fase-2-acceptatie.
+### Aanvulling op checkpoint — bewijs en VisCoach-koppeling (18 november 2026)
+
+- PR #113 is squash-merged als commit `26002ed043a2e8c2e8f48ec897e56642aec760b3`. Bergström et al. (2024) is als volwassen meerval-veldtelemetrie geregistreerd, uitsluitend voor locomotorische activiteit en habitat/dieptegebruik. De studie meet geen directe voedselopname en activeert daarom geen voedingsritme of tijdvakbonus.
+- PR #114 is squash-merged als commit `10b722af471e8156b83474084d51a7cec5e53c86`. De gekozen starttijd stuurt nu de bestaande VisCoach-positionerings-, habitat-, oeverwind- en voorvoerberekeningen. Tijdens een live sessie wordt het actuele tijdvak gebruikt. De context wordt in snapshots bewaard en beperkte resterende weersdekking wordt gemeld.
+- De dagbrede thermische score, algemene beste-tijdvakuitkomst en algemene Prognose-tab zijn ongewijzigd. Er is geen biologische factor, windbonus of tweede tactiekengine toegevoegd.
+
+**Resterend:** fase 2 blijft open voor de volledige factor-/bewijs-/validatiematrix. In de VisCoach-zijstroom moeten advies en tactiek nog als afzonderlijke maar samenhangende velden worden opgeslagen en getoond; daarnaast volgen de standaard/advanced-presentatie, matige-windduiding, habitat-/windafstemming en selectieve voorvoervertaling. Fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
