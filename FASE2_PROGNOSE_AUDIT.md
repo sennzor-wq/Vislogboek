@@ -1567,7 +1567,7 @@ Volgende hoofdspoorstappen:
 
 ### Troebelheid en zicht: richting van effect verschilt
 
-- **Zanghi & Ioannou (2024):** review van 281 peer-reviewed studies naar troebelheid en predator-prooi-interacties bij zoetwatervissen. De review vond uiteenlopende gedrags- en foerageerreacties; negatieve effecten kwamen vaker voor bij predatoren dan bij prooivissen, maar de resultaten zijn taxonomisch en geografisch scheef verdeeld. Geregistreerd als algemene omgevingskennis, niet soortspecifiek en niet goedgekeurd voor directe voorspelling.
+- **Zanghi & Ioannou (2024):** review van 281 peer-reviewed studies naar troebelheid en predator-prooi-interacties bij zoetwatervissen. De review vond uiteenlopende gedrags- en foerageerreacties; negatieve effecten kwamen vaker voor bij predatoren dan bij prooivissen, maar de resultaten zijn taxonomisch en geografisch scheef verdeeld. Geregistreerd als algemene omgevingsliteratuur, niet als primaire gemeten uitkomst of soortspecifieke bron, en niet goedgekeurd voor directe voorspelling.
 - **Modelconclusie:** troebelheid kan zicht, prooidetectie, predatorrisico en habitatgebruik veranderen, maar de richting hangt af van soort, prooi, levensfase en habitat. Er is geen universele NTU-drempel of vaste activiteitbonus voor de Vislogboek-soorten.
 
 ### Wind en overige weers-/waterfactoren
