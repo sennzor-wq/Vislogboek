@@ -220,7 +220,15 @@ export interface SessionRod {
 }
 
 export interface RodEffortSummary {
+  /** Er bestaan hengel-detailrecords; dit zegt niets over vastgelegde inzet. */
   hasDetailData: boolean;
+  /** Er is ten minste één intervalrecord, ook als dit onvolledig of ongeldig is. */
+  hasRecordedIntervals: boolean;
+  recordedIntervalCount: number;
+  rodsWithoutIntervalsCount: number;
+  /** Intervallen die geheel of gedeeltelijk buiten de sessiegrenzen vallen. */
+  outOfSessionIntervalCount: number;
+  /** Alleen uit volledige, parseerbare en positieve intervallen berekende uren. */
   totalRodHours: number;
   activeRodCount: number;
   incompleteIntervalCount: number;

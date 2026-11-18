@@ -827,14 +827,25 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                       return (
                         <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs text-slate-300 space-y-2">
                           <div>
-                            <strong className="text-white">Hengeluren:</strong> {effort.totalRodHours.toFixed(2)} uur
-                            <span className="text-slate-400"> · {effort.activeRodCount} hengels met geregistreerde inzet</span>
+                            {!effort.hasRecordedIntervals ? (
+                              <p className="text-amber-200"><strong>Hengeluren onbekend:</strong> er zijn nog geen actieve hengelperiodes geregistreerd.</p>
+                            ) : effort.totalRodHours > 0 ? (
+                              <>
+                                <strong className="text-white">Geregistreerde hengeluren:</strong> {effort.totalRodHours.toFixed(2)} uur
+                                <span className="text-slate-400"> · {effort.activeRodCount} hengels met bruikbare geregistreerde inzet</span>
+                                <p className="text-slate-400 text-[11px] mt-1">Dit is alleen de opgetelde inzet uit bruikbare intervallen, niet automatisch de volledige sessie-inzet.</p>
+                              </>
+                            ) : (
+                              <p className="text-amber-200"><strong>Hengeluren onbekend:</strong> er zijn intervalregistraties, maar geen geldige duur kon worden berekend.</p>
+                            )}
+                            {effort.rodsWithoutIntervalsCount > 0 && <p className="text-amber-300 text-[11px] mt-1">{effort.rodsWithoutIntervalsCount} hengel(s) zonder geregistreerde actieve periode; hun inzet is onbekend.</p>}
                             {effort.incompleteIntervalCount > 0 && <p className="text-amber-300 text-[11px] mt-1">{effort.incompleteIntervalCount} onvolledige of ongeldige interval(len) niet meegerekend.</p>}
+                            {effort.outOfSessionIntervalCount > 0 && <p className="text-amber-300 text-[11px] mt-1">{effort.outOfSessionIntervalCount} interval(len) vielen deels of geheel buiten de sessiegrenzen en zijn begrensd of uitgesloten.</p>}
                           </div>
                           <div className="space-y-1.5 border-t border-slate-700/60 pt-2">
                             {rodsForSession.map((rod) => (
                               <div key={rod.id} className="rounded-lg bg-slate-900/60 p-2">
-                                <div className="font-semibold text-white">Hengel {rod.rodNumber} · {(effort.perRodHours[rod.id] || 0).toFixed(2)} uur</div>
+                                <div className="font-semibold text-white">Hengel {rod.rodNumber} · {(rod.activeIntervals?.length ?? 0) === 0 ? 'inzet onbekend (geen periode geregistreerd)' : effort.perRodHours[rod.id] !== undefined ? `${effort.perRodHours[rod.id].toFixed(2)} uur geregistreerd` : 'inzet onbekend (interval ongeldig)'}</div>
                                 <div className="text-[11px] text-slate-400">
                                   {[rod.positionZone, rod.technique, rod.baitPresentation].filter(Boolean).join(' · ') || 'Geen positie, techniek of aas/presentatie vastgelegd'}
                                 </div>

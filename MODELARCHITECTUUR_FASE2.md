@@ -510,3 +510,10 @@ Nieuwe vangsten krijgen bij openen van het formulier automatisch een tijdstip (`
 Nieuwe hengelgebeurtenissen krijgen dezelfde metadata bij toevoegen en kunnen zonder extra invoerveld worden aangepast. De status `user_adjusted` is geen onafhankelijke tijdverificatie. Alleen vangsttijdherkomst wordt in de privacybewuste historische prognosefeatures opgenomen; hengelgebeurtenissen worden niet gekopieerd zolang de prognose-engine ze niet als input gebruikt. Historische featureversie is verhoogd naar 2; bestaande schema-1-snapshots blijven ongewijzigd.
 
 Deze metadata verandert geen score, tijdvakrangschikking, Brier-uitkomst of biologische parameter en mag niet zelfstandig als voedingsactiviteit-label worden gebruikt.
+
+
+## 57. Hengelinzet: onbekend onderscheiden van nul
+
+Een hengel zonder geregistreerde actieve intervallen heeft onbekende inzet; de app mag dit niet als nul hengeluren presenteren. Alleen expliciet geregistreerde, parseerbare en positieve intervallen leveren uren op. Onvolledige intervallen worden uitgesloten en geteld. Intervallen buiten sessiegrenzen worden begrensd en afzonderlijk gemeld; ongeldige sessiegrenzen maken de aanwezige intervallen niet valideerbaar. Bij gedeeltelijke registratie is het totaal uitsluitend een geregistreerd subtotaal, geen volledige sessie-inzet.
+
+Deze kwaliteitsmetadata is beschrijvend. Zij activeert geen tijdvakscore, catch probability of biologische modelparameter en voegt geen verplichte gebruikershandeling toe.

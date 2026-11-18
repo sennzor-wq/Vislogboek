@@ -50,6 +50,20 @@ const missing = calculateSessionRodEffort([
   rod('m2', 2, []),
 ], start, end);
 assert(missing.totalRodHours === 0 && missing.incompleteIntervalCount === 1, 'Ontbrekende intervallen worden niet afgeleid uit sessieduur of rodCount');
+assert(missing.hasRecordedIntervals && missing.recordedIntervalCount === 1 && missing.rodsWithoutIntervalsCount === 1,
+  'Een hengel zonder intervalrecord blijft onbekend en wordt onderscheiden van een onvolledig interval');
+const noIntervals = calculateSessionRodEffort([rod('empty', 1, []), rod('empty2', 2, [])], start, end);
+assert(!noIntervals.hasRecordedIntervals && noIntervals.rodsWithoutIntervalsCount === 2 && noIntervals.totalRodHours === 0,
+  'Lege intervalsets betekenen onbekende inzet, niet expliciet nul hengeluren');
+const invalidEnd = calculateSessionRodEffort([rod('blank-end', 1, [{ id: 'blank-end', startTime: '2026-11-02T08:00:00Z', endTime: '' }])], start, null, new Date('2026-11-02T11:00:00Z'));
+assert(invalidEnd.totalRodHours === 0 && invalidEnd.incompleteIntervalCount === 1,
+  'Een lege eindtijdstring wordt niet verward met een expliciet open interval');
+const invalidSessionBounds = calculateSessionRodEffort([rod('bad-session', 1, [interval('bad', '2026-11-02T08:00:00Z', '2026-11-02T09:00:00Z')])], '', end);
+assert(invalidSessionBounds.totalRodHours === 0 && invalidSessionBounds.incompleteIntervalCount === 1,
+  'Bij ongeldige sessiegrenzen worden pogingen geteld als niet valideerbaar in plaats van stilzwijgend genegeerd');
+const outsideBounds = calculateSessionRodEffort([rod('outside', 1, [interval('outside', '2026-11-02T07:00:00Z', '2026-11-02T09:00:00Z')])], start, end);
+assert(outsideBounds.totalRodHours === 1 && outsideBounds.outOfSessionIntervalCount === 1,
+  'Een interval buiten de sessiegrenzen wordt begrensd en expliciet als afwijking geteld');
 
 // Oude sessies zonder detailrecords blijven valide en geven geen kunstmatige hengeluren.
 const legacy = calculateSessionRodEffort([], start, end);
@@ -74,6 +88,11 @@ assert(intervalClosure[1].activeIntervals[0].endTime === '2026-11-02T10:00:00.00
   'Bestaande handmatig beëindigde hengelintervallen blijven ongewijzigd');
 assert(intervalClosure[2].activeIntervals[0].endTime === null,
   'Een interval zonder geldige starttijd wordt niet automatisch als inzet geregistreerd');
+const blankEndClosure = closeOpenRodIntervals([
+  rod('blank-end', 4, [{ id: 'blank-end', startTime: '2026-11-02T09:00:00.000Z', endTime: '' }]),
+], closedAt);
+assert(blankEndClosure[0].activeIntervals[0].endTime === '',
+  'Een lege eindtijdstring wordt niet stilzwijgend als expliciet open interval gesloten');
 
 console.log(`Session rod effort tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
