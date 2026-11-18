@@ -465,6 +465,19 @@ async function runBrierIntegrationTest() {
   );
   assert(windowScopedResult.evaluatedCount === 7 && windowScopedResult.timeWindowMismatchCount === 1, '4.12b Een gelijke duur met verschoven start/eindtijd wordt niet als vergelijkbare voorspelling gescoord');
 
+  const slotMismatchSnapshot: PrognosisSnapshot = {
+    ...linkedSnapshots[0], id: 'test_brier_slot_mismatch', linkedSessionId: 'test_brier_slot_mismatch_session',
+    targetWindowStart: undefined, targetWindowEnd: undefined, targetSlot: 'Avond', durationHours: 4, actualOutcome: 'catch',
+  };
+  const slotMismatchSession: FishingSession = {
+    id: 'test_brier_slot_mismatch_session', startTime: '2026-10-20T10:00:00Z', endTime: '2026-10-20T14:00:00Z',
+    outcome: 'catch', targetSpecies: ['Karper'], createdAt: '2026-10-20T10:00:00Z', updatedAt: '2026-10-20T14:00:00Z',
+  };
+  const slotScopedResult = evaluatePrognosisPerformance(
+    [...linkedSnapshots, slotMismatchSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, slotMismatchSession, ...recordedSessions]
+  );
+  assert(slotScopedResult.evaluatedCount === 7 && slotScopedResult.timeWindowMismatchCount === 1, '4.12c Oudere snapshots zonder exact venster vallen terug op het gekozen tijdvak');
+
   const breamSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_bream_species', targetSpecies: 'Brasem', linkedSessionId: 'test_brier_bream_species_session', durationHours: 3, targetWindowStart: '2026-10-27T08:00:00Z', targetWindowEnd: '2026-10-27T11:00:00Z', predictedCatchChance: 60, actualOutcome: 'catch' };
   const breamSession: FishingSession = { id: 'test_brier_bream_species_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Brasem'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
   const speciesResult = evaluatePrognosisPerformance([...linkedSnapshots, breamSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, breamSession, ...recordedSessions]);
