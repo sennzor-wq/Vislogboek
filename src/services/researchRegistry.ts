@@ -1249,7 +1249,6 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-18',
     approvedForPrediction: false,
   },
-,
 
   {
     id: 'common-carp-winter-oxygen-deficiency-telemetry-2006',
