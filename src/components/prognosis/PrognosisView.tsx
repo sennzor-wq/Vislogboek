@@ -228,11 +228,6 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       description: 'Waargenomen graas- of zoekgedrag; dit is niet automatisch hetzelfde als voedselopname.',
       entries: feedingEvidenceContext.foragingBehavior,
     },
-    {
-      title: 'Dieet en prooikeuze',
-      description: 'Wat de vis eet of selecteert; dit bewijst geen hogere voedingsactiviteit op een bepaald tijdstip.',
-      entries: Array.from(new Map([...feedingEvidenceContext.dietComposition, ...feedingEvidenceContext.preySelection].map((entry) => [entry.id, entry] as const)).values()),
-    },
   ] : [];
 
   const handleStartSessionFromPrognosis = async () => {
