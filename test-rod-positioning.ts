@@ -473,6 +473,7 @@ assert(
   adviceCalm.rationale.includes('weinig wind betekent niet automatisch stilstaand water') || adviceCalm.rationale.includes('thermische circulatie'),
   '6.2 Rationale nuanceert dat weinig wind geen stilstaand water garandeert'
 );
+assert(adviceCalm.windContext.isCalmWind === true, '6.2a Kalme wind wordt expliciet als kalm geclassificeerd');
 
 // Aantrekkende wind (+10 km/u versnelling tijdens sessie)
 const fcAccelerating = createHourlyForecasts('2026-07-22', 21, 10, 'ZW', 60, 10);
