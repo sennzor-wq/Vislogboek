@@ -105,10 +105,9 @@ export function analyzeBankWind(
         driftCurrent: 'Oppervlaktedrift beweegt richting het ' + windDestDir + '.',
       },
       rodPlacementAdvice: {
-        primaryPosition: 'Plaatsing afhankelijk van gekozen oever ter plaatse (geen schijnzekerheid)',
-        rationale:
-          'Zonder bekende oeveroriëntatie forceert het model geen gefingeerde werprichting. Beoordeel ter plekke of je met de rug in de wind wilt zitten of op de windkant.',
-        castingDirectionAdvice: `Scenario 1 (Luwe oever / wind in de rug): Werp met de wind mee richting ${windDestDir.toLowerCase()} het open water op.\nScenario 2 (Windkant / wind in het gezicht): Vis kort onder de kant op het oevertalud waar de branding opbotst.`,
+        primaryPosition: 'Kies een veilige, bereikbare oeverpositie; de doelzone wordt apart bepaald',
+        rationale: 'Zonder bekende oeveroriëntatie wordt geen vaste werphoek of vislocatie aangenomen. De wind is alleen context voor comfort, lijnbocht en presentatie.',
+        castingDirectionAdvice: `Stem de werphoek af op de gekozen doelzone en houd rekening met de wind (${windOriginDir} richting ${windDestDir}); de wind bepaalt niet waar je vist.`,
       },
       missingInformation,
       fieldChecklist,
