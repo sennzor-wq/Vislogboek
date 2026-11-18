@@ -1093,7 +1093,8 @@ export function calculateDayPrognosis(
     Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200 &&
     Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection < 360
   );
-  const hasWindDataForTacticalWindow = validWindForecasts.length >= 6;
+  const requiredWindSamples = explicitTargetTimeSlot ? Math.min(6, tacticalForecasts.length) : 6;
+  const hasWindDataForTacticalWindow = tacticalForecasts.length > 0 && validWindForecasts.length >= requiredWindSamples;
   const avgWindSpeed = hasWindDataForTacticalWindow
     ? Math.round((validWindForecasts.reduce((sum, h) => sum + h.windSpeed, 0) / validWindForecasts.length) * 10) / 10
     : null;
@@ -1119,7 +1120,8 @@ export function calculateDayPrognosis(
         : null;
   const hasThermalDataForModules = effectiveWaterTempForModules !== null;
   const validCloudForecasts = tacticalForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
-  const hasCloudDataForTacticalWindow = validCloudForecasts.length >= 6;
+  const requiredCloudSamples = explicitTargetTimeSlot ? Math.min(6, tacticalForecasts.length) : 6;
+  const hasCloudDataForTacticalWindow = tacticalForecasts.length > 0 && validCloudForecasts.length >= requiredCloudSamples;
   const avgCloudCover = hasCloudDataForTacticalWindow
     ? validCloudForecasts.reduce((sum, h) => sum + h.cloudCover, 0) / validCloudForecasts.length
     : undefined;
