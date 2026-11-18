@@ -449,6 +449,7 @@ async function runTestSuite() {
       targetDate: '2026-10-01',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 7,
       predictedCatchChance: 70, // f = 0.7
       actualOutcome: 'catch',
@@ -463,6 +464,7 @@ async function runTestSuite() {
       targetDate: '2026-10-02',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 6,
       predictedCatchChance: 40, // f = 0.4
       actualOutcome: 'skunk_confirmed',
@@ -477,6 +479,7 @@ async function runTestSuite() {
       targetDate: '2026-10-03',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 8,
       predictedCatchChance: 60, // f = 0.6
       actualOutcome: 'catch',   // o = 1.0 -> (0.6 - 1)^2 = 0.16
@@ -491,6 +494,7 @@ async function runTestSuite() {
       targetDate: '2026-10-04',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 5,
       predictedCatchChance: 20, // f = 0.2
       actualOutcome: 'skunk_confirmed', // o = 0.0 -> (0.2 - 0)^2 = 0.04
@@ -505,6 +509,7 @@ async function runTestSuite() {
       targetDate: '2026-10-05',
       targetSpecies: 'Karper',
       durationHours: 3,
+      targetSlot: 'Ochtend',
       predictedActivityScore: 7,
       predictedCatchChance: 50, // f = 0.5
       actualOutcome: 'catch',   // o = 1.0 -> (0.5 - 1)^2 = 0.25

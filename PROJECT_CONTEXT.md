@@ -1665,3 +1665,13 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Het 0,95-plafond en de steekproef-/vertrouwensdrempels zijn technische guards, geen wetenschappelijke limieten of statistische betrouwbaarheidsclaims.
 - Geen berekening, parameter of UI-score gewijzigd. Zie `FASE2_PROGNOSE_AUDIT.md` §84.
 - Fase 2 blijft open; lokale statistische kalibratie wacht op voldoende echte, vergelijkbare sessies.
+
+### Fase 2 — formele acceptatiecontrole en Brier-tijdvenster (18 november 2026)
+
+- De formele crosswalk van de zes acceptatiecriteria staat in FASE2_PROGNOSE_AUDIT.md §85.
+- De Brier-evaluator controleert naast voorspelde/werkelijke duur ook het geplande/werkelijke tijdvenster: exact op minuutprecisie, of via het opgeslagen targetSlot als oudere snapshot geen exact venster heeft.
+- Waarnemingen zonder tijdvenster én zonder gekozen tijdvak worden apart geteld en uitgesloten; er wordt geen tolerantie of kansherleiding verzonnen.
+- Een ontbrekende overdracht van geplande VisCoach-start/eindtijd naar de opgeslagen sessiesnapshot is hersteld.
+- Regressies toegevoegd voor verschoven tijdvenster bij gelijke duur, afwijkende/ontbrekende duur en tijdvakfallback. Quality Gate staat nog open tot PR-validatie.
+- Technische criteria 1, 3 en 6 zijn grotendeels gerealiseerd; criterium 4 grotendeels; criterium 5 wacht op de Quality Gate; criterium 2 blijft begrensd door voorlopige thermische priors en het ontbreken van goedgekeurde numerieke biologische bronnen.
+- Fase 2 is niet formeel geaccepteerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies; Fase 3 start niet eerder.

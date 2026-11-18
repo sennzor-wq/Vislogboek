@@ -657,3 +657,9 @@ De thermische activiteitsschaal `clamp(1 + 9 × thermalEfficiency^0.85, 1, 10)` 
 De persoonlijke vangstkans blijft een afzonderlijke empirische Poisson-baseline: bekende doelvis-aantallen gedeeld door geldige geregistreerde visduur leveren `lambda`; vervolgens wordt `1 − exp(−lambda × sessieduur)` berekend. De Poisson-aanname is niet lokaal gevalideerd. Het plafond 0,95 en de minimum-/vertrouwensdrempels zijn technische guards, geen wetenschappelijke limieten of betrouwbaarheidsclaims.
 
 De volledige parameterstatus en acceptatieconsequenties staan in `FASE2_PROGNOSE_AUDIT.md` §84. Geen koppeling met de thermische score, voedingscontext of habitatlaag wordt geactiveerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies.
+
+## 75. Brier-validatie op werkelijk tijdvenster en formele Fase-2-status
+
+De onafhankelijke Brier-evaluatie vereist vergelijkbare blootstelling. Naast de bestaande vergelijking van voorspelde en werkelijke sessieduur worden nu ook geplande en werkelijke tijdvensters vergeleken: exacte start/eindtijden op minuutprecisie, met een fallback op het vooraf gekozen Amsterdamse starttijdvak voor oudere snapshots. Ontbrekende tijdcontext wordt apart geteld en niet gescoord. De VisCoach-snapshotroute bewaart de geplande venstertijden bij het atomair opslaan van de sessie. Er worden geen arbitraire toleranties of achteraf omgerekende kansen gebruikt.
+
+De formele crosswalk van de zes Fase-2-acceptatiecriteria staat in FASE2_PROGNOSE_AUDIT.md §85. Technische scheiding, temperatuurprovenance en eenvoudige gebruikersinvoer zijn grotendeels gerealiseerd; lokale kalibratie wacht op echte vergelijkbare sessies. De voorlopige thermische soortcurves blijven een expliciete ontwerp-/bewijsbeperking. Alle 71 registry-records blijven niet-goedgekeurd voor numerieke voorspelling. Fase 2 is nog niet geaccepteerd en Fase 3 blijft geblokkeerd.

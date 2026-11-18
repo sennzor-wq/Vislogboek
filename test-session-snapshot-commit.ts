@@ -34,6 +34,8 @@ async function run() {
     forecastTimestamp: '2026-11-01T16:59:00.000Z',
     locationName: 'Bomedikke speeltuin',
     chosenSlot: 'Avond',
+    targetWindowStart: '2026-11-01T17:00:00.000Z',
+    targetWindowEnd: '2026-11-01T20:00:00.000Z',
   };
 
   // Annuleren betekent dat de submit-/commitfunctie niet wordt aangeroepen.
@@ -71,6 +73,9 @@ async function run() {
   assert(storedSnapshot?.targetDate === pending.prognosis.date &&
     storedSnapshot?.targetSlot === pending.chosenSlot,
     'De gekozen prognosedatum en het tijdvak blijven behouden');
+  assert(storedSnapshot?.targetWindowStart === pending.targetWindowStart &&
+    storedSnapshot?.targetWindowEnd === pending.targetWindowEnd,
+    'Het geplande VisCoach-start- en eindvenster blijven behouden in de sessiesnapshot');
 
   const storedObservations = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
   assert(storedObservations.length === 2,
