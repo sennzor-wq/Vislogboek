@@ -2028,8 +2028,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 {currentProfile.description}
               </p>
 
+              <p className="text-[11px] leading-relaxed text-amber-200/90 bg-amber-950/20 border border-amber-800/30 rounded-xl p-3">
+                Deze notities beschrijven biologische context en voorlopige modelaannames. De thermische piek en curvebreedtes zijn geen gevalideerde soortspecifieke activiteit- of voedingscurve. Een bronvermelding betekent niet automatisch dat de exacte numerieke modelparameters zijn onderbouwd of goedgekeurd.
+              </p>
+
               <div>
-                <h4 className="font-bold text-white mb-2">Gedocumenteerde Aannames & Fysiologische Eigenschappen:</h4>
+                <h4 className="font-bold text-white mb-2">Biologische context en voorlopige modelaannames:</h4>
                 <ul className="space-y-1.5 list-disc pl-5 text-slate-300">
                   {currentProfile.assumptions.map((ass, i) => (
                     <li key={i}>{ass}</li>
@@ -2042,8 +2046,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div className="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/40">
                   <h4 className="font-bold text-cyan-300 mb-2 flex items-center gap-1.5">
                     <Info className="w-4 h-4 text-cyan-400" />
-                    Controleerbare Wetenschappelijke Bronnen (Ichthyologie):
+                    Bronnen en achtergrondliteratuur:
                   </h4>
+                  <p className="text-[11px] leading-relaxed text-slate-400 mb-2">
+                    De lijst bevat specifieke studies en oudere achtergrondliteratuur. De centrale onderzoeksregistratie beoordeelt per bron wat daadwerkelijk is gemeten en welke beperkingen gelden; bronvermelding alleen is geen goedkeuring voor directe prognose-inzet.
+                  </p>
                   <ul className="space-y-1 list-disc pl-5 text-slate-300 text-xs">
                     {currentProfile.scientificReferences.map((ref, idx) => (
                       <li key={idx} className="font-mono text-[11px] text-slate-300">{ref}</li>

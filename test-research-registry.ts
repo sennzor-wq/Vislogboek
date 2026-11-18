@@ -491,3 +491,41 @@ if (!pikeperchScope || pikeperchScope.approvedForPrediction || !pikeperchScope.s
   throw new Error('The full pikeperch paper scope, broad plateau and small 28 C sample must remain explicit and non-approved.');
 }
 console.log('Primary perch and pikeperch thermal-study scope tests passed.');
+
+// Pressure and turbidity evidence remains contextual and never activates a forecast factor.
+const perchPressureMovement = RESEARCH_REGISTRY.find((item) => item.id === 'eurasian-perch-pressure-variability-movement-three-lakes-2020');
+if (!perchPressureMovement ||
+    !perchPressureMovement.species.includes('Baars') ||
+    !perchPressureMovement.measuredOutcomes?.includes('locomotor_activity') ||
+    perchPressureMovement.measuredOutcomes.includes('feeding_intensity') ||
+    perchPressureMovement.approvedForPrediction ||
+    !perchPressureMovement.summary.includes('54 Europese baarzen') ||
+    !perchPressureMovement.summary.includes('twee van de drie meren') ||
+    !perchPressureMovement.limitations.some((item) => item.includes('geen voedselopname'))) {
+  throw new Error('Perch pressure evidence must remain limited, lake-specific movement evidence, not feeding or a pressure bonus.');
+}
+const yellowPerchPressureProxy = RESEARCH_REGISTRY.find((item) => item.id === 'yellow-perch-barometric-pressure-feeding-lab-2014');
+if (!yellowPerchPressureProxy ||
+    yellowPerchPressureProxy.species.includes('Baars') ||
+    !yellowPerchPressureProxy.species.some((species) => species.includes('Perca flavescens')) ||
+    !yellowPerchPressureProxy.measuredOutcomes?.includes('feeding_intensity') ||
+    yellowPerchPressureProxy.approvedForPrediction ||
+    !yellowPerchPressureProxy.limitations.some((item) => item.includes('niet de Europese baars'))) {
+  throw new Error('North American yellow perch pressure-feeding evidence must remain an explicitly separate taxonomic proxy.');
+}
+if (getResearchByOutcome('Baars', 'feeding_intensity').some((item) => item.id === 'yellow-perch-barometric-pressure-feeding-lab-2014')) {
+  throw new Error('The yellow perch proxy must not be returned as direct European perch feeding evidence.');
+}
+const turbidityReview = RESEARCH_REGISTRY.find((item) => item.id === 'freshwater-fish-turbidity-predator-prey-review-2024');
+if (!turbidityReview ||
+    turbidityReview.species.length !== 0 ||
+    Boolean(turbidityReview.measuredOutcomes?.length) ||
+    turbidityReview.approvedForPrediction ||
+    !turbidityReview.summary.includes('281 peer-reviewed studies') ||
+    !turbidityReview.limitations.some((item) => item.includes('geen universele'))) {
+  throw new Error('Freshwater turbidity review must remain general, mixed-direction context without a universal threshold.');
+}
+if (!SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.includes('diva2:1446518'))) {
+  throw new Error('The perch profile must link its reviewed abiotic movement thesis with its movement-only scope.');
+}
+console.log('Pressure and turbidity evidence scope tests passed.');
