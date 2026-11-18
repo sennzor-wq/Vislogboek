@@ -1372,3 +1372,15 @@ De volgende productcorrectie is uitgewerkt in de coachuitvoer:
 - Het zelfstandige blok `Biologische context` is uit de gewone coachaanbeveling verwijderd. Literatuur, meetuitkomsten en overdraagbaarheidsgrenzen blijven onderdeel van de interne bewijslaag en de verdiepende analyse.
 - Windadvies gebruikt nu ook de bestaande expliciete classificatie voor niet-kalme wind wanneer een oeveranalyse beschikbaar is. Kalme wind blijft uit de tactiektekst; sterke wind en sterke windstoten blijven zichtbaar. Er is geen nieuwe winddrempel of windbonus toegevoegd.
 - Regressietests controleren de scheiding, de compatibiliteitstekst, de afwezigheid van het biologische literatuurblok en het onderscheid tussen kalme en matige wind.
+## Implementatie-update — één startzone en bruikbare voorvoertactiek
+
+De coach vertaalt de bestaande ruimtelijke en voorvoeruitkomsten nu tot één praktisch plan:
+
+- Een expliciete lokale viswaarneming blijft de eerste aanwijzing. Zonder zo'n waarneming krijgt een bruikbare lokale habitatinschatting voorrang; alleen wanneer die een lage zekerheid heeft en de bestaande positioneringsanalyse redelijke zekerheid heeft, wordt de positioneringszone het eerste testpunt.
+- Als habitat en wind-/positioneringsanalyse verschillende zones noemen, kiest de coach één startzone en benoemt de andere als tweede controlezone. Wind wordt gebruikt om de presentatie en werprichting af te stemmen; een windkantadvies verplaatst de zoekzone niet automatisch.
+- De temperatuur wordt als activiteitspotentie uitgelegd, niet als zelfstandige aanwijzing voor de exacte vislocatie.
+- De tactiek gebruikt nu het bestaande voorvoerplan: campagnegeschiktheid, wel/geen ingeplande voorvoerbeurt, sessieadvies, voersamenstelling en persoonlijke voorvoerhistorie wanneer voldoende gegevens bestaan.
+- Exacte grammen worden alleen getoond wanneer de bestaande voorvoerengine de invoerkwaliteit als `Redelijk` classificeert, en altijd als indicatieve richtlijn. Bij lagere invoerkwaliteit worden geen exacte grammen getoond; onzekerheid wordt expliciet gemaakt.
+- Method-feederuitleg verschijnt alleen wanneer de gekozen techniek daadwerkelijk method feeder is. Er worden geen extra verplichte invoervelden toegevoegd.
+
+Dit blijft een vertaal-/coördinatielaag boven de bestaande habitat-, positionerings-, wind- en voorvoerengines. Er worden geen biologische scores, gewichten, windbonussen of nieuwe berekeningsengines toegevoegd.
