@@ -581,7 +581,7 @@ async function run() {
     pressure: 1013,
     windSpeed: hour < 6 ? 2 : hour < 12 ? 4 : hour < 18 ? 8 : 18,
     windDirection: 180,
-    windDirectionText: 'Z',
+    windDirectionText: 'Zuid',
     precipitation: 0,
     precipitationProbability: 0,
     cloudCover: 40,
@@ -594,7 +594,7 @@ async function run() {
     longitude: 5.2,
     waterType: 'Stilstaand',
     waterDepth: 2,
-    waterFacingDirection: 'N',
+    waterFacingDirection: 'Noord',
     habitatFeatures: ['open_water', 'talud'],
   } as any;
   const slotNow = new Date('2026-07-20T00:00:00+02:00');
