@@ -636,7 +636,7 @@ async function run() {
   assert(
     partialEveningPrognosis.positioningAdvice?.missingInformation.includes(
       'De tactische weersanalyse gebruikt alleen de resterende beschikbare uren van het gekozen tijdvak; een volledig tijdvakgemiddelde is niet beschikbaar.'
-    ),
+    ) ?? false,
     'Een onvolledig resterend tijdvak wordt expliciet als beperkte tactische weersdekking gemeld'
   );
 
