@@ -1626,3 +1626,21 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Meerval: gecontroleerde zelfvoederstudie met sterk nachtelijk voedingsritme, maar laboratoriumcontext (Boujard, 1995); niet gelijkstellen aan veldvangbaarheid.
 - Scope-tests bewaken soort/outcome-vindbaarheid, studiecontext en niet-goedkeuring. Alle 71 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel gewijzigd.
 - Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §72.
+
+
+### Fase 2 — literatuurinventarisatie en actuele bewijsdekking (18 november 2026)
+
+- PR #134 is squash-merged; de exacte PR-head Quality Gate run #805 slaagde volledig.
+- De registry telt 71 records voor de negen doelsoorten. De korte gerichte controle van de overige zes soorten leverde geen aanvullende bron op die duidelijk sterk genoeg en aanvullend was om te registreren.
+- De actuele uitsplitsing per soort en gemeten respons staat in `FASE2_PROGNOSE_AUDIT.md` §83. Deze aantallen zijn registry-records, geen onafhankelijke studies of bewijsgewichten.
+- Belangrijkste lacunes blijven directe voedingsintensiteit/-ritme bij roofblei, bredere onafhankelijke vangbaarheidsstudies en lokale meetinvoer voor zuurstof, stroming en prooibeschikbaarheid.
+- De literatuurinventarisatie is voor deze ronde voldoende afgerond; Fase 2 zelf is nadrukkelijk niet afgerond. Alle 71 records blijven `approvedForPrediction: false`.
+- Geen modelscore, biologisch gewicht, tijdvakbonus of drempel is gewijzigd.
+
+### Volgende acties Fase 2
+
+1. Replaybaarheid van prognosesnapshots auditen: minimale compacte featurewaarden vaststellen voor reproduceerbare, chronologische evaluatie zonder dubbele opslag of onnodige persoonsgegevens.
+2. De aparte voedings-/foerageerresponslaag ontwerpen met bronkwaliteit, meetrespons, soort, levensfase, seizoen, watertype, invoerbeschikbaarheid en onzekerheid.
+3. Bestaande thermische, habitat-, oeverwind- en hengelpositioneringsengines hergebruiken; geen tweede model of dubbele berekening introduceren.
+4. Pas daarna kandidaatmodel en chronologische validatie op echte, gekoppelde sessies uitwerken. Geen synthetische vangsten of willekeurige gewichten.
+5. Fase 3 blijft geblokkeerd totdat alle Fase-2-acceptatiecriteria zijn aangetoond.
