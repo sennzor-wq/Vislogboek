@@ -1015,11 +1015,12 @@ export function calculateDayPrognosis(
   const defaultTacticalSlot = bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid'
     ? bestSlot as TimeSlot
     : undefined;
-  const tacticalTargetSlot = options?.targetTimeSlot ?? defaultTacticalSlot;
-  const tacticalForecasts = options?.targetTimeSlot
+  const explicitTargetTimeSlot = options?.targetTimeSlot;
+  const tacticalTargetSlot = explicitTargetTimeSlot ?? defaultTacticalSlot;
+  const tacticalForecasts = explicitTargetTimeSlot
     ? dayForecasts.filter((forecast) => {
         const hour = parseInt(forecast.time.slice(11, 13), 10);
-        const range = TIME_SLOT_HOURS[options.targetTimeSlot!];
+        const range = TIME_SLOT_HOURS[explicitTargetTimeSlot];
         return hour >= range.start && hour < range.end;
       })
     : dayForecasts;
@@ -1037,7 +1038,7 @@ export function calculateDayPrognosis(
     }
   }
   const midDaySample = dayForecasts[Math.floor(dayForecasts.length / 2)];
-  const tacticalReferenceSample = options?.targetTimeSlot && tacticalForecasts.length > 0
+  const tacticalReferenceSample = explicitTargetTimeSlot && tacticalForecasts.length > 0
     ? tacticalForecasts[Math.floor(tacticalForecasts.length / 2)]
     : midDaySample;
   const presTrend = findPressureTrend(tacticalReferenceSample?.time || `${dateStr}T12:00`, forecasts);
