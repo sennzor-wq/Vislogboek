@@ -20,7 +20,6 @@ export const CatchModal: React.FC<CatchModalProps> = ({
 }) => {
   const isEditing = !!catchItem;
 
-  const now = new Date();
   const formatDateTimeLocal = (date: Date) => {
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
@@ -43,9 +42,9 @@ export const CatchModal: React.FC<CatchModalProps> = ({
   const [lengthInput, setLengthInput] = useState<string>(
     catchItem?.lengthCm !== undefined && catchItem?.lengthCm !== null ? String(catchItem.lengthCm) : ''
   );
-  const initialTimestamp = catchItem
+  const [initialTimestamp] = useState<string>(() => catchItem
     ? catchItem.legacyImportQuality?.timestampKnown === false ? '' : catchItem.timestamp.slice(0, 16)
-    : formatDateTimeLocal(now);
+    : formatDateTimeLocal(new Date()));
   const [timestamp, setTimestamp] = useState<string>(initialTimestamp);
   const [rod, setRod] = useState<string>(catchItem?.rod || '');
   const [bait, setBait] = useState<string>(catchItem?.bait || activeSession?.baitAndFeed || '');
