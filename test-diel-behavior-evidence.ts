@@ -44,8 +44,16 @@ const catfish = getSpeciesDielBehaviorEvidenceContext('Meerval');
 if (!catfish.feedingRhythm.some((item) => item.id === 'european-catfish-diel-feeding-self-feeder-1995') ||
     !catfish.locomotorActivity.some((item) => item.id === 'european-catfish-feeding-and-activity-rhythms-1995-2012') ||
     !catfish.locomotorActivity.some((item) => item.id === 'adult-catfish-diel-activity-reservoir-2025') ||
+    !catfish.locomotorActivity.some((item) => item.id === 'adult-catfish-northern-fringe-seasonal-diel-movement-2024') ||
     catfish.temporalEvidenceScope !== 'feeding-and-movement') {
-  throw new Error('Catfish controlled feeding rhythm must remain distinct from both adult field telemetry movement sources.');
+  throw new Error('Catfish controlled feeding rhythm must remain distinct from all adult field telemetry movement sources.');
+}
+const catfishNorthernMovement = catfish.locomotorActivity.find((item) => item.id === 'adult-catfish-northern-fringe-seasonal-diel-movement-2024');
+if (!catfishNorthernMovement ||
+    catfish.feedingRhythm.some((item) => item.id === catfishNorthernMovement.id) ||
+    catfishNorthernMovement.measuredOutcomes?.includes('feeding_rhythm') ||
+    catfish.approvedLocomotorActivity.some((item) => item.id === catfishNorthernMovement.id)) {
+  throw new Error('Northern-fringe catfish telemetry must remain unapproved movement/habitat evidence, never a direct feeding rhythm.');
 }
 
 const generic = getSpeciesDielBehaviorEvidenceContext('Overig');
