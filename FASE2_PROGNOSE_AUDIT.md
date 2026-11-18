@@ -1661,3 +1661,31 @@ De centrale research registry bevat nu **64 registratierecords**; geen enkel rec
 De huidige vijf responslagen blijven gescheiden: fysiologische activiteitspotentie, voedings-/foerageeractiviteit, lokale aanwezigheid/habitat, hengelvangbaarheid en persoonlijke vangstkans. Een bron voor beweging vult geen ontbrekende voedingsmeting aan; voedingsbewijs vult geen vangbaarheidsmeting aan. Omgevingsvariabelen zonder betrouwbare invoer blijven onbekend en worden niet ingevuld met plausibele aannames.
 
 **Volgende fase-2-actie:** sluit de factor-/bewijs-/datadekkingsmatrix per soort en per gemeten respons, inclusief bronkwaliteit, watertype, levensfase, seizoensdekking en beschikbaarheid van invoer. Pas daarna kandidaatmodel en chronologisch validatieprotocol uitwerken. Geen numerieke gewichten, nieuwe drempels of tijdvakbonussen activeren op basis van de huidige registrydekking.
+
+
+## 82. Registry-dekking per soort en gemeten respons (18 november 2026)
+
+De 64 registry-records zijn opnieuw uitgesplitst naar de expliciet geregistreerde waarden in `measuredOutcomes`. Onderstaande aantallen zijn **registry-records per respons**, geen aantallen onafhankelijke publicaties, effectgroottes of bewijssterkte. Eén record kan meerdere publicaties samenvatten en meerdere responsen bevatten; algemene records zonder soortkoppeling tellen mee voor alle soorten.
+
+| Soort | Voedingsintensiteit | Voedingsritme | Foerageergedrag | Dieetcompositie | Prooikeuze | Locomotorische activiteit | Habitatgebruik | Hengelvangstverdeling | Hengelvangbaarheid |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Karper | 5 | 7 | 7 | 0 | 0 | 2 | 6 | 1 | 1 |
+| Brasem | 2 | 2 | 0 | 0 | 0 | 2 | 3 | 0 | 0 |
+| Snoek | 3 | 1 | 0 | 1 | 0 | 3 | 2 | 0 | 0 |
+| Baars | 3 | 3 | 0 | 1 | 1 | 2 | 1 | 0 | 0 |
+| Voorn | 5 | 5 | 0 | 1 | 0 | 1 | 3 | 0 | 0 |
+| Zeelt | 3 | 2 | 1 | 1 | 0 | 1 | 1 | 0 | 1 |
+| Snoekbaars | 2 | 1 | 0 | 1 | 1 | 3 | 2 | 0 | 0 |
+| Meerval | 3 | 2 | 1 | 1 | 0 | 3 | 3 | 0 | 0 |
+| Roofblei | 0 | 0 | 0 | 2 | 1 | 2 | 2 | 0 | 0 |
+
+### Wat deze uitsplitsing wel en niet zegt
+
+- De registry heeft voor roofblei momenteel dieet-/prooikeuze- en bewegings-/habitatcontext, maar geen expliciet geregistreerde directe voedingsintensiteit, voedingsritme of foerageergedrag. De roofblei-telemetriebronnen meten beweging en habitatgebruik; ze mogen niet worden omgezet naar een voedings- of schemerbonus.
+- Voor brasem, snoek, baars, blankvoorn en snoekbaars is de geregistreerde directe voedings-/ritmedekking eveneens smaller dan de algemene aanwezigheid van biologische context doet vermoeden. Nul bij foerageergedrag betekent hier: geen afzonderlijk als zodanig geclassificeerd registry-record, niet dat wereldwijd geen onderzoek bestaat.
+- Hengelvangstverdeling en hengelvangbaarheid zijn slechts beperkt geregistreerd (de huidige registry-records betreffen karper en zeelt). Dit blijft een afzonderlijke laag en mag niet worden afgeleid uit voedings- of telemetrieonderzoek.
+- Aantallen zijn geen kwaliteitsweging. Bronkwaliteit, meetmethode, levensfase, seizoen, watertype, geografische overdraagbaarheid en de werkelijk gemeten respons blijven bepalend.
+
+### Gevolg voor de volgende fase-2-stap
+
+De matrix maakt duidelijk waar de volgende literatuurcontrole gericht moet zijn: directe veldmetingen van voedingsintensiteit/ritme voor roofblei en de soorten met slechts één of enkele relevante registraties, plus onafhankelijke hengelvangbaarheidsstudies buiten karper/zeelt. Eerst bron- en outcome-validatie; pas daarna eventueel een modelkoppeling. Alle 64 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel is gewijzigd.
