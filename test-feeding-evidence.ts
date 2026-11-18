@@ -65,3 +65,17 @@ for (const species of ['Brasem', 'Voorn'] as const) {
     throw new Error(species + ' must retain one canonical Římov 2004 source with the conflicting juvenile field evidence limitation.');
   }
 }
+
+
+const aspDiet = getSpeciesFeedingEvidenceContext('Roofblei');
+const aspSeasonalDiet = aspDiet.dietComposition.find(
+  (item) => item.id === 'asp-diet-seasonal-stettin-firth-1976'
+);
+if (!aspSeasonalDiet ||
+    !aspSeasonalDiet.measuredOutcomes?.includes('diet_composition') ||
+    aspSeasonalDiet.measuredOutcomes.some((outcome) =>
+      outcome === 'feeding_intensity' || outcome === 'feeding_rhythm' || outcome === 'foraging_behavior'
+    ) ||
+    aspSeasonalDiet.approvedForPrediction) {
+  throw new Error('The 1976 asp field study must remain seasonal diet-composition evidence only, not feeding intensity or diel rhythm.');
+}

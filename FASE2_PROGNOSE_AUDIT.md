@@ -1440,3 +1440,10 @@ De Římov 2004-studie naar in-situ zoöplanktonconsumptie bij subadulte/volwass
 De registratie is geconsolideerd tot één canonieke bron-ID voor beide soorten. De uitgebreidere bronverwijzingen zijn behouden en de relevante beperking uit het dubbele record is samengevoegd: ander veldonderzoek bij juveniele brasem/blankvoorn vond nachtelijke pelagische voedselopname, zodat levensfase en habitat het waargenomen ritme kunnen omkeren.
 
 Dit wijzigt geen bewijsgoedkeuring, numerieke parameter, voedingsscore of tijdvakbonus. De bron blijft `approvedForPrediction: false`. Een regressietest voorkomt dat dezelfde studie opnieuw als twee bewijsrecords wordt ingevoerd.
+
+
+## 72. Aanvullende veldbron voor seizoensdieet van roofblei (18 november 2026)
+
+Een oudere veldstudie uit de Szczecin Firth (materiaal 1972 en 1974–1975) is toegevoegd als beperkte bron voor dieetcompositie. De auteurs onderzochten expliciet voedselcompositie en frequentie van prooien: zomerdiëten bevatten meerdere vissoorten, terwijl in andere seizoenen vooral spiering werd aangetroffen.
+
+De bron is uitsluitend geregistreerd als `diet_composition`. Zij meet geen voedingsintensiteit, tijdstipgebonden voedselopname of dag-nachtritme. De bestaande conclusie blijft daarom ongewijzigd: voor roofblei is in het register geen directe soortspecifieke diel-feedingbron aanwezig; telemetrie blijft bewegingsbewijs en dieet blijft dieetbewijs. De bron blijft `approvedForPrediction: false`.
