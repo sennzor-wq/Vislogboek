@@ -645,4 +645,6 @@ Na PR #134 telt de registry 71 records. De actuele per-soortuitsplitsing en de b
 
 Alle 71 registry-records blijven `approvedForPrediction: false`. Er worden geen biologische gewichten, tijdvakbonussen of nieuwe drempels geactiveerd.
 
-**Volgende technische stap:** controleer eerst de replaybaarheid van opgeslagen prognosesnapshots en bepaal welke compacte featurewaarden nodig zijn voor onafhankelijke chronologische evaluatie. Ontwerp daarna pas de aparte voedings-/foerageerresponslaag. Fase 3 blijft geblokkeerd tot de Fase-2-acceptatiecriteria aantoonbaar zijn gehaald.
+**Replaybaarheid gecontroleerd (18 november 2026):** de huidige snapshotroutes bewaren de voor iedere run beschikbare whitelist-features, exacte uurlijkse weersinvoer, locatie-/temperatuurcontext, meetprovenance en model-/engineversies. De tests dekken whitelist, fingerprint, privacyuitsluiting en tijdstempelherkomst. Geen aantoonbaar ontbrekend modelinputveld gevonden; uitvoerbare modelcode wordt niet gearchiveerd.
+
+**Volgende technische stap:** toets de resterende Fase-2-acceptatiecriteria en bepaal welke onderdelen alleen wachten op voldoende echte, chronologisch gekoppelde sessies. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
