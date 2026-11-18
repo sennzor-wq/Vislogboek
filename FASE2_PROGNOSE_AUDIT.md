@@ -1665,18 +1665,18 @@ De huidige vijf responslagen blijven gescheiden: fysiologische activiteitspotent
 
 ## 82. Registry-dekking per soort en gemeten respons (18 november 2026)
 
-De 68 registry-records zijn opnieuw uitgesplitst naar de expliciet geregistreerde waarden in `measuredOutcomes`. Onderstaande aantallen zijn **registry-records per respons**, geen aantallen onafhankelijke publicaties, effectgroottes of bewijssterkte. Eén record kan meerdere publicaties samenvatten en meerdere responsen bevatten; algemene records zonder soortkoppeling tellen mee voor alle soorten.
+De 71 registry-records zijn opnieuw uitgesplitst naar de expliciet geregistreerde waarden in `measuredOutcomes`. Onderstaande aantallen zijn **registry-records per respons**, geen aantallen onafhankelijke publicaties, effectgroottes of bewijssterkte. Eén record kan meerdere publicaties samenvatten en meerdere responsen bevatten; algemene records zonder soortkoppeling tellen mee voor alle soorten.
 
 | Soort | Voedingsintensiteit | Voedingsincidentie | Voedingsritme | Foerageergedrag | Dieetcompositie | Prooikeuze | Locomotorische activiteit | Habitatgebruik | Hengelvangstverdeling | Hengelvangsttempo | Hengelvangbaarheid |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Karper | 5 | 0 | 7 | 7 | 0 | 0 | 2 | 6 | 1 | 0 | 1 |
-| Brasem | 2 | 0 | 2 | 0 | 0 | 0 | 2 | 3 | 0 | 0 | 0 |
+| Brasem | 2 | 0 | 3 | 0 | 0 | 0 | 2 | 3 | 0 | 0 | 0 |
 | Snoek | 3 | 0 | 1 | 0 | 1 | 0 | 3 | 2 | 0 | 0 | 2 |
 | Baars | 3 | 0 | 3 | 0 | 1 | 1 | 2 | 1 | 0 | 1 | 0 |
 | Voorn | 5 | 0 | 5 | 0 | 1 | 0 | 1 | 3 | 0 | 0 | 0 |
 | Zeelt | 3 | 0 | 2 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
-| Snoekbaars | 2 | 0 | 1 | 0 | 1 | 1 | 3 | 2 | 0 | 0 | 0 |
-| Meerval | 3 | 0 | 2 | 1 | 1 | 0 | 3 | 3 | 0 | 0 | 0 |
+| Snoekbaars | 3 | 0 | 1 | 0 | 2 | 1 | 3 | 2 | 0 | 0 | 0 |
+| Meerval | 3 | 0 | 3 | 1 | 1 | 0 | 3 | 3 | 0 | 0 | 0 |
 | Roofblei | 0 | 1 | 0 | 0 | 3 | 1 | 2 | 2 | 0 | 0 | 0 |
 
 ### Wat deze uitsplitsing wel en niet zegt
@@ -1705,3 +1705,12 @@ Deze registraties vullen de literatuurdekking aan, maar activeren geen vangstcor
 Krpo-Ćetković et al. (2010) onderzochten 198 roofbleien uit een 28,5 km lang Donau-traject. De steekproef bestond voornamelijk uit subadulten (0+–4+). De seizoensgebonden vacuïteitsindex — het aandeel lege magen — was 94,1% in november en 35,6% in juli. Dit is als `feeding_incidence` geregistreerd: een indirecte maat voor de frequentie waarmee vissen voedsel in de maag hadden, niet voor de hoeveelheid gegeten voedsel.
 
 De uitkomst vult de eerdere leemte in voedingsincidentie, maar niet in kwantitatieve voedingsintensiteit of dag-nachtritme. De populatie, levensfase en het Donau-watertype begrenzen overdraagbaarheid. Geen tijdvak-/seizoensbonus of numerieke prognoseparameter volgt uit deze ene studie; het record blijft `approvedForPrediction: false`.
+
+
+### Aanvulling — brasem, snoekbaars en meerval: directe voedingsmetingen (18 november 2026)
+
+- **Brasem — veldmeting:** Vašek & Kubečka (2004) maten in-situ dagelijkse zoöplanktonconsumptie en maagvulling in het Římov-reservoir. De onderzochte subadulte/adulte brasems vertoonden overdag een voedingsperiodiciteit en een duidelijke nachtelijke daling in maagvulling. Dit is direct veldbewijs voor ritme en consumptie, maar gebonden aan zoöplankton, lengteklasse, seizoen en één reservoir.
+- **Snoekbaars — seizoensmeting:** Özyurt et al. (2012) bemonsterden maandelijks gedurende een jaar. Voedingsintensiteit varieerde met seizoen en lengte; pieken werden in oktober en maart gevonden, met een daling die de auteurs koppelden aan voortplanting. Dit is geen universele maandkalender en geen hengelvangbaarheid.
+- **Meerval — laboratoriummeting:** Boujard (1995) vond bij zelfvoederautomaten een sterk nachtelijk voedingsritme onder vrije toegang. Training, sociale huisvesting en isolatie veranderden het patroon. Dit ondersteunt een biologische ritmehypothese, maar is geen veldmeting en rechtvaardigt geen vaste nachtbonus.
+
+De drie records onderscheiden expliciet veldvoedingsritme, seizoensgebonden voedingsintensiteit en laboratoriumvoedingsritme. Alle blijven `approvedForPrediction: false`; geen prognoseparameter of tijdvakscore is aangepast.

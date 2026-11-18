@@ -1616,3 +1616,13 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - De bron vult dus voedingsincidentie aan, maar directe kwantitatieve voedingsintensiteit en diel-feeding blijven voor roofblei onvoldoende gedekt.
 - Alle 68 records blijven `approvedForPrediction: false`; geen modelscore, gewicht, tijdvakbonus of drempel gewijzigd.
 - Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §71.
+
+
+### Fase 2 — directe voedingsmetingen voor brasem, snoekbaars en meerval (18 november 2026)
+
+- Research registry uitgebreid van 68 naar 71 records.
+- Brasem: in-situ veldonderzoek naar dagelijkse zoöplanktonconsumptie en maagvulling (Vašek & Kubečka, 2004); uitkomst omvat voedingsintensiteit en voedingsritme binnen de onderzochte context.
+- Snoekbaars: maandelijkse veldbemonstering over een jaar, met grootte- en seizoensverschillen in maagvulling/voedingsintensiteit en dieet (Özyurt et al., 2012).
+- Meerval: gecontroleerde zelfvoederstudie met sterk nachtelijk voedingsritme, maar laboratoriumcontext (Boujard, 1995); niet gelijkstellen aan veldvangbaarheid.
+- Scope-tests bewaken soort/outcome-vindbaarheid, studiecontext en niet-goedkeuring. Alle 71 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel gewijzigd.
+- Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §72.

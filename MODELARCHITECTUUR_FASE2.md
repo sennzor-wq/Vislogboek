@@ -623,3 +623,10 @@ Deze uitkomsten zijn niet onderling uitwisselbaar: catch rate uit hengeldagboeke
 ## 71. Voedingsincidentie is niet hetzelfde als voedingsintensiteit
 
 Voor roofblei is een Donau-veldstudie geregistreerd die het aandeel lege magen per seizoen rapporteert (vacuïteitsindex). Dit is geclassificeerd als `feeding_incidence`: of voedsel in de maag aanwezig was in de bemonstering. Het meet niet hoeveel voedsel werd opgenomen, hoe sterk de vis dagelijks voedde of op welk dagdeel de opname plaatsvond. De overwegend subadulte steekproef en één riviertraject beperken overdraagbaarheid. De uitkomst vult daarom een aparte biologische kennislaag aan en activeert geen numerieke voedings- of tijdvakscore.
+
+
+## 72. Directe voedingsmetingen: brasem, snoekbaars en meerval
+
+De registry bevat drie aanvullende, soortspecifieke voedingsregistraties. Voor brasem is er in-situ bewijs van dagelijkse zoöplanktonconsumptie en maagvulling (Vašek & Kubečka, 2004); voor snoekbaars seizoensgebonden maagvulling/voedingsintensiteit en lengteafhankelijke dieetverandering (Özyurt et al., 2012); voor meerval een sterk nachtelijk zelfvoeder-ritme in gecontroleerde laboratoriumomstandigheden (Boujard, 1995).
+
+Deze bewijzen zijn niet onderling gelijkwaardig. De brasemstudie is veldbewijs binnen één prooitype en reservoir; de snoekbaarsstudie meet seizoens- en grootteverschillen, niet het uur-tot-uur-ritme; de meervalstudie is laboratoriumbewijs en geen natuurlijke veldobservatie. Alle records blijven informatief en niet-goedgekeurd voor directe voorspelling. Geen generieke dag-/nachtbonus of seizoenscorrectie volgt hieruit.
