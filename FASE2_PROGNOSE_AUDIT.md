@@ -1506,3 +1506,54 @@ Bergström et al. (2024) is toegevoegd als veldbron voor locomotorische activite
 De auteurs interpreteren het patroon in de warme maanden als waarschijnlijk foerageergedrag. De sensoren maten echter diepte en beweging, niet daadwerkelijke voedselopname. De bron is daarom uitsluitend geregistreerd als `locomotor_activity` en `habitat_use`; niet als `feeding_rhythm`, `feeding_intensity` of vangbaarheid. Dit is bovendien één genetisch onderscheiden noordelijke Zweedse populatie met beperkte teruggewonnen tagreeksen en geen directe overdracht naar Nederlandse wateren.
 
 De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschrijving van seizoens-/dieptegedrag, maar levert geen nachtbonus, voedingsscore, thermische parameter of numerieke modelbijdrage op.
+
+## 78. Audit soortprofiel-aannames en dekking van de bewijsregistratie (18 november 2026)
+
+### Code- en UI-trace
+
+- `SpeciesProfile` bevat als enige numerieke biologische profielparameters `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. `calculateThermalEfficiency()` gebruikt uitsluitend deze drie voorlopige waarden.
+- `description`, `assumptions` en `scientificReferences` zijn verklarende metadata. Ze worden in de geavanceerde prognoseweergave getoond, maar leveren geen numerieke bijdrage aan `activityScore`.
+- De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is geen soortspecifieke wind-, druk-, wolken-, regen-, zuurstof- of stromingsbron in het huidige centrale research register geregistreerd.
+- Alle 56 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
+
+### Soortspecifieke dekking in het research register
+
+Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroep**, geen aantallen onafhankelijke steekproeven, kwaliteitscijfers of gevalideerde modelparameters. Eén record kan meerdere uitkomsten beschrijven en de overdraagbaarheid verschilt per levensfase, water en onderzoeksopzet.
+
+| Doelsoort | Metabolisme / aerobe scope | Voedselopname / foerageren | Beweging / habitat | Dieet / prooikeuze | Vangbaarheid / vangstverdeling |
+|---|---:|---:|---:|---:|---:|
+| Karper | 1 | 9 | 4 | 0 | 2 |
+| Brasem | 1 | 2 | 3 | 0 | 0 |
+| Snoek | 1 | 3 | 3 | 1 | 0 |
+| Baars | 1 | 3 | 1 | 1 | 0 |
+| Blankvoorn | 1 | 5 | 3 | 1 | 0 |
+| Zeelt | 0 | 4 | 2 | 1 | 1 |
+| Snoekbaars | 1 | 2 | 3 | 1 | 0 |
+| Meerval | 0 | 3 | 4 | 1 | 0 |
+| Roofblei | 0 | 0 | 2 | 2 | 0 |
+
+### Wat deze dekking betekent
+
+1. **Thermische fysiologie:** voor baars en snoekbaars bestaat relatief directer bewijs voor metabolisme/aerobe scope; voor brasem/blankvoorn bestaan vergelijkende metabolismegegevens; voor karper en snoek zijn de geregistreerde thermische meetpunten beperkt. Voor zeelt, meerval en roofblei ontbreekt in het register een vergelijkbare soortspecifieke metabolisme-/aerobe-scopecurve. Geen van deze bronnen valideert de exacte `thermalOptimum` of curvebreedtes in `fishProfiles.ts`.
+2. **Voedselopname:** karper en blankvoorn hebben de breedste geregistreerde voedings-/ritmebasis, maar de bronnen verschillen sterk in veld versus gecontroleerde opzet, levensfase, aasstations en habitat. Brasem, snoek, baars, zeelt, snoekbaars en meerval hebben beperktere of contextgebonden dekking. Voor roofblei ontbreekt directe soortspecifieke dagdeel-resolved voedselopname; dieet- en telemetriebronnen vullen dat gat niet.
+3. **Beweging en habitat:** voor meerdere soorten bestaat telemetrie- of veldbewijs, maar beweging, dieptegebruik en habitatkeuze zijn geen directe voedselopname of vangbaarheid. De uitkomstsoorten blijven gescheiden.
+4. **Wind, luchtdruk, bewolking, regen, zuurstof en stroming:** voor deze factoren bevat het register momenteel geen soortspecifieke bronregistraties met een onafhankelijk gemeten effect op voedselopname of totale activiteit. Wind blijft bruikbaar voor lokale oever-/positioneringsanalyse, maar niet als generieke activiteitbonus. Luchtdruk en overige weersfactoren blijven context totdat onafhankelijke, soortspecifieke evidence is geregistreerd.
+5. **Levensfase en lichaamsgrootte:** meerdere fysiologische en voedingsstudies tonen levensfase- of lichaamsgrootte-effecten. De huidige app vraagt geen verplichte leeftijd of lengte voor de prognose; vangstlengtes zijn bovendien geen representatieve populatiesteekproef. Het model mag daarom geen volwassen/juveniele respons afleiden uit een willekeurige vangstmaat.
+
+### Profielnotities en referenties opgeschoond
+
+- De beschrijvingen en aannames in `fishProfiles.ts` zijn herzien om directe voedselopname, locomotorische activiteit, habitatgebruik en fysiologie niet door elkaar te halen.
+- Onvoldoende onderbouwde vaste wind-, druk- en weersclaims zijn verwijderd of expliciet als niet-gevalideerde context geformuleerd. Diel-patronen zijn voorzien van context-/levensfasebeperkingen.
+- De numerieke thermische profielwaarden zijn ongewijzigd en blijven voorlopige modelprioren.
+- De profielreferentielijsten bevatten 78 vermeldingen: 48 DOI-verwijzingen zijn teruggevonden in het centrale register. Van 30 verwijzingen zonder DOI zijn er vijf op auteursnaam teruggevonden; 25 zijn tijdens deze statische controle niet op auteursnaam gematcht. Dit betekent niet automatisch dat de bron onjuist is, maar deze oudere boeken/rapporten moeten afzonderlijk worden geverifieerd of als achtergrondliteratuur worden gemarkeerd voordat ze als directe modelonderbouwing gelden.
+- De geavanceerde UI vermeldt nu expliciet dat profielnotities context/aannames zijn en dat bronvermelding geen validatie van de numerieke thermische curve betekent.
+
+### Status en vervolg
+
+Deze stap wijzigt geen thermische optimumwaarde, curvebreedte, activiteitsscore, tijdvakvoorkeur, vangstkans, factorgewicht of gebruikersinvoer. De factorinventaris is nog niet volledig en fase 2 blijft in audit.
+
+Volgende hoofdspoorstappen:
+1. Verifieer de niet-gematchte oudere profielreferenties; registreer relevante bronnen met gemeten uitkomst en beperkingen of verwijder ze uit de profielbronlijst.
+2. Onderzoek gericht onafhankelijke bronnen voor wind, druk, zicht/troebelheid, neerslag, zuurstof en stroming per soort, met onderscheid tussen activiteit, voedselopname, habitat en visbaarheid.
+3. Voltooi de matrix per soort: actief in activiteitsscore, actief in habitat-/positioneringsmodel, alleen context, niet beschikbaar of bewust uitgesloten.
+4. Stel pas na die matrix een kandidaatmodel en chronologisch validatieprotocol op. Geen numerieke factor activeren op basis van de huidige bronregistratie alleen.
