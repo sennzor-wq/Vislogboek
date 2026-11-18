@@ -1588,3 +1588,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 ### VisCoach — latere verfijning dynamische weerswijzigingen (18 november 2026)
 
 Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tussen een meet-/forecastmoment, een functioneel relevante verandering in een factor en een daadwerkelijk gewijzigde praktische actie. Kleine wijzigingen in windkracht of -richting veroorzaken niet automatisch een nieuw coachadvies. Een prognosewijziging zonder tactiekwijziging kan intern als snapshot worden vastgelegd; een nieuw gebruikersadvies volgt alleen wanneer de bestaande tactiek-/adviesuitkomst praktisch verandert. Factorgrenzen en eventuele hysterese worden later per factor onderzocht en gevalideerd; geen willekeurige numerieke grens invoeren. Dit punt is geen must voor de huidige fase en verandert de fasevolgorde niet.
+
+
+### Fase 2 — dekking uitgesplitst naar gemeten biologische respons (18 november 2026)
+
+- De 64 research-registryrecords zijn opnieuw geteld per soort en expliciete `measuredOutcomes`; zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §69.
+- Belangrijke nuance: algemene dieet-, bewegings- of habitatcontext betekent niet dat directe voedingsintensiteit, voedingsritme of hengelvangbaarheid is gemeten.
+- Roofblei heeft momenteel geen expliciet geregistreerd direct voedingsintensiteits-, voedingsritme- of foerageerrecord. De beschikbare telemetrie is uitsluitend beweging/habitat; de dieetstudies meten dieet/prooikeuze.
+- Hengelvangbaarheid blijft beperkt geregistreerd en gescheiden van voedings- en bewegingsbewijs.
+- De aantallen tellen registry-records, niet onafhankelijke studies of bewijssterkte. Alle 64 records blijven `approvedForPrediction: false`; geen score, gewicht of tijdvakbonus gewijzigd.
+- Volgende actie: gerichte literatuurcontrole op directe voedingsmetingen voor de dun bezette soorten en onafhankelijke hengelvangbaarheidsstudies; pas daarna kandidaatmodel/validatie verder uitwerken.
