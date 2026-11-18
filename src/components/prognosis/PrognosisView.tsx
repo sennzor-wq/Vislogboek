@@ -1781,7 +1781,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   >
                     {/* Header bar */}
                     <button
-                      onClick={() => toggleSlot(slot)}
+                      onClick={() => { if (showAdvancedDetails) toggleSlot(slot); }}
+                      aria-expanded={showAdvancedDetails && isExpanded}
+                      aria-label={showAdvancedDetails ? `${slot} details tonen` : slot}
                       className="w-full p-4 flex items-center justify-between text-left hover:bg-slate-700/30 transition cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
@@ -1804,9 +1806,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                               </span>
                             ) : null}
                           </div>
-                          <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
-                            {analysis.conclusion}
-                          </p>
+                          {showAdvancedDetails && (
+                            <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
+                              {analysis.conclusion}
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -1817,13 +1821,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                             <span className="text-xs text-slate-400 font-normal">/10</span>
                           </div>
                         </div>
-                        <div className="p-1 rounded-lg text-slate-400 hover:text-white">
-                          {isExpanded ? (
-                            <ChevronUp className="w-5 h-5" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5" />
-                          )}
-                        </div>
+                        {showAdvancedDetails && (
+                          <div className="p-1 rounded-lg text-slate-400 hover:text-white">
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5" />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </button>
 
