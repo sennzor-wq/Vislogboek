@@ -515,9 +515,11 @@ export async function persistCoachReassessment(
       location.id,
       location.name,
       session.technique,
-      prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid'
-        ? undefined
-        : prognosis.bestTimeSlot,
+      inputContext.targetTimeSlot ?? (
+        prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid'
+          ? undefined
+          : prognosis.bestTimeSlot
+      ),
       session.weatherSnapshot,
       {
         runKind: 'session_update',
