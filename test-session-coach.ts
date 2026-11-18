@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine';
+import { calculateDayPrognosis, saveSessionWithPrognosisSnapshot } from './src/services/prognosisEngine';
 import {
   changedSignatureFactors,
   buildVisCoachAdviceText,
@@ -570,6 +570,61 @@ async function run() {
       newerUnadvisedSnapshot
     )?.id === snapshot.id,
     'Vergelijkingsbasis blijft het snapshot van het laatst getoonde advies, niet een nieuwere onbeoordeelde snapshot'
+  );
+
+  const slotForecasts = Array.from({ length: 24 }, (_, hour) => ({
+    time: `2026-07-20T${String(hour).padStart(2, '0')}:00:00`,
+    temperature: 20,
+    relativeHumidity: 70,
+    dewPoint: 14,
+    shortwaveRadiation: hour >= 6 && hour < 18 ? 150 : 0,
+    pressure: 1013,
+    windSpeed: hour < 6 ? 2 : hour < 12 ? 4 : hour < 18 ? 8 : 18,
+    windDirection: 180,
+    windDirectionText: 'Z',
+    precipitation: 0,
+    precipitationProbability: 0,
+    cloudCover: 40,
+    weatherCode: 1,
+  }));
+  const slotLocation = {
+    id: 'coach-slot-location',
+    name: 'Tijdvaktestwater',
+    latitude: 51.9,
+    longitude: 5.2,
+    waterType: 'Stilstaand',
+    waterDepth: 2,
+    waterFacingDirection: 'N',
+    habitatFeatures: ['open_water', 'talud'],
+  } as any;
+  const slotNow = new Date('2026-07-20T00:00:00+02:00');
+  const slotBaseOptions = {
+    sessionDurationHours: 4,
+    allowUnknownSessionDuration: true,
+    locationId: slotLocation.id,
+    location: slotLocation,
+    catches: [],
+    prebaitOptions: { availableDaysBefore: 2, planningDate: '2026-07-20' },
+  };
+  const dayWidePrognosis = calculateDayPrognosis(
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow, slotBaseOptions
+  );
+  const selectedEveningPrognosis = calculateDayPrognosis(
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow,
+    { ...slotBaseOptions, targetTimeSlot: 'Avond' }
+  );
+  assert(
+    dayWidePrognosis.bestTimeSlot === selectedEveningPrognosis.bestTimeSlot,
+    'Het gekozen VisCoach-starttijdvak verandert de dagbrede beste-tijdvakprognose niet'
+  );
+  assert(
+    dayWidePrognosis.bankWindAnalysis?.windSpeedKmH === 8 &&
+    selectedEveningPrognosis.bankWindAnalysis?.windSpeedKmH === 18,
+    'De VisCoach-oeverwindanalyse gebruikt het gekozen tijdvak in plaats van het daggemiddelde'
+  );
+  assert(
+    selectedEveningPrognosis.positioningAdvice.windContext.speedKmH === 18,
+    'De hengelpositionering gebruikt de wind van het gekozen starttijdvak'
   );
 
   await db.delete();
