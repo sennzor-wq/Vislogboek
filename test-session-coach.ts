@@ -357,6 +357,106 @@ async function run() {
     moderateWindAdvice.tactics.includes('De wind kan de oeverkeuze en werprichting beïnvloeden.'),
     'Ook matige wind krijgt tactische aandacht wanneer de bestaande oeveranalyse is geconfigureerd'
   );
+  const habitatWindConflictAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    habitatAnalysis: {
+      primaryZone: { name: 'Diepere taludzone', habitatType: 'Holding / rustzone', description: 'Diepere overgang langs het talud.', depthProfileNote: 'Diepte lokaal peilen.', structureNote: 'Talud', whyLikely: 'De lokale habitatgegevens ondersteunen een dieper talud.' },
+      alternativeZone: { name: 'Rietkraag', habitatType: 'Structuurzone', description: 'Rietrand.', depthProfileNote: 'Onbekend.', structureNote: 'Riet', whyLikely: 'Alternatieve structuur.' },
+      movementHypothesis: { likelyDirection: '', migrationalTrigger: '', timeOfDayDynamic: '', transitRoute: '', windInfluence: '', seasonalPattern: '' },
+      environmentalInfluence: { temperatureImpact: '', windAndWaveImpact: '', pressureTrendImpact: '', lightAndSolarImpact: '' },
+      confidenceLevel: 'Redelijk',
+      dataProvenance: { measuredDataPoints: [], userObservations: [], modelInferences: [] },
+      missingInformation: [],
+    },
+    positioningAdvice: {
+      recommendedZone: 'Aanlandige oeverzone (windkant)',
+      rationale: 'De wind-/positioneringsanalyse wijst op de aanlandige oever.',
+      alternativeOption: 'Vergelijk de luwere overgangszone.',
+      confidenceLevel: 'Redelijk',
+      windContext: { directionText: 'Zuidwest', speedKmH: 15, isStrongWind: false, isCalmWind: false, isColdWind: false },
+    },
+  } as any);
+  assert(
+    habitatWindConflictAdvice.advice.includes('Begin bij een dieper en rustiger deel van het water.') &&
+    habitatWindConflictAdvice.advice.includes('Aanlandige oeverzone (windkant)') &&
+    habitatWindConflictAdvice.advice.includes('tweede zoekzone'),
+    'Bij een verschil tussen lokale habitat en windpositionering kiest de coach één startzone en houdt de andere als alternatief'
+  );
+  const observedZoneAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    habitatAnalysis: {
+      primaryZone: { name: 'Actieve waarnemingszone (visvisuele hotspot)', habitatType: 'Foerageerzone', description: 'Zone met eigen viswaarneming.', depthProfileNote: 'Onbekend.', structureNote: 'Ter plaatse vaststellen.', whyLikely: 'Ondersteund door jouw eigen recente visuele waarnemingen aan het water.' },
+      alternativeZone: { name: 'Direct aangrenzende zoekzone', habitatType: 'Doorgang / transitie', description: 'Aangrenzende zone.', depthProfileNote: 'Onbekend.', structureNote: 'Ter plaatse vaststellen.', whyLikely: 'Vergelijkingszone.' },
+      movementHypothesis: { likelyDirection: '', migrationalTrigger: '', timeOfDayDynamic: '', transitRoute: '', windInfluence: '', seasonalPattern: '' },
+      environmentalInfluence: { temperatureImpact: '', windAndWaveImpact: '', pressureTrendImpact: '', lightAndSolarImpact: '' },
+      confidenceLevel: 'Laag',
+      dataProvenance: { measuredDataPoints: [], userObservations: ['Bellen waargenomen in een eerdere sessie'], modelInferences: [] },
+      missingInformation: [],
+    },
+    positioningAdvice: { recommendedZone: 'Aanlandige oeverzone (windkant)', confidenceLevel: 'Redelijk', rationale: 'Windpositie.' },
+  } as any);
+  assert(
+    observedZoneAdvice.advice.includes('Begin bij Actieve waarnemingszone (visvisuele hotspot)'),
+    'Een eigen lokale viswaarneming blijft leidend boven een algemene wind-/positioneringshypothese'
+  );
+  const positioningPriorityAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    habitatAnalysis: {
+      primaryZone: { name: 'Diepere taludzone', habitatType: 'Holding / rustzone', description: 'Dieper talud.', depthProfileNote: 'Onbekend.', structureNote: 'Talud', whyLikely: 'Voorlopige habitatinschatting.' },
+      alternativeZone: { name: 'Rietkraag', habitatType: 'Structuurzone', description: 'Rietrand.', depthProfileNote: 'Onbekend.', structureNote: 'Riet', whyLikely: 'Alternatief.' },
+      movementHypothesis: { likelyDirection: '', migrationalTrigger: '', timeOfDayDynamic: '', transitRoute: '', windInfluence: '', seasonalPattern: '' },
+      environmentalInfluence: { temperatureImpact: '', windAndWaveImpact: '', pressureTrendImpact: '', lightAndSolarImpact: '' },
+      confidenceLevel: 'Laag',
+      dataProvenance: { measuredDataPoints: [], userObservations: [], modelInferences: [] },
+      missingInformation: [],
+    },
+    positioningAdvice: { recommendedZone: 'Aanlandige oeverzone (windkant)', confidenceLevel: 'Redelijk', rationale: 'De positioneringsanalyse heeft hier redelijke onderbouwing.' },
+  } as any);
+  assert(
+    positioningPriorityAdvice.advice.includes('Begin bij Aanlandige oeverzone (windkant)') &&
+    positioningPriorityAdvice.advice.includes('Diepere taludzone'),
+    'Bij lage habitatzekerheid en redelijke positioneringszekerheid krijgt de positioneringszone voorrang, met de habitat als alternatief'
+  );
+
+  const confidentPrebaitPlan = {
+    suitability: 'Zeer zinvol',
+    suitabilityScore: 8,
+    shouldPrebait: true,
+    recommendedDaysBefore: 2,
+    totalAmountGrams: 500,
+    campaignSummary: 'Een bescheiden campagne van één tot twee dagen kan zinvol zijn; bouw rustig op.',
+    biologicalRationale: 'Niet tonen in het standaardplan.',
+    temperatureFactorExplanation: 'Niet tonen in het standaardplan.',
+    moments: [],
+    sessionDayGuidance: { feedDuringSession: true, recommendedAmountGrams: 100, amountDisplay: 'circa 100 gram', advice: 'Begin met een kleine portie en voer alleen bij wanneer aanbeten of vangsten daar aanleiding toe geven.' },
+    feedCompositionAdvice: { recommendedMix: 'Een kleine mix van pellets en boiliekruim', digestibilityNote: 'Niet tonen.', particleSizeNote: 'Niet tonen.' },
+    confidenceLevel: 'Redelijk',
+    missingInformation: [],
+    personalEvidence: { hasSufficientData: true, totalRelevantSessions: 8, relevantPrebaitedSessionsCount: 4, catchRateWithPrebait: 1.5, catchRateWithoutPrebait: 0.8, summaryNote: 'In acht vergelijkbare sessies was de vangstsnelheid hoger met voorvoeren.' },
+    methodFeederGuidance: 'Method feeder blijft een instant presentatie; houd de korfvulling apart van vooraf gevoerd aas.',
+  };
+  const prebaitTactics = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond');
+  assert(
+    prebaitTactics.tactics.includes('Voorvoeren: Een bescheiden campagne') &&
+    prebaitTactics.tactics.includes('circa 100 gram') &&
+    prebaitTactics.tactics.includes('Voersamenstelling: Een kleine mix') &&
+    prebaitTactics.tactics.includes('Eigen sessiehistorie:') &&
+    prebaitTactics.tactics.includes('Method feeder blijft een instant presentatie'),
+    'De coach vertaalt campagne, sessievoer, mix en voldoende persoonlijke historie naar praktische tactiek'
+  );
+  const uncertainPrebaitTactics = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    prebaitPlan: {
+      ...confidentPrebaitPlan,
+      confidenceLevel: 'Matig',
+      personalEvidence: { ...confidentPrebaitPlan.personalEvidence, hasSufficientData: false },
+    },
+  } as any, null, null, 'Avond');
+  assert(
+    !uncertainPrebaitTactics.tactics.includes('circa 100 gram') &&
+    uncertainPrebaitTactics.tactics.includes('De exacte hoeveelheid is nog onzeker'),
+    'Exacte voerhoeveelheden worden alleen getoond bij voldoende invoerkwaliteit'
+  );
   assert(
     changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
     'Kleine scorefluctuatie en gewijzigde toelichting veroorzaken geen nieuw praktisch advies'
