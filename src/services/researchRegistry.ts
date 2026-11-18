@@ -27,6 +27,7 @@ export type ResearchOutcome =
   | 'metabolic_rate'
   | 'aerobic_scope'
   | 'angler_catch_distribution'
+  | 'angler_catch_rate'
   | 'angler_vulnerability';
 
 export type EvidenceStrength =
@@ -1350,6 +1351,65 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-18',
     approvedForPrediction: false,
   },
+
+  {
+    id: 'perch-recreational-angling-catch-rates-21-lakes-2013',
+    topic: 'recreational-angling-catch-rate-and-catchability',
+    measuredOutcomes: ['angler_catch_rate'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een multi-lakeonderzoek met hengeldagboeken uit 21 meren in Mecklenburg-Vorpommern (2006–2007), aangevuld met een experimentele visserij op een grindplas in 2008, onderzocht factoren achter recreatieve baarsvangsten. Ervaring van de visser, soortvoorkeur en aas-/kunstaastype hadden grote invloed op vangsttempo; voedingsconditie, watertransparantie en seizoen hingen eveneens samen met vangsttempo of visgrootte. De auteurs koppelden hoge herfstvangsten aan seizoensgebonden voedselbeperking in de onderzochte populaties.',
+    limitations: [
+      'Hengeldagboeken combineren visbiologie met visserervaring, voorkeur, aaskeuze, inspanning en lokale populatieomstandigheden; de uitkomst is geen zuivere individuele visvangbaarheidsparameter.',
+      'De studie betreft Duitse meren en één experimentele grindplas; lokale prooibeschikbaarheid en watertransparantie kunnen afwijken van Nederlandse stekken.',
+      'De seizoensrelatie is contextgebonden en rechtvaardigt geen algemene herfstbonus of directe prognoseweging.'
+    ],
+    sourceReferences: [
+      'Heermann, L., Emmrich, M., Heynen, M., Dorow, M., König, U. & Borcherding, J. (2013). Explaining recreational angling catch rates of Eurasian perch, Perca fluviatilis: the role of natural and fishing-related environmental factors. Fisheries Management and Ecology, 20(2–3), 187–200. https://doi.org/10.1111/fme.12000'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-wild-lure-shyness-protected-areas-2025',
+    topic: 'pike-lure-shyness-and-angling-vulnerability-wild-population',
+    measuredOutcomes: ['angler_vulnerability'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Onderzoek in drie paren van gedeeltelijk beschermde kustgebieden in de zuidelijke Oostzee vergeleek snoek in gebieden met lagere en hogere recreatieve visserijdruk. Snoeken in gebieden met lagere visserijdruk reageerden agressiever op kunstaas; ongeveer een derde van het verschil in hengelvangsttempo tussen beschermde en open locaties kon mogelijk aan schuwheid voor kunstaas worden toegeschreven. Dit is veldbewijs dat visserijdruk en aangeleerd gedrag de vangbaarheid kunnen beïnvloeden.',
+    limitations: [
+      'De studie betreft kustsnoek in de zuidelijke Oostzee en gedeeltelijk beschermde gebieden; overdracht naar binnenwateren, andere populaties en andere technieken is onzeker.',
+      'Verschillen in populatieomvang en vangsttempo spelen naast kunstaasschuwheid mee; de geschatte bijdrage van schuwheid is voorzichtig en niet gelijk aan een universele individuele vangstkans.',
+      'De studie ondersteunt geen vaste correctiefactor voor hengeldruk of kunstaas in de prognose.'
+    ],
+    sourceReferences: [
+      'Roser, P., Radinger, J., Feldhege, F., Braun, M. & Arlinghaus, R. (2025; first published 2024). Getting Scarce and Lure Shy: Impacts of Recreational Fishing on Coastal Northern Pike (Esox lucius) Abundance, Size Structure and Vulnerability to Angling. Fisheries Management and Ecology, 32(3), e12769. https://doi.org/10.1111/fme.12769'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-capture-probability-bait-learning-unexploited-2026',
+    topic: 'pike-capture-probability-bait-type-and-learning',
+    measuredOutcomes: ['angler_vulnerability'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een driejarige gestandaardiseerde hengelstudie in een voorheen onbeviste natuurlijke snoekpopulatie omvatte 22.213 worpen, 238 aanvallen en 69 gevangen snoeken met dood aas en twee typen softplastic kunstaas. Vangsttempo nam binnen sessies, tussen seizoenen en over onderzoeksjaren af; aaskeuze beïnvloedde aanval en vangst, en het effect van kunstaaservaring was afhankelijk van het type aas. De auteurs schatten dat 43,2% van de snoeken boven 40 cm tijdens de onderzoeksperiode vangbaar leek.',
+    limitations: [
+      'De 43,2% is een populatieschatting voor snoek boven 40 cm in één voorheen onbeviste populatie en is geen universele individuele vangstkans of inzetbare app-score.',
+      'De studie gebruikte gestandaardiseerde roofvismethoden met kunstaas en dood aas; de uitkomst is niet rechtstreeks overdraagbaar naar witvis- of karpertechnieken.',
+      'Vangbaarheid veranderde door visgrootte, seizoen, aaskeuze, herhaalde blootstelling en leereffecten; geen vaste aas- of hengeldrukbonus afleiden.'
+    ],
+    sourceReferences: [
+      'Lucas, J., Ros, A., Geist, J. & Brinker, A. (2026). Capture Probability and Effects of Bait Type on Learning Behavior in an Unexploited Population of Northern Pike (Esox lucius). Fisheries Management and Ecology. First published 17 September 2026. https://doi.org/10.1111/fme.70108'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
