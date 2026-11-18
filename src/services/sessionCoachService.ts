@@ -587,6 +587,7 @@ export async function reassessActiveSessions(
       }
 
       const now = new Date();
+      const targetTimeSlot = resolveSelectedTimeSlot(now, null);
       const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
       const species = session.targetSpecies?.[0] ?? 'Algemeen';
       const durationHours = getSessionDurationHours(session);
