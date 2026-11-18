@@ -1250,6 +1250,87 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+  {
+    id: 'common-carp-winter-oxygen-deficiency-telemetry-2006',
+    topic: 'opgeloste-zuurstof-en-winteractiviteit',
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    measuredOutcomes: ['locomotor_activity', 'feeding_intensity', 'habitat_use'],
+    summary: 'Radio-telemetrie in één met ijs en sneeuw bedekte kweekvijver liet zien dat karpers bij een winterse zuurstofcrisis vanuit diepere delen naar ondiep water bij een instromende beek trokken. Voedselopname stopte tijdens de zuurstofcrisis; de totale activiteit hing significant samen met opgeloste zuurstof (P < 0,001) en niet met watertemperatuur (P > 0,05). Na beluchting keerden de vissen terug naar diepere delen.',
+    limitations: [
+      'Eén vijver en één specifieke winterse zuurstofcrisis in aquacultuur; geen algemene respons voor normaal geoxygeneerde meren of rivieren.',
+      'De bron toont dat zuurstoftekort in deze situatie belangrijker was dan temperatuur, maar levert geen universele zuurstofdrempel voor alle karpers.',
+      'De app meet geen opgeloste zuurstof. Zuurstofstress mag niet uit luchttemperatuur, watertemperatuur, bewolking of druk worden afgeleid.',
+      'De waargenomen activiteit en verplaatsing zijn geen bewijs voor hogere vangbaarheid.'
+    ],
+    sourceReferences: [
+      'Bauer, C. & Schlott, G. (2006). Reaction of common carp (Cyprinus carpio, L.) to oxygen deficiency in winter as an example for the suitability of radio telemetry for monitoring the reaction of fish to stress factors in pond aquaculture. Aquaculture Research, 37(3), 248–254. https://doi.org/10.1111/j.1365-2109.2005.01426.x'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'eurasian-perch-spawning-depth-wave-exposure-2009',
+    topic: 'golfblootstelling-en-paaihabitat',
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    measuredOutcomes: ['habitat_use'],
+    summary: 'Een experiment met kunstmatige paaisubstraten in het Bodenmeer vond tijdens het paaiseizoen een grotere voorkeur voor diepere paaiplaatsen op de golfblootgestelde locatie (5 m) dan op de beschutte locatie (2 m). Het totale aantal eisnoeren verschilde niet significant tussen de locaties; golfblootstelling kan dus de dieptekeuze beïnvloeden zonder een hogere paaihoeveelheid aan te tonen.',
+    limitations: [
+      'De studie betreft uitsluitend paaihabitat in één meer en één seizoen; geen dagelijkse voedselopname of algemene volwassen habitatvoorkeur.',
+      'De blootstelling kwam mede door scheepsgolven en is niet gelijk aan een algemene windrichting- of windbonus.',
+      'Kunstmatige substraten en voortplantingsgedrag beperken de overdraagbaarheid naar een gewone vissessie.',
+      'De studie ondersteunt geen hogere activiteit of vangstkans aan de windkant.'
+    ],
+    sourceReferences: [
+      'Probst, W.N., Stoll, S., Hofmann, H., Fischer, P. & Eckmann, R. (2009). Spawning site selection by Eurasian perch (Perca fluviatilis L.) in relation to temperature and wave exposure. Ecology of Freshwater Fish, 18, 1–7. https://doi.org/10.1111/j.1600-0633.2008.00327.x'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'juvenile-bream-hydrodynamic-stress-littoral-2008',
+    topic: 'golfslag-diepte-en-juveniel-habitat',
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    measuredOutcomes: ['growth', 'habitat_use'],
+    summary: 'Enclosure- en veldonderzoek in het Bodenmeer liet bij juveniele cypriniden, waaronder brasem, een lagere somatische groei zien in de ondiepe eulittorale zone (0,5 m) dan in de sublittorale zone (1,6 m). De auteurs koppelden dit aan hydrodynamische belasting door scheeps- en windgolven. Veldvangsten lieten tegelijk zien dat juveniele cypriniden ondiepe zones bleven gebruiken, waarschijnlijk mede als schuilplaats tegen roofvis.',
+    limitations: [
+      'Eén pre-alpien meer en juveniele vissen; niet zonder meer overdraagbaar op volwassen brasem of Nederlandse kanalen/plassen.',
+      'De gemeten uitkomsten zijn groei en habitatverdeling, niet directe voedselopname of vangbaarheid.',
+      'Wind- en scheepsgolven zijn gecombineerd; het afzonderlijke effect van natuurlijke wind is niet geïsoleerd.',
+      'De ondiepe habitatkeuze kan door predatierisico worden verklaard en is geen bewijs dat ondiep water altijd de beste viszone is.'
+    ],
+    sourceReferences: [
+      'Stoll, S., Fischer, P., Klahold, P., Scheifhacken, N., Hofmann, H. & Rothhaupt, K.-O. (2008). Effects of water depth and hydrodynamics on the growth and distribution of juvenile cyprinids in the littoral zone of a large pre-alpine lake. Journal of Fish Biology, 72, 1001–1022. https://doi.org/10.1111/j.1095-8649.2007.01780.x'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'waal-floodplain-spawning-habitat-flow-model-2010',
+    topic: 'afvoer-stroming-en-paaihabitat',
+    species: ['Voorn', 'Brasem', 'Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    measuredOutcomes: ['habitat_use'],
+    summary: 'Een habitatgeschiktheidsmodel voor paaigebieden in overstroomde delen van de Nederlandse Waal gebruikte soortspecifieke literatuurvoorkeuren voor blankvoorn, brasem en snoekbaars. Waterdiepte, stroomsnelheid, watertemperatuur en vegetatietype waren de belangrijkste modelvariabelen. De voorspelde beschikbare paaigebieden hingen positief samen met YOY-dichtheden voor deze drie soorten op twee locaties over 1997–1999.',
+    limitations: [
+      'Het betreft paaihabitat en rekrutering in een grote rivier, niet voedselopname, dagelijkse activiteit of hengelvangbaarheid.',
+      'Het model is gebaseerd op literatuurvoorkeuren en hydrodynamische modellering; het is geen directe meting van individuele visbeweging.',
+      'Twee locaties en drie jaren in de Waal; overdraagbaarheid naar stilstaand water of andere seizoenen is beperkt.',
+      'De studie ondersteunt dat hydrologische en hydraulische omstandigheden soortspecifiek zijn, maar levert geen universele stromingsbonus.'
+    ],
+    sourceReferences: [
+      'van de Wolfshaar, K.E., Ruizeveld de Winter, A.C., Straatsma, M.W., Brink, N.G.M. & de Leeuw, J.J. (2010). Estimating spawning habitat availability in flooded areas of the river Waal, the Netherlands. River Research and Applications, 26(4), 487–498. https://doi.org/10.1002/rra.1306'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
