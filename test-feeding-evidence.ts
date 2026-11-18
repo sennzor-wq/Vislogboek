@@ -49,3 +49,19 @@ const pikeperch = getSpeciesFeedingEvidenceContext('Snoekbaars');
 if (!pikeperch.feedingRhythm.some((item) => item.id === 'pikeperch-lake-ladoga-daily-feeding-rhythm-1982')) {
   throw new Error('Pikeperch seasonal daily feeding rhythm must be available as qualitative literature context.');
 }
+
+
+// The Římov 2004 in-situ study is one source shared by bream and roach,
+// not two independent studies or two independent evidence points.
+for (const species of ['Brasem', 'Voorn'] as const) {
+  const context = getSpeciesFeedingEvidenceContext(species);
+  const rimovEntries = context.feedingRhythm.filter(
+    (item) => item.id === 'bream-roach-in-situ-diel-zooplankton-feeding-2004' ||
+      item.id === 'roach-bream-diel-zooplankton-feeding-2004'
+  );
+  if (rimovEntries.length !== 1 ||
+      rimovEntries[0].id !== 'bream-roach-in-situ-diel-zooplankton-feeding-2004' ||
+      !rimovEntries[0].limitations.some((item) => item.includes('juveniele blankvoorn en brasem'))) {
+    throw new Error(species + ' must retain one canonical Římov 2004 source with the conflicting juvenile field evidence limitation.');
+  }
+}

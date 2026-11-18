@@ -1506,3 +1506,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - UI-kop gewijzigd naar "Eigen sessie-uitkomsten bij starts in dit tijdvak".
 - Percentage omschreven als sessiesucces van sessies die in het tijdvak startten, niet als tijdvakvangstkans of vangsttempo.
 - Berekening, tijdvakrangschikking en biologische scores ongewijzigd; regressietest controleert expliciete sessiesucces-tekst.
+
+
+### Fase 2 — dubbele voedingsbron geconsolideerd (18 november 2026)
+
+- De Římov 2004-studie voor brasem/blankvoorn stond tweemaal in het research register; dit is één canonieke bronregistratie geworden.
+- Beide soorten behouden de bron en de beperking dat juveniele veldresultaten een tegengesteld nachtpatroon tonen.
+- Geen bron goedgekeurd voor voorspelling; geen numerieke voedings- of tijdvakscore gewijzigd. Regressietest toegevoegd.
