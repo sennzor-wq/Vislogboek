@@ -438,7 +438,7 @@ async function run() {
     personalEvidence: { hasSufficientData: true, totalRelevantSessions: 8, relevantPrebaitedSessionsCount: 4, catchRateWithPrebait: 1.5, catchRateWithoutPrebait: 0.8, summaryNote: 'In acht vergelijkbare sessies was de vangstsnelheid hoger met voorvoeren.' },
     methodFeederGuidance: 'Method feeder blijft een instant presentatie; houd de korfvulling apart van vooraf gevoerd aas.',
   };
-  const prebaitTactics = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond');
+  const prebaitTactics = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond', 3);
   assert(
     prebaitTactics.tactics.includes('Voorvoeren: Een bescheiden campagne') &&
     prebaitTactics.tactics.includes('circa 100 gram') &&
@@ -455,12 +455,18 @@ async function run() {
       confidenceLevel: 'Matig',
       personalEvidence: { ...confidentPrebaitPlan.personalEvidence, hasSufficientData: false },
     },
-  } as any, null, null, 'Avond');
+  } as any, null, null, 'Avond', 3);
   assert(
     !uncertainPrebaitTactics.tactics.includes('circa 100 gram') &&
     !uncertainPrebaitTactics.tactics.includes('circa 250 gram') &&
     uncertainPrebaitTactics.tactics.includes('De exacte hoeveelheid is nog onzeker'),
     'Exacte voerhoeveelheden worden alleen getoond bij voldoende invoerkwaliteit'
+  );
+  const unknownDurationPrebait = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond', null);
+  assert(
+    !unknownDurationPrebait.tactics.includes('circa 100 gram') &&
+    unknownDurationPrebait.tactics.includes('1 dag vooraf: circa 250 gram'),
+    'Sessiehoeveelheid blijft verborgen zonder eindtijd, terwijl een voldoende onderbouwd voorvoerschema zichtbaar blijft'
   );
   assert(
     changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(smallFluctuation)).length === 0,
