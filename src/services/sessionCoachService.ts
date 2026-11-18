@@ -390,6 +390,13 @@ export function buildVisCoachAdviceText(
         feeding.push(`Er is voor deze starttijd geen voorvoerbeurt ingepland. ${campaignSummary}`);
       }
     }
+    const campaignSchedule = prebait.moments
+      .filter((moment) => moment.dayOffset < 0)
+      .map((moment) => `${moment.dayLabel}: ${moment.amountDisplay}`)
+      .join('; ');
+    if (prebait.shouldPrebait && prebait.confidenceLevel === 'Redelijk' && campaignSchedule) {
+      feeding.push(`Indicatief voorvoerschema: ${campaignSchedule}. Start terughoudend en verhoog alleen bij duidelijke activiteit.`);
+    }
 
     const sessionFeeding = cleanCoachText(prebait.sessionDayGuidance.advice);
     if (sessionFeeding) {
