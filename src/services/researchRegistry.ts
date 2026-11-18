@@ -1236,7 +1236,6 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: [],
     application: 'environment',
     evidenceStrength: 'moderate',
-    measuredOutcomes: ['foraging_behavior', 'locomotor_activity', 'habitat_use'],
     summary: 'Een review van 281 peer-reviewed studies beschrijft dat toenemende troebelheid de zichtbaarheid, predator-prooi-interacties, foerageerstrategieën en habitatkeuze kan veranderen. De richting verschilt per soort en trofische rol; negatieve effecten werden vaker gemeld bij predatoren dan bij prooivissen.',
     limitations: [
       'De literatuur heeft sterke taxonomische, geografische en omgevingsbias; de review levert geen Nederlandse soortspecifieke responsfunctie.',
