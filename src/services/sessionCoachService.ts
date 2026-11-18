@@ -376,12 +376,45 @@ export function buildVisCoachAdviceText(
   if (windAdvice) tacticSections.push(`Wind en werprichting\n${windAdvice}`);
 
   const feeding: string[] = [];
-  const sessionFeeding = cleanCoachText(prognosis.prebaitPlan?.sessionDayGuidance?.advice);
-  if (sessionFeeding) feeding.push(sessionFeeding);
-  if (prognosis.prebaitPlan?.methodFeederGuidance) {
-    feeding.push(technique?.toLowerCase().includes('method')
-      ? 'Bij method feeder zit het voer in of rond het voerkorfje, vlak bij je haakaas. Houd die korfvulling apart van eventueel vooraf gevoerd aas.'
-      : 'De voeranalyse bevat ook een aanwijzing voor method feeder. Die is alleen van toepassing als je daadwerkelijk met deze techniek vist.');
+  const prebait = prognosis.prebaitPlan;
+  if (prebait) {
+    const campaignSummary = cleanCoachText(prebait.campaignSummary);
+    if (campaignSummary) {
+      if (prebait.suitability === 'Niet aanbevolen (instant vissen aanbevolen)') {
+        feeding.push(/^niet voorvoeren/i.test(campaignSummary)
+          ? campaignSummary
+          : `Voorvoeren niet aanbevolen: ${campaignSummary}`);
+      } else if (prebait.shouldPrebait) {
+        feeding.push(`Voorvoeren: ${campaignSummary}`);
+      } else {
+        feeding.push(`Er is voor deze starttijd geen voorvoerbeurt ingepland. ${campaignSummary}`);
+      }
+    }
+
+    const sessionFeeding = cleanCoachText(prebait.sessionDayGuidance.advice);
+    if (sessionFeeding) {
+      const amountGuidance = prebait.confidenceLevel === 'Redelijk' &&
+        prebait.sessionDayGuidance.feedDuringSession &&
+        prebait.sessionDayGuidance.recommendedAmountGrams > 0
+        ? ` Indicatieve hoeveelheid tijdens de sessie: ${prebait.sessionDayGuidance.amountDisplay}; pas aan op activiteit, bodem en natuurlijk voedsel.`
+        : '';
+      feeding.push(`Tijdens de sessie: ${sessionFeeding}${amountGuidance}`);
+    }
+
+    const recommendedMix = cleanCoachText(prebait.feedCompositionAdvice.recommendedMix);
+    if (recommendedMix && prebait.confidenceLevel !== 'Laag') {
+      feeding.push(`Voersamenstelling: ${recommendedMix}.`);
+    }
+    if (prebait.personalEvidence?.hasSufficientData) {
+      const personalNote = cleanCoachText(prebait.personalEvidence.summaryNote);
+      if (personalNote) feeding.push(`Eigen sessiehistorie: ${personalNote}`);
+    }
+    if (prebait.confidenceLevel !== 'Redelijk' && prebait.sessionDayGuidance.recommendedAmountGrams > 0) {
+      feeding.push('De exacte hoeveelheid is nog onzeker; begin terughoudend en pas aan op activiteit, bodem en natuurlijk voedsel.');
+    }
+    if (technique?.toLowerCase().includes('method') && prebait.methodFeederGuidance) {
+      feeding.push(cleanCoachText(prebait.methodFeederGuidance));
+    }
   }
   if (feeding.length > 0) tacticSections.push(`Voeren en aas\n${feeding.join(' ')}`);
 
