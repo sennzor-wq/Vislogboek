@@ -1219,14 +1219,13 @@ Deze audit beschrijft wat de huidige types en evaluatie-engine daadwerkelijk vas
 
 - **Vangkans:** PrognosisSnapshot.predictedCatchChance, actualOutcome, linkedSessionId, forecastTimestamp, modelVersion en de gekoppelde FishingSession.startTime/endTime vormen de basis voor Brier. De evaluator controleert dat de voorspelling vóór sessiestart is gemaakt, sluit benchmarks/ongeldige uitkomsten uit en kiest de vroegste snapshot per sessie en doelsoort.
 - **Temperatuur:** de snapshot bewaart de vooraf geschatte watertemperatuur en meetprovenance; de sessie kan een werkelijk gemeten temperatuur met meettijd, bron, methode en diepte opslaan. evaluateWaterTemperaturePerformance() berekent MAE/RMSE/bias. getWaterTemperatureCalibration() gebruikt uitsluitend eerdere geldige paren op dezelfde stek en in hetzelfde seizoen.
-- **Tijd- en inspanningscontext:** snapshots hebben targetSlot, targetWindowStart/End, durationHours en durationKnown; sessies hebben startTime, endTime, durationMinutes, plannedDurationHours en plannedEndTime. Deze velden bieden een basis voor de noodzakelijke vergelijkbaarheidscontrole, maar de huidige Brier-evaluator gebruikt ze nog niet om geplande en werkelijke duur/tijdvensters te vergelijken.
+- **Tijd- en inspanningscontext:** snapshots hebben targetSlot, targetWindowStart/End, durationHours en durationKnown; sessies hebben startTime, endTime, durationMinutes, plannedDurationHours en plannedEndTime. De Brier-evaluator vergelijkt geplande en werkelijke duur op minuutprecisie, plus exacte geplande/werkelijke start- en eindtijd; oudere snapshots vallen terug op het gekozen Amsterdamse starttijdvak. Ontbrekende tijdcontext wordt apart geteld en uitgesloten.
+- **Soortdiagnostiek:** EvaluationResult rapporteert naast de totaalscore ook aantallen, Brier-score, gemiddelde voorspelde kans, waargenomen vangstfrequentie en kalibratiebins per doelsoort. Kleine aantallen blijven beschrijvend.
 - **Dag- en tijdvakuitvoer:** PrognosisSnapshot.prognosisData bewaart de volledige DayPrognosis, inclusief dagadvies, bestTimeSlot, de vier timeSlots en hun thermische activiteitspotentie. De snapshot heeft daarnaast één targetSlot en één predictedActivityScore.
 
 ### Wat nog niet valideerbaar is met de huidige registratie
 
-1. **Brier op vergelijkbare sessieduur en tijdvenster:** duur- en tijdvenstermismatches worden uitgesloten; onbekende tijdcontext wordt apart geteld. Exacte vensters worden op minuutprecisie vergeleken; oudere snapshots gebruiken targetSlot als fallback. Nieuwe VisCoach-sessies bewaren de geplande start/eindtijd in de persistente sessiesnapshot.
-2. **Brier per doelsoort:** EvaluationResult rapporteert inmiddels aantallen, Brier-score, gemiddelde voorspelde kans, waargenomen vangstfrequentie en kalibratiebins per doelsoort. De uitsplitsing blijft beschrijvend en is bij kleine aantallen geen statistisch bewijs.
-3. **Tijdvakrangschikking:** de dagprognose bewaart activiteitspotentie per tijdvak, maar niet een afzonderlijke, vooraf vastgelegde vangstkans per tijdvak. Een sessie-uitkomst kan bovendien meerdere tijdvakken omvatten. De huidige gegevens rechtvaardigen dus geen claim dat de app al weet welk tijdvak de hoogste vangstkans had.
+1. **Tijdvakrangschikking:** de dagprognose bewaart activiteitspotentie per tijdvak, maar niet een afzonderlijke, vooraf vastgelegde vangstkans per tijdvak. Een sessie-uitkomst kan bovendien meerdere tijdvakken omvatten. De huidige gegevens rechtvaardigen dus geen claim dat de app al weet welk tijdvak de hoogste vangstkans had.
 4. **Werkelijke inspanning per tijdvak:** FishingSession bewaart sessiestart/-einde en geplande duur. Optionele SessionRod.activeIntervals kunnen hengelinzet per tijdvak verfijnen, maar zijn niet gegarandeerd aanwezig. Zonder passende inspanningsregistratie zijn vangstaantallen tussen tijdvakken niet eerlijk vergelijkbaar.
 5. **Vangsttijdstip:** CatchItem.timestamp en optionele hengelgebeurtenissen kunnen tijdinformatie bevatten. Hun volledigheid en bronbetrouwbaarheid moeten eerst worden geaudit; vangsttijd alleen levert geen nulvangst- of blootstellingslabel voor elk ander tijdvak.
 6. **Habitat/aanwezigheid:** habitatAnalysis is kwalitatieve modeluitvoer. Aanwezigheidsobservaties bestaan, maar de sessie-sync kan session.updatedAt als observatietijd gebruiken; dat is niet noodzakelijk het fysieke waarnemingsmoment. Er is geen gegarandeerd soortspecifiek, tijdgestempeld detectie-/afwezigheidslabel.
@@ -1235,11 +1234,9 @@ Deze audit beschrijft wat de huidige types en evaluatie-engine daadwerkelijk vas
 
 ### Uitvoeringsvolgorde
 
-1. Maak eerst de Brier-eligible set strikt vergelijkbaar op voorspeld en werkelijk tijdvenster/duur, met expliciete tellingen van uitgesloten gevallen en regressietests.
-2. Voeg soortspecifieke Brier- en kalibratiediagnostiek toe zonder de bestaande totaalscore te verbergen.
-3. Audit de feitelijke betrouwbaarheid van CatchItem.timestamp, SessionRod.activeIntervals en hengelgebeurtenissen voordat tijdvak- of inspanningsvalidatie wordt ontworpen.
-4. Ontwerp daarna pas de minimale aanvullende snapshot-/registratievelden voor tijdvakrangschikking. Geen nieuwe verplichte gebruikersinvoer toevoegen zolang bestaande data en optionele automatische registratie volstaan.
-5. Houd habitat-, voedings- en fysiologische activiteitsevaluatie geblokkeerd totdat onafhankelijke waarnemingslabels met passende tijd- en soortresolutie beschikbaar zijn.
+1. Audit de feitelijke betrouwbaarheid van CatchItem.timestamp, SessionRod.activeIntervals en hengelgebeurtenissen voordat tijdvak- of inspanningsvalidatie wordt ontworpen.
+2. Ontwerp daarna pas de minimale aanvullende snapshot-/registratievelden voor tijdvakrangschikking. Geen nieuwe verplichte gebruikersinvoer toevoegen zolang bestaande data en optionele automatische registratie volstaan.
+3. Houd habitat-, voedings- en fysiologische activiteitsevaluatie geblokkeerd totdat onafhankelijke waarnemingslabels met passende tijd- en soortresolutie beschikbaar zijn.
 
 **Besluit:** de huidige code heeft twee echte evaluatiemodules (vangstkans en watertemperatuur). De overige prognoselagen zijn nog niet afzonderlijk gevalideerd. De aanwezigheid van vier tijdvakken in DayPrognosis maakt ze nog niet tot vier onafhankelijk geëvalueerde vangstprognoses.
 
@@ -1255,7 +1252,7 @@ De huidige vangstkans is een persoonlijke Poisson-baseline die expliciet is bere
 - Vergelijk beide op minuutprecisie. Alleen gelijke duur telt mee in de primaire Brier-score.
 - Een afwijkende duur wordt uitgesloten en apart geteld; een ontbrekende/onbekende voorspelde duur wordt eveneens apart geteld.
 - Er wordt geen willekeurige tolerantie gekozen en de voorspelde kans wordt niet achteraf naar de werkelijke duur omgerekend. Een dergelijke omzetting vereist eerst een afzonderlijk gevalideerde methode.
-- De huidige vangstkans is niet per tijdvak berekend. targetSlot of de vier thermische tijdvakindices worden daarom niet gebruikt om de Brier-eligible set te bepalen. Tijdvakrangschikking blijft een aparte, nog niet gevalideerde evaluatielaag.
+- De huidige vangstkans is niet per tijdvak berekend. Het opgeslagen targetSlot wordt uitsluitend als fallback gebruikt om te controleren of de sessie in het vooraf gekozen starttijdvak begon; dit creëert geen tijdvakvangstkans en valideert geen rangschikking tussen tijdvakken.
 
 ### Soortspecifieke diagnose
 
@@ -1269,10 +1266,11 @@ De huidige vangstkans is een persoonlijke Poisson-baseline die expliciet is bere
 - Exact gelijke voorspelde/werkelijke duur telt mee.
 - Een sessie met afwijkende duur telt niet mee en verhoogt uitsluitend de mismatchteller.
 - Een onbekende of ontbrekende voorspelde duur telt niet mee en verhoogt uitsluitend de onbekende-duurteller.
+- Een verschoven exact tijdvenster telt niet mee; als exact venster ontbreekt, wordt het opgeslagen starttijdvak vergeleken. Zonder beide wordt de tijdcontext als onbekend uitgesloten.
 - Oude modelversies, benchmarks, onvolledige koppelingen, onbekende uitkomsten en niet-vooraf gemaakte voorspellingen blijven uitgesloten.
 - De soortuitsplitsing moet dezelfde gevalideerde Brier-eligible set gebruiken als de totaalscore.
 
-**Status bij implementatie:** de codewijziging wordt pas geaccepteerd na een groene Quality Gate op de exacte PR-head en een groene Quality Gate op de mergecommit. Tot die tijd blijft Fase 2 geblokkeerd.
+**Status:** PR #138 is gemerged als 53bf5616b85edf5690043840855a7ebf87b15184. De exacte PR-head Quality Gate #44393169257 en de main mergecommit Quality Gate #44393310926 zijn volledig geslaagd. De technische vergelijkbaarheidscontrole en soortdiagnostiek zijn gerealiseerd; tijdvakrangschikking en de overige biologische tussenlagen blijven afzonderlijke, nog niet gevalideerde uitkomsten.
 
 
 ## 62. Tijdelijke, gerichte dependency-audituitzondering (17 november 2026)
@@ -1798,7 +1796,7 @@ Deze controle koppelt de zes formele criteria uit §43 aan de huidige code, test
 | 1. Gescheiden biologische responsen | **Grotendeels gerealiseerd**: thermische activiteit, voedings-/foerageercontext, habitat/beweging, persoonlijke vangstbaseline en onzekerheid zijn aparte lagen/services. | De onderlinge begrenzing is expliciet gedocumenteerd en deels door regressies bewaakt. | Controleer nog de volledige UI-/engineketen op ongewenste vermenging; geen onafhankelijke validatie voor alle tussenlagen. |
 | 2. Bronkwaliteit en overdraagbaarheid | **Register en bronclassificatie gerealiseerd; numerieke goedkeuring niet**. | 71 records voor negen soorten; populatie-, respons- en contextbeperkingen zijn vastgelegd. Alle 71 records blijven approvedForPrediction: false. | De actieve thermische soortcurves zijn voorlopige priors en niet onafhankelijk gefit aan Nederlandse velddata. Hun rol moet expliciet als beperkte mechanistische prior worden geaccepteerd of verder worden teruggebracht; geen nieuwe voedings-/habitatfactor activeren. |
 | 3. Water- en omgevingsdata | **Technisch gerealiseerd** voor herkomst, meettijd, bron/methode/diepte waar beschikbaar, onzekerheid en onbekende watertemperatuur. | Waterthermische foutmaten en chronologische lokale biascorrectie zijn afzonderlijk ingericht. | Lokale kalibratie wacht op voldoende nieuwe meetparen; lucht- en weersdata vervangen geen ontbrekende watermeting. |
-| 4. Tijdvak- en gedragslogica | **Grotendeels gerealiseerd**: gekozen sessiestart stuurt de tijdgevoelige VisCoach-context; meerdere tijdvakken worden niet als één bewezen universele beste periode behandeld. | Tijdvakclaims blijven beperkt tot soortspecifiek passend bewijs; geen kunstmatige winnaar of ongefundeerde bonus. | Controleer de volledige UI-/enginepaden en de tijdvenstervergelijkbaarheid in Brier na de nieuwe regressies. |
+| 4. Tijdvak- en gedragslogica | **Grotendeels gerealiseerd**: gekozen sessiestart stuurt de tijdgevoelige VisCoach-context; meerdere tijdvakken worden niet als één bewezen universele beste periode behandeld. | Tijdvakclaims blijven beperkt tot soortspecifiek passend bewijs; geen kunstmatige winnaar of ongefundeerde bonus. | Controleer nog de volledige UI-/enginepaden op consistente toepassing van de gekozen sessietijd; de Brier-tijdvenstervergelijking zelf is gerealiseerd en getest. |
 | 5. Lokale leer- en evaluatieketen | **Technisch gerealiseerd voor de huidige evaluatiepoort**. | Snapshots, koppeling, chronologische baseline, modelversie-isolatie, benchmarkuitsluiting, duur-/tijdvenstervergelijking en soortdiagnostiek zijn getest. | Lokale Brier-validatie en kalibratie wachten op voldoende echte, vergelijkbare sessies na clean start. |
 | 6. Gebruiksvriendelijkheid en VisCoach | **Technisch gerealiseerd in de huidige invoerflow**: doelsoort, stek en gewenste starttijd; eindtijd optioneel; geen verplichte levensfase- of uitgebreid voedingsformulier. | De visser behoudt de keuze; de app gebruikt alleen aanwezige context. | Geen extra invoervelden toevoegen tenzij aantoonbaar noodzakelijk en gebruiksvriendelijk. |
 
