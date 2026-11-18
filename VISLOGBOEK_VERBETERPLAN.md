@@ -572,3 +572,15 @@ PR #118 is squash-merged als commit `e7b51f8e0ff88a9834462ab40919a3f8a59abb43`.
 - De exacte PR-head Quality Gate is volledig groen (run #759), inclusief alle regressietests en productiebuild.
 
 **Besluit werkverdeling:** de huidige VisCoach-zijstroom is op een bruikbaar tussenpunt gebracht. Geen verdere brede VisCoach-uitbreiding totdat de fase-2-audit en het kandidaatmodel weer een duidelijke volgende stap hebben. De hoofdprioriteit keert terug naar de biologische factorinventaris, soortspecifieke bewijsbeoordeling, datadekking en validatie. Fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
+### Aanvulling — soortprofielen en weersfactoren-audit (18 november 2026)
+
+PR #120 is squash-merged als commit `2b115383e57cfff05a43d935849a0e4a41ddbb10`.
+
+- De verklarende soortprofielen zijn herschreven om fysiologie, voedselopname, beweging, habitat en vangbaarheid strikt te onderscheiden. Onbewezen vaste wind-, druk- en weersclaims zijn verwijderd of als niet-gevalideerde context gemarkeerd.
+- De geavanceerde prognose waarschuwt nu dat profielnotities en bronvermeldingen geen validatie van de thermische optimum- en curvebreedteparameters betekenen.
+- De numerieke thermische profielen en alle prognoseberekeningen zijn ongewijzigd.
+- Het centrale research register bevat nu 59 registraties, allemaal `approvedForPrediction:false`. Drie nieuwe records behandelen Europese baarsbeweging bij drukvariabiliteit, een niet-overdraagbare yellow-perch-druk/voedselopname-proxy en een algemene review van troebelheid.
+- De factorinventaris blijft open: wind, regen, bewolking, zuurstof en stroming vereisen verdere bronbeoordeling. Druk- en troebelheidseffecten zijn contextafhankelijk en rechtvaardigen geen universele bonus.
+- De exacte PR-head Quality Gate is volledig groen (run #772), inclusief tests en productiebuild.
+
+**Volgende hoofdspoorstap:** de resterende meteorologische/hydrologische factoren per soort beoordelen en de volledige matrix vastleggen: actief in activiteit, actief in habitat/beweging, alleen context, niet beschikbaar of bewust uitgesloten. Pas daarna het kandidaatmodel ontwerpen. Fase 3 blijft geblokkeerd.
