@@ -352,9 +352,9 @@ export function calculatePrebaitPlan(
   }
 
   if (!hasLocationContext && effectiveWaterTemp !== null && effectiveWaterTemp >= 6) {
-    campaignSummary = 'Geen concrete hoeveelheid of voertiming: kies eerst een stek met bekend watertype.';
-    biologicalRationale = 'Zonder een bruikbare watercontext geeft de planner geen voerhoeveelheden. Gebruik directe waarnemingen en de lokale stekstructuur.';
-    sessionAdvice = 'Geen concrete hoeveelheid. Leg eerst de stek en het watertype vast.';
+    campaignSummary = 'Geen voorvoerbeurt ingepland: het watertype ontbreekt in de opgeslagen gegevens van deze stek. Daarom geef ik geen betrouwbaar voerschema of exacte hoeveelheid.';
+    biologicalRationale = 'De stek is wel geselecteerd, maar zonder watertype kan de planner stroming en lokale watercontext niet beoordelen. Dit is een beperking van de beschikbare stekgegevens, geen reden om een andere stek te kiezen.';
+    sessionAdvice = 'Houd de presentatie klein en direct rond het haakaas. Zonder watertype en voldoende bodemcontext geef ik geen exacte grammen of bulkvoeradvies.';
   }
   const confidenceLevel: PrebaitProgramPlan['confidenceLevel'] =
     thermalQuality.level === 'high' && waterTypeQuality.usable && depthQuality.usable ? 'Redelijk' :

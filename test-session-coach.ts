@@ -17,7 +17,7 @@ import {
   persistCoachReassessment,
 } from './src/services/sessionCoachService';
 import { FishingSession, PrognosisSnapshot } from './src/types';
-import { resolveSelectedTimeSlot } from './src/services/viscoachService';
+import { resolveAvailablePrebaitDaysBefore, resolveSelectedTimeSlot } from './src/services/viscoachService';
 
 let passed = 0;
 let failed = 0;
@@ -120,6 +120,14 @@ async function run() {
     resolveSelectedTimeSlot(new Date('2026-11-05T19:00:00.000Z'), null) === 'Avond' &&
     resolveSelectedTimeSlot(new Date('2026-11-05T01:00:00.000Z'), null) === 'Nacht',
     'Een starttijd zonder eindtijd wordt aan het juiste Amsterdamse tijdvak gekoppeld'
+  );
+  assert(
+    resolveAvailablePrebaitDaysBefore('2026-11-18', '2026-11-18') === 0 &&
+    resolveAvailablePrebaitDaysBefore('2026-11-18', '2026-11-19') === 1 &&
+    resolveAvailablePrebaitDaysBefore('2026-11-18', '2026-11-21') === 3 &&
+    resolveAvailablePrebaitDaysBefore('2026-11-18', '2026-11-25') === 3 &&
+    resolveAvailablePrebaitDaysBefore('ongeldig', '2026-11-21') === 0,
+    'VisCoach geeft de voerplanner de werkelijk beschikbare kalenderdagen door, met de bestaande bovengrens van drie dagen'
   );
 
   const second = await createInitialCoachAdviceRecord(session, snapshot);
@@ -481,6 +489,36 @@ async function run() {
     !uncertainPrebaitTactics.tactics.includes('circa 250 gram') &&
     uncertainPrebaitTactics.tactics.includes('De exacte hoeveelheid is nog onzeker'),
     'Exacte voerhoeveelheden worden alleen getoond bij voldoende invoerkwaliteit'
+  );
+  assert(
+    uncertainPrebaitTactics.tactics.includes('1 dag vooraf (Avond)') &&
+    !uncertainPrebaitTactics.tactics.includes('1 dag vooraf: circa 250 gram'),
+    'Bij matige invoerkwaliteit blijft de aanbevolen voorbereidingstiming zichtbaar, maar worden grammen verborgen'
+  );
+  const incompleteColdPrebait = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    species: 'Karper',
+    prebaitPlan: {
+      ...confidentPrebaitPlan,
+      suitability: 'Beperkt / voorzichtig',
+      shouldPrebait: false,
+      recommendedDaysBefore: 0,
+      campaignSummary: 'Geen voorvoerbeurt ingepland: het watertype ontbreekt in de opgeslagen gegevens van deze stek. Daarom geef ik geen betrouwbaar voerschema of exacte hoeveelheid.',
+      temperatureFactorExplanation: 'Bij 7.8 °C zijn voedselopname en vertering doorgaans lager.',
+      moments: [{ dayOffset: 0, date: '2026-11-21', dayLabel: 'Visdag zelf', suggestedTime: 'Tijdens de sessie', feedType: 'Instant', amountGrams: 0, amountDisplay: 'Geen extra voer', purpose: 'Minimale presentatie.' }],
+      sessionDayGuidance: { feedDuringSession: false, recommendedAmountGrams: 0, amountDisplay: 'Geen extra voer', advice: 'Houd de presentatie klein en direct rond het haakaas. Zonder watertype en voldoende bodemcontext geef ik geen exacte grammen of bulkvoeradvies.' },
+      confidenceLevel: 'Laag',
+      missingInformation: ['Watertype ontbreekt; stroming, bodem en natuurlijke voedselbeschikbaarheid kunnen de passende hoeveelheid beïnvloeden.'],
+    },
+  } as any, null, null, 'Avond', 3);
+  assert(
+    incompleteColdPrebait.tactics.includes('watertype ontbreekt in de opgeslagen gegevens van deze stek') &&
+    !incompleteColdPrebait.tactics.toLowerCase().includes('kies eerst een stek') &&
+    incompleteColdPrebait.tactics.includes('klein PVA-zakje') &&
+    incompleteColdPrebait.tactics.includes('method feeder') &&
+    incompleteColdPrebait.tactics.includes('Dit zijn alternatieven, geen combinatie') &&
+    !incompleteColdPrebait.tactics.includes('circa 100 gram'),
+    'Bij koud, onzeker water geeft VisCoach een bruikbare instant-keuze zonder nieuwe stek te eisen of grammen te verzinnen'
   );
   const unknownDurationPrebait = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond', null);
   assert(
