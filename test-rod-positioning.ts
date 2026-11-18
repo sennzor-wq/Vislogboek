@@ -1,4 +1,6 @@
 import { analyzeRodPositioning, getDirectionMeta } from './src/services/rodPositioningEngine';
+import { analyzeHabitatMovement } from './src/services/habitatMovementEngine';
+import { analyzeBankWind } from './src/services/bankWindEngine';
 import { calculateDayPrognosis } from './src/services/prognosisEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import {
@@ -237,12 +239,12 @@ const adviceSummerWind = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karp
 });
 
 assert(
-  adviceSummerWind.recommendedZone.includes('Aanlandige oeverzone') && adviceSummerWind.recommendedZone.includes('zoekzone'),
-  `2.6 Zomer met bries behandelt windkant als mogelijke zoekzone, niet als dogma (gekregen: "${adviceSummerWind.recommendedZone}")`
+  !adviceSummerWind.recommendedZone.toLowerCase().includes('aanlandige oeverzone') && adviceSummerWind.recommendedZone.includes('Lokale habitatstructuur'),
+  `2.6 Zomerwind verplaatst de primaire doelzone niet automatisch naar de windkant (gekregen: "${adviceSummerWind.recommendedZone}")`
 );
 assert(
-  adviceSummerWind.rationale.includes('retourstroom') || adviceSummerWind.rationale.includes('tegengestelde richting'),
-  '2.7 Rationale maakt onderscheid tussen oppervlaktedrift en onderstroom nabij de bodem'
+  adviceSummerWind.rationale.includes('bewijst niet') && adviceSummerWind.alternativeOption.includes('tweede zoekzone'),
+  '2.7 Wind blijft mogelijke vergelijkingscontext, geen bewijs voor de primaire vislocatie'
 );
 
 // Scenario 2.4: Stromend water (Rivier / Kanaal)
@@ -466,12 +468,12 @@ const adviceCalm = analyzeRodPositioning('2026-07-22', fcCalm, 'Karper', {
   historicalSessions: [],
 });
 assert(
-  adviceCalm.recommendedZone.includes('Zuurstofrijke overgangszones') || adviceCalm.recommendedZone.includes('dieper water'),
-  `6.1 Weinig wind bij warm water adviseert zuurstofrijke/diepere zones (gekregen: "${adviceCalm.recommendedZone}")`
+  !adviceCalm.recommendedZone.toLowerCase().includes('zuurstofrijk') && !adviceCalm.rationale.toLowerCase().includes('zuurstofafname'),
+  `6.1 Weinig wind bij warm water leidt niet tot een onbewezen zuurstofadvies (gekregen: "${adviceCalm.recommendedZone}")`
 );
 assert(
-  adviceCalm.rationale.includes('weinig wind betekent niet automatisch stilstaand water') || adviceCalm.rationale.includes('thermische circulatie'),
-  '6.2 Rationale nuanceert dat weinig wind geen stilstaand water garandeert'
+  adviceCalm.recommendedZone.includes('Lokale habitatstructuur') && !adviceCalm.rationale.toLowerCase().includes('zuurstof'),
+  '6.2 Zonder zuurstofmeting blijft de lokale habitat het startpunt'
 );
 assert(adviceCalm.windContext.isCalmWind === true, '6.2a Kalme wind wordt expliciet als kalm geclassificeerd');
 
@@ -891,11 +893,11 @@ assert(
   '16.1 Koud water (<8°C) met afkoeling: windkant is NIET automatisch gunstig (isWindwardFavorable === false)'
 );
 assert(
-  wcgCold.banksContext.windwardAssessment.toLowerCase().includes('afkoeling') || wcgCold.banksContext.windwardAssessment.toLowerCase().includes('kille golfslag'),
-  '16.2 Beoordeling windkant in de winter waarschuwt voor snelle afkoeling door koude branding'
+  wcgCold.banksContext.windwardAssessment.toLowerCase().includes('lokale temperatuurmetingen') && wcgCold.banksContext.windwardAssessment.toLowerCase().includes('niet vast te stellen'),
+  '16.2 Koude wind leidt zonder lokale meting niet tot een aanname over vispositie'
 );
 
-// 16.2 Zomer / Milde bries: Windkant is GUNSTIG
+// 16.2 Zomer / Milde bries: Windkant is context, geen vislocatievoorspelling
 const adviceWarm = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', {
   location: baseLoc,
   thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
@@ -904,12 +906,60 @@ const adviceWarm = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', {
 const wcgWarm = adviceWarm.windCastingGuidance!;
 
 assert(
-  wcgWarm.banksContext.isWindwardFavorable === true,
-  '16.3 Zomer met matige bries (>=12 km/u): windkant is biologisch gunstig (voedsel- en warmtestuwing)'
+  wcgWarm.banksContext.isWindwardFavorable === false,
+  '16.3 Zomerwind maakt de windkant niet automatisch biologisch gunstig of tot primaire doelzone'
 );
 assert(
-  wcgWarm.banksContext.windwardAssessment.toLowerCase().includes('zoöplankton') || wcgWarm.banksContext.windwardAssessment.toLowerCase().includes('warmte'),
-  '16.4 Beoordeling windkant in de zomer licht ophoping van warmte en natuurlijk voedsel toe'
+  wcgWarm.banksContext.windwardAssessment.toLowerCase().includes('geen bewijs') && wcgWarm.banksContext.windwardAssessment.toLowerCase().includes('tweede vergelijkingszone'),
+  '16.4 Windkant wordt uitsluitend als mogelijke tweede vergelijkingszone beschreven'
+);
+
+
+// 16.3 Wind-/oeverrelatie mag de doelzone niet vervangen
+const windwardBankLoc: FishingLocation = { ...baseLoc, waterFacingDirection: 'Noord' };
+const bankWindSummer = analyzeBankWind(windwardBankLoc, 0, 17, {
+  effectiveWaterTemp: 20,
+  season: 'Zomer',
+  isColdWind: false,
+  waterType: 'Plas/Zandafgraving',
+});
+assert(
+  bankWindSummer.bankAssessment.isFavorable === false &&
+  bankWindSummer.bankAssessment.explanation.toLowerCase().includes('toont niet aan'),
+  '16.5 Aanlandige zomerwind wordt als oppervlaktecontext beschreven, niet als bewijs voor vislocatie'
+);
+assert(
+  !bankWindSummer.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('vis kort') &&
+  bankWindSummer.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('doelzone'),
+  '16.6 Bankwindadvies stuurt werphoek en lijncontrole, niet automatisch kort onder de kant vissen'
+);
+
+const habitatWind = analyzeHabitatMovement('Karper', '2026-07-20', {
+  location: { ...baseLoc, waterType: 'Plas/Zandafgraving', habitatFeatures: ['Rietkraag'] },
+  bankWind: { isConfigured: true, relation: 'Recht aanlandig (kopwind op de oever)' } as any,
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  targetSlot: 'Avond',
+  avgWindSpeedKmH: 17,
+  windDirText: 'ZW',
+  pressureTrend: 'stabiel',
+  cloudCoverPercent: 40,
+});
+const habitatCalm = analyzeHabitatMovement('Karper', '2026-07-20', {
+  location: { ...baseLoc, waterType: 'Plas/Zandafgraving', habitatFeatures: ['Rietkraag'] },
+  thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
+  targetSlot: 'Avond',
+  avgWindSpeedKmH: 3,
+  windDirText: 'ZW',
+  pressureTrend: 'stabiel',
+  cloudCoverPercent: 40,
+});
+assert(
+  habitatWind.primaryZone.name === habitatCalm.primaryZone.name,
+  '16.7 Dezelfde warme zomerstek houdt dezelfde primaire habitatzone bij harde of kalme wind'
+);
+assert(
+  !habitatWind.environmentalInfluence.windAndWaveImpact.toLowerCase().includes('zuurstofinbreng'),
+  '16.8 Wind-/golfcontext claimt geen zuurstofinbreng zonder waterkwaliteitsmeting'
 );
 
 // --- TESTGROEP 17: Google Maps Kompasgids & Stekcoördinaten ---

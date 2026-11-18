@@ -1564,3 +1564,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Stroming kan beweging, habitatgebruik en voedseltoegankelijkheid beïnvloeden, maar beweging is niet gelijk aan voedselopname of vangstkans; stromende systemen zijn niet uitwisselbaar met stilstaand water.
 - Regen en bewolking zijn in de nieuwe meta-analyse zeer schaars onderzocht en de respons betreft paaigerelateerde migratie, niet dagelijkse voeding of hengelvangst.
 - Alle vijf bronnen blijven `approvedForPrediction: false`; geen numerieke modelparameters of prognoseberekeningen gewijzigd.
+
+
+### VisCoach — wind/doelzone-consistentie gecorrigeerd (18 november 2026)
+
+- Read-only codecontrole vond dat oudere windregels in `rodPositioningEngine.ts`, `habitatMovementEngine.ts` en `bankWindEngine.ts` nog een aanlandige oever als primaire zoekzone konden kiezen op basis van vaste windsnelheidsgrenzen.
+- Dezelfde code kon bij warme omstandigheden en weinig wind een zuurstofrijke zone suggereren zonder opgeloste-zuurstofmeting.
+- PR #128 verwijdert deze automatische zonekeuze en de betreffende 11/12/15 km/u-drempels. Lokale habitat, diepteovergang en directe waarnemingen bepalen de primaire doelzone; wind ondersteunt presentatie, werphoek, lijnbocht en hengelpositie.
+- Windkant blijft hooguit een tweede vergelijkingszone wanneer lokale structuur/waarnemingen dit ondersteunen. Zuurstof wordt niet uit windstilte of temperatuur afgeleid.
+- Regressies controleren dat de primaire habitatzone niet door wind alleen verandert en dat wind-/werpadvies behouden blijft. Geen biologische score of vangstkans gewijzigd.
