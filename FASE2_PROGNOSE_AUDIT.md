@@ -1761,3 +1761,28 @@ De kolom dieet/prooikeuze combineert hier uitsluitend voor compacte weergave `di
 2. Beoordeel de resterende Fase-2-acceptatiecriteria en scheid technische afronding van onderdelen die wachten op voldoende echte, chronologisch gekoppelde sessies.
 3. Ontwerp en valideer eventuele verdere voedings-/foerageerkoppeling alleen als afzonderlijke responslaag met passende directe evidence; geen dubbele modelberekening of numerieke bonus zonder validatie.
 4. Fase 3 start pas na formele Fase-2-acceptatie.
+
+
+## 84. Actieve numerieke transformaties: biologische prior versus technische omzetting (18 november 2026)
+
+Naast de bron-/parameterinventaris in §48 is de actuele codeketen gecontroleerd op de numerieke omzettingen die daadwerkelijk in de gebruikersuitvoer terechtkomen. Deze audit wijzigt geen berekening.
+
+| Onderdeel | Huidige berekening | Status en begrenzing |
+|---|---|---|
+| Soortspecifieke thermische respons | Asymmetrische Gaussische efficiëntiecurve met `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` | Per soort voorlopige prior; geen van de negen curves is als Nederlandse veldrespons onafhankelijk gefit. Zie §48.2. |
+| Thermische activiteitsschaal | `clamp(1 + 9 × thermalEfficiency^0.85, 1, 10)` | De exponent 0,85 en de lineaire omzetting naar 1–10 zijn technische schaalkeuzes, geen empirisch gekalibreerde biologische relatie. De uitkomst blijft thermische activiteitspotentie, geen vangstkans. |
+| Persoonlijke vangsttempo `lambda` | Bekende doelvis-aantallen gedeeld door totale geldige geregistreerde visduur | Empirische persoonlijke baseline; alleen vergelijkbare, afgeronde sessies met bekende duur en bruikbare vangstaantallen. Niet een soortbrede biologische parameter. |
+| Poisson-duurkans | `P(≥1) = 1 − exp(−lambda × sessieduur)` | Wiskundige omzetting onder een Poisson-aankomstaandname. Homogeniteit/onafhankelijkheid van aanbeten is niet lokaal bewezen; de uitkomst blijft een persoonlijke baseline, niet de geïntegreerde vijf-responsprognose. |
+| Vangkansplafond | Technische begrenzing op 0,95 | Conservatieve softwareguard, geen uit data geschatte bovengrens of wetenschappelijke vangstlimiet. |
+| Minimale steekproef | Minimaal 5 vergelijkbare sessies; Poisson-berekening vereist minimaal 5 sessies met bekende duur en bruikbare vangstaantallen | Softwarematige minimumvoorwaarden om berekening te tonen, geen bewijs van statistische robuustheid. |
+| Vertrouwenslabels | Laag / Matig / Redelijk / Hoog bij 5 / 10 / 18 / 30 bruikbare Poisson-sessies | Technische presentatiedrempels, geen gevalideerde betrouwbaarheidsklassen. De UI moet aantallen en beperkingen blijven tonen. |
+| Wilson-interval | Binomiaal interval voor historisch sessiesucces | Beschrijft steekproefvariatie in sessiesucces; is nadrukkelijk geen interval rond de Poisson-duurkans. |
+
+### Acceptatieconsequentie
+
+1. De thermische curve en de omzetting naar 1–10 mogen alleen als voorlopige relatieve activiteitspotentie worden gepresenteerd. De exponent en schaal zijn geen gevalideerde biologische gewichten.
+2. De persoonlijke Poisson-uitkomst blijft gescheiden van de thermische score en van de kwalitatieve voedings-/habitatcontext. Er wordt geen verborgen vermenigvuldiging of optelling tussen deze lagen toegepast.
+3. Het plafond en de steekproef-/vertrouwensdrempels moeten als technische guards worden gedocumenteerd; ze mogen niet als wetenschappelijke zekerheid worden gepresenteerd.
+4. De lokale statistische kalibratie blijft geblokkeerd door de clean start totdat voldoende echte, vergelijkbare sessies beschikbaar zijn. Kleine softwareminimums mogen die blokkade niet opheffen.
+
+**Conclusie:** de actieve numerieke omzettingen zijn nu expliciet onderscheiden in biologische prior, empirische persoonlijke baseline en technische presentatieregel. Geen numerieke parameter, score, plafond of drempel gewijzigd. Fase 2 blijft open.
