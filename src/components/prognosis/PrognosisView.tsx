@@ -581,7 +581,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                     <Gauge className="w-4 h-4" />
-                    A. Thermische activiteitspotentie
+                    Activiteitspotentie
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
@@ -623,7 +623,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">
                     <CheckCircle2 className="w-4 h-4" />
-                    B. Persoonlijke Poisson-vangkans (≥1 vis)
+                    Persoonlijke vangkans
                   </div>
 
                   {activeDayProg.personalCatchChance !== null ? (
@@ -631,7 +631,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <div className="text-3xl sm:text-4xl font-black text-cyan-300">
                         {activeDayProg.personalCatchChance}%
                       </div>
-                      {activeDayProg.catchUncertaintyInterval && (
+                      {showAdvancedDetails && activeDayProg.catchUncertaintyInterval && (
                         <div
                           className="text-xs font-semibold text-cyan-400/90 mt-1 cursor-help"
                           title="Binomiaal Wilson-interval van het historische sessiesucces (geen betrouwbaarheidsinterval van de Poisson-duurkans)"
@@ -645,7 +645,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       >
                         Steekproefbasis: <strong className="text-white">{activeDayProg.personalCatchConfidence}</strong> ({activeDayProg.poissonSessionCount ?? activeDayProg.relevantSessionCount} bruikbare sessies)
                       </div>
-                      {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
+                      {showAdvancedDetails && activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1">
                           Historisch vangstpercentage: <strong className="text-white">{activeDayProg.historicalCatchRate.label}</strong>
                         </div>
@@ -656,9 +656,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           <span className="font-bold text-cyan-200">
                             ~{activeDayProg.expectedCatches} {activeDayProg.species.toLowerCase()} over {activeDayProg.plannedDurationHours ?? selectedDurationHours}u
                             {activeDayProg.hourlyCatchRate !== null && activeDayProg.hourlyCatchRate !== undefined && (
-                              <span className="text-[10px] text-cyan-300/80 font-normal ml-1">
-                                (vangsttempo: ~{activeDayProg.hourlyCatchRate}/u)
-                              </span>
+                              {showAdvancedDetails && (
+                                <span className="text-[10px] text-cyan-300/80 font-normal ml-1">
+                                  (vangsttempo: ~{activeDayProg.hourlyCatchRate}/u)
+                                </span>
+                              )}
                             )}
                           </span>
                         </div>
@@ -670,7 +672,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         Onvoldoende gegevens
                       </div>
                       <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
-                        Er zijn nog onvoldoende vergelijkbare eigen vissessies ({activeDayProg.relevantSessionCount} van minimaal 5 bevestigde sessies) om een verantwoorde vangstkans of vangsttempo te berekenen.
+                        Nog onvoldoende vergelijkbare eigen sessies om een persoonlijke vangstkans te berekenen.
                       </p>
                       {activeDayProg.historicalCatchRate && activeDayProg.historicalCatchRate.totalSessions > 0 ? (
                         <div className="text-[11px] text-slate-300 mt-2">
@@ -700,7 +702,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
                     <Clock className="w-4 h-4" />
-                    C. Beste Toekomstige Vistijd
+                    Beste vistijd
                   </div>
 
                   {activeDayProg.activityScoreAvailable === false ? (
@@ -711,9 +713,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         {activeDayProg.bestTimeSlot}
                       </div>
                       <div className="text-xs text-amber-300 font-semibold mt-0.5">
-                        {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.timeRange} (Score: {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.activityScore}/10)
+                        {activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.timeRange}
+                        {showAdvancedDetails && `(Score: ${activeDayProg.timeSlots[activeDayProg.bestTimeSlot]?.activityScore}/10)`}
                       </div>
-                      {activeDayProg.alternativeTimeSlots.length > 0 && (
+                      {showAdvancedDetails && activeDayProg.alternativeTimeSlots.length > 0 && (
                         <div className="text-[11px] text-slate-300 mt-1.5">
                           Alternatief: {activeDayProg.alternativeTimeSlots.join(', ')}
                         </div>
