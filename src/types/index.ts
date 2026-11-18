@@ -348,6 +348,8 @@ export interface RodPositioningAdvice {
     speedKmH: number | null;
     gustsKmH?: number;
     isStrongWind: boolean;
+    /** Expliciete windclassificatie; optioneel voor oudere opgeslagen prognoses. */
+    isCalmWind?: boolean;
     isColdWind: boolean;
     windTrend?: 'Aantrekkend' | 'Afnemend' | 'Draaiend' | 'Stabiel';
     intraSessionNote?: string;
@@ -491,6 +493,11 @@ export interface CoachAdviceRecord {
   createdAt: string;
   trigger: CoachAdviceTrigger;
   summary: string;
+  /** Praktisch advies: wanneer en waar vissen, rekening houdend met omstandigheden en soort. */
+  advice?: string;
+  /** Tactiek: hoe de hengel, aas, voer en positionering uit te voeren. */
+  tactics?: string;
+  /** Samengestelde compatibiliteitstekst voor oudere opgeslagen records en clients. */
   recommendation: string;
   rationale: string;
   changedFactors: string[];

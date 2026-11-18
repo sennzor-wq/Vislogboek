@@ -182,6 +182,7 @@ const prog1 = calculateDayPrognosis('2026-07-15', fc1, 'Karper', histSessions, u
 });
 
 assert(prog1.positioningAdvice !== undefined, '1.1 Positioning advice is aanwezig in DayPrognosis');
+assert(prog1.positioningAdvice?.windContext.isCalmWind === false, '1.1a Matige wind wordt expliciet onderscheiden van kalme wind voor de VisCoach-tactiek');
 assert(typeof prog1.activityScore === 'number' && prog1.activityScore >= 1.0 && prog1.activityScore <= 10.0, '1.2 Activiteitsindex blijft geldig numeriek');
 assert(prog1.personalCatchChance !== null && prog1.personalCatchChance > 0, '1.3 Persoonlijke Poisson-vangstkans is correct berekend');
 assert(prog1.expectedCatches !== null, '1.4 Verwachte vangsten is berekend conform Poisson exposure');
@@ -472,6 +473,7 @@ assert(
   adviceCalm.rationale.includes('weinig wind betekent niet automatisch stilstaand water') || adviceCalm.rationale.includes('thermische circulatie'),
   '6.2 Rationale nuanceert dat weinig wind geen stilstaand water garandeert'
 );
+assert(adviceCalm.windContext.isCalmWind === true, '6.2a Kalme wind wordt expliciet als kalm geclassificeerd');
 
 // Aantrekkende wind (+10 km/u versnelling tijdens sessie)
 const fcAccelerating = createHourlyForecasts('2026-07-22', 21, 10, 'ZW', 60, 10);
@@ -969,7 +971,8 @@ const missingContextAdvice = analyzeRodPositioning('2026-07-20', [], 'Karper', {
 });
 assert(
   missingContextAdvice.windContext.speedKmH === null &&
-  missingContextAdvice.windContext.directionText === 'Onbekend',
+  missingContextAdvice.windContext.directionText === 'Onbekend' &&
+  missingContextAdvice.windContext.isCalmWind === undefined,
   '18.1 Lege weersdata blijft onbekend en wordt niet vervangen door standaardwind'
 );
 assert(

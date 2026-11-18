@@ -434,7 +434,24 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                               Aanleiding: {COACH_TRIGGER_LABELS[advice.trigger] || advice.trigger}
                             </span>
                           </div>
-                          <p className="text-sm leading-relaxed font-normal text-white mt-2 whitespace-pre-line">{advice.recommendation}</p>
+                          {advice.advice || advice.tactics ? (
+                            <div className="mt-2 space-y-3">
+                              {advice.advice && (
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Advies</p>
+                                  <p className="text-sm leading-relaxed font-normal text-white whitespace-pre-line">{advice.advice}</p>
+                                </div>
+                              )}
+                              {advice.tactics && (
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-wide text-cyan-300">Tactiek</p>
+                                  <p className="text-sm leading-relaxed font-normal text-white whitespace-pre-line">{advice.tactics}</p>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm leading-relaxed font-normal text-white mt-2 whitespace-pre-line">{advice.recommendation}</p>
+                          )}
                           {advice.changedFactors.length > 0 && (
                             <p className="text-[10px] text-cyan-300 mt-1">
                               Gewijzigd: {advice.changedFactors.map((factor) => COACH_FACTOR_LABELS[factor] || factor).join(', ')}
@@ -933,7 +950,14 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
                                   Reactie: {advice.response === 'accepted' ? 'Opgevolgd' : advice.response === 'adapted' ? 'Aangepast' : advice.response === 'ignored' ? 'Niet gevolgd' : 'Niet vastgelegd'}
                                 </span>
                               </div>
-                              <p className="text-sm font-semibold text-white">{advice.recommendation}</p>
+                              {advice.advice || advice.tactics ? (
+                                <div className="space-y-2">
+                                  {advice.advice && <p className="text-sm text-white whitespace-pre-line"><span className="font-bold text-emerald-300">Advies: </span>{advice.advice}</p>}
+                                  {advice.tactics && <p className="text-sm text-white whitespace-pre-line"><span className="font-bold text-cyan-300">Tactiek: </span>{advice.tactics}</p>}
+                                </div>
+                              ) : (
+                                <p className="text-sm font-semibold text-white">{advice.recommendation}</p>
+                              )}
                               {advice.summary && <p className="text-xs text-slate-400">{advice.summary}</p>}
                               {advice.executedTactic ? (
                                 <p className="text-xs text-emerald-300">Uitgevoerd: {advice.executedTactic}</p>

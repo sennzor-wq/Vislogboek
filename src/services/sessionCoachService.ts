@@ -175,6 +175,9 @@ export function nextWeatherChangeConfirmation(
 
 export interface VisCoachAdviceText {
   summary: string;
+  advice: string;
+  tactics: string;
+  /** Samengestelde compatibiliteitstekst voor bestaande opgeslagen records. */
   recommendation: string;
   rationale: string;
 }
@@ -270,7 +273,8 @@ export function buildVisCoachAdviceText(
   const habitat = prognosis.habitatAnalysis;
   const wind = prognosis.bankWindAnalysis;
   const thermal = prognosis.thermalAnalysis;
-  const sections: string[] = [];
+  const adviceSections: string[] = [];
+  const tacticSections: string[] = [];
 
   const selectedSlotAnalysis = selectedTimeSlot ? prognosis.timeSlots?.[selectedTimeSlot] : null;
   const when = selectedTimeSlot
@@ -285,8 +289,7 @@ export function buildVisCoachAdviceText(
           ? `Volgens de prognose is ${prognosis.bestTimeSlot.toLowerCase()} het gunstigste tijdvak. Dat betekent niet dat je op andere momenten geen vis kunt vangen.`
           : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
-  sections.push(`Wanneer\n${when}`);
-  sections.push(`Biologische context\n${buildVisCoachBiologicalContext(prognosis.species)}`);
+  adviceSections.push(`Wanneer\n${when}`);
 
   const primaryZone = habitat?.primaryZone?.name && !isGenericZone(habitat.primaryZone.name)
     ? habitat.primaryZone.name
@@ -299,9 +302,14 @@ export function buildVisCoachAdviceText(
   const where = primaryZone
     ? `Begin bij ${primaryExplanation}. Dit is de belangrijkste zoekzone die uit de beschikbare stekgegevens en analyses naar voren komt.`
     : `Begin met het zoeken naar ${primaryExplanation} Kijk vanaf de kant waar je veilig kunt vissen en controleer waar de bodem of oever verandert. Kies geen specifieke diepte of bodemvorm die niet is vastgelegd.`;
-  sections.push(`Waar beginnen\n${where}`);
+  adviceSections.push(`Waar beginnen\n${where}`);
 
   const strongWind = positioning?.windContext?.isStrongWind === true;
+  const windIsCalm = positioning?.windContext?.isCalmWind === true;
+  const windInfluencesTactics = strongWind || positioning?.windContext?.isCalmWind === false;
+  const windIntro = strongWind
+    ? 'Er staat volgens de analyse stevige wind.'
+    : 'De wind kan de oeverkeuze en werprichting beïnvloeden.';
   const windSpeed = positioning?.windContext?.speedKmH ?? wind?.windSpeedKmH ?? weather?.windSpeed;
   const windDirection = positioning?.windContext?.directionText || weather?.windDirectionText;
   const windOrigin = wind?.windOriginDirection || positioning?.windCastingGuidance?.windOrigin?.fullName || windDirection;
@@ -311,17 +319,17 @@ export function buildVisCoachAdviceText(
     : '';
   const casting = positioning?.windCastingGuidance?.castingAdvice;
   let windAdvice = '';
-  if (strongWind) {
+  if (strongWind || (windInfluencesTactics && !windIsCalm)) {
     if (casting?.isCastingDirectionDefinite && casting.recommendedDirection) {
-      windAdvice = `Er staat volgens de analyse stevige wind. ${windFlowText} De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
+      windAdvice = `${windIntro} ${windFlowText} De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
     } else if (wind?.isConfigured && wind.rodPlacementAdvice?.castingDirectionAdvice) {
-      windAdvice = `Er staat volgens de analyse stevige wind. ${windFlowText} ${cleanCoachText(wind.rodPlacementAdvice.primaryPosition)} ${cleanCoachText(wind.rodPlacementAdvice.castingDirectionAdvice)}`;
+      windAdvice = `${windIntro} ${windFlowText} ${cleanCoachText(wind.rodPlacementAdvice.primaryPosition)} ${cleanCoachText(wind.rodPlacementAdvice.castingDirectionAdvice)}`;
     } else {
       const directionText = windFlowText || (typeof windSpeed === 'number' ? `De wind is ongeveer ${windSpeed.toFixed(1)} km/u.` : '');
-      windAdvice = `${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
+      windAdvice = `${windIntro} ${directionText} De oeverrichting is niet bekend genoeg om een betrouwbare werprichting te bepalen. Kijk ter plaatse waar de wind daadwerkelijk op het water staat; kies niet automatisch de windkant of de luwe kant.`;
     }
   }
-  if (windAdvice) sections.push(`Wind en werprichting\n${windAdvice}`);
+  if (windAdvice) tacticSections.push(`Wind en werprichting\n${windAdvice}`);
 
   const feeding: string[] = [];
   const sessionFeeding = cleanCoachText(prognosis.prebaitPlan?.sessionDayGuidance?.advice);
@@ -331,7 +339,7 @@ export function buildVisCoachAdviceText(
       ? 'Bij method feeder zit het voer in of rond het voerkorfje, vlak bij je haakaas. Houd die korfvulling apart van eventueel vooraf gevoerd aas.'
       : 'De voeranalyse bevat ook een aanwijzing voor method feeder. Die is alleen van toepassing als je daadwerkelijk met deze techniek vist.');
   }
-  if (feeding.length > 0) sections.push(`Voeren en aas\n${feeding.join(' ')}`);
+  if (feeding.length > 0) tacticSections.push(`Voeren en aas\n${feeding.join(' ')}`);
 
   const alternative = positioning?.alternativeOption
     ? cleanCoachText(positioning.alternativeOption)
@@ -341,7 +349,7 @@ export function buildVisCoachAdviceText(
   const fallback = alternative
     ? `Als je op de eerste plek geen activiteit ziet of geen aanbeten krijgt, probeer dan deze tweede optie: ${alternative}`
     : 'Zie je geen activiteit of krijg je geen aanbeten, controleer dan eerst opnieuw de omgeving en probeer een tweede herkenbare structuur of diepteovergang. Verander niet steeds van aanpak door kleine weersschommelingen.';
-  sections.push(`Als het niet werkt\n${fallback}`);
+  tacticSections.push(`Als het niet werkt\n${fallback}`);
 
   const summary = `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
   const reasons: string[] = [];
@@ -368,7 +376,9 @@ export function buildVisCoachAdviceText(
 
   return {
     summary,
-    recommendation: sections.join('\n\n'),
+    advice: adviceSections.join('\n\n'),
+    tactics: tacticSections.join('\n\n'),
+    recommendation: [adviceSections.join('\n\n'), tacticSections.join('\n\n')].filter(Boolean).join('\n\n'),
     rationale: uniqueReasons.join(' '),
   };
 }
@@ -395,6 +405,8 @@ function createAdviceRecord(
     createdAt: new Date().toISOString(),
     trigger,
     summary: text.summary,
+    advice: text.advice,
+    tactics: text.tactics,
     recommendation: text.recommendation,
     rationale: text.rationale,
     changedFactors,
