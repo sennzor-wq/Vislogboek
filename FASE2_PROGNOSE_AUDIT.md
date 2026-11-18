@@ -1714,3 +1714,49 @@ De uitkomst vult de eerdere leemte in voedingsincidentie, maar niet in kwantitat
 - **Meerval — laboratoriummeting:** Boujard (1995) vond bij zelfvoederautomaten een sterk nachtelijk voedingsritme onder vrije toegang. Training, sociale huisvesting en isolatie veranderden het patroon. Dit ondersteunt een biologische ritmehypothese, maar is geen veldmeting en rechtvaardigt geen vaste nachtbonus.
 
 De drie records onderscheiden expliciet veldvoedingsritme, seizoensgebonden voedingsintensiteit en laboratoriumvoedingsritme. Alle blijven `approvedForPrediction: false`; geen prognoseparameter of tijdvakscore is aangepast.
+
+
+## 83. Fase-2-bewijsdekking: actuele matrix en veilige modelrol (18 november 2026)
+
+Na PR #134 bevat de research registry **71 records**. De volgende uitsplitsing is rechtstreeks geteld uit `measuredOutcomes` in `src/services/researchRegistry.ts`. Een record kan meerdere responsen bevatten en een gedeeld record kan meerdere soorten noemen; aantallen zijn dus geen onafhankelijke studies of bewijsgewichten.
+
+| Soort | Records | Voedingsintensiteit | Voedingsincidentie | Voedingsritme | Foerageergedrag | Dieet/prooikeuze | Hengelvangsttempo | Hengelvangbaarheid |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Karper | 13 | 5 | 0 | 7 | 7 | 0 | 0 | 1 |
+| Brasem | 7 | 3 | 0 | 3 | 0 | 0 | 0 | 0 |
+| Snoek | 9 | 3 | 0 | 1 | 0 | 1 | 0 | 2 |
+| Baars | 8 | 3 | 0 | 3 | 0 | 2 | 1 | 0 |
+| Voorn | 8 | 5 | 0 | 5 | 0 | 1 | 0 | 0 |
+| Zeelt | 4 | 3 | 0 | 2 | 1 | 1 | 0 | 1 |
+| Snoekbaars | 9 | 3 | 0 | 1 | 0 | 3 | 0 | 0 |
+| Meerval | 7 | 0 | 0 | 3 | 1 | 1 | 0 | 0 |
+| Roofblei | 5 | 1 | 1 | 0 | 0 | 4 | 0 | 0 |
+
+De kolom dieet/prooikeuze combineert hier uitsluitend voor compacte weergave `diet_composition` en `prey_selection`; de onderliggende registry houdt beide outcomes gescheiden. Hengelvangsttempo, vangstverdeling en individuele hengelvangbaarheid blijven eveneens afzonderlijk.
+
+### Beoordeling van bruikbaarheid
+
+- **Meest bruikbaar als biologische context:** directe maaginhoud-/voedingsmetingen en veldwaarnemingen die soort, gemeten respons, seizoen, levensfase en watertype voldoende specificeren. Brasem en snoekbaars hebben met PR #134 een extra soortspecifieke registratie; de meervalbron is uitsluitend laboratoriumritme.
+- **Niet rechtstreeks omzetten naar een sessiebonus:** dieet/prooikeuze, locomotorische activiteit, migratie en habitatgebruik. Deze kunnen verklaren waar/waarom een soort voorkomt, maar bewijzen niet dat de vis op dat moment eet of een aangeboden haakaas opneemt.
+- **Niet gelijkstellen aan vangstkans:** voedingsintensiteit, maagvulling, aasstationbezoek en hengelvangsttempo zijn geen individuele vangbaarheidskans. De snoekgegevens over kunstaasschuwheid zijn contextgebonden aan populatie, visgrootte, visserijdruk en kunstaas.
+- **Belangrijkste resterende lacunes:** roofblei heeft geen geregistreerde directe voedingsintensiteit of voedingsritme; voor meerdere soorten ontbreekt directe hengelvangbaarheidsdekking; lokale prooibeschikbaarheid, opgeloste zuurstof en stroomsnelheid ontbreken als betrouwbare actuele invoer.
+- **Lokale toepasbaarheid:** veel studies komen uit één reservoir, rivier, laboratorium of specifieke visserijmethode. Geen automatische overdracht naar Lokkershoek of naar method-feeder-/pelletvisserij zonder passende lokale of methodespecifieke validatie.
+
+### Veilige rol in het huidige model
+
+| Gegevenslaag | Huidige status | Veilige rol |
+|---|---|---|
+| Thermische fysiologische activiteit | Bestaande voorlopige soortcurve; onafhankelijke parametervalidatie ontbreekt | Bestaande activiteitspotentie met onzekerheid; geen nieuwe curveparameters uit registry alleen |
+| Voedingsintensiteit/-ritme | Registry bevat gemengde veld-, maaginhoud- en laboratoriumresponsen | Verklarende context; nog geen algemene numerieke tijdvakbonus |
+| Dieet/prooikeuze | Context- en levensfasegebonden | Alleen tactische/biologische duiding als prooitype en lokale context passen |
+| Beweging/habitat | Afzonderlijke telemetrie-/habitatbronnen en bestaande habitatengine | Ruimtelijke hypothese; geen automatische voedings- of vangstkansscore |
+| Hengelvangsttempo/-vangbaarheid | Enkele contextgebonden bronnen; onvoldoende soort-/methodebrede basis | Diagnostiek en latere validatie; geen overdraagbare catchability-factor |
+| Zuurstof/stroming/prooiaanbod | Geen betrouwbare lokale meetinvoer in huidige keten | Onbekend laten; niet afleiden uit wind, weer of grof watertype |
+
+**Conclusie:** de literatuurcontrole voor de negen doelsoorten is voor deze ronde voldoende afgerond. Dit sluit de literatuurinventarisatie af, niet de wetenschappelijke validatie of Fase 2 als geheel. Alle 71 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel is gewijzigd.
+
+### Volgende stap
+
+1. Audit de replaybaarheid van prognose-inputs: welke compacte, reproduceerbare featurewaarden moeten bij een prognosesnapshot worden bewaard om latere chronologische evaluatie mogelijk te maken?
+2. Ontwerp daarna de voedings-/foerageerlaag als afzonderlijke responslaag, met per feature bron, context, invoerbeschikbaarheid en onzekerheid. Gebruik alleen bestaande engines en geen dubbele modelberekening.
+3. Maak vervolgens een kandidaatmodel en valideer dit chronologisch op echte, gekoppelde sessies. Fase 3 start pas na het behalen van alle Fase-2-acceptatiecriteria.
