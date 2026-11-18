@@ -565,12 +565,18 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
             </div>
 
-            {activeDayProg.weatherDataQuality && (
+            {showAdvancedDetails && activeDayProg.weatherDataQuality && (
               <div className={`rounded-xl border p-3 text-xs ${activeDayProg.weatherDataQuality.status === 'Volledig' ? 'bg-emerald-950/30 border-emerald-800/50 text-emerald-200' : activeDayProg.weatherDataQuality.status === 'Gedeeltelijk' ? 'bg-amber-950/30 border-amber-800/50 text-amber-200' : 'bg-rose-950/30 border-rose-800/50 text-rose-200'}`}>
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
                 {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+              </div>
+            )}
+
+            {!showAdvancedDetails && activeDayProg.activityScoreAvailable === false && (
+              <div className="rounded-xl border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">
+                Onvoldoende watertemperatuurgegevens om activiteit en beste vistijd betrouwbaar te bepalen.
               </div>
             )}
 
@@ -725,18 +731,22 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   ) : activeDayProg.bestTimeSlot === 'Geen betekenisvol onderscheid' ? (
                     <div>
                       <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
-                      </p>
+                      {showAdvancedDetails && (
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div>
                       <div className="text-sm font-bold text-slate-300">
                         Geen toekomstig tijdvak meer vandaag
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                        Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de tijdvakken van morgen voor de beste toekomstige opties.
-                      </p>
+                      {showAdvancedDetails && (
+                        <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                          Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de tijdvakken van morgen voor de beste toekomstige opties.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -834,10 +844,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
-                <span
-                  className="text-slate-400"
-                  title="Kwalitatieve databasis op basis van meetbron, dekking en ouderdom; geen statistisch betrouwbaarheidspercentage."
-                >Databasis watertemperatuur: {activeDayProg.thermalAnalysis.trendConfidence}</span>
+                {showAdvancedDetails && (
+                  <span
+                    className="text-slate-400"
+                    title="Kwalitatieve databasis op basis van meetbron, dekking en ouderdom; geen statistisch betrouwbaarheidspercentage."
+                  >Databasis watertemperatuur: {activeDayProg.thermalAnalysis.trendConfidence}</span>
+                )}
               </div>
             )}
             {showAdvancedDetails && (<>
@@ -982,9 +994,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     <span className="text-sm font-bold text-white block mb-1.5">
                       {activeDayProg.positioningAdvice.recommendedZone}
                     </span>
-                    <p className="text-slate-300 leading-relaxed text-[11px]">
-                      {activeDayProg.positioningAdvice.rationale}
-                    </p>
+                    {showAdvancedDetails && (
+                      <p className="text-slate-300 leading-relaxed text-[11px]">
+                        {activeDayProg.positioningAdvice.rationale}
+                      </p>
+                    )}
                   </div>
 
                   <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col justify-between">
@@ -1015,7 +1029,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 </div>
 
                 {/* Persoonlijke Leerresultaten (>=11 sessies drempel) */}
-                {activeDayProg.positioningAdvice.personalEvidence && (
+                {showAdvancedDetails && activeDayProg.positioningAdvice.personalEvidence && (
                   <div className="p-3 rounded-xl bg-slate-850 border border-slate-700/70 text-xs">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1">
@@ -1183,7 +1197,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
 
 </>
-)}                {/* Expliciete Beperkingen & Ontbrekende Informatie */}
+)}                {showAdvancedDetails && (
+                <>
+                {/* Expliciete Beperkingen & Ontbrekende Informatie */}
                 <div className="p-3 rounded-xl bg-slate-800/40 border border-slate-700/40 text-[11px] text-slate-400 space-y-1">
                   <span className="font-semibold text-slate-300 block">
                     Belangrijke nuance & ontbrekende gegevens:
@@ -1194,6 +1210,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     ))}
                   </ul>
                 </div>
+                </>
+                )}
               </div>
             )}
 
@@ -1600,10 +1618,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {/* Biologische conclusie */}
                   <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
                     <div className="font-bold text-white text-sm">{pp.campaignSummary}</div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">{pp.biologicalRationale}</p>
-                    <p className="text-emerald-300/90 text-[11px] pt-1 border-t border-slate-700/50">
-                      <strong>Temperatuurinvloed:</strong> {pp.temperatureFactorExplanation}
-                    </p>
+                    {showAdvancedDetails && (
+                      <>
+                        <p className="text-slate-300 text-[11px] leading-relaxed">{pp.biologicalRationale}</p>
+                        <p className="text-emerald-300/90 text-[11px] pt-1 border-t border-slate-700/50">
+                          <strong>Temperatuurinvloed:</strong> {pp.temperatureFactorExplanation}
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   {/* Alleen voorafgaande voermomenten; de visdag staat in het aparte sessieadvies */}
@@ -1655,7 +1677,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   </div>
 
-                  {pp.missingInformation.length > 0 && (
+                  {showAdvancedDetails && pp.missingInformation.length > 0 && (
                     <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-800/40 text-amber-100 text-[11px] leading-relaxed">
                       <strong className="block mb-1">Beperkingen van dit voeradvies</strong>
                       <ul className="list-disc pl-4 space-y-1">
@@ -1664,7 +1686,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                   )}
 
-                  {pp.personalEvidence && (
+                  {showAdvancedDetails && pp.personalEvidence && (
                     <div className="p-3 rounded-xl bg-slate-850 border border-slate-700/70 text-xs">
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">Eigen logboekervaring</span>
@@ -1802,7 +1824,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </button>
 
                     {/* Expanded details */}
-                    {isExpanded && (
+                    {showAdvancedDetails && isExpanded && (
                       <div className="p-4 pt-2 border-t border-slate-700/50 bg-slate-900/40 space-y-4">
 {showAdvancedDetails && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
