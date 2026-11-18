@@ -520,6 +520,8 @@ export interface PrognosisInputContext {
   manualWaterTemperatureInput?: ManualWaterTemperatureInput | null;
   timezone: string;
   targetDate: string;
+  /** Expliciet tijdvak van de gekozen sessiestart voor reproduceerbare coach-tactiek. */
+  targetTimeSlot?: TimeSlot | null;
   targetSpecies: FishSpecies | 'Algemeen';
   sessionDurationHours: number | null;
   technique?: string | null;
