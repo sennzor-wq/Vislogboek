@@ -688,7 +688,8 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     limitations: [
       'De studie onderzocht vooral foerageren op microcrustaceeën in één meso-eutroof stuwmeer; dit is niet hetzelfde als alle voedselbronnen of aasopname door hengelvis.',
       'De patronen waren afhankelijk van lengteklasse en maand; de gerapporteerde lengteklassen zijn geen directe leeftijdsindeling.',
-      'De bevinding ondersteunt soort- en contextspecifieke dagritmehypothesen, maar geen universele activiteitsscore of vaste dagbonus.'
+      'De bevinding ondersteunt soort- en contextspecifieke dagritmehypothesen, maar geen universele activiteitsscore of vaste dagbonus.',
+      'Ander veldonderzoek bij juveniele blankvoorn en brasem in kleine Beierse meren vond nachtelijke pelagische voedselopname; levensfase en habitat kunnen het patroon omkeren.'
     ],
     sourceReferences: [
       'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53, 203–214. Author publication list: https://www.hbu.cas.cz/publikace/strana-7/?employeeId=651; bibliographic record: https://nas.er.usgs.gov/queries/references/ReferenceViewer.aspx?refnum=35171'
@@ -905,26 +906,6 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     ],
     sourceReferences: [
       'Fedorova, G.V. & Drozzhina, K.S. (1982). Daily feeding rhythm of pike-perch, Stizostedion lucioperca, and perch, Perca fluviatilis, from Lake Ladoga. Journal of Ichthyology, 22(2), 52–60 (translated from Voprosy Ikhtiologii 22(2), 224–232).'
-    ],
-    reviewedAt: '2026-11-16',
-    approvedForPrediction: false,
-  },
-  {
-    id: 'roach-bream-diel-zooplankton-feeding-2004',
-    topic: 'dag-nachtritme-directe-voedselopname',
-    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
-    species: ['Voorn', 'Brasem'],
-    application: 'biology',
-    evidenceStrength: 'moderate',
-    summary: 'In-situ maaginhoudonderzoek in het Římov-reservoir vond bij subadulte en volwassen blankvoorn en brasem die vrijwel uitsluitend op microcrustaceeën foerageerden een overwegend dagactief zoöplankton-voedingspatroon; maagvulling nam ’s nachts duidelijk af. Het effect werd in specifieke lengteklassen en maanden waargenomen.',
-    limitations: [
-      'De uitkomst geldt voor vis die in dit reservoir vrijwel uitsluitend op plankton foerageerde; andere voedseltypen en habitats kunnen een ander ritme opleveren.',
-      'De steekproef en seizoensdekking zijn beperkt tot specifieke maanden en lengteklassen; leeftijd, grootte, prooiaanbod en licht beïnvloeden het patroon.',
-      'Dit resultaat is niet universeel: ander veldonderzoek bij jonge blankvoorn en brasem vond juist nachtelijke pelagische aanwezigheid en nachtelijke voedselopname.',
-      'De studie ondersteunt contextafhankelijke voedingsritmes, maar geen vaste dagbonus of tijdvakscore voor Nederlandse stekken.'
-    ],
-    sourceReferences: [
-      'Vasek, M. & Kubecka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus. Folia Zoologica, 53(2), 203–214.'
     ],
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,

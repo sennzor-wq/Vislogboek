@@ -549,3 +549,8 @@ Deze helper is diagnostisch, niet voorspellend en heeft geen invloed op Brier, c
 ## 61. Presentatie van persoonlijke tijdvakervaring
 
 De UI noemt de maat nu "Eigen sessie-uitkomsten bij starts in dit tijdvak". Het percentage heet "sessiesucces" en beschrijft het aandeel vergelijkbare sessies met doelsoortvangst uit sessies die in dat tijdvak startten. Het is geen vangstkans per uur of per tijdvak. De berekening en modelrangschikking veranderen niet.
+
+
+## 62. Bronnen tellen op studie, niet op registratierecord
+
+Het research register mag dezelfde publicatie niet als meerdere onafhankelijke bewijsbronnen laten meetellen doordat zij onder verschillende ID's of soortvolgordes is geregistreerd. De Římov 2004-voedingsstudie voor brasem/blankvoorn is daarom één canoniek record dat aan beide soorten gekoppeld is. Tegenstrijdige levensfase-/habitatbevindingen blijven in de beperkingen zichtbaar. Deze consolidatie wijzigt geen goedkeuring of score.

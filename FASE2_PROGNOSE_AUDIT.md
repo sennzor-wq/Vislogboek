@@ -1431,3 +1431,12 @@ De helper is alleen beschrijvend en offline. Geen catch rate, Brier-score, progn
 ## 70. Persoonlijke tijdvakervaring explicieter gelabeld (18 november 2026)
 
 De prognosekaart noemde dit blok eerder "Eigen Vangsthistorie in dit tijdvak", terwijl de berekening volledige sessies op hun starttijd groepeert. De kop is gewijzigd naar "Eigen sessie-uitkomsten bij starts in dit tijdvak". De toelichting noemt nu expliciet doelsoortvangst en bij voldoende waarnemingen het percentage sessiesucces, niet een tijdvakgebonden vangstkans of vangsttempo. De onderliggende berekening blijft ongewijzigd: hele sessies worden ingedeeld op starttijd en beïnvloeden geen biologische score of tijdvakrangschikking.
+
+
+## 71. Dubbele registratie van één brasem-/blankvoornvoedingsstudie geconsolideerd (18 november 2026)
+
+De Římov 2004-studie naar in-situ zoöplanktonconsumptie bij subadulte/volwassen brasem en blankvoorn stond tweemaal in het research register onder verschillende ID's en licht verschillende bibliografische schrijfwijzen. Beide records verwezen naar dezelfde auteurs, titel, tijdschrift en pagina's; het waren geen onafhankelijke studies.
+
+De registratie is geconsolideerd tot één canonieke bron-ID voor beide soorten. De uitgebreidere bronverwijzingen zijn behouden en de relevante beperking uit het dubbele record is samengevoegd: ander veldonderzoek bij juveniele brasem/blankvoorn vond nachtelijke pelagische voedselopname, zodat levensfase en habitat het waargenomen ritme kunnen omkeren.
+
+Dit wijzigt geen bewijsgoedkeuring, numerieke parameter, voedingsscore of tijdvakbonus. De bron blijft `approvedForPrediction: false`. Een regressietest voorkomt dat dezelfde studie opnieuw als twee bewijsrecords wordt ingevoerd.
