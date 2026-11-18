@@ -1094,12 +1094,12 @@ export function calculateDayPrognosis(
     Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection < 360
   );
   const hasWindDataForTacticalWindow = validWindForecasts.length >= 6;
-  const avgWindSpeed = hasDayWindData
+  const avgWindSpeed = hasWindDataForTacticalWindow
     ? Math.round((validWindForecasts.reduce((sum, h) => sum + h.windSpeed, 0) / validWindForecasts.length) * 10) / 10
     : null;
 
   let avgWindDeg: number | undefined;
-  if (hasDayWindData) {
+  if (hasWindDataForTacticalWindow) {
     const sinMean = validWindForecasts.reduce((sum, h) => sum + Math.sin(h.windDirection * Math.PI / 180), 0) / validWindForecasts.length;
     const cosMean = validWindForecasts.reduce((sum, h) => sum + Math.cos(h.windDirection * Math.PI / 180), 0) / validWindForecasts.length;
     if (Math.hypot(sinMean, cosMean) > 1e-6) {
@@ -1108,7 +1108,7 @@ export function calculateDayPrognosis(
   }
   const compassPoints = ['N', 'NO', 'O', 'ZO', 'Z', 'ZW', 'W', 'NW'];
   const windDirText = avgWindDeg === undefined
-    ? (hasDayWindData ? 'Wisselend' : 'Onbekend')
+    ? (hasWindDataForTacticalWindow ? 'Wisselend' : 'Onbekend')
     : compassPoints[Math.round(avgWindDeg / 45) % 8];
 
   const effectiveWaterTempForModules =
@@ -1120,7 +1120,7 @@ export function calculateDayPrognosis(
   const hasThermalDataForModules = effectiveWaterTempForModules !== null;
   const validCloudForecasts = tacticalForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
   const hasCloudDataForTacticalWindow = validCloudForecasts.length >= 6;
-  const avgCloudCover = hasDayCloudData
+  const avgCloudCover = hasCloudDataForTacticalWindow
     ? validCloudForecasts.reduce((sum, h) => sum + h.cloudCover, 0) / validCloudForecasts.length
     : undefined;
   const seasonNL = date.getMonth() === 11 || date.getMonth() <= 1 ? 'Winter' : date.getMonth() >= 2 && date.getMonth() <= 4 ? 'Voorjaar' : date.getMonth() >= 5 && date.getMonth() <= 7 ? 'Zomer' : 'Herfst';
@@ -1131,7 +1131,7 @@ export function calculateDayPrognosis(
 
   // Module 2: wind ten opzichte van de oever. Zonder bekende thermische basis,
   // geldige windrichting of geregistreerd watertype wordt geen oeverrelatie verzonnen.
-  const bankWindAnalysis = hasDayWindData && avgWindDeg !== undefined &&
+  const bankWindAnalysis = hasWindDataForTacticalWindow && avgWindDeg !== undefined &&
     hasThermalDataForModules && Boolean(location?.waterType) && avgWindSpeed !== null
     ? analyzeBankWind(location, avgWindDeg, avgWindSpeed, {
         effectiveWaterTemp: effectiveWaterTempForModules!,
@@ -1162,18 +1162,24 @@ export function calculateDayPrognosis(
     sessionObservations: presenceObs !== 'onbekend' ? [presenceObs] : [],
     historicalSessions,
     avgWindSpeedKmH: avgWindSpeed ?? undefined,
-    windDirText: hasDayWindData ? windDirText : undefined,
+    windDirText: hasWindDataForTacticalWindow ? windDirText : undefined,
     pressureTrend: presTrendType,
     cloudCoverPercent: avgCloudCover,
   });
 
   // Ontbrekende context verlaagt de zekerheid, maar overschrijft geen directe
   // gebruikerswaarnemingen of de voorzichtige lokale zoekhypothese uit de engines.
-  if (!hasDayWindData || !hasThermalDataForModules || !hasDayCloudData || !presTrend.known || !location?.waterType) {
+  if (!hasWindDataForTacticalWindow || !hasThermalDataForModules || !hasCloudDataForTacticalWindow || !presTrend.known || !location?.waterType) {
+    const windMissingMessage = explicitTargetTimeSlot
+      ? 'Windgegevens voor het gekozen starttijdvak ontbreken of hebben onvoldoende geldige uurmetingen.'
+      : 'Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen.';
+    const cloudMissingMessage = explicitTargetTimeSlot
+      ? 'Bewolkingsgegevens voor het gekozen starttijdvak ontbreken of hebben onvoldoende geldige uurmetingen.'
+      : 'Bewolkingsgegevens ontbreken; licht-/zoncontext is onbekend.';
     const limitations = [
-      ...(!hasDayWindData ? ['Dagwind ontbreekt of heeft onvoldoende geldige uurmetingen.'] : []),
+      ...(!hasWindDataForTacticalWindow ? [windMissingMessage] : []),
       ...(!hasThermalDataForModules ? ['Geen gemeten of verantwoord geschatte watertemperatuur; thermische duiding blijft onbekend.'] : []),
-      ...(!hasDayCloudData ? ['Bewolkingsgegevens ontbreken; licht-/zoncontext is onbekend.'] : []),
+      ...(!hasCloudDataForTacticalWindow ? [cloudMissingMessage] : []),
       ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
       ...(!location?.waterType ? ['Watertype onbekend; stromend of stilstaand water wordt niet aangenomen.'] : []),
     ];
