@@ -1282,3 +1282,48 @@ De Quality Gate blokkeerde vóór typecheck en tests op GitHub Advisory `GHSA-fc
 **Herbeoordeling verplicht:** verwijder de uitzondering zodra (a) een gepatchte picomatch-release beschikbaar is en de dependencyboom daarop kan worden bijgewerkt, of (b) GitHub/upstream de advisory formeel intrekt of inhoudelijk wijzigt. Controleer de dependencyboom en advisory opnieuw bij iedere relevante dependency-update. Geen brede audit-uitschakeling, geen globale ignore en geen wijziging aan productieprognoses.
 
 De uitzondering maakt alleen de resterende Quality Gate-stappen uitvoerbaar; de PR mag pas worden samengevoegd nadat typecheck, alle regressietests, productiebuild en de volledige Quality Gate op de exacte PR-head groen zijn. Daarna is ook een groene Quality Gate op de mergecommit vereist.
+
+
+## 63. Datakwaliteit vangsttijdstippen en hengelinzet (18 november 2026)
+
+**Scope:** statische code-audit van `CatchItem.timestamp`, `SessionRodEvent`, `RodActiveInterval`, de registratie-UI en `sessionEffortEngine.ts`. Dit is geen analyse van de lokale gebruikersdatabase; die gegevens staan niet in de GitHub-repository en zijn hier niet rechtstreeks uitleesbaar.
+
+### Vangsttijdstip (`CatchItem.timestamp`)
+
+- Het vangstformulier vult een nieuwe vangst standaard met het lokale moment waarop het formulier wordt geopend. De gebruiker kan dit tijdstip aanpassen; bij opslaan wordt het als ISO-tijdstip bewaard.
+- `createdAt` wordt afzonderlijk op het opslagmoment gezet. Bij bewerken blijft de oorspronkelijke `createdAt` behouden.
+- Er is voor normale nieuwe vangsten geen expliciete herkomst-/bevestigingsstatus die onderscheid maakt tussen de standaardtijd, een bewust aangepast vangsttijdstip en een achteraf ingevoerde vangst.
+- De legacy-import kent wel `legacyImportQuality.timestampKnown`; dat veld markeert expliciet onbekende geïmporteerde tijden, maar lost de onzekerheid bij gewone handmatige invoer niet op.
+- Het vangstformulier controleert dat de tijd parsebaar is, maar valideert niet dat het tijdstip binnen de gekoppelde sessie valt.
+- Een verschil tussen `timestamp` en `createdAt` kan op vertraagde invoer wijzen, maar bewijst niet wanneer de vis werkelijk is gevangen.
+
+**Conclusie:** vangsttijdstippen zijn bruikbaar als geregistreerde tijdlijn, maar zonder expliciete herkomst zijn ze geen uniforme, onafhankelijke ground-truth voor tijdvakgebonden voedingsactiviteit of vangstvalidatie.
+
+### Hengelgebeurtenissen (`SessionRodEvent`)
+
+- Gebeurtenissen zijn optionele, handmatig ingevoerde details per hengel: aanbeet, gemist, vangst of overig.
+- Een nieuwe gebeurtenis krijgt standaard het moment van toevoegen; het tijdstip kan worden aangepast. Een leeg tijdstip kan bij opslaan als lege string blijven bestaan.
+- Er is geen aparte bron-/bevestigingsvlag en er is geen automatische synchronisatie tussen een opgeslagen `CatchItem` en een gebeurtenis van type `catch`.
+- Daardoor zijn gebeurtenissen niet gegarandeerd volledig en kunnen een vangstregistratie en hengelgebeurtenis elkaar overlappen of dubbel beschrijven.
+- De huidige hengelinzetberekening gebruikt deze gebeurtenissen niet als blootstellings- of vangstlabel.
+
+**Conclusie:** gebeurtenisregistratie is optionele context, geen complete of onafhankelijke telling van aanbeten/vangsten.
+
+### Actieve hengelperioden (`RodActiveInterval`)
+
+- Actieve perioden zijn optioneel en volledig handmatig. Er is geen automatische start-/stoptimer die werkelijk hengelgebruik vastlegt.
+- Het formulier laat lege start- en eindvelden toe; zulke waarden kunnen worden opgeslagen.
+- `calculateSessionRodEffort()` telt alleen geldige intervallen, begrenst ze op de sessiegrenzen en voegt overlappende intervallen per hengel samen. Ongeldige of onvolledige intervallen worden niet geschat maar apart geteld.
+- Bij het normaal beëindigen van een sessie sluit `closeOpenRodIntervals()` een open interval alleen als de starttijd geldig is en niet na het sessie-einde ligt.
+- Bij een actieve sessie kan een geldige open interval tot het evaluatiemoment lopen; bij een afgeronde sessie zonder geldig eindtijdstip wordt deze als onvolledig behandeld.
+- De berekening controleert niet of de handmatig opgegeven tijden de werkelijke hengelinzet correct weergeven. De berekende hengeluren zijn daarom alleen een samenvatting van geregistreerde intervallen, geen geverifieerde meetwaarde.
+
+### Gevolgen voor onafhankelijke prognosevalidatie
+
+1. De huidige Brier-score gebruikt sessie-uitkomst en vooraf voorspelde versus werkelijk bevistijd; hij is niet afhankelijk van vangsttijdstippen of hengelgebeurtenissen. Deze audit verandert de Brier-berekening niet.
+2. Vangsttijdstippen mogen nog niet als betrouwbare tijdvaklabels voor voedingsactiviteit worden gebruikt.
+3. Hengeluren mogen alleen als geregistreerde, expliciete inspanning worden gerapporteerd; ontbrekende intervallen mogen nooit worden aangevuld met sessieduur × aantal hengels.
+4. Tijdvak-/hengelinspanningsvalidatie blijft geblokkeerd totdat herkomst, volledigheid en tijdsconsistentie voldoende aantoonbaar zijn.
+5. De repository bevat geen lokale gebruikersrecords waarmee de feitelijke dekking of foutfrequentie kan worden gekwantificeerd. Daarover worden dus geen aantallen of betrouwbaarheidscijfers geclaimd.
+
+**Vervolg:** ontwerp eerst een minimale, bij voorkeur automatisch vastgelegde herkomststatus voor vangsttijdstippen en optionele hengelgegevens. Valideer sessiegrenzen en onvolledige invoer met regressietests. Voeg geen verplichte extra registratiehandelingen toe en activeer geen tijdvakbonus of biologische leerlabels op basis van deze velden.
