@@ -528,3 +528,10 @@ Vangsttijd-herkomst blijft essentieel: `automatic` is formulier-openmoment, `use
 Soortspecifieke hengeluren zijn met de huidige datastructuur alleen veilig te vergelijken voor sessies met één doelsoort; per-hengel doelsoorttoewijzing ontbreekt. Hengelgebeurtenissen worden niet naast CatchItem-vangsten opgeteld zolang er geen unieke koppeling bestaat. Groepsvangsten blijven één geregistreerd tijdstip voor het opgegeven aantal.
 
 Deze diagnose is beschrijvend en offline. Zij verandert geen Brier-score, vangstkans, tijdvakrangschikking of biologische parameter.
+
+
+## 59. Standalone tijdvakblootstellingsdiagnose
+
+`calculateTimeSlotRodExposure()` verdeelt uitsluitend expliciet geregistreerde actieve hengelintervallen over de vier Amsterdamse tijdvakken. Overlap wordt per hengel samengevoegd; meerdere hengels blijven afzonderlijke blootstelling. Onbekende en onvolledige registraties worden apart gerapporteerd. De berekening gebruikt absolute ISO-tijden en de `Europe/Amsterdam`-tijdzone, inclusief DST-overgangen.
+
+Dit is een technische bouwsteen voor latere datakwaliteitsanalyse, geen prognose-input. Er zijn geen vangstlabels, soortspecifieke conclusies of negatieve uitkomsten aan gekoppeld.

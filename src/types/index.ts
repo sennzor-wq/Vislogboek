@@ -235,6 +235,23 @@ export interface RodEffortSummary {
   perRodHours: Record<string, number>;
 }
 
+/** Beschrijvende hengelblootstelling per lokaal tijdvak; geen vangstkans of modelinput. */
+export interface TimeSlotExposureSlice {
+  rodHours: number;
+  activeRodCount: number;
+  intervalCount: number;
+}
+
+export interface TimeSlotExposureSummary {
+  slots: Record<TimeSlot, TimeSlotExposureSlice>;
+  hasRecordedIntervals: boolean;
+  recordedIntervalCount: number;
+  rodsWithoutIntervalsCount: number;
+  incompleteIntervalCount: number;
+  outOfSessionIntervalCount: number;
+  totalRodHours: number;
+}
+
 export interface FactorBreakdown {
   score: number;       // Relatieve invloed op de activiteitsindex
   impact: 'positief' | 'neutraal' | 'negatief';

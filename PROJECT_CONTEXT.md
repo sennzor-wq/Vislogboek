@@ -1482,3 +1482,11 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Meersoortige sessies hebben geen doelsoorttoewijzing per hengel; soortspecifieke inspanningsanalyse wordt daarom voorlopig beperkt tot sessies met één doelsoort.
 - Een vangst in één tijdvak rechtvaardigt geen nulvangstlabel in andere tijdvakken. Alleen expliciet bevestigde nulvangstsessies kunnen sessiebreed nul leveren, naast bekende blootstelling.
 - Volgende stap: beschrijvende offline tijdvakblootstellingsdiagnose, zonder prognosefeedback of extra verplichte invoer.
+
+
+### Fase 2 — tijdvakblootstelling als standalone diagnose (18 november 2026)
+
+- Pure helper `calculateTimeSlotRodExposure()` verdeelt expliciete hengelintervallen over de vier Amsterdamse tijdvakken, met DST-correctheid.
+- Overlap wordt per hengel samengevoegd; ontbrekende/ongeldige intervallen blijven onbekend en krijgen kwaliteitscounts.
+- Nog niet aangesloten op prognose, VisCoach of UI; geen vangstlabel, tijdvakscore, Brier- of biologische parameterwijziging.
+- Nieuwe regressiesuite toegevoegd aan Quality Gate.

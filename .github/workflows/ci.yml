@@ -122,6 +122,9 @@ jobs:
       - name: Session rod effort tests
         run: bun run tsx test-session-rods.ts
 
+      - name: Time-slot exposure diagnostic tests
+        run: bun run tsx test-time-slot-exposure.ts
+
       - name: VisCoach session advice tests
         run: bun run tsx test-session-coach.ts
       - name: VisCoach live reassessment integration tests
