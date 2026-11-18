@@ -550,3 +550,15 @@ Deze zijstroom ondersteunt de hoofdroadmap, maar verandert de fasevolgorde niet 
 - De dagbrede thermische score, algemene beste-tijdvakuitkomst en algemene Prognose-tab zijn ongewijzigd. Er is geen biologische factor, windbonus of tweede tactiekengine toegevoegd.
 
 **Resterend:** fase 2 blijft open voor de volledige factor-/bewijs-/validatiematrix. In de VisCoach-zijstroom moeten advies en tactiek nog als afzonderlijke maar samenhangende velden worden opgeslagen en getoond; daarnaast volgen de standaard/advanced-presentatie, matige-windduiding, habitat-/windafstemming en selectieve voorvoervertaling. Fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
+### Aanvulling — VisCoach-advies/tactiek en windduiding (18 november 2026)
+
+PR #116 is squash-merged als commit `372954a972b41feddb87ba9966a4a63d8b641c7a`.
+
+- De coach bewaart en toont nu aparte `advice`- en `tactics`-velden. Het bestaande samengestelde `recommendation` blijft voor compatibiliteit; oudere records vallen terug op dat veld.
+- Het standaardplan toont geen zelfstandig biologisch-literatuurblok meer. De onderliggende bewijsregistratie en uitgebreide analyse blijven beschikbaar.
+- De bestaande positioneringsengine levert nu expliciet de classificatie kalm/niet-kalm/ontbrekend. De coach kan daardoor ook relevante matige wind tactisch benoemen, zonder ontbrekende wind als matig te interpreteren of een nieuwe drempel/bonus te introduceren.
+- De wijzigingen zijn met regressietests afgedekt; de exacte PR-head Quality Gate is volledig groen.
+
+**Resterende VisCoach-zijstroom:** habitat- en winduitkomsten inhoudelijk samenbrengen tot één praktisch startpunt; het bestaande voorvoerplan vollediger maar selectief vertalen; UX- en terugvalgedrag afronden. Geen extra gebruikersinvoer of parallelle engine.
+
+**Hoofdregie blijft ongewijzigd:** fase 2 biologische prognose is nog niet formeel geaccepteerd; fase 3 is niet gestart.
