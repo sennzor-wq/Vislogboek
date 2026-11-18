@@ -294,6 +294,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     calculatedAt: new Date().toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
     targetDate: date,
+    targetTimeSlot: tacticalStartSlot ?? null,
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
     technique: null,
