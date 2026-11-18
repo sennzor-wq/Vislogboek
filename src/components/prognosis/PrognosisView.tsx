@@ -658,12 +658,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           <span className="text-slate-400">Verwachte vangstopbrengst:</span>
                           <span className="font-bold text-cyan-200">
                             ~{activeDayProg.expectedCatches} {activeDayProg.species.toLowerCase()} over {activeDayProg.plannedDurationHours ?? selectedDurationHours}u
-                            {activeDayProg.hourlyCatchRate !== null && activeDayProg.hourlyCatchRate !== undefined && (
-                              {showAdvancedDetails && (
-                                <span className="text-[10px] text-cyan-300/80 font-normal ml-1">
-                                  (vangsttempo: ~{activeDayProg.hourlyCatchRate}/u)
-                                </span>
-                              )}
+                            {showAdvancedDetails && activeDayProg.hourlyCatchRate !== null && activeDayProg.hourlyCatchRate !== undefined && (
+                              <span className="text-[10px] text-cyan-300/80 font-normal ml-1">
+                                (vangsttempo: ~{activeDayProg.hourlyCatchRate}/u)
+                              </span>
                             )}
                           </span>
                         </div>
@@ -758,8 +756,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
             </div>
 
+            {/* Biologische voedingsliteratuur: informatief, nooit een prognosescore */}
             {showAdvancedDetails && (
-              {/* Biologische voedingsliteratuur: informatief, nooit een prognosescore */}
               <section className="rounded-2xl bg-slate-900/80 border border-amber-800/40 p-4 sm:p-5 space-y-3">
                 <div className="flex items-start gap-2.5">
                   <div className="p-1.5 rounded-lg bg-amber-950/70 border border-amber-800/50 text-amber-300">
