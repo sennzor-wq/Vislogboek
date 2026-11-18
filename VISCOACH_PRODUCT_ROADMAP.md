@@ -1462,3 +1462,12 @@ Een nieuwe adviesregistratie mag dus niet uitsluitend worden veroorzaakt door ee
 De fasen in dit document beschrijven de **VisCoach-productroadmap** en zijn niet één-op-één dezelfde fasen als de overkoepelende optimalisatiefasen in `VISLOGBOEK_VERBETERPLAN.md`. Gebruik voor de projectbrede volgorde, formele faseacceptatie en blokkades altijd het centrale verbeterplan en issue #49. De VisCoach-roadmap blijft leidend voor de inhoudelijke productervaring van de coach.
 
 De actuele code-audit voor dynamische advies- en tactiekbijsturing tijdens een actieve sessie staat hierboven onder **Dynamische sessiecoach — aanvullende code-audit**. Deze audit is voorbereidende productanalyse, geen vrijgave van een volgende projectfase. Fase 2 van het centrale verbeterplan blijft leidend; de centrale fase 3 start niet voordat fase 2 formeel is geaccepteerd.
+
+
+## Codeconsistentiecontrole — wind en primaire doelzone (18 november 2026)
+
+Een gerichte controle na PR #124 vond nog oude, conflicterende regels in `rodPositioningEngine.ts`, `habitatMovementEngine.ts` en `bankWindEngine.ts`. Die regels konden bij warme omstandigheden op basis van vaste windgrenzen de aanlandige oever als primaire zoekzone aanwijzen en bij weinig wind een zuurstofrijke zone suggereren zonder zuurstofmeting.
+
+De correctie verwijdert die automatische windgestuurde zonekeuze en de bijbehorende 11/12/15 km/u-drempels uit de primaire zonebeslissing. De primaire doelzone volgt uit lokale habitatkenmerken, diepteovergangen en directe waarnemingen. Wind blijft beschikbaar voor oeverrelatie, oppervlaktedrift als voorzichtige context, werphoek, lijnbocht en hengelpositionering. De windkant mag alleen als tweede vergelijkingszone worden genoemd wanneer lokale structuur of waarnemingen dat ondersteunen. Zuurstofstatus wordt niet uit windstilte of warm water afgeleid.
+
+Regressies controleren dat dezelfde warme stek bij kalme of stevige wind dezelfde primaire habitatzone behoudt, dat er geen zuurstofclaim zonder meting verschijnt en dat wind-/werpadvies beschikbaar blijft. Dit verandert geen biologische activiteitsscore of vangstkans.
