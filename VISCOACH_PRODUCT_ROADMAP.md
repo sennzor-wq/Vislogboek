@@ -1416,3 +1416,42 @@ De standaardtactiek moet duidelijk maken dat windrichting en werprichting versch
 - Als geen bruikbare doelzone bekend is, verzint de coach geen afstand, diepte, bodemvorm of werprichting. Hij vraagt de gebruiker niet om extra verplichte invoer, maar geeft een praktische controle ter plaatse.
 
 **Acceptatiecriteria:** zwakke wind + bekende doelzone geeft een doelgerichte presentatie zonder kompasrichting; zwakke wind + geen doelzone forceert geen werpadvies; matige/sterke wind benoemt wind als factor voor werphoek en lijncontrole, maar houdt de doelzone leidend; onbekende oeveroriëntatie levert geen exacte richting op.
+
+## Dynamische sessiecoach — aanvullende code-audit (18 november 2026)
+
+Deze audit verdiept de bestaande roadmap voor het bijsturen van **advies én tactiek tijdens een actieve sessie**. Dit is een read-only bevinding; er zijn geen prognoseberekeningen, coachregels, databasegegevens of gebruikersinvoer gewijzigd.
+
+### Wat de huidige coördinator al doet
+
+- `reassessActiveSessions()` hergebruikt de bestaande weerservice en `calculateDayPrognosis()`; het actuele lokale tijdvak wordt opnieuw aan de tactische berekeningen doorgegeven.
+- De coördinator neemt onder meer sessiecontext, techniek, watertemperatuur, stekgegevens, vangsten en geregistreerde waarnemingen mee in de herbeoordelingscontext.
+- Weerupdates worden conservatief behandeld: een kandidaatverandering moet door een volgende afwijkende forecast-update worden bevestigd. App hervatten telt niet als tweede weersbevestiging; expliciete sessie-/waarnemingsupdates worden direct beoordeeld.
+- Identieke invoer en dubbele opslag worden beschermd. Prognosesnapshots en coachadviezen blijven afzonderlijke, herleidbare records.
+- De app kan geen continue verwerking garanderen wanneer de PWA volledig gesloten is; bij hervatten wordt de beschikbare actuele context opnieuw beoordeeld.
+
+### Gevonden aandachtspunten
+
+1. **Techniekwijziging kan op zichzelf buiten de adviesvergelijking vallen.** De invoerfingerprint bevat de gekozen techniek, maar `prognosisSignature()` niet. Daardoor kan een herbeoordeling met uitsluitend een gewijzigde methode geen gewijzigde praktische signature opleveren. Een overgang van bijvoorbeeld method feeder naar karperrig moet juist de presentatie- en voervertaling kunnen vernieuwen, zonder dat daarvoor ook het weer hoeft te veranderen.
+2. **Prognosewijziging en advieswijziging zijn nog onvoldoende gescheiden.** Zodra een van de huidige signaturevelden verandert, slaat `persistCoachReassessment()` een nieuwe snapshot én een nieuw adviesrecord op. De gegenereerde advies-/tactiektekst wordt daarbij niet eerst inhoudelijk vergeleken met het laatst getoonde advies. Een gewijzigde dagwinnaar kan bijvoorbeeld veranderen terwijl het advies voor het daadwerkelijk gekozen sessietijdvak gelijk blijft.
+3. **De wijzigingssignature is grover dan de volledige tactiek.** Zij bevat onder meer de aanbevolen zone, oever-/windrelatie, habitatzone en globale voorvoergeschiktheid, maar niet alle concrete uitkomsten die de gebruiker uitvoert, zoals de techniekgebonden presentatie en de afzonderlijke sessievoer-/aasinstructie. Daardoor kan een tactische wijziging worden gemist of een identiek advies onnodig opnieuw worden opgeslagen.
+4. **De gebruikersvertaling moet het verschil zichtbaar maken.** Een tussentijds advies moet niet alleen een nieuwe volledige tekst tonen, maar begrijpelijk maken: wat is er sinds het vorige advies veranderd, waarom is dat voor deze sessie relevant en wat kan de visser nu eventueel anders doen. Dit moet aansluiten op de bestaande velden voor advies, tactiek, trigger en gewijzigde factoren; geen tweede sessie-interface bouwen.
+
+### Gewenste beslisuitkomst per herbeoordeling
+
+De coördinator moet drie uitkomsten expliciet kunnen onderscheiden:
+
+- **Geen praktische wijziging:** geen nieuw advies; bestaande aanbeveling blijft gelden.
+- **Prognose gewijzigd, aanpak gelijk:** bewaar indien nodig een nieuwe prognosesnapshot, maar maak geen nieuw coachadvies en veroorzaak geen melding alsof de visser iets moet veranderen.
+- **Advies of tactiek gewijzigd:** bewaar een nieuw advies dat verwijst naar de juiste snapshot en het vorige advies. Toon kort de relevante verandering, reden en mogelijke actie.
+
+Een nieuwe adviesregistratie mag dus niet uitsluitend worden veroorzaakt door een gewijzigde score, dagwinnaar, ruwe invoer of technische refresh. De vergelijking moet plaatsvinden op de daadwerkelijk vertaalde, voor de gebruiker relevante advies- en tactiekuitkomsten.
+
+### Vervolgvolgorde na vrijgave van fase 3
+
+1. Breng de volledige triggerketen in kaart: forecast-event, sessiewijziging, techniek-/hengelwijziging, vangst, waarneming, temperatuurmeting, handmatige heranalyse en app-hervatten.
+2. Maak de vergelijking van prognose-uitkomst en coachadvies/tactiek afzonderlijk, met behoud van onveranderlijke snapshots en advieshistorie.
+3. Zorg dat een techniekwijziging zelfstandig een passende tactiekherbeoordeling kan opleveren.
+4. Voeg regressies toe voor: alleen techniek gewijzigd; alleen dagwinnaar gewijzigd maar gekozen tijdvak gelijk; gewijzigde doelzone; gewijzigde voer-/presentatie-uitkomst; identieke nieuwe forecast; prognose gewijzigd zonder tactiekwijziging; en een werkelijk nieuw handelingsadvies.
+5. Controleer daarna de actieve-sessie-UI: oorspronkelijk plan, huidig advies, wat veranderde, waarom en wat de gebruiker kan doen. De gebruiker houdt altijd de keuze; geen automatische hengelverplaatsing of tactiekuitvoering.
+
+**Faseregie:** dit is een verdiepende audit en voorbereiding binnen de VisCoach-productzijstroom. Het start fase 3 niet. Het hoofdspoor fase 2 blijft leidend en fase 3 blijft geblokkeerd tot formele fase-2-acceptatie. Tot die tijd worden geen nieuwe biologische regels, numerieke drempels of parallelle prognose-/tactiekengines ingevoerd.
