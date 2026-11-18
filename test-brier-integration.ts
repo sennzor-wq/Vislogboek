@@ -478,6 +478,19 @@ async function runBrierIntegrationTest() {
   );
   assert(slotScopedResult.evaluatedCount === 7 && slotScopedResult.timeWindowMismatchCount === 1, '4.12c Oudere snapshots zonder exact venster vallen terug op het gekozen tijdvak');
 
+  const unknownWindowSnapshot: PrognosisSnapshot = {
+    ...linkedSnapshots[0], id: 'test_brier_window_unknown', linkedSessionId: 'test_brier_window_unknown_session',
+    targetWindowStart: undefined, targetWindowEnd: undefined, targetSlot: undefined, durationHours: 4, actualOutcome: 'catch',
+  };
+  const unknownWindowSession: FishingSession = {
+    id: 'test_brier_window_unknown_session', startTime: '2026-10-20T10:00:00Z', endTime: '2026-10-20T14:00:00Z',
+    outcome: 'catch', targetSpecies: ['Karper'], createdAt: '2026-10-20T10:00:00Z', updatedAt: '2026-10-20T14:00:00Z',
+  };
+  const unknownWindowResult = evaluatePrognosisPerformance(
+    [...linkedSnapshots, unknownWindowSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, unknownWindowSession, ...recordedSessions]
+  );
+  assert(unknownWindowResult.evaluatedCount === 7 && unknownWindowResult.timeWindowUnknownCount === 1, '4.12d Een ontbrekend tijdvenster én tijdvak wordt apart geteld en uitgesloten');
+
   const breamSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_bream_species', targetSpecies: 'Brasem', linkedSessionId: 'test_brier_bream_species_session', durationHours: 3, targetWindowStart: '2026-10-27T08:00:00Z', targetWindowEnd: '2026-10-27T11:00:00Z', predictedCatchChance: 60, actualOutcome: 'catch' };
   const breamSession: FishingSession = { id: 'test_brier_bream_species_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Brasem'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
   const speciesResult = evaluatePrognosisPerformance([...linkedSnapshots, breamSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, breamSession, ...recordedSessions]);
