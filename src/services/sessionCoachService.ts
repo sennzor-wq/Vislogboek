@@ -211,7 +211,7 @@ function resolveCoachStartZone(
   const habitatZone = habitatName && !isGenericZone(habitatName)
     ? habitatName
     : structureNote && !isGenericZone(structureNote)
-      ? `Geregistreerde structuur: ${structureNote}`
+      ? structureNote
       : null;
   const positioningZone = positioning?.recommendedZone && !isGenericZone(positioning.recommendedZone)
     ? positioning.recommendedZone
@@ -226,7 +226,8 @@ function resolveCoachStartZone(
   );
   const primaryZone = preferPositioning ? positioningZone : habitatZone ?? positioningZone;
   const secondaryCandidate = preferPositioning ? habitatZone : positioningZone;
-  const sameZone = Boolean(primaryZone && secondaryCandidate && primaryZone.trim().toLowerCase() === secondaryCandidate.trim().toLowerCase());
+  const normalizeZone = (value: string) => value.toLowerCase().replace(/\([^)]*\)/g, '').replace(/^(de|het|een)\s+/, '').replace(/\s+/g, ' ').trim();
+  const sameZone = Boolean(primaryZone && secondaryCandidate && normalizeZone(primaryZone) === normalizeZone(secondaryCandidate));
   const secondaryZone = sameZone ? null : secondaryCandidate;
   const source = preferPositioning ? 'positioning' : habitatZone ? 'habitat' : positioningZone ? 'positioning' : 'none';
   const confidenceLevel = source === 'habitat' ? habitat?.confidenceLevel : source === 'positioning' ? positioning?.confidenceLevel : undefined;
