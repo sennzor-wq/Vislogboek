@@ -18,6 +18,7 @@ import { getWaterTemperatureCalibration } from '../../services/evaluationEngine'
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
 import { getSpeciesFeedingEvidenceContext } from '../../services/feedingEvidenceService';
 import { getSpeciesThermalEvidenceContextText } from '../../services/thermalEvidenceService';
+import { getAmsterdamTimeSlot } from '../../utils/dateTime';
 import {
   Calendar,
   Clock,
@@ -192,7 +193,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
   const activeDayProg = dayPrognoses[selectedDayIndex] || dayPrognoses[0];
 
-  // Standaard uitsluitend het Aanbevolen Toekomstige Tijdvak uitgeklapt laten zien
+  // Standaard uitsluitend het thermisch gunstigste toekomstige tijdvak uitgeklapt laten zien
   useEffect(() => {
     if (activeDayProg) {
       const best = activeDayProg.bestTimeSlot;
@@ -241,6 +242,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       locations
     );
     const calculatedAt = new Date().toISOString();
+    // Deze knop start de sessie nu; gebruik het werkelijke starttijdvak, niet het thermisch gunstigste tijdvak later op de dag.
+    const currentStartSlot = getAmsterdamTimeSlot(calculatedAt) ?? undefined;
     const parsedManualWaterTemp = waterTempInput.trim() !== '' ? parseFloat(waterTempInput.replace(',', '.')) : null;
     const manualWaterTemperatureInput = createManualWaterTemperatureInput(
       parsedManualWaterTemp !== null && Number.isFinite(parsedManualWaterTemp) ? parsedManualWaterTemp : null,
@@ -253,6 +256,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLoc.id, activeDayProg.date),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
       targetDate: activeDayProg.date,
+      targetTimeSlot: currentStartSlot ?? null,
       targetSpecies: selectedSpecies,
       sessionDurationHours: selectedDurationHours,
       technique: selectedTechnique ?? null,
@@ -289,9 +293,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       inputFingerprint: createPrognosisInputFingerprint({ inputContext, weather: hourlyForecast, technique: selectedTechnique ?? null }),
       runKind: 'session_start',
       locationName: selectedLoc.name,
-      chosenSlot: activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag'
-        ? (activeDayProg.bestTimeSlot as TimeSlot)
-        : undefined,
+      chosenSlot: currentStartSlot,
     };
     onStartSession(
       selectedSpecies !== 'Algemeen' ? selectedSpecies : undefined,
@@ -312,8 +314,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               {showAdvancedDetails
-                ? 'Drie gescheiden uitkomsten: thermische activiteitspotentie, persoonlijke vangstkans en beste toekomstige vistijd.'
-                : 'Bekijk de verwachte activiteit, je persoonlijke vangstkans en een geschikt vistijdvak.'}
+                ? 'Drie gescheiden uitkomsten: thermische activiteitspotentie, persoonlijke vangstkans en thermisch gunstigste toekomstige tijdvak.'
+                : 'Bekijk thermische activiteitspotentie, je persoonlijke vangstkans en het thermisch gunstigste tijdvak.'}
             </p>
           </div>
 
@@ -566,13 +568,13 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
-                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en beste vistijd zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en het thermisch gunstigste tijdvak zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
               </div>
             )}
 
             {!showAdvancedDetails && activeDayProg.activityScoreAvailable === false && (
               <div className="rounded-xl border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">
-                Onvoldoende watertemperatuurgegevens om activiteit en beste vistijd betrouwbaar te bepalen.
+                Onvoldoende watertemperatuurgegevens om thermische activiteitspotentie en het thermisch gunstigste tijdvak betrouwbaar te bepalen.
               </div>
             )}
 
@@ -701,12 +703,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 )}
               </div>
 
-              {/* VOORSPELLING C: Beste Toekomstige Vistijd */}
+              {/* VOORSPELLING C: Thermisch gunstigste toekomstige tijdvak */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
                     <Clock className="w-4 h-4" />
-                    Beste vistijd
+                    Thermisch gunstigste tijdvak
                   </div>
 
                   {activeDayProg.activityScoreAvailable === false ? (
@@ -731,7 +733,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
                       {showAdvancedDetails && (
                         <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen willekeurig beste tijdvak aangewezen.
+                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige thermische activiteitspotentie. Er wordt daarom geen thermisch gunstigst tijdvak aangewezen.
                         </p>
                       )}
                     </div>
@@ -742,7 +744,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       </div>
                       {showAdvancedDetails && (
                         <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                          Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de tijdvakken van morgen voor de beste toekomstige opties.
+                          Alle tijdvakken voor vandaag zijn verstreken. Vergelijk de thermische activiteitspotentie van morgen voor toekomstige opties.
                         </p>
                       )}
                     </div>
@@ -751,7 +753,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                 {showAdvancedDetails && (
 <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                  <strong>Toekomstgericht:</strong> Uitsluitend niet-verstreken tijdvakken worden vergeleken. Deze aanbeveling biedt geen absolute vangstgarantie.
+                  <strong>Thermische vergelijking:</strong> Uitsluitend niet-verstreken tijdvakken worden vergeleken op relatieve thermische activiteitspotentie. Dit is geen voorspelling van voedingspiek of vangstkans.
                 </div>
 )}
               </div>
@@ -829,7 +831,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 )}
   
                 <p className="text-[10px] text-slate-500 border-t border-slate-700/70 pt-2">
-                  Deze literatuurcontext verandert de thermische activiteitspotentie, beste vistijd en persoonlijke vangstkans niet.
+                  Deze literatuurcontext verandert de thermische activiteitspotentie, het thermisch gunstigste tijdvak en de persoonlijke vangstkans niet.
                 </p>
               </section>
             )}
