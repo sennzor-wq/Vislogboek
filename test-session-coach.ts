@@ -471,7 +471,7 @@ async function run() {
     location,
     durationHours: null,
     weatherInput: [{ time: '2026-11-05T12:00', temperature: 10, pressure: 1015, windSpeed: 8, windDirection: 225, precipitation: 0, precipitationProbability: 0, cloudCover: 40, weatherCode: 1 }] as any,
-    inputContext: {} as any,
+    inputContext: { targetTimeSlot: 'Avond' } as any,
     previousSnapshot: snapshot,
     previousAdvice: first ?? undefined,
     trigger: 'manual_reanalysis' as const,
@@ -487,7 +487,8 @@ async function run() {
     );
     assert(
       persisted.snapshot.inputFingerprint === updateInput.inputFingerprint &&
-      persisted.snapshot.supersedesSnapshotId === snapshot.id,
+      persisted.snapshot.supersedesSnapshotId === snapshot.id &&
+      persisted.snapshot.targetSlot === 'Avond',
       'Tussentijdse snapshot bewaart invoerfingerprint en voorganger'
     );
   }
