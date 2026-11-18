@@ -254,6 +254,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     {
       sessionDurationHours: durationHours ?? undefined,
       allowUnknownSessionDuration: true,
+      targetTimeSlot: tacticalStartSlot,
       locationId: input.location.id,
       location: input.location,
       catches: input.catches,
