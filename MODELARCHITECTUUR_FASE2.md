@@ -501,3 +501,12 @@ Een toekomstige verbetering moet de tijdherkomst zo veel mogelijk automatisch va
 De persoonlijke ervaring die per tijdvak wordt getoond, groepeert afgeronde sessies op het lokale uur van `FishingSession.startTime`. De volledige sessie wordt aan dat starttijdvak toegewezen, ook wanneer zij meerdere tijdvakken beslaat. De maat is het percentage succesvolle sessies, geen tijdvakgebonden vangstkans of vangsttempo. Vangsttijdstippen en actieve hengelintervallen verdelen de sessie momenteel niet over tijdvakken.
 
 Deze ervaring is uitsluitend beschrijvend. De thermische tijdvakscore en `bestTimeSlot` worden er niet door aangepast. De UI maakt de starttijdindeling expliciet; regressietests borgen dat een sessie over meerdere tijdvakken de thermische rangschikking niet beïnvloedt.
+
+
+## 56. Herkomstmetadata voor geregistreerde tijden
+
+Nieuwe vangsten krijgen bij openen van het formulier automatisch een tijdstip (`automatic`). Een gebruiker kan dit blijven aanpassen; bij een wijziging wordt `user_adjusted` opgeslagen. Bij het bewerken van bestaande records blijft de herkomst behouden als het tijdstip ongewijzigd blijft. Ontbrekende herkomst bij oudere registraties blijft ontbrekend; er wordt niets afgeleid uit `createdAt`.
+
+Nieuwe hengelgebeurtenissen krijgen dezelfde metadata bij toevoegen en kunnen zonder extra invoerveld worden aangepast. De status `user_adjusted` is geen onafhankelijke tijdverificatie. Alleen vangsttijdherkomst wordt in de privacybewuste historische prognosefeatures opgenomen; hengelgebeurtenissen worden niet gekopieerd zolang de prognose-engine ze niet als input gebruikt. Historische featureversie is verhoogd naar 2; bestaande schema-1-snapshots blijven ongewijzigd.
+
+Deze metadata verandert geen score, tijdvakrangschikking, Brier-uitkomst of biologische parameter en mag niet zelfstandig als voedingsactiviteit-label worden gebruikt.

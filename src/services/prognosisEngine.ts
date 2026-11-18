@@ -118,6 +118,7 @@ export function createPrognosisHistoryFeatureSnapshot(
       weightKg: item.weightKg,
       lengthCm: item.lengthCm,
       timestamp: item.timestamp,
+      timestampEntryMode: item.timestampEntryMode,
       bait: item.bait,
       technique: item.technique,
       legacyImportQuality: item.legacyImportQuality ? { ...item.legacyImportQuality } : undefined,
@@ -136,7 +137,7 @@ export function createPrognosisHistoryFeatureSnapshot(
     historicalSessionFeatures,
     historicalCatchFeatures,
     historicalObservationFeatures,
-    historyFeatureSchemaVersion: 1,
+    historyFeatureSchemaVersion: 2,
   };
 }
 

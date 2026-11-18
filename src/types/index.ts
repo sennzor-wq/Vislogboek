@@ -111,6 +111,8 @@ export interface FishingLocation {
   updatedAt: string;
 }
 
+export type TimestampEntryMode = 'automatic' | 'user_adjusted';
+
 export interface CatchItem {
   id: string;
   sessionId: string;
@@ -121,6 +123,8 @@ export interface CatchItem {
   isGroupWeight?: boolean;        // true als weightKg totaalgewicht is van de groep
   lengthCm?: number | null;       // optioneel
   timestamp: string;              // ISO
+  /** Herkomst van het tijdstip; ontbrekend bij oudere/onbekende records. Geen onafhankelijke verificatie. */
+  timestampEntryMode?: TimestampEntryMode;
   rod?: string;
   bait?: string;
   technique?: string;
@@ -195,6 +199,8 @@ export interface RodActiveInterval {
 export interface SessionRodEvent {
   id: string;
   timestamp: string;
+  /** Automatisch bij toevoegen, of door gebruiker aangepast; ontbrekend bij oudere records. */
+  timestampEntryMode?: TimestampEntryMode;
   type: 'bite' | 'missed' | 'catch' | 'other';
   notes?: string;
 }
@@ -519,12 +525,12 @@ export interface PrognosisInputContext {
   >>;
   historicalCatchFeatures?: Array<Pick<CatchItem,
     | 'id' | 'sessionId' | 'locationId' | 'species' | 'count' | 'weightKg'
-    | 'lengthCm' | 'timestamp' | 'bait' | 'technique' | 'legacyImportQuality'
+    | 'lengthCm' | 'timestamp' | 'timestampEntryMode' | 'bait' | 'technique' | 'legacyImportQuality'
   >>;
   historicalObservationFeatures?: Array<Pick<PresenceObservation,
     'id' | 'locationId' | 'sessionId' | 'observationType' | 'timestamp'
   >>;
-  historyFeatureSchemaVersion?: 1;
+  historyFeatureSchemaVersion?: 1 | 2;
   /** Exacte lokale biascorrectie die bij deze prognoserun is gebruikt. */
   waterTemperatureCalibration?: {
     appliedCorrectionC: number;

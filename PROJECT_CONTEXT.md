@@ -1452,3 +1452,13 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De maat is een sessiesuccesfractie, geen tijdvakgebonden vangstkans. Zij beïnvloedt de thermische tijdvakscore of `bestTimeSlot` niet.
 - UI-tekst verduidelijkt naar 'sessies gestart in dit tijdvak' en benoemt indeling op starttijd.
 - Regressietest toegevoegd voor een zes uur durende sessie die Avond en Nacht beslaat; geen prognoseberekening of biologische parameter gewijzigd.
+
+
+### Fase 2 — automatische tijdherkomst vastgelegd (18 november 2026)
+
+- Automatisch tijdstip bij openen van het vangstformulier blijft de standaard; gebruiker kan aanpassen zonder extra handeling of bevestigingsvraag.
+- Vangsten en nieuwe hengelgebeurtenissen bewaren `timestampEntryMode`: `automatic` of `user_adjusted`. Bij ongewijzigd bewerken blijft de bestaande status staan; oude records zonder status blijven ongeclassificeerd.
+- `user_adjusted` is alleen gebruikersinvoer, geen onafhankelijke verificatie.
+- Historische vangstfeatures nemen de herkomst op; `historyFeatureSchemaVersion` is verhoogd naar 2. Oude snapshots blijven schema 1.
+- Hengelgebeurtenissen worden niet in prognosesnapshots gekopieerd zolang ze geen modelinput zijn.
+- Regressietests controleren beide statussen, behoud van onbekende historie en feature-schema v2. Geen biologische score, tijdvakbonus, vangstkans of Brier-logica gewijzigd.

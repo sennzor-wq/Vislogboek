@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CatchItem, FishSpecies, ALL_SPECIES, FishingSession } from '../../types';
+import { resolveTimestampEntryMode } from '../../utils/timestampProvenance';
 import { Camera, Scale, Sparkles, X, Image as ImageIcon } from 'lucide-react';
 
 interface CatchModalProps {
@@ -42,11 +43,10 @@ export const CatchModal: React.FC<CatchModalProps> = ({
   const [lengthInput, setLengthInput] = useState<string>(
     catchItem?.lengthCm !== undefined && catchItem?.lengthCm !== null ? String(catchItem.lengthCm) : ''
   );
-  const [timestamp, setTimestamp] = useState<string>(
-    catchItem
-      ? catchItem.legacyImportQuality?.timestampKnown === false ? '' : catchItem.timestamp.slice(0, 16)
-      : formatDateTimeLocal(now)
-  );
+  const initialTimestamp = catchItem
+    ? catchItem.legacyImportQuality?.timestampKnown === false ? '' : catchItem.timestamp.slice(0, 16)
+    : formatDateTimeLocal(now);
+  const [timestamp, setTimestamp] = useState<string>(initialTimestamp);
   const [rod, setRod] = useState<string>(catchItem?.rod || '');
   const [bait, setBait] = useState<string>(catchItem?.bait || activeSession?.baitAndFeed || '');
   const [technique, setTechnique] = useState<string>(catchItem?.technique || activeSession?.technique || '');
@@ -86,6 +86,7 @@ export const CatchModal: React.FC<CatchModalProps> = ({
         isGroupWeight: count > 1 ? isGroupWeight : false,
         lengthCm: parsedLength && !isNaN(parsedLength) ? parsedLength : null,
         timestamp: new Date(timestamp).toISOString(),
+        timestampEntryMode: resolveTimestampEntryMode(timestamp, initialTimestamp, !isEditing, catchItem?.timestampEntryMode),
         rod: rod.trim() || undefined,
         bait: bait.trim() || undefined,
         technique: technique.trim() || undefined,

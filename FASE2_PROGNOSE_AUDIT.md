@@ -1336,3 +1336,23 @@ De vier tijdvakken tonen al beschrijvende persoonlijke ervaring. `getSimilarSess
 Deze persoonlijke ervaring is een sessiesuccesfractie (succesvolle sessies / geldige sessies), geen tijdvakgebonden vangstkans of vangsttempo. Zij beïnvloedt de thermische `activityScore` en de selectie van `bestTimeSlot` niet; die rangschikking wordt uitsluitend op de thermische tijdvakscore gebaseerd.
 
 De UI-tekst is verduidelijkt naar 'sessies gestart in dit tijdvak' en vermeldt de indeling op starttijd. Een regressietest gebruikt sessies van zes uur die Avond en Nacht overspannen en borgt zowel de starttijdindeling als het ontbreken van invloed op thermische scores. Geen modelberekening of biologische parameter gewijzigd.
+
+
+## 65. Automatische herkomstregistratie voor vangst- en hengelgebeurtenissen (18 november 2026)
+
+### Besluit en implementatie
+
+- Een nieuwe vangst houdt de bestaande standaard: het lokale tijdstip wordt automatisch ingevuld zodra het vangstformulier opent. De gebruiker kan dit tijdstip blijven aanpassen.
+- `CatchItem.timestampEntryMode` legt vast of het tijdstip automatisch is ingevuld (`automatic`) of door de gebruiker is aangepast (`user_adjusted`). Er verschijnt geen extra vraag of verplicht invoerveld.
+- Bij bewerken blijft een bestaande herkomststatus behouden als het tijdstip ongewijzigd blijft. Wordt het tijdstip aangepast, dan wordt de status `user_adjusted`.
+- Een oude registratie zonder herkomststatus blijft ongeclassificeerd. Een legacy-record met expliciet onbekende tijd blijft onbekend totdat de gebruiker een tijd invult; dat wordt dan `user_adjusted`.
+- Nieuwe hengelgebeurtenissen krijgen bij toevoegen automatisch `automatic`; een gewijzigd tijdstip krijgt `user_adjusted`. Ook hier blijven oude records zonder status ongeclassificeerd.
+- `user_adjusted` betekent uitsluitend dat de gebruiker het tijdstip heeft aangepast. Het is geen onafhankelijke verificatie dat de vis of gebeurtenis op dat moment plaatsvond.
+- Prognosehistorie is verhoogd naar `historyFeatureSchemaVersion: 2`. De whitelisted vangstfeatures nemen `timestampEntryMode` mee; de bestaande fingerprint neemt dit daardoor automatisch mee.
+- Hengelgebeurtenissen bewaren hun herkomst in de sessierecords, maar worden niet aan de prognosehistorie toegevoegd: de huidige prognose-engine gebruikt deze gebeurtenissen niet als modelinput. Zo wordt geen ongebruikte persoonlijke eventdata gekopieerd.
+- Oude opgeslagen prognosesnapshots met schema 1 blijven geldig en worden niet achteraf herschreven.
+- Geen wijziging aan Brier-validatie, tijdvakrangschikking, biologische parameters, activiteitsscores of vangstkansen.
+
+### Validatie
+
+Regressietests dekken automatische standaardtijd, gewijzigde tijd, behoud van bestaande herkomst, ongeclassificeerde oude records en opname van de status in historische featureschema v2. De status is uitsluitend datakwaliteitsmetadata; zij activeert geen tijdvak- of voedingsleerlabel.
