@@ -164,6 +164,7 @@ export const TIME_SLOT_HOURS: Record<TimeSlot, { start: number; end: number; ran
 /** Bepaalt het lokale tijdvak voor een actueel sessiemoment; geen prognosevoorkeur. */
 function getTimeSlotAtAmsterdamDate(date: Date): TimeSlot | undefined {
   const hour = getAmsterdamHour(date);
+  if (hour === null) return undefined;
   return (Object.entries(TIME_SLOT_HOURS) as Array<[TimeSlot, { start: number; end: number; rangeLabel: string }]>)
     .find(([, range]) => hour >= range.start && hour < range.end)?.[0];
 }
