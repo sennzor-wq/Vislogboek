@@ -1607,3 +1607,12 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - De snoekstudies laten contextafhankelijke effecten zien van visserijdruk, visgrootte, aaskeuze en leren; de gerapporteerde populatieschatting van 43,2% geldt uitsluitend voor snoek boven 40 cm in één studiepopulatie.
 - Geen van de nieuwe gegevens wordt als numerieke prognoseparameter gebruikt. Alle 67 records blijven `approvedForPrediction: false`; geen score, gewicht of tijdvakbonus gewijzigd.
 - Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §70.
+
+
+### Fase 2 — roofblei: voedingsincidentie onderscheiden van voedingsintensiteit (18 november 2026)
+
+- Research registry uitgebreid van 67 naar 68 records met Krpo-Ćetković et al. (2010), een Donau-veldstudie van 198 voornamelijk subadulte roofbleien.
+- Nieuw outcome-type `feeding_incidence` registreert de seizoensgebonden vacuïteitsindex (aandeel lege magen: 94,1% in november en 35,6% in juli) zonder dit ten onrechte als hoeveelheid voedselopname of dagritme te classificeren.
+- De bron vult dus voedingsincidentie aan, maar directe kwantitatieve voedingsintensiteit en diel-feeding blijven voor roofblei onvoldoende gedekt.
+- Alle 68 records blijven `approvedForPrediction: false`; geen modelscore, gewicht, tijdvakbonus of drempel gewijzigd.
+- Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §71.

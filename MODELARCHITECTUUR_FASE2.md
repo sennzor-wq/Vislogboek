@@ -608,7 +608,7 @@ De volledige dekking en invoerbeperkingen staan in `FASE2_PROGNOSE_AUDIT.md` §8
 
 ## 69. Bewijsdekking telt per gemeten respons, niet als algemene soortdekking
 
-De registry bevat nu 67 records, maar een soort die zowel dieet-, beweging- als habitatcontext heeft, heeft daarmee niet automatisch direct bewijs voor voedingsintensiteit, voedingsritme of hengelvangbaarheid. De auditmatrix in `FASE2_PROGNOSE_AUDIT.md` §82 splitst records daarom uit naar de expliciet gemeten respons. Vooral roofblei heeft momenteel uitsluitend dieet-/prooikeuze- en bewegings-/habitatcontext; directe voedingsintensiteit, voedingsritme en foerageergedrag ontbreken in de registry. De telemetrie van roofblei blijft locomotorische activiteit/habitatgebruik en wordt niet als voeding gemodelleerd.
+De registry bevat nu 68 records, maar een soort die zowel dieet-, beweging- als habitatcontext heeft, heeft daarmee niet automatisch direct bewijs voor voedingsintensiteit, voedingsritme of hengelvangbaarheid. De auditmatrix in `FASE2_PROGNOSE_AUDIT.md` §82 splitst records daarom uit naar de expliciet gemeten respons. Vooral roofblei heeft momenteel uitsluitend dieet-/prooikeuze- en bewegings-/habitatcontext; directe voedingsintensiteit, voedingsritme en foerageergedrag ontbreken in de registry. De telemetrie van roofblei blijft locomotorische activiteit/habitatgebruik en wordt niet als voeding gemodelleerd.
 
 De aantallen registry-records zijn geen aantallen onafhankelijke studies en geen bewijsgewichten. Bronkwaliteit, populatie, levensfase, seizoen, watertype en meetmethode blijven leidend. Hengelvangbaarheid blijft gescheiden van aanwezigheid, beweging en voedselopname. Alle records blijven niet-goedgekeurd voor directe voorspelling; er worden geen biologische gewichten of tijdvakbonussen geactiveerd.
 
@@ -618,3 +618,8 @@ De aantallen registry-records zijn geen aantallen onafhankelijke studies en geen
 De research registry bevat nu naast `angler_catch_distribution` ook `angler_catch_rate` voor hengeldagboek-/vangsttempo en `angler_vulnerability` voor individuele gevoeligheid voor vangst. Heermann et al. (2013) registreerden baarsvangsttempo over 21 meren en lieten zien dat visserervaring, voorkeur, aas-/kunstaastype en omgevingscontext samenhangen met vangsten. Twee snoekstudies (Roser et al., first published 2024; Lucas et al., 2026) meten rechtstreeks verschillen in reactie op kunstaas en vangbaarheid, met duidelijke effecten van visserijdruk, visgrootte, aaskeuze en leereffecten.
 
 Deze uitkomsten zijn niet onderling uitwisselbaar: catch rate uit hengeldagboeken is geen individuele kwetsbaarheid, en een schatting uit één populatie is geen universele vangstkans. De nieuwe records blijven niet-goedgekeurd voor directe voorspelling. Er volgt geen numerieke correctie of vangstbonus.
+
+
+## 71. Voedingsincidentie is niet hetzelfde als voedingsintensiteit
+
+Voor roofblei is een Donau-veldstudie geregistreerd die het aandeel lege magen per seizoen rapporteert (vacuïteitsindex). Dit is geclassificeerd als `feeding_incidence`: of voedsel in de maag aanwezig was in de bemonstering. Het meet niet hoeveel voedsel werd opgenomen, hoe sterk de vis dagelijks voedde of op welk dagdeel de opname plaatsvond. De overwegend subadulte steekproef en één riviertraject beperken overdraagbaarheid. De uitkomst vult daarom een aparte biologische kennislaag aan en activeert geen numerieke voedings- of tijdvakscore.

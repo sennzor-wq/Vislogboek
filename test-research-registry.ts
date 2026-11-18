@@ -565,3 +565,23 @@ if (getResearchByOutcome('Snoek', 'angler_vulnerability').filter((item) => item.
   throw new Error('Both independent pike vulnerability studies must be discoverable without activating them in the prognosis.');
 }
 console.log('Angling catch-rate and vulnerability evidence tests passed.');
+
+
+// Asp stomach vacuity is feeding incidence, not feeding intensity or diel rhythm.
+const aspFeedingIncidence = RESEARCH_REGISTRY.find((item) => item.id === 'asp-seasonal-feeding-incidence-danube-2010');
+if (!aspFeedingIncidence ||
+    !aspFeedingIncidence.species.includes('Roofblei') ||
+    !aspFeedingIncidence.measuredOutcomes?.includes('feeding_incidence') ||
+    !aspFeedingIncidence.measuredOutcomes?.includes('diet_composition') ||
+    aspFeedingIncidence.measuredOutcomes.includes('feeding_intensity') ||
+    aspFeedingIncidence.measuredOutcomes.includes('feeding_rhythm') ||
+    aspFeedingIncidence.approvedForPrediction ||
+    !aspFeedingIncidence.summary.includes('198 roofbleien') ||
+    !aspFeedingIncidence.summary.includes('94,1%') ||
+    !aspFeedingIncidence.limitations.some((item) => item.includes('aandeel lege magen'))) {
+  throw new Error('Asp seasonal stomach vacuity must remain a limited feeding-incidence measure, not feeding intensity or diel rhythm.');
+}
+if (getResearchByOutcome('Roofblei', 'feeding_incidence').every((item) => item.id !== 'asp-seasonal-feeding-incidence-danube-2010')) {
+  throw new Error('Asp feeding-incidence evidence must be discoverable by species and measured outcome.');
+}
+console.log('Asp feeding-incidence evidence scope tests passed.');
