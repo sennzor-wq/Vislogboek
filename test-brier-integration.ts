@@ -218,6 +218,8 @@ async function runBrierIntegrationTest() {
       locationId: LOKKERSHOEK_PIER_ID,
       locationName: 'Lokkershoek Pier',
       durationHours: tc.durationHours,
+      targetWindowStart: tc.startTime,
+      targetWindowEnd: tc.endTime,
       predictedActivityScore: Math.round(tc.predictedChance / 10),
       predictedCatchChance: tc.predictedChance,
       predictedConditions: tc.weather,
@@ -447,8 +449,23 @@ async function runBrierIntegrationTest() {
   const unknownDurationSession: FishingSession = { ...mismatchSession, id: 'test_brier_duration_unknown_session' };
   const durationScopedResult = evaluatePrognosisPerformance([...linkedSnapshots, mismatchSnapshot, unknownDurationSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, mismatchSession, unknownDurationSession, ...recordedSessions]);
   assert(durationScopedResult.evaluatedCount === 7 && durationScopedResult.durationMismatchCount === 1 && durationScopedResult.durationUnknownCount === 1, '4.12 Brier sluit afwijkende en onbekende sessieduur uit en rapporteert beide aantallen afzonderlijk');
+  assert(durationScopedResult.timeWindowMismatchCount === 2 && durationScopedResult.timeWindowUnknownCount === 0, '4.12a Brier sluit ook tijdvenstermismatches uit, los van de duurcontrole');
 
-  const breamSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_bream_species', targetSpecies: 'Brasem', linkedSessionId: 'test_brier_bream_species_session', durationHours: 3, predictedCatchChance: 60, actualOutcome: 'catch' };
+  const sameDurationWindowSnapshot: PrognosisSnapshot = {
+    ...linkedSnapshots[0], id: 'test_brier_window_mismatch', linkedSessionId: 'test_brier_window_mismatch_session',
+    durationHours: 3, targetWindowStart: '2026-10-27T07:00:00Z', targetWindowEnd: '2026-10-27T10:00:00Z',
+    actualOutcome: 'catch',
+  };
+  const sameDurationWindowSession: FishingSession = {
+    id: 'test_brier_window_mismatch_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z',
+    outcome: 'catch', targetSpecies: ['Karper'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z',
+  };
+  const windowScopedResult = evaluatePrognosisPerformance(
+    [...linkedSnapshots, sameDurationWindowSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, sameDurationWindowSession, ...recordedSessions]
+  );
+  assert(windowScopedResult.evaluatedCount === 7 && windowScopedResult.timeWindowMismatchCount === 1, '4.12b Een gelijke duur met verschoven start/eindtijd wordt niet als vergelijkbare voorspelling gescoord');
+
+  const breamSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_bream_species', targetSpecies: 'Brasem', linkedSessionId: 'test_brier_bream_species_session', durationHours: 3, targetWindowStart: '2026-10-27T08:00:00Z', targetWindowEnd: '2026-10-27T11:00:00Z', predictedCatchChance: 60, actualOutcome: 'catch' };
   const breamSession: FishingSession = { id: 'test_brier_bream_species_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Brasem'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
   const speciesResult = evaluatePrognosisPerformance([...linkedSnapshots, breamSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, breamSession, ...recordedSessions]);
   assert(speciesResult.speciesBreakdown.some((item) => item.species === 'Brasem' && item.evaluatedCount === 1 && item.brierScore === 0.16) && speciesResult.speciesBreakdown.some((item) => item.species === 'Karper' && item.evaluatedCount === 7), '4.13 Brier toont afzonderlijke beschrijvende scores en aantallen per doelsoort');
