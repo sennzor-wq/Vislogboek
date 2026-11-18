@@ -970,7 +970,8 @@ const missingContextAdvice = analyzeRodPositioning('2026-07-20', [], 'Karper', {
 });
 assert(
   missingContextAdvice.windContext.speedKmH === null &&
-  missingContextAdvice.windContext.directionText === 'Onbekend',
+  missingContextAdvice.windContext.directionText === 'Onbekend' &&
+  missingContextAdvice.windContext.isCalmWind === undefined,
   '18.1 Lege weersdata blijft onbekend en wordt niet vervangen door standaardwind'
 );
 assert(
