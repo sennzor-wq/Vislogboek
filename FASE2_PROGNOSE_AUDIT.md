@@ -1615,3 +1615,49 @@ Bronnen:
 **Registry:** vijf bronnen zijn toegevoegd met expliciete meetuitkomsten en beperkingen. De migratiestudie wordt niet als algemene locomotorische activiteit geclassificeerd omdat de registry nog geen afzonderlijk outcome-type voor paaigerelateerde migratie heeft. Alle nieuwe registraties blijven `approvedForPrediction: false`.
 
 **Modelstatus:** geen thermische parameters, activiteitsscores, factorgewichten, tijdvakvoorkeuren of vangstkansen gewijzigd. De volgende stap is de resterende soortspecifieke dekking en beschikbaarheid van meetdata te toetsen en de volledige factor-/bewijs-/datadekkingsmatrix te sluiten.
+
+
+## 81. Soortdekking en beschikbaarheid van omgevingsdata (18 november 2026)
+
+### Registrydekking per doelsoort
+
+De centrale research registry bevat nu **64 registratierecords**; geen enkel record is goedgekeurd voor directe voorspelling (`approvedForPrediction: false`). De onderstaande aantallen zijn records per soort, geen telling van onafhankelijke publicaties. Eén studie kan meerdere records of uitkomstclassificaties ondersteunen; zie §62 voor het tellen op studie.
+
+| Doelsoort | Records | Voedings-/dieetcontext geregistreerd | Beweging/habitat geregistreerd | Directe hengelvangbaarheid geregistreerd |
+|---|---:|---|---|---|
+| Karper | 13 | Ja, meerdere typen | Ja | Ja |
+| Brasem | 6 | Ja | Ja | Nog niet in register |
+| Snoek | 7 | Ja | Ja | Nog niet in register |
+| Baars | 7 | Ja | Ja | Nog niet in register |
+| Voorn | 8 | Ja | Ja | Nog niet in register |
+| Zeelt | 4 | Ja | Ja | Ja |
+| Snoekbaars | 8 | Ja | Ja | Nog niet in register |
+| Meerval | 6 | Ja | Ja | Nog niet in register |
+| Roofblei | 4 | Ja, vooral dieet/prooi en beperkte voedingscontext | Ja | Nog niet in register |
+
+"Voedings-/dieetcontext" betekent niet dat voor elke soort directe veldmetingen van dagelijkse voedselopname beschikbaar zijn. De geregistreerde uitkomst verschilt per bron: voedselopname, voedingsritme, foerageergedrag, dieetcompositie of prooikeuze. Bewegings-/telemetriebronnen blijven gescheiden van voedingsresponsen. Ontbrekende hengelvangbaarheidsregistraties betekenen dat de registry daarvoor nog geen vergelijkbare soortspecifieke basis bevat; zij bewijzen niet dat er wereldwijd geen onderzoek bestaat.
+
+### Omgevingsfactoren: bewijs versus beschikbare invoer
+
+| Factor | Onderzoeksstatus | Huidige app-invoer | Toegestane rol |
+|---|---|---|---|
+| Watertemperatuur | Breedste fysiologische bewijsbasis, maar soort-/levensfase- en populatieverschillen blijven; curveparameters nog niet onafhankelijk gevalideerd | Gemeten gebruikerswaarde en modelschatting uit temperatuur-/weershistorie | Huidige thermische activiteitspotentie, met expliciete onzekerheid |
+| Wind | Fysische oppervlaktecontext; geen universele soortspecifieke vislocatie- of activiteitsscore | Windsnelheid en -richting uit weersbron; oeveroriëntatie optioneel | Werphoek, lijncontrole, oeverrelatie en voorzichtige oppervlaktedriftcontext |
+| Regen | Vooral indirecte routes via peil, stroming, troebelheid en habitatverbinding; weinig directe dagelijkse voedingsdata | Neerslag en neerslagkans uit weersbron | Context; geen zelfstandige dagelijkse activiteit- of vangstbonus |
+| Bewolking/licht | Licht kan zicht en gedrag beïnvloeden, maar bewijs is soort-/habitatgebonden; nieuwe meta-analyse betreft paaigerelateerde migratie met zeer weinig cloud-studies | Bewolking en zoninstraling uit weersbron | Lichtcontext; geen algemene tijdvakbonus |
+| Opgeloste zuurstof | Specifiek karperbewijs onder uitzonderlijke en uiteenlopende omstandigheden; geen universele grens | Geen directe zuurstofsensor-/meetwaarde in de huidige invoerketen | Alleen gebruiken wanneer later werkelijk gemeten; nu onbekend |
+| Stroming/afvoer | Beïnvloedt beweging, habitat en voedseltoegankelijkheid in stromende systemen; richting varieert per respons en soort | Watertype geeft alleen grofweg rivier/kanaal versus stilstaand aan; geen gemeten stroomsnelheid of afvoer | Kwalitatieve watertypecontext; geen numerieke score zonder lokale meting |
+
+### Geconstateerde datagaten
+
+1. **Geen zuurstofdata:** de huidige weerbron levert geen opgeloste zuurstof. Windstilte, luchttemperatuur en watertemperatuur zijn geen vervanging.
+2. **Geen lokale stromingsdata:** watertype is geen stroomsnelheid. Een rivier-/reservoirstudie kan niet rechtstreeks naar een plas worden overgezet.
+3. **Geen systematische lokale prooibeschikbaarheid:** het model kent geen actuele prooidichtheid, natuurlijke voedselverdeling of lokale voedseltoegankelijkheid.
+4. **Beperkte directe vangbaarheidsdekking:** geregistreerde hengelvangbaarheid is geconcentreerd bij karper en zeelt; vangsttijdstippen zijn niet hetzelfde als voedselopname.
+5. **Beperkte habitatresolutie:** GPS, waterdiepte en door de gebruiker ingevoerde structuren vervangen geen sonarbeeld, bathymetrische kaart of gemeten lokale stroming.
+
+### Consequentie voor modelarchitectuur
+
+De huidige vijf responslagen blijven gescheiden: fysiologische activiteitspotentie, voedings-/foerageeractiviteit, lokale aanwezigheid/habitat, hengelvangbaarheid en persoonlijke vangstkans. Een bron voor beweging vult geen ontbrekende voedingsmeting aan; voedingsbewijs vult geen vangbaarheidsmeting aan. Omgevingsvariabelen zonder betrouwbare invoer blijven onbekend en worden niet ingevuld met plausibele aannames.
+
+**Volgende fase-2-actie:** sluit de factor-/bewijs-/datadekkingsmatrix per soort en per gemeten respons, inclusief bronkwaliteit, watertype, levensfase, seizoensdekking en beschikbaarheid van invoer. Pas daarna kandidaatmodel en chronologisch validatieprotocol uitwerken. Geen numerieke gewichten, nieuwe drempels of tijdvakbonussen activeren op basis van de huidige registrydekking.
