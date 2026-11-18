@@ -511,3 +511,35 @@ De read-only controle bevestigt dat historische sessiemetingen momenteel op sess
 
 
 Aanvulling §10: het meettijdstipveld is in SessionModal optioneel en wordt niet automatisch ingevuld. De fallbackpolicy moet dit expliciet verwerken; session.startTime is geen betrouwbare exacte meettijd.
+
+---
+
+## Voortgangscheckpoint — 18 november 2026
+
+### Hoofdspoor: fase 2 biologische prognose
+
+Fase 2 blijft in uitvoering; formele acceptatie is nog niet verleend en fase 3 is niet gestart. De actuele technische, biologische en evaluatiebevindingen staan in FASE2_PROGNOSE_AUDIT.md en MODELARCHITECTUUR_FASE2.md.
+
+- PR #111 is squash-merged als commit `79e162da4f541829c8bf003d46635a587713a025`. Kwak et al. (1992) is als directe veldbron toegevoegd voor karper: maag-/voorkeeldarminhoud uit een natuurlijk riviersysteem toont discontinu en variabel voeren, gemiddeld met pieken rond zonsopkomst en zonsondergang.
+- De bron is opgenomen in het research register, het karperprofiel, de fase-2-audit en de modelarchitectuur. De regressietest controleert bron, responsvariabelen, beperkingen en `approvedForPrediction: false`.
+- De PR-head Quality Gate is volledig geslaagd, inclusief typecheck, evidence-registry-, feeding-/diel-tests en productiebuild. De bron blijft contextueel; er zijn geen scores, gewichten, tijdvakbonussen of vangstkansen gewijzigd.
+- De bewijsdekking per soort en responsvariabele blijft onderwerp van audit. Directe voedselopname, foerageergedrag, beweging, habitat en hengelvangbaarheid blijven afzonderlijke bewijssoorten.
+
+**Volgende acties fase 2:**
+1. De resterende soort-/factorbronnen en hun overdraagbaarheid controleren, met expliciete scheiding van gemeten respons, levensfase, seizoen, watertype, meetmethode en geografische context.
+2. De volledige factor → code → UI → snapshot → testmatrix afronden, inclusief de gevolgen van ontbrekende en geschatte invoer.
+3. Pas na die audit een toetsbaar kandidaatmodel per responslaag formuleren en vergelijken met de bestaande baseline.
+4. Chronologische onafhankelijke validatie en datavereisten vastleggen. Geen numerieke factor activeren zonder passende bron en validatie; lokale kalibratie blijft wachten op voldoende nieuwe, vergelijkbare sessies.
+
+### Parallelle zijstroom: VisCoach-productverfijning
+
+Deze zijstroom ondersteunt de hoofdroadmap, maar verandert de fasevolgorde niet en start fase 3 niet.
+
+- PR #109 is squash-merged als commit `c45d8f524fc8ead283a91b778c75d84bb2bd88f9`: het productbesluit over afzonderlijk maar samenhangend advies (wanneer/waarom/waar) en tactiek (hoe presenteren/voeren/positioneren) is vastgelegd.
+- PR #110 is squash-merged als commit `c2abbd2f38a08666cf8e7601b7bad050d8d672cb`: de read-only implementatie-audit en vervolgvolgorde staan in VISCOACH_PRODUCT_ROADMAP.md.
+- De coach is al de standaard startpagina en gebruikt bestaande engines. De audit vond onder meer dat het gekozen starttijdvak nog niet alle tactische deel-engines aanstuurt, advies en tactiek één tekstveld zijn, biologische context nog als los standaardblok verschijnt, windtekst alleen bij sterke wind wordt getoond, habitat en wind niet expliciet worden verzoend en slechts een deel van de voorvoeruitkomst wordt benut.
+- Er zijn geen VisCoach-berekeningen of gebruikersinvoer gewijzigd. De eerste invoer blijft doelvis, stek en gewenste starttijd; eindtijd en verdere sessiedetails blijven optioneel.
+
+**Volgende acties VisCoach-zijstroom:** gerichte tijdvakdoorgifte naar de bestaande tactische engines; gestructureerde, achterwaarts compatibele advies-/tactiekvelden; begrijpelijke samenvoeging van habitat-, wind- en positioneringsuitkomsten; onderbouwde matige-windduiding; selectieve benutting van voorvoeruitkomsten; standaard-/geavanceerde presentatie en regressietests. Geen tweede prognose- of tactiekengine.
+
+**Regie:** fase 2 blijft het hoofdspoor. De VisCoach-audit en productvoorbereiding lopen parallel. Fase 3 begint uitsluitend na formele fase-2-acceptatie.
