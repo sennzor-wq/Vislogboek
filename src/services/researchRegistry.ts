@@ -26,7 +26,8 @@ export type ResearchOutcome =
   | 'feeding_physiology'
   | 'metabolic_rate'
   | 'aerobic_scope'
-  | 'angler_catch_distribution';
+  | 'angler_catch_distribution'
+  | 'angler_vulnerability';
 
 export type EvidenceStrength =
   | 'strong'
@@ -600,6 +601,46 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+  {
+    id: 'common-carp-adult-bait-site-night-feeding-2018',
+    topic: 'adult-wild-carp-feeding-at-bait-site',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'foraging_behavior', 'habitat_use'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'In Lake Steiger (67 ha) werden 30 volwassen karpers met radiozenders gevolgd. Na een zevendaagse voorperiode werd zeven dagen met maïs gevoerd; zakken met 25 kg voer werden iedere zes uur gewogen om consumptie te meten. Het nachtelijke voerbezoek en de gemeten consumptie namen sterk toe; tegen dag zeven was de nachtelijke consumptie ongeveer tienmaal de dagwaarde. Dit is directe veldmeting van voedselopname bij een kunstmatig bijgevoerd punt.',
+    limitations: [
+      'De studie vond plaats in één meer in Minnesota met één kunstmatig bijgevoerd punt; dit is geen meting van natuurlijk foerageren over het gehele meer.',
+      'Het onderzoek gebruikte maïs en een korte baiting-periode van zeven dagen na een zevendaagse voorperiode; overdracht naar pellets, andere aassoorten, Nederlandse wateren en andere seizoenen is onzeker.',
+      'De voedselconsumptie bestond uit enkele opgetelde meetwaarden en werd door de auteurs descriptief weergegeven, zonder formele statistische toetsing van die consumptiereeks.',
+      'De bron ondersteunt een contextgebonden nachtelijk voedingssignaal bij volwassen wilde karper op een bijgevoerd punt, geen universele nachtbonus of numerieke tijdvakfactor.'
+    ],
+    sourceReferences: [
+      'Ghosal, R., Eichmiller, J.J., Witthuhn, B.A. & Sorensen, P.W. (2018). Attracting Common Carp to a bait site with food reveals strong positive relationships between fish density, feeding activity, environmental DNA, and sex pheromone release that could be used in invasive fish management. Ecology and Evolution, 8(13), 6714–6727. https://doi.org/10.1002/ece3.4169'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-bait-encounter-angling-vulnerability-2017',
+    topic: 'aasontmoeting-en-hengelvangbaarheid',
+    measuredOutcomes: ['foraging_behavior', 'habitat_use', 'angler_vulnerability'],
+    species: ['Karper', 'Zeelt'],
+    application: 'prognosis',
+    evidenceStrength: 'moderate',
+    summary: 'Whole-lake akoestische telemetrie in een meer van 25 ha onderzocht bij karper en zeelt onder meer zwemafstand, activiteitsruimte, tijd op bijgevoerd aas en wisselen tussen voerlocaties. Daarna werd op vaste bijgevoerd-locaties gevist. De vissen bezochten het aas, maar de gemeten ontmoetings-/bewegingskenmerken verklaarden de individuele verschillen in hengelvangbaarheid niet significant. De auteurs wijzen erop dat gedrag ná het ontmoeten van aas, zoals daadwerkelijke opname, bepalend kan zijn.',
+    limitations: [
+      'De studie betreft één meer, twee benthivore soorten en een specifieke experimentele opzet met vaste bijgevoerd-locaties; dit is geen universele maat voor vangbaarheid.',
+      'De onderzochte ontmoetingskenmerken voorspelden de individuele vangbaarheid niet significant; aanwezigheid of bezoek aan aas mag dus niet gelijkgesteld worden aan een aanbeet of vangst.',
+      'De frequentie van daadwerkelijke aasopname na ontmoeting werd niet rechtstreeks als verklarende gedragsvariabele gemeten.',
+      'De studie levert geen dagritmebonus of directe tijdvakvoorkeur op; zij ondersteunt juist de scheiding tussen aanwezigheid, voedselopname en vangbaarheid.'
+    ],
+    sourceReferences: [
+      'Monk, C.T. & Arlinghaus, R. (2017). Encountering a bait is necessary but insufficient to explain individual variability in vulnerability to angling in two freshwater benthivorous fish in the wild. PLOS ONE, 12(3), e0173989. https://doi.org/10.1371/journal.pone.0173989'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
   {
     id: 'common-carp-wild-night-feeding-lake-2010',
     topic: 'wild-diel-feeding-and-food-search',

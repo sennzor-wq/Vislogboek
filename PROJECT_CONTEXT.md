@@ -1529,3 +1529,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Rahman et al. 2008 toegevoegd als gecontroleerd tegenbewijs: jonge karper graasde dag en nacht zonder duidelijke piek.
 - Žák 2021 toegevoegd als afzonderlijk `angler_catch_distribution`-resultaat, niet als directe voedingsmeting.
 - Alle bronnen blijven `approvedForPrediction: false`; geen nachtbonus, biologische score of tijdvakgewicht geactiveerd.
+
+
+### Fase 2 — aasontmoeting gescheiden van vangbaarheid (18 november 2026)
+
+- Ghosal et al. 2018 toegevoegd als directe maar contextgebonden veldmeting van volwassen-karperconsumptie bij een maïsbaitsite.
+- Monk & Arlinghaus 2017 toegevoegd als `angler_vulnerability`-bewijs: aasontmoeting/bezoek alleen verklaarde individuele vangbaarheid niet significant.
+- Aanwezigheid, voedselopname en vangbaarheid blijven aparte modelstappen; beide bronnen niet goedgekeurd voor numerieke voorspelling.

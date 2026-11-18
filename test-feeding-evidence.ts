@@ -100,3 +100,14 @@ if (!catchDistributionEvidence.some((item) => item.id === 'common-carp-angling-c
     carp.feedingRhythm.some((item) => item.id === 'common-carp-angling-competition-night-landings-2021')) {
   throw new Error('Angling competition landings must remain a separate catch-distribution outcome, not direct feeding evidence.');
 }
+
+
+if (!carp.feedingRhythm.some((item) => item.id === 'common-carp-adult-bait-site-night-feeding-2018') ||
+    carp.feedingRhythm.some((item) => item.id === 'common-carp-bait-encounter-angling-vulnerability-2017')) {
+  throw new Error('The 2018 adult-carp bait-site study is direct feeding evidence; the 2017 bait-encounter study is not a feeding-rhythm measurement.');
+}
+const vulnerabilityEvidence = getResearchByOutcome('Karper', 'angler_vulnerability');
+if (!vulnerabilityEvidence.some((item) => item.id === 'common-carp-bait-encounter-angling-vulnerability-2017') ||
+    carp.feedingRhythm.some((item) => item.id === 'common-carp-bait-encounter-angling-vulnerability-2017')) {
+  throw new Error('Angling vulnerability must remain separate from direct feeding rhythm.');
+}
