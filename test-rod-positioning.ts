@@ -893,11 +893,11 @@ assert(
   '16.1 Koud water (<8°C) met afkoeling: windkant is NIET automatisch gunstig (isWindwardFavorable === false)'
 );
 assert(
-  wcgCold.banksContext.windwardAssessment.toLowerCase().includes('afkoeling') || wcgCold.banksContext.windwardAssessment.toLowerCase().includes('kille golfslag'),
-  '16.2 Beoordeling windkant in de winter waarschuwt voor snelle afkoeling door koude branding'
+  wcgCold.banksContext.windwardAssessment.toLowerCase().includes('lokale temperatuurmetingen') && wcgCold.banksContext.windwardAssessment.toLowerCase().includes('niet vast te stellen'),
+  '16.2 Koude wind leidt zonder lokale meting niet tot een aanname over vispositie'
 );
 
-// 16.2 Zomer / Milde bries: Windkant is GUNSTIG
+// 16.2 Zomer / Milde bries: Windkant is context, geen vislocatievoorspelling
 const adviceWarm = analyzeRodPositioning('2026-07-20', fcSummerWind, 'Karper', {
   location: baseLoc,
   thermalAnalysis: mockThermalAnalysis('Ongeveer stabiel', 20),
