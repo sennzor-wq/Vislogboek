@@ -1398,3 +1398,15 @@ Regressietests dekken lege sets, gedeeltelijke invoer, lege eindtijd, ongeldige 
 ### Besluit
 
 Er is nog geen betrouwbare tijdvakgebonden catch rate of voedingsactiviteit-label beschikbaar. De volgende implementatiestap is uitsluitend een offline, beschrijvende datakwaliteits-/blootstellingsdiagnose met expliciete dekking en uitsluitingen. Pas na controle van die uitkomsten kan worden besloten of een afzonderlijke tijdvakprestatiemaat valideerbaar is. Geen prognosescore, modelparameter of gebruikersinvoer wijzigen in deze stap.
+
+
+## 68. Standalone tijdvakblootstellingsdiagnose (18 november 2026)
+
+Er is een pure, beschrijvende helper toegevoegd die geldige hengelintervallen splitst over de bestaande Amsterdamse tijdvakken (Nacht/Ochtend/Middag/Avond). De helper:
+- gebruikt absolute tijdstempels en `Europe/Amsterdam` via de bestaande tijdzonefunctie; lente- en herfst-DST worden daardoor op werkelijke klokovergangen verdeeld;
+- voegt overlappende intervallen per hengel samen, maar telt verschillende hengels afzonderlijk;
+- bewaart aantallen geregistreerde intervallen, hengels zonder intervallen, onvolledige intervallen en intervallen buiten sessiegrenzen;
+- vult ontbrekende hengeluren nooit aan vanuit sessieduur of `rodCount`;
+- geeft uitsluitend geregistreerde blootstelling terug, zonder vangstlabels of soorttoewijzing.
+
+De helper is nog niet aangesloten op de prognose, VisCoach of UI. Er wordt geen catch rate, nulvangst per tijdvak, voedingsactiviteit of Brier-score berekend. De regressietests dekken normale tijdvakgrenzen, overlap, gedeeltelijke dekking, ongeldige invoer en beide DST-overgangen.
