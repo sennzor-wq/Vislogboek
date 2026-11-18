@@ -192,6 +192,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   };
 
   const activeDayProg = dayPrognoses[selectedDayIndex] || dayPrognoses[0];
+  const canStartSessionNow = !!activeDayProg && activeDayProg.date === formatAmsterdamDate(new Date());
 
   // Standaard uitsluitend het thermisch gunstigste toekomstige tijdvak uitgeklapt laten zien
   useEffect(() => {
@@ -233,7 +234,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   ] : [];
 
   const handleStartSessionFromPrognosis = async () => {
-    if (!activeDayProg || !selectedLoc) return;
+    if (!activeDayProg || !selectedLoc || !canStartSessionNow) return;
     // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
     const storedSnapshots = await db.prognosisSnapshots.toArray();
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
@@ -553,13 +554,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap self-start lg:self-center">
-                <button
-                  onClick={handleStartSessionFromPrognosis}
-                  className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-950/50 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-emerald-200" />
-                  Start Sessie op dit moment
-                </button>
+                {canStartSessionNow && (
+                  <button
+                    onClick={handleStartSessionFromPrognosis}
+                    className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-950/50 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-200" />
+                    Start Sessie op dit moment
+                  </button>
+                )}
               </div>
             </div>
 
