@@ -236,7 +236,7 @@ function resolveCoachStartZone(
     : source === 'positioning'
       ? cleanCoachText(positioning?.rationale)
       : '';
-  return { primaryZone, secondaryZone, source, confidenceLevel, hasLocalObservationEvidence, explanation };
+  return { primaryZone, secondaryZone, source, confidenceLevel, hasConflict: Boolean(secondaryZone), hasLocalObservationEvidence, explanation };
 }
 
 function explainCoachLimitation(note: string): string | null {
