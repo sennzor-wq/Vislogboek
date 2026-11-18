@@ -630,3 +630,19 @@ Voor roofblei is een Donau-veldstudie geregistreerd die het aandeel lege magen p
 De registry bevat drie aanvullende, soortspecifieke voedingsregistraties. Voor brasem is er in-situ bewijs van dagelijkse zoöplanktonconsumptie en maagvulling (Vašek & Kubečka, 2004); voor snoekbaars seizoensgebonden maagvulling/voedingsintensiteit en lengteafhankelijke dieetverandering (Özyurt et al., 2012); voor meerval een sterk nachtelijk zelfvoeder-ritme in gecontroleerde laboratoriumomstandigheden (Boujard, 1995).
 
 Deze bewijzen zijn niet onderling gelijkwaardig. De brasemstudie is veldbewijs binnen één prooitype en reservoir; de snoekbaarsstudie meet seizoens- en grootteverschillen, niet het uur-tot-uur-ritme; de meervalstudie is laboratoriumbewijs en geen natuurlijke veldobservatie. Alle records blijven informatief en niet-goedgekeurd voor directe voorspelling. Geen generieke dag-/nachtbonus of seizoenscorrectie volgt hieruit.
+
+
+## 73. Huidige bewijsdekking en grens tussen biologische context en voorspelling
+
+Na PR #134 telt de registry 71 records. De actuele per-soortuitsplitsing en de beoordeling van de modelrol staan in `FASE2_PROGNOSE_AUDIT.md` §83. De belangrijkste ontwerpconclusies:
+
+- De literatuurinventarisatie voor de negen doelsoorten is voor deze ronde voldoende afgerond; dit is geen wetenschappelijke validatie en sluit Fase 2 niet af.
+- Directe voedingsmetingen, dieet/prooikeuze, beweging/habitat, hengelvangsttempo en individuele vangbaarheid blijven afzonderlijke responsen.
+- Een veldmeting van maagvulling of voedselconsumptie kan biologische context leveren, maar is niet automatisch een maat voor opname van vissersaas of hengelvangbaarheid.
+- Laboratoriumritmes (zoals de meervalstudie) mogen niet zonder veldbevestiging als tijdvakvoorkeur worden gebruikt.
+- De bestaande thermische activiteitspotentie blijft een afzonderlijke fysiologische laag. De registry valideert de numerieke thermische curves niet zelfstandig.
+- Lokale zuurstof, stroomsnelheid en actuele prooibeschikbaarheid blijven onbekend zolang de invoerketen geen betrouwbare metingen levert.
+
+Alle 71 registry-records blijven `approvedForPrediction: false`. Er worden geen biologische gewichten, tijdvakbonussen of nieuwe drempels geactiveerd.
+
+**Volgende technische stap:** controleer eerst de replaybaarheid van opgeslagen prognosesnapshots en bepaal welke compacte featurewaarden nodig zijn voor onafhankelijke chronologische evaluatie. Ontwerp daarna pas de aparte voedings-/foerageerresponslaag. Fase 3 blijft geblokkeerd tot de Fase-2-acceptatiecriteria aantoonbaar zijn gehaald.
