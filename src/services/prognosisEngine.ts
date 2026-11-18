@@ -682,7 +682,7 @@ export function getSessionDurationHours(session: FishingSession): number | null 
  * Berekent de volledige dagprognose met strikte scheiding van:
  * 1. Thermische activiteitspotentie (1.0 - 10.0, voorlopige relatieve temperatuurrespons)
  * 2. Persoonlijke vangstkans (P(vangst >= 1) voor sessie van opgegeven duur en methode)
- * 3. Beste toekomstige vistijd (uitsluitend niet-verstreken tijdvakken)
+ * 3. Thermisch gunstigste toekomstige tijdvak (uitsluitend niet-verstreken tijdvakken)
  */
 export function calculateDayPrognosis(
   dateStr: string,
@@ -1000,18 +1000,18 @@ export function calculateDayPrognosis(
   // Samenvatting
   let summaryRationale = '';
   if (!dayScoreAvailable) {
-    summaryRationale = 'De beste vistijd is niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.';
+    summaryRationale = 'De thermische activiteitspotentie en het thermisch gunstigste tijdvak zijn niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.';
   } else if (bestSlot === 'Geen betekenisvol onderscheid') {
-    summaryRationale = 'De beschikbare tijdvakken verschillen volgens de huidige prognose niet betekenisvol in thermische activiteitspotentie. Er is daarom geen onderbouwde beste vistijd; kies een moment dat praktisch past.';
+    summaryRationale = 'De beschikbare tijdvakken verschillen volgens de huidige prognose niet betekenisvol in thermische activiteitspotentie. Er is daarom geen thermisch gunstigst tijdvak; kies een moment dat praktisch past.';
   } else if (bestSlot === 'Geen toekomstig tijdvak meer vandaag') {
     summaryRationale = 'Alle tijdvakken voor vandaag zijn inmiddels verstreken. Bekijk de prognose voor morgen.';
   } else {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
-    summaryRationale = `Beste toekomstige vistijd is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). ${bestSlotAnalysis.conclusion}`;
+    summaryRationale = `Het thermisch gunstigste toekomstige tijdvak is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). Dit is gebaseerd op thermische activiteitspotentie, niet op een bewezen voedingspiek of vangstkans. ${bestSlotAnalysis.conclusion}`;
   }
 
   // De coach kan een expliciet starttijdvak meegeven. De algemene dagprognose
-  // behoudt haar dagbrede context en beste tijdvak; alleen tijdgevoelige tactiek
+  // behoudt haar dagbrede context en thermisch gunstigste tijdvak; alleen tijdgevoelige tactiek
   // gebruikt dan de gekozen startperiode.
   const defaultTacticalSlot = bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid'
     ? bestSlot as TimeSlot
