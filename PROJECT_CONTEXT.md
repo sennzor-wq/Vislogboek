@@ -1682,3 +1682,10 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Brier controleert voorspelde/werkelijke duur en gepland/werkelijk tijdvenster. Exacte vensters worden op minuutprecisie vergeleken; oudere snapshots vallen terug op het gekozen Amsterdamse starttijdvak; ontbrekende context wordt uitgesloten en apart geteld.
 - De VisCoach-route bewaart geplande start/eindtijden in de sessiesnapshot. Regressies dekken verschoven vensters bij gelijke duur, duurmismatch, onbekende duur, tijdvakfallback en ontbrekende tijdcontext.
 - Geen biologische score, gewicht, parameter of tijdvakbonus gewijzigd. Fase 2 blijft open wegens resterende wetenschappelijke/ontwerpbesluiten en lokale praktijkvalidatie; Fase 3 start niet.
+### Fase 2 — soortspecifieke thermische bewijsstatus zichtbaar (18 november 2026)
+
+- De profielmodal toont nu de thermische bewijsstatus uit de bestaande evidence-service.
+- Baars en snoekbaars: aerobe-scopegegevens, niet goedgekeurd voor numerieke voorspelling.
+- Karper, snoek, brasem en blankvoorn: metabole gegevens, geen aerobe-scopecurve; dit is geen directe maat voor activiteit, voedselopname of vangbaarheid.
+- Zeelt, meerval en roofblei: geen vergelijkbare soortspecifieke thermische fysiologiebron in het register.
+- Geen thermische curve, score, parameter of vangstkans gewijzigd. De expliciete keuze om voorlopige priors te behouden of bij onvoldoende bewijs uit te schakelen staat open in FASE2_PROGNOSE_AUDIT.md §86.
