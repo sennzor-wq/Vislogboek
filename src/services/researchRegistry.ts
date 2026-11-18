@@ -740,6 +740,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'common-carp-wild-river-diel-feeding-1992',
+    topic: 'diel-voedselopname-in-natuurlijk-rivierhabitat',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'habitat_use'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Veldonderzoek in de Vermilion River (Illinois) bepaalde de dagelijkse voedingschronologie en rantsoenen uit maag-/voorkeeldarminhoud van onder meer gewone karper. Bij karper was de voedselopname discontinu en sterk variabel tussen individuen, uren en maanden; de hoogste voedingsintensiteit werd gemiddeld rond zonsopkomst en zonsondergang gevonden. Ook het gebruikte microhabitat verschilde tussen perioden met hoge en lage voedselopname.',
+    limitations: [
+      'De studie betreft één natuurlijk riviersysteem in Illinois; de uitkomst is niet rechtstreeks overdraagbaar op Nederlandse stilstaande wateren of Lokkershoek.',
+      'De auteurs rapporteren sterke variatie tussen individuen, uren en maanden. De ochtend-/schemerpieken zijn daarom geen vaste dagelijkse regel voor iedere karper.',
+      'Maag-/voorkeeldarminhoud is een veldmaat voor recente voedselopname, geen directe maat voor aasopname aan een hengel of hengelvangbaarheid.',
+      'De studie geeft geen specifieke onderbouwing voor method-feeder, pellets, voorvoerstrategie of een numerieke tijdvakbonus.'
+    ],
+    sourceReferences: [
+      'Kwak, T.J., Wiley, M.J., Osborne, L.L. & Larimore, R.W. (1992). The application of diel feeding chronology to habitat suitability analysis of warmwater stream fishes. Canadian Journal of Fisheries and Aquatic Sciences, 49(7), 1417–1430. https://doi.org/10.1139/f92-157'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
     id: 'tench-field-diel-seasonal-feeding-2018',
     topic: 'dagritme-seizoen-en-voedselopname',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition'],
