@@ -1598,3 +1598,12 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Hengelvangbaarheid blijft beperkt geregistreerd en gescheiden van voedings- en bewegingsbewijs.
 - De aantallen tellen registry-records, niet onafhankelijke studies of bewijssterkte. Alle 64 records blijven `approvedForPrediction: false`; geen score, gewicht of tijdvakbonus gewijzigd.
 - Volgende actie: gerichte literatuurcontrole op directe voedingsmetingen voor de dun bezette soorten en onafhankelijke hengelvangbaarheidsstudies; pas daarna kandidaatmodel/validatie verder uitwerken.
+
+
+### Fase 2 — vangsttempo en individuele vangbaarheid beter onderscheiden (18 november 2026)
+
+- Research registry uitgebreid van 64 naar 67 records met één baarsstudie naar recreatief hengelvangsttempo en twee onafhankelijke snoekstudies naar kunstaasschuwheid/individuele vangbaarheid.
+- Nieuw outcome-type `angler_catch_rate` voorkomt dat hengeldagboekvangsttempo ten onrechte als individuele visvangbaarheid wordt geclassificeerd.
+- De snoekstudies laten contextafhankelijke effecten zien van visserijdruk, visgrootte, aaskeuze en leren; de gerapporteerde populatieschatting van 43,2% geldt uitsluitend voor snoek boven 40 cm in één studiepopulatie.
+- Geen van de nieuwe gegevens wordt als numerieke prognoseparameter gebruikt. Alle 67 records blijven `approvedForPrediction: false`; geen score, gewicht of tijdvakbonus gewijzigd.
+- Zie `FASE2_PROGNOSE_AUDIT.md` §82 en `MODELARCHITECTUUR_FASE2.md` §70.

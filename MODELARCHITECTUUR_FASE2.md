@@ -601,13 +601,20 @@ Daarom gelden de volgende grenzen:
 - **Regen en bewolking:** beschikbaar als weerscontext, maar de gevonden kwantitatieve synthese betreft vooral paaigerelateerde migratie en heeft zeer beperkte dekking voor regen/bewolking. Geen dagelijkse voedings- of vangstscore.
 - **Wind:** blijft een presentatie-/lijncontrolefactor en kan oppervlaktedrift helpen duiden; lokale habitat en directe waarnemingen bepalen de primaire doelzone.
 
-De research registry telt 64 records en alle records blijven niet-goedgekeurd voor directe voorspelling. De soortdekking verschilt per responsvariabele. Voor iedere toekomstige koppeling moet de gemeten respons passen bij de modeluitkomst: fysiologische activiteit is geen voedselopname, beweging is geen foerageren en voedselopname is geen hengelvangbaarheid.
+De oorspronkelijke factorinventarisatie telde 64 records; na de aanvullende registratie van baars-catch-rate en twee snoek-vangbaarheidsstudies telt de registry nu 67 records. Alle records blijven niet-goedgekeurd voor directe voorspelling. De soortdekking verschilt per responsvariabele. Voor iedere toekomstige koppeling moet de gemeten respons passen bij de modeluitkomst: fysiologische activiteit is geen voedselopname, beweging is geen foerageren en voedselopname is geen hengelvangbaarheid.
 
 De volledige dekking en invoerbeperkingen staan in `FASE2_PROGNOSE_AUDIT.md` §81. Geen bestaande score, gewicht of thermische parameter wordt door deze documentatie gewijzigd.
 
 
 ## 69. Bewijsdekking telt per gemeten respons, niet als algemene soortdekking
 
-De registry bevat 64 records, maar een soort die zowel dieet-, beweging- als habitatcontext heeft, heeft daarmee niet automatisch direct bewijs voor voedingsintensiteit, voedingsritme of hengelvangbaarheid. De auditmatrix in `FASE2_PROGNOSE_AUDIT.md` §82 splitst records daarom uit naar de expliciet gemeten respons. Vooral roofblei heeft momenteel uitsluitend dieet-/prooikeuze- en bewegings-/habitatcontext; directe voedingsintensiteit, voedingsritme en foerageergedrag ontbreken in de registry. De telemetrie van roofblei blijft locomotorische activiteit/habitatgebruik en wordt niet als voeding gemodelleerd.
+De registry bevat nu 67 records, maar een soort die zowel dieet-, beweging- als habitatcontext heeft, heeft daarmee niet automatisch direct bewijs voor voedingsintensiteit, voedingsritme of hengelvangbaarheid. De auditmatrix in `FASE2_PROGNOSE_AUDIT.md` §82 splitst records daarom uit naar de expliciet gemeten respons. Vooral roofblei heeft momenteel uitsluitend dieet-/prooikeuze- en bewegings-/habitatcontext; directe voedingsintensiteit, voedingsritme en foerageergedrag ontbreken in de registry. De telemetrie van roofblei blijft locomotorische activiteit/habitatgebruik en wordt niet als voeding gemodelleerd.
 
 De aantallen registry-records zijn geen aantallen onafhankelijke studies en geen bewijsgewichten. Bronkwaliteit, populatie, levensfase, seizoen, watertype en meetmethode blijven leidend. Hengelvangbaarheid blijft gescheiden van aanwezigheid, beweging en voedselopname. Alle records blijven niet-goedgekeurd voor directe voorspelling; er worden geen biologische gewichten of tijdvakbonussen geactiveerd.
+
+
+## 70. Hengelvangsttempo en individuele vangbaarheid zijn aparte uitkomsten
+
+De research registry bevat nu naast `angler_catch_distribution` ook `angler_catch_rate` voor hengeldagboek-/vangsttempo en `angler_vulnerability` voor individuele gevoeligheid voor vangst. Heermann et al. (2013) registreerden baarsvangsttempo over 21 meren en lieten zien dat visserervaring, voorkeur, aas-/kunstaastype en omgevingscontext samenhangen met vangsten. Twee snoekstudies (Roser et al., first published 2024; Lucas et al., 2026) meten rechtstreeks verschillen in reactie op kunstaas en vangbaarheid, met duidelijke effecten van visserijdruk, visgrootte, aaskeuze en leereffecten.
+
+Deze uitkomsten zijn niet onderling uitwisselbaar: catch rate uit hengeldagboeken is geen individuele kwetsbaarheid, en een schatting uit één populatie is geen universele vangstkans. De nieuwe records blijven niet-goedgekeurd voor directe voorspelling. Er volgt geen numerieke correctie of vangstbonus.

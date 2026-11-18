@@ -1665,27 +1665,36 @@ De huidige vijf responslagen blijven gescheiden: fysiologische activiteitspotent
 
 ## 82. Registry-dekking per soort en gemeten respons (18 november 2026)
 
-De 64 registry-records zijn opnieuw uitgesplitst naar de expliciet geregistreerde waarden in `measuredOutcomes`. Onderstaande aantallen zijn **registry-records per respons**, geen aantallen onafhankelijke publicaties, effectgroottes of bewijssterkte. Eén record kan meerdere publicaties samenvatten en meerdere responsen bevatten; algemene records zonder soortkoppeling tellen mee voor alle soorten.
+De 67 registry-records zijn opnieuw uitgesplitst naar de expliciet geregistreerde waarden in `measuredOutcomes`. Onderstaande aantallen zijn **registry-records per respons**, geen aantallen onafhankelijke publicaties, effectgroottes of bewijssterkte. Eén record kan meerdere publicaties samenvatten en meerdere responsen bevatten; algemene records zonder soortkoppeling tellen mee voor alle soorten.
 
-| Soort | Voedingsintensiteit | Voedingsritme | Foerageergedrag | Dieetcompositie | Prooikeuze | Locomotorische activiteit | Habitatgebruik | Hengelvangstverdeling | Hengelvangbaarheid |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Karper | 5 | 7 | 7 | 0 | 0 | 2 | 6 | 1 | 1 |
-| Brasem | 2 | 2 | 0 | 0 | 0 | 2 | 3 | 0 | 0 |
-| Snoek | 3 | 1 | 0 | 1 | 0 | 3 | 2 | 0 | 0 |
-| Baars | 3 | 3 | 0 | 1 | 1 | 2 | 1 | 0 | 0 |
-| Voorn | 5 | 5 | 0 | 1 | 0 | 1 | 3 | 0 | 0 |
-| Zeelt | 3 | 2 | 1 | 1 | 0 | 1 | 1 | 0 | 1 |
-| Snoekbaars | 2 | 1 | 0 | 1 | 1 | 3 | 2 | 0 | 0 |
-| Meerval | 3 | 2 | 1 | 1 | 0 | 3 | 3 | 0 | 0 |
-| Roofblei | 0 | 0 | 0 | 2 | 1 | 2 | 2 | 0 | 0 |
+| Soort | Voedingsintensiteit | Voedingsritme | Foerageergedrag | Dieetcompositie | Prooikeuze | Locomotorische activiteit | Habitatgebruik | Hengelvangstverdeling | Hengelvangsttempo | Hengelvangbaarheid |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Karper | 5 | 7 | 7 | 0 | 0 | 2 | 6 | 1 | 0 | 1 |
+| Brasem | 2 | 2 | 0 | 0 | 0 | 2 | 3 | 0 | 0 | 0 |
+| Snoek | 3 | 1 | 0 | 1 | 0 | 3 | 2 | 0 | 0 | 2 |
+| Baars | 3 | 3 | 0 | 1 | 1 | 2 | 1 | 0 | 1 | 0 |
+| Voorn | 5 | 5 | 0 | 1 | 0 | 1 | 3 | 0 | 0 | 0 |
+| Zeelt | 3 | 2 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 1 |
+| Snoekbaars | 2 | 1 | 0 | 1 | 1 | 3 | 2 | 0 | 0 | 0 |
+| Meerval | 3 | 2 | 1 | 1 | 0 | 3 | 3 | 0 | 0 | 0 |
+| Roofblei | 0 | 0 | 0 | 2 | 1 | 2 | 2 | 0 | 0 | 0 |
 
 ### Wat deze uitsplitsing wel en niet zegt
 
 - De registry heeft voor roofblei momenteel dieet-/prooikeuze- en bewegings-/habitatcontext, maar geen expliciet geregistreerde directe voedingsintensiteit, voedingsritme of foerageergedrag. De roofblei-telemetriebronnen meten beweging en habitatgebruik; ze mogen niet worden omgezet naar een voedings- of schemerbonus.
 - Voor brasem, snoek, baars, blankvoorn en snoekbaars is de geregistreerde directe voedings-/ritmedekking eveneens smaller dan de algemene aanwezigheid van biologische context doet vermoeden. Nul bij foerageergedrag betekent hier: geen afzonderlijk als zodanig geclassificeerd registry-record, niet dat wereldwijd geen onderzoek bestaat.
-- Hengelvangstverdeling en hengelvangbaarheid zijn slechts beperkt geregistreerd (de huidige registry-records betreffen karper en zeelt). Dit blijft een afzonderlijke laag en mag niet worden afgeleid uit voedings- of telemetrieonderzoek.
+- Hengelvangstverdeling, hengelvangsttempo en individuele hengelvangbaarheid zijn drie verschillende uitkomsten. De registry bevat nu ook baarsvangsttempo uit hengeldagboeken en twee snoekstudies naar individuele vangbaarheid/lure shyness; dit zijn contextgebonden studies en geen overdraagbare vangstpercentages. De bestaande karper- en zeeltregistraties blijven eveneens apart.
 - Aantallen zijn geen kwaliteitsweging. Bronkwaliteit, meetmethode, levensfase, seizoen, watertype, geografische overdraagbaarheid en de werkelijk gemeten respons blijven bepalend.
 
 ### Gevolg voor de volgende fase-2-stap
 
-De matrix maakt duidelijk waar de volgende literatuurcontrole gericht moet zijn: directe veldmetingen van voedingsintensiteit/ritme voor roofblei en de soorten met slechts één of enkele relevante registraties, plus onafhankelijke hengelvangbaarheidsstudies buiten karper/zeelt. Eerst bron- en outcome-validatie; pas daarna eventueel een modelkoppeling. Alle 64 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel is gewijzigd.
+De matrix maakt duidelijk waar de volgende literatuurcontrole gericht moet zijn: directe veldmetingen van voedingsintensiteit/ritme voor roofblei en de soorten met slechts één of enkele relevante registraties, plus onafhankelijke hengelvangbaarheidsstudies buiten de nu vertegenwoordigde karper-, zeelt- en snoekcontext en catch-rate-studies voor andere doelsoorten dan baars. Eerst bron- en outcome-validatie; pas daarna eventueel een modelkoppeling. Alle 67 records blijven `approvedForPrediction: false`; geen score, gewicht, tijdvakbonus of drempel is gewijzigd.
+
+
+### Aanvulling — directe hengelvangst- en vangbaarheidsstudies (18 november 2026)
+
+- **Baars:** Heermann et al. (2013) analyseerden hengeldagboeken uit 21 meren en een aanvullende experimentele grindplasvisserij. De studie registreert factoren achter recreatief vangsttempo, waaronder visserervaring, voorkeur, aas-/kunstaastype, transparantie, voedingsconditie en seizoen. Dit is als nieuw outcome-type `angler_catch_rate` geregistreerd; het is geen individuele visvangbaarheidsmeting.
+- **Snoek:** Roser et al. (first published 2024; volume 2025) vonden in drie paren kustgebieden dat snoeken bij lagere visserijdruk agressiever reageerden op kunstaas; een deel van het verschil in vangsttempo kon aan kunstaasschuwheid worden toegeschreven.
+- **Snoek:** Lucas et al. (2026) onderzochten drie jaar lang een voorheen onbeviste populatie met 22.213 worpen. De studie toont grootte-, aas- en leereffecten; de geschatte 43,2% betreft alleen snoeken boven 40 cm in die ene populatie.
+
+Deze registraties vullen de literatuurdekking aan, maar activeren geen vangstcorrectie. Hengelvangsttempo, individuele vangbaarheid, voedselopname en aanwezigheid blijven afzonderlijke uitkomsten. Alle drie nieuwe records blijven `approvedForPrediction: false`; de genoemde percentages en effectgroottes worden niet als prognoseparameters gebruikt.

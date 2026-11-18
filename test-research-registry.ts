@@ -529,3 +529,39 @@ if (!SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.include
   throw new Error('The perch profile must link its reviewed abiotic movement thesis with its movement-only scope.');
 }
 console.log('Pressure and turbidity evidence scope tests passed.');
+
+
+// Angling catch-rate and vulnerability are separate measured outcomes, not feeding proxies.
+const perchCatchRate = RESEARCH_REGISTRY.find((item) => item.id === 'perch-recreational-angling-catch-rates-21-lakes-2013');
+if (!perchCatchRate ||
+    !perchCatchRate.measuredOutcomes?.includes('angler_catch_rate') ||
+    perchCatchRate.measuredOutcomes.includes('angler_vulnerability') ||
+    perchCatchRate.approvedForPrediction ||
+    !perchCatchRate.summary.includes('21 meren') ||
+    !perchCatchRate.limitations.some((item) => item.includes('visserervaring'))) {
+  throw new Error('Perch angling diaries must remain a distinct catch-rate outcome, not individual vulnerability or feeding evidence.');
+}
+if (getResearchByOutcome('Baars', 'angler_catch_rate').every((item) => item.id !== 'perch-recreational-angling-catch-rates-21-lakes-2013')) {
+  throw new Error('Perch catch-rate evidence must be discoverable by species and measured outcome.');
+}
+const pikeWildLureShyness = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-wild-lure-shyness-protected-areas-2025');
+if (!pikeWildLureShyness ||
+    !pikeWildLureShyness.measuredOutcomes?.includes('angler_vulnerability') ||
+    pikeWildLureShyness.approvedForPrediction ||
+    !pikeWildLureShyness.summary.includes('drie paren') ||
+    !pikeWildLureShyness.limitations.some((item) => item.includes('kustsnoek'))) {
+  throw new Error('Wild coastal pike lure-shyness evidence must retain its protected-area design and transferability limits.');
+}
+const pikeCaptureLearning = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-capture-probability-bait-learning-unexploited-2026');
+if (!pikeCaptureLearning ||
+    !pikeCaptureLearning.measuredOutcomes?.includes('angler_vulnerability') ||
+    pikeCaptureLearning.approvedForPrediction ||
+    !pikeCaptureLearning.summary.includes('22.213 worpen') ||
+    !pikeCaptureLearning.summary.includes('43,2%') ||
+    !pikeCaptureLearning.limitations.some((item) => item.includes('geen universele individuele vangstkans'))) {
+  throw new Error('The 2026 pike capture study must retain effort, size-conditioned population estimate and non-transferability limits.');
+}
+if (getResearchByOutcome('Snoek', 'angler_vulnerability').filter((item) => item.id.startsWith('northern-pike-')).length !== 2) {
+  throw new Error('Both independent pike vulnerability studies must be discoverable without activating them in the prognosis.');
+}
+console.log('Angling catch-rate and vulnerability evidence tests passed.');
