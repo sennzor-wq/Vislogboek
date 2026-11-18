@@ -1488,3 +1488,12 @@ Productbesluit: de bestaande instelling `showAdvancedPrognosisDetails` is de cen
 Dieet-/prooikeuze blijft in het onderzoeksregister beschikbaar als wetenschappelijke context, maar wordt niet als extra derde kaart op de prognosepagina getoond. De standaardweergave toont geen verborgen lege uitklapvlakken; tijdvakdetails zijn alleen uitklapbaar in de geavanceerde weergave.
 
 Er zijn geen prognoseberekeningen, biologische scores, factoren of modelgewichten aangepast.
+
+
+## 76. Wild karper: direct rivierbewijs nuanceert nachtelijke aasstationpatronen (18 november 2026)
+
+Kwak et al. (1992) is toegevoegd aan het centrale research register als directe veldbron voor voedingsintensiteit en dagritme bij gewone karper. De studie bepaalde de voedingschronologie uit maag-/voorkeeldarminhoud in de Vermilion River (Illinois). Bij karper was de voedselopname discontinu en sterk variabel tussen individuen, uren en maanden; de hoogste gemiddelde voedingsintensiteit lag rond zonsopkomst en zonsondergang. De auteurs beschrijven daarnaast verschillen in microhabitat tussen perioden met hoge en lage voedselopname.
+
+Deze bron nuanceert de eerder geregistreerde nachtelijke consumptie bij volwassen wilde karper op kunstmatig bijgevoerd meerpunten (Bajer 2010; Ghosal 2018) en de schemer-/nachtelijke detecties bij bijgevoerd gemonitorde stations (Hundt 2022). Ze staat ook naast de studie met jonge karpers in gesimuleerde vijvers waarin geen duidelijke dagelijkse graaspiek werd gevonden (Rahman 2008). De verschillen zijn contextgebonden; ze ondersteunen geen universele nacht-, ochtend- of schemerbonus.
+
+De bron is geclassificeerd als `feeding_intensity`, `feeding_rhythm` en `habitat_use`, niet als hengelvangbaarheid. De registratie blijft `approvedForPrediction: false`. De uitkomst is niet zonder meer overdraagbaar van één Illinois-rivier naar Nederlandse stilstaande wateren, Lokkershoek of method-feederpresentatie. Er zijn geen score, tijdvakvoorkeur, modelgewicht of vangstkans gewijzigd.
