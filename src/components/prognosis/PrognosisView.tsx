@@ -960,28 +960,32 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <span className="text-xs font-bold text-white uppercase tracking-wider block">
                         Hengelpositionering & Visbeweging
                       </span>
-                      <span className="text-[11px] text-slate-400">
-                        Tactisch advies op basis van wind, stroming, waterlaag en diepte
-                      </span>
+                      {showAdvancedDetails && (
+                        <span className="text-[11px] text-slate-400">
+                          Tactisch advies op basis van wind, stroming, waterlaag en diepte
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-[11px] text-slate-400"
-                      title="Kwalitatieve inschatting van de onderbouwing van het stekadvies; geen gekalibreerde kans."
-                    >Onderbouwing stekadvies:</span>
-                    <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
-                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                      }`}
-                    >
-                      {activeDayProg.positioningAdvice.confidenceLevel}
-                    </span>
-                  </div>
+                  {showAdvancedDetails && (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[11px] text-slate-400"
+                        title="Kwalitatieve inschatting van de onderbouwing van het stekadvies; geen gekalibreerde kans."
+                      >Onderbouwing stekadvies:</span>
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                          activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                        }`}
+                      >
+                        {activeDayProg.positioningAdvice.confidenceLevel}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Hoofdadvies en Alternatief */}
@@ -1009,21 +1013,23 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         {activeDayProg.positioningAdvice.alternativeOption}
                       </p>
                     </div>
-                    <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1 text-[10px] text-slate-400">
-                      <div className="flex items-center justify-between">
-                        <span>
-                          {activeDayProg.positioningAdvice.windContext.speedKmH === null ? 'Windgegevens: onbekend' : `Wind: ${activeDayProg.positioningAdvice.windContext.directionText} ${activeDayProg.positioningAdvice.windContext.speedKmH} km/u`}
-                          {activeDayProg.positioningAdvice.windContext.gustsKmH &&
-                            ` (stoten ~${activeDayProg.positioningAdvice.windContext.gustsKmH} km/u)`}
-                        </span>
-                        <span>Seizoen: {activeDayProg.positioningAdvice.thermalContext.season}</span>
+                    {showAdvancedDetails && (
+                      <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1 text-[10px] text-slate-400">
+                        <div className="flex items-center justify-between">
+                          <span>
+                            {activeDayProg.positioningAdvice.windContext.speedKmH === null ? 'Windgegevens: onbekend' : `Wind: ${activeDayProg.positioningAdvice.windContext.directionText} ${activeDayProg.positioningAdvice.windContext.speedKmH} km/u`}
+                            {activeDayProg.positioningAdvice.windContext.gustsKmH &&
+                              ` (stoten ~${activeDayProg.positioningAdvice.windContext.gustsKmH} km/u)`}
+                          </span>
+                          <span>Seizoen: {activeDayProg.positioningAdvice.thermalContext.season}</span>
+                        </div>
+                        {activeDayProg.positioningAdvice.windContext.intraSessionNote && (
+                          <p className="text-cyan-300/80 text-[10px]">
+                            {activeDayProg.positioningAdvice.windContext.intraSessionNote}
+                          </p>
+                        )}
                       </div>
-                      {activeDayProg.positioningAdvice.windContext.intraSessionNote && (
-                        <p className="text-cyan-300/80 text-[10px]">
-                          {activeDayProg.positioningAdvice.windContext.intraSessionNote}
-                        </p>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
 
@@ -1736,7 +1742,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                 <Clock className="w-5 h-5 text-emerald-400" />
-                Uitklapbare Analyse per Tijdvak
+{showAdvancedDetails ? 'Uitklapbare Analyse per Tijdvak' : 'Tijdvakken'}
               </h3>
               {showAdvancedDetails && (
                 <span className="text-xs text-slate-400">
