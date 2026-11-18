@@ -114,6 +114,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Thorpe, J.E. (1977) Synopsis of biological data on the perch. FAO Fisheries Synopsis No. 113.',
       'Rask, M. (1986). The diet and diel feeding activity of perch, Perca fluviatilis L., in a small lake in southern Finland. Annales Zoologici Fennici, 23, 49–56. https://www.annzool.net/PDF/anzf23/anz23-049-056.pdf (één specifiek meer en zomerperiode)',
       'Bretzel, J.B. et al. (2021). Feeding Ecology of Invasive Three-Spined Stickleback (Gasterosteus aculeatus) in Relation to Native Juvenile Eurasian Perch (Perca fluviatilis) in the Pelagic Zone of Upper Lake Constance. Frontiers in Environmental Science, 9. https://doi.org/10.3389/fenvs.2021.670125 (juveniele 0+ baars; 24-uursanalyse herfst 2018)',
+      'Sandberg, L. (2020). Movement of the Eurasian perch (Perca fluviatilis) – individual responses to abiotic factors. Umeå University, Degree Thesis in Biology, 15 ECTS. https://umu.diva-portal.org/smash/get/diva2:1446518/FULLTEXT01.pdf (beweging; druk- en temperatuureffecten verschilden tussen drie meren; geen directe voedselopname)',
           'Christensen, E.A.F., Svendsen, M.B.S. & Steffensen, J.F. (2020). The combined effect of body size and temperature on oxygen consumption rates and the size-dependency of preferred temperature in European perch Perca fluviatilis. Journal of Fish Biology, 97(3), 794–803. https://doi.org/10.1111/jfb.14435 (aerobe scope en temperatuurvoorkeur zijn lichaamsgrootte-afhankelijk)',
 ],
     thermalOptimum: 16.5,
