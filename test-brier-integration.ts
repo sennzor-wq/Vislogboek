@@ -443,13 +443,13 @@ async function runBrierIntegrationTest() {
   );
 
   // 4.12 Duurvergelijkbaarheid: afwijkende en onbekende blootstelling telt niet mee.
-  const mismatchSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_duration_mismatch', linkedSessionId: 'test_brier_duration_mismatch_session', durationHours: 4, actualOutcome: 'catch' };
   const mismatchSession: FishingSession = { id: 'test_brier_duration_mismatch_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Karper'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
+  const mismatchSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_duration_mismatch', linkedSessionId: 'test_brier_duration_mismatch_session', durationHours: 4, targetWindowStart: mismatchSession.startTime, targetWindowEnd: mismatchSession.endTime, actualOutcome: 'catch' };
   const unknownDurationSnapshot: PrognosisSnapshot = { ...mismatchSnapshot, id: 'test_brier_duration_unknown', linkedSessionId: 'test_brier_duration_unknown_session', durationHours: 0, durationKnown: false };
   const unknownDurationSession: FishingSession = { ...mismatchSession, id: 'test_brier_duration_unknown_session' };
   const durationScopedResult = evaluatePrognosisPerformance([...linkedSnapshots, mismatchSnapshot, unknownDurationSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, mismatchSession, unknownDurationSession, ...recordedSessions]);
   assert(durationScopedResult.evaluatedCount === 7 && durationScopedResult.durationMismatchCount === 1 && durationScopedResult.durationUnknownCount === 1, '4.12 Brier sluit afwijkende en onbekende sessieduur uit en rapporteert beide aantallen afzonderlijk');
-  assert(durationScopedResult.timeWindowMismatchCount === 2 && durationScopedResult.timeWindowUnknownCount === 0, '4.12a Brier sluit ook tijdvenstermismatches uit, los van de duurcontrole');
+  assert(durationScopedResult.timeWindowMismatchCount === 0 && durationScopedResult.timeWindowUnknownCount === 0, '4.12a Brier sluit ook tijdvenstermismatches uit, los van de duurcontrole');
 
   const sameDurationWindowSnapshot: PrognosisSnapshot = {
     ...linkedSnapshots[0], id: 'test_brier_window_mismatch', linkedSessionId: 'test_brier_window_mismatch_session',
