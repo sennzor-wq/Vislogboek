@@ -262,7 +262,7 @@ function determineTacticalHypothesis(
     recommendedZone: 'Lokale habitatstructuur of diepteovergang',
     rationale: `Wind (${windDirText} ${avgWindSpeed} km/u) is relevant voor presentatie en lijncontrole, maar bewijst niet dat vis aan de windkant of in de luwte ligt. Gebruik geregistreerde lokale structuur of een ter plaatse vastgestelde diepteovergang als startpunt; zonder lokale gegevens wordt geen specifieke viszone aangewezen.`,
     alternativeOption:
-      'Vergelijk de aanlandige oever alleen als tweede zoekzone wanneer je ter plaatse bevestigt dat de wind daar daadwerkelijk op de oever staat en er bruikbare structuur of visactiviteit is.'
+      'Vergelijk de aanlandige oever alleen als tweede zoekzone wanneer je ter plaatse bevestigt dat de wind daar daadwerkelijk op de oever staat en er bruikbare structuur of visactiviteit is.',
     confidenceLevel: 'Matig',
   };
 }
