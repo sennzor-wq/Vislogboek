@@ -1583,3 +1583,8 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Weerservice bevat wind, regen, bewolking, luchtdruk en temperatuur, maar geen opgeloste zuurstof of lokale stromingssnelheid/afvoer.
 - Zuurstof en stroming blijven daarom buiten numerieke prognose zolang betrouwbare lokale meetinvoer ontbreekt; regen en bewolking blijven context, niet dagelijkse voedings- of vangstscore.
 - De volgende fase-2-actie is het sluiten van de volledige factor-/bewijs-/datadekkingsmatrix per soort en gemeten respons. Geen gewichten, drempels of tijdvakbonussen geactiveerd.
+
+
+### VisCoach — latere verfijning dynamische weerswijzigingen (18 november 2026)
+
+Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tussen een meet-/forecastmoment, een functioneel relevante verandering in een factor en een daadwerkelijk gewijzigde praktische actie. Kleine wijzigingen in windkracht of -richting veroorzaken niet automatisch een nieuw coachadvies. Een prognosewijziging zonder tactiekwijziging kan intern als snapshot worden vastgelegd; een nieuw gebruikersadvies volgt alleen wanneer de bestaande tactiek-/adviesuitkomst praktisch verandert. Factorgrenzen en eventuele hysterese worden later per factor onderzocht en gevalideerd; geen willekeurige numerieke grens invoeren. Dit punt is geen must voor de huidige fase en verandert de fasevolgorde niet.
