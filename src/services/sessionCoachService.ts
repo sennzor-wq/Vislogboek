@@ -190,7 +190,7 @@ function cleanCoachText(value: string | undefined): string {
     .trim();
 }
 function isGenericZone(value: string): boolean {
-  return /algemene zoekzone|bekende lokale structuurzone|aanvullende locatiegegevens|onbekend/i.test(value);
+  return /algemene zoekzone|bekende lokale structuurzone|geregistreerde lokale structuur als eerste zoekzone|aanvullende locatiegegevens|ter plaatse vaststellen|zie steknotities|onbekend/i.test(value);
 }
 
 function explainZone(value: string): string {
@@ -200,6 +200,42 @@ function explainZone(value: string): string {
   if (/riet/.test(normalized)) return 'de rietkraag, als die op deze stek aanwezig is';
   if (/structuur/.test(normalized)) return 'een plek waar je ter plaatse duidelijke structuur ziet, bijvoorbeeld begroeiing of een verandering in de bodem';
   return value;
+}
+
+function resolveCoachStartZone(
+  habitat: DayPrognosis['habitatAnalysis'],
+  positioning: DayPrognosis['positioningAdvice']
+) {
+  const habitatName = habitat?.primaryZone?.name;
+  const structureNote = habitat?.primaryZone?.structureNote;
+  const habitatZone = habitatName && !isGenericZone(habitatName)
+    ? habitatName
+    : structureNote && !isGenericZone(structureNote)
+      ? `Geregistreerde structuur: ${structureNote}`
+      : null;
+  const positioningZone = positioning?.recommendedZone && !isGenericZone(positioning.recommendedZone)
+    ? positioning.recommendedZone
+    : null;
+  const hasDirectPresence = (habitat?.dataProvenance?.userObservations?.length ?? 0) > 0;
+  // Directe lokale waarnemingen en een bruikbaar habitatprofiel gaan vóór een
+  // generieke wind-/soortzone. Alleen bij lage habitatzekerheid en redelijke
+  // positioneringszekerheid krijgt de positioneringszone voorrang.
+  const preferPositioning = Boolean(positioningZone) && (
+    !habitatZone ||
+    (!hasDirectPresence && habitat?.confidenceLevel === 'Laag' && positioning?.confidenceLevel === 'Redelijk')
+  );
+  const primaryZone = preferPositioning ? positioningZone : habitatZone ?? positioningZone;
+  const secondaryCandidate = preferPositioning ? habitatZone : positioningZone;
+  const sameZone = Boolean(primaryZone && secondaryCandidate && primaryZone.trim().toLowerCase() === secondaryCandidate.trim().toLowerCase());
+  const secondaryZone = sameZone ? null : secondaryCandidate;
+  const source = preferPositioning ? 'positioning' : habitatZone ? 'habitat' : positioningZone ? 'positioning' : 'none';
+  const confidenceLevel = source === 'habitat' ? habitat?.confidenceLevel : source === 'positioning' ? positioning?.confidenceLevel : undefined;
+  const explanation = source === 'habitat'
+    ? cleanCoachText(habitat?.primaryZone?.whyLikely || habitat?.primaryZone?.description)
+    : source === 'positioning'
+      ? cleanCoachText(positioning?.rationale)
+      : '';
+  return { primaryZone, secondaryZone, source, confidenceLevel, hasDirectPresence, explanation };
 }
 
 function explainCoachLimitation(note: string): string | null {
