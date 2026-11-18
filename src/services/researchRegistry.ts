@@ -1190,6 +1190,67 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-16',
     approvedForPrediction: false,
   },
+  {
+    id: 'eurasian-perch-pressure-variability-movement-three-lakes-2020',
+    topic: 'luchtdrukvariabiliteit-en-beweging',
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    measuredOutcomes: ['locomotor_activity'],
+    summary: 'Een bacheloronderzoek met akoestische telemetrie volgde 54 Europese baarzen in drie boreale meren. Meer dagelijkse luchtdrukvariabiliteit hing in twee van de drie meren samen met minder zwemactiviteit; temperatuur en licht lieten eveneens meermeer- en contextafhankelijke resultaten zien.',
+    limitations: [
+      'Het betreft een bachelorproef en slechts drie boreale meren; per meer werden 14–21 vissen gevolgd.',
+      'De relaties waren niet consistent in alle drie de meren. De auteurs benadrukken verschillen tussen meren en individuele lichaamsgrootte.',
+      'De gemeten uitkomst is zwemafstand/beweging per dag, geen voedselopname, jachtintensiteit of hengelvangbaarheid.',
+      'De studie ondersteunt geen universele drukregel of numerieke drukbonus voor Nederlandse baarzen.'
+    ],
+    sourceReferences: [
+      'Sandberg, L. (2020). Movement of the Eurasian perch (Perca fluviatilis) – individual responses to abiotic factors. Umeå University, Degree Thesis in Biology, 15 ECTS. https://umu.diva-portal.org/smash/get/diva2:1446518/FULLTEXT01.pdf'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'yellow-perch-barometric-pressure-feeding-lab-2014',
+    topic: 'barometrische-druk-en-voedselopname-verwante-soort',
+    species: ['Perca flavescens (verwante soort; geen Europese baars)'],
+    application: 'general',
+    evidenceStrength: 'limited',
+    measuredOutcomes: ['feeding_intensity'],
+    summary: 'Een laboratoriumstudie met juveniele Noord-Amerikaanse yellow perch (Perca flavescens; 75–125 mm, 4–20 g) omvatte 12 proeven bij stijgende, dalende en stabiele luchtdruk. Er werd geen significant verband gevonden tussen luchtdruk en voedselconsumptie (P = 0,55); consumptie nam wel toe gedurende de studie, waarschijnlijk mede door gewenning aan de laboratoriumsituatie.',
+    limitations: [
+      'Perca flavescens is niet de Europese baars Perca fluviatilis; deze bron is uitsluitend een verwante-taxonomische vergelijking en wordt niet aan het Europese baarsprofiel gekoppeld.',
+      'De studie gebruikte kleine juveniele vissen, weinig proeven en hergebruikte individuen; acclimatisatie was een expliciete verstorende factor.',
+      'Een niet-significant resultaat in deze beperkte laboratoriumstudie bewijst niet dat luchtdruk voor alle vissoorten of omstandigheden irrelevant is.',
+      'De bron rechtvaardigt geen algemene drukbonus of -malus voor voedselopname of vangstkans.'
+    ],
+    sourceReferences: [
+      'VanderWeyst, D. (2014). The Effect of Barometric Pressure on Feeding Activity of Yellow Perch. Journal of Earth and Life Science, 50. https://www.bemidjistate.edu/directory/wp-content/uploads/sites/16/2023/02/2014-VanderWeyst-D.-The-effect-of-barometric-pressure-on-feeding-activity-of-yellow-perch..pdf'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'freshwater-fish-turbidity-predator-prey-review-2024',
+    topic: 'troebelheid-en-predator-prooi-interacties',
+    species: [],
+    application: 'environment',
+    evidenceStrength: 'moderate',
+    measuredOutcomes: ['foraging_behavior', 'locomotor_activity', 'habitat_use'],
+    summary: 'Een review van 281 peer-reviewed studies beschrijft dat toenemende troebelheid de zichtbaarheid, predator-prooi-interacties, foerageerstrategieën en habitatkeuze kan veranderen. De richting verschilt per soort en trofische rol; negatieve effecten werden vaker gemeld bij predatoren dan bij prooivissen.',
+    limitations: [
+      'De literatuur heeft sterke taxonomische, geografische en omgevingsbias; de review levert geen Nederlandse soortspecifieke responsfunctie.',
+      'De resultaten zijn gemengd: veranderingen in activiteit of gedrag betekenen niet automatisch hogere of lagere voedselopname.',
+      'In veel studies werd daadwerkelijke predatierisico- of vangstuitkomst niet gemeten; foerageergedrag is geen hengelvangbaarheid.',
+      'De review biedt geen universele NTU-drempel, vaste richting van effect of numerieke activiteitbonus voor de negen Vislogboek-doelsoorten.'
+    ],
+    sourceReferences: [
+      'Zanghi, C. & Ioannou, C.C. (2024). The impact of increasing turbidity on the predator–prey interactions of freshwater fishes. Freshwater Biology, 70(1), e14354. https://doi.org/10.1111/fwb.14354'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
