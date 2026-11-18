@@ -25,7 +25,8 @@ export type ResearchOutcome =
   | 'growth'
   | 'feeding_physiology'
   | 'metabolic_rate'
-  | 'aerobic_scope';
+  | 'aerobic_scope'
+  | 'angler_catch_distribution';
 
 export type EvidenceStrength =
   | 'strong'
@@ -599,6 +600,85 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+  {
+    id: 'common-carp-wild-night-feeding-lake-2010',
+    topic: 'wild-diel-feeding-and-food-search',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'foraging_behavior', 'habitat_use'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Veldonderzoek aan vrijlevende karpers in een meer in Minnesota combineerde een vijfdaagse meting van maïconsumptie per twee uur met telemetrie van 34 karpers. De gemeten consumptie nam na zonsondergang sterk toe, piekte midden in de nacht en daalde na zonsopkomst. In een tweede experiment bezochten gemerkte karpers een nieuw bijgevoerd punt vooral na zonsondergang en keerden zij na zonsopkomst terug naar hun daggebieden.',
+    limitations: [
+      'De directe consumptiemeting duurde vijf dagen op één meer en gebruikte maïs als kunstmatig aangeboden voedsel; dit is geen continue meting van natuurlijk foerageren.',
+      'Het tweede experiment onderzocht een nieuw bijgevoerd punt en ruimtelijk leer-/zoekgedrag; bezoeken aan dat punt zijn contextgebonden en niet gelijk aan een universeel nachtelijk voedingsmaximum.',
+      'De studie vond plaats in Minnesota bij zomertemperaturen van circa 23–27 °C; seizoen, watertype, natuurlijk voedselaanbod en Europese populaties kunnen het patroon veranderen.',
+      'De bron ondersteunt een veldwaargenomen nachtelijk voedingspatroon onder de onderzochte omstandigheden, maar geen vaste Nederlandse tijdvakbonus of directe vangstkans.'
+    ],
+    sourceReferences: [
+      'Bajer, P.G., Lim, H., Travaline, M.J., Miller, B.D. & Sorensen, P.W. (2010). Cognitive aspects of food searching behavior in free-ranging wild Common Carp. Environmental Biology of Fishes, 88(3), 295–300. https://doi.org/10.1007/s10641-010-9643-8'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-wild-bait-station-feeding-2022',
+    topic: 'diel-foerageren-en-sociale-aggregaties-bij-aasstations',
+    measuredOutcomes: ['feeding_rhythm', 'foraging_behavior'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een veldstudie in het natuurlijke Parley Lake (Minnesota) volgde 344 PIT-gemerkte wilde karpers bij meerdere bijgevoerd gemonitorde locaties. Tijdens de 20-daagse voerperiode in 2020 werden 133 unieke karpers 616.593 keer gedetecteerd; de aggregaties bij de voerlocaties waren het actiefst van schemering tot zonsopkomst. Voedselbezoeken waren kort en de individuele bijdrage was sterk ongelijk verdeeld.',
+    limitations: [
+      'Het onderzoek betrof één meer in Minnesota en kunstmatig bijgevoerd gemonitorde stations; het meet activiteit bij aangelegde voedselpunten, niet het volledige natuurlijke foerageergedrag in het meer.',
+      'PIT-detecties en afgeleide feeding bouts meten aanwezigheid en bezoekgedrag bij de stations, niet rechtstreeks de hoeveelheid gegeten voedsel per vis.',
+      'De individuele verschillen waren groot; een gemiddelde schemer-/nachtpiek beschrijft niet iedere karper.',
+      'De populatie, habitat en baiting-opzet zijn niet rechtstreeks overdraagbaar op een Nederlandse visvijver of Lokkershoek; geen numerieke tijdvakbonus afleiden.'
+    ],
+    sourceReferences: [
+      'Hundt, P.J., White, L.A., Craft, M.E. & Bajer, P.G. (2022). Social associations in common carp (Cyprinus carpio): Insights from induced feeding aggregations for targeted management strategies. Ecology and Evolution, 12(3), e8666. https://doi.org/10.1002/ece3.8666'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-simulated-pond-no-distinct-diel-peak-2008',
+    topic: 'dag-nacht-foerageergedrag-in-gesimuleerde-vijvers',
+    measuredOutcomes: ['feeding_rhythm', 'foraging_behavior'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een videostudie in kleine gesimuleerde vijvers volgde jonge karpers van circa 80 g gedurende 24 uur. Karpers graasden zowel overdag als ’s nachts, maar vertoonden geen duidelijke dagelijkse graaspiek; de verticale positie hing mede samen met het aanwezige voedseltype.',
+    limitations: [
+      'De studie gebruikte kleine gesimuleerde vijvers en jonge karpers; dit is geen veldonderzoek aan volwassen karpers in natuurlijke Nederlandse wateren.',
+      'Gedrag werd met periodieke video-opnamen bemonsterd en de resultaten zijn gekoppeld aan een polycultuur-/voercontext.',
+      'Het ontbreken van een duidelijke piek in deze opzet staat naast nachtelijke veldwaarnemingen bij vrijlevende karpers; dit onderstreept context- en levensfaseafhankelijkheid.'
+    ],
+    sourceReferences: [
+      'Rahman, M.M., Verdegem, M.C.J., Wahab, M.A., Hossain, M.Y. & Jo, Q. (2008). Effects of day and night on swimming, grazing and social behaviours of rohu Labeo rohita (Hamilton) and common carp Cyprinus carpio (L.) in simulated ponds. Aquaculture Research, 39(13), 1383–1392. https://doi.org/10.1111/j.1365-2109.2008.02007.x'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-angling-competition-night-landings-2021',
+    topic: 'tijdstipverdeling-van-hengelvangsten',
+    measuredOutcomes: ['angler_catch_distribution'],
+    species: ['Karper'],
+    application: 'advice',
+    evidenceStrength: 'limited',
+    summary: 'Een analyse van 14 karperwedstrijden in vier Europese landen, elk met meer dan 100 gelande karpers, vond de meeste landingen gedurende de nacht met een piek tussen zonsondergang en zonsopkomst. Het tijdspatroon verschilde wel significant tussen wedstrijden.',
+    limitations: [
+      'De studie meet tijdstippen van wedstrijdvangsten, niet rechtstreeks voedselopname of foerageeractiviteit; vangstverdeling is een uitkomst van zowel visgedrag als hengelinspanning en vangbaarheid.',
+      'De beschikbare wedstrijdgegevens leveren geen algemeen gevalideerde, vergelijkbare hengeluren-noemer per tijdvak; aantallen landingen zijn daarom geen tijdvakvangstkans of CPUE.',
+      'Het betreft gespecialiseerde karperwedstrijden met grote volwassen karpers, intensieve voorvoerpraktijken en ervaren deelnemers; dit is niet één-op-één overdraagbaar op recreatief method-feederen.',
+      'De verschillen tussen wedstrijden waren statistisch aanwezig; de studie rechtvaardigt geen universele nachtbonus.'
+    ],
+    sourceReferences: [
+      'Žák, J. (2021). Diel pattern in common carp landings from angling competitions corresponds to their assumed foraging activity. Fisheries Research, 243, 106086. https://doi.org/10.1016/j.fishres.2021.106086'
+    ],
+    reviewedAt: '2026-11-18',
+    approvedForPrediction: false,
+  },
   {
     id: 'common-carp-diel-grazing-food-type-2009',
     topic: 'dagritme-foerageren-en-voedseltype',

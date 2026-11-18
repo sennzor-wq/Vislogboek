@@ -109,3 +109,11 @@ if (!genericTimeContext.includes('geen soortspecifiek tijdgebonden voedingsritme
     genericTimeContext.includes('voorkeursperiode')) {
   throw new Error('The generic profile must not inherit a species-specific time preference.');
 }
+
+const carpDiel = getSpeciesDielBehaviorEvidenceContext('Karper');
+if (!carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-wild-night-feeding-lake-2010') ||
+    !carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-wild-bait-station-feeding-2022') ||
+    carpDiel.feedingRhythm.some((item) => item.id === 'common-carp-angling-competition-night-landings-2021') ||
+    carpDiel.temporalEvidenceScope !== 'feeding-and-movement') {
+  throw new Error('Wild carp feeding evidence must be exposed separately from angling landings and movement evidence.');
+}
