@@ -1513,8 +1513,8 @@ De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschr
 
 - `SpeciesProfile` bevat als enige numerieke biologische profielparameters `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. `calculateThermalEfficiency()` gebruikt uitsluitend deze drie voorlopige waarden.
 - `description`, `assumptions` en `scientificReferences` zijn verklarende metadata. Ze worden in de geavanceerde prognoseweergave getoond, maar leveren geen numerieke bijdrage aan `activityScore`.
-- De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is geen soortspecifieke wind-, druk-, wolken-, regen-, zuurstof- of stromingsbron in het huidige centrale research register geregistreerd.
-- Alle 56 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
+- De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is nog geen soortspecifieke wind-, wolken-, regen-, zuurstof- of stromingsbron in het centrale register. De gerichte drukreview in §79 voegt twee beperkte drukbronnen toe; geen daarvan ondersteunt een universele activiteit- of voedingsbonus.
+- Alle 59 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
 
 ### Soortspecifieke dekking in het research register
 
@@ -1525,7 +1525,7 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 | Karper | 1 | 9 | 4 | 0 | 2 |
 | Brasem | 1 | 2 | 3 | 0 | 0 |
 | Snoek | 1 | 3 | 3 | 1 | 0 |
-| Baars | 1 | 3 | 1 | 1 | 0 |
+| Baars | 1 | 3 | 2 | 1 | 0 |
 | Blankvoorn | 1 | 5 | 3 | 1 | 0 |
 | Zeelt | 0 | 4 | 2 | 1 | 1 |
 | Snoekbaars | 1 | 2 | 3 | 1 | 0 |
@@ -1545,7 +1545,7 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 - De beschrijvingen en aannames in `fishProfiles.ts` zijn herzien om directe voedselopname, locomotorische activiteit, habitatgebruik en fysiologie niet door elkaar te halen.
 - Onvoldoende onderbouwde vaste wind-, druk- en weersclaims zijn verwijderd of expliciet als niet-gevalideerde context geformuleerd. Diel-patronen zijn voorzien van context-/levensfasebeperkingen.
 - De numerieke thermische profielwaarden zijn ongewijzigd en blijven voorlopige modelprioren.
-- De profielreferentielijsten bevatten 78 vermeldingen: 48 DOI-verwijzingen zijn teruggevonden in het centrale register. Van 30 verwijzingen zonder DOI zijn er vijf op auteursnaam teruggevonden; 25 zijn tijdens deze statische controle niet op auteursnaam gematcht. Dit betekent niet automatisch dat de bron onjuist is, maar deze oudere boeken/rapporten moeten afzonderlijk worden geverifieerd of als achtergrondliteratuur worden gemarkeerd voordat ze als directe modelonderbouwing gelden.
+- De profielreferentielijsten bevatten nu 79 vermeldingen: 48 DOI-verwijzingen zijn teruggevonden in het centrale register. Van 31 verwijzingen zonder DOI zijn er zes op auteursnaam teruggevonden; 25 zijn tijdens deze statische controle niet op auteursnaam gematcht. Dit betekent niet automatisch dat de bron onjuist is, maar deze oudere boeken/rapporten moeten afzonderlijk worden geverifieerd of als achtergrondliteratuur worden gemarkeerd voordat ze als directe modelonderbouwing gelden.
 - De geavanceerde UI vermeldt nu expliciet dat profielnotities context/aannames zijn en dat bronvermelding geen validatie van de numerieke thermische curve betekent.
 
 ### Status en vervolg
@@ -1557,3 +1557,28 @@ Volgende hoofdspoorstappen:
 2. Onderzoek gericht onafhankelijke bronnen voor wind, druk, zicht/troebelheid, neerslag, zuurstof en stroming per soort, met onderscheid tussen activiteit, voedselopname, habitat en visbaarheid.
 3. Voltooi de matrix per soort: actief in activiteitsscore, actief in habitat-/positioneringsmodel, alleen context, niet beschikbaar of bewust uitgesloten.
 4. Stel pas na die matrix een kandidaatmodel en chronologisch validatieprotocol op. Geen numerieke factor activeren op basis van de huidige bronregistratie alleen.
+## 79. Gerichte literatuurcheck luchtdruk en troebelheid (18 november 2026)
+
+### Luchtdruk: beweging is niet hetzelfde als voedselopname
+
+- **Europese baars — Sandberg (2020):** akoestische telemetrie van 54 baarzen in drie boreale meren. Meer dagelijkse luchtdrukvariabiliteit hing samen met minder zwemactiviteit in twee van de drie meren; de relaties met temperatuur en licht waren eveneens niet universeel. Geregistreerd als `locomotor_activity`, beperkte bewijssterkte, niet goedgekeurd voor directe voorspelling.
+- **Verwante soort — VanderWeyst (2014):** 12 laboratoriumproeven met juveniele Noord-Amerikaanse yellow perch (*Perca flavescens*) vonden geen significant verband tussen luchtdruk en voedselconsumptie (P = 0,55). De auteur benoemt gewenning aan laboratoriumomstandigheden als verstorende factor. Deze soort is expliciet niet gekoppeld aan Europese baars (*Perca fluviatilis*); de bron blijft alleen een verwante-taxonomische vergelijking.
+- **Modelconclusie:** luchtdruk kan in sommige populaties samenhangen met beweging, maar dat bewijst geen hogere of lagere voedselopname. De gegevens ondersteunen geen universele drukbonus, drukmalus of vangstkansregel. Luchtdruk blijft context totdat soort-, water- en respons-specifieke replicatie beschikbaar is.
+
+### Troebelheid en zicht: richting van effect verschilt
+
+- **Zanghi & Ioannou (2024):** review van 281 peer-reviewed studies naar troebelheid en predator-prooi-interacties bij zoetwatervissen. De review vond uiteenlopende gedrags- en foerageerreacties; negatieve effecten kwamen vaker voor bij predatoren dan bij prooivissen, maar de resultaten zijn taxonomisch en geografisch scheef verdeeld. Geregistreerd als algemene omgevingskennis, niet soortspecifiek en niet goedgekeurd voor directe voorspelling.
+- **Modelconclusie:** troebelheid kan zicht, prooidetectie, predatorrisico en habitatgebruik veranderen, maar de richting hangt af van soort, prooi, levensfase en habitat. Er is geen universele NTU-drempel of vaste activiteitbonus voor de Vislogboek-soorten.
+
+### Wind en overige weers-/waterfactoren
+
+- De gerichte zoekronde leverde geen voldoende sterke, soortspecifieke bron op die een zelfstandige windrichting- of windsnelheidsbonus voor totale activiteit of voedselopname rechtvaardigt.
+- Wind blijft wel bruikbaar voor lokale tactiek: oeveroriëntatie, golfslag, mogelijke voedselverplaatsing en werprichting. Dat is een positionerings-/habitatvraag, niet automatisch een hogere totale activiteit.
+- Voor neerslag, bewolking als zelfstandige factor, opgeloste zuurstof en stroming is aanvullende soort- en watertype-specifieke bronbeoordeling nodig. Ontbrekende zuurstofmetingen mogen niet uit watertemperatuur of weer worden afgeleid.
+
+Bronnen:
+- Sandberg, L. (2020). *Movement of the Eurasian perch (Perca fluviatilis) – individual responses to abiotic factors*. Umeå University, Degree Thesis in Biology, 15 ECTS. https://umu.diva-portal.org/smash/get/diva2:1446518/FULLTEXT01.pdf
+- VanderWeyst, D. (2014). *The Effect of Barometric Pressure on Feeding Activity of Yellow Perch*. Journal of Earth and Life Science, 50. https://www.bemidjistate.edu/directory/wp-content/uploads/sites/16/2023/02/2014-VanderWeyst-D.-The-effect-of-barometric-pressure-on-feeding-activity-of-yellow-perch..pdf
+- Zanghi, C. & Ioannou, C.C. (2024). *The impact of increasing turbidity on the predator–prey interactions of freshwater fishes*. Freshwater Biology, 70(1), e14354. https://doi.org/10.1111/fwb.14354
+
+**Status:** deze drie bronnen zijn toegevoegd aan het research register met expliciete beperkingen en `approvedForPrediction: false`. Er zijn geen activiteitsscores, thermische parameters, tijdvakbonussen of gewichten aangepast.
