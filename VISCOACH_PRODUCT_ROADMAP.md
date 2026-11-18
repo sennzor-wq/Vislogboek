@@ -1267,8 +1267,40 @@ De coachtekst moet het door de gebruiker gekozen tijdvak volgen. Bij één herle
 **Volgende uitvoering:** maak de bewijsdekking per soort controleerbaar op responsvariabele, levensfase, seizoen, habitat/watertype, meetmethode en geografische overdraagbaarheid. Identificeer expliciet waar een soort alleen indirecte of contextgebonden dekking heeft. Daarna pas kan worden besloten welke kwalitatieve claims veilig in VisCoach thuishoren; numerieke invloed blijft geblokkeerd totdat lokale, chronologisch gescheiden validatie dat ondersteunt.
 
 
-## Fase 2 — biologische context in VisCoach zonder extra invoer (16 november 2026)
+## Fase 2 — biologische context als interne coachkennis, zonder extra invoer (herijkt 18 november 2026)
 
-De volgende stap gebruikt de bestaande onderzoeksregistraties om in VisCoach een korte **Biologische context** te tonen. De tekst onderscheidt directe dagritme-/voedingsmetingen van alleen beweging, habitat of dieet en benoemt de grenzen van levensfase, seizoen en watertype. Dit is uitleg, geen verborgen numerieke factor. Er komt geen verplicht levensfaseveld of extra handeling bij.
+De bestaande onderzoeksregistraties blijven beschikbaar als onderbouwing voor de prognose- en coachlaag. De biologische literatuur hoeft niet als afzonderlijk blok **Biologische context** in het gewone visplan te worden getoond. De coach gebruikt alleen conclusies die passen bij het gemeten gedragstype en de relevante grenzen van levensfase, seizoen, habitat en watertype. Beweging, habitatgebruik, dieet, foerageergedrag en directe voedselopname blijven verschillende bewijssoorten.
 
-De sessiecoach moet bovendien bij opgeslagen start- en herbeoordelingsadviezen hetzelfde werkelijke sessietijdvak gebruiken als de planweergave. Bij meerdere tijdvakken wordt geen beste dagdeel opgedrongen. Acceptatie: regressietests voor enkel tijdvak, meerdere tijdvakken, directe voedingsritmebronnen en uitsluitend indirect bewijs; geen wijziging in bestaande scores of vangstkans.
+Voor de gewone gebruiker vertaalt VisCoach de relevante uitkomsten naar begrijpelijk praktisch advies. Uitgebreide bronverantwoording, onderzoek, aannames en onzekerheid horen bij de geavanceerde analyseweergave. Er komt geen verplicht levensfaseveld of extra handeling bij. Geen bron wordt door deze presentatiekeuze automatisch goedgekeurd als numerieke voorspelfactor.
+
+De sessiecoach gebruikt bij opgeslagen start- en herbeoordelingsadviezen hetzelfde werkelijke sessietijdvak als de planweergave. Bij meerdere tijdvakken wordt geen beste dagdeel opgedrongen. Regressietests bewaken enkel tijdvak, meerdere tijdvakken en het onderscheid tussen directe voedingsritmebronnen en uitsluitend indirect bewijs; geen wijziging in bestaande scores of vangstkans.
+
+
+## Productbesluit 18 november 2026 — één samenhangend visplan: advies én tactiek
+
+De VisCoach-roadmap blijft de leidende productblauwdruk. De primaire gebruikersinvoer voor een eerste plan blijft beperkt tot **doelvis, stek en gewenste starttijd**; een eindtijd is optioneel. De gebruiker hoeft niet eerst de technische Prognose-tab te doorlopen of extra vragen over methode, aas, voer, diepte of hengelpositie te beantwoorden.
+
+De prognose- en analysemodules vormen de interne informatiebasis. VisCoach gebruikt alle relevante, beschikbare uitkomsten uit de bestaande prognose, weersanalyse, thermische analyse, seizoens-/biologische context, tijdvakbeoordeling, habitat- en stekanalyse, wind-/oeveranalyse, positionering, voorvoerlogica, datakwaliteit en persoonlijke sessiehistorie. De coach weegt deze informatie samen en vertaalt haar naar één begrijpelijk en uitvoerbaar plan. Er wordt geen tweede prognosemodel, tweede biologische regelset of parallelle tactiekengine gebouwd.
+
+**Advies en tactiek zijn twee verschillende onderdelen die elkaar aanvullen:**
+
+- **Advies — wanneer, waar en waarom vissen:** beoordeel het gekozen moment en de omstandigheden op basis van onder meer doelsoort, seizoen, weer, licht, watertemperatuur, relevante biologische context, stek/habitat en eigen vangsthistorie. Vertel wat dit praktisch betekent voor de gekozen sessie en waar de visser het beste kan beginnen. Een alternatief tijdstip of een andere zone wordt alleen nadrukkelijk aanbevolen als het verschil relevant en voldoende onderbouwd is.
+- **Tactiek — hoe de hengel(en) presenteren:** vertaal de omstandigheden en het advies naar de praktische uitvoering. Denk aan methode en presentatie, aas, voerhoeveelheid en voerfrequentie, wel of niet vooraf voeren, hengelpositie, afstand en werp-/voerichting. Betrek windrichting en -kracht, oeveroriëntatie, bereikbare waterzones, bodem/habitat en bekende gebruikersvoorkeuren wanneer die gegevens beschikbaar zijn.
+
+Het plan moet deze twee onderdelen logisch met elkaar verbinden: de omstandigheden en de gekozen zoekzone verklaren waarom een bepaalde presentatie of voerstrategie passend is. Bijvoorbeeld: een wind-/oeveranalyse kan de startzone en werprichting helpen bepalen; de voerstrategie moet vervolgens passen bij doelsoort, sessieduur, seizoen en de bestaande voorvoer-/method-feederuitkomsten. Dit voorbeeld is illustratief, geen vaste regel of universeel advies.
+
+**Presentatie voor de gebruiker:**
+- De VisCoach is de primaire, begeleidende gebruikerservaring; de Prognose-tab is in de eerste plaats een verdiepende informatie- en analysetoegang en hoeft geen verplichte tussenstap te zijn.
+- Toon in het gewone visplan eerst een samenhangend advies en daarna de bijbehorende tactische uitvoering, in gewone taal en zonder engine-uitvoer simpelweg achter elkaar te plakken.
+- Geef per onderdeel een korte, natuurlijke reden wanneer dat helpt om het advies te begrijpen. Vermijd een los technisch literatuurblok, scorelijst of herhaling van alle prognosefactoren.
+- Bewaar uitgebreide scores, wetenschappelijke bronnen, modelaannames, factoranalyses en technische onzekerheidsdiagnostiek voor de geavanceerde prognoseweergave. Gebruik de bestaande instelling; introduceer niet zonder noodzaak een tweede detailinstelling.
+- Essentiële beperkingen blijven ook in de gewone coachervaring kort zichtbaar wanneer ze de beslissing beïnvloeden, bijvoorbeeld dat de watertemperatuur geschat is of dat oeveroriëntatie ontbreekt en daarom geen betrouwbare werprichting kan worden gegeven.
+- Onbekende methode, aas, voer, diepte of presentatie worden niet verzonnen. De coach geeft dan een bruikbare, minder specifieke aanbeveling of legt kort uit welke onzekerheid de tactiek begrenst. Extra invoer blijft optioneel en wordt alleen gevraagd als die aantoonbaar nodig is om een concreet advies te verbeteren.
+
+**Acceptatie voor de verdere VisCoach-uitwerking:**
+1. Het eerste plan kan worden gemaakt met alleen doelvis, stek en gewenste starttijd.
+2. De output maakt herkenbaar onderscheid tussen advies (wanneer/waarom/waar) en tactiek (hoe presenteren/voeren/positioneren), maar vormt één logisch geheel.
+3. De tactiek gebruikt de bestaande wind-, habitat-, positionerings- en voorvoeruitkomsten; exacte werp-/voerichting en voerhoeveelheden worden niet verzonnen als invoer of onderbouwing ontbreekt.
+4. Relevante prognose-informatie wordt door de coach benut zonder de gebruiker te dwingen alle technische prognosedetails te bekijken.
+5. De standaard coachervaring blijft begrijpelijk en actiegericht; volledige technische herleiding blijft optioneel beschikbaar via de bestaande geavanceerde weergave.
+6. Berekeningen, modelgewichten, opgeslagen prognosesnapshots en Brier-validatie veranderen niet door deze product-/presentatiekeuze.
