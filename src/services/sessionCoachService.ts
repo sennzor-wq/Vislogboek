@@ -388,16 +388,22 @@ export function buildVisCoachAdviceText(
           : `Voorvoeren niet aanbevolen: ${campaignSummary}`);
       } else if (prebait.shouldPrebait) {
         feeding.push(`Voorvoeren: ${campaignSummary}`);
+      } else if ((prebait.missingInformation ?? []).some((note) => /watertype ontbreekt/i.test(note))) {
+        feeding.push(campaignSummary || 'Geen voorvoerbeurt ingepland: het watertype ontbreekt in de opgeslagen stekgegevens.');
       } else {
-        feeding.push(`Er is voor deze starttijd geen voorvoerbeurt ingepland. ${campaignSummary}`);
+        feeding.push(`Geen voorvoerbeurt ingepland. ${campaignSummary}`);
       }
     }
-    const campaignSchedule = (prebait.moments ?? [])
-      .filter((moment) => moment.dayOffset < 0)
-      .map((moment) => `${moment.dayLabel}: ${moment.amountDisplay}`)
+    const campaignMoments = (prebait.moments ?? []).filter((moment) => moment.dayOffset < 0);
+    const campaignSchedule = campaignMoments
+      .map((moment) => prebait.confidenceLevel === 'Redelijk'
+        ? `${moment.dayLabel}: ${moment.amountDisplay}`
+        : `${moment.dayLabel} (${moment.suggestedTime})`)
       .join('; ');
-    if (prebait.shouldPrebait && prebait.confidenceLevel === 'Redelijk' && campaignSchedule) {
-      feeding.push(`Indicatief voorvoerschema: ${campaignSchedule}. Start terughoudend en verhoog alleen bij duidelijke activiteit.`);
+    if (prebait.shouldPrebait && campaignSchedule) {
+      feeding.push(prebait.confidenceLevel === 'Redelijk'
+        ? `Indicatief voorvoerschema: ${campaignSchedule}. Start terughoudend en verhoog alleen bij duidelijke activiteit.`
+        : `Voorbereiding: ${campaignSchedule}. De timing is indicatief; exacte grammen laat ik weg omdat de stek-/temperatuurgegevens daarvoor nog onvoldoende zekerheid geven.`);
     }
 
     const sessionGuidance = prebait.sessionDayGuidance;
@@ -426,6 +432,13 @@ export function buildVisCoachAdviceText(
     }
     if (technique?.toLowerCase().includes('method') && prebait.methodFeederGuidance) {
       feeding.push(cleanCoachText(prebait.methodFeederGuidance));
+    } else if (
+      !technique?.trim() &&
+      prognosis.species === 'Karper' &&
+      (prebait.suitability === 'Niet aanbevolen (instant vissen aanbevolen)' ||
+        /voedselopname en vertering doorgaans lager/i.test(prebait.temperatureFactorExplanation ?? ''))
+    ) {
+      feeding.push('Kies één passende instant-presentatie: bij een karperrig een klein PVA-zakje rond het haakaas; bij method feeder een minimaal en compact gevulde korf rond het haakaas. Dit zijn alternatieven, geen combinatie en geen apart voerbed.');
     }
   }
   if (feeding.length > 0) tacticSections.push(`Voeren en aas\n${feeding.join(' ')}`);

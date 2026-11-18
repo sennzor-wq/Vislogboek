@@ -584,3 +584,15 @@ PR #120 is squash-merged als commit `2b115383e57cfff05a43d935849a0e4a41ddbb10`.
 - De exacte PR-head Quality Gate is volledig groen (run #772), inclusief tests en productiebuild.
 
 **Volgende hoofdspoorstap:** de resterende meteorologische/hydrologische factoren per soort beoordelen en de volledige matrix vastleggen: actief in activiteit, actief in habitat/beweging, alleen context, niet beschikbaar of bewust uitgesloten. Pas daarna het kandidaatmodel ontwerpen. Fase 3 blijft geblokkeerd.
+
+### VisCoach — voorvoerhorizon en koude-waterpresentatie (18 november 2026)
+
+Nieuwe productverbetering naar aanleiding van praktijktest van het gegenereerde VisCoach-advies:
+
+- De VisCoach-voorvoerplanner kreeg tot nu toe standaard maximaal twee beschikbare voorbereidingsdagen, ook wanneer een sessie drie dagen vooruit werd gepland. De VisCoach moet de werkelijke kalenderdagen tot de sessie doorgeven, met behoud van de bestaande bovengrens van drie dagen en de bestaande soort-/temperatuurbeperkingen van de voerplanner.
+- De coachtekst moet voorbereidingstiming ook bij matige datakwaliteit kunnen tonen, terwijl exacte grammen alleen bij de bestaande kwaliteit Redelijk zichtbaar blijven.
+- Een ontbrekend watertype bij een reeds geselecteerde stek mag niet leiden tot de misleidende tekst “kies eerst een stek”. De coach benoemt het ontbrekende kenmerk, houdt exacte hoeveelheden achter en geeft waar mogelijk een bruikbare kwalitatieve instant-presentatie.
+- Bij een voorzichtige koude-waterstrategie voor karper moet de gebruiker, zolang geen techniek is gekozen, het onderscheid begrijpen tussen een kleine PVA-presentatie bij een karperrig en een minimale method-feederkorfvulling. Dit zijn alternatieven voor instant vissen, geen voerbed en geen twee gelijktijdige tactieken.
+- De tactiek blijft opgebouwd uit voorvoeren vóór de sessie, voeren/presenteren tijdens de sessie, hengelpositionering/werprichting en bijsturen tijdens de sessie. De prognose- en voerengine blijven de bron; er komt geen tweede biologische of voerengine.
+
+**Uitvoering in deze wijzigingsset:** dynamische beschikbare voorbereidingsdagen in VisCoach, verbeterde ontbrekende-watertype-vertaling, zichtbare indicatieve timing bij matige zekerheid en regressietests voor drie dagen vooruit en koude instant-opties. Geen numerieke biologische parameters of prognose-/Brier-logica gewijzigd. Fase 2 blijft het hoofdspoor; fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.

@@ -183,6 +183,16 @@ export interface VisCoachPlan {
   selectedTimeSlot?: import('../types').TimeSlot;
 }
 
+/** Bepaalt hoeveel kalenderdagen voorbereiding beschikbaar zijn, binnen de bestaande 0-3-daagse voerplannergrens. */
+export function resolveAvailablePrebaitDaysBefore(planningDate: string, targetDate: string): number {
+  const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    Number.isFinite(Date.parse(`${value}T00:00:00Z`));
+  if (!validDate(planningDate) || !validDate(targetDate)) return 0;
+  const start = Date.parse(`${planningDate}T00:00:00Z`);
+  const end = Date.parse(`${targetDate}T00:00:00Z`);
+  return Math.max(0, Math.min(3, Math.floor((end - start) / 86400000)));
+}
+
 export function resolveSelectedTimeSlot(start: Date, end: Date | null): import('../types').TimeSlot | undefined {
   const parts = (date: Date) => {
     const values = new Intl.DateTimeFormat('en-GB', {
@@ -242,6 +252,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   );
   const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, input.location.id, date);
   const now = new Date();
+  const planningDate = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
+  const availableDaysBefore = resolveAvailablePrebaitDaysBefore(planningDate, date);
   const tacticalStartSlot = resolveSelectedTimeSlot(start, null);
   const prognosis = calculateDayPrognosis(
     date,
@@ -261,8 +273,9 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
       historicalWaterTemperatures,
       waterTemperatureCalibration,
       prebaitOptions: {
+        availableDaysBefore,
         sessionDurationHours: durationHours ?? undefined,
-        planningDate: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now),
+        planningDate,
       },
     }
   );
