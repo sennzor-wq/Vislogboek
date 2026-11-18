@@ -1356,3 +1356,19 @@ De UI-tekst is verduidelijkt naar 'sessies gestart in dit tijdvak' en vermeldt d
 ### Validatie
 
 Regressietests dekken automatische standaardtijd, gewijzigde tijd, behoud van bestaande herkomst, ongeclassificeerde oude records en opname van de status in historische featureschema v2. De status is uitsluitend datakwaliteitsmetadata; zij activeert geen tijdvak- of voedingsleerlabel.
+
+
+## 66. Betrouwbaarheid van geregistreerde hengelinzet (18 november 2026)
+
+De bestaande intervalberekening telde alleen geldige periodes, maar de UI presenteerde bij lege intervalsets alsnog `0.00 uur`. Dat kan worden gelezen als bewezen nul-inzet, terwijl er in werkelijkheid niets is geregistreerd. Dit onderscheid is nu expliciet gemaakt:
+
+- Een hengelrecord zonder actieve periodes betekent **inzet onbekend**, niet nul uur.
+- Een intervalrecord met ontbrekende/ongeldige tijden telt als onvolledig; het wordt niet aangevuld op basis van sessieduur of hengelaantal.
+- Een lege eindtijdstring is ongeldig en wordt niet verward met een expliciet open interval (null/ontbrekend eindtijdstip tijdens een actieve sessie).
+- Alleen geldige intervallen tellen mee. Overlap wordt per hengel samengevoegd; verschillende hengels blijven afzonderlijke hengeluren.
+- Intervallen die sessiegrenzen overschrijden worden begrensd op die grenzen en apart geteld. Als de sessiegrenzen zelf ongeldig zijn, worden alle aanwezige intervalrecords als niet valideerbaar geteld.
+- Bij gedeeltelijke registratie wordt alleen het geregistreerde subtotaal getoond, met een expliciete waarschuwing dat dit niet automatisch de volledige sessie-inzet is.
+
+De UI noemt nul uur niet langer als er geen intervalregistraties zijn. De berekening blijft beschrijvend en wordt niet gebruikt voor prognosescores, vangstkansen of tijdvakrangschikking. Er is geen nieuwe verplichte gebruikersinvoer toegevoegd.
+
+Regressietests dekken lege sets, gedeeltelijke invoer, lege eindtijd, ongeldige sessiegrenzen en intervallen buiten de sessie.

@@ -1462,3 +1462,12 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Historische vangstfeatures nemen de herkomst op; `historyFeatureSchemaVersion` is verhoogd naar 2. Oude snapshots blijven schema 1.
 - Hengelgebeurtenissen worden niet in prognosesnapshots gekopieerd zolang ze geen modelinput zijn.
 - Regressietests controleren beide statussen, behoud van onbekende historie en feature-schema v2; ook de VisCoach-integratietest verwacht nu schema v2. Geen biologische score, tijdvakbonus, vangstkans of Brier-logica gewijzigd.
+
+
+### Fase 2 — hengelinzetdatakwaliteit aangescherpt (18 november 2026)
+
+- Geen intervalregistratie betekent onbekende hengelinzet, niet nul hengeluren.
+- Lege eindtijdstring wordt niet gezien als een open interval; alleen null/ontbrekend kan bij een actieve sessie open zijn.
+- Onvolledige intervallen en intervallen buiten sessiegrenzen worden expliciet geteld; ongeldige sessiegrenzen maken bestaande intervallen niet valideerbaar.
+- Bij gedeeltelijke registratie toont de UI alleen het bruikbare geregistreerde subtotaal met waarschuwing, niet een misleidend volledig sessietotaal.
+- Regressietests uitgebreid. Geen prognose-, biologische of tijdvakscore gewijzigd; geen verplichte invoer toegevoegd.
