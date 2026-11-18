@@ -563,9 +563,9 @@ De veldstudie uit de Szczecin Firth (1976) is als beperkte dieetcompositiebron g
 
 ## 64. Karper: veldvoeding, aasstationgedrag en wedstrijdvangst strikt scheiden
 
-Het register bevat nu directe veldstudies naar karpervoeding (Bajer et al. 2010; Hundt et al. 2022), gecontroleerd tegenbewijs zonder duidelijke dagpiek bij jonge karpers (Rahman et al. 2008), en wedstrijdvangstverdeling als afzonderlijke uitkomst (Žák 2021). De wedstrijdstudie is geen directe feeding-rhythm meting en krijgt daarom het eigen outcome-type `angler_catch_distribution`, dat niet door de voedings- of diel-feeding-services wordt gelezen.
+Het register bevat directe veldstudies naar karpervoeding bij bijgevoerd meerpunten (Bajer et al. 2010; Ghosal et al. 2018; Hundt et al. 2022), een natuurlijk-rivierstudie met maag-/voorkeeldarminhoud (Kwak et al. 1992), gecontroleerd tegenbewijs zonder duidelijke dagpiek bij jonge karpers (Rahman et al. 2008), en wedstrijdvangstverdeling als afzonderlijke uitkomst (Žák 2021). Kwak et al. vonden discontinu en sterk variabel voeren, met gemiddelde intensiteitspieken rond zonsopkomst en zonsondergang. De wedstrijdstudie is geen directe feeding-rhythm meting en krijgt daarom het eigen outcome-type `angler_catch_distribution`, dat niet door de voedings- of diel-feeding-services wordt gelezen.
 
-De veldstudies ondersteunen een nachtelijk foerageersignaal onder specifieke omstandigheden, vooral bij bijgevoerd voedsel, maar individuele variatie, aasstations, seizoen, water en populatie begrenzen overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor voorspelling; er wordt geen nachtbonus of numerieke factor toegevoegd.
+De veldstudies laten geen universeel dagritme zien: nachtelijke voedselopname trad op bij specifieke bijgevoerd-punt-opzetten, terwijl de natuurlijke rivierstudie gemiddelde ochtend-/schemerpieken vond en de gesimuleerde jonge karpers geen duidelijke piek vertoonden. Individuele variatie, voedselbron, levensfase, seizoen, water en onderzoeksopzet begrenzen overdraagbaarheid. Alle bronnen blijven niet-goedgekeurd voor voorspelling; er wordt geen nacht-, ochtend- of schemerbonus of numerieke factor toegevoegd.
 
 
 ## 65. Aanwezigheid, aasopname en vangbaarheid zijn afzonderlijke stappen
