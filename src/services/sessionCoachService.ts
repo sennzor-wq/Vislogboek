@@ -392,7 +392,7 @@ export function buildVisCoachAdviceText(
         feeding.push(`Er is voor deze starttijd geen voorvoerbeurt ingepland. ${campaignSummary}`);
       }
     }
-    const campaignSchedule = prebait.moments
+    const campaignSchedule = (prebait.moments ?? [])
       .filter((moment) => moment.dayOffset < 0)
       .map((moment) => `${moment.dayLabel}: ${moment.amountDisplay}`)
       .join('; ');
@@ -400,19 +400,20 @@ export function buildVisCoachAdviceText(
       feeding.push(`Indicatief voorvoerschema: ${campaignSchedule}. Start terughoudend en verhoog alleen bij duidelijke activiteit.`);
     }
 
-    const sessionFeeding = cleanCoachText(prebait.sessionDayGuidance.advice);
+    const sessionGuidance = prebait.sessionDayGuidance;
+    const sessionFeeding = cleanCoachText(sessionGuidance?.advice);
     if (sessionFeeding) {
       const hasKnownSessionDuration = typeof sessionDurationHours === 'number' && Number.isFinite(sessionDurationHours) && sessionDurationHours > 0;
       const amountGuidance = prebait.confidenceLevel === 'Redelijk' &&
         hasKnownSessionDuration &&
-        prebait.sessionDayGuidance.feedDuringSession &&
-        prebait.sessionDayGuidance.recommendedAmountGrams > 0
-        ? ` Indicatieve hoeveelheid tijdens de sessie: ${prebait.sessionDayGuidance.amountDisplay}; pas aan op activiteit, bodem en natuurlijk voedsel.`
+        sessionGuidance?.feedDuringSession &&
+        (sessionGuidance.recommendedAmountGrams ?? 0) > 0
+        ? ` Indicatieve hoeveelheid tijdens de sessie: ${sessionGuidance.amountDisplay}; pas aan op activiteit, bodem en natuurlijk voedsel.`
         : '';
       feeding.push(`Tijdens de sessie: ${sessionFeeding}${amountGuidance}`);
     }
 
-    const recommendedMix = cleanCoachText(prebait.feedCompositionAdvice.recommendedMix);
+    const recommendedMix = cleanCoachText(prebait.feedCompositionAdvice?.recommendedMix);
     if (recommendedMix && prebait.confidenceLevel !== 'Laag') {
       feeding.push(`Voersamenstelling: ${recommendedMix}.`);
     }
@@ -420,7 +421,7 @@ export function buildVisCoachAdviceText(
       const personalNote = cleanCoachText(prebait.personalEvidence.summaryNote);
       if (personalNote) feeding.push(`Eigen sessiehistorie: ${personalNote}`);
     }
-    if (prebait.confidenceLevel !== 'Redelijk' && prebait.sessionDayGuidance.recommendedAmountGrams > 0) {
+    if (prebait.confidenceLevel !== 'Redelijk' && (sessionGuidance?.recommendedAmountGrams ?? 0) > 0) {
       feeding.push('De exacte hoeveelheid is nog onzeker; begin terughoudend en pas aan op activiteit, bodem en natuurlijk voedsel.');
     }
     if (technique?.toLowerCase().includes('method') && prebait.methodFeederGuidance) {
