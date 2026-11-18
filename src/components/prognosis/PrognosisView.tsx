@@ -1945,7 +1945,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                                                 {/* Eigen historische ervaring in dit tijdvak */}
                         <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 text-xs">
                           <span className="font-bold text-slate-300 block mb-1">
-                            Eigen Vangsthistorie in dit tijdvak ({slot}):
+                            Eigen sessie-uitkomsten bij starts in dit tijdvak ({slot}):
                           </span>
                           <span className="text-slate-300">{analysis.personalExperience.note}</span>
                         </div>

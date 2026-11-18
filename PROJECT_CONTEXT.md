@@ -1499,3 +1499,10 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - Alleen expliciet bevestigde nulvangstsessies zonder gekoppelde vangsten leveren nul-labels op voor tijdvakken met geregistreerde blootstelling.
 - Bijvangst, meersoortige sessies en groepsvangsten worden expliciet en voorzichtig behandeld.
 - Diagnostisch/offline; geen prognose- of Brier-feedback.
+
+
+### Fase 2 — persoonlijke tijdvakervaring duidelijker benoemd (18 november 2026)
+
+- UI-kop gewijzigd naar "Eigen sessie-uitkomsten bij starts in dit tijdvak".
+- Percentage omschreven als sessiesucces van sessies die in het tijdvak startten, niet als tijdvakvangstkans of vangsttempo.
+- Berekening, tijdvakrangschikking en biologische scores ongewijzigd; regressietest controleert expliciete sessiesucces-tekst.

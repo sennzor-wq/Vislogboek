@@ -508,7 +508,8 @@ async function run14Scenarios() {
     crossSlotExperience.timeSlots.Avond.personalExperience.relevantSessions === 5 &&
       crossSlotExperience.timeSlots.Avond.personalExperience.confirmedCatches === 3 &&
       crossSlotExperience.timeSlots.Nacht.personalExperience.relevantSessions === 0 &&
-      crossSlotExperience.timeSlots.Avond.personalExperience.note.includes('starttijd'),
+      crossSlotExperience.timeSlots.Avond.personalExperience.note.includes('starttijd') &&
+      crossSlotExperience.timeSlots.Avond.personalExperience.note.includes('sessiesucces'),
     '12.2e Een sessie die Avond en Nacht beslaat, wordt voor persoonlijke tijdvakervaring uitsluitend op starttijd ingedeeld'
   );
   assert(

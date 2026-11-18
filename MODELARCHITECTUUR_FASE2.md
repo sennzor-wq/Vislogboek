@@ -544,3 +544,8 @@ De tijdvak-audit onderscheidt formulier-openmomenten (`automatic`) van door de g
 Een vangst in één tijdvak rechtvaardigt geen nulvangst in de overige tijdvakken. Een bevestigde nulvangstsessie zonder gekoppelde vangstrecords kan nuluitkomst geven uitsluitend voor tijdvakken met geregistreerde hengelblootstelling. Bijvangst wordt niet als doelsoortvangst gebruikt; meersoortige sessies worden niet soortspecifiek ingedeeld. Groepsvangsten behouden één registratiemoment voor het groepsaantal.
 
 Deze helper is diagnostisch, niet voorspellend en heeft geen invloed op Brier, catch chance of biologische activiteit.
+
+
+## 61. Presentatie van persoonlijke tijdvakervaring
+
+De UI noemt de maat nu "Eigen sessie-uitkomsten bij starts in dit tijdvak". Het percentage heet "sessiesucces" en beschrijft het aandeel vergelijkbare sessies met doelsoortvangst uit sessies die in dat tijdvak startten. Het is geen vangstkans per uur of per tijdvak. De berekening en modelrangschikking veranderen niet.
