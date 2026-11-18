@@ -83,16 +83,6 @@ export function evaluatePrognosisPerformance(
   }
   const earliestCoreSnapshots = Array.from(earliestBySessionAndSpecies.values());
   const duplicateCount = coreEligibleSnapshots.length - earliestCoreSnapshots.length;
-  // Eerst de vroegste vooraf vastgelegde voorspelling per sessie/soort kiezen.
-  // Een latere herberekening mag een niet-vergelijkbare eerste voorspelling niet vervangen.
-  const earliestBySessionAndSpecies = new Map<string, PrognosisSnapshot>();
-  for (const snapshot of coreEligibleSnapshots) {
-    const key = `${snapshot.linkedSessionId}|${snapshot.targetSpecies}`;
-    const current = earliestBySessionAndSpecies.get(key);
-    if (!current || Date.parse(snapshot.forecastTimestamp) < Date.parse(current.forecastTimestamp)) earliestBySessionAndSpecies.set(key, snapshot);
-  }
-  const earliestCoreSnapshots = Array.from(earliestBySessionAndSpecies.values());
-  const duplicateCount = coreEligibleSnapshots.length - earliestCoreSnapshots.length;
   // Vangkans is voorspeld voor de geplande sessieduur. Alleen gelijke werkelijke blootstelling telt mee.
   // Vergelijk op minuutprecisie; geen willekeurige tolerantie of achteraf omgerekende kans.
   const durationUnknownSnapshots = earliestCoreSnapshots.filter((snapshot) => snapshot.durationKnown === false || !Number.isFinite(snapshot.durationHours) || snapshot.durationHours <= 0);
@@ -259,6 +249,9 @@ export function evaluatePrognosisPerformance(
     currentModelSnapshotCount: currentModelSnapshots.length,
     outdatedVersionCount,
     evaluatedCount,
+    durationMismatchCount,
+    durationUnknownCount,
+    speciesBreakdown,
     pendingCount,
     hasSufficientData: true,
     statusMessage: statusMsg,
