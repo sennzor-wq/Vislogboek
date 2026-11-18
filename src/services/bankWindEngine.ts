@@ -67,7 +67,7 @@ export function analyzeBankWind(
   const windDestDeg = (windOriginDeg + 180) % 360;
   const windDestDir = getCompassFromDegrees(windDestDeg);
 
-  const { effectiveWaterTemp, season, isColdWind, isCoolingPeriod, waterType } = context;
+  const { waterType } = context;
   const isFlowingWater = waterType === 'Rivier' || waterType === 'Kanaal';
 
   const missingInformation: string[] = [];
@@ -138,7 +138,7 @@ export function analyzeBankWind(
     relation = 'Recht aflandig (rugwind / beschutte luwte)';
   }
 
-  // Biologische evaluatie van de oever
+  // Fysieke wind-/oeverrelatie beschrijven; geen vislocatie uit wind afleiden.
   let isFavorable = false;
   let statusLabel = '';
   let explanation = '';
@@ -150,87 +150,39 @@ export function analyzeBankWind(
 
   const isAanlandig = relation.includes('aanlandig');
   const isAflandig = relation.includes('aflandig');
-  const isZijwind = relation.includes('Zijwind');
 
   if (isFlowingWater) {
-    isFavorable = false;
-    statusLabel = 'Stromend water (oeverdrift ondergeschikt)';
-    explanation = `Op ${waterType?.toLowerCase() || 'stromend water'} bepalen stroomnaden, kribvakken en het diepere vaargeultalud de vispositie veel sterker dan de oppervlaktewind.`;
-    waveAction = `Lichte tot matige kabbel (${windSpeedKmH} km/u) dwars op of langs de stroomrichting.`;
-    driftCurrent = 'De hoofdströming is dominant over windgedreven oppervlaktedrift.';
-    primaryPosition = 'Stroomnaden, taludrand naar de vaargeul of kribkoppen.';
-    rationale = 'Zoek vissen in de luwte van obstakels of stroomranden waar zij energiezuinig voedsel kunnen onderscheppen.';
-    castingDirectionAdvice = `Werp schuin stroomafwaarts of positioneer het aas precies op de stroomnaad voor jouw oever.`;
+    statusLabel = 'Stromend water — lokale stroming is leidend';
+    explanation = `Op ${waterType?.toLowerCase() || 'stromend water'} bepalen lokale stroomnaden en luwtes de waterbeweging; oppervlaktewind is slechts aanvullende context.`;
+    waveAction = `Wind ${windSpeedKmH} km/u; controleer de feitelijke golfslag op de gekozen oever.`;
+    driftCurrent = 'De hoofdstroming kan domineren over windgedreven oppervlaktedrift; lokale stroming is niet gemeten.';
+    primaryPosition = 'Kies een veilige oeverpositie en positioneer de hengels ten opzichte van de lokaal vastgestelde doelzone.';
+    rationale = 'Windrichting helpt bij lijncontrole; de doelzone volgt uit lokale stroming, habitat en waarnemingen.';
+    castingDirectionAdvice = 'Stem de werphoek af op de lokaal vastgestelde stroomnaad of luwte en corrigeer voor lijnbocht door de wind.';
   } else if (isAanlandig) {
-    // Aanlandige wind: botst op de oever van de visser
-    if (effectiveWaterTemp < 8 || season === 'Winter' || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
-      isFavorable = false;
-      statusLabel = 'Koude aanlandige branding (fysiologisch ongunstig)';
-      explanation = `De ${windOriginDir.toLowerCase()}enwind (${windSpeedKmH} km/u) blaast recht op jouw oever. Omdat het water koud is (${effectiveWaterTemp.toFixed(1)} °C) en de wind kil is, onttrekt de golfslag extra warmte aan jouw oeverwater. Karper en witvis mijden deze kille, woelige oever en trekken naar diepere rustkuilen of de luwe overkant.`;
-      waveAction = `Aanhoudende kille golven slaan op jouw oever en koelen de bovenste waterlaag af.`;
-      driftCurrent = 'Koud oppervlaktewater stuwt naar jouw kant; bij de bodem ontstaat een kille onderstroom van je af.';
-      primaryPosition = 'Diepere kuilen buiten de directe oeverbranding, of overweeg te verkassen naar de luwe oever.';
-      rationale = 'In koud water verbruikt vis te veel energie in de golfslag. Vis dieper of zoek rustiger water.';
-      castingDirectionAdvice = `Als je hier blijft vissen: werp ruim voorbij de woelige oeverbranding (${waterFacingDir.toLowerCase()}) naar de diepere bodemgedeelten.`;
-    } else if ((season === 'Zomer' || season === 'Herfst') && windSpeedKmH >= 11 && !isColdWind) {
-      isFavorable = true;
-      statusLabel = 'Gunstig foerageerfront (actieve windkant)';
-      explanation = `De ${windOriginDir.toLowerCase()}enwind (${windSpeedKmH} km/u) stuwt warm oppervlaktewater, fytoplankton, zoöplankton en zwevend natuurlijk voedsel recht naar jouw oever. De branding zorgt voor troebeling en zuurstof, waardoor karper en witvis met minder argwaan vlak onder jouw kant foerageren.`;
-      waveAction = `Stevige branding slaat tegen jouw oeverlijn en woelt bodemdiertjes en muggenlarven los.`;
-      driftCurrent = 'Sterke oppervlaktedrift naar jouw oever toe; zwakkere bodemretourstroom naar het diepere water.';
-      primaryPosition = 'Kort op het eerste oevertalud, vlak onder de eigen kant of bij rietkragen waar schuim verzamelt.';
-      rationale = 'Voedselophoping en troebeling maken de aanlandige oever dé primaire aashoek in de warmere seizoenen.';
-      castingDirectionAdvice = `Vis kort! Plaats één hengel op slechts enkele meters uit de eigen oeverkant in de branding, en één montage op de voet van het eerste talud richting ${waterFacingDir.toLowerCase()}.`;
-    } else {
-      isFavorable = false;
-      statusLabel = 'Matige aanlandige bries (neutraal perspectief)';
-      explanation = `Lichte bries (${windSpeedKmH} km/u) op jouw oever. Voldoende voor lichte kabbel en lichte troebeling, maar bij milde temperaturen foerageert vis gelijkmatig over taluds.`;
-      waveAction = 'Rustige kabbel op de oever.';
-      driftCurrent = 'Geringe drift naar de oever toe.';
-      primaryPosition = 'Overgangszone tussen het ondiepe talud en de open waterbodem.';
-      rationale = 'Lichte aanlandige beweging zonder extreme opstuwing; vis kan zowel onder de kant als op half open water azen.';
-      castingDirectionAdvice = `Werp richting ${waterFacingDir.toLowerCase()} naar het eerste diepteverloop (ca. 15-30 meter uit de kant).`;
-    }
+    statusLabel = 'Aanlandige wind — oppervlaktewerking mogelijk';
+    explanation = `Wind uit het ${windOriginDir} (${windSpeedKmH} km/u) staat op jouw oever. Dit kan golfslag en oppervlaktedrift veroorzaken, maar toont niet aan dat vis of meer voedsel zich op deze plek bevindt.`;
+    waveAction = 'Controleer de feitelijke golfslag, schuimvorming en troebeling ter plaatse; deze worden niet uit windsnelheid alleen afgeleid.';
+    driftCurrent = `Oppervlaktedrift kan richting jouw oever lopen (${windDestDir}); de stroming nabij de bodem is niet vastgesteld.`;
+    primaryPosition = 'Kies een veilige, bereikbare positie en houd rekening met golfslag; gebruik de habitat-/waarnemingsanalyse voor de doelzone.';
+    rationale = 'Aanlandige wind is relevant voor presentatie en lijncontrole, niet als zelfstandig bewijs voor een gunstige vislocatie.';
+    castingDirectionAdvice = 'Werp naar de reeds gekozen doelzone en pas hoek en lijncontrole aan de wind aan; vis niet automatisch kort onder de kant.';
   } else if (isAflandig) {
-    // Aflandige wind: visser zit met rug in de wind; oever ligt in de luwte
-    if (effectiveWaterTemp < 8 || season === 'Winter' || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
-      isFavorable = true;
-      statusLabel = 'Beschutte warme luwte (gunstige rust- en aashoek)';
-      explanation = `De wind waait van jouw rug af het water op. Jouw oever ligt volledig in de beschutting en luwte van de oeverrand/begroeiing. In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind is deze windstille oever aanzienlijk aangenamer en energiezuiniger voor vis dan de kille aanlandige overkant.`;
-      waveAction = 'Het water onder jouw oeverkant is spiegelglad en rustig; de golfslag bouwt pas verderop naar het midden op.';
-      driftCurrent = 'Lichte oppervlaktedrift van jou af; stilstaand comfortabel water onder de eigen oever.';
-      primaryPosition = 'Beschutte oeverhoeken, onder overhangende bomen of op het talud direct onder de luwe oever.';
-      rationale = 'Vis zoekt bij koud weer rust en vermijdt kille stroming. De luwe oever biedt thermische stabiliteit.';
-      castingDirectionAdvice = `Werp met de wind in de rug comfortabel en stil uit richting ${waterFacingDir.toLowerCase()}. Je kunt ver en precies werpen zonder lijnbocht door de wind.`;
-    } else if (season === 'Voorjaar' && (context.isWarmingPeriod || effectiveWaterTemp >= 12)) {
-      isFavorable = true;
-      statusLabel = 'Opwarmende voorjaarsluwte (zeer gunstig)';
-      explanation = `In het voorjaar warmen ondiepe, zonbeschenen oeverzones zonder woelige koude golfslag het snelst op. Doordat jouw oever beschut ligt onder de wind, kan de zonnewarmte zich ophopen zonder door koude windmenging te worden verdreven.`;
-      waveAction = 'Spiegelglad wateroppervlak onder de eigen kant.';
-      driftCurrent = 'Minimale afkoelende watermenging; warmte blijft geconcentreerd in de toplaag.';
-      primaryPosition = 'Ondiepe zonbeschenen baaien, lelievelden of rietkragen uit de wind.';
-      rationale = 'Karper zoekt in het voorjaar de warmste zones van het water op voor metabolisme en vertering.';
-      castingDirectionAdvice = `Vis subtiel in de luwe oeverzone of werp lichtjes richting ${waterFacingDir.toLowerCase()} naar zonbeschenen ondieptes.`;
-    } else {
-      isFavorable = false;
-      statusLabel = 'Luwe oever (comfortabel vissen, rustig water)';
-      explanation = `Jouw oever ligt beschut onder de wind. Dit vist zeer comfortabel (geen wind in de ogen, verre en accurate worpen). In de zomer kan het voedsel echter naar de overzijde gestuwd worden.`;
-      waveAction = 'Rustig water onder de kant.';
-      driftCurrent = 'Lichte drift van je af het open water op.';
-      primaryPosition = 'Verder op het open water (waar winddrift begint) of bij vaste structuren onder de eigen kant.';
-      rationale = 'Goede stek voor visuele beetindicatie en afstandsvisserij; bij heet weer kan de windkant meer zuurstof bieden.';
-      castingDirectionAdvice = `Profiteer van de rugwind: werp richting ${waterFacingDir.toLowerCase()} naar overgangszones in het wijdere water.`;
-    }
+    statusLabel = 'Aflandige wind — rugwind en oeverluwte';
+    explanation = `Wind uit het ${windOriginDir} (${windSpeedKmH} km/u) waait van jouw oever af. Dit kan de werpafstand en het comfort beïnvloeden; het zegt niet waar vis zich ophoudt.`;
+    waveAction = 'Controleer ter plaatse waar het wateroppervlak rustig of juist beweeglijk is.';
+    driftCurrent = `Oppervlaktedrift kan van jouw oever af richting ${windDestDir} lopen; de bodemstroming is onbekend.`;
+    primaryPosition = 'Kies de oeverpositie op bereikbaarheid en comfort; houd de gekozen doelzone onafhankelijk van de wind aan.';
+    rationale = 'Rugwind kan de presentatie vergemakkelijken, maar is geen aanwijzing voor een vislocatie.';
+    castingDirectionAdvice = 'Gebruik de rugwind voor een gecontroleerde worp naar de gekozen doelzone; vergroot de afstand niet zonder reden.';
   } else {
-    // Zijwind / dwarswind langs de oever
-    isFavorable = false;
-    statusLabel = 'Zijwind (dwarsstroming langs de oever)';
-    explanation = `De wind blaast onder een hoek van ~${relativeAngle}° dwars langs jouw oeverlijn (${windOriginDir} $\\to$ ${windDestDir}). Hierdoor ontstaat een driftstroom evenwijdig aan de oever.`;
-    waveAction = `Schuine golven kabbelen langs de oeverlijn.`;
-    driftCurrent = `Parallelle oeverdrift richting het ${windDestDir.toLowerCase()}.`;
-    primaryPosition = 'Plekken waar de oeverlijn knikt, uitstekende rietkragen, lelievelden of kribben die de zijdelingse drift onderbreken.';
-    rationale = 'Zijdelingse drift verzamelt natuurlijk voedsel achter fysieke obstakels langs de oever.';
-    castingDirectionAdvice = `Houd rekening met een lijnbocht door de zijwind. Vis bij voorkeur stroomafwaarts van eventuele oeverobstakels in de richting ${waterFacingDir.toLowerCase()}.`;
+    statusLabel = 'Zijwind — let op laterale lijnbocht';
+    explanation = `De wind (${windOriginDir} richting ${windDestDir}, ${windSpeedKmH} km/u) staat schuin of dwars op jouw oever. Dit kan de lijn en montage zijwaarts verplaatsen.`;
+    waveAction = 'Controleer de richting en sterkte van de feitelijke golfslag langs de oever.';
+    driftCurrent = 'Laterale oppervlaktedrift is mogelijk; de lokale bodemstroming is niet vastgesteld.';
+    primaryPosition = 'Kies een stabiele hengelpositie en houd ruimte voor lijnbocht; de doelzone volgt uit habitat en waarnemingen.';
+    rationale = 'Zijwind vraagt om aanpassing van werphoek en lijncontrole, niet om een automatische zoekzone achter obstakels.';
+    castingDirectionAdvice = 'Corrigeer de werphoek voor zijwaartse lijnbocht en presenteer op de gekozen doelzone.';
   }
 
   return {
