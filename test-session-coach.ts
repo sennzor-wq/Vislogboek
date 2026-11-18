@@ -520,6 +520,22 @@ async function run() {
     !incompleteColdPrebait.tactics.includes('circa 100 gram'),
     'Bij koud, onzeker water geeft VisCoach een bruikbare instant-keuze zonder nieuwe stek te eisen of grammen te verzinnen'
   );
+  const unknownTemperatureCarp = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    species: 'Karper',
+    prebaitPlan: {
+      ...confidentPrebaitPlan,
+      suitability: 'Niet aanbevolen (instant vissen aanbevolen)',
+      shouldPrebait: false,
+      temperatureFactorExplanation: 'Onbekend: er is geen bruikbare gemeten of geschatte watertemperatuur.',
+      sessionDayGuidance: { feedDuringSession: false, recommendedAmountGrams: 0, amountDisplay: 'Geen extra voer', advice: 'Geen bulkvoeradvies. Kies ter plaatse een kleine, doelgerichte presentatie en beoordeel activiteit en aanbeten.' },
+    },
+  } as any, null, null, 'Avond', 3);
+  assert(
+    !unknownTemperatureCarp.tactics.includes('klein PVA-zakje') &&
+    !unknownTemperatureCarp.tactics.includes('method feeder een minimaal'),
+    'Een ontbrekende watertemperatuur wordt niet aangezien voor bewezen koudwatercondities'
+  );
   const unknownDurationPrebait = buildVisCoachAdviceText({ ...baselinePrognosis, prebaitPlan: confidentPrebaitPlan } as any, null, 'Method feeder', 'Avond', null);
   assert(
     !unknownDurationPrebait.tactics.includes('circa 100 gram') &&
