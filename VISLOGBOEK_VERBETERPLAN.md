@@ -601,3 +601,17 @@ Nieuwe productverbetering naar aanleiding van praktijktest van het gegenereerde 
 ### VisCoach — doelzone en werprichting (18 november 2026)
 
 Tactische verfijning: de werprichting moet voortkomen uit de gekozen zoekzone, niet automatisch uit de windrichting. Wind en oeveroriëntatie ondersteunen de keuze van vispositie, werphoek en lijncontrole. Bij zwakke wind is een windgestuurde kompasrichting overbodig; bij merkbare wind gebruikt de coach de bestaande oever-/positioneringsanalyse. Als de oever of doelzone onbekend is, geen exacte richting, afstand of diepte verzinnen. Regressietests toegevoegd voor zwakke wind met/zonder bruikbare doelzone en matige wind met bekende doelzone. Geen wijziging aan prognoseberekeningen of biologische parameters.
+
+### Aanvullende VisCoach-audit — dynamisch advies en tactiek tijdens de sessie (18 november 2026)
+
+De actuele code-audit is vastgelegd in `VISCOACH_PRODUCT_ROADMAP.md`, onder **Dynamische sessiecoach — aanvullende code-audit**.
+
+Bevestigd: de bestaande sessiecoördinator hergebruikt de forecast- en prognoseketen, rekent met het actuele tijdvak, gebruikt conservatieve bevestiging voor weerswijzigingen en bewaart snapshots/adviezen herleidbaar. De app belooft terecht geen doorlopende achtergrondverwerking wanneer de PWA volledig gesloten is.
+
+Twee concrete aandachtspunten zijn gevonden voor de latere fase-3-uitwerking:
+- Een techniekwijziging staat wel in de invoerfingerprint, maar niet in de praktische prognosesignature. Een methodewijziging alleen kan daardoor buiten de adviesvergelijking vallen.
+- Bij een gewijzigde signature worden nu steeds zowel een snapshot als een nieuw adviesrecord gemaakt. De vertaalde advies-/tactiekuitkomst wordt niet eerst vergeleken met het vorige advies. Prognose gewijzigd maar aanpak gelijk moet een snapshot kunnen opleveren zonder een nieuw handelingsadvies.
+
+De vervolgaanpak is daarom: volledige triggerketen inventariseren; prognose- en advieswijziging scheiden; techniek- en tactiekuitkomsten expliciet meenemen; en regressies toevoegen voor methodewijziging, alleen gewijzigde dagwinnaar, doelzone-/voerwijziging, herhaalde forecasts en prognosewijziging zonder tactiekwijziging. De actieve sessie moet vervolgens kort tonen wat veranderde, waarom en welke actie eventueel zinvol is.
+
+**Faseregie blijft ongewijzigd:** dit is audit/voorbereiding en geen start van fase 3. Fase 2 blijft het hoofdspoor; fase 3 wacht op formele fase-2-acceptatie. Er zijn in deze audit geen code of prognoseberekeningen gewijzigd.
