@@ -327,17 +327,25 @@ export function buildVisCoachAdviceText(
 
   adviceSections.push(`Wanneer\n${when}`);
 
-  const primaryZone = habitat?.primaryZone?.name && !isGenericZone(habitat.primaryZone.name)
-    ? habitat.primaryZone.name
-    : positioning?.recommendedZone && !isGenericZone(positioning.recommendedZone)
-      ? positioning.recommendedZone
-      : null;
+  const zoneResolution = resolveCoachStartZone(habitat, positioning);
+  const primaryZone = zoneResolution.primaryZone;
   const primaryExplanation = primaryZone
     ? explainZone(primaryZone)
     : 'een plek waar je ter plaatse herkenbare structuur of een verandering in de diepte kunt vinden. De app weet nog niet precies hoe deze stek eruitziet.';
+  const thermalLocationNote = thermal?.hasMeasuredWaterTemp || typeof thermal?.estimatedWaterTemp === 'number'
+    ? 'De temperatuur geeft vooral activiteitspotentie; zij wijst niet zelfstandig de exacte vislocatie aan.'
+    : '';
+  const conflictNote = zoneResolution.secondaryZone
+    ? zoneResolution.source === 'habitat'
+      ? `De wind-/positioneringsanalyse wijst daarnaast op ${explainZone(zoneResolution.secondaryZone)}. Houd dat als tweede zoekzone; gebruik de wind vooral om je presentatie af te stemmen en verlaat de lokale habitatzone niet automatisch.`
+      : `De lokale habitatanalyse noemt ${explainZone(zoneResolution.secondaryZone)}, maar die inschatting heeft lage zekerheid. Houd die zone als tweede controlepunt.`
+    : '';
+  const confidenceNote = zoneResolution.confidenceLevel === 'Laag' && !zoneResolution.hasDirectPresence
+    ? 'De zekerheid is laag; behandel dit als een eerste test en controleer ter plaatse op activiteit en structuur.'
+    : '';
   const where = primaryZone
-    ? `Begin bij ${primaryExplanation}. Dit is de belangrijkste zoekzone die uit de beschikbare stekgegevens en analyses naar voren komt.`
-    : `Begin met het zoeken naar ${primaryExplanation} Kijk vanaf de kant waar je veilig kunt vissen en controleer waar de bodem of oever verandert. Kies geen specifieke diepte of bodemvorm die niet is vastgelegd.`;
+    ? `Begin bij ${primaryExplanation}. ${zoneResolution.explanation} ${conflictNote} ${confidenceNote} ${thermalLocationNote}`.trim()
+    : `Begin met het zoeken naar ${primaryExplanation} Kijk vanaf de kant waar je veilig kunt vissen en controleer waar de bodem of oever verandert. Kies geen specifieke diepte of bodemvorm die niet is vastgelegd. ${thermalLocationNote}`.trim();
   adviceSections.push(`Waar beginnen\n${where}`);
 
   const strongWind = positioning?.windContext?.isStrongWind === true;
