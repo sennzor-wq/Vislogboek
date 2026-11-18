@@ -1087,12 +1087,12 @@ export function calculateDayPrognosis(
     targetSlot: tacticalTargetSlot,
   });
 
-  // Dagwaarden voor de tactische deelmodules; ontbrekende waarden blijven onbekend.
+  // Tactische weerwaarden: bij de VisCoach het gekozen starttijdvak, anders de bestaande daggemiddelden.
   const validWindForecasts = tacticalForecasts.filter(h =>
     Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200 &&
     Number.isFinite(h.windDirection) && h.windDirection >= 0 && h.windDirection < 360
   );
-  const hasDayWindData = validWindForecasts.length >= 6;
+  const hasWindDataForTacticalWindow = validWindForecasts.length >= 6;
   const avgWindSpeed = hasDayWindData
     ? Math.round((validWindForecasts.reduce((sum, h) => sum + h.windSpeed, 0) / validWindForecasts.length) * 10) / 10
     : null;
@@ -1118,7 +1118,7 @@ export function calculateDayPrognosis(
         : null;
   const hasThermalDataForModules = effectiveWaterTempForModules !== null;
   const validCloudForecasts = tacticalForecasts.filter(h => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
-  const hasDayCloudData = validCloudForecasts.length >= 6;
+  const hasCloudDataForTacticalWindow = validCloudForecasts.length >= 6;
   const avgCloudCover = hasDayCloudData
     ? validCloudForecasts.reduce((sum, h) => sum + h.cloudCover, 0) / validCloudForecasts.length
     : undefined;
