@@ -451,6 +451,51 @@ async function run14Scenarios() {
     '12.2d Alleen wanneer alle tijdvakken verstreken zijn, meldt de samenvatting dat'
   );
 
+  // 12.2e Persoonlijke tijdvakervaring wordt ingedeeld op sessiestart, niet verdeeld over de werkelijke sessieduur.
+  const crossSlotSessions: FishingSession[] = Array.from({ length: 5 }, (_, index) => ({
+    id: `cross-slot-${index + 1}`,
+    startTime: '2026-10-23T17:00:00.000Z', // 19:00 lokale tijd: Avond
+    endTime: '2026-10-23T23:00:00.000Z',   // 01:00 lokale tijd: sessie loopt door in Nacht
+    durationMinutes: 360,
+    outcome: index < 3 ? 'catch' : 'skunk_confirmed',
+    targetSpecies: ['Karper'],
+    createdAt: '2026-10-23T17:00:00.000Z',
+    updatedAt: '2026-10-23T23:00:00.000Z',
+  }));
+  const crossSlotCatches: CatchItem[] = crossSlotSessions.slice(0, 3).map((session, index) => ({
+    id: `cross-slot-catch-${index + 1}`,
+    sessionId: session.id,
+    species: 'Karper',
+    count: 1,
+    timestamp: '2026-10-23T22:30:00.000Z', // Vangsttijd valt lokaal in de Nacht
+    createdAt: '2026-10-23T22:35:00.000Z',
+  }));
+  const crossSlotExperience = calculateDayPrognosis(
+    '2026-10-23', makeHourlySeries('2026-10-23', 1, () => 14), 'Karper',
+    crossSlotSessions, undefined, null, new Date('2026-10-23T03:00:00.000Z'),
+    { sessionDurationHours: 3, catches: crossSlotCatches }
+  );
+  const noCrossSlotHistory = calculateDayPrognosis(
+    '2026-10-23', makeHourlySeries('2026-10-23', 1, () => 14), 'Karper',
+    [], undefined, null, new Date('2026-10-23T03:00:00.000Z'),
+    { sessionDurationHours: 3, catches: [] }
+  );
+  assert(
+    crossSlotExperience.timeSlots.Avond.personalExperience.relevantSessions === 5 &&
+      crossSlotExperience.timeSlots.Avond.personalExperience.confirmedCatches === 3 &&
+      crossSlotExperience.timeSlots.Nacht.personalExperience.relevantSessions === 0 &&
+      crossSlotExperience.timeSlots.Avond.personalExperience.note.includes('starttijd'),
+    '12.2e Een sessie die Avond en Nacht beslaat, wordt voor persoonlijke tijdvakervaring uitsluitend op starttijd ingedeeld'
+  );
+  assert(
+    crossSlotExperience.bestTimeSlot === noCrossSlotHistory.bestTimeSlot &&
+      Object.keys(crossSlotExperience.timeSlots).every((slot) =>
+        crossSlotExperience.timeSlots[slot as keyof typeof crossSlotExperience.timeSlots].activityScore ===
+        noCrossSlotHistory.timeSlots[slot as keyof typeof noCrossSlotHistory.timeSlots].activityScore
+      ),
+    '12.2f Historische persoonlijke tijdvakervaring verandert de thermische tijdvakscore of rangschikking niet'
+  );
+
   assert(
     unknownDurationPrognosis.plannedDurationHours === null &&
       unknownDurationPrognosis.personalCatchChance === null &&

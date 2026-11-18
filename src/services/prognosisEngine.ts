@@ -556,11 +556,11 @@ function analyzeTimeSlot(
 
   let expNote = '';
   if (relevantCount === 0) {
-    expNote = 'Nog geen eigen sessies geregistreerd in dit specifieke tijdvak.';
+    expNote = 'Nog geen afgeronde eigen sessies die in dit tijdvak zijn gestart (ingedeeld op starttijd).';
   } else if (relevantCount < 5) {
-    expNote = `${relevantCount} eigen sessie(s) in dit tijdvak (${confirmedCatches} met vangst). Onvoldoende gegevens (< 5) voor een statistisch verantwoorde kansschatting.`;
+    expNote = `${relevantCount} eigen sessie(s) gestart in dit tijdvak (${confirmedCatches} met vangst; ingedeeld op starttijd). Onvoldoende gegevens (< 5) voor een statistisch verantwoorde kansschatting.`;
   } else {
-    expNote = `${relevantCount} vergelijkbare sessies: ${confirmedCatches} met vangst, ${skunks} bevestigde nulvangst (${catchRate}% vangstsucces).`;
+    expNote = `${relevantCount} vergelijkbare sessies gestart in dit tijdvak: ${confirmedCatches} met vangst, ${skunks} bevestigde nulvangst (${catchRate}% vangstsucces; ingedeeld op starttijd).`;
   }
 
   // Positieve en negatieve factoren

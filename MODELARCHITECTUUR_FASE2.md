@@ -494,3 +494,10 @@ Daarom geldt:
 - Tijdvak- en voedingsvalidatie blijft geblokkeerd tot tijdherkomst, volledigheid en sessiegrenzen voldoende zijn geborgd.
 
 Een toekomstige verbetering moet de tijdherkomst zo veel mogelijk automatisch vastleggen, zonder extra verplichte gebruikersinvoer.
+
+
+## 55. Persoonlijke tijdvakervaring: starttijdindeling is geen blootstellingsvalidatie
+
+De persoonlijke ervaring die per tijdvak wordt getoond, groepeert afgeronde sessies op het lokale uur van `FishingSession.startTime`. De volledige sessie wordt aan dat starttijdvak toegewezen, ook wanneer zij meerdere tijdvakken beslaat. De maat is het percentage succesvolle sessies, geen tijdvakgebonden vangstkans of vangsttempo. Vangsttijdstippen en actieve hengelintervallen verdelen de sessie momenteel niet over tijdvakken.
+
+Deze ervaring is uitsluitend beschrijvend. De thermische tijdvakscore en `bestTimeSlot` worden er niet door aangepast. De UI maakt de starttijdindeling expliciet; regressietests borgen dat een sessie over meerdere tijdvakken de thermische rangschikking niet beïnvloedt.

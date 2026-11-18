@@ -1327,3 +1327,12 @@ De uitzondering maakt alleen de resterende Quality Gate-stappen uitvoerbaar; de 
 5. De repository bevat geen lokale gebruikersrecords waarmee de feitelijke dekking of foutfrequentie kan worden gekwantificeerd. Daarover worden dus geen aantallen of betrouwbaarheidscijfers geclaimd.
 
 **Vervolg:** ontwerp eerst een minimale, bij voorkeur automatisch vastgelegde herkomststatus voor vangsttijdstippen en optionele hengelgegevens. Valideer sessiegrenzen en onvolledige invoer met regressietests. Voeg geen verplichte extra registratiehandelingen toe en activeer geen tijdvakbonus of biologische leerlabels op basis van deze velden.
+
+
+## 64. Bestaande persoonlijke tijdvakervaring is ingedeeld op sessiestart (18 november 2026)
+
+De vier tijdvakken tonen al beschrijvende persoonlijke ervaring. `getSimilarSessions()` deelt een afgeronde sessie volledig in op basis van het lokale uur van `FishingSession.startTime`. Een sessie die Avond én Nacht beslaat, telt dus volledig bij Avond wanneer zij daar start. De vangsttijdstippen en actieve hengelintervallen verdelen de sessie niet over de tijdvakken.
+
+Deze persoonlijke ervaring is een sessiesuccesfractie (succesvolle sessies / geldige sessies), geen tijdvakgebonden vangstkans of vangsttempo. Zij beïnvloedt de thermische `activityScore` en de selectie van `bestTimeSlot` niet; die rangschikking wordt uitsluitend op de thermische tijdvakscore gebaseerd.
+
+De UI-tekst is verduidelijkt naar 'sessies gestart in dit tijdvak' en vermeldt de indeling op starttijd. Een regressietest gebruikt sessies van zes uur die Avond en Nacht overspannen en borgt zowel de starttijdindeling als het ontbreken van invloed op thermische scores. Geen modelberekening of biologische parameter gewijzigd.

@@ -1444,3 +1444,11 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - De bestaande hengeluren zijn geregistreerde intervallen, geen geverifieerde feitelijke inspanning. Geen ontbrekende hengeluren afleiden uit sessieduur × hengelaantal.
 - Brier op sessie-uitkomst en totale sessieduur blijft onafhankelijk van deze velden. Tijdvak-/voedingsvalidatie blijft geblokkeerd totdat tijdherkomst en volledigheid beter zijn geborgd.
 - Geen verplichte extra gebruikersinvoer of prognose-/biologische scorewijziging toegevoegd. Volgende stap: minimaal ontwerp voor automatische tijdherkomst en regressietests voor tijdvalidatie.
+
+
+### Fase 2 — tijdvakervaring op sessiestart verduidelijkt (18 november 2026)
+
+- De bestaande persoonlijke ervaring per tijdvak groepeert hele sessies op het lokale startuur. Sessies die meerdere tijdvakken beslaan worden niet over de tijdvakken verdeeld.
+- De maat is een sessiesuccesfractie, geen tijdvakgebonden vangstkans. Zij beïnvloedt de thermische tijdvakscore of `bestTimeSlot` niet.
+- UI-tekst verduidelijkt naar 'sessies gestart in dit tijdvak' en benoemt indeling op starttijd.
+- Regressietest toegevoegd voor een zes uur durende sessie die Avond en Nacht beslaat; geen prognoseberekening of biologische parameter gewijzigd.
