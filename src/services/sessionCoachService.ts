@@ -319,7 +319,7 @@ export function buildVisCoachAdviceText(
     : '';
   const casting = positioning?.windCastingGuidance?.castingAdvice;
   let windAdvice = '';
-  if (windInfluencesTactics && !windIsCalm) {
+  if (strongWind || (windInfluencesTactics && !windIsCalm)) {
     if (casting?.isCastingDirectionDefinite && casting.recommendedDirection) {
       windAdvice = `${windIntro} ${windFlowText} De berekende werprichting is globaal ${casting.recommendedDirection.toLowerCase()}. ${cleanCoachText(casting.reason || casting.summary)}`;
     } else if (wind?.isConfigured && wind.rodPlacementAdvice?.castingDirectionAdvice) {
