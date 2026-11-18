@@ -624,7 +624,7 @@ async function run() {
     'De VisCoach-oeverwindanalyse gebruikt het gekozen tijdvak in plaats van het daggemiddelde'
   );
   assert(
-    selectedEveningPrognosis.positioningAdvice.windContext.speedKmH === 18,
+    selectedEveningPrognosis.positioningAdvice?.windContext.speedKmH === 18,
     'De hengelpositionering gebruikt de wind van het gekozen starttijdvak'
   );
 
