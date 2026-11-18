@@ -234,7 +234,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   ] : [];
 
   const handleStartSessionFromPrognosis = async () => {
-    if (!activeDayProg || !selectedLoc || !canStartSessionNow) return;
+    if (!activeDayProg || !selectedLoc || activeDayProg.date !== formatAmsterdamDate(new Date())) return;
     // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
     const storedSnapshots = await db.prognosisSnapshots.toArray();
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
