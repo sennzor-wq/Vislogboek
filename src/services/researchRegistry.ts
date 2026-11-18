@@ -562,7 +562,6 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
-    id: 'adult-catfish-diel-activity-reservoir-2025',  {
     id: 'adult-catfish-northern-fringe-seasonal-diel-movement-2024',
     topic: 'seizoensgebonden-dagritme-en-dieptegebruik-noordelijke-meervalpopulatie',
     measuredOutcomes: ['locomotor_activity', 'habitat_use'],
@@ -582,7 +581,8 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     reviewedAt: '2026-11-18',
     approvedForPrediction: false,
   },
-
+  {
+    id: 'adult-catfish-diel-activity-reservoir-2025',
     topic: 'seizoensafhankelijke-dagritme-beweging-en-dieptegebruik',
     measuredOutcomes: ['locomotor_activity', 'habitat_use'],
     species: ['Meerval'],
