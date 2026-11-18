@@ -1362,3 +1362,13 @@ De eerste technische correctie uit de implementatie-audit is uitgewerkt in de ge
 - Regressietests controleren dat een avondwind van 18 km/u voor de coachanalyse wordt gebruikt in plaats van het daggemiddelde van 8 km/u, terwijl de dagbrede beste-tijdvakuitkomst gelijk blijft. Een sessieherbeoordeling bewaart daarnaast het actuele tijdvak in de snapshot.
 
 Deze wijziging voegt geen biologische windbonus, activiteitsscore of nieuwe tactiekengine toe. Zij zorgt ervoor dat bestaande tactische engines de juiste tijdscontext ontvangen.
+## Implementatie-update — advies en tactiek als afzonderlijke coachuitkomsten
+
+De volgende productcorrectie is uitgewerkt in de coachuitvoer:
+
+- De coach maakt nu twee afzonderlijke tekstuitkomsten: **advies** (wanneer en waar vissen, met de omstandigheden als context) en **tactiek** (positionering, wind/werprichting, voeren/aas en vervolgstap). Beide blijven onderdeel van één samenhangend visplan.
+- De vooraf gemaakte VisCoach-weergave, actieve sessiecoach en sessieterugblik tonen de twee onderdelen apart.
+- Het bestaande samengestelde veld `recommendation` blijft behouden voor compatibiliteit. Nieuwe coachrecords bewaren daarnaast optionele `advice`- en `tactics`-velden; oude records zonder die velden blijven als één aanbeveling leesbaar.
+- Het zelfstandige blok `Biologische context` is uit de gewone coachaanbeveling verwijderd. Literatuur, meetuitkomsten en overdraagbaarheidsgrenzen blijven onderdeel van de interne bewijslaag en de verdiepende analyse.
+- Windadvies gebruikt nu ook de bestaande expliciete classificatie voor niet-kalme wind wanneer een oeveranalyse beschikbaar is. Kalme wind blijft uit de tactiektekst; sterke wind en sterke windstoten blijven zichtbaar. Er is geen nieuwe winddrempel of windbonus toegevoegd.
+- Regressietests controleren de scheiding, de compatibiliteitstekst, de afwezigheid van het biologische literatuurblok en het onderscheid tussen kalme en matige wind.
