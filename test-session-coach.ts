@@ -322,6 +322,18 @@ async function run() {
     !calmAdvice.tactics.includes('Wind en werprichting'),
     'Bij zwakke wind wordt geen onnodig wind- of werprichtingadvies getoond'
   );
+  const unknownWindAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    positioningAdvice: {
+      recommendedZone: 'Algemene zoekzone',
+      windContext: { directionText: 'Onbekend', speedKmH: null, isStrongWind: false, isColdWind: false },
+    },
+    bankWindAnalysis: undefined,
+  } as any);
+  assert(
+    !unknownWindAdvice.tactics.includes('Wind en werprichting'),
+    'Ontbrekende windgegevens worden niet als matige wind of concreet tactisch signaal behandeld'
+  );
 
   const moderateWindAdvice = buildVisCoachAdviceText({
     ...baselinePrognosis,
