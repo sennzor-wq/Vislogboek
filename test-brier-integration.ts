@@ -440,6 +440,18 @@ async function runBrierIntegrationTest() {
     `4.11 Brier Skill Score BSS = +${((evalResult.brierSkillScore ?? 0) * 100).toFixed(1)}% (+0.049) (Verwacht: +4.9%)`
   );
 
+  // 4.12 Duurvergelijkbaarheid: afwijkende en onbekende blootstelling telt niet mee.
+  const mismatchSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_duration_mismatch', linkedSessionId: 'test_brier_duration_mismatch_session', durationHours: 4, actualOutcome: 'catch' };
+  const mismatchSession: FishingSession = { id: 'test_brier_duration_mismatch_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Karper'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
+  const unknownDurationSnapshot: PrognosisSnapshot = { ...mismatchSnapshot, id: 'test_brier_duration_unknown', linkedSessionId: 'test_brier_duration_unknown_session', durationHours: 0, durationKnown: false };
+  const unknownDurationSession: FishingSession = { ...mismatchSession, id: 'test_brier_duration_unknown_session' };
+  const durationScopedResult = evaluatePrognosisPerformance([...linkedSnapshots, mismatchSnapshot, unknownDurationSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, mismatchSession, unknownDurationSession, ...recordedSessions]);
+  assert(durationScopedResult.evaluatedCount === 7 && durationScopedResult.durationMismatchCount === 1 && durationScopedResult.durationUnknownCount === 1, '4.12 Brier sluit afwijkende en onbekende sessieduur uit en rapporteert beide aantallen afzonderlijk');
+
+  const breamSnapshot: PrognosisSnapshot = { ...linkedSnapshots[0], id: 'test_brier_bream_species', targetSpecies: 'Brasem', linkedSessionId: 'test_brier_bream_species_session', durationHours: 3, predictedCatchChance: 60, actualOutcome: 'catch' };
+  const breamSession: FishingSession = { id: 'test_brier_bream_species_session', startTime: '2026-10-27T08:00:00Z', endTime: '2026-10-27T11:00:00Z', outcome: 'catch', targetSpecies: ['Brasem'], createdAt: '2026-10-27T08:00:00Z', updatedAt: '2026-10-27T11:00:00Z' };
+  const speciesResult = evaluatePrognosisPerformance([...linkedSnapshots, breamSnapshot], baselineTrainingSnapshots, [...baselineTrainingSessions, breamSession, ...recordedSessions]);
+  assert(speciesResult.speciesBreakdown.some((item) => item.species === 'Brasem' && item.evaluatedCount === 1 && item.brierScore === 0.16) && speciesResult.speciesBreakdown.some((item) => item.species === 'Karper' && item.evaluatedCount === 7), '4.13 Brier toont afzonderlijke beschrijvende scores en aantallen per doelsoort');
   // ====================================================================
   // STAP 5: CONTROLEER VALIDATIE-INDICATOREN & VOLDOENDE DATA
   // ====================================================================

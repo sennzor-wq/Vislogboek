@@ -4,7 +4,7 @@
  * op basis van opgeslagen, onveranderlijke prognose-momentopnames (PrognosisSnapshots).
  */
 
-import { PrognosisSnapshot, FishingSession } from '../types';
+import { PrognosisSnapshot, FishingSession, FishSpecies } from '../types';
 import { db } from '../db/db';
 import { PROGNOSIS_MODEL_VERSION } from './modelVersions';
 
@@ -18,11 +18,23 @@ export interface CalibrationBin {
   calibrationDelta: number | null;     // % verschil
 }
 
+export interface SpeciesBrierEvaluation {
+  species: FishSpecies | 'Algemeen';
+  evaluatedCount: number;
+  brierScore: number | null;
+  averageForecastProbability: number | null;
+  observedCatchRate: number | null;
+  calibrationBins: CalibrationBin[];
+}
+
 export interface EvaluationResult {
   totalSnapshots: number;
   currentModelSnapshotCount: number;
   outdatedVersionCount: number;
-  evaluatedCount: number;    // Aantal met bekende uitkomst ('catch' of 'skunk_confirmed')
+  evaluatedCount: number;    // Aantal met bekende uitkomst en vergelijkbare geplande/werkelijke duur
+  durationMismatchCount: number;
+  durationUnknownCount: number;
+  speciesBreakdown: SpeciesBrierEvaluation[];
   pendingCount: number;      // Aantal nog zonder sessie of actieve sessie
   hasSufficientData: boolean;// True als evaluatedCount >= 5
   statusMessage: string;
@@ -51,46 +63,57 @@ export function evaluatePrognosisPerformance(
   const sessionsById = new Map<string, FishingSession>(
     trainingSessions.map((session): [string, FishingSession] => [session.id, session])
   );
-  const eligibleSnapshots = currentModelSnapshots.filter((snapshot) => {
+  const completedOutcomeSnapshots = currentModelSnapshots.filter((snapshot) => snapshot.actualOutcome === 'catch' || snapshot.actualOutcome === 'skunk_confirmed');
+  const coreEligibleSnapshots = completedOutcomeSnapshots.filter((snapshot) => {
     if (snapshot.predictedCatchChance === null || typeof snapshot.predictedCatchChance !== 'number') return false;
     if (!Number.isFinite(snapshot.predictedCatchChance) || snapshot.predictedCatchChance < 0 || snapshot.predictedCatchChance > 100) return false;
     if ((snapshot as any).isBenchmark === true || !snapshot.linkedSessionId) return false;
-    if (snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed') return false;
     const linkedSession = sessionsById.get(snapshot.linkedSessionId);
     if (!linkedSession?.endTime || linkedSession.outcome !== snapshot.actualOutcome) return false;
-    const forecastMs = Date.parse(snapshot.forecastTimestamp);
-    const sessionStartMs = Date.parse(linkedSession.startTime);
-    const sessionEndMs = Date.parse(linkedSession.endTime);
-    return Number.isFinite(forecastMs) &&
-      Number.isFinite(sessionStartMs) &&
-      Number.isFinite(sessionEndMs) &&
-      forecastMs < sessionStartMs &&
-      sessionEndMs > sessionStartMs;
+    const forecastMs = Date.parse(snapshot.forecastTimestamp), sessionStartMs = Date.parse(linkedSession.startTime), sessionEndMs = Date.parse(linkedSession.endTime);
+    return Number.isFinite(forecastMs) && Number.isFinite(sessionStartMs) && Number.isFinite(sessionEndMs) && forecastMs < sessionStartMs && sessionEndMs > sessionStartMs;
   });
-
-  // Eén sessie kan meerdere snapshots hebben (bijv. startadvies en tussentijdse
-  // herberekeningen). Voor dezelfde doelsoort telt alleen de vroegste vooraf
-  // vastgelegde voorspelling mee; latere snapshots zijn geen onafhankelijke sessies.
+  // Eerst de vroegste vooraf vastgelegde voorspelling per sessie/soort kiezen.
+  // Een latere herberekening mag een niet-vergelijkbare eerste voorspelling niet vervangen.
   const earliestBySessionAndSpecies = new Map<string, PrognosisSnapshot>();
-  for (const snapshot of eligibleSnapshots) {
+  for (const snapshot of coreEligibleSnapshots) {
     const key = `${snapshot.linkedSessionId}|${snapshot.targetSpecies}`;
     const current = earliestBySessionAndSpecies.get(key);
-    if (!current || Date.parse(snapshot.forecastTimestamp) < Date.parse(current.forecastTimestamp)) {
-      earliestBySessionAndSpecies.set(key, snapshot);
-    }
+    if (!current || Date.parse(snapshot.forecastTimestamp) < Date.parse(current.forecastTimestamp)) earliestBySessionAndSpecies.set(key, snapshot);
   }
-  const validEvaluated = Array.from(earliestBySessionAndSpecies.values());
-  const excludedCount = currentModelSnapshots.length - currentModelSnapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length - eligibleSnapshots.length;
-  const duplicateCount = eligibleSnapshots.length - validEvaluated.length;
-
+  const earliestCoreSnapshots = Array.from(earliestBySessionAndSpecies.values());
+  const duplicateCount = coreEligibleSnapshots.length - earliestCoreSnapshots.length;
+  // Vangkans is voorspeld voor de geplande sessieduur. Alleen gelijke werkelijke blootstelling telt mee.
+  // Vergelijk op minuutprecisie; geen willekeurige tolerantie of achteraf omgerekende kans.
+  const durationUnknownSnapshots = earliestCoreSnapshots.filter((snapshot) => snapshot.durationKnown === false || !Number.isFinite(snapshot.durationHours) || snapshot.durationHours <= 0);
+  const durationComparableSnapshots = earliestCoreSnapshots.filter((snapshot) => snapshot.durationKnown !== false && Number.isFinite(snapshot.durationHours) && snapshot.durationHours > 0);
+  const durationMismatchSnapshots = durationComparableSnapshots.filter((snapshot) => {
+    const linkedSession = sessionsById.get(snapshot.linkedSessionId!);
+    if (!linkedSession?.endTime) return true;
+    const actualMinutes = (Date.parse(linkedSession.endTime) - Date.parse(linkedSession.startTime)) / 60000;
+    return !Number.isFinite(actualMinutes) || Math.round(actualMinutes) !== Math.round(snapshot.durationHours * 60);
+  });
+  const mismatchIds = new Set(durationMismatchSnapshots.map((snapshot) => snapshot.id));
+  const validEvaluated = durationComparableSnapshots.filter((snapshot) => !mismatchIds.has(snapshot.id));
+  const durationMismatchCount = durationMismatchSnapshots.length;
+  const durationUnknownCount = durationUnknownSnapshots.length;
+  const excludedCount = completedOutcomeSnapshots.length - coreEligibleSnapshots.length;
   const evaluatedCount = validEvaluated.length;
+  const speciesGroups = new Map<PrognosisSnapshot['targetSpecies'], PrognosisSnapshot[]>();
+  for (const snapshot of validEvaluated) { const group = speciesGroups.get(snapshot.targetSpecies) ?? []; group.push(snapshot); speciesGroups.set(snapshot.targetSpecies, group); }
+  const speciesBreakdown: SpeciesBrierEvaluation[] = Array.from(speciesGroups.entries()).sort(([a], [b]) => String(a).localeCompare(String(b), 'nl')).map(([species, items]) => {
+    const scored = items.map((snapshot) => ({ f: (snapshot.predictedCatchChance as number) / 100, o: snapshot.actualOutcome === 'catch' ? 1 : 0 }));
+    return { species, evaluatedCount: scored.length, brierScore: scored.length ? Math.round((scored.reduce((sum, pair) => sum + (pair.f - pair.o) ** 2, 0) / scored.length) * 1000) / 1000 : null, averageForecastProbability: scored.length ? Math.round((scored.reduce((sum, pair) => sum + pair.f, 0) / scored.length) * 1000) / 10 : null, observedCatchRate: scored.length ? Math.round((scored.reduce((sum, pair) => sum + pair.o, 0) / scored.length) * 1000) / 10 : null, calibrationBins: buildCalibrationBins(scored) };
+  });
   const pendingCount = currentModelSnapshots.filter((snapshot) => snapshot.actualOutcome !== 'catch' && snapshot.actualOutcome !== 'skunk_confirmed').length;
   const minimumTrainingSamples = 5;
   const disclaimers: string[] = [
     'De Brier-score toetst vooraf vastgelegde vangstkansen aan definitieve, aan een afgeronde sessie gekoppelde uitkomsten.',
     'Alleen voorspellingen die vóór de werkelijke sessiestart zijn vastgelegd en waarvan de gekoppelde sessie aantoonbaar is afgerond, tellen mee.',
     'Per gekoppelde sessie en doelsoort telt uitsluitend de vroegste vooraf vastgelegde voorspelling mee; latere herberekeningen zijn geen onafhankelijke waarnemingen.',
-    `${excludedCount} momentopname(s) uitgesloten wegens ontbrekende/ongeldige koppeling, sessie-uitkomst of voorspellingstijd.`,
+    `${excludedCount} momentopname(s) met bekende uitkomst uitgesloten wegens ontbrekende/ongeldige koppeling, sessie of voorspellingstijd.`,
+    `${durationMismatchCount} momentopname(s) uitgesloten omdat de werkelijke sessieduur afwijkt van de vooraf voorspelde duur. Vergelijking gebeurt op minuutprecisie; er wordt geen kans achteraf omgerekend.`,
+    `${durationUnknownCount} momentopname(s) uitgesloten omdat de vooraf voorspelde sessieduur ontbreekt of expliciet onbekend is.`,
     `${duplicateCount} dubbele momentopname(s) uitgesloten omdat dezelfde sessie en doelsoort al meetellen.`,
     'De Brier Skill Score gebruikt een chronologische rolling baseline: alleen gekoppelde sessies van dezelfde doelsoort die vóór het prognosetijdstip zijn beëindigd tellen mee.',
     `Alleen momentopnames van modelversie ${PROGNOSIS_MODEL_VERSION} worden gescoord; ${outdatedVersionCount} momentopname(s) van andere modelversies zijn uitgesloten. Afgeronde uitkomsten van oudere versies mogen wel als historische waarneming in de rolling baseline meetellen.`,
@@ -112,6 +135,9 @@ export function evaluatePrognosisPerformance(
       currentModelSnapshotCount: currentModelSnapshots.length,
       outdatedVersionCount,
       evaluatedCount,
+      durationMismatchCount,
+      durationUnknownCount,
+      speciesBreakdown,
       pendingCount,
       hasSufficientData: false,
       statusMessage: `Nog niet gevalideerd (onvoldoende onafhankelijke voorspellingen: ${evaluatedCount} van 5 minimaal benodigd).`,
@@ -200,25 +226,7 @@ export function evaluatePrognosisPerformance(
     );
   }
 
-  const bins = initializeEmptyBins();
-  for (const pair of pairs) {
-    const fPercent = pair.f * 100;
-    const targetBin = bins.find((b) =>
-      fPercent >= b.minProb * 100 &&
-      (fPercent < b.maxProb * 100 || (b.maxProb === 1.0 && fPercent <= 100))
-    );
-    if (!targetBin) continue;
-    targetBin.snapshotCount++;
-    targetBin.averageForecastProb = (targetBin.averageForecastProb ?? 0) + pair.f * 100;
-    targetBin.observedCatchFraction = (targetBin.observedCatchFraction ?? 0) + pair.o * 100;
-  }
-  for (const bin of bins) {
-    if (bin.snapshotCount > 0 && bin.averageForecastProb !== null && bin.observedCatchFraction !== null) {
-      bin.averageForecastProb = Math.round((bin.averageForecastProb / bin.snapshotCount) * 10) / 10;
-      bin.observedCatchFraction = Math.round((bin.observedCatchFraction / bin.snapshotCount) * 10) / 10;
-      bin.calibrationDelta = Math.round((bin.averageForecastProb - bin.observedCatchFraction) * 10) / 10;
-    }
-  }
+  const bins = buildCalibrationBins(pairs);
 
   let statusMsg = `Voorlopige indicatie op basis van ${evaluatedCount} onafhankelijke sessies; geen bewijs van robuuste validatie. `;
   if (brierScore < 0.15) {
@@ -241,6 +249,9 @@ export function evaluatePrognosisPerformance(
     currentModelSnapshotCount: currentModelSnapshots.length,
     outdatedVersionCount,
     evaluatedCount,
+    durationMismatchCount,
+    durationUnknownCount,
+    speciesBreakdown,
     pendingCount,
     hasSufficientData: true,
     statusMessage: statusMsg,
@@ -382,6 +393,23 @@ function initializeEmptyBins(): CalibrationBin[] {
   ];
 }
 
+function buildCalibrationBins(pairs: Array<{ f: number; o: number }>): CalibrationBin[] {
+  const bins = initializeEmptyBins();
+  for (const pair of pairs) {
+    const percent = pair.f * 100;
+    const bin = bins.find((item) => percent >= item.minProb * 100 && (percent < item.maxProb * 100 || (item.maxProb === 1 && percent <= 100)));
+    if (!bin) continue;
+    bin.snapshotCount++;
+    bin.averageForecastProb = (bin.averageForecastProb ?? 0) + percent;
+    bin.observedCatchFraction = (bin.observedCatchFraction ?? 0) + pair.o * 100;
+  }
+  for (const bin of bins) if (bin.snapshotCount && bin.averageForecastProb !== null && bin.observedCatchFraction !== null) {
+    bin.averageForecastProb = Math.round(bin.averageForecastProb / bin.snapshotCount * 10) / 10;
+    bin.observedCatchFraction = Math.round(bin.observedCatchFraction / bin.snapshotCount * 10) / 10;
+    bin.calibrationDelta = Math.round((bin.averageForecastProb - bin.observedCatchFraction) * 10) / 10;
+  }
+  return bins;
+}
 /**
  * Koppelt een gerealiseerde sessie aan een eerdere voorspellingsmomentopname en slaat de uitkomst op.
  */
