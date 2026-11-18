@@ -1675,3 +1675,10 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Regressies toegevoegd voor verschoven tijdvenster bij gelijke duur, afwijkende/ontbrekende duur en tijdvakfallback. Quality Gate staat nog open tot PR-validatie.
 - Technische criteria 1, 3 en 6 zijn grotendeels gerealiseerd; criterium 4 grotendeels; criterium 5 wacht op de Quality Gate; criterium 2 blijft begrensd door voorlopige thermische priors en het ontbreken van goedgekeurde numerieke biologische bronnen.
 - Fase 2 is niet formeel geaccepteerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies; Fase 3 start niet eerder.
+### Fase 2 — Brier-tijdvenstercontrole afgerond (18 november 2026)
+
+- PR #138 is squash-merged als 53bf5616b85edf5690043840855a7ebf87b15184.
+- PR-head Quality Gate #44393169257 en main mergecommit Quality Gate #44393310926 zijn volledig geslaagd.
+- Brier controleert voorspelde/werkelijke duur en gepland/werkelijk tijdvenster. Exacte vensters worden op minuutprecisie vergeleken; oudere snapshots vallen terug op het gekozen Amsterdamse starttijdvak; ontbrekende context wordt uitgesloten en apart geteld.
+- De VisCoach-route bewaart geplande start/eindtijden in de sessiesnapshot. Regressies dekken verschoven vensters bij gelijke duur, duurmismatch, onbekende duur, tijdvakfallback en ontbrekende tijdcontext.
+- Geen biologische score, gewicht, parameter of tijdvakbonus gewijzigd. Fase 2 blijft open wegens resterende wetenschappelijke/ontwerpbesluiten en lokale praktijkvalidatie; Fase 3 start niet.
