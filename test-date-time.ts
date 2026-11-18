@@ -1,4 +1,4 @@
-import { addCalendarDays, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth } from './src/utils/dateTime';
+import { addCalendarDays, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, getAmsterdamTimeSlot } from './src/utils/dateTime';
 
 // datetime-local follows the device timezone; the production audience uses Dutch local time.
 process.env.TZ = 'Europe/Amsterdam';
@@ -22,6 +22,14 @@ assert(getAmsterdamDateKey('2026-11-05T23:30:00.000Z') === '2026-11-06',
   'UTC midnight boundary resolves to the correct Amsterdam calendar date');
 assert(getAmsterdamHour('2026-11-05T23:30:00.000Z') === 0,
   'Hour extraction uses Amsterdam local time rather than the runtime timezone');
+assert(getAmsterdamTimeSlot('2026-01-15T05:59:00') === 'Nacht' &&
+  getAmsterdamTimeSlot('2026-01-15T06:00:00') === 'Ochtend' &&
+  getAmsterdamTimeSlot('2026-01-15T12:00:00') === 'Middag' &&
+  getAmsterdamTimeSlot('2026-01-15T18:00:00') === 'Avond',
+  'Time-slot boundaries use the four fixed Amsterdam local periods');
+assert(getAmsterdamTimeSlot('not-a-date') === null,
+  'Invalid timestamps do not receive a fabricated time slot');
+
 assert(getAmsterdamMonth('2026-01-31') === 1,
   'Date-only values retain their calendar month');
 assert(getAmsterdamHour('2026-09-01T12:00:00') === 12,
