@@ -1461,4 +1461,4 @@ Chen et al. (2012; DOI 10.1016/S1006-8104(12)60039-7) is op abstractniveau opnie
 - `user_adjusted` is alleen gebruikersinvoer, geen onafhankelijke verificatie.
 - Historische vangstfeatures nemen de herkomst op; `historyFeatureSchemaVersion` is verhoogd naar 2. Oude snapshots blijven schema 1.
 - Hengelgebeurtenissen worden niet in prognosesnapshots gekopieerd zolang ze geen modelinput zijn.
-- Regressietests controleren beide statussen, behoud van onbekende historie en feature-schema v2. Geen biologische score, tijdvakbonus, vangstkans of Brier-logica gewijzigd.
+- Regressietests controleren beide statussen, behoud van onbekende historie en feature-schema v2; ook de VisCoach-integratietest verwacht nu schema v2. Geen biologische score, tijdvakbonus, vangstkans of Brier-logica gewijzigd.
