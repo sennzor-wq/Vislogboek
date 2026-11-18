@@ -608,6 +608,7 @@ export async function reassessActiveSessions(
         {
           sessionDurationHours: durationHours ?? undefined,
           allowUnknownSessionDuration: true,
+          targetTimeSlot,
           locationId: location.id,
           location,
           catches,
