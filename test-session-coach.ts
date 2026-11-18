@@ -330,6 +330,25 @@ async function run() {
     !calmAdvice.tactics.includes('Wind en werprichting'),
     'Bij zwakke wind wordt geen onnodig wind- of werprichtingadvies getoond'
   );
+  const calmWindKnownZoneAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    habitatAnalysis: {
+      primaryZone: { name: 'Diepere taludzone', habitatType: 'Overgangszone', description: 'Diepere overgang.', depthProfileNote: 'Lokaal peilen.', structureNote: 'Talud', whyLikely: 'Geregistreerd talud.' },
+      confidenceLevel: 'Redelijk',
+      dataProvenance: { measuredDataPoints: [], userObservations: [], modelInferences: [] },
+    },
+    positioningAdvice: {
+      recommendedZone: 'Algemene zoekzone',
+      windContext: { directionText: 'Noord', speedKmH: 5, isStrongWind: false, isCalmWind: true, isColdWind: false },
+    },
+  } as any);
+  assert(
+    calmWindKnownZoneAdvice.tactics.includes('Wind en werprichting') &&
+    calmWindKnownZoneAdvice.tactics.includes('Er staat weinig wind') &&
+    calmWindKnownZoneAdvice.tactics.includes('een dieper en rustiger deel van het water') &&
+    !calmWindKnownZoneAdvice.tactics.includes('werprichting Noord'),
+    'Bij weinig wind geeft VisCoach wel een doelzone, maar verzint geen windgestuurde kompasrichting'
+  );
   const unknownWindAdvice = buildVisCoachAdviceText({
     ...baselinePrognosis,
     positioningAdvice: {
@@ -364,6 +383,33 @@ async function run() {
     moderateWindAdvice.tactics.includes('Wind en werprichting') &&
     moderateWindAdvice.tactics.includes('De wind kan de oeverkeuze en werprichting beïnvloeden.'),
     'Ook matige wind krijgt tactische aandacht wanneer de bestaande oeveranalyse is geconfigureerd'
+  );
+  const moderateWindTargetAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    habitatAnalysis: {
+      primaryZone: { name: 'Diepere taludzone', habitatType: 'Overgangszone', description: 'Diepere overgang.', depthProfileNote: 'Lokaal peilen.', structureNote: 'Talud', whyLikely: 'Geregistreerd talud.' },
+      confidenceLevel: 'Redelijk',
+      dataProvenance: { measuredDataPoints: [], userObservations: [], modelInferences: [] },
+    },
+    positioningAdvice: {
+      recommendedZone: 'Algemene zoekzone',
+      windContext: { directionText: 'Zuidwest', speedKmH: 15, isStrongWind: false, isCalmWind: false, isColdWind: false },
+    },
+    bankWindAnalysis: {
+      isConfigured: false,
+      windOriginDirection: 'Zuidwest',
+      windDestinationDirection: 'Noordoost',
+      windSpeedKmH: 15,
+      rodPlacementAdvice: { primaryPosition: 'Oeveroriëntatie onbekend.', castingDirectionAdvice: 'Geen exacte richting.' },
+      bankAssessment: { explanation: 'Windcontext.' },
+      missingInformation: ['Oeveroriëntatie onbekend.'],
+      fieldChecklist: [],
+    },
+  } as any);
+  assert(
+    moderateWindTargetAdvice.tactics.includes('De windrichting helpt je werphoek en lijncontrole bepalen, maar bepaalt niet automatisch waar de vis ligt.') &&
+    moderateWindTargetAdvice.tactics.includes('Houd een dieper en rustiger deel van het water als doelzone'),
+    'Bij matige wind blijft de gekozen habitatdoelzone leidend en wordt wind alleen voor de werphoek gebruikt'
   );
   const habitatWindConflictAdvice = buildVisCoachAdviceText({
     ...baselinePrognosis,

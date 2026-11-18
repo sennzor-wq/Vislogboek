@@ -1403,3 +1403,16 @@ De voerstrategie bestaat uit twee samenhangende delen: **voorbereiding vóór de
 ### Veiligheidsnuance — onbekende temperatuur is geen koudwaterevidence (18 november 2026)
 
 De aanvullende PVA-/method-feederalternatieven voor een voorzichtige koude-waterstrategie worden alleen getoond wanneer de bestaande voerplannertekst daadwerkelijk een lagere voedselopname bij lage temperatuur onderbouwt. De status 'niet aanbevolen (instant vissen aanbevolen)' kan ook ontstaan doordat de watertemperatuur onbekend is; die status alleen is dus onvoldoende om koude-watergedrag te claimen. Bij onbekende temperatuur blijft de coach algemeen en terughoudend, zonder een koude-waterreden te verzinnen.
+
+
+### Productbesluit 18 november 2026 — werprichting volgt de doelzone, wind ondersteunt de presentatie
+
+De standaardtactiek moet duidelijk maken dat windrichting en werprichting verschillende zaken zijn:
+
+- De gekozen, onderbouwde zoekzone bepaalt waar de gebruiker zijn aas wil presenteren.
+- Windrichting, windkracht en oeveroriëntatie helpen bepalen vanaf welke positie en onder welke hoek die presentatie praktisch kan worden uitgevoerd; wind is niet automatisch een aanwijzing waar de vis ligt.
+- Als de wind zwak is en een bruikbare doelzone bekend is, adviseert VisCoach eenvoudig om op die doelzone te vissen. Er is dan geen geforceerde windgestuurde kompasrichting nodig.
+- Als de wind merkbaar invloed heeft, gebruikt VisCoach de bestaande oever-/positioneringsanalyse. Een concrete kompasrichting wordt alleen genoemd wanneer de bestaande bron die ondersteunt; anders benoemt de coach expliciet dat de oeveroriëntatie of lokale structuur ontbreekt.
+- Als geen bruikbare doelzone bekend is, verzint de coach geen afstand, diepte, bodemvorm of werprichting. Hij vraagt de gebruiker niet om extra verplichte invoer, maar geeft een praktische controle ter plaatse.
+
+**Acceptatiecriteria:** zwakke wind + bekende doelzone geeft een doelgerichte presentatie zonder kompasrichting; zwakke wind + geen doelzone forceert geen werpadvies; matige/sterke wind benoemt wind als factor voor werphoek en lijncontrole, maar houdt de doelzone leidend; onbekende oeveroriëntatie levert geen exacte richting op.
