@@ -9,6 +9,7 @@ import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngin
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
+import { resolveTimestampEntryMode } from './src/utils/timestampProvenance';
 import {
   WeatherHourlyForecast,
   FishingLocation,
@@ -70,6 +71,29 @@ function makeHourlySeries(
 
 async function run14Scenarios() {
   console.log('=== STARTING VISLOGBOEK 14-SCENARIO VERIFICATION ===\n');
+
+  // Timestamp provenance: automatic by default, editable, and never retroactively inferred.
+  assert(resolveTimestampEntryMode('2026-11-18T10:00', '2026-11-18T10:00', true) === 'automatic',
+    'Timestamp 1: nieuw vangstformulier behoudt automatische standaardtijd');
+  assert(resolveTimestampEntryMode('2026-11-18T09:45', '2026-11-18T10:00', true) === 'user_adjusted',
+    'Timestamp 2: gewijzigde nieuwe vangsttijd krijgt user_adjusted');
+  assert(resolveTimestampEntryMode('2026-11-18T10:00', '2026-11-18T10:00', false) === undefined,
+    'Timestamp 3: bestaande registratie zonder herkomst blijft ongeclassificeerd');
+  assert(resolveTimestampEntryMode('2026-11-18T09:45', '2026-11-18T10:00', false) === 'user_adjusted',
+    'Timestamp 4: handmatig aangepaste bestaande tijd krijgt user_adjusted');
+  assert(resolveTimestampEntryMode('2026-11-18T10:00', '2026-11-18T10:00', false, 'automatic') === 'automatic',
+    'Timestamp 5: bestaande automatische herkomst blijft behouden bij ongewijzigde tijd');
+
+  const provenanceHistory = createPrognosisHistoryFeatureSnapshot([], [
+    { id: 'auto', sessionId: 's1', species: 'Karper', count: 1, timestamp: '2026-11-18T09:00:00.000Z', timestampEntryMode: 'automatic', createdAt: '2026-11-18T09:00:00.000Z' },
+    { id: 'adjusted', sessionId: 's1', species: 'Karper', count: 1, timestamp: '2026-11-18T09:10:00.000Z', timestampEntryMode: 'user_adjusted', createdAt: '2026-11-18T09:11:00.000Z' },
+    { id: 'legacy', sessionId: 's1', species: 'Karper', count: 1, timestamp: '2026-11-18T09:20:00.000Z', createdAt: '2026-11-18T09:21:00.000Z' },
+  ]);
+  assert(provenanceHistory.historyFeatureSchemaVersion === 2 &&
+    provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'auto')?.timestampEntryMode === 'automatic' &&
+    provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'adjusted')?.timestampEntryMode === 'user_adjusted' &&
+    provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'legacy')?.timestampEntryMode === undefined,
+    'Timestamp 6: prognosehistorie v2 bewaart herkomst zonder oude records te classificeren');
 
   const unknownDuration = getSessionDurationHours({
     id: 'unknown-duration',
