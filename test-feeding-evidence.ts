@@ -95,7 +95,7 @@ for (const id of [
 if (carp.approvedFeedingEvidence.length !== 0) {
   throw new Error('Wild carp feeding evidence must remain unapproved until independent validation.');
 }
-const catchDistributionEvidence = getResearchByOutcome('angler_catch_distribution');
+const catchDistributionEvidence = getResearchByOutcome('Karper', 'angler_catch_distribution');
 if (!catchDistributionEvidence.some((item) => item.id === 'common-carp-angling-competition-night-landings-2021') ||
     carp.feedingRhythm.some((item) => item.id === 'common-carp-angling-competition-night-landings-2021')) {
   throw new Error('Angling competition landings must remain a separate catch-distribution outcome, not direct feeding evidence.');
