@@ -349,12 +349,12 @@ assert(
   `2.3 Relatieve hoek is ~0° (hoek <= 30°, werkelijk: ${bwAanlandig.relativeAngleDegrees}°)`
 );
 assert(
-  bwAanlandig.bankAssessment.isFavorable === true,
-  '2.4 In de zomer met 18°C en 16 km/u bries is de aanlandige oever biologisch gunstig'
+  bwAanlandig.bankAssessment.isFavorable === false && bwAanlandig.bankAssessment.explanation.toLowerCase().includes('toont niet aan'),
+  '2.4 Aanlandige zomerwind wordt niet als biologisch bewijs voor een vislocatie behandeld'
 );
 assert(
-  bwAanlandig.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('kort'),
-  '2.5 Adviseert om kort onder de kant of op het eerste talud te vissen'
+  bwAanlandig.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('doelzone') && !bwAanlandig.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('vis kort'),
+  '2.5 Werphoek volgt de gekozen doelzone; wind alleen leidt niet tot kort onder de kant vissen'
 );
 
 // 2.2 Wind komt uit het Oosten (90°) -> Blaast van achter de visser over de oever het water op: Recht aflandig (rugwind / luwte)
@@ -389,8 +389,8 @@ assert(
   `2.9 Wind uit 0° bij oeverkijkrichting 270° is "Zijwind" (werkelijk: ${bwZijwind.relation})`
 );
 assert(
-  bwZijwind.bankAssessment.driftCurrent.toLowerCase().includes('parallelle') || bwZijwind.bankAssessment.driftCurrent.toLowerCase().includes('oeverdrift'),
-  '2.10 Zijwind beschrijft parallelle oeverdrift'
+  bwZijwind.bankAssessment.driftCurrent.toLowerCase().includes('laterale oppervlaktedrift'),
+  '2.10 Zijwind beschrijft mogelijke laterale oppervlaktedrift'
 );
 
 // 2.4 Winter met koude wind op de oever -> Aanlandige branding is NIET gunstig
@@ -410,8 +410,8 @@ assert(
   '2.12 In de winter met koud water is de aanlandige oever NIET gunstig (isFavorable === false)'
 );
 assert(
-  bwWinterKoud.bankAssessment.statusLabel.toLowerCase().includes('koude') || bwWinterKoud.bankAssessment.statusLabel.toLowerCase().includes('ongunstig'),
-  '2.13 Status waarschuwt voor snelle afkoeling door koude golfslag'
+  bwWinterKoud.bankAssessment.explanation.toLowerCase().includes('toont niet aan') && bwWinterKoud.bankAssessment.isFavorable === false,
+  '2.13 Ook bij koud water wordt geen vislocatie uitsluitend uit wind afgeleid'
 );
 
 // 2.5 Stek ZONDER oeveroriëntatie -> Geen schijnzekerheid
@@ -439,9 +439,9 @@ assert(
   '2.16 Meldt ontbrekende gegevens en vraagt om eenmalige stekinstelling'
 );
 assert(
-  bwUnconfigured.rodPlacementAdvice.castingDirectionAdvice.includes('Scenario 1') &&
-  bwUnconfigured.rodPlacementAdvice.castingDirectionAdvice.includes('Scenario 2'),
-  '2.17 Toont twee scenario\'s ter voorkoming van schijnzekerheid'
+  bwUnconfigured.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('doelzone') &&
+  bwUnconfigured.rodPlacementAdvice.castingDirectionAdvice.toLowerCase().includes('wind bepaalt niet'),
+  '2.17 Zonder oeveroriëntatie wordt alleen wind-/werphoekcontext gegeven, geen vislocatiescenario'
 );
 
 
