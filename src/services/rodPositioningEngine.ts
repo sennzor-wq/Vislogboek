@@ -900,7 +900,7 @@ export function analyzeRodPositioning(
       speedKmH: avgWindSpeed,
       gustsKmH: maxWindSpeed !== null && avgWindSpeed !== null && maxWindSpeed > avgWindSpeed ? maxWindSpeed : undefined,
       isStrongWind,
-      isCalmWind,
+      isCalmWind: avgWindSpeed === null ? undefined : isCalmWind,
       isColdWind,
       windTrend,
       intraSessionNote,
