@@ -481,7 +481,7 @@ export function buildWindCastingGuidance(
   } else if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     isWindwardFavorable = false;
     windwardAssessment = `In het voorjaar kunnen zoninstraling en wind de oppervlaktetemperatuur beïnvloeden, maar zonder lokale meting is het verschil tussen oevers onbekend. Windrichting alleen toont niet waar vis zich concentreert; gebruik lokale structuur en waarnemingen.`;
-  } else if (season === 'Zomer' || season === 'Herfst') {
+  } else if ((season === 'Zomer' || season === 'Herfst') && !isCalmWind) {
     isWindwardFavorable = false;
     windwardAssessment = `Aanlandige wind (${avgWindSpeed} km/u) kan oppervlaktebeweging en drift richting de ${meta.oppositeFull.toLowerCase()}elijke oever veroorzaken. Dat is geen bewijs dat vis zich daar bevindt of dat voedselopname toeneemt. Gebruik deze oever hooguit als tweede vergelijkingszone wanneer lokale structuur of directe waarnemingen dat ondersteunen.`;
   } else if (season === 'Zomer' && isCalmWind && isWarmConditions) {
