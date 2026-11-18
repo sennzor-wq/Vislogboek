@@ -469,7 +469,7 @@ export function buildVisCoachAdviceText(
   const limitations = (prognosis.uncertaintyNotes ?? [])
     .map(explainCoachLimitation)
     .filter((item): item is string => Boolean(item));
-  const uniqueReasons = [...new Set([...reasons, ...limitations])].slice(0, 4);
+  const uniqueReasons = [...new Set([...reasons, ...limitations])].slice(0, 5);
 
   return {
     summary,
