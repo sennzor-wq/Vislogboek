@@ -414,7 +414,7 @@ async function run() {
   } as any);
   assert(
     positioningPriorityAdvice.advice.includes('Begin bij Aanlandige oeverzone (windkant)') &&
-    positioningPriorityAdvice.advice.includes('Diepere taludzone'),
+    positioningPriorityAdvice.advice.includes('dieper en rustiger deel van het water'),
     'Bij lage habitatzekerheid en redelijke positioneringszekerheid krijgt de positioneringszone voorrang, met de habitat als alternatief'
   );
 
