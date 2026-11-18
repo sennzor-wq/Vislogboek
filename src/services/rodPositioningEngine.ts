@@ -477,10 +477,10 @@ export function buildWindCastingGuidance(
     windwardAssessment = `Op stromend water (${waterType.toLowerCase()}) bepalen vaargeultaluds, stroomnaden en kribkoppen de vispositie veel sterker dan de winddrift op het wateroppervlak.`;
   } else if (effectiveWaterTemp < 8 || (effectiveWaterTemp < 10 && isColdWind) || isCoolingPeriod) {
     isWindwardFavorable = false;
-    windwardAssessment = `Niet aanbevolen (koud water / afkoeling). In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind onttrekt aanlandige golfslag extra warmte aan de oever. Karper en witvis mijden deze kille golfslag en zoeken energiebesparing in de luwe oever of diepere rustkuilen.`;
+    windwardAssessment = `Koud water (${effectiveWaterTemp.toFixed(1)} °C) en aanlandige wind kunnen de oppervlaktelaag en presentatie beïnvloeden. Zonder lokale temperatuurmetingen en viswaarnemingen is niet vast te stellen of vis de windkant vermijdt. Gebruik de gekozen habitat-/waarnemingszone als doelzone.`;
   } else if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     isWindwardFavorable = false;
-    windwardAssessment = `Geringe voorkeur. In het voorjaar warmen ondiepe, zonbeschenen oeverzones en beschutte baaien uit de wind sneller op dan een aanlandige oever met kille kabbel. Vis concentreert zich vaak in de opwarmende luwtes.`;
+    windwardAssessment = `In het voorjaar kunnen zoninstraling en wind de oppervlaktetemperatuur beïnvloeden, maar zonder lokale meting is het verschil tussen oevers onbekend. Windrichting alleen toont niet waar vis zich concentreert; gebruik lokale structuur en waarnemingen.`;
   } else if (season === 'Zomer' || season === 'Herfst') {
     isWindwardFavorable = false;
     windwardAssessment = `Aanlandige wind (${avgWindSpeed} km/u) kan oppervlaktebeweging en drift richting de ${meta.oppositeFull.toLowerCase()}elijke oever veroorzaken. Dat is geen bewijs dat vis zich daar bevindt of dat voedselopname toeneemt. Gebruik deze oever hooguit als tweede vergelijkingszone wanneer lokale structuur of directe waarnemingen dat ondersteunen.`;
@@ -489,7 +489,7 @@ export function buildWindCastingGuidance(
     windwardAssessment = `Bij warm water en weinig wind (${avgWindSpeed} km/u) is de zuurstofstatus niet bekend. Windstilte bewijst geen zuurstoftekort en rechtvaardigt geen advies over zuurstofrijke zones. Gebruik lokale structuur en diepte als uitgangspunt; beoordeel zuurstof alleen met een directe meting.`;
   } else {
     isWindwardFavorable = false;
-    windwardAssessment = `Gematigd / neutraal. De windkant biedt lichte troebeling, maar bij stabiele milde condities foerageert vis evengoed langs diepere taluds of in luwe overgangszones.`;
+    windwardAssessment = `De windkant kan een andere oppervlaktebeweging hebben dan de luwte, maar dit is geen bewijs voor visconcentratie of voedselopname. Gebruik de lokale habitat-/waarnemingsanalyse voor de doelzone.`;
   }
 
   // 3. Werpadvies & Voorkomen van Schijnzekerheid
