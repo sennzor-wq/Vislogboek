@@ -562,3 +562,13 @@ PR #116 is squash-merged als commit `372954a972b41feddb87ba9966a4a63d8b641c7a`.
 **Resterende VisCoach-zijstroom:** habitat- en winduitkomsten inhoudelijk samenbrengen tot één praktisch startpunt; het bestaande voorvoerplan vollediger maar selectief vertalen; UX- en terugvalgedrag afronden. Geen extra gebruikersinvoer of parallelle engine.
 
 **Hoofdregie blijft ongewijzigd:** fase 2 biologische prognose is nog niet formeel geaccepteerd; fase 3 is niet gestart.
+### Aanvulling — startzone en voorvoer vertaald; VisCoach-zijstroom gepauzeerd (18 november 2026)
+
+PR #118 is squash-merged als commit `e7b51f8e0ff88a9834462ab40919a3f8a59abb43`.
+
+- De VisCoach kiest één praktisch startpunt bij verschil tussen habitat en positionering. Lokale waarnemingen hebben prioriteit; anders krijgt een bruikbare habitatinschatting voorrang, tenzij die lage zekerheid heeft en de positioneringsanalyse redelijke zekerheid heeft. De andere zone blijft een tweede controlepunt.
+- Wind wordt gebruikt voor presentatie en werprichting, niet als automatische reden om de primaire habitatzone te verlaten. Temperatuur blijft activiteitspotentie en geen exacte locatievoorspelling.
+- De voorvoerengine wordt vertaald naar campagneadvies, sessievoer, voersamenstelling en persoonlijke historie indien beschikbaar. Exacte voorbereidende grammen vereisen `Redelijk` invoerkwaliteit; sessiehoeveelheden vereisen daarnaast een expliciet bekende sessieduur. Geen eindtijd betekent geen gegokte sessiehoeveelheid.
+- De exacte PR-head Quality Gate is volledig groen (run #759), inclusief alle regressietests en productiebuild.
+
+**Besluit werkverdeling:** de huidige VisCoach-zijstroom is op een bruikbaar tussenpunt gebracht. Geen verdere brede VisCoach-uitbreiding totdat de fase-2-audit en het kandidaatmodel weer een duidelijke volgende stap hebben. De hoofdprioriteit keert terug naar de biologische factorinventaris, soortspecifieke bewijsbeoordeling, datadekking en validatie. Fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
