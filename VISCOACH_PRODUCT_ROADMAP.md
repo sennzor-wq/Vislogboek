@@ -1515,3 +1515,8 @@ Bevestigd gedrag:
 - De oude profielwaarden blijven uitsluitend onderzoeks-/referentiecontext; de modelversie is verhoogd naar `v2.6-thermal-activity-disabled` en de prognosis-engine naar `1.2.0`.
 
 Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acceptatie blijft open totdat de volledige zevenpunts-crosswalk opnieuw is beoordeeld; Fase 3 blijft geblokkeerd.
+
+
+### Bewaking na uitschakeling thermische activiteitsscore
+
+De aparte voorvoer-, habitat- en positioneringsadviezen blijven bestaan. Ze zijn geen vervangende activiteitsscore, maar hun temperatuurafhankelijke drempels en hoeveelheden moeten nog afzonderlijk evidence-geaudit worden voordat Fase 2 formeel kan worden geaccepteerd. De gebruiker krijgt intussen geen thermische activiteitsscore of automatisch thermisch beste tijdvak te zien.
