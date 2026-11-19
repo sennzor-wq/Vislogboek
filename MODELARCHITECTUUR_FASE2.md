@@ -706,3 +706,38 @@ Optie A is gekozen. De bestaande asymmetrische thermische soortprofielen blijven
 
 Alle bronnen blijven onderworpen aan de bestaande evidence-status. Latere numerieke verfijning vereist directe soort-/levensfase-/contextpassende onderbouwing, regressietests en onafhankelijke chronologische evaluatie. Dit besluit is geen wetenschappelijke validatie van de huidige parameters.
 
+
+
+## 80. Bestaande dagscore, factorbijdragen en tijdvakrespons
+
+De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden. Deze architectuur voegt geen tweede score, parallelle forecast of eigen VisCoach-biologie toe.
+
+### Dagscoreketen
+
+Iedere factor uit de bestaande prognose wordt in de factorinventaris expliciet geclassificeerd: numerieke bijdrage, habitat-/bewegingsinformatie, kwalitatieve context, niet beschikbaar of uitgesloten met reden. Een numerieke bijdrage vereist een passende gemeten respons, relevante soort-/seizoens-/habitatcontext, betrouwbare invoer, traceerbare onzekerheid en een toetsbare rol. Een ontbrekende factor wordt niet als een fictieve neutrale waarde ingevuld. Gewichten en interacties worden niet gekozen op basis van intuïtie of kleine, vertekende vangstdatasets.
+
+Wanneer een kandidaatmodel voldoende bewijs heeft, dragen de toegelaten factoren samen bij aan de bestaande dagschatting; de UI blijft de huidige score presenteren. Thermische activiteit blijft volgens §81 uitsluitend een voorlopige prior voor thermische respons en wordt niet vermenigvuldigd met voeding, persoonlijke vangstkans of Brier.
+
+### Tijdvakbeoordeling
+
+Tijdvakrespons wordt binnen dezelfde prognosecontext bepaald op basis van doelsoort, datum/seizoen, stek en relevante omstandigheden. Direct soortspecifiek voedings-/foerageerbewijs kan tijdvakvoorkeur ondersteunen wanneer de gemeten respons en context overdraagbaar zijn. Thermische respons, locomotorische activiteit, habitatgebruik, voedselopname en hengelvangbaarheid blijven gescheiden. Zonder betekenisvol bewijsverschil wordt geen tijdvakwinnaar geforceerd.
+
+### Evaluatiegrenzen
+
+Brier evalueert de persoonlijke vangstkans tegen de gekoppelde sessie-uitkomst en is geen directe gewichtstuner voor biologische factoren. Activiteit, voeding, habitat en tijdvakrangschikking vereisen passende eigen evaluatiemaatstaven. Prognosesnapshots blijven onveranderlijk; sessies en uitkomsten worden alleen gebruikt binnen chronologische, vergelijkbare en datakwaliteitsbewuste evaluatie.
+
+Dit is het kader voor de volgende kandidaatmodel-audit. Het activeert geen nieuwe factor, gewicht, drempel of runtimeberekening.
+
+
+## 81. Baseline huidige score- en tijdvakberekening (19 november 2026)
+
+De huidige code-audit (§92 in `FASE2_PROGNOSE_AUDIT.md`) toont:
+
+- Eén `analyzeWaterThermalDevelopment()`-resultaat wordt per prognosedatum berekend en aan alle vier tijdvakken doorgegeven.
+- Daardoor gebruiken de vier tijdvakken dezelfde gemeten/geschatte watertemperatuur, thermische efficiëntie en activiteitsscore.
+- De numerieke activiteitsscore gebruikt uitsluitend de voorlopige thermische respons. Druk, wind, seizoen, tijdstip/licht en bewolking/neerslag hebben geen numerieke bijdrage.
+- Diel-/voedingsbewijs is verklarende context; persoonlijke tijdvakervaring wordt niet in de activiteitsscore gewogen.
+- De dagscore middelt de vier gelijke tijdvakscorewaarden. De huidige tijdvakrangschikking kan daarom geen voedingsgedrag of werkelijk tijdvakverschil bepalen.
+- Persoonlijke Poisson-vangkans blijft apart en wordt niet in de biologische activiteitsscore gemengd.
+
+Dit is de baseline voor de volgende kandidaatmodel-audit. De gewenste geïntegreerde factorbijdragen en soort-/seizoen-/stekgevoelige tijdvakrespons zijn nog niet gerealiseerd. Behoud de bestaande UI en architectuur; voeg geen gewichten of tijdvakbonussen toe voordat bewijs, invoerdekking, onzekerheid en chronologische validatie zijn vastgelegd.

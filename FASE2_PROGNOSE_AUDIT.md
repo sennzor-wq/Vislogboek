@@ -1919,3 +1919,60 @@ Dit is een gerichte keuze binnen de bestaande prognosearchitectuur, geen herontw
 
 De eerdere tijdelijke uitschakeling van de thermische score is teruggedraaid op main in commit bf95145e7ca0523944b01b842957a65d7f93647c. De Quality Gate op deze herstelcommit is volledig geslaagd (run #44492544444). Dit herstel activeert uitsluitend het bestaande thermische modelgedrag; het voegt geen nieuwe biologische factor of vangstkanskoppeling toe.
 
+
+
+## 91. Vervolg na ontwerpbesluit — scoreketen, tijdvakvoorkeur en evaluatie (19 november 2026)
+
+### Status na PR #147
+
+Het ontwerpbesluit uit §90 is verwerkt in PR #147 en squash-merged naar `main` als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`. De Quality Gate op de mergecommit is geslaagd (run #44496021470). Optie A is daarmee als ontwerpkeuze vastgelegd: de bestaande thermische curves blijven uitsluitend een voorlopige, transparante thermische prior. Er zijn geen runtimeberekeningen, parameters of scores gewijzigd.
+
+De keuze over behouden versus uitschakelen is gesloten. De onderliggende wetenschappelijke beperking is dat de exacte soortparameters niet onafhankelijk gevalideerd zijn. Dit mag niet worden verward met brongoedkeuring of lokale voorspelvalidatie. Criterium 2 blijft daarom inhoudelijk begrensd; de formele crosswalk mag dit niet als wetenschappelijke validatie afvinken. De volgende auditstap moet expliciet vaststellen hoe de vooraf goedgekeurde voorlopige prior binnen criterium 2 wordt verantwoord zonder de bewijsnorm voor nieuwe numerieke factoren te verlagen. Tot die beoordeling blijft Fase 2 niet geaccepteerd en Fase 3 geblokkeerd.
+
+### Vastgelegde producteis voor de bestaande prognose
+
+De producteigenaar heeft verduidelijkt dat de huidige scoreweergave behouden moet blijven. Het gaat om verbetering van de bestaande prognoseketen, niet om een tweede score of een nieuwe VisCoach-prognose.
+
+- De bestaande dagscore en presentatie blijven de gebruikersweergave. De uiteindelijke dagschatting moet, zodra de audit en validatie dat toelaten, de relevante prognosefactoren samenbrengen in één uitlegbare keten.
+- Iedere factor uit de bestaande prognose krijgt expliciet een rol en status: numerieke bijdrage, habitat-/bewegingsinformatie, kwalitatieve context, niet beschikbaar of uitgesloten met reden. Een factor krijgt alleen een numerieke bijdrage wanneer respons, data en bewijs dat rechtvaardigen; ontbrekende data worden niet als een verzonnen neutrale score behandeld.
+- Voor factoren die numeriek mogen bijdragen, moet de soort-, seizoen-, water-/stekcontext, richting, onzekerheid, interactie en onderbouwde weging traceerbaar zijn. Geen universele percentages of arbitraire gewichten.
+- De tijdvakbeoordeling moet de geselecteerde soort, datum/seizoen en stek meenemen. Soortspecifiek voedings-/foerageergedrag kan de voorkeur van een tijdvak beïnvloeden wanneer het directe bewijs bij de respons en context past. Temperatuurrespons, beweging, voedselopname, habitat-aanwezigheid en vangbaarheid blijven afzonderlijke responsen. Een dagdeelpatroon is nooit op zichzelf een automatische bonus of gegarandeerde winnaar.
+- Het huidige thermische tijdvak blijft thermisch zolang geen gevalideerde voedings-/tijdvakrespons beschikbaar is. Wanneer verschillen niet aantoonbaar zijn, wordt geen kunstmatige winnaar geforceerd.
+- De gebruiker hoeft geen extra verplichte levensfase- of biologisch formulier in te vullen. De bestaande eenvoudige invoer blijft leidend; onbekende context vergroot onzekerheid.
+- De Brier-evaluator toetst de persoonlijke vangstkans aan gekoppelde sessie-uitkomsten en kan aantonen dat kalibratie/prestatie verbetering behoeft. Brier is geen biologische factor, geen directe gewichtstuner en geen correctie die achteraf oude prognoses verandert. Activiteit, voeding, habitat en tijdvakrangschikking vereisen passende eigen evaluatiemaatstaven.
+- Sessies, inspanning/tijdvenster, doelsoort, stek, omstandigheden, vangsten en bevestigde nulvangsten kunnen de evaluatie voeden via onveranderlijke prognosesnapshots en kwaliteits-/vergelijkbaarheidsfilters. Onbekende of niet vergelijkbare uitkomsten worden niet als nulvangst geïnterpreteerd.
+
+### Volgende auditstap
+
+Voer nu de kandidaatmodel-audit uit binnen de bestaande `prognosisEngine.ts`-keten: leg voor elke reeds geïnventariseerde factor de huidige codebijdrage, gewenste respons, databeschikbaarheid, bewijsstatus, onzekerheid, interacties en evaluatiemethode naast elkaar. Maak daarna het kandidaatmodel en het chronologische validatieprotocol expliciet, inclusief vergelijking met de huidige baseline en bescherming tegen future leakage. Deze stap is ontwerp en audit; activeer nog geen nieuwe factor, gewicht, tijdvakbonus of runtimeberekening. Houd de bestaande scoreweergave intact. Zie ook de zeven acceptatiecriteria in §43 en de crosswalk in §89.
+
+
+## 92. Code-audit bestaande score- en tijdvakketen (19 november 2026)
+
+De huidige implementatie in `src/services/prognosisEngine.ts` is rechtstreeks gevolgd van `calculateDayPrognosis()` naar `analyzeTimeSlot()`. Dit is een feitelijke code-audit; er is geen runtimecode gewijzigd.
+
+### Vastgestelde huidige werking
+
+1. `calculateDayPrognosis()` roept `analyzeWaterThermalDevelopment()` één keer per datum aan. Hetzelfde `thermalAnalysis`-object wordt vervolgens aan alle vier tijdvakken (`Nacht`, `Ochtend`, `Middag`, `Avond`) doorgegeven.
+2. `analyzeTimeSlot()` haalt voor elk tijdvak dezelfde gemeten of geschatte watertemperatuur uit dat gedeelde object. Dezelfde soortcurve levert daardoor in alle tijdvakken dezelfde `thermalEff` en dezelfde `activityScore` op.
+3. Alleen de thermische respons beïnvloedt de huidige numerieke `activityScore`: `1 + 9 × thermalEff^0.85`, begrensd op 1–10. Druk, wind, seizoen, tijdstip/licht, bewolking en neerslag hebben `score: 0` en `impact: neutraal`; zij zijn alleen context.
+4. De soortspecifieke diel-/voedingsinformatie wordt via `getSpeciesDielTimeContextText()` als tekst getoond. Zij levert nog geen numerieke tijdvakbijdrage. Persoonlijke sessies per starttijdvak worden als ervaringscontext getoond, niet als bijdrage aan de thermische activiteitsscore.
+5. De dagscore is het gemiddelde van de vier tijdvak-`activityScore`-waarden. Omdat die waarden dezelfde gedeelde thermische respons gebruiken, is de huidige dagscore feitelijk dezelfde thermische score en geen gewogen samenvoeging van alle prognosefactoren.
+6. De huidige `bestTimeSlot`-sortering vergelijkt diezelfde scores. Wanneer meerdere tijdvakken beschikbaar zijn, leidt dit normaal tot `Geen betekenisvol onderscheid`; de code kan hiermee geen soortspecifieke voedingspiek of beste tijdvak bepalen.
+7. De persoonlijke Poisson-vangkans wordt afzonderlijk berekend uit vergelijkbare sessies en sessieduur. Deze wordt niet in de dagactiviteitsscore gemengd.
+
+### Conclusie tegenover de beoogde producteis
+
+De huidige scoreweergave kan behouden blijven, maar de beoogde geïntegreerde scoreketen en soort-/seizoen-/stekgevoelige tijdvakvoorkeur zijn nog niet geïmplementeerd. De factorpresentatie toont meerdere onderdelen, maar hun aanwezigheid op het scherm betekent niet dat zij numeriek bijdragen. De huidige tijdvakuitvoer is op dit moment geen echte vergelijking van tijdvakcondities of voedingsgedrag; zij hergebruikt de dagbrede thermische prior.
+
+Dit is een kritisch functioneel verschil dat in het kandidaatmodel en de UI-tekst expliciet moet worden meegenomen. Het is geen reden om nu ad-hoc factoren of tijdvakbonussen toe te voegen. Eerst moet de volgende stap vaststellen welke tijdsafhankelijke invoer betrouwbaar per tijdvak beschikbaar is, welke responsen direct bewijs hebben, hoe onbekende waarden doorwerken in onzekerheid en hoe de kandidaatuitvoer chronologisch wordt gevalideerd.
+
+### Vervolg
+
+- Maak een factor-voor-factor traceermatrix van de volledige bestaande prognose: invoer → berekening → factorbijdrage → scoreaggregatie → tijdvakrangschikking → UI → snapshot → evaluatie.
+- Onderzoek afzonderlijk of waterthermische invoer per tijdvak kan worden afgeleid uit de bestaande waterthermische engine zonder de huidige voorlopige curve te verwarren met voedingsgedrag.
+- Ontwerp de beoogde tijdvakrespons met soortspecifiek direct voedings-/foerageerbewijs en relevante seizoen-/stekcontext; beweging/habitat blijft een afzonderlijke laag.
+- Leg vast welke factoren alleen context blijven, welke numeriek kandidaat zijn, welke inputdekking ontbreekt en welke onafhankelijke evaluatiemaatstaf nodig is.
+- Behoud de huidige scoreweergave en centrale prognosearchitectuur. Geen runtimewijziging, nieuw gewicht, nieuwe score of geforceerde tijdvakwinnaar voordat het kandidaatmodel en validatieprotocol zijn beoordeeld.
+
+Deze bevinding actualiseert de volgende stap uit §91: de kandidaatmodel-audit begint met deze bestaande codeketen als baseline. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
