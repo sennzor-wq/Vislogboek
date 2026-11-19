@@ -847,3 +847,13 @@ De huidige bewijsdekking voor alle tien profielen is vastgelegd in `FASE2_PROGNO
 ### Fase 2 — responslabels verder gescheiden (19 november 2026)
 
 Audit §111 verduidelijkt dat voedselopname, foerageersnelheid, locomotorische activiteit en vangst verschillende eindpunten zijn. Met name de juveniele karperstudie meet foerageersnelheid en mag niet als adult-voedselopnamecurve worden gebruikt. Geen bronstatus, parameter of runtime gewijzigd.
+
+### Fase 2 — geactualiseerde acceptatiecrosswalk en vervolgfase (19 november 2026)
+
+De audit bevat nu een geactualiseerde zevenpunts-crosswalk in FASE2_PROGNOSE_AUDIT.md §129. De factorinventaris en soortresponskaarten (§§102–128), het productdoel (§103), de minimale vangstregistratie (§104), de factor-naar-responsmatrix (§105) en de normalisatie-/coverage-architectuur (§106) zijn vastgelegd. De audit is daarmee inhoudelijk veel verder, maar Fase 2 is **niet formeel geaccepteerd**.
+
+De belangrijkste resterende blockers zijn: (1) onafhankelijke onderbouwing/toelating van de voorlopige thermische parameters en scoremapping; (2) passende onafhankelijke labels en metrics voor activiteit, voeding, habitat en tijdvak; (3) een tijdvakbeoordeling die niet simpelweg dezelfde dagthermische waarde hergebruikt; (4) controle van de bestaande vangstflow tegen het minimale contract; en (5) een expliciet besluit over de afzonderlijke numerieke voorvoergrammen bij onvoldoende invoerkwaliteit. De bestaande 1–10-score, gebruikersflow en scheiding met persoonlijke vangstkans blijven behouden.
+
+**Volgende stap:** audit van het bestaande sessie-/vangst-/snapshotdatamodel om vast te stellen welke evaluatielabels werkelijk beschikbaar zijn. Geen extra verplichte invoer, geen nieuwe gewichten of runtimewijziging. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
+
+De documentintegriteitscorrectie PR #175 is gemerged als abe721db42d2d4e8bb7eb222e46a72d167cdc816. De Quality Gate op de mergecommit is completed/success.
