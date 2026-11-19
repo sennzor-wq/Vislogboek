@@ -1500,3 +1500,18 @@ De coach blijft:
 - persoonlijke vangkans uitsluitend tonen wanneer de bestaande historische/datadekkingseisen dit toelaten.
 
 De uitgeschakelde thermische index wordt niet vervangen door een nieuwe tijdvakbonus of andere ongevalideerde factor. Het advies blijft praktisch gericht op stek, waarnemingen, presentatie en gekozen sessieperiode.
+
+
+### Implementatiestatus optie B — PR #144 afgerond (19 november 2026)
+
+De runtimewijziging is gemerged via [PR #144](https://github.com/sennzor-wq/Vislogboek/pull/144) in commit [8702529](https://github.com/sennzor-wq/Vislogboek/commit/8702529ee2872f7fa783d35cea588b4639355d97). De volledige Quality Gate is groen op zowel de exacte PR-head (`a441b439`, run [#44489948828](https://github.com/sennzor-wq/Vislogboek/actions/runs/44489948828)) als de main-mergecommit (run [#44490080010](https://github.com/sennzor-wq/Vislogboek/actions/runs/44490080010)).
+
+Bevestigd gedrag:
+- Geen actieve numerieke thermische activiteitsscore en geen automatische thermische tijdvakrangschikking.
+- Watertemperatuur, meetherkomst, schattingsstatus en onzekerheid blijven als afzonderlijke context beschikbaar.
+- Nieuwe snapshots bewaren `predictedActivityScore: null` en `activityScoreAvailable: false`.
+- Een expliciet door de gebruiker gekozen sessietijdvak blijft behouden in de start- en updatesnapshots.
+- De persoonlijke vangkans en afzonderlijke habitat-/positionerings-/voorvoerengines blijven gescheiden.
+- De oude profielwaarden blijven uitsluitend onderzoeks-/referentiecontext; de modelversie is verhoogd naar `v2.6-thermal-activity-disabled` en de prognosis-engine naar `1.2.0`.
+
+Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acceptatie blijft open totdat de volledige zevenpunts-crosswalk opnieuw is beoordeeld; Fase 3 blijft geblokkeerd.
