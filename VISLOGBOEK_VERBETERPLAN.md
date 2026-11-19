@@ -875,3 +875,11 @@ De kandidaatmetrics en harde labelgrenzen staan in FASE2_PROGNOSE_AUDIT.md §131
 Er zijn geen lokale directe labels voor fysiologische activiteit, voedselopname of biologische tijdvakvoorkeur. Vangsten, aanbeten, gemiste vissen, beweging en opportunistische aanwezigheidssignalen mogen deze labels niet vervangen. De bestaande tijdvakblootstellings- en vangstbewijs-audit is beschrijvend en nog geen gekalibreerde voorspeller. Geen extra verplichte invoer, nieuwe metric in runtime, gewichten of scorewijziging.
 
 **Volgende stap:** sluit de factor-toelatingsmatrix per soort en respons met bronstatus, invoerkwaliteit, toepassingsgebied, label, metric en expliciet besluit (numeriek kandidaat/context/onbekend/uitgesloten). Daarna volgt de finale kandidaatmodelreview; Fase 2 blijft niet geaccepteerd en Fase 3 geblokkeerd.
+
+### Fase 2 — factor-toelatingsmatrix per respons en soort gesloten (19 november 2026)
+
+De geconsolideerde toelatingsmatrix staat in FASE2_PROGNOSE_AUDIT.md §132. De factorinventaris is nu per factorfamilie en per doelsoort ingedeeld als voorlopige numerieke prior, numerieke kandidaat, contextueel, onbekend of afzonderlijke responslaag. De registry bevat 86 records, waarvan 0 goedgekeurd zijn voor directe numerieke voorspelling. Geen van de tien profielen heeft een volledig gevalideerde soortspecifieke dagelijkse thermische voedselopnamecurve.
+
+De enige numerieke bijdrage aan de biologische 1–10-dagscore blijft de bestaande thermische prior uit optie A; dit is een expliciete voorlopige uitzondering, geen wetenschappelijke validatie. Voorvoergrammen en habitat-/positioneringsdrempels blijven aparte tactiek-/ruimtelijke heuristieken. Geen nieuwe gewichten, factoren, interacties of tijdvakbonussen.
+
+**Resterend:** formeel bepalen hoe de voorlopige thermische uitzondering binnen criterium 2 wordt geaccepteerd zonder de bewijsnorm te verlagen; de onafhankelijke evaluatiepoorten blijven open wegens ontbrekende directe lokale biologische labels. De afzonderlijke voorvoergrammen-/invoerkwaliteitbeslissing vereist eveneens expliciete goedkeuring voordat runtime wordt aangepast. Fase 2 blijft niet geaccepteerd; Fase 3 geblokkeerd.
