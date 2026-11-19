@@ -323,9 +323,10 @@ export function buildVisCoachAdviceText(
       ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het thermisch gunstigste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
       : prognosis.bestTimeSlot &&
         prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
-        prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
+        prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid' &&
+        prognosis.bestTimeSlot !== 'Niet beschikbaar'
           ? `Volgens de thermische prognose heeft ${prognosis.bestTimeSlot.toLowerCase()} de hoogste relatieve temperatuurrespons. Dit is geen bewezen voedingspiek of vangstvoorkeur; andere tijdvakken kunnen eveneens geschikt zijn.`
-          : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
+          : 'Er is geen thermische tijdvakrangschikking actief. Houd je gekozen starttijd aan en let ter plaatse op lokale visactiviteit en praktische omstandigheden.';
 
   adviceSections.push(`Wanneer\n${when}`);
 
@@ -335,7 +336,7 @@ export function buildVisCoachAdviceText(
     ? explainZone(primaryZone)
     : 'een plek waar je ter plaatse herkenbare structuur of een verandering in de diepte kunt vinden. De app weet nog niet precies hoe deze stek eruitziet.';
   const thermalLocationNote = thermal?.hasMeasuredWaterTemp || typeof thermal?.estimatedWaterTemp === 'number'
-    ? 'De temperatuur geeft vooral activiteitspotentie; zij wijst niet zelfstandig de exacte vislocatie aan.'
+    ? 'Watertemperatuur blijft omgevingscontext; de uitgeschakelde thermische activiteitsscore wijst geen vislocatie of tijdvak aan.'
     : '';
   const conflictNote = zoneResolution.secondaryZone
     ? zoneResolution.source === 'habitat'
@@ -649,7 +650,7 @@ export async function persistCoachReassessment(
       location.name,
       session.technique,
       inputContext.targetTimeSlot ?? (
-        prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid'
+        prognosis.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' || prognosis.bestTimeSlot === 'Geen betekenisvol onderscheid' || prognosis.bestTimeSlot === 'Niet beschikbaar'
           ? undefined
           : prognosis.bestTimeSlot
       ),
