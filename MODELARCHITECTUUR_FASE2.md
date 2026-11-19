@@ -710,7 +710,10 @@ Alle bronnen blijven onderworpen aan de bestaande evidence-status. Latere numeri
 
 ## 80. Bestaande dagscore, factorbijdragen en tijdvakrespons
 
-De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden. Deze architectuur voegt geen tweede score, parallelle forecast of eigen VisCoach-biologie toe.
+De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden.
+
+**Doel van de uiteindelijke aggregatie:** elk relevant prognoseonderdeel krijgt een eigen dagelijkse factoruitkomst en een bewijs-/datagedreven gewicht binnen de bestaande totaalscore. De huidige score-UI blijft behouden. De tijdvakbeoordeling past dezelfde factorarchitectuur afzonderlijk toe per tijdvak en combineert relevante tijdvakcondities met soortspecifiek voedings-/foerageergedrag en stek-/seizoencontext. Niet-onderbouwde of ontbrekende factoren worden niet met fictieve neutrale scores gevuld; hun status en effect op onzekerheid blijven expliciet.
+ Deze architectuur voegt geen tweede score, parallelle forecast of eigen VisCoach-biologie toe.
 
 ### Dagscoreketen
 

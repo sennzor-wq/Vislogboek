@@ -1728,7 +1728,10 @@ De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande 
 
 - PR #147 is squash-merged als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`; de Quality Gate op de mergecommit (#44496021470) is geslaagd.
 - De bestaande thermische curves blijven op keuze van de producteigenaar behouden als transparante voorlopige mechanistische prior. Dit valideert de exacte parameters niet en geeft geen toestemming voor extra numerieke factoren of gewichten.
-- De bestaande prognose en dagscoreweergave blijven leidend. Alle factoren worden in de bestaande keten beoordeeld op rol, bewijs, databeschikbaarheid, onzekerheid, interactie en toetsbaarheid. Tijdvakvoorkeur combineert relevante prognosecontext met passend soortspecifiek voedings-/foerageerbewijs; beweging en thermische respons zijn niet automatisch voedings- of vangstbewijs.
+- De bestaande prognose en dagscoreweergave blijven leidend.
+
+**Einddoel scoreketen:** ieder relevant onderdeel van de prognose levert uiteindelijk een eigen dagelijkse factoruitkomst en een onderbouwde bijdrage aan de bestaande totaalscore. De bestaande scoreweergave blijft behouden. Ook de tijdvakken worden afzonderlijk beoordeeld met passende tijdvakdata en soort-/seizoen-/stekcontext. Zonder bewijs of betrouwbare invoer wordt geen arbitraire neutrale score of gewicht verzonnen; de factor blijft zichtbaar als onbekend/contextueel of uitgesloten.
+ Alle factoren worden in de bestaande keten beoordeeld op rol, bewijs, databeschikbaarheid, onzekerheid, interactie en toetsbaarheid. Tijdvakvoorkeur combineert relevante prognosecontext met passend soortspecifiek voedings-/foerageerbewijs; beweging en thermische respons zijn niet automatisch voedings- of vangstbewijs.
 - Brier evalueert de persoonlijke vangstkans tegenover gekoppelde sessie-uitkomsten; het stuurt biologische gewichten niet rechtstreeks bij. Activiteit, voeding, habitat en tijdvak vereisen passende afzonderlijke evaluatie.
 - Volgende stap: kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol. Geen runtimewijziging of nieuwe factoractivatie vóór bewijs en Quality Gate. Fase 2 is niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
 
