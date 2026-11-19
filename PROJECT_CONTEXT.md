@@ -1731,3 +1731,10 @@ De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande 
 - De bestaande prognose en dagscoreweergave blijven leidend. Alle factoren worden in de bestaande keten beoordeeld op rol, bewijs, databeschikbaarheid, onzekerheid, interactie en toetsbaarheid. Tijdvakvoorkeur combineert relevante prognosecontext met passend soortspecifiek voedings-/foerageerbewijs; beweging en thermische respons zijn niet automatisch voedings- of vangstbewijs.
 - Brier evalueert de persoonlijke vangstkans tegenover gekoppelde sessie-uitkomsten; het stuurt biologische gewichten niet rechtstreeks bij. Activiteit, voeding, habitat en tijdvak vereisen passende afzonderlijke evaluatie.
 - Volgende stap: kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol. Geen runtimewijziging of nieuwe factoractivatie vóór bewijs en Quality Gate. Fase 2 is niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — actuele codebevinding score- en tijdvakketen (19 november 2026)
+
+De code-audit in `FASE2_PROGNOSE_AUDIT.md` §92 bevestigt dat de huidige dagscore feitelijk alleen de voorlopige thermische respons weergeeft. Eén dagelijkse waterthermische analyse wordt hergebruikt voor Nacht/Ochtend/Middag/Avond; de vier scores zijn daardoor gelijk. Weer-, seizoen- en tijdvakfactoren zijn contextueel en soortspecifiek voedingsritme is alleen verklarende tekst. De huidige tijdvakrangschikking kan dus nog geen echte voedingspiek of beste tijdvak bepalen.
+
+Dit is een kritisch verschil met de gewenste geïntegreerde prognose, maar er worden geen ad-hoc gewichten of tijdvakbonussen toegevoegd. De bestaande scoreweergave en centrale prognose blijven behouden. Volgende stap: volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix en kandidaatmodel plus chronologisch validatieprotocol. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

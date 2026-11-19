@@ -697,3 +697,10 @@ De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal ge
 - Tijdvakvoorkeur wordt binnen dezelfde prognoseketen beoordeeld op doelsoort, datum/seizoen en stek. Direct voedings-/foerageerbewijs kan een tijdvak beïnvloeden; beweging en thermische respons worden niet automatisch als voeding of vangbaarheid vertaald.
 - Brier blijft evaluatie van persoonlijke vangstkans versus sessie-uitkomsten, geen directe biologische gewichtstuner. Tussenlagen vereisen passende afzonderlijke evaluatie.
 - **Volgende stap:** kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol uitwerken. Geen runtimefactoren of gewichten activeren voordat bewijs en acceptatiecriteria dit toestaan. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — code-audit huidige scoreketen (19 november 2026)
+
+De eerste trace van `calculateDayPrognosis()` en `analyzeTimeSlot()` staat in `FASE2_PROGNOSE_AUDIT.md` §92. De huidige dagscore is feitelijk de thermische score: dezelfde dagelijkse thermische analyse wordt in alle vier tijdvakken hergebruikt. Druk, wind, seizoen, tijdstip/licht, bewolking en neerslag zijn contextueel (`score: 0`); soortspecifiek voedingsritme is tekstuele context en persoonlijke tijdvakervaring wordt niet in de activiteitsscore verwerkt. De tijdvakrangschikking kan daardoor geen echte voedings-/tijdvakvoorkeur vaststellen.
+
+Dit is een belangrijk verschil met de beoogde geïntegreerde scoreketen, geen toestemming voor een snelle numerieke bonus. De volgende stap is de volledige factor-naar-UI/snapshot/evaluatie-traceermatrix en het kandidaatmodel-/chronologische validatieprotocol. De bestaande scoreweergave blijft behouden; geen runtimewijziging, extra score of parallelle engine.

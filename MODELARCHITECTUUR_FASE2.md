@@ -727,3 +727,17 @@ Tijdvakrespons wordt binnen dezelfde prognosecontext bepaald op basis van doelso
 Brier evalueert de persoonlijke vangstkans tegen de gekoppelde sessie-uitkomst en is geen directe gewichtstuner voor biologische factoren. Activiteit, voeding, habitat en tijdvakrangschikking vereisen passende eigen evaluatiemaatstaven. Prognosesnapshots blijven onveranderlijk; sessies en uitkomsten worden alleen gebruikt binnen chronologische, vergelijkbare en datakwaliteitsbewuste evaluatie.
 
 Dit is het kader voor de volgende kandidaatmodel-audit. Het activeert geen nieuwe factor, gewicht, drempel of runtimeberekening.
+
+
+## 81. Baseline huidige score- en tijdvakberekening (19 november 2026)
+
+De huidige code-audit (§92 in `FASE2_PROGNOSE_AUDIT.md`) toont:
+
+- Eén `analyzeWaterThermalDevelopment()`-resultaat wordt per prognosedatum berekend en aan alle vier tijdvakken doorgegeven.
+- Daardoor gebruiken de vier tijdvakken dezelfde gemeten/geschatte watertemperatuur, thermische efficiëntie en activiteitsscore.
+- De numerieke activiteitsscore gebruikt uitsluitend de voorlopige thermische respons. Druk, wind, seizoen, tijdstip/licht en bewolking/neerslag hebben geen numerieke bijdrage.
+- Diel-/voedingsbewijs is verklarende context; persoonlijke tijdvakervaring wordt niet in de activiteitsscore gewogen.
+- De dagscore middelt de vier gelijke tijdvakscorewaarden. De huidige tijdvakrangschikking kan daarom geen voedingsgedrag of werkelijk tijdvakverschil bepalen.
+- Persoonlijke Poisson-vangkans blijft apart en wordt niet in de biologische activiteitsscore gemengd.
+
+Dit is de baseline voor de volgende kandidaatmodel-audit. De gewenste geïntegreerde factorbijdragen en soort-/seizoen-/stekgevoelige tijdvakrespons zijn nog niet gerealiseerd. Behoud de bestaande UI en architectuur; voeg geen gewichten of tijdvakbonussen toe voordat bewijs, invoerdekking, onzekerheid en chronologische validatie zijn vastgelegd.
