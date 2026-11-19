@@ -769,3 +769,10 @@ De actuele zevenpuntscrosswalk is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §89. 
 **Huidige formele blockers:** de doelrespons van de bestaande 1–10-score expliciet afbakenen; factorstatus en datadekking per soort sluiten; normalisatie en ontbrekende-data-regel ontwerpen; onafhankelijke evaluatie voor activiteit, voeding, habitat en tijdvak vastleggen. Brier blijft uitsluitend evaluatie van persoonlijke vangstkans. De thermische curve blijft voorlopige prior, exacte parameters ongevalideerd. Geen runtimegewichten of tijdvakbonussen geactiveerd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
 
 **Volgende stap:** factorstatus-/datadekkingsmatrix definitief sluiten, daarna pas doelrespons, normalisatie, missing-data-regel en kandidaataggregatie vastleggen. Vervolgens chronologisch valideren tegen de bestaande thermische baseline.
+
+
+### Fase 2 — actuele responsdekking per soort gesloten in audit (19 november 2026)
+
+De exacte registrytelling per soort en gemeten respons is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §82. Alle 86 records blijven niet-goedgekeurd voor directe numerieke voorspelling. De belangrijkste gaten blijven directe voedingsintensiteit/-ritme voor roofblei, de overdraagbaarheid van gecontroleerde voedingsstudies bij meerval/karper en onafhankelijke validatie van activiteit, habitat en tijdvak.
+
+**Volgende stap:** koppel deze responsdekking aan de doelrespons van de bestaande 1–10-score en sluit de factor-/datadekkingsmatrix. Daarna pas normalisatie, missing-data-regel en kandidaataggregatie uitwerken. Geen runtimegewichten of tijdvakbonussen activeren.

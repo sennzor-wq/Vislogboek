@@ -1793,3 +1793,8 @@ De review van wind, luchtdruk, troebelheid, zuurstof, neerslag en stroming is va
 De zevenpunts-acceptatiecrosswalk is gesynchroniseerd in `FASE2_PROGNOSE_AUDIT.md` §89. De thermische optie A is gekozen: de bestaande curve blijft een voorlopige prior, geen gevalideerde soortcurve. De research registry telt 86 unieke records; alle blijven niet-goedgekeurd voor directe numerieke voorspelling.
 
 De huidige dagscore wordt numeriek alleen thermisch bepaald. De gewenste factorbijdragen en soort-/seizoen-/stekgevoelige tijdvakbeoordeling zijn nog niet actief. Voordat gewichten worden ontworpen, wordt eerst de doelrespons van de bestaande 1–10-score afgebakend en de factorstatus-/datadekkingsmatrix gesloten. Brier blijft uitsluitend persoonlijke vangstkans evalueren; activiteit, voeding, habitat en tijdvak vereisen eigen evaluatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — actuele soort-/responsdekking (19 november 2026)
+
+De exacte registrytelling per soort en gemeten respons staat in `FASE2_PROGNOSE_AUDIT.md` §82. Het register bevat 86 unieke records, alle niet-goedgekeurd voor directe numerieke voorspelling. De responsen voedingsintensiteit, voedingsritme, prooikeuze, beweging, habitat, vangbaarheid, fysiologie en groei blijven afzonderlijk. De volgende stap is de doelrespons van de bestaande dagscore afbakenen en de factor-/datadekkingsmatrix sluiten; daarna pas de aggregatie ontwerpen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
