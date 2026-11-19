@@ -4916,3 +4916,34 @@ De studie onderzocht subadulte en adulte blankvoorn, brasem en alver in het meso
 - Geen bron wordt hierdoor automatisch goedgekeurd voor numerieke runtime; alle tijdvakclaims blijven bewijs- en contextgebonden.
 
 **Status:** drie aanvullende veldbronnen methodisch geclassificeerd. Geen score, gewicht, parameter, runtime of gebruikersinvoer aangepast. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 126. Meerval — veldtelemetrie nuanceert een universeel nachtpatroon (2012)
+
+**Bron:** Slavík, O. & Horký, P. (2012). *Diel dualism in the energy consumption of the European catfish Silurus glanis.* Journal of Fish Biology, 81, 2223–2234. DOI: 10.1111/j.1095-8649.2012.03436.x.
+
+Twintig Europese meervallen werden met EMG-fysiologische telemetriesensoren gevolgd tijdens dag-nachtcycli in het voorjaar en de zomer in de Elbe en Berounka (Tsjechië). De veldresultaten lieten twee patronen zien in het gebruik van licht- en donkerperioden. Ongeveer 35% van de individuen week af van het lokale, meer gebruikelijke dagritme. Er was aanzienlijke individuele variatie in EMG-activiteit ten opzichte van lichaamsmassa. De auteurs vonden ook dat het patroon van individuen met relatief hoge energieconsumptie verschilde van dat van individuen met een lager energieverbruik. Hogere watertemperatuur hing samen met hogere EMG-waarden; hogere afvoer/stroming hing samen met lagere waarden.
+
+**Classificatie:** veldmeting van locomotorische/fysiologische activiteit en energieverbruik, geen directe voedselopname, prooiaanval of maagvulling. De studie is daarom niet in te zetten als bewijs voor nachtelijk voeren, maar wel als waarschuwing dat één soortbreed dag-nachtpatroon individuele verschillen kan verbergen.
+
+**Besluit:** toevoegen als veldcontext voor meervalactiviteit en individuele ritmevariatie. Niet gebruiken als voedingslabel, temperatuur-voedselopnamecurve of universele nachtbonus. De laboratoriumstudie van Boujard (1995) over sterk nachtelijke zelfvoeractiviteit (§110) blijft een andere respons en experimentele context.
+
+## 127. Bijgewerkte soortdekking na de aanvullende bronaudit (§§117–126)
+
+Deze delta actualiseert de interpretatie van de responskaarten in §110. Zij vervangt geen registryrecord en verandert de operationele bronstatus niet. De aanvullende auditbronnen hieronder zijn niet automatisch aan researchRegistry.ts toegevoegd en geen ervan is goedgekeurd voor numerieke runtime.
+
+| Soort | Aanvullend bevestigd bewijs | Wat dit wél ondersteunt | Wat dit niet ondersteunt |
+|---|---|---|---|
+| Karper | Bestaande directe gecontroleerde voedselopname- en veldcontext uit §§109–111 | Contextgebonden temperatuur-/voedingsrespons | Een universele lokale curve of vaste optimumwaarde |
+| Brasem | In-situ dag-nachtpatroon van planktonconsumptie bij subadult/adult (§125); oudere dagelijkse rantsoen- en stikstofstudies (§114) | Kwalitatieve, dieet- en levensfasegebonden dagvoedingscontext | Een thermische voedselopnamecurve of overdracht naar pellets/benthisch voer zonder validatie |
+| Snoek | Hartslagtelemetrie bij wilde snoek, met geschatte dagelijkse opname en overdag foerageren (§123); afzonderlijke 0+-predatiestudie (§112) | Directe maar contextgebonden veld-/predatie-informatie; onderscheid tussen voedselopname en vertering | Een geïsoleerde temperatuurcurve, volwassen populatiegemiddelde of universeel tijdvakgewicht |
+| Baars | Volwassen dagelijkse veldrantsoenen en seizoensverloop (§124); temperatuurafhankelijke prooivangst (§119) | Directe consumptie- en foerageertussenmaten in afzonderlijke contexten | Een dagelijkse thermische voedselopnamecurve of hengelaasrespons |
+| Blankvoorn | Bibliografisch bevestigde laboratoriumconsumptie bij vier temperaturen en diëten (§122); in-situ dag-nacht-planktonconsumptie (§125); prooivangst (§119) | Directe, maar dieet-/levensfasegebonden consumptie- en foerageercontext | Een gevalideerde thermische curve voor wilde Nederlandse blankvoorn |
+| Zeelt | Bestaande directe vergelijking bij 18 en 25 °C (§109) | Beperkte directe temperatuur-voedselopnamevergelijking | Een volledig thermisch optimum of brede veldcurve |
+| Snoekbaars | Directe prooiconsumptie bij 4,5/8,5/12,5 °C (§115); volwassen telemetrie betreft beweging, geen voeding (Poulet et al., 2015) | Beperkte gecontroleerde prooiconsumptierespons en afzonderlijke bewegingscontext | Een algemene volwassen veldcurve of vaste schemerbonus |
+| Meerval | Juveniele kweekrantsoenen/voeracceptatie (§117 en §121); nocturnale zelfvoerproef (Boujard 1995); individuele veldactiviteit via EMG (§126) | Beperkte directe kweek-voerrespons en sterke context-/individuele verschillen in dagritme en activiteit | Een volwassen wilde dagelijkse thermische voedingscurve of één universeel nachtpatroon |
+| Roofblei | Volwassen telemetrie van beweging en variabele dagdeelpatronen (§120) | Seizoens- en habitatgebonden bewegingscontext | Directe voedselopname, prooivangst of een vaste schemerbonus |
+
+**Interpretatie:** de aanvullende bronnen maken de bewijsdekking rijker, maar niet homogener. Een soort kan directe dagelijkse consumptie in een specifieke dieet-/veldcontext hebben zonder dat er een temperatuurcurve beschikbaar is. Evenzo kan telemetrie een dag-nachtritme van beweging tonen zonder iets rechtstreeks over voeren te meten. De centrale bewijsclassificatie blijft daarom per gemeten respons, levensfase, voedseltype, watertype, seizoen en onderzoeksopzet.
+
+**Vervolg:** de volgende stap is niet het activeren van gewichten, maar het sluiten van de formele respons-/bronmatrix en het vaststellen welke responsen überhaupt onafhankelijk kunnen worden geëvalueerd met toekomstige lokale sessiegegevens. Alle ontbrekende of niet-overdraagbare informatie blijft expliciet onzeker. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
