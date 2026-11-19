@@ -104,7 +104,7 @@ function determineTacticalHypothesis(
     if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
       return {
         recommendedZone: 'Diepere taluds en overgangen nabij samengeschoolde prooivis',
-        rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) trekken witvisscholen naar diepere kuilen; snoek volgt deze prooiconcentraties en jaagt vanuit diepere hinderlagen. Vermijdt energieverspilling in koude golfslag. (Zoekhypothese voor winterjacht).`,
+        rationale: `Bij ${effectiveWaterTemp.toFixed(1)} °C kan het dieptegebruik van snoek en prooivis veranderen, maar dit verschilt met lichaamsgrootte, vegetatiedekking, zuurstof en het lokale water. Controleer waar prooivis werkelijk aanwezig is; neem geen diepe concentratie aan. De <7 °C / <9 °C-regel is alleen een praktische zoektrigger, geen gevalideerde biologische grens. (Voorzichtige zoekhypothese).`,
         alternativeOption:
           'Ondiepe rietkragen op zonnige wintermiddagen waar prooivis kort opwarmt.',
         confidenceLevel: waterDepth ? 'Redelijk' : 'Matig',
@@ -173,8 +173,8 @@ function determineTacticalHypothesis(
   if (species === 'Zeelt') {
     if (effectiveWaterTemp < 11) {
       return {
-        recommendedZone: 'Diepere beschutte slibzones (extreme winterrust)',
-        rationale: `Onder ~11–12 °C schakelt zeelt over op een diepe inactieve spaarstand in zachte bodemlagen. Ruwe golfslag en stroming worden strikt gemeden. (Zoekhypothese voor winterpassiviteit).`,
+        recommendedZone: 'Beschutte zachte-bodemzones (mogelijke koude schuilplek)',
+        rationale: `Zeelt kan bij lage temperatuur of andere ongunstige omstandigheden beschutting zoeken in zachte bodem of modder. De beschikbare bronbasis onderbouwt geen vaste omslag bij 11 °C en geen volledige inactiviteit. Gebruik een slibrijke, beschutte zone alleen als die lokaal aanwezig is; dit blijft een zoekhypothese.`,
         alternativeOption:
           'Diepe, luwe havenbekkens of modderkuilen met minimale waterbeweging.',
         confidenceLevel: 'Matig',
@@ -193,8 +193,8 @@ function determineTacticalHypothesis(
   if (species === 'Meerval') {
     if (effectiveWaterTemp < 12) {
       return {
-        recommendedZone: 'Diepste, stromingsvrije overwinteringskuilen (rusttoestand)',
-        rationale: `Meerval is sterk warmteminnend. Onder 12–14 °C vertraagt de stofwisseling drastisch en zoekt de vis diepe, rustige bodemholen op zonder actief te jagen. (Zoekhypothese voor koude rust).`,
+        recommendedZone: 'Diepere rust- of overwinteringszone (mogelijke aggregatie)',
+        rationale: `Bij lage watertemperaturen kan Europese meerval seizoensgebonden aggregaties vormen en het dieptegebruik veranderen. De reactie verschilt echter per populatie en tussen stilstaand en stromend water; veldstudies registreren ook activiteit bij temperaturen onder 5 °C. De grens van 12 °C is geen harde biologische omslag en volledige afwezigheid van jacht kan hieruit niet worden afgeleid. Een diepere zone is uitsluitend een lokale zoekhypothese.`,
         alternativeOption: 'Diepe gaten in stilstaande zijarmen of havenmondingen.',
         confidenceLevel: 'Matig',
       };
@@ -212,8 +212,8 @@ function determineTacticalHypothesis(
   if (species === 'Voorn') {
     if (effectiveWaterTemp < 7) {
       return {
-        recommendedZone: 'Diepere rusthavens en kuilen; zonnige middagen op ondieptes',
-        rationale: `In de winter verzamelt voorn zich in dichte scholen in diepe, rustige havens of vaargeulen; bij een zonnige namiddag trekken ze kort naar ondiepere luwe oeverzones. (Zoekhypothese voor winterscholing).`,
+        recommendedZone: 'Diepere rustige refuges of verbonden zijwateren (indien aanwezig)',
+        rationale: `Een deel van blankvoornpopulaties kan in de winter naar verbonden stromen of andere refuges migreren. De timing en route verschillen per waterlichaam en seizoen. De beschikbare bron onderbouwt geen vaste <7 °C-grens en geen algemene verplaatsing naar ondiepe oevers op zonnige middagen; controleer lokale verbindingen en waarnemingen.`,
         alternativeOption: 'Luwte achter rietkragen of steigers.',
         confidenceLevel: 'Matig',
       };
@@ -240,7 +240,7 @@ function determineTacticalHypothesis(
   if (effectiveWaterTemp < 7 || (effectiveWaterTemp < 9 && isColdWind)) {
     return {
       recommendedZone: 'Diepere rustzone of luwe oever (beschut tegen koude wind)',
-      rationale: `In koud water (${effectiveWaterTemp.toFixed(1)} °C) en bij koude wind (${windDirText} ${avgWindSpeed} km/u) koelt de aanlandige oever snel verder af. Vis vermijdt hier onnodig energieverlies in de golfslag en zoekt vaak stabielere diepere kuilen of de beschutte luwe oever op. (De grens van ~7–8 °C is een praktische vuistregel, geen star biologisch omslagpunt). (Zoekhypothese voor koude rust).`,
+      rationale: `Koud water (${effectiveWaterTemp.toFixed(1)} °C) in combinatie met koude wind (${windDirText} ${avgWindSpeed} km/u) kan de oppervlaktecondities en presentatie aan de windkant beïnvloeden. Een beschutte of diepere zone kan een alternatief zijn, maar vis vermijdt de windkant niet noodzakelijk. De grens van ~7–8 °C is een algemene praktische vuistregel, geen soortspecifieke biologische drempel. (Voorzichtige zoekhypothese).`,
       alternativeOption:
         'Onderzoek op zonnige wintermiddagen met weinig wind een ondiepere zandplaat die door zonnestraling licht kan opwarmen.',
       confidenceLevel: waterDepth ? 'Redelijk' : 'Matig',
@@ -250,7 +250,7 @@ function determineTacticalHypothesis(
   if (season === 'Voorjaar' && (isWarmingPeriod || effectiveWaterTemp >= 11)) {
     return {
       recommendedZone: 'Ondiepe, zonovergoten oeverzone of beschutte baai uit de wind',
-      rationale: `In het voorjaar warmen ondieptes en uit de wind liggende baaien het snelst op onder invloed van zon. Karper en witvis trekken naar deze opwarmende zones om voedsel te zoeken in ontwakend bodemleven. (Zoekhypothese voor voorjaarsopwarming).`,
+      rationale: `In het voorjaar kunnen ondieptes en beschutte baaien sneller opwarmen dan dieper water, maar het lokale temperatuurverschil is hier niet gemeten. Karper en witvis kunnen zulke zones gebruiken wanneer lokale structuur en voedselbeschikbaarheid dat ondersteunen; dit is geen vaste trekroute of gegarandeerde voedingszone. (Voorzichtige zoekhypothese voor voorjaarsopwarming).`,
       alternativeOption:
         'Onderzoek de aanlandige zone alleen wanneer sprake is van een aanhoudend zachte, warme wind (bijv. zuiderwind) die warm water stuwt zonder koud diep water op te wellen.',
       confidenceLevel: 'Redelijk',

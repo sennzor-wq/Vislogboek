@@ -1764,3 +1764,10 @@ De voorvoer-audit uit PR #146 is hersteld als §96 in `FASE2_PROGNOSE_AUDIT.md`;
 De temperatuurregels in voorvoer, habitat en positionering zijn aparte tactiek-/zoekhypothesen en leveren geen dagelijkse scorebijdrage. Enkele exacte grenzen en formuleringen zijn niet onderbouwd; met name de claim dat meerval onder 12 °C niet actief jaagt is te absoluut. De eerder goedgekeurde waarschuwingstekst in PrognosisView is hersteld. Geen voorvoerhoeveelheid, drempel, gewicht of scoreberekening aangepast.
 
 Volgende stap: per soort de claim-/brontrace afronden en daarna de zevenpunts-acceptatiecrosswalk bijwerken. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — claimcorrectie koudewaterpositionering (19 november 2026)
+
+De broncontrole §97 leidde tot gerichte tekstcorrecties in de bestaande positioneringsengine voor snoek, zeelt, meerval en voorn. De eerdere absolute claims zijn vervangen door contextafhankelijke zoekhypothesen; de bestaande temperatuurcondities en zoneberekening zijn behouden. Regressietests bewaken dat onbewezen grenzen en gedragsclaims niet als feiten worden gepresenteerd.
+
+Geen dagelijkse score, gewicht, temperatuurgrens, voerhoeveelheid of tijdvakbonus gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
