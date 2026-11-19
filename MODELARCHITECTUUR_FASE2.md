@@ -811,3 +811,8 @@ De factorreview in `FASE2_PROGNOSE_AUDIT.md` §101 onderscheidt beweging van voe
 De actuele zevenpunts-crosswalk staat in `FASE2_PROGNOSE_AUDIT.md` §89. De gekozen thermische optie A blijft een voorlopige mechanistische prior; de exacte parameters zijn niet gevalideerd. De gewenste geïntegreerde dagscore wordt niet gebouwd door alle zichtbare outputs blind op te tellen: eerst moet de doelrespons van de bestaande 1–10-score expliciet worden afgebakend. Alleen factoren die dezelfde respons verklaren kunnen daarin een gewogen bijdrage krijgen. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven afzonderlijke uitkomsten tenzij een apart samengesteld doel expliciet wordt vastgesteld en gevalideerd.
 
 De huidige code gebruikt alleen thermische respons in de numerieke dagscore; tijdvakken delen dezelfde dagbrede thermische waarde. Brier toetst persoonlijke vangstkans, temperatuur heeft eigen foutmaten; activiteit, voeding, habitat en tijdvak vereisen eigen evaluatie. Geen nieuwe gewichten of tijdvakbonussen vóór factorstatus, datadekking, missing-data-regel, normalisatie en onafhankelijke validatie zijn vastgesteld. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 92. Actuele soortdekking per gemeten respons
+
+De actuele per-soorttelling van alle gemeten uitkomsten staat in `FASE2_PROGNOSE_AUDIT.md` §82. Het register bevat 86 unieke records en alle blijven niet-goedgekeurd voor directe numerieke voorspelling. Voedingsintensiteit, voedingsincidentie, voedingsritme, foerageergedrag, voedingsfysiologie, dieet/prooikeuze, locomotorische activiteit, habitatgebruik, hengelvangbaarheid, aerobe scope, metabolisme en groei zijn afzonderlijk geteld. Geen van deze labels mag door naamsovereenkomst als een andere respons worden gebruikt.
