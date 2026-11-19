@@ -293,9 +293,9 @@ async function runTestSuite() {
   );
   assert(
     anchoredForecastPrognosis.thermalAnalysis?.estimatedRange != null &&
-      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Indicatieve thermische scoreband') &&
-      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen statistisch betrouwbaarheidsinterval'),
-    '4.0a Een lokaal verankerde schatting met temperatuurinterval toont een niet-statistische thermische scoreband'
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Watertemperatuur') &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen numerieke thermische activiteitsscore'),
+    '4.0a Een lokaal verankerde temperatuurschatting blijft context en wordt niet omgerekend naar een thermische scoreband'
   );
 
   assert(
@@ -464,18 +464,20 @@ async function runTestSuite() {
 
   assert(
     (progColdSnap.uncertaintyNotes ?? []).some(
-      (n) => n.includes('thermische component gebruikt een geschatte watertemperatuur') &&
-        n.includes('geen directe meting of voorspelling van activiteit, foerageren of winterrust')
+      (n) => n.includes('geschatte waarde') &&
+        n.includes('blijft uitsluitend context') &&
+        n.includes('thermische activiteitsscore is uitgeschakeld')
     ),
     '5.1 Onzekerheidsnotitie vermeldt expliciet dat karper niet automatisch in winterrust raakt door koude lucht'
   );
 
-  // The UI label describes thermal activity potential, not metabolism alone.
+  // The factor is now water-temperature context only, not an activity score.
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
-    slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
-      slotMorning.temperatureFactor.detail.includes('via thermische traagheid'),
-    '5.2 Tijdvakfactoren vermelden geschatte watertemperatuur via thermische traagheid'
+    slotMorning.temperatureFactor.title === 'Watertemperatuur (context)' &&
+      slotMorning.temperatureFactor.detail.includes('(geschat)') &&
+      slotMorning.temperatureFactor.detail.includes('geen numerieke thermische activiteitsscore'),
+    '5.2 Tijdvakfactoren tonen geschatte watertemperatuur uitsluitend als context'
   );
 
   const carpAssumptions = SPECIES_PROFILES['Karper'].assumptions;
@@ -502,10 +504,10 @@ async function runTestSuite() {
 
   const coldSlotConclusion = progRealWinter.timeSlots['Middag'].conclusion;
   assert(
-    coldSlotConclusion.includes('Lage thermische activiteitspotentie') &&
-      coldSlotConclusion.includes('Dit stelt geen winterrust of volledige inactiviteit vast') &&
+    coldSlotConclusion.includes('Geen thermische activiteitsscore') &&
+      coldSlotConclusion.includes('uitgeschakeld') &&
       !/dwingt .* winterstand/i.test(coldSlotConclusion),
-    '5.6 Lage thermische score wordt niet als bewezen winterrust of volledige inactiviteit gepresenteerd'
+    '5.6 Zonder gevalideerde thermische index wordt geen winterrust- of activiteitsoordeel getoond'
   );
 
   // =========================================================================
