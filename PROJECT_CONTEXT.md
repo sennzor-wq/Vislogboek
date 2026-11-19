@@ -1728,7 +1728,10 @@ De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande 
 
 - PR #147 is squash-merged als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`; de Quality Gate op de mergecommit (#44496021470) is geslaagd.
 - De bestaande thermische curves blijven op keuze van de producteigenaar behouden als transparante voorlopige mechanistische prior. Dit valideert de exacte parameters niet en geeft geen toestemming voor extra numerieke factoren of gewichten.
-- De bestaande prognose en dagscoreweergave blijven leidend. Alle factoren worden in de bestaande keten beoordeeld op rol, bewijs, databeschikbaarheid, onzekerheid, interactie en toetsbaarheid. Tijdvakvoorkeur combineert relevante prognosecontext met passend soortspecifiek voedings-/foerageerbewijs; beweging en thermische respons zijn niet automatisch voedings- of vangstbewijs.
+- De bestaande prognose en dagscoreweergave blijven leidend.
+
+**Einddoel scoreketen:** ieder relevant onderdeel van de prognose levert uiteindelijk een eigen dagelijkse factoruitkomst en een onderbouwde bijdrage aan de bestaande totaalscore. De bestaande scoreweergave blijft behouden. Ook de tijdvakken worden afzonderlijk beoordeeld met passende tijdvakdata en soort-/seizoen-/stekcontext. Zonder bewijs of betrouwbare invoer wordt geen arbitraire neutrale score of gewicht verzonnen; de factor blijft zichtbaar als onbekend/contextueel of uitgesloten.
+ Alle factoren worden in de bestaande keten beoordeeld op rol, bewijs, databeschikbaarheid, onzekerheid, interactie en toetsbaarheid. Tijdvakvoorkeur combineert relevante prognosecontext met passend soortspecifiek voedings-/foerageerbewijs; beweging en thermische respons zijn niet automatisch voedings- of vangstbewijs.
 - Brier evalueert de persoonlijke vangstkans tegenover gekoppelde sessie-uitkomsten; het stuurt biologische gewichten niet rechtstreeks bij. Activiteit, voeding, habitat en tijdvak vereisen passende afzonderlijke evaluatie.
 - Volgende stap: kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol. Geen runtimewijziging of nieuwe factoractivatie vóór bewijs en Quality Gate. Fase 2 is niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
 
@@ -1738,3 +1741,10 @@ De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande 
 De code-audit in `FASE2_PROGNOSE_AUDIT.md` §92 bevestigt dat de huidige dagscore feitelijk alleen de voorlopige thermische respons weergeeft. Eén dagelijkse waterthermische analyse wordt hergebruikt voor Nacht/Ochtend/Middag/Avond; de vier scores zijn daardoor gelijk. Weer-, seizoen- en tijdvakfactoren zijn contextueel en soortspecifiek voedingsritme is alleen verklarende tekst. De huidige tijdvakrangschikking kan dus nog geen echte voedingspiek of beste tijdvak bepalen.
 
 Dit is een kritisch verschil met de gewenste geïntegreerde prognose, maar er worden geen ad-hoc gewichten of tijdvakbonussen toegevoegd. De bestaande scoreweergave en centrale prognose blijven behouden. Volgende stap: volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix en kandidaatmodel plus chronologisch validatieprotocol. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — factortrace huidige prognoseketen (19 november 2026)
+
+De volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_PROGNOSE_AUDIT.md` §93. Huidige dagscore: uitsluitend thermische activiteitspotentie. Druk, wind, seizoen, licht/diel, bewolking en neerslag zijn context; habitat/beweging is een aparte ruimtelijke laag; persoonlijke vangstkans is een aparte empirische baseline. Brier evalueert die vangstkans, terwijl temperatuur eigen MAE/RMSE/bias-evaluatie heeft. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken onafhankelijke evaluatiemaatstaven.
+
+Volgende stap: kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van de volledige traceermatrix. Geen runtimefactoren, gewichten of tijdvakbonussen activeren voordat bewijs, databeschikbaarheid en onafhankelijke validatie zijn vastgelegd.

@@ -710,7 +710,10 @@ Alle bronnen blijven onderworpen aan de bestaande evidence-status. Latere numeri
 
 ## 80. Bestaande dagscore, factorbijdragen en tijdvakrespons
 
-De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden. Deze architectuur voegt geen tweede score, parallelle forecast of eigen VisCoach-biologie toe.
+De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden.
+
+**Doel van de uiteindelijke aggregatie:** elk relevant prognoseonderdeel krijgt een eigen dagelijkse factoruitkomst en een bewijs-/datagedreven gewicht binnen de bestaande totaalscore. De huidige score-UI blijft behouden. De tijdvakbeoordeling past dezelfde factorarchitectuur afzonderlijk toe per tijdvak en combineert relevante tijdvakcondities met soortspecifiek voedings-/foerageergedrag en stek-/seizoencontext. Niet-onderbouwde of ontbrekende factoren worden niet met fictieve neutrale scores gevuld; hun status en effect op onzekerheid blijven expliciet.
+ Deze architectuur voegt geen tweede score, parallelle forecast of eigen VisCoach-biologie toe.
 
 ### Dagscoreketen
 
@@ -741,3 +744,16 @@ De huidige code-audit (§92 in `FASE2_PROGNOSE_AUDIT.md`) toont:
 - Persoonlijke Poisson-vangkans blijft apart en wordt niet in de biologische activiteitsscore gemengd.
 
 Dit is de baseline voor de volgende kandidaatmodel-audit. De gewenste geïntegreerde factorbijdragen en soort-/seizoen-/stekgevoelige tijdvakrespons zijn nog niet gerealiseerd. Behoud de bestaande UI en architectuur; voeg geen gewichten of tijdvakbonussen toe voordat bewijs, invoerdekking, onzekerheid en chronologische validatie zijn vastgelegd.
+
+
+## 82. Factorverantwoordelijkheden en onafhankelijke evaluatie
+
+De huidige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_PROGNOSE_AUDIT.md` §93. De architectuur houdt de volgende uitkomsten strikt gescheiden:
+
+- Thermische respons: voorlopige soortcurve op waterthermische invoer; dagscorebijdrage is nu uitsluitend thermisch; watertemperatuur wordt apart op MAE/RMSE/bias geëvalueerd.
+- Meteorologische context: druk, wind, seizoen, licht/diel, bewolking en neerslag hebben nu geen numerieke bijdrage. Wind kan wel door de bestaande positionerings-/tactiekengines worden gebruikt.
+- Habitat/aanwezigheid/beweging: ruimtelijke hypothese via bestaande habitatengine; geen totale activiteit of voeding.
+- Voedings-/foerageergedrag en tijdvak: nu alleen brongebonden context; vereist directe passende evidence en eigen evaluatie voordat het numeriek kan rangschikken.
+- Persoonlijke vangstkans: aparte historische Poisson-baseline; Brier/BSS toetst deze kans tegen gekoppelde sessie-uitkomsten en is geen directe tuner van biologische gewichten.
+
+De volledige prognose-uitvoer en invoercontext worden in onveranderlijke snapshots opgeslagen. De volgende kandidaatmodelstap moet iedere factor koppelen aan respons, tijdschaal, inputdekking, onzekerheid, interacties en onafhankelijke evaluatie. Behoud de bestaande scoreweergave; geen parallelle prognose of niet-gevalideerde gewichten.

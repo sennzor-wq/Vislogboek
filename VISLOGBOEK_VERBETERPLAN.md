@@ -693,7 +693,10 @@ De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal ge
 
 - PR #147 is squash-merged als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`; de Quality Gate op de mergecommit (#44496021470) is geslaagd.
 - Optie A is vastgelegd: bestaande thermische curves blijven uitsluitend als transparante voorlopige mechanistische prior actief. De exacte parameters zijn niet onafhankelijk gevalideerd; er worden geen nieuwe gewichten, drempels of tijdvakbonussen geactiveerd.
-- De bestaande dagscoreweergave blijft behouden. De volgende audit brengt per bestaande factor de huidige bijdrage, beoogde respons, bewijs, databeschikbaarheid, onzekerheid, interacties en evaluatiemethode in kaart. Alleen onderbouwde factoren kunnen later numeriek bijdragen; overige factoren blijven expliciete context, habitat-/bewegingsinformatie, onbekend of uitgesloten.
+- De bestaande dagscoreweergave blijft behouden.
+
+**Einddoel scoreketen verduidelijkt:** elk relevant prognoseonderdeel krijgt een eigen dagelijkse factoruitkomst en een onderbouwd gewicht in de bestaande totaalscore. De huidige scoreweergave blijft behouden. Per tijdvak wordt dezelfde factorlogica toegepast met tijdvakgebonden invoer en passend soortspecifiek voedings-/foerageerbewijs. Factoren zonder voldoende bewijs/data worden niet met een willekeurige neutrale waarde gevuld; zij blijven expliciet contextueel/onbekend of uitgesloten. Dit is het beoogde doel, niet de huidige werking.
+ De volgende audit brengt per bestaande factor de huidige bijdrage, beoogde respons, bewijs, databeschikbaarheid, onzekerheid, interacties en evaluatiemethode in kaart. Alleen onderbouwde factoren kunnen later numeriek bijdragen; overige factoren blijven expliciete context, habitat-/bewegingsinformatie, onbekend of uitgesloten.
 - Tijdvakvoorkeur wordt binnen dezelfde prognoseketen beoordeeld op doelsoort, datum/seizoen en stek. Direct voedings-/foerageerbewijs kan een tijdvak beïnvloeden; beweging en thermische respons worden niet automatisch als voeding of vangbaarheid vertaald.
 - Brier blijft evaluatie van persoonlijke vangstkans versus sessie-uitkomsten, geen directe biologische gewichtstuner. Tussenlagen vereisen passende afzonderlijke evaluatie.
 - **Volgende stap:** kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol uitwerken. Geen runtimefactoren of gewichten activeren voordat bewijs en acceptatiecriteria dit toestaan. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
@@ -704,3 +707,10 @@ De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal ge
 De eerste trace van `calculateDayPrognosis()` en `analyzeTimeSlot()` staat in `FASE2_PROGNOSE_AUDIT.md` §92. De huidige dagscore is feitelijk de thermische score: dezelfde dagelijkse thermische analyse wordt in alle vier tijdvakken hergebruikt. Druk, wind, seizoen, tijdstip/licht, bewolking en neerslag zijn contextueel (`score: 0`); soortspecifiek voedingsritme is tekstuele context en persoonlijke tijdvakervaring wordt niet in de activiteitsscore verwerkt. De tijdvakrangschikking kan daardoor geen echte voedings-/tijdvakvoorkeur vaststellen.
 
 Dit is een belangrijk verschil met de beoogde geïntegreerde scoreketen, geen toestemming voor een snelle numerieke bonus. De volgende stap is de volledige factor-naar-UI/snapshot/evaluatie-traceermatrix en het kandidaatmodel-/chronologische validatieprotocol. De bestaande scoreweergave blijft behouden; geen runtimewijziging, extra score of parallelle engine.
+
+
+### Fase 2 — factor-naar-UI/snapshot/evaluatie-traceermatrix afgerond (19 november 2026)
+
+De huidige implementatie is per factor verbonden met code, zichtbare UI, prognosesnapshot en evaluatie in `FASE2_PROGNOSE_AUDIT.md` §93. De dagscore heeft alleen een numerieke thermische bijdrage; de overige meteorologische en tijdvakfactoren zijn context. Habitat/beweging blijft een aparte ruimtelijke laag, persoonlijke vangstkans een afzonderlijke empirische baseline en Brier toetst uitsluitend die vangstkans. Temperatuur heeft eigen MAE/RMSE/bias-evaluatie. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken nog onafhankelijke evaluatiemaatstaven.
+
+**Volgende stap:** kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van deze traceermatrix. Geen nieuwe factor, gewicht, tijdvakbonus of runtimewijziging activeren vóór evidence-, data- en validatievoorwaarden zijn vastgesteld.
