@@ -173,7 +173,7 @@ function determineTacticalHypothesis(
   if (species === 'Zeelt') {
     if (effectiveWaterTemp < 11) {
       return {
-        recommendedZone: 'Beschutte zachte-bodemzones (mogelijke koude schuilplek)',
+        recommendedZone: 'Beschutte slibzones (mogelijke koude schuilplek)',
         rationale: `Zeelt kan bij lage temperatuur of andere ongunstige omstandigheden beschutting zoeken in zachte bodem of modder. De beschikbare bronbasis onderbouwt geen vaste omslag bij 11 °C en geen volledige inactiviteit. Gebruik een slibrijke, beschutte zone alleen als die lokaal aanwezig is; dit blijft een zoekhypothese.`,
         alternativeOption:
           'Diepe, luwe havenbekkens of modderkuilen met minimale waterbeweging.',
