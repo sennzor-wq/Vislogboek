@@ -4459,3 +4459,48 @@ De thermische prior blijft de historische baseline waarmee een kandidaatmodel ch
 5. Pas daarna de directe voedingsrespons en eventuele extra factoren normaliseren en kandidaatmodellen vergelijken met de thermische baseline.
 
 **Besluitstatus:** huidige thermische normalisatie exact in kaart gebracht; wetenschappelijke kalibratie en scoremapping nog niet geaccepteerd. Geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 108. Bronherkomst van thermische profielparameters (19 november 2026)
+
+**Onderzoeksvraag:** onderbouwen de bestaande soortprofielbronnen de exacte `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` in `fishProfiles.ts`?
+
+### 108.1 Uitkomst van de registry-audit
+
+De 86 records in `src/services/researchRegistry.ts` bevatten geen afzonderlijk gemeten of gevalideerde uitkomst `thermal_efficiency` of `thermal_optimum`. De registry kent als relevante fysiologische uitkomsten onder meer `metabolic_rate` en `aerobic_scope`, maar deze zijn niet gelijk aan dagelijkse voedselopname, foerageeractiviteit of hengelvangbaarheid.
+
+Vijf soortgebonden records bevatten temperatuurgerelateerd metabolisme en/of aerobe scope:
+
+| Soort(en) | Geregistreerde respons | Wat de bron wel ondersteunt | Waarom dit de huidige profielcurve niet valideert |
+|---|---|---|---|
+| Karper | Metabolisme | Acute zuurstofopname-/hartslag-/ventilatierespons na acclimatisatie op 19 °C | Geen volledige langetermijncurve of dagelijkse voedselopnamecurve |
+| Snoek | Metabolisme | Onderhoudsmetabolisme bij 2 en 14 °C | Twee temperatuurpunten; geen asymmetrisch optimum of dagelijkse jacht-/voedingsrespons |
+| Baars | Metabolisme, aerobe scope | Meerdere acclimatisatietemperaturen en lichaamsgrootte-afhankelijke aerobe-scope-/voorkeursrespons | Lichaamsgrootte en levensfase beïnvloeden uitkomst; aerobe scope is geen voedselopname |
+| Brasem en blankvoorn | Metabolisme | Zuurstofverbruik over 5–23 °C en brede lichaamsmassaklasse | Metabolisme/Q10 is niet de dagelijkse voedingsintensiteit of vangstrespons |
+| Snoekbaars | Metabolisme, aerobe scope | Volwassen kweekvis; aerobe-scopebereik en acclimatisatiecontext | Kweek-/levensfasecontext; geen dagelijkse voedselopnamecurve of veldvangstcurve |
+
+Alle vijf records hebben `approvedForPrediction: false`. Ook waar een bron een optimum of temperatuurafhankelijkheid voor metabolisme/aerobe scope rapporteert, mag dat optimum niet worden overgenomen als optimum voor dagelijkse activiteit of voedselopname.
+
+Voor zeelt, meerval, roofblei en het generieke profiel `Overig` is in deze vijf records geen soortspecifieke metabole/aerobe-scopecurve geregistreerd. Dit zegt alleen iets over de huidige registry, niet dat er wereldwijd geen relevante studie bestaat.
+
+### 108.2 Conclusie voor de huidige parameters
+
+De waarden in §107 zijn op dit moment softwarematige prioren. De in `fishProfiles.ts` opgenomen referenties ondersteunen biologische context, maar de registry-audit toont geen directe bron die de exacte combinatie van optimum, koude breedte en warme breedte per soort valideert. Ook een temperatuurgerelateerde voedingsstudie met slechts twee behandelingen of een contextgebonden laboratorium-/kweekexperiment is onvoldoende om de volledige Gaussische curve vast te stellen.
+
+Daarom:
+- Geen van de huidige soortcurves wordt op basis van alleen metabolisme, aerobe scope, groei of algemene reviewliteratuur als gevalideerd aangemerkt.
+- Een bron die directe voedingsintensiteit meet kan een voedingsrespons onderbouwen, maar alleen binnen haar onderzochte soort, levensfase, temperatuurbehandelingen en context. Zij valideert niet automatisch de huidige thermische efficiëntiecurve.
+- De huidige parameters blijven bruikbaar als transparante tijdelijke baseline voor vergelijking, maar mogen niet als wetenschappelijk gekalibreerde biologische waarheid worden beschreven.
+- De toelatingsstatus van alle registry-records blijft ongewijzigd; geen bron is door deze audit goedgekeurd.
+
+### 108.3 Benodigde vervolgstap
+
+Maak per soort een parameterherkomstkaart met drie afzonderlijke vragen:
+
+1. Welke bron meet direct temperatuurafhankelijke voedselopname of foerageerintensiteit?
+2. Welke bron meet alleen metabolisme/aerobe scope/groei of temperatuurvoorkeur, en mag dus uitsluitend als indirecte biologische context dienen?
+3. Welke temperatuurbehandelingen, levensfasen, acclimatisatieduur, watertype en geografische context zijn daadwerkelijk onderzocht?
+
+Als geen passende directe curve beschikbaar is, blijft het profiel een expliciet voorlopige prior en moet onzekerheid over de responsparameter worden behouden. Er worden geen ontbrekende optima uit verwante soorten ingevuld en geen numerieke curveparameters afgeleid uit een ander biologisch eindpunt.
+
+**Besluitstatus:** exacte bronvalidatie voor huidige profielparameters is niet aangetoond. Geen wijziging van parameters, brongoedkeuring of runtime. Fase 2 blijft open; Fase 3 geblokkeerd.

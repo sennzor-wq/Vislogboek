@@ -821,3 +821,10 @@ Gemeten, geschatte, proxy/contextuele, ontbrekende, ongeldige, tegenstrijdige en
 De exacte huidige soortparameters, Gaussische responsvorm, efficiëntievloer en 1–10-mapping zijn geauditeerd in `FASE2_PROGNOSE_AUDIT.md` §107; architectuursamenvatting in `MODELARCHITECTUUR_FASE2.md` §98. De huidige curve is een voorlopige softwareprior, geen gevalideerde directe voedselopname-/activiteitscurve. Door de efficiëntievloer 0,08 komt de theoretische minimumscore op circa 2,1/10. Gemeten, geschatte en onbekende watertemperatuur zijn onderscheiden; de interne placeholder bij onbekende invoer is geen geldige score of trainingslabel.
 
 **Nog open:** parameterherkomst per soort verifiëren, statusoverdracht naar snapshots/evaluatie controleren, passend thermisch responslabel vastleggen en scoreankers onafhankelijk toetsen. Geen runtimewijziging of scoreaanpassing. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — herkomst thermische parameters gecontroleerd (19 november 2026)
+
+De registry-audit in `FASE2_PROGNOSE_AUDIT.md` §108 vond geen directe thermische-efficiëntie-/optimumrespons die de exacte huidige profielcurves valideert. Vijf soortgebonden records meten metabolisme/aerobe scope (karper, snoek, baars, brasem/blankvoorn en snoekbaars); alle blijven niet-goedgekeurd en zijn geen directe dagelijkse voedselopnamecurves. De huidige parameters blijven voorlopige softwareprioren.
+
+**Nog open:** per soort de directe temperatuur-voedselopnamebronnen onderscheiden van indirecte fysiologische context, inclusief levensfase, acclimatisatie, watertype en geografische overdraagbaarheid. Geen parameter of runtime gewijzigd; Fase 2 blijft open.

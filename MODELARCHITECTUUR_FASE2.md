@@ -877,3 +877,10 @@ De profieloptima en curvebreedtes zijn voorlopige softwareprioren, niet empirisc
 Gemeten, geschatte en onbekende watertemperatuur moeten gescheiden blijven. De interne placeholder bij onbekende temperatuur is niet beschikbaar als prognose, wordt niet als scorelabel opgeslagen en mag nooit als neutrale factorbijdrage of trainingsdata worden gebruikt. Temperatuurinvoeronzekerheid en responsparameteronzekerheid zijn afzonderlijke bronnen.
 
 Geen wijziging van profielparameters, formule, scoremapping of runtime. De baseline blijft ongewijzigd totdat responslabels, vaste referentieankers en onafhankelijke chronologische evaluatie beschikbaar zijn.
+
+
+## 99. Herkomst en toelating van thermische profielparameters
+
+De bronherkomst-audit staat in `FASE2_PROGNOSE_AUDIT.md` §108. De huidige research registry bevat geen direct gemeten `thermal_efficiency`- of `thermal_optimum`-respons die de exacte optimum-/breedtecombinaties per soort valideert. Vijf soortgebonden records meten metabolisme en/of aerobe scope (karper, snoek, baars, brasem/blankvoorn en snoekbaars); alle vijf zijn niet-goedgekeurd. Deze eindpunten mogen niet als dagelijkse voedselopname of vangbaarheid worden behandeld.
+
+De bestaande soortcurves blijven voorlopige softwareprioren. Geen parameters afleiden uit metabolisme, aerobe scope, groei of een andere soort. Per soort moet de bronkaart directe temperatuurafhankelijke voedselopname onderscheiden van indirecte fysiologische context en de toepassingsgrenzen (levensfase, acclimatisatie, watertype, geografische context) vastleggen. Geen bronstatus is door deze audit gewijzigd en geen runtimeparameter is aangepast.
