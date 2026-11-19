@@ -693,3 +693,17 @@ Alle bestaande registry-records blijven niet-goedgekeurd voor directe numerieke 
 De actuele zevenpunts-crosswalk staat in `FASE2_PROGNOSE_AUDIT.md` §89. De factorinventaris is afgerond voor deze onderzoeksronde (§88), maar criterium 2 blijft formeel open door de bestaande numerieke thermische curves en de validatie van hun exacte parameters. De nieuwe omgevingsfactoren zijn niet numeriek geactiveerd. Lokale Brier-kalibratie wacht op voldoende echte, vergelijkbare sessies; dit blokkeert geen lokale nauwkeurigheidsclaims, maar die claims blijven verboden zolang data ontbreekt.
 
 **Faseregie:** fase 2 is niet geaccepteerd; fase 3 blijft geblokkeerd. Eerst is een expliciet ontwerpbesluit nodig over het behouden van thermische curves als voorlopige mechanistische prior versus het uitschakelen van numerieke thermische activiteit waar passend direct bewijs ontbreekt. Geen runtimegedrag gewijzigd.
+
+
+## 81. Ontwerpbesluit: thermische activiteitsscore niet actief (19 november 2026)
+
+Optie B is goedgekeurd. De numerieke thermische activiteitsscore (soortprofielcurve → thermische efficiëntie → 1–10-index) en de automatische rangschikking van tijdvakken worden niet langer als actieve prognose-uitkomst gebruikt zolang de exacte soortparameters niet onafhankelijk zijn onderbouwd en gevalideerd.
+
+- `fishProfiles.ts` behoudt de bestaande waarden uitsluitend als onderzoeks-/referentiecontext; de actieve prognose-engine roept de curveberekening niet meer aan.
+- De waterthermische engine blijft watertemperatuur meten/schatten en herkomst, onzekerheid en trend bewaren. Deze waarden blijven context, geen activiteitsscore.
+- Bestaande habitat-, positionerings- en voorvoeruitkomsten blijven afzonderlijke engines en mogen hun eigen invoer/uitkomst niet presenteren als een vervangende thermische activiteitsscore.
+- De persoonlijke vangkans blijft een aparte empirische baseline. Zij wordt niet afgeleid uit de thermische index.
+- Een gekozen starttijdvak van de gebruiker blijft leidend en wordt in de sessiesnapshot bewaard; er wordt geen automatisch thermisch beste tijdvak afgeleid.
+- Snapshots zetten `predictedActivityScore` op null en `activityScoreAvailable` op false. De model-/engineversie wordt verhoogd.
+
+De implementatie is in een afzonderlijke PR uitgewerkt met regressietests. Fase 2 blijft open tot de volledige Quality Gate op PR-head en mergecommit slaagt. Fase 3 blijft geblokkeerd.
