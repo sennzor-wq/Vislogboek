@@ -4698,3 +4698,33 @@ Deze bronnen veranderen de conclusie van §110 niet: er is nog geen voldoende ge
 **Besluitstatus:** vier aanvullende kandidaatsporen en één expliciete uitsluitingscontrole gedocumenteerd; geen bron aan de registry toegevoegd, geen bron goedgekeurd, geen parameter/gewicht/runtime gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
 
 
+
+
+## 114. Vervolgcontrole brasem — stikstofconsumptie versus directe voedselopname (19 november 2026)
+
+De brontriage in §113 is uitgebreid met een tweede, oudere brasemstudie. Dit is een literatuurvervolg, geen brongoedkeuring of modelwijziging.
+
+### 114.1 Juveniele brasem — Tatrai & Penczak (1985)
+
+**Bron:** Tatrai, I. & Penczak, T. (1985). *Influence of temperature and rate of feeding on nitrogen metabolism of juvenile bream (Abramis brama L.)*. Comparative Biochemistry and Physiology Part A, 82(1), 125–129. DOI: 10.1016/0300-9629(85)90715-7.
+
+De uitgeversabstract beschrijft fry van 75–1400 mg natgewicht bij 15 ± 1 en 20 ± 1 °C, dagelijks gevoerd met levend zoöplankton op een aangeboden rantsoen van 10–15% lichaamsgewicht. De publicatie rapporteert onder meer stikstofconsumptie en stikstofuitscheiding. De abstractinformatie alleen maakt nog niet duidelijk hoe niet-geconsumeerd voer werd vastgesteld en hoe de gemeten stikstofconsumptie per individu/maatklasse is berekend.
+
+**Besluit:** kandidaat voor een beperkte, gecontroleerde voedings-/stikstofinname-respons bij zeer jonge brasem. Niet classificeren als gevalideerde vrijwillige voedselopnamecurve totdat de volledige methode is gecontroleerd. Twee temperatuurbehandelingen leveren bovendien geen optimumcurve op.
+
+### 114.2 Brasem over bredere lichaamsmassa — Tatrai (1986)
+
+**Bron:** Tatrai, I. (1986). *Influence of temperature, rate of feeding and body weight on nitrogen metabolism of bream, Abramis brama L.* Comparative Biochemistry and Physiology Part A, 83(3), 543–547. DOI: 10.1016/0300-9629(86)90143-X.
+
+De uitgeversabstract rapporteert metingen van stikstofconsumptie, totale stikstof- en ammon uitscheiding en stikstofabsorptie bij brasem van 0,4–519 g natgewicht en temperaturen van 10, 15 en 20 °C. De vissen kregen dagelijks levend zoöplankton uit het Balatonmeer en gekweekte Tubifex, met aangeboden rantsoenen van 5–15% lichaamsgewicht. De abstract vermeldt dat lichaamsmassa en temperatuur gezamenlijk samenhingen met totale stikstofuitscheiding en dat de uitscheiding niet evenredig toenam met consumptie.
+
+**Besluit:** hogere prioriteit voor volledige methodische controle dan de 1985-fry-studie, omdat meerdere temperatuurpunten en een bredere lichaamsmassaklasse zijn beschreven. De bron blijft vooralsnog abstract-only in deze audit. Stikstofconsumptie is een mogelijk direct afgeleid voedings-eindpunt, maar zonder volledige methode kan niet worden vastgesteld of dit overeenkomt met vrijwillig opgenomen voer, aangeboden rantsoen of een afgeleide stikstofbalans. De studie levert op basis van de abstractgegevens geen dagdeelrespons en geen volledige dagelijkse thermische voedselopnamecurve.
+
+### 114.3 Gevolg voor de soortkaart
+
+- Brasem heeft nu twee aanvullende temperatuurgerelateerde kandidaatbronnen voor stikstof-/voedingsconsumptie, maar geen geverifieerde volledige methode uit deze controle.
+- De studies mogen niet worden samengevoegd tot één curve: 1985 betreft fry; 1986 omvat een veel bredere lichaamsmassaklasse en andere rantsoen-/voercontext.
+- Stikstofconsumptie, totale stikstofuitscheiding en stikstofabsorptie blijven afzonderlijke responsen. Uitscheiding mag niet als directe maat voor voedselopname worden gebruikt zonder de beschreven balansmethode te controleren.
+- Geen van beide studies onderbouwt een volwassen wilde brasemcurve voor Nederlandse binnenwateren, een method-feederrespons of een dag-/tijdvakbonus.
+
+**Status:** Tatrai (1986) toegevoegd als aanvullende kandidaat voor volledige methodecontrole; Tatrai & Penczak (1985) blijft kandidaat met expliciete methode-onzekerheid. Geen bron aan de registry toegevoegd of goedgekeurd, geen score/gewicht/runtime gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
