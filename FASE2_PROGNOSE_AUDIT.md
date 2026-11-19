@@ -4843,3 +4843,33 @@ Belangrijk: de studie meet verplaatsingen tussen akoestische ontvangers, geen vo
 - Geen van beide bronnen levert een persoonlijke hengelvangstkans of een bewezen respons op method-feeder-aas.
 
 **Status:** twee aanvullende primaire bronnen methodisch geclassificeerd. Geen bron goedgekeurd voor numerieke runtime, geen score/gewicht/parameter aangepast. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 121. Meerval — dagelijkse voerrantsoenen bij twee temperatuurbanden (1997)
+
+**Bron:** Filipiak, J., Sadowski, J. & Trzebiatowski, R. (1997). *Comparative analysis of results of using different food rations in juvenile wels (Silurus glanis) culture.* Acta Ichthyologica et Piscatoria, 27(1), 41–51. DOI: 10.3750/AIP1997.27.1.03.
+
+De studie volgde twee gewichtsklassen juveniele Europese meerval in kooien met koelwater gedurende 49 dagen: circa 65 ± 10 g en 110 ± 10 g per vis. Semi-geëxtrudeerd voer met 48,5% ruw eiwit en 14,4% lipiden werd aangeboden in vijf rantsoenen (1,0; 1,5; 2,0; 2,5 en 3,0% van het metabole lichaamsgewicht, W^0,8). De watertemperatuur daalde gedurende de proef: de auteurs rapporteren een dagelijkse voervraag van circa 2% W^0,8 bij 24–28 °C en maximaal 1,5% W^0,8 bij 18–23 °C. De tekst vermeldt dat de temperatuurdaling samenviel met een afname van de voervraag en een verandering in voederconversie.
+
+**Classificatie:** relevante directe kweekinformatie over dagelijkse voerbehoefte/-rantsoen van juveniele meerval onder twee temperatuurbanden. Dit is niet zonder meer een zuivere vrijwillige voedselopnamecurve: de proef vergelijkt aangeboden rantsoenen, de temperatuur veranderde tijdens de 49-daagse proef en de abstract-/beschikbare tekst maakt niet volledig duidelijk hoe individuele consumptie, voerresten en verzadiging per temperatuurstap zijn vastgesteld. Het betreft bovendien juveniele kweekvis en geëxtrudeerd droogvoer, niet volwassen wilde meerval of natuurlijke prooi/method-feeder-aas.
+
+**Besluit:** toevoegen als kandidaatbewijs voor temperatuurgerelateerde dagelijkse voerbehoefte bij juveniele gekweekte meerval, met lagere bewijskracht voor vrijwillige intake en beperkte overdraagbaarheid. Niet gebruiken om een thermisch optimum, volwassen veldrespons of numerieke runtimecurve af te leiden. De 2011-proceedingsbron (§117) blijft een afzonderlijke voeracceptatie-/consumptieproef met ander visformaat, voer en experimentele opzet; de twee studies mogen niet tot één curve worden samengevoegd.
+
+## 122. Blankvoorn — Hofer & Niederholzer (1980), verificatiestatus van dagelijkse consumptie
+
+**Bron:** Hofer, R. & Niederholzer, R. (1980). *The feeding of roach (Rutilus rutilus L.) and rudd (Scardinius erythrophthalmus L.). 2. Feeding experiments in the laboratory.* Ekologia Polska, 28(1), 61–70.
+
+Een aanvullende bibliografische samenvatting bevestigt dat de studie dagelijkse relatieve consumptie en relatieve darminhoud onderzocht bij vier temperaturen en vier diëten voor blankvoorn en rietvoorn. De gerapporteerde consumptie verschilde sterk per dieet: minder dan 8% lichaamsgewicht voor draadalgen en meelwormen, tegenover maxima tot 40% bij Chara of Zannichellia. De samenvatting noemt bij 16–24 °C ook een relatie tussen consumptie en darmpassagesnelheid.
+
+**Classificatie:** de bibliografische beschrijving ondersteunt dat dagelijkse relatieve consumptie daadwerkelijk onderwerp van de laboratoriumstudie was. De primaire publicatie zelf is in deze auditronde niet volledig toegankelijk/verifieerbaar; exacte temperatuurbehandelingen, visgrootte, replicaten, proefduur, berekening van consumptie en de scheiding tussen aangeboden en werkelijk gegeten voer zijn daarom nog niet gecontroleerd. De sterke dieetafhankelijkheid is een belangrijke beperking voor overdraagbaarheid naar natuurlijke prooi of hengelaas.
+
+**Besluit:** opwaarderen van een louter losse kandidaat naar een bibliografisch bevestigde kandidaat voor directe dagelijkse consumptiemeting, maar niet naar gevalideerd modelbewijs. Geen numerieke curve of temperatuurrespons afleiden totdat de primaire methoden en resultaten zijn gecontroleerd. De darmpassagetijd blijft een afzonderlijke respons en mag niet als voedselopname worden gebruikt.
+
+### 122.1 Gevolg voor soortdekking
+
+- Meerval heeft nu twee afzonderlijke gecontroleerde kweekbronnen over dagelijkse voerbehoefte/consumptie of voeracceptatie (§117 en §121). Beide betreffen juveniele vis en kunstmatig voer; geen van beide valideert volwassen wilde vis of een veldcurve.
+- Blankvoorn heeft een sterkere bibliografische aanwijzing voor directe dagelijkse consumptiemeting (§122), maar de primaire methodiek blijft een expliciete verificatiegap.
+- Geen van deze bronnen valideert een tijdvakbonus, lokale Nederlandse veldrespons of persoonlijke hengelvangstkans.
+- Alle bronnen blijven bewijs voor audit/triage; er wordt geen registry-record goedgekeurd voor numerieke voorspelling.
+
+**Status:** twee aanvullende broncontroles vastgelegd. Geen score, gewicht, parameter, runtime of gebruikersinvoer aangepast. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
