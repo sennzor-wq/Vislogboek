@@ -708,3 +708,10 @@ Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acce
 ### Volgende Fase-2-actie — temperatuurafhankelijke tactiekregels auditen
 
 Na de geslaagde optie-B-implementatie volgt een read-only audit van de resterende temperatuurafhankelijke tactiekregels buiten de activiteitsscore: vooral de temperatuurbanden, suitabilitywaarden en gramadviezen in `prebaitEngine.ts`, plus temperatuurcontext in habitat- en positioneringsadvies. Beoordeel bronbasis, soort-/watertypeoverdracht, onzekerheid en gebruikerspresentatie. Nog geen drempel, gramadvies of tactiekregel wijzigen. Criterium 2 en Fase 2 blijven open tot de audit is afgerond.
+
+
+### Volgende Fase-2-beslissing — numerieke voorvoeradviezen
+
+Read-only audit §92 toont dat `prebaitEngine.ts` nog temperatuurbanden, suitabilityscore, soortfactoren en gramadviezen actief gebruikt. De beschikbare bronnen onderbouwen algemene temperatuurinvloed op voeding, niet de exacte grenzen of hoeveelheden. De algemene PrognosisView toonde bovendien grammen ongeacht invoerkwaliteit; de kop “Gefundeerd voeradvies” was te stellig en is verduidelijkt.
+
+Mijn advies: behoud kwalitatieve voer-/method-feederadviezen, maar schakel de numerieke geschiktheidsscore en exacte grammen uit totdat soort-/watercontext of lokale praktijkdata de parameters ondersteunen. Eerst expliciete goedkeuring vragen; nog geen runtimewijziging aan de voorvoerengine.
