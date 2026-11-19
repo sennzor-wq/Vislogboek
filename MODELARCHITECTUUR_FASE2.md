@@ -686,3 +686,10 @@ De resterende factorinventaris is beoordeeld in FASE2_PROGNOSE_AUDIT.md §88. De
 - Druk en troebelheid blijven contextafhankelijk; er is geen universele richting of numerieke respons onderbouwd.
 
 Alle bestaande registry-records blijven niet-goedgekeurd voor directe numerieke voorspelling. De volgende fase-2-stap is de resterende formele acceptatiebesluiten en kandidaatmodel-/validatievoorwaarden afhandelen; geen extra parallelle factorengine toevoegen.
+
+
+## 80. Fase-2-acceptatiecrosswalk bijgewerkt (19 november 2026)
+
+De actuele zevenpunts-crosswalk staat in `FASE2_PROGNOSE_AUDIT.md` §89. De factorinventaris is afgerond voor deze onderzoeksronde (§88), maar criterium 2 blijft formeel open door de bestaande numerieke thermische curves en de validatie van hun exacte parameters. De nieuwe omgevingsfactoren zijn niet numeriek geactiveerd. Lokale Brier-kalibratie wacht op voldoende echte, vergelijkbare sessies; dit blokkeert geen lokale nauwkeurigheidsclaims, maar die claims blijven verboden zolang data ontbreekt.
+
+**Faseregie:** fase 2 is niet geaccepteerd; fase 3 blijft geblokkeerd. Eerst is een expliciet ontwerpbesluit nodig over het behouden van thermische curves als voorlopige mechanistische prior versus het uitschakelen van numerieke thermische activiteit waar passend direct bewijs ontbreekt. Geen runtimegedrag gewijzigd.
