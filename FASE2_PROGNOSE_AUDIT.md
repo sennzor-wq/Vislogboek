@@ -3513,3 +3513,44 @@ Er blijft één expliciet spanningspunt tussen productbesluit en bewijscriterium
 De afzonderlijke numerieke voorvoerheuristiek is geen factor van de biologische 1–10-score, maar heeft wel een open product-/tactiekbesluit over exacte grammen en lage invoerkwaliteit (§96.5). Geen runtimewijziging zonder expliciete goedkeuring.
 
 **Besluit:** geen nieuwe factor, gewicht, interactie, tijdvakbonus of scoremapping toelaten. De bestaande thermische prior blijft de enige numerieke biologische scorebijdrage. De factorstatusmatrix is gesloten voor deze auditronde; formele Fase-2-acceptatie blijft open totdat de bewijsuitzondering en onafhankelijke evaluatiepoorten aantoonbaar zijn afgehandeld. Fase 3 blijft geblokkeerd.
+
+## 133. Conformiteitscontrole minimaal vangstregistratiecontract tegen de huidige UI (19 november 2026)
+
+Deze controle toetst het gebruikersbesluit uit §104 rechtstreeks aan CatchModal.tsx en het huidige CatchItem-datamodel. Read-only audit; geen formulier, databaseveld of gebruikersflow gewijzigd.
+
+### 133.1 Wat de gebruiker nu daadwerkelijk moet doen
+
+| Veld / handeling | Huidige UI en datamodel | Beoordeling tegen §104 |
+|---|---|---|
+| Vissoort | Verplicht; geen standaardsoort bij een lege sessie, anders kan de sessiedoelsoort vooraf geselecteerd zijn | Conform: de gebruiker kiest/bevestigt de soort. |
+| Aantal | Verplicht veld, maar standaardwaarde is 1; een individuele vangst kan direct worden opgeslagen zonder dit veld te wijzigen | Praktisch frictiearm, maar technisch/UI-matig is count verplicht terwijl §104 alleen de soort als verplichte inhoud noemt. De standaardwaarde 1 voorkomt een extra handeling bij één vis. |
+| Vangsttijd | Automatisch gevuld bij openen van het formulier en aanpasbaar; herkomst wordt automatic of user_adjusted opgeslagen | Conform. Automatisch formuliermoment blijft registratietijd, geen gegarandeerd werkelijk vangstmoment. |
+| Gewicht | Optioneel; leeg wordt null | Conform. |
+| Lengte | Optioneel; leeg wordt null | Extra optioneel veld; geen blokkade voor opslaan. |
+| Aas | Optioneel vrij tekstveld, eventueel vooraf gevuld vanuit sessiecontext | Geen verplicht veld; blijft optioneel. |
+| Techniek/hengel | Optioneel vrij tekstveld; geen selectie uit een opgeslagen hengel-/methodeprofiel | **Niet volledig conform de vastgelegde wens voor een optionele vooraf ingestelde hengel-/methodeconfiguratie.** |
+| Foto en notities | Optioneel | Geen verplichte extra invoer. |
+
+De gebruiker kan met de huidige defaults een individuele vangst registreren door de soort te kiezen en direct op te slaan: aantal staat op 1, tijdstip wordt automatisch gevuld en gewicht/aas/techniek/foto/notities hoeven niet te worden ingevuld. De basisflow wordt dus niet door extra verplichte vragen geblokkeerd.
+
+### 133.2 Aantoonbare afwijking: geen vooraf ingestelde hengel-/methodeprofielen
+
+Het huidige CatchItem bevat optionele tekstvelden rod, bait en technique. CatchModal toont voor 'Techniek / Hengel' een vrij tekstveld. In het centrale typebestand bestaat geen opgeslagen RodProfile-, rodPresets- of vergelijkbare profielreferentie die vanuit de vangstregistratie geselecteerd kan worden.
+
+SessionRod is geen vervanging voor zo'n preset: dit is een optioneel detailrecord van een hengel binnen één vissessie, met sessiegebonden techniek, aas/presentatie, actieve intervallen en gebeurtenissen. Het is geen herbruikbaar gebruikersprofiel dat de gebruiker bij iedere vangst kan kiezen.
+
+Daarom is de minimale vangstflow grotendeels conform, maar is het optionele preset-onderdeel uit §104 nog niet geïmplementeerd. Een vrije tekstwaarde mag niet achteraf worden geïnterpreteerd als een genormaliseerd hengelprofiel of bewezen methode-effect.
+
+### 133.3 Veilige vervolgbeslissing
+
+Er zijn twee geldige productrichtingen die niet stilzwijgend door de audit mogen worden gekozen:
+- De huidige optionele vrije tekst behouden als voldoende eenvoudige registratie; §104 wordt dan aangepast zodat een preset geen harde eis is.
+- Een kleine herbruikbare hengel-/methodekeuze toevoegen als optionele selectie, met een veilige verwijzing naar bestaande gebruikersconfiguratie. Dit vereist een afzonderlijke datamodel-/UI-review, migratiecompatibiliteit en tests; de vangst moet altijd zonder selectie kunnen worden opgeslagen.
+
+De huidige audit kiest niet tussen deze richtingen en wijzigt geen runtimegedrag. De verplichte basis blijft uitsluitend vissoort als betekenisvolle gebruikerskeuze; tijdstip blijft automatisch en aanpasbaar, gewicht optioneel, en er komen geen verplichte aas-/voer-/presentatievelden.
+
+### 133.4 Fase-2-status
+
+Criterium 6 is voor de eenvoudige basisflow grotendeels gerealiseerd. De precieze presetselectie uit §104 is nog niet aanwezig; de eigenaar moet bepalen of vrije tekst voldoende is of dat de optionele presetselectie daadwerkelijk moet worden gebouwd. Dit is een afgebakend product-/datamodelpunt en geen reden om extra verplichte vangstinvoer toe te voegen.
+
+Geen runtimewijziging, migratie of extra verplicht veld. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
