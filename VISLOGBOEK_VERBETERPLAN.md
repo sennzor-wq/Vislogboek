@@ -657,3 +657,16 @@ Na PR #124 bleek een oude implementatielaag nog aanlandige wind als primaire zoe
 Als niet-blokkerende verbetering voor de latere VisCoach-uitwerking vastgelegd: onderscheid tussen een nieuw meet-/forecastmoment, een functioneel relevante verandering in een factor en een daadwerkelijke wijziging van het praktische advies of de tactiek. Een nieuwe windmeting of kleine wijziging in snelheid/richting is niet automatisch een reden voor een nieuw advies. Alleen wanneer herbeoordeling met de bestaande prognose- en tactiekmodules tot een andere praktische actie leidt, wordt een nieuw coachadvies gemaakt; een interne prognosewijziging kan zonder advieswijziging als snapshot worden bewaard.
 
 De exacte factorgrenzen, hysterese en bevestigingsregels worden later per factor onderzocht en gevalideerd. Geen arbitraire windsnelheidsdelta of universele drempel invoeren. Dit is geen must voor fase 2 en blokkeert de huidige voortgang niet.
+
+
+### Fase 2 — resterende meteorologische/hydrologische factorinventaris beoordeeld (19 november 2026)
+
+De resterende factorbeoordeling is uitgevoerd en vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §88 en `MODELARCHITECTUUR_FASE2.md` §79.
+
+- Wind: alleen praktische positionerings-/presentatiecontext; geen algemene biologische of vangstbonus.
+- Regen/bewolking: onvoldoende direct, soortspecifiek bewijs voor dagelijkse voedings- of vangstrespons; paaigerelateerde migratie is geen dagelijkse visactiviteit.
+- Opgeloste zuurstof/stroming: biologisch relevant in specifieke contexten, maar niet betrouwbaar lokaal beschikbaar in de huidige invoerketen; onbekend blijft onbekend.
+- Luchtdruk/troebelheid: contextafhankelijk en onvoldoende voor een universele numerieke respons.
+- Alle 71 research-registryrecords blijven niet-goedgekeurd voor directe numerieke voorspelling. Geen scores, parameters, drempels of tijdvakbonussen gewijzigd.
+
+**Volgende hoofdspoorstap:** de formele Fase-2-acceptatiecrosswalk actualiseren en het expliciete ontwerpbesluit over de voorlopige thermische priors uit audit §86 voorbereiden. Daarna pas een kandidaatmodel-/chronologisch validatieprotocol afronden. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
