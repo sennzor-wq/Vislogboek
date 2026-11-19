@@ -1827,3 +1827,12 @@ Vangstgebeurtenissen kunnen latere tijdvak- en tactiekanalyses voeden, maar moge
 De bestaande 1–10-score heeft nu een vastgesteld productdoel (§103), en de frictiearme vangstregistratie is vastgelegd in §104. §105 koppelt de geïnventariseerde factoren aan de biologische respons die ze werkelijk meten en ordent hun kandidaatprioriteit zonder universele percentages te verzinnen.
 
 Vislogboek is een informatiebron, geen glazen bol. Het model moet de best verdedigbare prognose maken met beschikbare gegevens. Ontbrekende informatie blijft zichtbaar als onbekend en verlaagt de zekerheid, maar maakt de hele prognose niet automatisch onbruikbaar. De bestaande ene 1–10-score blijft behouden; tijdvakadvies moet dezelfde soortspecifieke doelrespons gebruiken. Normalisatie, coverage-regels, interacties en onafhankelijke chronologische validatie zijn de volgende stappen. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — normalisatie en onzekerheid uitgewerkt als ontwerpvoorstel (19 november 2026)
+
+De uitwerking staat in `FASE2_PROGNOSE_AUDIT.md` §106 en de architectuursamenvatting in `MODELARCHITECTUUR_FASE2.md` §97. Elke kandidaatfactor moet naar een soortspecifieke, passende biologische respons worden genormaliseerd; een interne 0–1-index is geen kanspercentage. De bestaande 1–10-score blijft de enige gebruikersscore en krijgt pas na onafhankelijke kalibratie een vaste, versieerbare mapping.
+
+Gemeten, geschatte, proxy/contextuele, onbekende, ongeldige, tegenstrijdige en niet-toepasselijke invoer blijven onderscheiden. Ontbrekende factoren worden niet stilzwijgend neutraal gemaakt en resterende gewichten worden niet verborgen herverdeeld. Een gedeeltelijke prognose blijft mogelijk wanneer die combinatie gevalideerd is; zonder bruikbare thermische basis of andere toegelaten directe responsinformatie blijft de huidige uitkomst N/B.
+
+Dit is een ontwerpvoorstel, geen implementatie of formele Fase-2-acceptatie. Geen runtimegewichten, scoremapping, tijdvakbonussen of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

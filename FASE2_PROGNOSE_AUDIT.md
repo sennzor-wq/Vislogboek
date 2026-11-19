@@ -1,7 +1,7 @@
 # Fase 2 — audit bestaande biologische prognose
 
-**Status:** eerste code-audit uitgevoerd; factorinventarisatie en UI-/test-traceerbaarheid lopen nog  
-**Peildatum:** 16 november 2026  
+**Status:** doorlopende Fase 2-audit; factorinventaris, responsmatrix en productdoel zijn vastgelegd; normalisatie, coverage en onafhankelijke validatie staan nog open  
+**Peildatum:** 19 november 2026  
 **Branch:** `main`  
 **Commit bij start:** `dd1238e3139fa048fe808c399282a5b1fe1fda12`  
 **Doel:** de bestaande prognose- en deel-engines in kaart brengen voordat biologische modelwijzigingen worden voorgesteld.
@@ -4251,3 +4251,135 @@ Het productdoel van de bestaande 1–10-score is vastgesteld in §103; de vangst
 **Nog open:** (a) factorrespons-normalisatie en kalibratie naar de bestaande 1–10-schaal; (b) expliciete behandeling van ontbrekende/geschatte invoer zonder de prognose onnodig te blokkeren of onbekend als neutraal te presenteren; (c) interacties/dubbele telling; (d) labels en metrics voor activiteit, voeding, habitat en tijdvak; (e) chronologische vergelijking met de thermische baseline, inclusief segmentatie per soort en relevante context.
 
 De eerstvolgende auditstap is de normalisatie- en coverage-/onzekerheidsarchitectuur ontwerpen, inclusief concrete voorbeelden van voldoende, gedeeltelijke en onvoldoende invoer. Geen runtimegewichten of tijdvakbonussen activeren. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 106. Normalisatie, coverage en onzekerheidsarchitectuur (19 november 2026)
+
+**Status:** ontwerpvoorstel voor review; geen numerieke normalisatie, gewichten of runtimegedrag geactiveerd. Deze sectie werkt de eerstvolgende stap uit §105.7 uit.
+
+### 106.1 Wat normalisatie moet oplossen
+
+De factoren hebben verschillende eenheden en betekenis: graden watertemperatuur, uren licht, zuurstofconcentratie, voedingsintensiteit, wind en seizoensfase zijn niet rechtstreeks optelbaar. Elke factor moet daarom eerst worden vertaald naar een respons die bij dezelfde doelsoort en dezelfde doelrespons hoort.
+
+De normalisatie moet aan vijf voorwaarden voldoen:
+
+1. Een factoruitkomst beschrijft een biologisch relevante respons, niet alleen de grootte van de ruwe invoer.
+2. De richting en vorm zijn soortspecifiek en mogen optimum-, drempel-, verzadigings- of monotone relaties volgen.
+3. Een genormaliseerde waarde is een relatieve responsindex binnen een gedefinieerd referentiedomein; **geen kanspercentage, vangstkans of universele biologische eenheid**.
+4. De bron, context, geldigheid en onzekerheid blijven aan de factoruitkomst gekoppeld.
+5. Dezelfde referentie en modelversie leveren dezelfde interpretatie op. Geen dagelijkse min-max-normalisatie of rangschikking die de score laat verschuiven doordat andere dagen veranderen.
+
+### 106.2 Voorgestelde normalisatiestroom per factor
+
+Voor iedere toegelaten factor wordt de volgende keten vastgelegd:
+
+1. **Invoer valideren:** eenheid, bereik, tijdstip, ruimtelijke dekking, meetmethode en bronstatus controleren. Een verouderde, ongeldige of niet-representatieve waarde wordt niet als actuele meting gebruikt.
+2. **Context selecteren:** doelsoort en waar onderbouwd seizoen, levensfase, watertype, geografische overdraagbaarheid en tijdvak bepalen. Ontbrekende context wordt niet verzonnen.
+3. **Responsfunctie kiezen:** op basis van het gemeten biologische eindpunt vaststellen of de relatie optimaal, monotone, drempel-, verzadigings- of interactiegedreven is. De vorm moet uit passend bewijs volgen; niet uit het gewenste scorebeeld.
+4. **Naar gemeenschappelijke responsindex vertalen:** de ruwe invoer omzetten naar een begrensde relatieve responsindex (conceptueel 0–1). De index beschrijft alleen de gekozen respons, bijvoorbeeld thermische geschiktheid of directe voedingsintensiteit. Verschillende responsen worden niet samengevoegd voordat duidelijk is dat zij hetzelfde uiteindelijke doel ondersteunen.
+5. **Referentie en afwijking bewaren:** naast de responsindex wordt de referentieconditie en de afwijking daarvan bewaard. Zo kan een factor later als bijdrage ten opzichte van een vastgelegde basis worden onderzocht, zonder te doen alsof een ontbrekende factor een gemeten nul- of neutraal effect had.
+6. **Onzekerheid en toelatingsstatus toevoegen:** meet-/schattingsstatus, bewijssterkte, toepassingsgebied, onzekerheidsmarge en modelversie blijven afzonderlijke metadata.
+
+De thermische optie A blijft de bestaande voorlopige responsfunctie. De huidige formule en 1–10-uitvoer blijven de baseline; deze stap verandert ze niet. Een thermische efficiëntiewaarde mag niet worden hernoemd tot directe voedselopname.
+
+### 106.3 Van responsindex naar de bestaande 1–10-score
+
+De bestaande score blijft één dagscore voor de verwachte biologische activiteit-/voedingspotentie. De 1–10-schaal is een begrijpelijke relatieve index en wordt niet als percentage of persoonlijke vangstkans gepresenteerd.
+
+De uiteindelijke vertaling moet aan de volgende regels voldoen:
+
+- De scoremapping wordt gekalibreerd op vooraf gedefinieerde biologische referentie-ankers en onafhankelijke evaluatiedata; niet op de hoogste en laagste prognose van de betreffende week.
+- Scorewaarden moeten tussen dagen, soorten en modelversies zo stabiel mogelijk interpreteerbaar blijven. Als een nieuwe modelversie de betekenis aantoonbaar verandert, wordt dat als modelversiewijziging gedocumenteerd en historisch reproduceerbaar gehouden.
+- Een kandidaatmodel wordt altijd naast de ongewijzigde thermische baseline geëvalueerd. Het moet aantoonbaar extra voorspellende waarde toevoegen; een mooiere verdeling of grotere spreiding is geen bewijs van verbetering.
+- De bestaande thermische formule mag niet stilzwijgend worden herschaald om nieuwe factoren passend te maken. Eerst wordt de kalibratie onderzocht; eventuele wijziging vraagt een aparte onderbouwde beslissing.
+- Er worden nu geen gewichten, drempels, scoreankers of numerieke bijdragepercentages gekozen. Daarvoor ontbreken nog voldoende goedgekeurde responsbronnen en onafhankelijke labels.
+
+Een 0–1-responsindex is dus een intern normalisatiehulpmiddel, niet een tweede gebruikersscore. De gebruiker blijft de vertrouwde bestaande 1–10-dagscore zien.
+
+### 106.4 Invoerstatussen: gemeten, geschat, contextueel en onbekend
+
+Elke kandidaatfactor krijgt per prognose één expliciete status:
+
+| Status | Betekenis | Numerieke behandeling |
+|---|---|---|
+| Gemeten en geldig | Actuele, representatieve waarneming met bekende herkomst en eenheid | Mag een responsfunctie voeden als de factor en respons zijn toegelaten |
+| Geschat en geldig | Modelschatting met bekende methode, tijdsdekking en onzekerheid | Mag alleen bijdragen binnen het gevalideerde toepassingsgebied; onzekerheid blijft groter/explicieter |
+| Proxy of context | Verwante variabele die de doelrespons niet rechtstreeks meet | Uitsluitend context totdat overdraagbaarheid en onafhankelijke respons zijn aangetoond |
+| Onbekend/ontbrekend | Geen bruikbare invoer of geen passende bron | Geen factorbijdrage afleiden; expliciet als onbekend registreren |
+| Ongeldig/verouderd | Buiten bereik, te oud, verkeerde locatie/resolutie of niet representatief | Niet gebruiken als actuele respons; oorzaak registreren |
+| Tegenstrijdig | Geldige bronnen spreken elkaar wezenlijk tegen | Niet willekeurig middelen; bronkwaliteit en onzekerheid beoordelen en zo nodig factor buiten de numerieke bijdrage houden |
+| Niet van toepassing | Factor heeft voor deze soort/context geen onderbouwde rol | Niet als ontbrekende verplichte factor behandelen; rol expliciet vastleggen |
+
+Een proxy wordt niet stilzwijgend een meting. Luchttemperatuur wordt bijvoorbeeld geen vervanging voor watertemperatuur; wind of weer wordt geen zuurstofmeting; beweging wordt geen voedingsintensiteit.
+
+### 106.5 Coverage: wanneer blijft een prognose bruikbaar?
+
+Coverage beschrijft intern welke relevante onderbouwing voor de gekozen soort en doelrespons werkelijk beschikbaar is. Het is geen biologische bonus/malus en wordt niet als tweede cijfer aan de gebruiker getoond.
+
+De volgende beslisstructuur is het ontwerpvoorstel:
+
+- **Voldoende onderbouwd:** de belangrijkste responsdragende invoer is geldig en valt binnen het bewijs-/kalibratiedomein. Een prognose kan worden berekend; de uitleg benoemt nog steeds relevante beperkingen.
+- **Gedeeltelijk onderbouwd:** een bruikbare basis, zoals de bestaande thermische prior met een gemeten of verdedigbaar geschatte watertemperatuur, is aanwezig, maar een of meer belangrijke aanvullende responsen ontbreken of zijn alleen context. De prognose blijft bruikbaar als voorlopige verwachting; de ontbrekende factoren worden zichtbaar in de verdiepende uitleg en de onzekerheid neemt toe.
+- **Onvoldoende onderbouwd:** er is geen bruikbare thermische basis én er zijn geen andere toegelaten, onafhankelijk gevalideerde responsfactoren die de doelrespons kunnen dragen. Dan blijft de uitkomst N/B in plaats van een schijnnauwkeurig cijfer.
+
+Belangrijk onderscheid: de huidige runtime kent alleen de thermische numerieke prior. Daarom blijft zonder bruikbare thermische basis de huidige uitkomst N/B totdat een andere responsfactor formeel is toegelaten en gevalideerd. De toekomstige architectuur mag een prognose zonder temperatuur alleen berekenen als andere directe, gevalideerde responsinformatie dat aantoonbaar ondersteunt; luchttemperatuur of contextfactoren mogen het gat niet vullen.
+
+### 106.6 Ontbrekende factoren zonder verborgen herweging
+
+Ontbrekende waarden mogen niet automatisch als neutraal, gemiddeld, gunstig of ongunstig worden geïnterpreteerd. Ook mag het model niet ongemerkt de gewichten van aanwezige factoren vergroten zodat hun som weer 100% wordt.
+
+Voor de kandidaatarchitectuur gelden daarom:
+
+- Factorbijdragen worden alleen berekend wanneer invoer, responsdefinitie en bewijsstatus aan de toelatingsregels voldoen.
+- Niet-beschikbare factoren blijven als ontbrekend geregistreerd; er wordt geen fictieve responswaarde opgeslagen.
+- De modeluitkomst wordt expliciet gekoppeld aan het patroon van beschikbare factoren. Een uitkomst met gedeeltelijke dekking mag alleen worden gebruikt als die dekking in de onafhankelijke validatie voldoende betrouwbaar blijkt.
+- Er vindt geen automatische hernormalisatie van de resterende gewichten plaats. Als het model bij een bepaald ontbrekend-data-patroon onvoldoende gevalideerd is, valt het terug op een eerder gevalideerde beperktere baseline of geeft het N/B.
+- Onzekerheid wordt niet van de biologische score afgetrokken. Een lage datadekking maakt de vis niet biologisch minder actief; zij maakt onze verwachting minder zeker.
+- De UI houdt het eenvoudig: dezelfde dagscore en bestaande uitleg, met een begrijpelijke melding dat bepaalde gegevens ontbreken of geschat zijn. Geen extra zichtbare subscore of percentage.
+
+### 106.7 Voorbeelden van voldoende, gedeeltelijke en onvoldoende invoer
+
+| Voorbeeld | Beschikbare informatie | Beoogde behandeling |
+|---|---|---|
+| A — gedeeltelijk, bruikbaar | Karper; recente lokale watertemperatuurmeting; thermische historie beschikbaar; directe voedingsrespons voor de actuele omstandigheden ontbreekt; zuurstof onbekend | Huidige thermische baseline kan een voorlopige 1–10-verwachting geven. Geen verzonnen zuurstof- of voedingsbonus. Uitleg meldt dat directe voedings-/zuurstofinformatie ontbreekt. |
+| B — gedeeltelijk, geschat | Brasem; geen meting op de visdag, maar waterThermalEngine levert een bruikbare temperatuurinschatting met bekende bronstatus en onzekerheid; licht/tijdvak bekend; directe troebelheids- of voedingsrespons niet beschikbaar | Thermische baseline kan voorlopig worden gebruikt binnen de geldigheid van de schatting; schattingsonzekerheid blijft zichtbaar. Tijdstip alleen geeft geen onbewezen voedingsbonus. |
+| C — toekomstig voldoende | Een soort met gevalideerde thermische respons én toegelaten directe voedingsrespons; actuele invoer voor beide valt binnen de gevalideerde context; tijdvakrespons heeft eigen passende gegevens | Kandidatenmodel mag de gemeenschappelijke respons en tijdvakrangschikking combineren als onafhankelijke chronologische validatie verbetering toont. Dit is een toekomstig toelatingsscenario, geen huidige runtimefunctionaliteit. |
+| D — onvoldoende | Geen bruikbare watertemperatuur of thermische historie; alleen luchttemperatuur, wind en luchtdruk; geen andere toegelaten directe responsbron | Huidige en voorgestelde veilige behandeling is N/B. Weercontext mag geen fictieve biologische score creëren. |
+| E — conflicterend | Een recente lokale meting en een modelinschatting verschillen sterk, of bronnen vallen buiten vergelijkbare diepte/tijd/resolutie | Geen willekeurig gemiddelde; bron en representativiteit controleren. Zo nodig alleen de best verdedigbare bron gebruiken met hogere onzekerheid, anders factor uitsluiten en coverage verlagen. |
+
+### 106.8 Interacties en dubbele telling
+
+Voor iedere factor wordt de herkomstketen bijgehouden, zodat dezelfde oorzaak niet meerdere keren als onafhankelijke bijdrage terugkomt. Voorbeelden:
+
+- Watertemperatuurschatting die weersverwachting al gebruikt, mag niet daarnaast een volledige zelfstandige weerbonus krijgen zonder aantoonbaar onafhankelijk effect.
+- Wind die via oeveroriëntatie en waterbeweging de habitat-/bewegingsanalyse beïnvloedt, is niet automatisch een extra dagbrede voedingsbijdrage.
+- Fotoperiode, zonsopkomst/-ondergang en schemering zijn onderling gekoppeld; zij vormen niet drie onafhankelijke bijdragen.
+- Activiteit, beweging, voedselopname en vangst zijn verschillende responsen; correlatie maakt ze niet onderling uitwisselbaar.
+
+Een interactie wordt alleen kandidaat wanneer er een biologisch mechanisme, passende soortspecifieke bron en voldoende gecombineerde data zijn. De interactie wordt vooraf als hypothese vastgelegd en apart getoetst tegen het model zonder die interactie. Geen generieke vermenigvuldigingsfactoren.
+
+### 106.9 Kalibratie- en evaluatievereisten
+
+Voor formele toelating moet ieder modelonderdeel een eigen evaluatieplan hebben:
+
+- **Watertemperatuur:** bestaande MAE/RMSE/bias-controle en geldigheid van de temperatuurbron.
+- **Thermische respons:** passend direct biologisch eindpunt; thermische curve niet alleen op groei of aquacultuur fitten.
+- **Voedings-/foerageerrespons:** onafhankelijke, soortspecifieke labels die werkelijk voedselopname/foerageren meten; vangst alleen is geen vervangend label.
+- **Tijdvakrespons:** tijdgebonden directe respons of voldoende passende veldlabels; geen generieke schemerbonus.
+- **Habitat/aanwezigheid:** aparte aanwezigheid-/habitatlabels; beweging alleen als beweging evalueren.
+- **Samengestelde 1–10-score:** vooraf gedefinieerde evaluatiemaatstaf en chronologische vergelijking met thermische baseline, gerapporteerd per soort en relevante context.
+
+De persoonlijke vangstkans blijft apart en wordt met Brier/BSS beoordeeld. Brier mag niet worden gebruikt om biologische factorgewichten te leren of de activiteitsscore te corrigeren. Vangstregistratie blijft volgens §104 frictiearm; er worden geen verplichte labels of extra vragen aan de gebruiker toegevoegd om deze evaluatie kunstmatig te vullen.
+
+### 106.10 Nog te besluiten en volgende auditstap
+
+Deze sectie legt de normalisatie- en onzekerheidsprincipes vast als ontwerpvoorstel, maar kiest nog geen definitieve aggregatieformule. De volgende auditstap is:
+
+1. Per kandidaatfactor de exacte responsindex, referentieconditie, functie-vorm en bewijsstatus invullen; begin met de thermische prior en directe voedingsrespons per soort.
+2. De actuele app-invoer koppelen aan de statuscategorieën uit §106.4, inclusief tijds-/ruimtelijke geldigheid.
+3. Per ontbrekend-data-patroon vaststellen welke historische evaluatiedata beschikbaar zijn en waar voldoende ondersteuning ontbreekt.
+4. Een toetsbaar kalibratieplan voor de bestaande 1–10-schaal definiëren, zonder de huidige score te wijzigen.
+5. Een onafhankelijke label-/metricmatrix afronden voor activiteit, voeding, habitat en tijdvak.
+6. Pas daarna een kandidaataggregatie ontwerpen en chronologisch vergelijken met de thermische baseline.
+
+**Besluitstatus:** ontwerpprincipes vastgelegd voor verdere audit; nog niet formeel geaccepteerd als definitief modelontwerp. Geen runtimecode, gewichten, scoremapping of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
