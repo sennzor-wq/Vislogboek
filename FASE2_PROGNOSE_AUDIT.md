@@ -3438,3 +3438,78 @@ Het evaluatiekader is nu per respons uitgeschreven, maar de directe labels voor 
 **Volgende stap:** maak de respons-/factor-toelatingsmatrix definitief door per bestaande factor te koppelen: bronstatus, responskaart, actuele invoer, toepassingsgebied, gekozen metric, beschikbaar label en toelatingsbesluit (numeriek kandidaat, uitsluitend context, onbekend of uitgesloten). De thermische prior blijft als expliciet voorlopige baseline apart herkenbaar. Daarna kan een finale kandidaatmodelreview plaatsvinden; geen runtimegewichten of scorewijziging voordat de formele acceptatiepoorten zijn gesloten.
 
 Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+## 132. Definitieve factor-toelatingsmatrix per respons en doelsoort (19 november 2026)
+
+Deze sectie sluit de factorinventaris uit §§102 en 105 aan op de bron-/responskaarten §§108–128 en het evaluatiekader §131. Het doel is niet om alle factoren numeriek te activeren, maar om per factor vast te leggen wat de huidige code doet, welk eindpunt het bewijs werkelijk meet en of numerieke toelating op dit moment verdedigbaar is.
+
+### 132.1 Betekenis van de toelatingsstatus
+
+- **Actief — voorlopige prior:** bestaande numerieke runtimebijdrage die expliciet als tijdelijke mechanistische baseline behouden is; niet gelijk aan wetenschappelijke goedkeuring.
+- **Numerieke kandidaat — niet toegelaten:** er bestaat direct of contextgebonden bewijs dat een responsfunctie kan helpen ontwerpen, maar bewijs, invoer of onafhankelijke validatie voldoet nog niet aan de toelatingspoort.
+- **Contextueel:** mag de uitleg of afzonderlijke tactiek-/habitatlaag informeren, maar heeft geen numerieke bijdrage aan de biologische 1–10-dagscore.
+- **Onbekend / niet beschikbaar:** de app heeft geen betrouwbare actuele invoer of passend lokaal label; er wordt geen proxy of neutrale waarde verzonnen.
+- **Afzonderlijke responslaag:** relevant voor een andere uitkomst, zoals habitat, hengelvangbaarheid, persoonlijke vangstkans, tactiek of datakwaliteit; niet mengen met de biologische score.
+- **Uitgesloten:** de gemeten respons of overdraagbaarheid is niet passend voor de beoogde factor; alleen heroverwegen met nieuw passend bewijs.
+
+### 132.2 Factorfamilies en huidige toelating
+
+| Factor / factorfamilie | Wat het bewijs werkelijk meet | Huidige runtime-/productrol | Toelatingsbesluit voor biologische dagscore | Wat nodig is voor heroverweging |
+|---|---|---|---|---|
+| Watertemperatuur / soortcurve | Thermische fysiologische respons zoals door de voorlopige profielcurve gemodelleerd | Enige numerieke bijdrage aan de bestaande 1–10-activiteitsindex | **Actief — voorlopige prior, expliciete uitzondering** | Directe soort-/levensfase-/contextpassende thermische responslabels; bronherkomst per parameter; onafhankelijke kalibratie van curvevorm, optimum, breedtes en scoremapping. |
+| Luchttemperatuur en thermische weersontwikkeling | Indirecte input voor de waterthermische schatter | Alleen indirect via de bestaande waterThermalEngine | **Geen zelfstandige bijdrage** | Eerst onafhankelijke validatie van de watertemperatuurschatter; geen dubbele weerbonus. |
+| Voedselopname / voedingsintensiteit | Gemeten hoeveelheid of snelheid van geconsumeerd voedsel | Literatuurcontext via feedingEvidenceService; geen lokale directe voedingsmeting | **Numerieke kandidaat — niet toegelaten** | Passende soort-/levensfase-/voedsel-/temperatuurrespons, betrouwbare lokale of overdraagbare invoer en onafhankelijke voedingslabels/metrics. |
+| Voedingsritme / dielgedrag | Wanneer daadwerkelijke voedselopname plaatsvindt | Kwalitatieve soortcontext; geen gevalideerde tijdvakscore | **Contextueel** | Direct tijdgebonden voedingslabel en passende soort-/seizoens-/habitatvalidatie. Bewegingstelemetrie is onvoldoende. |
+| Foerageergedrag / prooivangst | Zoekgedrag, aanval of vangst van natuurlijke prooi | Afzonderlijke kwalitatieve bewijsstroom | **Contextueel of numerieke kandidaat per bron; nu niet toegelaten** | Aantonen dat gemeten gedrag overdraagbaar is naar de relevante dagelijkse voedings-/foerageerrespons en lokale voedselbron. Prooivangst is geen dagelijkse voedselopname of hengelaasrespons. |
+| Dieet / prooikeuze / maaginhoud | Welke prooi is gegeten of hoe maaginhoud seizoensmatig varieert | Soort-/voedselcontext | **Contextueel; uitgesloten als zelfstandige voedingsintensiteit** | Alleen een direct passend meeteindpunt kan voedingsintensiteit of tijdvakrespons ondersteunen. |
+| Seizoen / levenscyclus / acclimatisatie | Modulator van fysiologie, voedselbehoefte of gedrag | Context in soortprofiel en uitleg | **Geen zelfstandige numerieke bonus** | Soortspecifieke interactie met direct gemeten doelrespons en onafhankelijke toetsing. |
+| Licht / fotoperiode / schemering | Omgevingscontext; soms tijdgebonden beweging of voeding in specifieke studies | Beschrijvende context | **Geen generieke tijdvak- of dagscorebonus** | Directe soortspecifieke voedings-/activiteitsrespons met tijdvaklabels. Fotoperiode, zonsopkomst en schemering niet dubbel tellen. |
+| Wind / windrichting | Oever-, drift-, oppervlakte- en soms bewegings-/habitatrespons | Bestaande bankWind-/positionerings-/habitatlaag | **Afzonderlijke responslaag; geen dagscorebijdrage** | Directe, onafhankelijke voedingsrespons en lokale validatie bovenop temperatuur/licht. |
+| Luchtdruk / druktrend | In enkele studies locomotorische beweging of habitatverplaatsing | Beschrijvende context | **Contextueel; geen numerieke bijdrage** | Repliceerbare soortspecifieke doelrespons en aantoonbare extra voorspelwaarde. |
+| Bewolking / instraling / neerslag | Licht- of indirecte hydrologische context | Weer-/tijdvakcontext; neerslag geen directe visrespons | **Contextueel; geen zelfstandige bijdrage** | Lokale gemeten tussenstap en directe soortrespons; voorkom dubbele telling met thermische ontwikkeling en licht. |
+| Troebelheid / zicht | Zichtcondities, predator-prooi-interactie of beweging in specifieke systemen | Geen betrouwbare actuele lokale meting | **Onbekend / contextueel** | Lokale NTU-/zichtmeting en passende soort-/prooirespons. Geen universele troebelheidsbonus. |
+| Opgeloste zuurstof | Fysiologische beperking en bij ernstige hypoxie soms directe voedingsremming | Geen betrouwbare actuele lokale zuurstofinvoer | **Onbekend; uitgesloten van numerieke score** | Lokale DO-metingen met tijd/diepte en een responsfunctie voor normale relevante veldwaarden; extreme laboratoriumhypoxie niet extrapoleren. |
+| Stroming / afvoer / waterstand | Verplaatsing, habitatgebruik en voedseltoegankelijkheid in stromend water | Geen lokale stroomsnelheid-/afvoerinvoer; kwalitatieve habitatcontext | **Onbekend / afzonderlijke habitatlaag** | Lokale meting en soort-/watertypepassende responslabels. Niet overzetten naar stilstaand water. |
+| Natuurlijk prooi-/voedselaanbod | Lokale hoeveelheid en toegankelijkheid van natuurlijk voedsel | Niet gemeten in de app | **Onbekend** | Lokale betrouwbare prooiproxy of meting en aantoonbare soort-/seizoensrespons. |
+| Diepte / bodem / vegetatie / structuur / stek | Habitatgeschiktheid en ruimtelijke zoekhypothese | Bestaande habitatMovement-/rodPositioning-laag | **Afzonderlijke habitat-/aanwezigheidslaag** | Onafhankelijke aanwezigheid-/habitatlabels; niet automatisch fysiologische activiteit of voeding. |
+| Persoonlijke vangstkans | Kans op minstens één vangst tijdens vergelijkbare sessie | Bestaande Poisson-baseline; Brier/BSS | **Afzonderlijke responslaag** | Eigen chronologische sessie-evaluatie; geen correctie of gewicht voor biologische dagscore. |
+| Hengelvangbaarheid / aas / voer / techniek / hengelinzet | Kans dat activiteit in aanbeet/vangst wordt omgezet | VisCoach-/tactiek-/persoonlijke ervaringslaag | **Afzonderlijke responslaag** | Eigen exposure-aware vangst-/aanbeetdata; niet als biologische activiteit of voedselopname gebruiken. |
+| Voorvoer-suitability en exacte grammen | Praktische voer-/tactiekindicatie | Actieve numerieke heuristiek in prebaitEngine, buiten de biologische dagscore | **Niet toegelaten als biologische factor; afzonderlijke tactiekbeslissing open** | Evidence-/uitkomstvalidatie van geschiktheid en hoeveelheden, plus expliciet besluit over de lage-invoerkwaliteitsgrens. Geen stille wijziging van grammen. |
+| Datadekking / bronkwaliteit / onzekerheid | Betrouwbaarheid van de onderbouwing | Provenance-, coverage- en onzekerheidsmetadata | **Afzonderlijke kwaliteitslaag; nooit scorebonus/-straf** | Kalibratie van onzekerheidsbanden en prestaties per coverageklasse. |
+
+### 132.3 Soortspecifieke toelatingsstatus van directe voedingsbronnen
+
+De registry bevat 86 records; op de actuele main-code zijn 0 records goedgekeurd voor directe numerieke voorspelling. De feedingEvidenceService filtert goedgekeurde directe voedingsbronnen expliciet en levert daardoor momenteel geen goedgekeurde numerieke voedingsbron. De onderstaande tabel onderscheidt daarom bewijs dat een kandidaatrespons kan informeren van bewijs dat al in de score mag worden gebruikt.
+
+| Doelsoort | Directe of relevante aanvullende respons in de audit | Huidige toelating |
+|---|---|---|
+| Karper | Directe gecontroleerde voedselopname bij 4–34 °C; veld-/bait-stationbezoek; ernstige hypoxiecontext; afzonderlijk foerageergedrag | Contextgebonden numerieke kandidaat voor voedselopname; geen toegelaten runtimefactor of gevalideerde Nederlandse veldcurve. |
+| Brasem | In-situ zoöplanktonconsumptie en dagritme; oudere rantsoen-/stikstofstudies; troebelheidsstudie meet beweging | Voedingsritme/-intensiteit uitsluitend contextgebonden; geen thermische voedingscurve of algemene pellet-/method-feederrespons. |
+| Snoek | Wilde hartslagtelemetrie met indirect geschatte dagelijkse intake; 0+ predatie-/prooivangststudie; maaginhoudstudies | Directe veld-/predatiecontext, maar geen volwassen thermische voedingscurve; geen tijdvakbonus. |
+| Baars | Voeropname onder verstoring bij twee temperaturen; temperatuurafhankelijke zwemsnelheid/prooivangst; volwassen dagelijks rantsoen | Contextgebonden kandidaatbewijs; geen zuivere temperatuur-voedselopnamecurve of lokale voedingslabelset. |
+| Blankvoorn | Historische laboratoriumconsumptiebron met onvolledig geverifieerde methoden; in-situ planktonconsumptie en seizoens-/dielverschuiving | Contextueel; geen toegelaten thermische curve of universele dag-/schemerbonus. |
+| Zeelt | Directe maximale voedselopname bij 18 en 25 °C in beperkte populatie-/systeemcontext | Contextgebonden numerieke kandidaat; twee temperatuurpunten valideren geen volledige curve of huidige profielprior. |
+| Snoekbaars | Directe prooiconsumptie bij 4,5, 8,5 en 12,5 °C bij gekweekte broedvis in winter-/voorpaaicontext; bewegingstelemetrie afzonderlijk | Sterke contextgebonden kandidaat voor directe prooiconsumptie; geen toegelaten volwassen veldcurve of hengelaasrespons. |
+| Meerval | Juveniele kweekvoeracceptatie/dagelijkse consumptie bij 15/20/24 °C; andere kweekrantsoenstudie; afzonderlijk nachtelijk voerritme en EMG-beweging | Directe maar lage-/contextgebonden kweekkandidaat; geen volwassen wilde voedingscurve of universeel nachtpatroon. |
+| Roofblei | Seizoensgebonden maagvulling/vacuïteit en dieet; volwassen telemetrie meet beweging | Alleen dieet-/maagvullings- en bewegingscontext; geen directe dagelijkse voedingsintensiteit of tijdvakrespons. |
+| Overig | Generiek fallback-profiel zonder eigen soortspecifieke responskaart | Geen soortspecifieke numerieke voedings- of thermische validatie; alleen generieke fallbackcontext. |
+
+Geen van deze kandidaatbronnen wijzigt de goedkeuringsstatus. Voor geen van de tien profielen is in deze audit een volledig gevalideerde soortspecifieke dagelijkse thermische voedselopnamecurve aangetoond. De huidige thermische profielwaarden blijven daarom voorlopige prioren.
+
+### 132.4 Wat daadwerkelijk numeriek actief is — expliciete afbakening
+
+1. **Biologische 1–10-dagscore:** uitsluitend de bestaande thermische efficiëntie uit fishProfiles/prognosisEngine, via de bestaande scoremapping. Dit is de expliciet behouden voorlopige prior uit optie A, geen gevalideerde voedselopname- of vangstcurve.
+2. **Persoonlijke vangstkans:** afzonderlijke Poisson-/sessielaag met eigen Brier/BSS-evaluatie. Geen thermische of voedingscorrectie op de biologische score.
+3. **Voorvoer:** prebaitEngine heeft afzonderlijke temperatuurbanden, suitabilityScore, soortfactoren en gramadviezen. Deze waarden zijn praktische heuristieken, geen biologische dagscorebijdrage en niet door de research registry evidence-gated. De aparte keuze uit §96.5 blijft open.
+4. **Habitat/positionering:** bestaande temperatuur-/wind-/seizoensdrempels sturen kwalitatieve zoekhypothesen en zones. Zij zijn geen activiteitsscore of gekalibreerde aanwezigheidskans.
+5. **Overige meteorologische factoren:** wind, druk, seizoen, licht, bewolking en neerslag leveren in de huidige biologische dagscore geen zelfstandige numerieke bijdrage.
+
+### 132.5 Formele consequentie en besluitpunt
+
+De factorinventaris kan nu als **inhoudelijk gesloten** worden beschouwd: iedere bekende factor heeft een respons, inputstatus en huidige rol. De toelatingsmatrix is daarmee nog niet hetzelfde als formele Fase-2-acceptatie.
+
+Er blijft één expliciet spanningspunt tussen productbesluit en bewijscriterium: optie A behoudt de thermische prior actief om de bestaande prognose niet zonder score te laten, terwijl de exacte parameters en curvevorm niet onafhankelijk zijn gevalideerd en geen registrybron hiervoor is goedgekeurd. Dit is transparant als voorlopige uitzondering gedocumenteerd, maar mag niet worden beschreven alsof criterium 2 wetenschappelijk is afgevinkt. De formele acceptatie moet deze uitzondering expliciet blijven erkennen; anders blijft criterium 2 een blocker.
+
+De afzonderlijke numerieke voorvoerheuristiek is geen factor van de biologische 1–10-score, maar heeft wel een open product-/tactiekbesluit over exacte grammen en lage invoerkwaliteit (§96.5). Geen runtimewijziging zonder expliciete goedkeuring.
+
+**Besluit:** geen nieuwe factor, gewicht, interactie, tijdvakbonus of scoremapping toelaten. De bestaande thermische prior blijft de enige numerieke biologische scorebijdrage. De factorstatusmatrix is gesloten voor deze auditronde; formele Fase-2-acceptatie blijft open totdat de bewijsuitzondering en onafhankelijke evaluatiepoorten aantoonbaar zijn afgehandeld. Fase 3 blijft geblokkeerd.
