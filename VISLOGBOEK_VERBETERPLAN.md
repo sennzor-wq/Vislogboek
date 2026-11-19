@@ -805,3 +805,12 @@ De volledige regels staan in FASE2_PROGNOSE_AUDIT.md §104. Vangsten zijn bruikb
 Het productdoel van de bestaande 1–10-score is vastgesteld in FASE2_PROGNOSE_AUDIT.md §103; de minimale vangstregistratie in §104. De factor-naar-doelresponsmatrix en kandidaatprioriteit staan in §105. De eerdere blocker om de doelrespons nog te definiëren is daarmee vervallen.
 
 De volgende ontwerpstap is normalisatie en coverage-/onzekerheidsbehandeling: de prognose moet de best verdedigbare verwachting maken met beschikbare gegevens. Ontbrekende factoren blijven expliciet onbekend en verlagen de zekerheid, maar blokkeren niet automatisch een bruikbare prognose. Geen fictieve neutrale waarden, verborgen herweging of willekeurige gewichten. Dagscore en tijdvakadvies blijven één samenhangende doelrespons; geen tweede score. Geen runtimewijziging en Fase 3 blijft geblokkeerd tot alle Fase-2-acceptatiecriteria zijn behaald.
+
+
+### Fase 2 — normalisatie- en onzekerheidsarchitectuur uitgewerkt (19 november 2026)
+
+De ontwerpuitwerking staat in `FASE2_PROGNOSE_AUDIT.md` §106 en is samengevat in `MODELARCHITECTUUR_FASE2.md` §97. Per factor wordt een ruwe invoer pas na validatie en soort-/contextselectie vertaald naar een genormaliseerde responsindex voor de juiste biologische doelrespons. Deze index is geen kanspercentage. De bestaande 1–10-score krijgt later een vaste, versieerbare kalibratie; geen dagelijkse herschaling.
+
+Gemeten, geschatte, proxy/contextuele, ontbrekende, ongeldige, tegenstrijdige en niet-toepasselijke invoer worden onderscheiden. Onbekend wordt niet neutraal ingevuld en resterende gewichten worden niet stilzwijgend herverdeeld. Een gedeeltelijke prognose blijft mogelijk wanneer de betreffende factorcombinatie gevalideerd is; zonder bruikbare thermische basis en zonder andere toegelaten responsinformatie blijft de huidige uitkomst N/B.
+
+**Nog open:** responsfuncties/referentieankers per soort invullen, app-invoer aan status koppelen, validatie per ontbrekend-data-patroon bepalen, onafhankelijke labels/metrics afronden en pas daarna kandidaataggregatie chronologisch vergelijken met de thermische baseline. Geen runtimewijziging, geen nieuwe score of verplichte gebruikersinvoer. Fase 2 blijft open; Fase 3 geblokkeerd.
