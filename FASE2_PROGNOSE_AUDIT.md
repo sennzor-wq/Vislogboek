@@ -4504,3 +4504,36 @@ Maak per soort een parameterherkomstkaart met drie afzonderlijke vragen:
 Als geen passende directe curve beschikbaar is, blijft het profiel een expliciet voorlopige prior en moet onzekerheid over de responsparameter worden behouden. Er worden geen ontbrekende optima uit verwante soorten ingevuld en geen numerieke curveparameters afgeleid uit een ander biologisch eindpunt.
 
 **Besluitstatus:** exacte bronvalidatie voor huidige profielparameters is niet aangetoond. Geen wijziging van parameters, brongoedkeuring of runtime. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 109. Directe temperatuur-/voedingsrespons: soortdekking en overdraagbaarheid (19 november 2026)
+
+Deze aanvulling koppelt temperatuurgerelateerde registrybronnen aan het juiste gemeten eindpunt. Het is nadrukkelijk geen parameterfit en geen goedkeuring voor numerieke toepassing.
+
+| Soort | Direct gemeten voedings-/voedselopnamebewijs in register | Context en beperking | Gevolg voor de huidige thermische curve |
+|---|---|---|---|
+| Karper | Chen et al. (2012): voedselopname bij 4–34 °C; gerapporteerde piek rond 28 °C en lagere opname bij 34 °C. | Aziatische ondersoort, twee grootteklassen, gecontroleerde voeropzet; volledige methode/acclimatisatie nog te controleren. | Relevante directe voedingsrespons, maar niet automatisch de huidige 21 °C profielpiek of veldcurve. |
+| Karper | Bauer & Schlott (2006): voeding stopte tijdens een ernstige winterse zuurstofcrisis. | Eén aquacultuurvijver en uitzonderlijke hypoxie; geen normale dagelijkse temperatuurcurve of universele zuurstofdrempel. | Ondersteunt zuurstof als afzonderlijke relevante factor in extreme context; niet als temperatuurcurve. |
+| Zeelt | Benjamin et al. (2026): lagere maximale voedselopname bij 25 °C dan bij 18 °C. | Twee temperatuurbehandelingen, invasieve populatie in St. Lawrence-systeem; geen volledig optimum. | Waarschuwt tegen de aanname dat meer warmte altijd meer voeding geeft; valideert de 20,5 °C prior niet. |
+| Snoekbaars | Malinovskyi et al. (2020): prooiconsumptie bij 4,5, 8,5 en 12,5 °C nam toe over die behandelingen. | Gekweekte broedvis in winter-/voorpaaiperiode; sekse, reproductiestatus en prooigrootte relevant. | Directe voedingsrespons in beperkte context; geen algemene volwassen veldcurve of bevestiging van 15 °C optimum. |
+| Blankvoorn | Hautala (2008): veldwaarneming van seizoensgebonden verschuiving van dag- naar schemer-/nachtvoeding bij afkoeling. | Boreaal meer, ondiepe verlichte litoraalzone; temperatuur, licht en predatierisico verweven. | Ondersteunt mogelijke temperatuur × licht × seizoen-interactie; geen geïsoleerde thermische optimumcurve of vaste tijdvakbonus. |
+| Snoek | Yazıcıoğlu et al. (2025): seizoens-maagvullingsindex en temperatuurcorrelatie. | Temperatuurcorrelatie niet significant; maaginhoud is momentopname en geen jachtintensiteit. | Geen numerieke temperatuurrespons afleiden. |
+| Meerval | Boujard (1995): sterk nachtelijk voerautomaatritme. | Gecontroleerde voederopstelling; temperatuurcontext in beschikbare samenvatting niet vastgesteld. | Ondersteunt diel-voedingsonderzoek, niet een temperatuurcurve of veldvangstbonus. |
+| Meerval | Yazici et al. (2025): seizoensvariatie in maagvulling. | Eén diep Anatolisch stuwmeer; mogelijke verklaringen zijn verweven; maagvulling is geen vangbaarheid. | Alleen context; geen dagelijkse thermische voedingscurve. |
+
+De registry bevat daarnaast metabole/aerobe-scopegegevens voor karper, snoek, baars, brasem/blankvoorn en snoekbaars (§108). Die fysiologische eindpunten blijven gescheiden van de directe voedingsstudies hierboven. Er is in deze inventaris geen rechtvaardiging om de bestaande uniforme Gaussische vorm of exacte optimum-/breedteparameters te laten volgen uit één van deze uiteenlopende responsen.
+
+### 109.1 Gevolg voor responsnormalisatie
+
+- De directe voedingsstudies laten verschillende responsvormen en contexten zien. Een universele Gaussische curve per soort is daarom geen vanzelfsprekende keuze.
+- De bron bij zeelt laat zien dat een hogere temperatuur niet automatisch een hogere voedingsrespons betekent; de respons kan tussen twee onderzochte temperaturen al afnemen.
+- De karper- en snoekbaarsstudies zijn directe voedingsmetingen, maar contextgebonden. De uitkomsten mogen niet rechtstreeks worden overgezet naar Nederlandse wilde populaties zonder overdraagbaarheidsbeoordeling.
+- Bij blankvoorn zijn temperatuur, licht en seizoen verweven. Zonder onafhankelijke scheiding mag dezelfde variatie niet als drie afzonderlijke bijdragen worden opgeteld.
+- Voor soorten zonder passende directe temperatuur-voedingscurve blijft de thermische profielcurve een voorlopige prior. Geen curveparameters lenen van een andere soort.
+- Alle bronnen blijven in de registry op hun bestaande status; deze audit wijzigt `approvedForPrediction` niet.
+
+### 109.2 Volgende stap
+
+Per soort een responskaart maken waarin de directe voedingsdata, metabole/aerobe-scopecontext en bestaande profielprior afzonderlijk worden vastgelegd. Alleen als de bron voldoende temperatuurbehandelingen, levensfase, acclimatisatie en passende doelrespons bevat, kan zij kandidaat zijn voor een responsfunctie. Anders dient zij uitsluitend als context of kwalitatieve grens. Vervolgens moet worden vastgesteld welke soorten genoeg bewijs hebben voor een soortspecifieke kandidaatcurve en welke voorlopig op de bestaande baseline blijven.
+
+**Besluitstatus:** directe temperatuur-/voedingsrespons per relevante registrybron onderscheiden; geen bron goedgekeurd en geen curveparameter gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.

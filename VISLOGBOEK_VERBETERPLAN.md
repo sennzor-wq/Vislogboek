@@ -828,3 +828,10 @@ De exacte huidige soortparameters, Gaussische responsvorm, efficiëntievloer en 
 De registry-audit in `FASE2_PROGNOSE_AUDIT.md` §108 vond geen directe thermische-efficiëntie-/optimumrespons die de exacte huidige profielcurves valideert. Vijf soortgebonden records meten metabolisme/aerobe scope (karper, snoek, baars, brasem/blankvoorn en snoekbaars); alle blijven niet-goedgekeurd en zijn geen directe dagelijkse voedselopnamecurves. De huidige parameters blijven voorlopige softwareprioren.
 
 **Nog open:** per soort de directe temperatuur-voedselopnamebronnen onderscheiden van indirecte fysiologische context, inclusief levensfase, acclimatisatie, watertype en geografische overdraagbaarheid. Geen parameter of runtime gewijzigd; Fase 2 blijft open.
+
+
+### Fase 2 — directe temperatuur-/voedingsrespons per soort in kaart gebracht (19 november 2026)
+
+De relevante directe voedingsstudies en hun overdraagbaarheidsgrenzen staan in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §100). Karper, zeelt en snoekbaars hebben contextgebonden directe voedselopnamebronnen; blankvoorn heeft verweven temperatuur-/licht-/seizoensbewijs; voor snoek en meerval zijn de beschikbare records geen bruikbare thermische voedingscurve. Dit bevestigt dat geen universele Gaussische curve of geleende soortparameters mogen worden aangenomen.
+
+**Nog open:** per soort responskaarten maken, exacte responsvorm en referentie alleen kiezen waar de bron dat ondersteunt, en voldoende datadekking/validatie bepalen. Geen bron goedgekeurd en geen runtimeparameter gewijzigd.

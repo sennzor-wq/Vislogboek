@@ -1848,3 +1848,8 @@ Geen runtimewijziging; de bestaande 1–10-score blijft ongewijzigd. Fase 2 blij
 ### Fase 2 — bronvalidatie thermische profielcurves (19 november 2026)
 
 De bronherkomst-audit staat in `FASE2_PROGNOSE_AUDIT.md` §108. De huidige registry bevat geen directe thermische-efficiëntie-/optimumrespons die de exacte soortcurves valideert. Metabolisme en aerobe scope zijn indirecte fysiologische eindpunten, geen dagelijkse voedselopname of vangbaarheid. De huidige curveparameters blijven voorlopige softwareprioren; geen parameter of bronstatus is aangepast.
+
+
+### Fase 2 — soortspecifiek bewijs voor temperatuur en voeding (19 november 2026)
+
+De bron-/responsmatrix staat in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §100). Directe voedingsstudies voor karper, zeelt en snoekbaars zijn contextgebonden; blankvoorn heeft verweven temperatuur-/licht-/seizoensbewijs. Metabolisme, aerobe scope, groei, maagvulling en beweging blijven afzonderlijke responsen. Geen universele thermische curve is hiermee gevalideerd; geen bronstatus of runtimeparameter gewijzigd.

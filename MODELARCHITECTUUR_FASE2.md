@@ -884,3 +884,10 @@ Geen wijziging van profielparameters, formule, scoremapping of runtime. De basel
 De bronherkomst-audit staat in `FASE2_PROGNOSE_AUDIT.md` §108. De huidige research registry bevat geen direct gemeten `thermal_efficiency`- of `thermal_optimum`-respons die de exacte optimum-/breedtecombinaties per soort valideert. Vijf soortgebonden records meten metabolisme en/of aerobe scope (karper, snoek, baars, brasem/blankvoorn en snoekbaars); alle vijf zijn niet-goedgekeurd. Deze eindpunten mogen niet als dagelijkse voedselopname of vangbaarheid worden behandeld.
 
 De bestaande soortcurves blijven voorlopige softwareprioren. Geen parameters afleiden uit metabolisme, aerobe scope, groei of een andere soort. Per soort moet de bronkaart directe temperatuurafhankelijke voedselopname onderscheiden van indirecte fysiologische context en de toepassingsgrenzen (levensfase, acclimatisatie, watertype, geografische context) vastleggen. Geen bronstatus is door deze audit gewijzigd en geen runtimeparameter is aangepast.
+
+
+## 100. Temperatuurafhankelijke voedingsrespons: niet verwarren met thermische fysiologie
+
+De soortspecifieke registrydekking staat in `FASE2_PROGNOSE_AUDIT.md` §109. Directe voedselopname-/voedingsstudies bestaan onder meer voor karper, zeelt en snoekbaars, maar zijn beperkt door ondersoort, grootteklasse, kweek-/laboratoriumcontext, beperkt aantal temperatuurbehandelingen of reproductiestatus. Blankvoorn heeft veldbewijs voor een seizoensgebonden dagritmeverschuiving waarbij temperatuur, licht en predatierisico verweven zijn. Snoek-maagvulling/temperatuurcorrelatie was niet significant. Meervalvoerautomaatritme is geen temperatuurrespons.
+
+Deze bronnen ondersteunen geen universele soortcurve en valideren niet automatisch de bestaande profielparameters. Directe voedingsintensiteit, metabolisme, aerobe scope, groei, maagvulling en beweging blijven afzonderlijke eindpunten. Geen bronstatus, curvevorm of numerieke parameter is gewijzigd.
