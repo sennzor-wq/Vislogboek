@@ -834,3 +834,14 @@ Het gebruikersbesluit en de volledige ontwerpregels staan in `FASE2_PROGNOSE_AUD
 De doelrespons is de verwachte biologische activiteit- en voedings-/foerageerpotentie van de geselecteerde doelsoort op die dag. Dit is nadrukkelijk niet de persoonlijke vangstkans, lokale aanwezigheid, hengelvangbaarheid of betrouwbaarheid. Deze responsen blijven afzonderlijk. De score wordt uiteindelijk gevoed door alleen die soortspecifieke factoren die dezelfde doelrespons onderbouwen en onafhankelijk gevalideerd zijn.
 
 Voor implementatie zijn gemeenschappelijke normalisatie, stabiele 1–10-kalibratie, ontbrekende-data-/coverage-regels, dubbele-tellingpreventie, interacties en chronologische validatie verplicht. De thermische optie A blijft voorlopige prior. Brier/BSS blijft uitsluitend voor persoonlijke vangstkans. Geen runtimewijziging voordat Fase 2 formeel is geaccepteerd.
+
+
+## 95. Minimaal vangstregistratiecontract
+
+De vangstregistratie is bewust frictiearm. De primaire flow is 'Vis gevangen' → vissoort kiezen → opslaan. Het vangsttijdstip wordt automatisch voorgesteld en blijft aanpasbaar. Een vooraf ingesteld hengel-/methodeprofiel en gewicht zijn optioneel. Geen verplichte voer-, aas-, presentatie- of materiaalvelden; een sessiecontext mag hoogstens een niet-bindende standaard voorstellen.
+
+Elke vangst is een eigen gebeurtenis binnen de sessie, zodat verschillende soorten, tijdstippen, hengelprofielen en gewichten per vangst mogelijk zijn. Ontbrekende optionele waarden blijven onbekend. Historische records worden niet kunstmatig aangevuld.
+
+Vangsten ondersteunen achteraf tijdvak- en tactiekanalyses, maar zijn geen directe meting van voedingsactiviteit. Een vangst is mede afhankelijk van stek, aanwezigheid, inspanning, presentatie, aas en vangbaarheid; een nulvangst bewijst evenmin dat de vis niet actief was. Hengelprofiel/methode en gewicht mogen alleen in de responslaag worden gebruikt die zij werkelijk onderbouwen. Geen oorzaak-gevolgconclusie uit één vangst.
+
+Volledige regels, minimale flow en validatiegrenzen: FASE2_PROGNOSE_AUDIT.md §104. Dit contract behoudt de bestaande registratie-ervaring en activeert geen nieuwe runtimevelden.

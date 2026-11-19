@@ -1812,3 +1812,10 @@ De bestaande dagscore blijft één score en wordt nu alleen thermisch bepaald. V
 De gebruiker heeft bevestigd dat de bestaande cijferschaal en scoreweergave behouden blijven. Eén eenvoudig dagcijfer moet direct helpen een gunstige of ongunstige dag te herkennen, met een begrijpelijke onderbouwing. Het cijfer staat voor de verwachte biologische activiteit- en voedings-/foerageerpotentie van de geselecteerde doelsoort; het is geen persoonlijke vangstkans, stekaanwezigheid of vangbaarheid. Geen nieuwe zichtbare deelscores of extra invoer.
 
 De ontwerpregels en resterende modelstappen staan in `FASE2_PROGNOSE_AUDIT.md` §103. De huidige thermische berekening blijft voorlopig ongewijzigd totdat normalisatie, missing-data-regels, factorweging en chronologische validatie zijn afgerond. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — minimale vangstregistratie bevestigd (19 november 2026)
+
+De gebruiker wil voorkomen dat vangstregistratie administratief wordt. De basis is: 'Vis gevangen' → soort selecteren → opslaan. Vangsttijd automatisch vastleggen en aanpasbaar houden. Vooraf ingesteld hengel-/methodeprofiel en gewicht zijn optioneel; voer, aas, presentatie en andere materiaalgegevens zijn geen verplichte velden.
+
+Vangstgebeurtenissen kunnen latere tijdvak- en tactiekanalyses voeden, maar mogen niet als directe voedingsactiviteitslabels worden behandeld. Vangstresultaten zijn mede afhankelijk van aanwezigheid, stek, inspanning en vangbaarheid; één vangst bewijst geen methode-effect en geen vangst bewijst geen inactiviteit. Zie FASE2_PROGNOSE_AUDIT.md §104. Bestaande flow eerst toetsen; geen administratieve uitbreiding of runtimewijziging zonder aantoonbare noodzaak.
