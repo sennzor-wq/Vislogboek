@@ -1919,3 +1919,29 @@ Dit is een gerichte keuze binnen de bestaande prognosearchitectuur, geen herontw
 
 De eerdere tijdelijke uitschakeling van de thermische score is teruggedraaid op main in commit bf95145e7ca0523944b01b842957a65d7f93647c. De Quality Gate op deze herstelcommit is volledig geslaagd (run #44492544444). Dit herstel activeert uitsluitend het bestaande thermische modelgedrag; het voegt geen nieuwe biologische factor of vangstkanskoppeling toe.
 
+
+
+## 91. Vervolg na ontwerpbesluit — scoreketen, tijdvakvoorkeur en evaluatie (19 november 2026)
+
+### Status na PR #147
+
+Het ontwerpbesluit uit §90 is verwerkt in PR #147 en squash-merged naar `main` als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`. De Quality Gate op de mergecommit is geslaagd (run #44496021470). Optie A is daarmee als ontwerpkeuze vastgelegd: de bestaande thermische curves blijven uitsluitend een voorlopige, transparante thermische prior. Er zijn geen runtimeberekeningen, parameters of scores gewijzigd.
+
+De keuze over behouden versus uitschakelen is gesloten. De onderliggende wetenschappelijke beperking is dat de exacte soortparameters niet onafhankelijk gevalideerd zijn. Dit mag niet worden verward met brongoedkeuring of lokale voorspelvalidatie. Criterium 2 blijft daarom inhoudelijk begrensd; de formele crosswalk mag dit niet als wetenschappelijke validatie afvinken. De volgende auditstap moet expliciet vaststellen hoe de vooraf goedgekeurde voorlopige prior binnen criterium 2 wordt verantwoord zonder de bewijsnorm voor nieuwe numerieke factoren te verlagen. Tot die beoordeling blijft Fase 2 niet geaccepteerd en Fase 3 geblokkeerd.
+
+### Vastgelegde producteis voor de bestaande prognose
+
+De producteigenaar heeft verduidelijkt dat de huidige scoreweergave behouden moet blijven. Het gaat om verbetering van de bestaande prognoseketen, niet om een tweede score of een nieuwe VisCoach-prognose.
+
+- De bestaande dagscore en presentatie blijven de gebruikersweergave. De uiteindelijke dagschatting moet, zodra de audit en validatie dat toelaten, de relevante prognosefactoren samenbrengen in één uitlegbare keten.
+- Iedere factor uit de bestaande prognose krijgt expliciet een rol en status: numerieke bijdrage, habitat-/bewegingsinformatie, kwalitatieve context, niet beschikbaar of uitgesloten met reden. Een factor krijgt alleen een numerieke bijdrage wanneer respons, data en bewijs dat rechtvaardigen; ontbrekende data worden niet als een verzonnen neutrale score behandeld.
+- Voor factoren die numeriek mogen bijdragen, moet de soort-, seizoen-, water-/stekcontext, richting, onzekerheid, interactie en onderbouwde weging traceerbaar zijn. Geen universele percentages of arbitraire gewichten.
+- De tijdvakbeoordeling moet de geselecteerde soort, datum/seizoen en stek meenemen. Soortspecifiek voedings-/foerageergedrag kan de voorkeur van een tijdvak beïnvloeden wanneer het directe bewijs bij de respons en context past. Temperatuurrespons, beweging, voedselopname, habitat-aanwezigheid en vangbaarheid blijven afzonderlijke responsen. Een dagdeelpatroon is nooit op zichzelf een automatische bonus of gegarandeerde winnaar.
+- Het huidige thermische tijdvak blijft thermisch zolang geen gevalideerde voedings-/tijdvakrespons beschikbaar is. Wanneer verschillen niet aantoonbaar zijn, wordt geen kunstmatige winnaar geforceerd.
+- De gebruiker hoeft geen extra verplichte levensfase- of biologisch formulier in te vullen. De bestaande eenvoudige invoer blijft leidend; onbekende context vergroot onzekerheid.
+- De Brier-evaluator toetst de persoonlijke vangstkans aan gekoppelde sessie-uitkomsten en kan aantonen dat kalibratie/prestatie verbetering behoeft. Brier is geen biologische factor, geen directe gewichtstuner en geen correctie die achteraf oude prognoses verandert. Activiteit, voeding, habitat en tijdvakrangschikking vereisen passende eigen evaluatiemaatstaven.
+- Sessies, inspanning/tijdvenster, doelsoort, stek, omstandigheden, vangsten en bevestigde nulvangsten kunnen de evaluatie voeden via onveranderlijke prognosesnapshots en kwaliteits-/vergelijkbaarheidsfilters. Onbekende of niet vergelijkbare uitkomsten worden niet als nulvangst geïnterpreteerd.
+
+### Volgende auditstap
+
+Voer nu de kandidaatmodel-audit uit binnen de bestaande `prognosisEngine.ts`-keten: leg voor elke reeds geïnventariseerde factor de huidige codebijdrage, gewenste respons, databeschikbaarheid, bewijsstatus, onzekerheid, interacties en evaluatiemethode naast elkaar. Maak daarna het kandidaatmodel en het chronologische validatieprotocol expliciet, inclusief vergelijking met de huidige baseline en bescherming tegen future leakage. Deze stap is ontwerp en audit; activeer nog geen nieuwe factor, gewicht, tijdvakbonus of runtimeberekening. Houd de bestaande scoreweergave intact. Zie ook de zeven acceptatiecriteria in §43 en de crosswalk in §89.

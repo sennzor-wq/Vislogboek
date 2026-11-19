@@ -687,3 +687,13 @@ Dit is geen herontwerp van de prognose. De bestaande prognose blijft de centrale
 
 De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal gevalideerd gepresenteerd. Bronstatus en onzekerheid blijven zichtbaar. Geen nieuwe gewichten, drempels of tijdvakbonussen worden toegevoegd. Fase 2 blijft onder de bestaande zevenpunts-acceptatiecrosswalk vallen; fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
 
+
+
+### Fase 2 — vervolg na thermisch ontwerpbesluit (19 november 2026)
+
+- PR #147 is squash-merged als `5acd372a3be0ee31d1a5b7d422659e7ef4fee097`; de Quality Gate op de mergecommit (#44496021470) is geslaagd.
+- Optie A is vastgelegd: bestaande thermische curves blijven uitsluitend als transparante voorlopige mechanistische prior actief. De exacte parameters zijn niet onafhankelijk gevalideerd; er worden geen nieuwe gewichten, drempels of tijdvakbonussen geactiveerd.
+- De bestaande dagscoreweergave blijft behouden. De volgende audit brengt per bestaande factor de huidige bijdrage, beoogde respons, bewijs, databeschikbaarheid, onzekerheid, interacties en evaluatiemethode in kaart. Alleen onderbouwde factoren kunnen later numeriek bijdragen; overige factoren blijven expliciete context, habitat-/bewegingsinformatie, onbekend of uitgesloten.
+- Tijdvakvoorkeur wordt binnen dezelfde prognoseketen beoordeeld op doelsoort, datum/seizoen en stek. Direct voedings-/foerageerbewijs kan een tijdvak beïnvloeden; beweging en thermische respons worden niet automatisch als voeding of vangbaarheid vertaald.
+- Brier blijft evaluatie van persoonlijke vangstkans versus sessie-uitkomsten, geen directe biologische gewichtstuner. Tussenlagen vereisen passende afzonderlijke evaluatie.
+- **Volgende stap:** kandidaatmodel-audit van de bestaande prognoseketen en een chronologisch validatieprotocol uitwerken. Geen runtimefactoren of gewichten activeren voordat bewijs en acceptatiecriteria dit toestaan. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
