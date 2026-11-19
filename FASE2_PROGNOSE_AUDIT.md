@@ -4600,3 +4600,46 @@ Deze resultaten zijn complementair, maar mogen niet als één dataset worden sam
 De algemene review van Volkoff & Rønnestad (2020) onderstreept dat temperatuur effecten heeft op voedsel zoeken, voedselopname en vertering, maar dat die responsen soort-, levensfase-, acclimatisatie- en blootstellingsafhankelijk zijn. De review ondersteunt de scheiding van responslagen; zij levert geen exacte parameters voor de Vislogboek-soortcurves.
 
 **Besluitstatus:** responslabels zijn aangescherpt; geen bronstatus, parameter, gewicht of runtime gewijzigd.
+
+## 112. Nieuwe primaire snoekstudie: temperatuur × prooigedrag × functionele respons (19 november 2026)
+
+**Bron:** Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026). *Effects of temperature and browning on the functional response of a freshwater top predator*. Journal of Animal Ecology, 95(5), 824–836. https://doi.org/10.1111/1365-2656.70233
+
+### 112.1 Wat is daadwerkelijk gemeten
+
+Dit is een primaire laboratoriumstudie met jonge-van-het-jaar (0+) snoek en voornamelijk blankvoorn als prooi. In experiment 1 werden functionele respons en prooiconsumptie onderzocht bij 5, 9 en 13 °C, in helder of matig bruin water en bij vier prooidichtheden (2, 5, 10 en 20 vissen). De 24 behandelingscombinaties werden elk acht keer herhaald (192 proeven). Elke proef duurde gemiddeld circa 23,5 uur, zodat de totale consumptie over een volledige dag-nachtcyclus werd geïntegreerd. De snoeken wogen gemiddeld 51,8 g (n=24; bereik 34,5–79,2 g) en waren circa 165–220 mm lang. De dieren waren 10–13 dagen bij 9 °C geacclimatiseerd en kregen tussen opeenvolgende proeven een vastenperiode van vier dagen.
+
+Experiment 2 onderzocht consumptie bij twee prooidichtheden en vijf gradaties van waterbruining, bij een constante 9 °C. Dit is dus een tweede, afzonderlijke proefopzet; de uitkomsten mogen niet als één temperatuurreeks worden samengevoegd.
+
+### 112.2 Resultaat en interpretatie
+
+- De functionele respons was in vijf van de zes combinaties het best beschreven als Holling type II, maar alternatieve modellen kregen vaak vergelijkbare steun (ΔAIC ≤ 2). De exacte responsvorm is dus in de meeste condities onzeker.
+- Alleen bij 5 °C in helder water werd een koepelvormige type-IV-respons gevonden. De hogere consumptie trad vooral op bij een intermediaire prooidichtheid.
+- Temperatuur en waterkleur hadden over het algemeen zwakke effecten op aanvalssnelheid en maximale voedselopname. In helder water nam de geschatte aanvalssnelheid toe met temperatuur; in matig bruin water was die vrijwel temperatuuronafhankelijk. De betrouwbaarheidsintervallen overlapten grotendeels.
+- De geschatte maximale opname daalde licht met temperatuur in helder water en vertoonde geen consistente trend in bruin water; intervallen overlapten tussen behandelingen.
+- In het aparte bruiningsexperiment werd geen significant algemeen effect van waterkleur op prooiconsumptie gevonden, zelfs niet bij de extreemste bruining. Dit resultaat is contextgebonden aan de gebruikte soort, prooi, arena en experimentele omstandigheden.
+
+### 112.3 Bewijsclassificatie en grenzen
+
+**Gemeten eindpunten:** feeding_intensity, foraging_behavior en prey_selection (functionele respons/aanvalssnelheid en dagelijkse prooiconsumptie).
+
+**Bewijswaarde:** directe primaire voedings-/predatiedata voor snoek, een belangrijke aanvulling op de eerdere registrydekking. De studie nuanceert de eerdere formulering dat voor snoek geen bruikbare directe temperatuurgerelateerde voedingsmeting bekend was. De juiste conclusie is nu: er bestaat een directe, maar zeer contextgebonden winterstudie bij 0+ snoek; deze levert geen algemene volwassen veldcurve of universeel temperatuur-optimum.
+
+**Overdraagbaarheidsbeperkingen:**
+- 0+ snoek van circa 165–220 mm, geen volwassen sportvispopulatie.
+- Winterse temperatuurband van 5–13 °C en Zweedse prooipopulatie/context.
+- Voorn was meer dan 95% van de prooien, met kleine aantallen andere cypriniden.
+- Gecontroleerde arena's van circa 700 L, gestandaardiseerde vasten- en acclimatisatieperioden.
+- De prooiconsumptie integreerde circa 24 uur en is geen bewijs voor een specifiek schemeruur of een vaste tijdvakbonus.
+- De auteurs benadrukken onzekerheid in de meeste functionele-responsvormen en voorzichtigheid bij absolute aanvalssnelheden.
+- De uitkomst is predatie op levende vis; dit is niet rechtstreeks gelijk aan voedselopname van karperachtigen op hengelaas of aan hengelvangbaarheid.
+
+### 112.4 Gevolg voor de soortkaart en vervolgstap
+
+1. De snoekkaart in §110 moet niet langer stellen dat er geen directe temperatuurgerelateerde voedingsmeting is; zij moet deze 0+-winterstudie als beperkte directe dekking noemen.
+2. Deze bron mag niet worden gebruikt om de bestaande snoek-thermische profielcurve te fitten of een algemene 19–20 °C prior te bevestigen: het gemeten eindpunt, levensfase en temperatuurbereik zijn anders.
+3. De studie toont dat temperatuur × prooigedrag × waterkleur samen de functionele respons kunnen beïnvloeden. Dit ondersteunt gescheiden responscomponenten en interacties, niet een zelfstandige universele temperatuur- of troebelheidsbonus.
+4. De bron is in deze aanvulling als kandidaat voor registratie en verdere bronverificatie vastgelegd; de bestaande registry en approvedForPrediction-statussen zijn niet gewijzigd. Voor formele registry-opname moeten de metadata en uitkomstlabels nog in de registry-audit worden gecontroleerd.
+
+**Besluitstatus:** nieuwe primaire bron inhoudelijk beoordeeld en als beperkte directe snoek-voedingsdekking toegevoegd aan de audit; geen modelparameter, gewicht, bronvrijgave of runtime gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
