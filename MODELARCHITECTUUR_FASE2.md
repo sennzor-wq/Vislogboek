@@ -722,3 +722,10 @@ Bevestigd gedrag:
 - De oude profielwaarden blijven uitsluitend onderzoeks-/referentiecontext; de modelversie is verhoogd naar `v2.6-thermal-activity-disabled` en de prognosis-engine naar `1.2.0`.
 
 Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acceptatie blijft open totdat de volledige zevenpunts-crosswalk opnieuw is beoordeeld; Fase 3 blijft geblokkeerd.
+
+
+## 82. Aparte evidence-audit voor temperatuurafhankelijke tactiek
+
+De uitschakeling uit §81 betreft uitsluitend de thermische activiteitsscore en automatische tijdvakrangschikking. De afzonderlijke voorvoer-, habitat- en positioneringsengines blijven bestaan, maar gebruiken nog temperatuurafhankelijke drempels of contextregels. Vooral `prebaitEngine.ts` heeft actieve temperatuurbanden, suitabilitywaarden en gramadviezen.
+
+Voordat criterium 2 of Fase 2 wordt geaccepteerd, moet een read-only audit vaststellen of iedere dergelijke tactiekregel voldoende directe bronbasis en overdraagbaarheid heeft. Tot dat besluit blijven bestaande tactiekregels ongewijzigd; ze mogen niet worden gepresenteerd als gevalideerde thermische activiteit of vangstkans.
