@@ -845,3 +845,11 @@ Elke vangst is een eigen gebeurtenis binnen de sessie, zodat verschillende soort
 Vangsten ondersteunen achteraf tijdvak- en tactiekanalyses, maar zijn geen directe meting van voedingsactiviteit. Een vangst is mede afhankelijk van stek, aanwezigheid, inspanning, presentatie, aas en vangbaarheid; een nulvangst bewijst evenmin dat de vis niet actief was. Hengelprofiel/methode en gewicht mogen alleen in de responslaag worden gebruikt die zij werkelijk onderbouwen. Geen oorzaak-gevolgconclusie uit één vangst.
 
 Volledige regels, minimale flow en validatiegrenzen: FASE2_PROGNOSE_AUDIT.md §104. Dit contract behoudt de bestaande registratie-ervaring en activeert geen nieuwe runtimevelden.
+
+
+
+## 96. Factorrespons-hiërarchie en onzekerheidsprincipe
+
+De kandidaatprioriteit en soortspecifieke responsdekking zijn uitgewerkt in FASE2_PROGNOSE_AUDIT.md §105. Dit is een ontwerpvolgorde, geen universele procentuele weging. De directe dagelijkse voedings-/foerageerrespons heeft de hoogste kandidaatprioriteit na de bestaande voorlopige thermische prior; seizoen/fysiologie en licht/dielgedrag moduleren deze alleen waar de soortspecifieke respons dit ondersteunt. Watercondities en meteorologische factoren blijven context of soort-/locatiespecifieke kandidaten totdat directe respons en meetdekking bestaan. Habitat/aanwezigheid, hengelvangbaarheid en betrouwbaarheid blijven aparte lagen.
+
+De prognose moet de best verdedigbare verwachting geven met de gegevens die beschikbaar zijn. Ontbrekende invoer verlaagt dekking/zekerheid en wordt als onbekend behandeld, maar blokkeert niet automatisch de volledige score wanneer de overige gegevens een bruikbare inschatting ondersteunen. Geen fictieve neutrale waarde, verborgen herweging of ongefundeerde bonus. De gebruiker blijft één bestaande 1–10-score zien; tijdvakadvies gebruikt dezelfde doelrespons met tijdvakgebonden invoer. Geen runtimewijziging vóór normalisatie, coverage-regels, onafhankelijke evaluatie en chronologische vergelijking met de thermische baseline.

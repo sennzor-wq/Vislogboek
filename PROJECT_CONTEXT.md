@@ -1819,3 +1819,11 @@ De ontwerpregels en resterende modelstappen staan in `FASE2_PROGNOSE_AUDIT.md` �
 De gebruiker wil voorkomen dat vangstregistratie administratief wordt. De basis is: 'Vis gevangen' → soort selecteren → opslaan. Vangsttijd automatisch vastleggen en aanpasbaar houden. Vooraf ingesteld hengel-/methodeprofiel en gewicht zijn optioneel; voer, aas, presentatie en andere materiaalgegevens zijn geen verplichte velden.
 
 Vangstgebeurtenissen kunnen latere tijdvak- en tactiekanalyses voeden, maar mogen niet als directe voedingsactiviteitslabels worden behandeld. Vangstresultaten zijn mede afhankelijk van aanwezigheid, stek, inspanning en vangbaarheid; één vangst bewijst geen methode-effect en geen vangst bewijst geen inactiviteit. Zie FASE2_PROGNOSE_AUDIT.md §104. Bestaande flow eerst toetsen; geen administratieve uitbreiding of runtimewijziging zonder aantoonbare noodzaak.
+
+
+
+### Fase 2 — factorresponsmatrix en beste beschikbare verwachting (19 november 2026)
+
+De bestaande 1–10-score heeft nu een vastgesteld productdoel (§103), en de frictiearme vangstregistratie is vastgelegd in §104. §105 koppelt de geïnventariseerde factoren aan de biologische respons die ze werkelijk meten en ordent hun kandidaatprioriteit zonder universele percentages te verzinnen.
+
+Vislogboek is een informatiebron, geen glazen bol. Het model moet de best verdedigbare prognose maken met beschikbare gegevens. Ontbrekende informatie blijft zichtbaar als onbekend en verlaagt de zekerheid, maar maakt de hele prognose niet automatisch onbruikbaar. De bestaande ene 1–10-score blijft behouden; tijdvakadvies moet dezelfde soortspecifieke doelrespons gebruiken. Normalisatie, coverage-regels, interacties en onafhankelijke chronologische validatie zijn de volgende stappen. Fase 2 blijft open; Fase 3 geblokkeerd.

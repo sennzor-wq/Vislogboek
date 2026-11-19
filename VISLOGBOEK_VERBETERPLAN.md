@@ -797,3 +797,11 @@ Het gebruikersbesluit is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §103: de besta
 De vangstregistratie moet snel blijven: één actie 'Vis gevangen', vissoort kiezen en opslaan. Het tijdstip wordt automatisch ingevuld en blijft aanpasbaar. Een vooraf ingestelde hengel/methode en gewicht zijn optioneel. Geen verplichte voer-, aas-, presentatie- of materiaalregistratie.
 
 De volledige regels staan in FASE2_PROGNOSE_AUDIT.md §104. Vangsten zijn bruikbaar voor tijdvak- en tactiekanalyse, maar zijn geen directe meting van voedingsactiviteit of bewijs dat hengel/voer de oorzaak was. Een nulvangst bewijst evenmin dat vissen niet actief waren. Geen extra invoer of runtimewijziging voordat de bestaande flow tegen dit contract is gecontroleerd.
+
+
+
+### Fase 2 — factorresponsmatrix en onzekerheidsprincipe (19 november 2026)
+
+Het productdoel van de bestaande 1–10-score is vastgesteld in FASE2_PROGNOSE_AUDIT.md §103; de minimale vangstregistratie in §104. De factor-naar-doelresponsmatrix en kandidaatprioriteit staan in §105. De eerdere blocker om de doelrespons nog te definiëren is daarmee vervallen.
+
+De volgende ontwerpstap is normalisatie en coverage-/onzekerheidsbehandeling: de prognose moet de best verdedigbare verwachting maken met beschikbare gegevens. Ontbrekende factoren blijven expliciet onbekend en verlagen de zekerheid, maar blokkeren niet automatisch een bruikbare prognose. Geen fictieve neutrale waarden, verborgen herweging of willekeurige gewichten. Dagscore en tijdvakadvies blijven één samenhangende doelrespons; geen tweede score. Geen runtimewijziging en Fase 3 blijft geblokkeerd tot alle Fase-2-acceptatiecriteria zijn behaald.
