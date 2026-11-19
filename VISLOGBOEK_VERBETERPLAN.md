@@ -814,3 +814,24 @@ De ontwerpuitwerking staat in `FASE2_PROGNOSE_AUDIT.md` §106 en is samengevat i
 Gemeten, geschatte, proxy/contextuele, ontbrekende, ongeldige, tegenstrijdige en niet-toepasselijke invoer worden onderscheiden. Onbekend wordt niet neutraal ingevuld en resterende gewichten worden niet stilzwijgend herverdeeld. Een gedeeltelijke prognose blijft mogelijk wanneer de betreffende factorcombinatie gevalideerd is; zonder bruikbare thermische basis en zonder andere toegelaten responsinformatie blijft de huidige uitkomst N/B.
 
 **Nog open:** responsfuncties/referentieankers per soort invullen, app-invoer aan status koppelen, validatie per ontbrekend-data-patroon bepalen, onafhankelijke labels/metrics afronden en pas daarna kandidaataggregatie chronologisch vergelijken met de thermische baseline. Geen runtimewijziging, geen nieuwe score of verplichte gebruikersinvoer. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — technische thermische-baseline-audit (19 november 2026)
+
+De exacte huidige soortparameters, Gaussische responsvorm, efficiëntievloer en 1–10-mapping zijn geauditeerd in `FASE2_PROGNOSE_AUDIT.md` §107; architectuursamenvatting in `MODELARCHITECTUUR_FASE2.md` §98. De huidige curve is een voorlopige softwareprior, geen gevalideerde directe voedselopname-/activiteitscurve. Door de efficiëntievloer 0,08 komt de theoretische minimumscore op circa 2,1/10. Gemeten, geschatte en onbekende watertemperatuur zijn onderscheiden; de interne placeholder bij onbekende invoer is geen geldige score of trainingslabel.
+
+**Nog open:** parameterherkomst per soort verifiëren, statusoverdracht naar snapshots/evaluatie controleren, passend thermisch responslabel vastleggen en scoreankers onafhankelijk toetsen. Geen runtimewijziging of scoreaanpassing. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — herkomst thermische parameters gecontroleerd (19 november 2026)
+
+De registry-audit in `FASE2_PROGNOSE_AUDIT.md` §108 vond geen directe thermische-efficiëntie-/optimumrespons die de exacte huidige profielcurves valideert. Vijf soortgebonden records meten metabolisme/aerobe scope (karper, snoek, baars, brasem/blankvoorn en snoekbaars); alle blijven niet-goedgekeurd en zijn geen directe dagelijkse voedselopnamecurves. De huidige parameters blijven voorlopige softwareprioren.
+
+**Nog open:** per soort de directe temperatuur-voedselopnamebronnen onderscheiden van indirecte fysiologische context, inclusief levensfase, acclimatisatie, watertype en geografische overdraagbaarheid. Geen parameter of runtime gewijzigd; Fase 2 blijft open.
+
+
+### Fase 2 — directe temperatuur-/voedingsrespons per soort in kaart gebracht (19 november 2026)
+
+De relevante directe voedingsstudies en hun overdraagbaarheidsgrenzen staan in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §100). Karper, zeelt en snoekbaars hebben contextgebonden directe voedselopnamebronnen; blankvoorn heeft verweven temperatuur-/licht-/seizoensbewijs; voor snoek en meerval zijn de beschikbare records geen bruikbare thermische voedingscurve. Dit bevestigt dat geen universele Gaussische curve of geleende soortparameters mogen worden aangenomen.
+
+**Nog open:** per soort responskaarten maken, exacte responsvorm en referentie alleen kiezen waar de bron dat ondersteunt, en voldoende datadekking/validatie bepalen. Geen bron goedgekeurd en geen runtimeparameter gewijzigd.

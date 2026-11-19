@@ -4383,3 +4383,157 @@ Deze sectie legt de normalisatie- en onzekerheidsprincipes vast als ontwerpvoors
 6. Pas daarna een kandidaataggregatie ontwerpen en chronologisch vergelijken met de thermische baseline.
 
 **Besluitstatus:** ontwerpprincipes vastgelegd voor verdere audit; nog niet formeel geaccepteerd als definitief modelontwerp. Geen runtimecode, gewichten, scoremapping of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 107. Technische normalisatie-audit van de huidige thermische prior (19 november 2026)
+
+**Doel:** de bestaande numerieke baseline exact beschrijven voordat een kandidaatnormalisatie of kalibratie wordt ontworpen. Dit is een code-audit; er worden geen parameters of runtime-uitkomsten gewijzigd.
+
+### 107.1 Huidige berekening
+
+De huidige keten in `src/services/fishProfiles.ts` en `src/services/prognosisEngine.ts` is:
+
+1. Selecteer de profielparameters voor de gekozen soort.
+2. Gebruik de gemeten watertemperatuur als die beschikbaar en geldig is; anders de door `waterThermalEngine` geleverde schatting.
+3. Bereken een asymmetrische Gaussische respons:
+   `raw = exp(-((T - optimum)^2) / (2 × width^2))`, waarbij `width` de koude of warme breedte is afhankelijk van de positie ten opzichte van het optimum.
+4. Begrens de respons op `0.08–1.00`.
+5. Zet om naar de bestaande score met `round_0.1(clamp(1 + 9 × efficiency^0.85, 1, 10))`.
+6. De dagscore is het gemiddelde van de vier tijdvak-scores. In de huidige code gebruiken alle tijdvakken dezelfde thermische respons; andere factoren hebben geen numerieke invloed op deze score.
+
+Dit is een deterministische profieltransformatie, geen empirisch gekalibreerde relatie tussen watertemperatuur en dagelijkse voedselopname of vangst.
+
+### 107.2 Exacte profielparameters in de huidige code
+
+| Soortprofiel | Optimum (°C) | Koude breedte | Warme breedte |
+|---|---:|---:|---:|
+| Karper | 21,0 | 5,8 | 5,5 |
+| Brasem | 17,5 | 6,2 | 5,8 |
+| Snoek | 12,5 | 6,5 | 6,0 |
+| Baars | 16,5 | 6,0 | 5,5 |
+| Voorn | 15,0 | 6,5 | 6,0 |
+| Zeelt | 20,5 | 5,0 | 5,0 |
+| Snoekbaars | 15,0 | 6,2 | 6,0 |
+| Meerval | 22,0 | 5,0 | 5,0 |
+| Roofblei | 18,5 | 5,5 | 5,0 |
+| Overig | 16,5 | 6,0 | 5,5 |
+
+De waarden zijn expliciet als voorlopige modelprioren gedocumenteerd. Ze zijn geen gemeten soortoptima, fysiologische tolerantiegrenzen of gevalideerde Nederlandse veldcurves. De tabel registreert wat de code nu doet; zij is geen goedkeuring van de parameters.
+
+### 107.3 Belangrijke eigenschappen van de scoremapping
+
+- Bij het profieloptimum is de thermische efficiëntie 1 en de score 10.
+- De efficiëntie wordt onderaan afgekapt op 0,08. Daardoor is de theoretische minimumscore van de huidige mapping ongeveer 2,1/10, niet 1,0/10. De bestaande schaal wordt dus niet volledig benut.
+- De scoremapping is een monotone machtsfunctie van de thermische efficiëntie. De exponent 0,85 en de ondergrens 0,08 zijn softwarekeuzes; in de geraadpleegde code is geen empirische kalibratie ervan aangetoond.
+- De huidige profielparameters en mapping mogen daarom niet worden geïnterpreteerd als gekalibreerde percentages biologische activiteit. De factorbeschrijving die de efficiëntie als percentage weergeeft, is een relatieve modelschaal en geen gemeten percentage voedselopname of activiteit.
+- Een nieuwe kalibratie mag niet alleen de outputspreiding maximaliseren of de score kunstmatig tot 1–10 oprekken. De betekenis moet met vooraf gedefinieerde responsankers en onafhankelijke gegevens worden onderbouwd.
+
+### 107.4 Temperatuurstatus en ontbrekende invoer in de huidige keten
+
+De code onderscheidt:
+- **Gemeten:** een expliciet ingevoerde, geldige watertemperatuur; deze wordt als actuele meting behandeld.
+- **Geschat:** een bruikbare temperatuur uit een historische meting als anker, thermische ontwikkeling/weerdekking of historisch seizoensprofiel. De bronstatus, ankerleeftijd, onzekerheid en eventuele temperatuurrange worden meegedragen.
+- **Onbekend:** geen bruikbare gemeten of geschatte watertemperatuur. Luchttemperatuur wordt niet als vervanging gebruikt.
+
+Bij een onbekende temperatuur gebruikt de interne berekening momenteel een placeholder-efficiëntie van 0,5 om tussenstappen te kunnen uitvoeren. Tegelijk wordt `activityScoreAvailable=false` gezet; de snapshot bewaart `predictedActivityScore=null` en de dagscore wordt niet als beschikbare voorspelling gepresenteerd (de interne fallbackwaarde 5,0 is geen geldige prognose). Dit onderscheid moet in toekomstige code behouden blijven: placeholderwaarden mogen nooit als gemeten, neutrale of voorspellende factorbijdrage in een modelscore of traininglabel terechtkomen.
+
+Een geschatte temperatuur is niet gelijk aan een meting. De huidige code berekent voor een beschikbare geschatte temperatuur ook een indicatieve scoreband op basis van de temperatuurrange. Die band omvat niet de onzekerheid van de soortcurve zelf en is expliciet geen statistisch betrouwbaarheidsinterval.
+
+### 107.5 Consequenties voor normalisatie en latere kalibratie
+
+De huidige thermische prior heeft twee verschillende onzekerheidsbronnen die niet samengevoegd mogen worden:
+
+1. **Invoer-/temperatuuronzekerheid:** hoe goed representeert de gemeten of geschatte watertemperatuur de doeldag, stek, diepte en relevante watermassa?
+2. **Respons-/parameteronzekerheid:** hoe goed zijn optimum, koude/warme breedte, responsvorm, ondergrens en exponent onderbouwd voor de doelsoort, levensfase en watertype?
+
+Een nauwe temperatuurrange betekent dus niet automatisch dat de biologische responscurve nauwkeurig bekend is. Latere kalibratie moet beide afzonderlijk rapporteren en evalueren.
+
+De thermische prior blijft de historische baseline waarmee een kandidaatmodel chronologisch wordt vergeleken. Een eventuele toekomstige herkalibratie van de thermische prior zelf moet als afzonderlijke modelwijziging worden geëvalueerd; zij mag niet tegelijk met nieuwe factoren worden aangepast zonder ablatietest, omdat anders niet zichtbaar is welke wijziging de verbetering veroorzaakte.
+
+### 107.6 Nog open
+
+1. Verifieer per soort de herkomst en toepassingscontext van de huidige optimum-/breedteparameters; ontbrekende directe curvegegevens blijven expliciet onbekend.
+2. Controleer de precieze statusoverdracht van gemeten/geschatte/onbekende temperatuur naar snapshots en historische evaluaties, zodat placeholders niet als trainingsdata kunnen worden gelezen.
+3. Definieer een onafhankelijke thermische responslabel/metric die past bij het doel van de curve; groei, metabolisme, aerobe scope en voedselopname blijven verschillende eindpunten.
+4. Ontwerp vaste scoreankers en toets de huidige ondergrens/exponent tegen die labels, zonder de huidige runtime te wijzigen.
+5. Pas daarna de directe voedingsrespons en eventuele extra factoren normaliseren en kandidaatmodellen vergelijken met de thermische baseline.
+
+**Besluitstatus:** huidige thermische normalisatie exact in kaart gebracht; wetenschappelijke kalibratie en scoremapping nog niet geaccepteerd. Geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 108. Bronherkomst van thermische profielparameters (19 november 2026)
+
+**Onderzoeksvraag:** onderbouwen de bestaande soortprofielbronnen de exacte `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` in `fishProfiles.ts`?
+
+### 108.1 Uitkomst van de registry-audit
+
+De 86 records in `src/services/researchRegistry.ts` bevatten geen afzonderlijk gemeten of gevalideerde uitkomst `thermal_efficiency` of `thermal_optimum`. De registry kent als relevante fysiologische uitkomsten onder meer `metabolic_rate` en `aerobic_scope`, maar deze zijn niet gelijk aan dagelijkse voedselopname, foerageeractiviteit of hengelvangbaarheid.
+
+Vijf soortgebonden records bevatten temperatuurgerelateerd metabolisme en/of aerobe scope:
+
+| Soort(en) | Geregistreerde respons | Wat de bron wel ondersteunt | Waarom dit de huidige profielcurve niet valideert |
+|---|---|---|---|
+| Karper | Metabolisme | Acute zuurstofopname-/hartslag-/ventilatierespons na acclimatisatie op 19 °C | Geen volledige langetermijncurve of dagelijkse voedselopnamecurve |
+| Snoek | Metabolisme | Onderhoudsmetabolisme bij 2 en 14 °C | Twee temperatuurpunten; geen asymmetrisch optimum of dagelijkse jacht-/voedingsrespons |
+| Baars | Metabolisme, aerobe scope | Meerdere acclimatisatietemperaturen en lichaamsgrootte-afhankelijke aerobe-scope-/voorkeursrespons | Lichaamsgrootte en levensfase beïnvloeden uitkomst; aerobe scope is geen voedselopname |
+| Brasem en blankvoorn | Metabolisme | Zuurstofverbruik over 5–23 °C en brede lichaamsmassaklasse | Metabolisme/Q10 is niet de dagelijkse voedingsintensiteit of vangstrespons |
+| Snoekbaars | Metabolisme, aerobe scope | Volwassen kweekvis; aerobe-scopebereik en acclimatisatiecontext | Kweek-/levensfasecontext; geen dagelijkse voedselopnamecurve of veldvangstcurve |
+
+Alle vijf records hebben `approvedForPrediction: false`. Ook waar een bron een optimum of temperatuurafhankelijkheid voor metabolisme/aerobe scope rapporteert, mag dat optimum niet worden overgenomen als optimum voor dagelijkse activiteit of voedselopname.
+
+Voor zeelt, meerval, roofblei en het generieke profiel `Overig` is in deze vijf records geen soortspecifieke metabole/aerobe-scopecurve geregistreerd. Dit zegt alleen iets over de huidige registry, niet dat er wereldwijd geen relevante studie bestaat.
+
+### 108.2 Conclusie voor de huidige parameters
+
+De waarden in §107 zijn op dit moment softwarematige prioren. De in `fishProfiles.ts` opgenomen referenties ondersteunen biologische context, maar de registry-audit toont geen directe bron die de exacte combinatie van optimum, koude breedte en warme breedte per soort valideert. Ook een temperatuurgerelateerde voedingsstudie met slechts twee behandelingen of een contextgebonden laboratorium-/kweekexperiment is onvoldoende om de volledige Gaussische curve vast te stellen.
+
+Daarom:
+- Geen van de huidige soortcurves wordt op basis van alleen metabolisme, aerobe scope, groei of algemene reviewliteratuur als gevalideerd aangemerkt.
+- Een bron die directe voedingsintensiteit meet kan een voedingsrespons onderbouwen, maar alleen binnen haar onderzochte soort, levensfase, temperatuurbehandelingen en context. Zij valideert niet automatisch de huidige thermische efficiëntiecurve.
+- De huidige parameters blijven bruikbaar als transparante tijdelijke baseline voor vergelijking, maar mogen niet als wetenschappelijk gekalibreerde biologische waarheid worden beschreven.
+- De toelatingsstatus van alle registry-records blijft ongewijzigd; geen bron is door deze audit goedgekeurd.
+
+### 108.3 Benodigde vervolgstap
+
+Maak per soort een parameterherkomstkaart met drie afzonderlijke vragen:
+
+1. Welke bron meet direct temperatuurafhankelijke voedselopname of foerageerintensiteit?
+2. Welke bron meet alleen metabolisme/aerobe scope/groei of temperatuurvoorkeur, en mag dus uitsluitend als indirecte biologische context dienen?
+3. Welke temperatuurbehandelingen, levensfasen, acclimatisatieduur, watertype en geografische context zijn daadwerkelijk onderzocht?
+
+Als geen passende directe curve beschikbaar is, blijft het profiel een expliciet voorlopige prior en moet onzekerheid over de responsparameter worden behouden. Er worden geen ontbrekende optima uit verwante soorten ingevuld en geen numerieke curveparameters afgeleid uit een ander biologisch eindpunt.
+
+**Besluitstatus:** exacte bronvalidatie voor huidige profielparameters is niet aangetoond. Geen wijziging van parameters, brongoedkeuring of runtime. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 109. Directe temperatuur-/voedingsrespons: soortdekking en overdraagbaarheid (19 november 2026)
+
+Deze aanvulling koppelt temperatuurgerelateerde registrybronnen aan het juiste gemeten eindpunt. Het is nadrukkelijk geen parameterfit en geen goedkeuring voor numerieke toepassing.
+
+| Soort | Direct gemeten voedings-/voedselopnamebewijs in register | Context en beperking | Gevolg voor de huidige thermische curve |
+|---|---|---|---|
+| Karper | Chen et al. (2012): voedselopname bij 4–34 °C; gerapporteerde piek rond 28 °C en lagere opname bij 34 °C. | Aziatische ondersoort, twee grootteklassen, gecontroleerde voeropzet; volledige methode/acclimatisatie nog te controleren. | Relevante directe voedingsrespons, maar niet automatisch de huidige 21 °C profielpiek of veldcurve. |
+| Karper | Bauer & Schlott (2006): voeding stopte tijdens een ernstige winterse zuurstofcrisis. | Eén aquacultuurvijver en uitzonderlijke hypoxie; geen normale dagelijkse temperatuurcurve of universele zuurstofdrempel. | Ondersteunt zuurstof als afzonderlijke relevante factor in extreme context; niet als temperatuurcurve. |
+| Zeelt | Benjamin et al. (2026): lagere maximale voedselopname bij 25 °C dan bij 18 °C. | Twee temperatuurbehandelingen, invasieve populatie in St. Lawrence-systeem; geen volledig optimum. | Waarschuwt tegen de aanname dat meer warmte altijd meer voeding geeft; valideert de 20,5 °C prior niet. |
+| Snoekbaars | Malinovskyi et al. (2020): prooiconsumptie bij 4,5, 8,5 en 12,5 °C nam toe over die behandelingen. | Gekweekte broedvis in winter-/voorpaaiperiode; sekse, reproductiestatus en prooigrootte relevant. | Directe voedingsrespons in beperkte context; geen algemene volwassen veldcurve of bevestiging van 15 °C optimum. |
+| Blankvoorn | Hautala (2008): veldwaarneming van seizoensgebonden verschuiving van dag- naar schemer-/nachtvoeding bij afkoeling. | Boreaal meer, ondiepe verlichte litoraalzone; temperatuur, licht en predatierisico verweven. | Ondersteunt mogelijke temperatuur × licht × seizoen-interactie; geen geïsoleerde thermische optimumcurve of vaste tijdvakbonus. |
+| Snoek | Yazıcıoğlu et al. (2025): seizoens-maagvullingsindex en temperatuurcorrelatie. | Temperatuurcorrelatie niet significant; maaginhoud is momentopname en geen jachtintensiteit. | Geen numerieke temperatuurrespons afleiden. |
+| Meerval | Boujard (1995): sterk nachtelijk voerautomaatritme. | Gecontroleerde voederopstelling; temperatuurcontext in beschikbare samenvatting niet vastgesteld. | Ondersteunt diel-voedingsonderzoek, niet een temperatuurcurve of veldvangstbonus. |
+| Meerval | Yazici et al. (2025): seizoensvariatie in maagvulling. | Eén diep Anatolisch stuwmeer; mogelijke verklaringen zijn verweven; maagvulling is geen vangbaarheid. | Alleen context; geen dagelijkse thermische voedingscurve. |
+
+De registry bevat daarnaast metabole/aerobe-scopegegevens voor karper, snoek, baars, brasem/blankvoorn en snoekbaars (§108). Die fysiologische eindpunten blijven gescheiden van de directe voedingsstudies hierboven. Er is in deze inventaris geen rechtvaardiging om de bestaande uniforme Gaussische vorm of exacte optimum-/breedteparameters te laten volgen uit één van deze uiteenlopende responsen.
+
+### 109.1 Gevolg voor responsnormalisatie
+
+- De directe voedingsstudies laten verschillende responsvormen en contexten zien. Een universele Gaussische curve per soort is daarom geen vanzelfsprekende keuze.
+- De bron bij zeelt laat zien dat een hogere temperatuur niet automatisch een hogere voedingsrespons betekent; de respons kan tussen twee onderzochte temperaturen al afnemen.
+- De karper- en snoekbaarsstudies zijn directe voedingsmetingen, maar contextgebonden. De uitkomsten mogen niet rechtstreeks worden overgezet naar Nederlandse wilde populaties zonder overdraagbaarheidsbeoordeling.
+- Bij blankvoorn zijn temperatuur, licht en seizoen verweven. Zonder onafhankelijke scheiding mag dezelfde variatie niet als drie afzonderlijke bijdragen worden opgeteld.
+- Voor soorten zonder passende directe temperatuur-voedingscurve blijft de thermische profielcurve een voorlopige prior. Geen curveparameters lenen van een andere soort.
+- Alle bronnen blijven in de registry op hun bestaande status; deze audit wijzigt `approvedForPrediction` niet.
+
+### 109.2 Volgende stap
+
+Per soort een responskaart maken waarin de directe voedingsdata, metabole/aerobe-scopecontext en bestaande profielprior afzonderlijk worden vastgelegd. Alleen als de bron voldoende temperatuurbehandelingen, levensfase, acclimatisatie en passende doelrespons bevat, kan zij kandidaat zijn voor een responsfunctie. Anders dient zij uitsluitend als context of kwalitatieve grens. Vervolgens moet worden vastgesteld welke soorten genoeg bewijs hebben voor een soortspecifieke kandidaatcurve en welke voorlopig op de bestaande baseline blijven.
+
+**Besluitstatus:** directe temperatuur-/voedingsrespons per relevante registrybron onderscheiden; geen bron goedgekeurd en geen curveparameter gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
