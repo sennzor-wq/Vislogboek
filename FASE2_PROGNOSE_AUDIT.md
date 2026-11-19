@@ -4120,3 +4120,47 @@ De score wordt uiteindelijk opgebouwd uit relevante, voldoende onderbouwde facto
 7. Pas pas na formele Fase-2-acceptatie de runtimeberekening aan; behoud UI en bestaande invoerflow.
 
 **Status:** het productdoel en de gebruikersweergave zijn nu vastgesteld. De numerieke normalisatie, ontbrekende-data-regels, gewichten, interacties en validatie-uitkomsten zijn nog niet vastgesteld. De huidige runtime blijft ongewijzigd; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 104. Minimaal vangstregistratiecontract en leerwaarde voor prognose/VisCoach (19 november 2026)
+
+**Gebruikersbesluit:** een vangst registreren mag geen administratieve taak worden. De primaire handeling blijft één eenvoudige actie: **'Vis gevangen'**. Daarna kiest de gebruiker de vissoort. De vangsttijd wordt automatisch vastgelegd op het moment dat het vangstformulier wordt geopend/geregistreerd en blijft aanpasbaar. Een vooraf ingestelde hengel/methode mag optioneel worden gekozen; gewicht is optioneel. Geen andere velden zijn voor deze registratie verplicht.
+
+### 104.1 Minimale gebruikersflow
+
+1. Gebruiker kiest 'Vis gevangen'.
+2. Gebruiker selecteert de vissoort (verplicht).
+3. Tijdstip wordt automatisch voorgesteld en is aanpasbaar.
+4. Een vooraf ingestelde hengel-/methodeconfiguratie kan optioneel worden geselecteerd.
+5. Gewicht kan optioneel worden toegevoegd.
+6. Opslaan moet zonder verdere vragen kunnen.
+
+Geen verplichte invoer van aas, voer, presentatie, montage, diepte, weersobservaties of materiaalgegevens. Deze informatie mag niet stilzwijgend worden afgeleid of verplicht worden gemaakt. Als de app al een sessiecontext of hengelvoorkeur kent, mag die alleen als niet-bindende standaard worden aangeboden; de gebruiker moet de vangst zonder die keuze kunnen opslaan.
+
+### 104.2 Gegevensmodel en interpretatie
+
+- Iedere vangst is een afzonderlijke gebeurtenis die aan de sessie is gekoppeld. Daardoor kunnen tijdstip, soort, optioneel hengelprofiel/methode en optioneel gewicht per vangst verschillen.
+- Een hengelprofiel is een verwijzing naar een vooraf ingestelde configuratie, geen nieuwe uitgebreide materiaalenquête. Het moet optioneel blijven en mag niet worden verward met een bewezen aas-/voer- of presentatie-effect.
+- Ontbrekende optionele gegevens blijven null/onbekend; geen standaardgewicht, standaardmethode of fictieve voerkeuze invullen.
+- Bestaande vangstregistraties en historische sessies blijven compatibel; geen migratie die oude records kunstmatig aanvult.
+- Geen extra registratie van 'geen beet' of 'geen vis' afdwingen. Een sessie zonder vangst is een waargenomen sessie-uitkomst, niet het bewijs dat vissen niet actief waren of niet aten.
+
+### 104.3 Gebruik voor prognose en VisCoach
+
+De eenvoudige vangstgebeurtenissen leveren waardevolle, maar begrensde informatie:
+- Soort + tijdstip + sessiecontext kunnen helpen patronen in vangsttijdstippen en succesvolle tijdvakken te analyseren.
+- Optioneel hengelprofiel/methode kan later tactiek- en vangbaarheidsanalyses ondersteunen, mits voldoende vergelijkbare sessies bestaan.
+- Optioneel gewicht kan vangstgrootte-/populatiecontext ondersteunen, maar is geen directe maat voor dagelijkse voedingsactiviteit.
+- De VisCoach mag geregistreerde vangsten gebruiken om praktische adviezen te contextualiseren; hij mag niet concluderen dat een methode of hengel de oorzaak was op basis van één vangst.
+
+Een vangst is geen zuivere meting van biologische voedselopname: stekkeuze, aanwezigheid, hengelvangbaarheid, aas/presentatie, visserijdruk en inspanning beïnvloeden of activiteit in een vangst wordt omgezet. Daarom blijven vangstuitkomsten gescheiden van directe labels voor voedingsactiviteit. Als aanbeten/voedselopname niet expliciet zijn geregistreerd, mogen die niet uit een vangst of nulvangst worden verzonnen.
+
+### 104.4 Ontwerpgrenzen
+
+- Minimaliseer invoerfrictie boven volledigheid van data; alleen vissoort is verplicht binnen de vangstregistratie.
+- Geen uitbreiding van de standaardvangstflow met voer-, aas- of presentatievelden.
+- Geen nieuwe prognosescore of extra gebruikersvragen.
+- Gebruik optionele data alleen voor de responslaag die ze daadwerkelijk kunnen onderbouwen.
+- Eventuele latere uitbreiding vereist aantoonbare gebruikerswaarde en mag de snelle basisregistratie niet blokkeren.
+
+**Status:** dit is het vastgestelde product-/registratiecontract voor verdere audit en ontwerp. Het schrijft geen runtimewijziging voor. Bestaande registratiefunctionaliteit moet eerst tegen dit contract worden gecontroleerd; alleen aantoonbare afwijkingen zijn aanleiding voor latere implementatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

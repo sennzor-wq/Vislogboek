@@ -790,3 +790,10 @@ De geconsolideerde factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT
 Het gebruikersbesluit is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §103: de bestaande cijferschaal, scoreweergave en één totaalcijfer blijven behouden. De score betekent biologische activiteit- en voedings-/foerageerpotentie van de doelsoort, niet persoonlijke vangstkans, stekaanwezigheid of vangbaarheid. De gebruiker krijgt een korte begrijpelijke onderbouwing; technische details en onzekerheid blijven in de verdiepende uitleg.
 
 **Nog open vóór implementatie:** factor-specifieke normalisatie, stabiele vertaling naar 1–10, missing-data-/coverage-regels, dubbele-tellingpreventie, onderbouwde interacties/gewichten en chronologische validatie tegen de thermische baseline. Geen zichtbare deelscores, geen tweede score en geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — minimaal vangstregistratiecontract (19 november 2026)
+
+De vangstregistratie moet snel blijven: één actie 'Vis gevangen', vissoort kiezen en opslaan. Het tijdstip wordt automatisch ingevuld en blijft aanpasbaar. Een vooraf ingestelde hengel/methode en gewicht zijn optioneel. Geen verplichte voer-, aas-, presentatie- of materiaalregistratie.
+
+De volledige regels staan in FASE2_PROGNOSE_AUDIT.md §104. Vangsten zijn bruikbaar voor tijdvak- en tactiekanalyse, maar zijn geen directe meting van voedingsactiviteit of bewijs dat hengel/voer de oorzaak was. Een nulvangst bewijst evenmin dat vissen niet actief waren. Geen extra invoer of runtimewijziging voordat de bestaande flow tegen dit contract is gecontroleerd.
