@@ -1745,3 +1745,8 @@ Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acce
 ### Open vervolgcontrole na optie B
 
 De thermische activiteitsscore is via PR #144 uitgeschakeld. Een afzonderlijke read-only audit moet nog de temperatuurafhankelijke tactiekregels beoordelen die niet tot die score behoren, met name de temperatuurbanden en hoeveelheidsadviezen in `prebaitEngine.ts`, plus de thermische contextregels in habitat- en positioneringsadvies. Geen van die regels wordt in deze vervolgstap stilzwijgend aangepast. Criterium 2 blijft open tot de overdraagbaarheid en bronbasis hiervan expliciet zijn beoordeeld.
+
+
+### Read-only audit voorvoer en temperatuurafhankelijke tactiek
+
+De voorvoerengine gebruikt nog vaste temperatuurbanden, interne suitabilityscore, soortfactoren en gramadviezen. De bestaande bronnen ondersteunen temperatuur als algemene voedingscontext, maar valideren niet de exacte grenzen, hoeveelheden of soortfactoren. Alle 71 registry-records zijn niet goedgekeurd voor numerieke voorspelling; de voorvoerengine gebruikt die goedkeuringsstatus niet als gate. Ook enkele habitat-/positioneringsteksten gebruiken soortspecifieke temperatuurgrenzen die stelliger kunnen zijn dan de bronbasis. De volledige audit staat in `FASE2_PROGNOSE_AUDIT.md` §92. Geen runtimewijziging gedaan; expliciet besluit over behoud als heuristiek versus uitschakelen van numerieke grammen/scores is nodig.
