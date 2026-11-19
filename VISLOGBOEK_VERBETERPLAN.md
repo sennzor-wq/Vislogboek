@@ -670,3 +670,12 @@ De resterende factorbeoordeling is uitgevoerd en vastgelegd in `FASE2_PROGNOSE_A
 - Alle 71 research-registryrecords blijven niet-goedgekeurd voor directe numerieke voorspelling. Geen scores, parameters, drempels of tijdvakbonussen gewijzigd.
 
 **Volgende hoofdspoorstap:** de formele Fase-2-acceptatiecrosswalk actualiseren en het expliciete ontwerpbesluit over de voorlopige thermische priors uit audit §86 voorbereiden. Daarna pas een kandidaatmodel-/chronologisch validatieprotocol afronden. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
+
+
+### Fase 2 — actuele acceptatiecrosswalk en resterende ontwerpbeslissing (19 november 2026)
+
+De zeven formele criteria zijn opnieuw beoordeeld in `FASE2_PROGNOSE_AUDIT.md` §89. De factorinventaris uit §88 is afgerond voor deze onderzoeksronde; geen aanvullende omgevingsfactor is numeriek geactiveerd.
+
+**Status:** technische borging, snapshot-/Brier-keten, tijdvakmetadata en huidige VisCoach-invoerflow zijn voor de huidige scope gerealiseerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies. De formele blocker blijft criterium 2: de exacte parameters van de bestaande thermische curves zijn niet onafhankelijk gevalideerd.
+
+**Volgende stap:** expliciet ontwerpbesluit voorbereiden over (A) thermische curves transparant behouden als voorlopige mechanistische prior, of (B) numerieke thermische activiteit uitschakelen voor soorten zonder passende directe fysiologische basis. Dit besluit verandert niet automatisch runtimegedrag. Fase 2 blijft open; fase 3 blijft geblokkeerd.
