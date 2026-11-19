@@ -718,7 +718,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                   {activeDayProg.activityScoreAvailable === false ? (
                     <div className="text-sm font-bold text-slate-300">Niet actief — modelparameters niet gevalideerd</div>
-                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && activeDayProg.bestTimeSlot !== 'Geen betekenisvol onderscheid' ? (
+                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && activeDayProg.bestTimeSlot !== 'Geen betekenisvol onderscheid' && activeDayProg.bestTimeSlot !== 'Niet beschikbaar' ? (
                     <div>
                       <div className="text-xl sm:text-2xl font-black text-white">
                         {activeDayProg.bestTimeSlot}
