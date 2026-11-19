@@ -1697,3 +1697,13 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - 'Start sessie op dit moment' is alleen beschikbaar bij de prognose voor vandaag en bewaart het actuele Amsterdamse starttijdvak in de snapshot; het gebruikt niet langer het latere thermisch gunstigste tijdvak als startmetadata.
 - VisCoach blijft de gekozen sessietijd volgen; bij sessies over meerdere tijdvakken wordt geen globale dagwinnaar opgedrongen.
 - Geen thermische berekening, score, parameter of vangstkans gewijzigd. Zie FASE2_PROGNOSE_AUDIT.md §87.
+
+### Fase 2 — resterende omgevingsfactoren beoordeeld (19 november 2026)
+
+- De factorinventaris voor wind, regen, bewolking/licht, opgeloste zuurstof, stroming/afvoer, luchtdruk en troebelheid is vastgelegd in FASE2_PROGNOSE_AUDIT.md §88.
+- Wind blijft praktische positionerings-/presentatiecontext, geen zelfstandige biologische of vangstkansbonus.
+- Regen en bewolking hebben onvoldoende direct en overdraagbaar bewijs voor dagelijkse voeding of hengelvangst; paaigerelateerde migratie wordt niet als dagelijkse activiteit geïnterpreteerd.
+- Zuurstof en stroming kunnen biologisch relevant zijn, maar ontbreken als betrouwbare actuele lokale invoer. Zonder meting blijven ze onbekend.
+- Druk en troebelheid blijven contextafhankelijk; geen universele numerieke respons geactiveerd.
+- Alle research-registryrecords blijven `approvedForPrediction:false`. Geen score, gewicht, drempel, tijdvakbonus of catchability-regel gewijzigd.
+- De resterende factorinventaris is voor deze ronde beoordeeld. Volgende stap: formele acceptatiecrosswalk actualiseren en het ontwerpbesluit over de voorlopige thermische priors uit §86 afhandelen. Fase 2 blijft open; fase 3 blijft geblokkeerd.
