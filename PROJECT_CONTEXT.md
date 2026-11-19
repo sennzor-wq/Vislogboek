@@ -1798,3 +1798,10 @@ De huidige dagscore wordt numeriek alleen thermisch bepaald. De gewenste factorb
 ### Fase 2 — actuele soort-/responsdekking (19 november 2026)
 
 De exacte registrytelling per soort en gemeten respons staat in `FASE2_PROGNOSE_AUDIT.md` §82. Het register bevat 86 unieke records, alle niet-goedgekeurd voor directe numerieke voorspelling. De responsen voedingsintensiteit, voedingsritme, prooikeuze, beweging, habitat, vangbaarheid, fysiologie en groei blijven afzonderlijk. De volgende stap is de doelrespons van de bestaande dagscore afbakenen en de factor-/datadekkingsmatrix sluiten; daarna pas de aggregatie ontwerpen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — factorinventaris gesloten (19 november 2026)
+
+De volledige factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` §102. Per factor zijn respons, actuele invoer, huidige rol en vereiste onafhankelijke evaluatie vastgelegd. De bestaande factorinventaris is gesloten, maar het modelontwerp is nog niet formeel afgerond.
+
+De bestaande dagscore blijft één score en wordt nu alleen thermisch bepaald. Voordat nieuwe bijdragen worden gebouwd, moet de doelrespons van die score worden bevestigd, daarna normalisatie, ontbrekende-data-regels en eigen evaluatie voor activiteit, voeding, habitat en tijdvak. Brier blijft uitsluitend persoonlijke vangstkans evalueren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -816,3 +816,12 @@ De huidige code gebruikt alleen thermische respons in de numerieke dagscore; tij
 ## 92. Actuele soortdekking per gemeten respons
 
 De actuele per-soorttelling van alle gemeten uitkomsten staat in `FASE2_PROGNOSE_AUDIT.md` §82. Het register bevat 86 unieke records en alle blijven niet-goedgekeurd voor directe numerieke voorspelling. Voedingsintensiteit, voedingsincidentie, voedingsritme, foerageergedrag, voedingsfysiologie, dieet/prooikeuze, locomotorische activiteit, habitatgebruik, hengelvangbaarheid, aerobe scope, metabolisme en groei zijn afzonderlijk geteld. Geen van deze labels mag door naamsovereenkomst als een andere respons worden gebruikt.
+
+
+## 93. Geconsolideerde factorstatus en ontwerpgrenzen
+
+De volledige factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` §102. De inventaris van de bestaande prognoseketen is gesloten: per factor zijn respons, actuele invoer, huidige rol en vereiste onafhankelijke evaluatie vastgelegd.
+
+De enige huidige numerieke bijdrage aan de bestaande 1–10-dagscore blijft de voorlopige thermische prior. De wetenschappelijk zuivere kandidaat voor de uiteindelijke bestaande score is een geïntegreerde biologische activiteit-/voedingspotentie; habitat/aanwezigheid, persoonlijke vangstkans, vangbaarheid en betrouwbaarheid blijven afzonderlijke responsen tenzij een ander expliciet productdoel wordt gekozen. Normalisatie, missing-data-regel, interacties en gewichten zijn nog niet gekozen.
+
+Brier evalueert persoonlijke vangstkans; temperatuurfoutmaten evalueren de watertemperatuurschatter. Activiteit, voeding, habitat en tijdvak vereisen eigen labels en evaluatie. Geen runtimegewichten of tijdvakbonussen activeren. Fase 2 blijft open; Fase 3 geblokkeerd.
