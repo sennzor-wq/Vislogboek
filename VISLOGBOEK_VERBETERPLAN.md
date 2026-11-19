@@ -783,3 +783,10 @@ De exacte registrytelling per soort en gemeten respons is bijgewerkt in `FASE2_P
 De geconsolideerde factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` §102. De inventaris van de bestaande prognoseketen is gesloten: per factor is de biologische respons, invoerbeschikbaarheid, huidige rol en vereiste onafhankelijke evaluatie vastgelegd. Ontbrekende zuurstof-, stromings-, troebelheids- en prooigegevens blijven expliciet onbekend; zij worden niet uit weerdata afgeleid.
 
 **Nog open vóór scoremodelbouw:** doelrespons van de bestaande 1–10-score expliciet bevestigen; normalisatie, interacties en missing-data-regel ontwerpen; eigen evaluatie voor activiteit, voeding, habitat en tijdvak vastleggen; kandidaat chronologisch vergelijken met de thermische baseline. De huidige scoreweergave blijft behouden. Geen nieuwe gewichten of tijdvakbonussen. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — gebruikersdoel van de bestaande 1–10-score vastgesteld (19 november 2026)
+
+Het gebruikersbesluit is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §103: de bestaande cijferschaal, scoreweergave en één totaalcijfer blijven behouden. De score betekent biologische activiteit- en voedings-/foerageerpotentie van de doelsoort, niet persoonlijke vangstkans, stekaanwezigheid of vangbaarheid. De gebruiker krijgt een korte begrijpelijke onderbouwing; technische details en onzekerheid blijven in de verdiepende uitleg.
+
+**Nog open vóór implementatie:** factor-specifieke normalisatie, stabiele vertaling naar 1–10, missing-data-/coverage-regels, dubbele-tellingpreventie, onderbouwde interacties/gewichten en chronologische validatie tegen de thermische baseline. Geen zichtbare deelscores, geen tweede score en geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.

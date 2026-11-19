@@ -825,3 +825,12 @@ De volledige factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` �
 De enige huidige numerieke bijdrage aan de bestaande 1–10-dagscore blijft de voorlopige thermische prior. De wetenschappelijk zuivere kandidaat voor de uiteindelijke bestaande score is een geïntegreerde biologische activiteit-/voedingspotentie; habitat/aanwezigheid, persoonlijke vangstkans, vangbaarheid en betrouwbaarheid blijven afzonderlijke responsen tenzij een ander expliciet productdoel wordt gekozen. Normalisatie, missing-data-regel, interacties en gewichten zijn nog niet gekozen.
 
 Brier evalueert persoonlijke vangstkans; temperatuurfoutmaten evalueren de watertemperatuurschatter. Activiteit, voeding, habitat en tijdvak vereisen eigen labels en evaluatie. Geen runtimegewichten of tijdvakbonussen activeren. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 94. Vastgesteld doel en presentatiecontract voor de bestaande dagscore
+
+Het gebruikersbesluit en de volledige ontwerpregels staan in `FASE2_PROGNOSE_AUDIT.md` §103. De bestaande 1–10-schaal, cijfers, plaatsing en standaardweergave blijven behouden: één begrijpelijke totaalscore met een korte onderbouwing. Geen nieuwe zichtbare deelscores, tweede prognosescore, percentage of extra verplichte invoer.
+
+De doelrespons is de verwachte biologische activiteit- en voedings-/foerageerpotentie van de geselecteerde doelsoort op die dag. Dit is nadrukkelijk niet de persoonlijke vangstkans, lokale aanwezigheid, hengelvangbaarheid of betrouwbaarheid. Deze responsen blijven afzonderlijk. De score wordt uiteindelijk gevoed door alleen die soortspecifieke factoren die dezelfde doelrespons onderbouwen en onafhankelijk gevalideerd zijn.
+
+Voor implementatie zijn gemeenschappelijke normalisatie, stabiele 1–10-kalibratie, ontbrekende-data-/coverage-regels, dubbele-tellingpreventie, interacties en chronologische validatie verplicht. De thermische optie A blijft voorlopige prior. Brier/BSS blijft uitsluitend voor persoonlijke vangstkans. Geen runtimewijziging voordat Fase 2 formeel is geaccepteerd.

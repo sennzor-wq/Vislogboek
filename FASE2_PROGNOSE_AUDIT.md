@@ -4071,3 +4071,52 @@ Deze sectie brengt de code-/UI-/snapshottrace (§93), soortspecifieke gemeten re
 **De factorinventaris en huidige input-/evidence-status zijn voor de bestaande prognoseketen gesloten. De modelaudit is daarmee nog niet formeel afgerond.** De resterende fase-2-werkzaamheden zijn de doelrespons van de bestaande score expliciet vastleggen, normalisatie en ontbrekende-data-regels ontwerpen, per respons onafhankelijke validatie definiëren en het kandidaatmodel chronologisch vergelijken met de bestaande thermische baseline.
 
 De huidige dagscore blijft ongewijzigd en thermisch bepaald totdat deze ontwerp- en validatiepoorten zijn doorlopen. Geen nieuwe factor, gewicht, tijdvakbonus of tweede score activeren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 103. Vastgesteld productdoel voor de bestaande 1–10-dagscore (19 november 2026)
+
+**Gebruikersbesluit:** de bestaande cijferschaal en scoreweergave blijven behouden. De gebruiker moet met één eenvoudig cijfer snel kunnen zien of een dag naar verwachting gunstig of ongunstig is, met een begrijpelijke onderbouwing. Er komen geen nieuwe verplichte handelingen, geen tweede prognosescore en geen technische deelscores in de standaardweergave.
+
+### 103.1 Wat de score betekent
+
+De bestaande 1–10-dagscore staat voor de **verwachte biologische activiteit- en voedings-/foerageerpotentie van de geselecteerde doelsoort op die dag**. Het gaat om de biologische omstandigheden die activiteit en voedselzoek-/voedingsgedrag kunnen ondersteunen of beperken. Het cijfer is geen rechtstreekse kans op beet of vangst en belooft geen vangst.
+
+De score wordt uiteindelijk opgebouwd uit relevante, voldoende onderbouwde factoren die dezezelfde doelrespons verklaren. De thermische respons blijft de reeds gekozen voorlopige mechanistische basis. Andere factoren kunnen pas een numerieke bijdrage krijgen wanneer hun gemeten respons aansluit op activiteit of voedings-/foerageerpotentie, de invoer voldoende betrouwbaar/beschikbaar is en de bijdrage onafhankelijk is gevalideerd.
+
+### 103.2 Wat de score nadrukkelijk niet betekent
+
+- Geen persoonlijke vangstkans of voorspeld aantal vissen.
+- Geen kans dat de vis op de geselecteerde stek aanwezig is; habitat en lokale aanwezigheid blijven een aparte ruimtelijke laag.
+- Geen maat voor hengelvangbaarheid, aas-/techniekgeschiktheid of het succes van een bepaalde presentatie.
+- Geen maat voor datakwaliteit of zekerheid. Onzekerheid en dekking worden apart en begrijpelijk toegelicht.
+- Geen bewijs dat iedere factor voor iedere soort meetbaar of voorspellend is.
+
+### 103.3 Gebruikersweergave
+
+1. Behoud de bestaande numerieke 1–10-schaal, bestaande plaatsing en vertrouwde scoreweergave. De schaal wordt niet vervangen door labels, percentages, sterren, letters of een nieuwe index.
+2. Toon één totaalcijfer voor de dag. Geen nieuwe zichtbare deelscores of extra scorekaarten in de standaardweergave.
+3. Geef een korte, begrijpelijke onderbouwing van de belangrijkste positieve en negatieve invloeden, bijvoorbeeld temperatuur, relevante soortspecifieke voedings-/dagritme-informatie en weers-/watercontext wanneer deze aantoonbaar bijdragen.
+4. Maak duidelijk wanneer een factor ontbreekt, onzeker is of slechts context biedt. Presenteer geen ontbrekende informatie als neutraal of als een bewezen positieve/negatieve invloed.
+5. Houd technische details, bronbeperkingen en volledige factorbijdragen beschikbaar in de bestaande verdiepende uitleg; belast de standaardgebruiker er niet mee.
+6. De bestaande tijdvakweergave en cijfers blijven vertrouwd. Tijdvakvoorkeuren moeten uiteindelijk met dezelfde doelrespons en passende tijdvakgebonden factoren worden onderbouwd; er wordt geen tweede concurrerende dagscore geïntroduceerd.
+
+### 103.4 Interne modelregels
+
+- Normaliseer elke kandidaatfactor naar een expliciete, vergelijkbare richting/schaal voor dezelfde doelrespons; tel geen ruwe of semantisch verschillende grootheden op.
+- Leg per soort vast welke factoren biologisch relevant zijn en welke respons het bewijs meet. Een factor kan voor de ene soort actief zijn en voor een andere uitsluitend context of onbekend.
+- Vermijd dubbele telling van gecorreleerde of causaal overlappende factoren (bijvoorbeeld weerinput die al in de watertemperatuurschatting zit én nogmaals als zelfstandige bonus wordt toegevoegd).
+- Behandel interacties alleen wanneer er een onderbouwde hypothese en voldoende data zijn; geen generieke multiplicatieve bonussen.
+- Bewaar de thermische optie A als voorlopige prior en vergelijk ieder kandidaatmodel chronologisch met de bestaande thermische baseline.
+- Houd de dagscore en de persoonlijke vangstkans gescheiden. Brier/BSS blijft de persoonlijke vangstkans evalueren; het is geen scoregewicht of biologische correctiefactor.
+
+### 103.5 Ontwerpvolgorde vóór implementatie
+
+1. Leg per factor de soortspecifieke doelrespons, bewijssterkte, invoerprovenance, tijdsresolutie, datadekking, onzekerheid en eventuele overlap vast.
+2. Definieer een robuuste gemeenschappelijke schaal en de vertaling naar de bestaande 1–10-weergave, met stabiele interpretatie van cijfers tussen modelversies.
+3. Ontwerp ontbrekende-data- en coverage-regels. Geen stilzwijgende nul, fictieve neutrale waarde of onzichtbare herweging; bepaal wanneer een score verantwoord kan worden berekend en wanneer een waarschuwing of N/B nodig is.
+4. Ontwerp gewichten en interacties op basis van directe soortrelevante evidence en chronologische backtests; geen universele percentages of handmatig gekozen bonuspunten.
+5. Definieer aparte labels/metrics voor biologische activiteit, voedingsrespons en tijdvakvoorkeur. Valideer daarnaast dat de samengestelde 1–10-score informatief en stabiel is.
+6. Vergelijk kandidaatmodellen op ongeziene chronologische data met de huidige thermische baseline, inclusief soort-, seizoen-, water-/stek- en datadekkingssegmenten. Rapporteer ook regressies en onzekerheid.
+7. Pas pas na formele Fase-2-acceptatie de runtimeberekening aan; behoud UI en bestaande invoerflow.
+
+**Status:** het productdoel en de gebruikersweergave zijn nu vastgesteld. De numerieke normalisatie, ontbrekende-data-regels, gewichten, interacties en validatie-uitkomsten zijn nog niet vastgesteld. De huidige runtime blijft ongewijzigd; Fase 2 blijft open en Fase 3 geblokkeerd.
