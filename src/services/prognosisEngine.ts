@@ -946,9 +946,7 @@ export function calculateDayPrognosis(
   // De coach kan een expliciet starttijdvak meegeven. De algemene dagprognose
   // behoudt haar dagbrede context en thermisch gunstigste tijdvak; alleen tijdgevoelige tactiek
   // gebruikt dan de gekozen startperiode.
-  const defaultTacticalSlot = dayScoreAvailable && bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid' && bestSlot !== 'Niet beschikbaar'
-    ? bestSlot as TimeSlot
-    : undefined;
+  const defaultTacticalSlot: TimeSlot | undefined = undefined;
   const explicitTargetTimeSlot = options?.targetTimeSlot;
   const tacticalTargetSlot = explicitTargetTimeSlot ?? defaultTacticalSlot;
   const tacticalForecasts = explicitTargetTimeSlot
