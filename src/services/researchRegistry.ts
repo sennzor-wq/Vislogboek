@@ -1491,6 +1491,103 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+
+  {
+    id: 'european-catfish-overwintering-aggregation-2023',
+    topic: 'winteraggregatie-en-dieptegebruik',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Akoestische telemetrie volgde 47 subadulte en volwassen Europese meervallen in één ondiep meer in Zuidoost-Frankrijk gedurende vier winters. De dieren vormden bij lage temperaturen (onder circa 9 °C) terugkerende aggregaties in een beperkte zone rond 4 m diepte; bij hogere temperaturen verlieten zij de aggregatie vaker, vooral rond schemering en nacht.',
+    limitations: [
+      'De studie betreft één ondiep meer en één populatie in Zuidoost-Frankrijk; overdracht naar Nederlandse wateren en andere populaties is onzeker.',
+      'De gemeten respons is aggregatie en ruimtelijk gedrag, niet directe voedselopname, jachtactiviteit of vangbaarheid.',
+      'Een aggregatie onder 9 °C bewijst geen volledige inactiviteit en valideert geen universele 12 °C-grens.'
+    ],
+    sourceReferences: [
+      'Capra, H. et al. (2023). Overwintering aggregation patterns of European catfish Silurus glanis. Movement Ecology, 11, 9. https://doi.org/10.1186/s40462-023-00373-6'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-catfish-lentic-lotic-depth-movement-2026',
+    topic: 'seizoensgebonden-diepte-en-verticale-beweging',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een telemetriestudie in Lake Constance en twee zijrivieren onderzocht lentische en lotische Europese meerval. De vissen vertoonden seizoensgebonden verticale verplaatsing: dieper in de winter en hoger in de zomer. In de rivier hing de winterse positie op de bodem samen met minder verticale beweging; in het meer bleven verticale bewegingen zichtbaar.',
+    limitations: [
+      'De studie betreft één meer-/riviersysteem en beperkte aantallen teruggevangen gezenderde dieren; overdracht naar Nederlandse stekken is onzeker.',
+      'Diepte en verticale beweging zijn habitat-/bewegingsresponsen, geen directe voedselopname of jachtsucces.',
+      'De resultaten ondersteunen verschillen tussen stromend en stilstaand water, geen universele temperatuurgrens voor inactiviteit.'
+    ],
+    sourceReferences: [
+      'Krey, G. et al. (2026). Site Fidelity, Depth Preference and Vertical Movement Patterns of Lentic and Lotic European Catfish Silurus glanis. Fisheries Management and Ecology. https://doi.org/10.1111/fme.70082'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-depth-thermal-habitat-2013',
+    topic: 'seizoensgebonden-diepte-en-thermisch-habitat',
+    measuredOutcomes: ['habitat_use'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Telemetrie in drie meren in Minnesota liet zien dat snoeken flexibel dieptes gebruikten binnen en tussen seizoenen. Grootte, vegetatiedekking en zuurstof beperkten de dieptekeuze; in de winter werden meer beschikbare dieptes benut. Kleine snoek gebruikte bij dichte waterleliebedekking vaker ondiep, warmer habitat.',
+    limitations: [
+      'De studie betreft drie meren in Minnesota; populatie, klimaat, waterlichaam en visgrootte verschillen van Nederlandse stekken.',
+      'De studie onderbouwt geen vaste koude grens van 7 °C of automatische verplaatsing van alle prooivis naar diepe kuilen.',
+      'Habitatgebruik is geen directe maat voor jachtintensiteit of hengelvangbaarheid.'
+    ],
+    sourceReferences: [
+      'Pierce, R.B., Carlson, A.J., Carlson, B.M., Hudson, D. & Staples, D.F. (2013). Depths and Thermal Habitat Used by Large versus Small Northern Pike in Three Minnesota Lakes. Transactions of the American Fisheries Society, 142, 1629–1639. https://doi.org/10.1080/00028487.2013.822422'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-winter-activity-centres-2008',
+    topic: 'seizoensgebonden-activiteitscentrum-en-habitatgebruik',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Radio-telemetrie bij twaalf vrouwelijke snoeken in één klein Duits meer vond in de winter grotere activiteitcentra dan in de zomer, met aanzienlijke overlap tussen gekozen winter- en zomerlocaties. Individuele stektrouw bleef aanwezig.',
+    limitations: [
+      'Kleine steekproef van twaalf vrouwelijke snoeken in één meer; niet representatief voor alle populaties, mannetjes of waterlichamen.',
+      'De studie meet ruimtelijk gebruik en activiteitcentra, geen vaste temperatuurgrens, voedingspiek of vangstkans.',
+      'De uitkomst ondersteunt variatie en individuele verschillen, geen automatische diepe winterpositie.'
+    ],
+    sourceReferences: [
+      'Kobler, A., Klefoth, T. & Arlinghaus, R. (2008). Site fidelity and seasonal changes in activity centre size of female pike Esox lucius in a small lake. Journal of Fish Biology, 73, 584–596. https://doi.org/10.1111/j.1095-8649.2008.01952.x'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-winter-migration-lake-stream-2008',
+    topic: 'wintermigratie-en-daggebonden-verplaatsing',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Voorn', 'Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'PIT-telemetrie in één ondiep meer met verbonden stromen volgde wintermigratie van blankvoorn, brasem en ruisvoorn. Een deel van de blankvoorn- en brasempopulaties migreerde in de winter naar stromen; instroom vond afhankelijk van seizoen meestal in de late middag of ochtend plaats.',
+    limitations: [
+      'De studie betreft één specifiek meer-stroomsysteem; migratiegedrag is niet zonder meer overdraagbaar naar geïsoleerde plassen of Nederlandse vijvers.',
+      'De gemeten uitkomst is migratie/beweging, niet directe tijdgebonden voedselopname of hengelvangbaarheid.',
+      'De studie valideert geen vaste 7 °C-grens of algemene zonnige-middagverplaatsing naar ondiepe oevers.'
+    ],
+    sourceReferences: [
+      'Skov, C., Brodersen, J., Nilsson, P.A., Hansson, L.-A. & Brönmark, C. (2008). Inter- and size-specific patterns of fish seasonal migration between a shallow lake and its streams. Ecology of Freshwater Fish, 17(3), 406–415. https://doi.org/10.1111/j.1600-0633.2008.00291.x'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**

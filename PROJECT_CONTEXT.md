@@ -1755,3 +1755,12 @@ Volgende stap: kandidaatmodel en chronologisch validatieprotocol ontwerpen op ba
 De kandidaatmodelrichting en het validatieprotocol zijn uitgewerkt in `FASE2_PROGNOSE_AUDIT.md` §94. De bestaande dagscoreweergave en centrale prognose blijven behouden. Iedere relevante factor moet een eigen traceerbare factoruitkomst en, alleen bij voldoende bewijs/data, een onderbouwde bijdrage krijgen. Tijdvakken worden afzonderlijk beoordeeld met doelsoort, datum/seizoen, stek en tijdvakcondities. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven afzonderlijke responsen.
 
 Brier blijft evaluator van persoonlijke vangstkans; temperatuur, activiteit, voeding, habitat en tijdvak vereisen passende eigen evaluatie. Normalisatie, aggregatie, missing-data-regels en gewichten zijn nog niet definitief gekozen. Geen runtimewijziging of factoractivatie. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — audit tactiektemperatuur en herstel documentatie (19 november 2026)
+
+De voorvoer-audit uit PR #146 is hersteld als §96 in `FASE2_PROGNOSE_AUDIT.md`; §97 legt de aanvullende evidencecontrole van habitat-/positioneringsdrempels vast. Vijf aanvullende telemetriebronnen zijn als context in `researchRegistry.ts` opgenomen en blijven niet-goedgekeurd. Alle 76 bronnen hebben `approvedForPrediction: false`.
+
+De temperatuurregels in voorvoer, habitat en positionering zijn aparte tactiek-/zoekhypothesen en leveren geen dagelijkse scorebijdrage. Enkele exacte grenzen en formuleringen zijn niet onderbouwd; met name de claim dat meerval onder 12 °C niet actief jaagt is te absoluut. De eerder goedgekeurde waarschuwingstekst in PrognosisView is hersteld. Geen voorvoerhoeveelheid, drempel, gewicht of scoreberekening aangepast.
+
+Volgende stap: per soort de claim-/brontrace afronden en daarna de zevenpunts-acceptatiecrosswalk bijwerken. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

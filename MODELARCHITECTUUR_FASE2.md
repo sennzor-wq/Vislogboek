@@ -770,3 +770,15 @@ De kandidaatmodelrichting en het validatieprotocol zijn uitgewerkt in `FASE2_PRO
 - Normalisatie, aggregatie, ontbrekende-data-regel en gewichten zijn nog open ontwerpbesluiten; geen runtimeactivatie vóór formele review.
 
 De exacte thermische curveparameters blijven ongevalideerd. De keuze voor een voorlopige prior is geen wetenschappelijke goedkeuring. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 86. Temperatuurafhankelijke tactiekregels: evidence en scoregrens (19 november 2026)
+
+De herstelde voorvoer-audit staat in `FASE2_PROGNOSE_AUDIT.md` §96; de aanvullende soortspecifieke habitat-/positioneringscontrole staat in §97. Deze tactiekregels zijn geen extra dagelijkse activiteitsscore.
+
+- De voorvoerengine bevat temperatuurbanden, een interne suitabilityscore, soortfactoren en grammen. Algemene literatuur ondersteunt temperatuur als voedingscontext, niet de exacte grenzen, soortfactoren of hoeveelheden. De keuze om de numerieke waarden te behouden als heuristiek of uit te schakelen blijft een afzonderlijk besluit; geen runtimewijziging zonder expliciete goedkeuring.
+- Habitat- en positioneringsengines gebruiken koude-/warme temperatuurgrenzen als ruimtelijke zoekhypothesen. De exacte grenzen zijn niet soortspecifiek gevalideerd. Vooral “geen actieve jacht” voor meerval onder 12 °C, “extreme winterrust” voor zeelt onder 11 °C en vaste snoek-/voorn-dieptedrempels zijn te stellig voor de beschikbare evidence.
+- Nieuwe telemetriebronnen voor meerval, snoek en blankvoorn/voorn zijn toegevoegd aan de registry, allemaal `approvedForPrediction: false`. Bewegings-/habitatdata worden niet als voedselopname of vangstkans geclassificeerd.
+- De bestaande PrognosisView-waarschuwing voor voerhoeveelheden is hersteld; exacte hoeveelheidsgating bij lage invoerkwaliteit blijft een apart open implementatiepunt. 
+
+Geen dagelijkse score, thermische curve, gewicht of tijdvakbonus gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
