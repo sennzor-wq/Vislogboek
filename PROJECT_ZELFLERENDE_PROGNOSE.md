@@ -208,3 +208,8 @@ Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acce
 ## Open audit na uitschakeling thermische activiteit
 
 De numerieke thermische activiteitsscore is uitgeschakeld, maar afzonderlijke temperatuurafhankelijke tactiekregels blijven bestaan. De temperatuurbanden, suitabilityscore en gramadviezen van `prebaitEngine.ts`, plus thermische contextregels in habitat-/positioneringsadvies, moeten read-only op bronbasis en overdraagbaarheid worden gecontroleerd voordat Fase 2 wordt geaccepteerd. Geen runtimewijziging zonder apart besluit en regressies.
+
+
+## Read-only audit voorvoerregels (19 november 2026)
+
+De voorvoerengine bevat nog vaste temperatuurbanden, interne suitabilityscore, soortfactoren en gramadviezen. Algemene literatuur ondersteunt temperatuur als context voor voedselopname, maar niet de exacte enginegrenzen of hoeveelheden. Geen van de 71 registry-records is goedgekeurd voor numerieke voorspelling. Habitat-/positioneringsregels gebruiken temperatuurgrenzen als zoekhypothesen; enkele soortspecifieke teksten vragen broncontrole/nuancering. Zie `FASE2_PROGNOSE_AUDIT.md` §92. Runtimegedrag blijft ongewijzigd totdat een expliciet besluit is genomen.
