@@ -883,3 +883,11 @@ De geconsolideerde toelatingsmatrix staat in FASE2_PROGNOSE_AUDIT.md §132. De f
 De enige numerieke bijdrage aan de biologische 1–10-dagscore blijft de bestaande thermische prior uit optie A; dit is een expliciete voorlopige uitzondering, geen wetenschappelijke validatie. Voorvoergrammen en habitat-/positioneringsdrempels blijven aparte tactiek-/ruimtelijke heuristieken. Geen nieuwe gewichten, factoren, interacties of tijdvakbonussen.
 
 **Resterend:** formeel bepalen hoe de voorlopige thermische uitzondering binnen criterium 2 wordt geaccepteerd zonder de bewijsnorm te verlagen; de onafhankelijke evaluatiepoorten blijven open wegens ontbrekende directe lokale biologische labels. De afzonderlijke voorvoergrammen-/invoerkwaliteitbeslissing vereist eveneens expliciete goedkeuring voordat runtime wordt aangepast. Fase 2 blijft niet geaccepteerd; Fase 3 geblokkeerd.
+
+### Fase 2 — vangstregistratiecontract tegen huidige UI gecontroleerd (19 november 2026)
+
+De read-only conformiteitscontrole staat in FASE2_PROGNOSE_AUDIT.md §133. De gebruiker kan met een gekozen soort direct opslaan: aantal staat standaard op 1, vangsttijd wordt automatisch gevuld en blijft aanpasbaar, gewicht/lengte/aas/techniek/foto/notities zijn optioneel. De basisflow vereist geen extra invoer buiten de soortkeuze.
+
+**Afwijking:** de vastgelegde wens noemt een optionele vooraf ingestelde hengel-/methodeconfiguratie. De huidige CatchModal heeft hiervoor alleen een vrij tekstveld en het CatchItem bevat geen herbruikbare profielreferentie. SessionRod is sessiegebonden en is geen gebruikerspreset.
+
+Er wordt niets aangepast zonder expliciet productbesluit: óf de vrije tekst is voldoende en §104 wordt daarop verduidelijkt, óf een kleine optionele presetselectie wordt apart ontworpen. In beide gevallen blijft opslaan zonder hengel-/methodekeuze mogelijk. Geen runtimewijziging of migratie.
