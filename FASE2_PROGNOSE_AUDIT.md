@@ -2013,3 +2013,61 @@ Deze matrix vervolledigt de code-audit uit §92. De classificatie beschrijft de 
 ### Volgende kandidaatmodelstap
 
 De factorinventaris is nu verbonden met code, UI, snapshot en evaluatie. De volgende stap is het kandidaatmodel en validatieprotocol ontwerpen: bepaal per factor welke respons voorspeld wordt, welke tijdschaal/invoer vereist is, welke factoren alleen context blijven, welke factorinteracties verantwoord zijn en welke onafhankelijke maatstaf de uitkomst kan toetsen. Vergelijk chronologisch met de bestaande thermische baseline en voorkom future leakage. De huidige scoreweergave blijft behouden; er worden nog geen numerieke gewichten of nieuwe tijdvakvoorkeuren geactiveerd.
+
+
+## 94. Kandidaatmodel v0 en chronologisch validatieprotocol — ontwerp, geen activatie (19 november 2026)
+
+Deze sectie vertaalt de bestaande factortrace (§93), de vijf gescheiden responslagen en de producteis uit §91 naar een toetsbaar kandidaatontwerp. Er is geen runtimecode, score, gewicht of parameter gewijzigd.
+
+### 94.1 Beoogde prognoseketen
+
+1. **Invoer en provenance:** doelsoort, stek, datum, beschikbare uurlijkse weersverwachting, waterthermische meting/schatting met onzekerheidsband, lokale zon-/schemertijden, bekende stek-/habitatkenmerken en betrouwbare historische context. Onbekende invoer blijft expliciet onbekend.
+2. **Factoruitkomsten per dag:** ieder relevant bestaand prognoseonderdeel levert uiteindelijk een eigen factorresultaat op de interne gemeenschappelijke schaal, met bron, richting, data-dekking, onzekerheid en responsdefinitie. Waar bewijs en data dit toelaten, krijgt de factor een expliciete soort-/contextgebonden bijdrage en onderbouwd gewicht in de bestaande dagscore.
+3. **Bestaande totaalscore:** de toegelaten factorbijdragen worden in één bestaande dagelijkse score samengebracht. De huidige 1–10-weergave blijft behouden. Dit betekent niet dat alle zichtbare prognose-uitkomsten in één getal worden gemengd: habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven herkenbare afzonderlijke responsen tenzij een specifieke koppeling onafhankelijk is gevalideerd.
+4. **Tijdvakrespons:** Nacht, Ochtend, Middag en Avond worden afzonderlijk beoordeeld met de beschikbare tijdvakcondities, doelsoort, datum/seizoen en stekcontext. Direct soortspecifiek voedings-/foerageerbewijs kan de tijdvakvoorkeur beïnvloeden. Beweging, thermische respons en habitatgebruik zijn niet automatisch voedingsgedrag. De huidige gedeelde dagthermische waarde kan op zichzelf geen tijdvakverschil bepalen.
+5. **Uitleg en onzekerheid:** de bestaande detailweergave toont per factor de bijdrage of expliciete status (context, onbekend, uitgesloten). De standaardweergave behoudt de huidige score en kernuitkomsten. Ontbrekende factoren worden niet met een fictieve neutrale waarde gevuld.
+6. **VisCoach:** consumeert de centrale prognose en bestaande gespecialiseerde engines. Geen eigen prognose, tweede score of dubbele biologische regels.
+
+### 94.2 Responslagen en scoregrenzen
+
+- **Thermische fysiologische activiteit:** bestaande curves blijven uitsluitend de voorlopige mechanistische prior. Geen automatische omzetting naar voeding, habitat-aanwezigheid of vangbaarheid.
+- **Voeding/foerageren:** afzonderlijke soortspecifieke respons; numerieke invloed alleen bij direct passend bewijs en relevante context. Dielgedrag mag tijdvakvoorkeur sturen wanneer de gemeten respons daadwerkelijk voedselopname/foerageren betreft.
+- **Habitat/aanwezigheid/beweging:** aparte ruimtelijke uitkomst via bestaande habitatengine; geen automatische bijdrage aan totale fysiologische activiteit.
+- **Persoonlijke vangstkans:** bestaande empirische Poisson-baseline blijft apart. Geen thermische, voedings- of habitatcorrectie totdat een koppeling afzonderlijk is gevalideerd.
+- **Betrouwbaarheid:** geen optelscore van vertrouwen. Provenance, dekking, bronkwaliteit, onzekerheidsbanden en steekproefgrootte blijven afzonderlijk zichtbaar.
+
+### 94.3 Gewichten en ontbrekende gegevens
+
+Er worden geen vaste percentages, universele soortgewichten of intuïtieve bonussen vooraf ingevuld. Iedere kandidaatfactor moet aantonen: gemeten respons, overdraagbaarheid, relevante tijdschaal, betrouwbare input, richting, interacties en een onafhankelijke evaluatiemaatstaf. Gewichten kunnen pas worden vastgesteld na onderbouwde parameterkeuze en chronologische vergelijking met de baseline.
+
+Nog te besluiten en te testen vóór implementatie:
+- normalisatie van verschillende factorresponsen naar een gemeenschappelijke interne schaal;
+- optellen versus andere aggregatie en mogelijke interacties;
+- omgaan met ontbrekende factoren zonder schijnneutrale score of arbitraire hernormalisatie;
+- minimumdekking waarbij een dagscore verantwoord berekend kan worden versus expliciet N/B;
+- hoe een dagsamenvatting zich verhoudt tot de vier afzonderlijke tijdvakuitkomsten;
+- of en wanneer lokale sessiedata voldoende representatief zijn om een soort-/stek-/seizoensgewicht te kalibreren.
+
+### 94.4 Chronologisch validatieprotocol
+
+1. Bevries de huidige thermische-only dagscore als baseline en behoud per run de bestaande onveranderlijke input-/prognosesnapshot, modelversie en engineversies.
+2. Gebruik rolling-origin evaluatie: een voorspelling op tijdstip T mag uitsluitend trainings-/kalibratie-uitkomsten gebruiken die vóór T volledig bekend waren. Houd doelsoort, stek, seizoen, duur en werkelijke blootstelling vergelijkbaar.
+3. Vergelijk kandidaat en baseline op dezelfde vooraf vastgelegde, ongeziene sessies. Rapporteer aantallen, uitsluitingen, onzekerheid en prestaties per soort en waar datavolume dit toelaat per seizoen/stek/watertype.
+4. **Vangkans:** Brier/BSS blijft uitsluitend de evaluator van de persoonlijke catch probability, met dezelfde sessie-, duur- en tijdvenstercriteria. Geen directe gewichtstuning of terugschrijven naar historische snapshots.
+5. **Watertemperatuur:** MAE/RMSE/bias blijft de aparte evaluatie van de thermische schatter; dit valideert niet vanzelf de visfysiologische curve.
+6. **Activiteit en voeding:** vereisen directe of voldoende passende onafhankelijke responslabels. Een hengelvangst is geen zuivere meting van fysiologische activiteit of voedselopname.
+7. **Tijdvak:** gebruik waar mogelijk betrouwbare tijdgebonden vangstregistratie én geregistreerde hengelblootstelling per tijdvak. Een automatisch ingevuld vangsttijdstip bij het openen van het formulier is geen geverifieerd vangstmoment; een sessiestart alleen bewijst geen volledige tijdvakblootstelling. Bevestigde sessiebrede nulvangst is niet automatisch nulvangst in elk tijdvak.
+8. **Habitat/aanwezigheid:** vereist eigen aanwezigheid-/habitatlabels en mag niet met voedings- of vangstlabels worden gevalideerd.
+9. Houd modelversies gescheiden, voorkom future leakage, rapporteer ook negatieve resultaten en activeer geen zelflerende gewichtswijziging zonder afzonderlijke review en regressietests.
+
+### 94.5 Uitkomst en resterende fasepoort
+
+Dit is het kandidaatontwerp voor de volgende review, niet een definitief gekozen formule. De precieze normalisatie, aggregatie, missing-data-regel en gewichtsbepaling moeten eerst aan de bestaande acceptatiecriteria worden getoetst. Criterium 2 blijft inhoudelijk begrensd door de ongevalideerde exacte thermische curveparameters; de keuze voor optie A is geen wetenschappelijke validatie. De overige onafhankelijke biologische evaluaties moeten worden ontworpen voordat numerieke voedings- of tijdvakbijdragen kunnen worden geactiveerd.
+
+Fase 2 blijft niet geaccepteerd en Fase 3 blijft geblokkeerd. Er is geen runtimewijziging.
+
+## 95. Kritische documentconsistentiecontrole (19 november 2026)
+
+Bij het vergelijken van de architectuurtekst met de actuele code is een verouderde zin gevonden in §41: de persoonlijke Poisson-vangkans werd daar nog beschreven als voorzien van een thermische dagscorecorrectie. Dat is onjuist. De actuele `prognosisEngine.ts` berekent de persoonlijke Poisson-baseline uit vergelijkbare vangsten en geregistreerde visduur zonder thermische multiplier; §46 en de actuele code zijn leidend. §41 is in dezelfde documentupdate gecorrigeerd.
+
+Ook zijn dubbele sectienummers ontstaan bij de recente architectuurtoevoegingen. De nieuwe architectuursecties zijn hernummerd naar §82–§84 zodat de documentstructuur uniek blijft. Dit is documentcorrectie; geen runtimegedrag gewijzigd.

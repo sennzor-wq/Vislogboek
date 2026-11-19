@@ -396,7 +396,7 @@ De prognose wordt ontworpen rond vijf afzonderlijke responsen. Hun huidige volwa
 1. **Thermische activiteitspotentie** — numeriek aanwezig, maar de soortcurves zijn voorlopige mechanistische/modelpriors. De waterthermische schatting en de visfysiologische responscurve hebben elk eigen aannames en moeten apart worden gevalideerd.
 2. **Voeding en foerageren** — de research registry en `feedingEvidenceService` classificeren de werkelijk gemeten respons per soort. Er is nog geen lokale numerieke voedings- of foerageerprognose.
 3. **Aanwezigheid en habitatgeschiktheid** — bestaande habitat-/bewegings-/oeverwind-/positioneringsengines leveren kwalitatieve hypothesen, geen gekalibreerde aanwezigheidskans.
-4. **Vangkans** — persoonlijke historische Poisson-baseline, met een beperkte thermische dagscorecorrectie. Dit is nog geen geïntegreerde berekening van aanwezigheid, voeding, techniek, aas en uitvoering.
+4. **Vangkans** — persoonlijke historische Poisson-baseline op basis van vergelijkbare sessies, vangstaantallen en geregistreerde visduur. Deze baseline wordt niet thermisch gecorrigeerd en is nog geen geïntegreerde berekening van aanwezigheid, voeding, techniek, aas en uitvoering.
 5. **Betrouwbaarheid en evaluatie** — provenance, datakwaliteit, onzekerheidsnotities, steekproeflabels en chronologische Brier-evaluatie zijn afzonderlijke signalen. Er bestaat nog geen gevalideerde samengestelde betrouwbaarheidsscore.
 
 **Koppelregel:** geen laag mag stilzwijgend als vervanging voor een andere respons worden gebruikt. Thermische efficiëntie is geen voedingsintensiteit; locomotie is geen jacht- of voedingssucces; habitatgeschiktheid is geen actuele aanwezigheid; historische vangstkans is geen zuiver biologische kans.
@@ -708,7 +708,7 @@ Alle bronnen blijven onderworpen aan de bestaande evidence-status. Latere numeri
 
 
 
-## 80. Bestaande dagscore, factorbijdragen en tijdvakrespons
+## 82. Bestaande dagscore, factorbijdragen en tijdvakrespons
 
 De bestaande prognose blijft de enige bron van prognostische uitkomsten en de huidige dagscoreweergave blijft behouden.
 
@@ -732,7 +732,7 @@ Brier evalueert de persoonlijke vangstkans tegen de gekoppelde sessie-uitkomst e
 Dit is het kader voor de volgende kandidaatmodel-audit. Het activeert geen nieuwe factor, gewicht, drempel of runtimeberekening.
 
 
-## 81. Baseline huidige score- en tijdvakberekening (19 november 2026)
+## 83. Baseline huidige score- en tijdvakberekening (19 november 2026)
 
 De huidige code-audit (§92 in `FASE2_PROGNOSE_AUDIT.md`) toont:
 
@@ -746,7 +746,7 @@ De huidige code-audit (§92 in `FASE2_PROGNOSE_AUDIT.md`) toont:
 Dit is de baseline voor de volgende kandidaatmodel-audit. De gewenste geïntegreerde factorbijdragen en soort-/seizoen-/stekgevoelige tijdvakrespons zijn nog niet gerealiseerd. Behoud de bestaande UI en architectuur; voeg geen gewichten of tijdvakbonussen toe voordat bewijs, invoerdekking, onzekerheid en chronologische validatie zijn vastgelegd.
 
 
-## 82. Factorverantwoordelijkheden en onafhankelijke evaluatie
+## 84. Factorverantwoordelijkheden en onafhankelijke evaluatie
 
 De huidige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_PROGNOSE_AUDIT.md` §93. De architectuur houdt de volgende uitkomsten strikt gescheiden:
 
@@ -757,3 +757,16 @@ De huidige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_
 - Persoonlijke vangstkans: aparte historische Poisson-baseline; Brier/BSS toetst deze kans tegen gekoppelde sessie-uitkomsten en is geen directe tuner van biologische gewichten.
 
 De volledige prognose-uitvoer en invoercontext worden in onveranderlijke snapshots opgeslagen. De volgende kandidaatmodelstap moet iedere factor koppelen aan respons, tijdschaal, inputdekking, onzekerheid, interacties en onafhankelijke evaluatie. Behoud de bestaande scoreweergave; geen parallelle prognose of niet-gevalideerde gewichten.
+
+
+## 85. Kandidaatmodel en chronologische validatiepoort
+
+De kandidaatmodelrichting en het validatieprotocol zijn uitgewerkt in `FASE2_PROGNOSE_AUDIT.md` §94. De bestaande prognose blijft de centrale keten en de huidige dagscoreweergave blijft behouden.
+
+- Iedere relevante factor krijgt een eigen dagelijkse factoruitkomst, responsdefinitie, provenance, datadekking en onzekerheid. Alleen evidence- en data-geschikte factoren krijgen een expliciete gewogen bijdrage aan de bestaande totaalscore.
+- De vier tijdvakken worden afzonderlijk beoordeeld met tijdvakcondities, doelsoort, datum/seizoen en stekcontext. Direct voedings-/foerageerbewijs kan tijdvakvoorkeur beïnvloeden; beweging en habitatgebruik zijn geen voedingsbonus.
+- Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven afzonderlijke responsen. Brier/BSS evalueert alleen persoonlijke vangstkans; watertemperatuur heeft eigen foutmaten; activiteit, voeding, habitat en tijdvak vereisen eigen labels en evaluatiemaatstaven.
+- Chronologische rolling-origin validatie vergelijkt kandidaat met de huidige thermische baseline op dezelfde ongeziene sessies. Geen future leakage, geen automatische gewichtstuning en geen historische snapshotmutatie.
+- Normalisatie, aggregatie, ontbrekende-data-regel en gewichten zijn nog open ontwerpbesluiten; geen runtimeactivatie vóór formele review.
+
+De exacte thermische curveparameters blijven ongevalideerd. De keuze voor een voorlopige prior is geen wetenschappelijke goedkeuring. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

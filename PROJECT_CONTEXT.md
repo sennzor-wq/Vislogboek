@@ -1748,3 +1748,10 @@ Dit is een kritisch verschil met de gewenste geïntegreerde prognose, maar er wo
 De volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_PROGNOSE_AUDIT.md` §93. Huidige dagscore: uitsluitend thermische activiteitspotentie. Druk, wind, seizoen, licht/diel, bewolking en neerslag zijn context; habitat/beweging is een aparte ruimtelijke laag; persoonlijke vangstkans is een aparte empirische baseline. Brier evalueert die vangstkans, terwijl temperatuur eigen MAE/RMSE/bias-evaluatie heeft. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken onafhankelijke evaluatiemaatstaven.
 
 Volgende stap: kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van de volledige traceermatrix. Geen runtimefactoren, gewichten of tijdvakbonussen activeren voordat bewijs, databeschikbaarheid en onafhankelijke validatie zijn vastgelegd.
+
+
+### Fase 2 — kandidaatmodel en chronologische validatie (19 november 2026)
+
+De kandidaatmodelrichting en het validatieprotocol zijn uitgewerkt in `FASE2_PROGNOSE_AUDIT.md` §94. De bestaande dagscoreweergave en centrale prognose blijven behouden. Iedere relevante factor moet een eigen traceerbare factoruitkomst en, alleen bij voldoende bewijs/data, een onderbouwde bijdrage krijgen. Tijdvakken worden afzonderlijk beoordeeld met doelsoort, datum/seizoen, stek en tijdvakcondities. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven afzonderlijke responsen.
+
+Brier blijft evaluator van persoonlijke vangstkans; temperatuur, activiteit, voeding, habitat en tijdvak vereisen passende eigen evaluatie. Normalisatie, aggregatie, missing-data-regels en gewichten zijn nog niet definitief gekozen. Geen runtimewijziging of factoractivatie. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

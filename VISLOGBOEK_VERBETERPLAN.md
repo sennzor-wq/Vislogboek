@@ -714,3 +714,10 @@ Dit is een belangrijk verschil met de beoogde geïntegreerde scoreketen, geen to
 De huidige implementatie is per factor verbonden met code, zichtbare UI, prognosesnapshot en evaluatie in `FASE2_PROGNOSE_AUDIT.md` §93. De dagscore heeft alleen een numerieke thermische bijdrage; de overige meteorologische en tijdvakfactoren zijn context. Habitat/beweging blijft een aparte ruimtelijke laag, persoonlijke vangstkans een afzonderlijke empirische baseline en Brier toetst uitsluitend die vangstkans. Temperatuur heeft eigen MAE/RMSE/bias-evaluatie. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken nog onafhankelijke evaluatiemaatstaven.
 
 **Volgende stap:** kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van deze traceermatrix. Geen nieuwe factor, gewicht, tijdvakbonus of runtimewijziging activeren vóór evidence-, data- en validatievoorwaarden zijn vastgesteld.
+
+
+### Fase 2 — kandidaatmodel en validatieprotocol ontworpen (19 november 2026)
+
+De kandidaatmodelrichting en het chronologische validatieprotocol zijn vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §94 en `MODELARCHITECTUUR_FASE2.md` §85. Het ontwerp behoudt de bestaande dagscoreweergave en centrale prognoseketen. Factoren krijgen ieder een traceerbare respons, datastatus, onzekerheid en — alleen wanneer evidence en validatie dit toelaten — een eigen gewogen bijdrage. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven onderscheiden responsen.
+
+De vier tijdvakken worden uiteindelijk afzonderlijk beoordeeld met tijdvakcondities, doelsoort, datum/seizoen en stekcontext; directe voedings-/foerageerevidence kan de tijdvakvoorkeur beïnvloeden. Brier blijft uitsluitend de evaluator van persoonlijke vangstkans; temperatuur, activiteit, voeding, habitat en tijdvak vereisen eigen passende evaluatie. Geen gewichten of runtimefactoren geactiveerd. De normalisatie, aggregatie, ontbrekende-data-regel en gewichtsbepaling blijven open ontwerpbesluiten vóór implementatie. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
