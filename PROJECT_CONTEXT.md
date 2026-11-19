@@ -1707,3 +1707,12 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Druk en troebelheid blijven contextafhankelijk; geen universele numerieke respons geactiveerd.
 - Alle research-registryrecords blijven `approvedForPrediction:false`. Geen score, gewicht, drempel, tijdvakbonus of catchability-regel gewijzigd.
 - De resterende factorinventaris is voor deze ronde beoordeeld. Volgende stap: formele acceptatiecrosswalk actualiseren en het ontwerpbesluit over de voorlopige thermische priors uit §86 afhandelen. Fase 2 blijft open; fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — actuele acceptatiecrosswalk (19 november 2026)
+
+- De zeven formele acceptatiecriteria zijn opnieuw beoordeeld in `FASE2_PROGNOSE_AUDIT.md` §89 na PR #140, #141 en #142.
+- De resterende omgevingsfactorinventaris is voor deze ronde afgerond (§88); er zijn geen nieuwe numerieke factoren geactiveerd.
+- Technische snapshot-/Brier-keten en tijdvak-/VisCoach-selectie zijn gerealiseerd voor de huidige scope; lokale kalibratie wacht op echte vergelijkbare sessies.
+- Formele blocker blijft criterium 2: besluit nodig over voorlopige thermische curves en validatie van de exacte curveparameters.
+- Fase 2 is niet geaccepteerd. Fase 3 blijft geblokkeerd. Geen runtimeberekening, score, parameter of gebruikersinvoer gewijzigd.
