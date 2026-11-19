@@ -1520,3 +1520,8 @@ Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acce
 ### Bewaking na uitschakeling thermische activiteitsscore
 
 De aparte voorvoer-, habitat- en positioneringsadviezen blijven bestaan. Ze zijn geen vervangende activiteitsscore, maar hun temperatuurafhankelijke drempels en hoeveelheden moeten nog afzonderlijk evidence-geaudit worden voordat Fase 2 formeel kan worden geaccepteerd. De gebruiker krijgt intussen geen thermische activiteitsscore of automatisch thermisch beste tijdvak te zien.
+
+
+### Evidence-audit voorvoeradvies
+
+De voorvoerengine is een afzonderlijke tactiekengine, geen thermische activiteitsscore. Haar temperatuurbanden, soortfactoren en gramadviezen zijn echter niet rechtstreeks door de geregistreerde bronnen gevalideerd. De UI noemt dit daarom nu een voorzichtige voerindicatie in plaats van een “gefundeerd” advies. Voor de volgende productbeslissing wordt beoordeeld of exacte grammen/suitabilityscore moeten verdwijnen terwijl kwalitatieve voer- en method-feederadviezen behouden blijven. De gebruiker mag geen exacte hoeveelheid zien als de invoerkwaliteit onvoldoende is; dit moet in PrognosisView gelijk worden getrokken met de VisCoach-vertaling.
