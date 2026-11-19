@@ -1927,3 +1927,19 @@ Bevestigd gedrag:
 - De oude profielwaarden blijven uitsluitend onderzoeks-/referentiecontext; de modelversie is verhoogd naar `v2.6-thermal-activity-disabled` en de prognosis-engine naar `1.2.0`.
 
 Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acceptatie blijft open totdat de volledige zevenpunts-crosswalk opnieuw is beoordeeld; Fase 3 blijft geblokkeerd.
+
+
+## 91. Resterende temperatuurafhankelijke tactische heuristieken — aparte read-only audit vereist
+
+Optie B uit PR #144 schakelt uitsluitend de numerieke thermische activiteitsscore en automatische thermische tijdvakrangschikking uit. Het schakelt niet stilzwijgend alle temperatuurafhankelijke tactiek uit.
+
+Een eerste codecontrole toont dat afzonderlijke tactische engines nog temperatuurafhankelijke regels gebruiken:
+- `prebaitEngine.ts`: temperatuurbanden (<6, <10, <16, ≤22 en >22 °C) sturen voorvoersuitability, dagen en gramadviezen; er wordt daarnaast een soortafhankelijke `amountFactor` toegepast. De engine noemt de uitkomst conservatieve startindicaties, geen universele biologische normen.
+- `habitatMovementEngine.ts`: watertemperatuur en thermische trend sturen mede de beschrijvende habitat-/zonehypothese.
+- `rodPositioningEngine.ts`: watertemperatuur wordt gebruikt als context bij de beoordeling van windkant en praktische positionering.
+
+Deze uitkomsten zijn geen vervanging van de uitgeschakelde activiteitsscore en tellen niet mee in de numerieke dagactiviteit. Hun eigen drempels, doseringen, bronbasis, soortoverdracht en presentatie moeten echter afzonderlijk worden gecontroleerd voordat criterium 2 formeel kan worden afgevinkt.
+
+**Volgende actie:** voer een read-only audit uit van alle temperatuurafhankelijke numerieke of drempelgestuurde tactiekregels. Leg per regel vast: bron/meetrespons, soort- en watertypeoverdracht, onzekerheid, gevolgen voor advies, en of de regel actief, uitsluitend beschrijvend of uitgeschakeld moet blijven. Wijzig nog geen drempels, gramadviezen of tactiekregels zonder een afzonderlijk onderbouwd besluit en regressies.
+
+Daarom blijft criterium 2 en de formele Fase-2-acceptatie voorlopig open, ondanks de succesvolle implementatie van optie B. Fase 3 blijft geblokkeerd.
