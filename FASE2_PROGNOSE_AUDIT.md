@@ -4643,3 +4643,58 @@ Experiment 2 onderzocht consumptie bij twee prooidichtheden en vijf gradaties va
 
 **Besluitstatus:** nieuwe primaire bron inhoudelijk beoordeeld en als beperkte directe snoek-voedingsdekking toegevoegd aan de audit; geen modelparameter, gewicht, bronvrijgave of runtime gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
 
+## 113. Externe literatuurtriage: aanvullende soortkandidaten (19 november 2026)
+
+Deze zoekronde signaleert mogelijke primaire bronnen buiten de huidige registry. De onderstaande publicaties zijn kandidaatbronnen, geen automatisch gevalideerde registry-records. Een kandidaat wordt pas opgenomen na controle van volledige methode, gemeten eindpunt, experimentele eenheid, levensfase, temperatuur/acclimatisatie en bronkwaliteit.
+
+### 113.1 Blankvoorn — voedselzoekgedrag in een temperatuurgradiënt
+
+**Bron:** Smirnov, A.K. & Smirnova, E.S. (2015). *Response of juvenile roach Rutilus rutilus to the heterogeneity of food resources in a temperature gradient*. Vestnik of Astrakhan State Technical University, Series: Fishing Industry, 2015(3), 44–52.
+
+De beschikbare samenvatting beschrijft juveniele blankvoorn die voedsel zocht in een zone die 7–10 °C kouder lag dan de zone met de temperatuurvoorkeur. Hongerige dieren maakten korte voedselzoekbewegingen naar de voedselzone, terwijl zij het grootste deel van de tijd temperaturen dichter bij hun voorkeur bleven selecteren.
+
+**Classificatie:** kandidaat voor foraging behavior en thermoregulatie × voedselbeschikbaarheid. Dit is geen zuivere temperatuur-respons van voedselopname: de studie beschrijft vooral keuze en verplaatsing in een heterotherm systeem. De exacte leeftijd/grootte, temperatuurregeling en kwantitatieve gedragsmaten moeten uit de volledige methode worden gecontroleerd. Geen zelfstandige temperatuurbonus of vaste tijdvakrespons afleiden.
+
+### 113.2 Baars — voedselbeschikbaarheid beïnvloedt temperatuurkeuze en foerageergedrag
+
+**Bron:** Smirnov, A.K. & Smirnova, E.S. (2019). *Behavior of Perch Fry Perca fluviatilis in a Heterothermal Environment at Different Levels of Food Availability*. (Primaire experimentele studie; bibliografische publicatiegegevens en volledige methode nog te verifiëren.)
+
+De beschikbare samenvatting beschrijft 1+ baars in een heterotherm systeem met overmatige, beperkte of afwezige voedselbeschikbaarheid. De uiteindelijke geselecteerde temperatuur verschilde tussen die condities (ongeveer 26, 24 en 22 °C). De gerapporteerde voedselconsumptie over 15 minuten was in twee gevoerde condities vergelijkbaar (circa 14,2 en 15,2% van lichaamsgewicht), ondanks verschil in voedselbeschikbaarheid.
+
+**Classificatie:** kandidaat voor interactie tussen voedselbeschikbaarheid, temperatuurkeuze en foraging behavior; er is ook een directe consumptiemeting, maar geen geïsoleerde temperatuurbehandeling die een voedselopnamecurve oplevert. De temperatuur is door de vis gekozen binnen een gradiënt, niet als een reeks onafhankelijke acclimatisatiebehandelingen opgelegd. Daarom geen temperatuur-optimum of thermische voedselopnamefunctie fitten.
+
+### 113.3 Brasem — jonge levensfase en twee temperatuurbehandelingen
+
+**Bron:** (1985). *Influence of temperature and rate of feeding on nitrogen metabolism of juvenile bream (Abramis brama L.)*. Comparative Biochemistry and Physiology Part A, 82(1), 125–129. DOI: https://doi.org/10.1016/0300-9629(85)90715-7
+
+De beschikbare abstractinformatie noemt brasemfry van circa 75–1400 mg, gevoerd met levend zoöplankton bij 15 ± 1 en 20 ± 1 °C, met een aangeboden rantsoen van 10–15% lichaamsgewicht per dag. De studie rapporteert onder meer stikstofconsumptie en stikstofuitscheiding.
+
+**Classificatie:** relevante kandidaat, maar nog niet als directe temperatuur-voedselopnamecurve aanmerken. De volledige methode moet uitwijzen hoe daadwerkelijke voedselopname/consumptie werd bepaald ten opzichte van het aangeboden rantsoen en hoe de grootteklassen zijn geanalyseerd. Twee temperatuurbehandelingen en zeer jonge levensfasen zouden ook bij bevestigde intake slechts beperkte dekking geven.
+
+### 113.4 Meerval — directe voeracceptatie en consumptie, maar voorlopige bronkwaliteit
+
+**Bron:** Havasi, M., Oláh, T., Felföldi, Z. & Bercsényi, M. *Passing times of two types of feeds in Wels (Silurus glanis) at three different temperatures*. Conferentiebijdrage in de proceedings *Diversification in Inland Finfish Aquaculture*.
+
+De beschikbare proceedingssamenvatting beschrijft fingerlings van gemiddeld circa 38 g bij 15, 20 en 24 °C, met drie replicaten per behandeling en twee voertypen (droogvoer of visprooi). Bij 15 °C accepteerde een kleiner aandeel de pellets dan de visprooi; bij 20 en 24 °C werd in beide voerbehandelingen volledige voeracceptatie gerapporteerd. De dagelijkse geconsumeerde hoeveelheid verschilde sterk tussen voertype en temperatuur.
+
+**Classificatie:** kandidaat voor directe feeding intensity/voeracceptatie bij jonge kweekmeerval. Beperkt door proceedings-bron, kleine experimentele opzet, fingerling-/kweekcontext en sterk voertype-afhankelijk resultaat. Eerst volledige bibliografische gegevens, methode, meetfout en statistiek verifiëren; niet gelijkstellen aan wilde meerval, natuurlijke prooikeuze of hengelaasopname.
+
+### 113.5 Baars — nuttige uitsluitingscontrole
+
+Mehner (1994), *Effects of temperature on allocation of metabolic energy in perch fed submaximal rations*, vergeleek juveniele baars bij 15 en 20 °C met een vaste dagelijkse voedselrantsoen. De studie vond verschillen in energieallocatie naar activiteit/onderhoud en groei, maar doordat de rantsoenhoeveelheid vastlag, levert zij geen temperatuurafhankelijke vrijwillige voedselopnamecurve. Dit blijft fysiologische context, geen directe thermische intake-respons.
+
+### 113.6 Gevolg voor de dekking en prioriteiten
+
+| Soort | Nieuwe kandidaat | Wat de bron mogelijk toevoegt | Huidige beslissing |
+|---|---|---|---|
+| Blankvoorn | Smirnov & Smirnova (2015) | Voedselzoekgedrag in temperatuurgradiënt | Gedragskandidaat; geen intakecurve |
+| Baars | Smirnov & Smirnova (2019) | Voedselbeschikbaarheid × temperatuurkeuze; korte consumptiemeting | Interactiekandidaat; geen opgelegde temperatuurcurve |
+| Brasem | Juveniele studie (1985) | Stikstof-/mogelijk intake-eindpunt bij 15 en 20 °C | Methode en intakebepaling eerst verifiëren |
+| Meerval | Havasi et al. proceedings | Voeracceptatie en geconsumeerde hoeveelheid bij 15/20/24 °C | Directe kandidaat, lage bron-/overdraagbaarheidszekerheid |
+| Baars | Mehner (1994) | Energieallocatie bij vaste rantsoenen | Niet gebruiken als thermische intakecurve |
+
+Deze bronnen veranderen de conclusie van §110 niet: er is nog geen voldoende gevalideerde, overdraagbare dagelijkse temperatuur-voedselopnamecurve voor deze soorten. Ze verfijnen wel de onderzoeksprioriteit: controleer eerst de volledige methode van de brasemstudie en de meervalproceedings, en verifieer de exacte publicatiegegevens van de twee temperatuurgradiëntstudies. Behandel de gemeten gedrags- en intake-eindpunten afzonderlijk.
+
+**Besluitstatus:** vier aanvullende kandidaatsporen en één expliciete uitsluitingscontrole gedocumenteerd; geen bron aan de registry toegevoegd, geen bron goedgekeurd, geen parameter/gewicht/runtime gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
