@@ -793,7 +793,7 @@ De wijzigingen zijn uitsluitend tekst-/onzekerheidscorrecties in de bestaande po
 
 ## 88. Actuele soortdekking in het research register
 
-De actuele registerdekking en interpretatie staan in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 76 records, alle `approvedForPrediction: false`. De extra telemetriebronnen voor meerval, snoek en blankvoorn/brasem verbeteren vooral de ruimtelijke bewegings-/habitatcontext; zij activeren geen voedings-, activiteit- of vangstkansfactor. Roofblei heeft nog geen directe geregistreerde tijdgebonden voedselopname; meerval- en karperbronnen moeten naar gecontroleerde voeropstelling versus natuurlijke veldrespons gescheiden blijven.
+De actuele registerdekking en interpretatie staan in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 86 records, alle `approvedForPrediction: false`. De extra telemetriebronnen voor meerval, snoek en blankvoorn/brasem verbeteren vooral de ruimtelijke bewegings-/habitatcontext; zij activeren geen voedings-, activiteit- of vangstkansfactor. Roofblei heeft nog geen directe geregistreerde tijdgebonden voedselopname; meerval- en karperbronnen moeten naar gecontroleerde voeropstelling versus natuurlijke veldrespons gescheiden blijven.
 
 
 ## 89. Bibliografische en uitkomstclassificatie oudere profielbronnen
@@ -804,3 +804,10 @@ De audit van oudere profielreferenties staat in `FASE2_PROGNOSE_AUDIT.md` §100.
 ## 90. Omgevingsfactoren: bewijs en invoergrenzen
 
 De factorreview in `FASE2_PROGNOSE_AUDIT.md` §101 onderscheidt beweging van voedselopname. Wind en luchtdruk hebben beperkte, contextafhankelijke telemetrieverbanden met baarsbeweging; troebelheid hangt in één ondiep meer samen met brasemactiviteit; ernstige hypoxie kan karpervoeropname sterk onderdrukken. Deze bronnen zijn niet goedgekeurd voor numerieke voorspelling. Zuurstof is biologisch relevant maar niet betrouwbaar als actuele lokale invoer beschikbaar; onbekend blijft onbekend. Neerslag en stroming blijven context zonder voldoende direct doelsoortbewijs. Geen universele bonus of drempel.
+
+
+## 91. Actuele Fase-2-acceptatiegrenzen en volgorde
+
+De actuele zevenpunts-crosswalk staat in `FASE2_PROGNOSE_AUDIT.md` §89. De gekozen thermische optie A blijft een voorlopige mechanistische prior; de exacte parameters zijn niet gevalideerd. De gewenste geïntegreerde dagscore wordt niet gebouwd door alle zichtbare outputs blind op te tellen: eerst moet de doelrespons van de bestaande 1–10-score expliciet worden afgebakend. Alleen factoren die dezelfde respons verklaren kunnen daarin een gewogen bijdrage krijgen. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven afzonderlijke uitkomsten tenzij een apart samengesteld doel expliciet wordt vastgesteld en gevalideerd.
+
+De huidige code gebruikt alleen thermische respons in de numerieke dagscore; tijdvakken delen dezelfde dagbrede thermische waarde. Brier toetst persoonlijke vangstkans, temperatuur heeft eigen foutmaten; activiteit, voeding, habitat en tijdvak vereisen eigen evaluatie. Geen nieuwe gewichten of tijdvakbonussen vóór factorstatus, datadekking, missing-data-regel, normalisatie en onafhankelijke validatie zijn vastgesteld. Fase 2 blijft open; Fase 3 geblokkeerd.
