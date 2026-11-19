@@ -2071,3 +2071,111 @@ Fase 2 blijft niet geaccepteerd en Fase 3 blijft geblokkeerd. Er is geen runtime
 Bij het vergelijken van de architectuurtekst met de actuele code is een verouderde zin gevonden in §41: de persoonlijke Poisson-vangkans werd daar nog beschreven als voorzien van een thermische dagscorecorrectie. Dat is onjuist. De actuele `prognosisEngine.ts` berekent de persoonlijke Poisson-baseline uit vergelijkbare vangsten en geregistreerde visduur zonder thermische multiplier; §46 en de actuele code zijn leidend. §41 is in dezelfde documentupdate gecorrigeerd.
 
 Ook zijn dubbele sectienummers ontstaan bij de recente architectuurtoevoegingen. De nieuwe architectuursecties zijn hernummerd naar §82–§84 zodat de documentstructuur uniek blijft. Dit is documentcorrectie; geen runtimegedrag gewijzigd.
+
+
+## 96. Read-only audit: temperatuurafhankelijke voorvoer- en tactiekregels (19 november 2026)
+
+### 96.1 Voorvoerengine — actieve numerieke regels
+
+`prebaitEngine.ts` bevat buiten de uitgeschakelde thermische activiteitsscore nog een aparte temperatuurafhankelijke tactiekberekening:
+
+| Watertemperatuur | Huidige engine-uitkomst | Actieve numerieke consequentie |
+|---|---|---|
+| Onbekend | Geen voorvoer | 0 dagen / 0 gram |
+| < 6 °C | Niet aanbevolen | 0 dagen |
+| 6–<10 °C | Beperkt / voorzichtig | 1 dag, 100 g/dag |
+| 10–<16 °C | Matig zinvol | maximaal 2 dagen, 250 g/dag |
+| 16–22 °C | Zeer zinvol | maximaal 3 dagen, 450 g stilstaand water of 600 g stromend water |
+| > 22 °C | Beperkt / voorzichtig | 1 dag, 200 g/dag |
+
+De sessiehoeveelheid gebruikt daarnaast temperatuur-/techniekafhankelijke waarden (onder meer 30–150 g per standaardduur), en `getSpeciesFeed()` past soortfactoren toe: karper 1,00, brasem 0,65 en zeelt 0,55. De interne `suitabilityScore` gebruikt 0/1/4/6/8 en bepaalt mede of een voorvoercampagne wordt ingepland.
+
+### 96.2 Bronbasis en overdraagbaarheid
+
+- **Volkoff & Rønnestad (2020), DOI 10.1080/23328940.2020.1765950:** ondersteunt dat temperatuur voedselopname en vertering beïnvloedt, maar benadrukt grote soort-, acclimatisatie-, levensfase- en blootstellingsverschillen. Dit ondersteunt temperatuur als context, niet de vaste grenzen 6/10/16/22 °C of grammen per stek.
+- **Chen et al. (2012), DOI 10.1016/S1006-8104(12)60039-7:** experimentele voedselopname bij de Aziatische ondersoort `Cyprinus carpio haematopterus` over 4–34 °C. Bij 6 °C was de gemeten opname zeer laag maar niet nul; de hoogste dagelijkse opname trad op bij 28 °C en nam bij 34 °C af. Dit valideert niet de huidige grens van 22 °C als omslag naar voorzichtig voeren, en levert geen overdraagbare grammen per voerbeurt voor Nederlandse recreatieve karperstekken.
+- **Benjamin, Hill & Ricciardi (2026), DOI 10.1007/s10530-026-03767-w:** bij zeelt werd in een experimentele vergelijking een lagere maximale voedingssnelheid bij 25 °C dan bij 18 °C gevonden. Twee temperatuurbehandelingen in het St. Lawrence-systeem vormen geen volledige curve en ondersteunen geen universele grens van 22 °C of de soortfactor 0,55.
+- Voor brasem zijn in het register directe voedings-/dagritmebronnen opgenomen, maar geen passende soortspecifieke temperatuurrespons die de huidige voorvoerbanden of factor 0,65 valideert.
+
+De research registry bevat 71 records; alle 71 staan op `approvedForPrediction: false`. De `feedingEvidenceService` verzamelt directe voedings-, ritme-, foerageer- en dieetbronnen, maar de lijst met expliciet goedgekeurde directe voedingsbronnen is daardoor momenteel leeg. `prebaitEngine.ts` gebruikt deze bewijsstatus niet als voorwaarde voor zijn numerieke drempels of hoeveelheden.
+
+**Conclusie:** de algemene richting dat temperatuur voedingsprocessen beïnvloedt is onderbouwd; de exacte enginegrenzen, geschiktheidsscore, soortfactoren, rivierbonus en gramadviezen zijn niet rechtstreeks gevalideerd. De engine noemt ze zelf conservatieve startindicaties, maar de UI/adviesvertaling moet dit onderscheid prominent houden. `confidenceLevel` meet momenteel de volledigheid van temperatuur-, watertype- en diepte-invoer; het is geen maat voor de wetenschappelijke bewijssterkte van de gramadviezen.
+
+### 96.3 Presentatie- en consistentiecontrole
+
+- De VisCoach-vertaling toont voorafgaande grammen alleen wanneer `confidenceLevel === 'Redelijk'`, en toont sessiegrammen alleen bij bekende sessieduur en redelijke invoerkwaliteit.
+- De algemene `PrognosisView` toont de hoeveelheid uit `moments.amountDisplay` momenteel rechtstreeks, ook wanneer de invoerkwaliteit lager is. Dit wijkt af van de bestaande productregel dat exacte grammen bij lagere invoerkwaliteit verborgen blijven.
+- De algemene view gebruikte de kop “Gefundeerd voeradvies op maat”, terwijl de engine de waarden zelf als conservatieve startindicaties beschrijft. De kop is daarom verduidelijkt naar “Voorzichtige startindicatie”.
+- De tekst over “fysiologische temperatuurefficiëntie” in de prognoseview was verouderd na optie B en is vervangen door een uitleg dat watertemperatuur alleen context is en de thermische activiteitsscore uit staat.
+
+### 96.4 Habitat- en positioneringsregels
+
+De habitat- en positioneringsengines gebruiken nog temperatuurgrenzen als zoekhypothese, onder meer koudwaterregels rond 7–9 °C, een voorjaarsregel rond 11 °C, zeelt rond 11 °C en meerval rond 12 °C. Deze uitkomsten zijn geen numerieke activiteitsscore en worden op meerdere plaatsen expliciet als zoekhypothese/context omschreven. Enkele soortspecifieke teksten (“extreme winterrust”, “diepe inactieve spaarstand” of sterk vertraagde stofwisseling) zijn stelliger dan de huidige bronregistratie rechtvaardigt. De volgende audit moet deze formuleringen per soort koppelen aan passende fysiologische/veldbronnen of ze terugbrengen tot voorzichtige, niet-dwingende zoekhypothesen.
+
+### 96.5 Nog geen runtimebesluit
+
+Er zijn in deze audit geen temperatuurgrenzen, soortfactoren, gramadviezen of habitat-/positioneringsregels aangepast. De uitkomsten blijven buiten de thermische activiteitsscore en mogen niet als gevalideerde vangstkans worden gepresenteerd.
+
+**Ontwerpbesluit nodig:** 
+- Optie A: de bestaande voorvoerwaarden behouden als expliciet praktische heuristiek, met prominente waarschuwing, invoerkwaliteitsgrens en lokale bijstelling; of
+- Optie B: numerieke geschiktheidsscore en exacte gramadviezen uitschakelen totdat passende soort-/watercontext of lokale praktijkdata de parameters ondersteunen, terwijl kwalitatieve voer- en method-feederadviezen blijven bestaan.
+
+Mijn kwaliteitsadvies is optie B voor de numerieke score en exacte hoeveelheden. Behoud de kwalitatieve tactiek en de beschrijvende persoonlijke vergelijking; gebruik geen exacte grammen als schijnnauwkeurige biologische aanbeveling. Dit vereist expliciete goedkeuring voordat runtimegedrag wordt aangepast.
+
+Criterium 2 en de formele Fase-2-acceptatie blijven open. Fase 3 blijft geblokkeerd.
+
+
+
+## 97. Read-only vervolgcontrole: thermische zoekhypothesen in habitat en positionering (19 november 2026)
+
+Deze controle volgt de open actie uit §96.4. Zij beoordeelt de huidige temperatuurafhankelijke tekst-/zonekeuzes in `habitatMovementEngine.ts` en `rodPositioningEngine.ts`. Geen drempel of tactiekregel is gewijzigd.
+
+### 97.1 Generieke habitat-/bewegingsengine
+
+`habitatMovementEngine.ts` gebruikt de volgende generieke classificaties:
+
+| Codevoorwaarde | Huidige rol | Auditbeoordeling |
+|---|---|---|
+| Watertemperatuur < 8 °C | Koudwater-/winterhypothese; mogelijk stabielere of beschutte zone | Alleen brede context. Geen soortspecifieke grens en geen bewijs dat de vis altijd dieper zit of minder vangbaar is. |
+| Voorjaar én opwarmingstrend of temperatuur ≥ 11 °C | Hypothese dat ondiepere zones vaker gebruikt kunnen worden | Richting plausibel als zoekhypothese, maar 11 °C is geen gevalideerde universele omslaggrens; zon, diepte, watertype en lokale temperatuurgradiënt ontbreken. |
+| Watertemperatuur ≥ 18 °C | Warme/zomercontext; bij middag schaduwstructuur als mogelijke zone | Contextuele zoekhypothese; geen gemeten soortspecifiek optimum of bewijs voor hogere voedselopname. |
+
+De uitvoer benoemt deze patronen doorgaans als hypothese en vraagt lokale diepte-/structuurcontrole. De engine blijft een aparte ruimtelijke laag; deze classificaties zijn geen dagscorebijdrage en mogen niet als voeding of vangstkans worden geïnterpreteerd.
+
+### 97.2 Soortspecifieke positioneringsregels
+
+| Soort / codevoorwaarde | Huidige tekst of gevolg | Wat het bewijs wel ondersteunt | Wat niet is aangetoond |
+|---|---|---|---|
+| Snoek: < 7 °C, of < 9 °C bij koude wind | Diepere taluds en prooivisconcentraties; snoek volgt witvis naar diepere hinderlagen | Snoek gebruikt afhankelijk van grootte, dekking, zuurstof en waterlichaam verschillende dieptes; wintergebruik kan ruimtelijk variabel zijn. | Geen universele 7/9 °C-drempel, geen vaste prooivisverplaatsing naar diep water en geen vaste snoekreactie. Pierce et al. (2013) vond flexibele dieptekeuze en sterke invloed van lichaamsgrootte en vegetatiedekking; Kobler et al. (2008) vond in winter grotere activiteitcentra met overlap met zomerlocaties. |
+| Zeelt: < 11 °C | “Extreme winterrust”, “diepe inactieve spaarstand” en strikt mijden van ruwe golfslag/stroming | Zeelt kan bij ongunstige omstandigheden in zachte bodem/modder schuilen of ingraven; soort gebruikt vaak ondiepe, rustige, begroeide habitats. | De bronbasis onderbouwt geen vaste 11 °C-omslag, geen universele diepe rustzone en geen volledige inactiviteit. Avlijaš et al. (2018) bespreekt mud-burrowing als reactie op lage temperatuur, zuurstof of waterstand, maar geeft geen 11 °C-drempel of acute voedingsrespons. |
+| Meerval: < 12 °C | Diepste overwinteringskuilen/rusttoestand; “stofwisseling vertraagt drastisch” en “zonder actief te jagen” | Europese meerval kan bij lage temperaturen seizoensgebonden aggregaties en diepte-/bewegingsveranderingen vertonen; locatie en populatie zijn belangrijk. | De stellige grens 12–14 °C en afwezigheid van jacht zijn niet universeel. Capra et al. (2023) vond winteraggregatie bij temperaturen onder 9 °C in één Frans meer, maar ook vertrek uit de aggregatie vaker bij schemer/nacht wanneer temperatuur steeg. Bergström et al. (2024) registreerde activiteit bij minder dan 5 °C in een noordelijke populatie. Krey et al. (2026) vond verschil tussen lentische en lotische verticale beweging. Dit is vooral habitat-/bewegingsbewijs, geen voedingsmeting. |
+| Voorn: < 7 °C | Diepe havens/kuilen; zonnige middagen korte verplaatsing naar ondiepe luwe oever | Wintermigratie naar zijwateren/stromen en tijdgebonden verplaatsing zijn in specifieke systemen gemeten. | Geen vaste 7 °C-grens en geen algemeen bewijs voor de genoemde zonnige-middagroute. Skov et al. (2008) vond dat een deel van de blankvoornpopulatie in één meren-stroomsysteem in winter naar stromen migreerde; instroommomenten verschilden per seizoen en stroom. Dit is beweging, geen directe voedselopname. |
+| Generieke soorten: < 7 °C, of < 9 °C bij koude wind | Diepere rustzone/luwe oever | Een temperatuur-/windcontext kan als voorzichtig zoeksignaal worden vermeld. | Geen generieke biologische drempel of universele dieptekeuze voor alle soorten. |
+| Voorjaar: opwarmingstrend of ≥ 11 °C | Ondiepe, zonnige, beschutte zones als mogelijke zoekplek voor karper en witvis | Opwarming en lokale habitat kunnen seizoensgebonden zonegebruik beïnvloeden. | Geen universele 11 °C-grens en geen garantie dat aanlandige wind of ondiep water meer vis of voedsel oplevert. |
+
+### 97.3 Overige positionerings-/windcontext
+
+- `buildWindCastingGuidance()` gebruikt temperatuurbanden (<8 °C, <10 °C bij koude wind, voorjaar ≥11 °C, warm water ≥21 °C) samen met seizoen en wind om de beoordeling van de windkant te formuleren. De actuele tekst zegt expliciet dat windrichting alleen geen vislocatie bewijst; deze rol is positionering/presentatie, niet een biologische score.
+- `bankWindEngine.ts` bepaalt de fysieke relatie tussen windrichting en ingestelde oeverkijkrichting. Het leidt geen vislocatie uit wind af.
+- De soortspecifieke positioneringsfunctie wordt alleen gebruikt wanneer watertype, bruikbare watertemperatuur en gemiddelde windsnelheid aanwezig zijn. Anders valt zij terug op geregistreerde lokale structuren en een lage-confidence algemene zoekhypothese.
+- Gemeten en geschatte watertemperatuur worden in de positioneringsketen onderscheiden, maar de code gebruikt voor meerdere drempels beide als `effectiveWaterTemp`. De onzekerheid van een schatting wordt niet in de numerieke grens zelf verwerkt.
+
+### 97.4 Nieuwe/aanvullende primaire bronnen en status
+
+Vijf bronnen zijn toegevoegd aan `researchRegistry.ts` als niet-goedgekeurde contextregistraties (totaal: 76 records; alle 76 `approvedForPrediction: false`):
+
+- Capra et al. (2023), Europese meerval overwinteringsaggregatie, DOI 10.1186/s40462-023-00373-6 — habitatgebruik/beweging; één ondiep Frans meer.
+- Krey et al. (2026), lentische versus lotische meerval-diepte- en verticale beweging, DOI 10.1111/fme.70082 — habitatgebruik/beweging; Lake Constance en twee zijrivieren.
+- Pierce et al. (2013), snoekdiepte en thermisch habitat in drie Minnesota-meren, DOI 10.1080/00028487.2013.822422 — habitatgebruik; grootte, dekking en zuurstof beïnvloeden dieptekeuze.
+- Kobler et al. (2008), seizoensgebonden activiteitcentra van vrouwelijke snoek in één Duits meer, DOI 10.1111/j.1095-8649.2008.01952.x — habitatgebruik/beweging.
+- Skov et al. (2008), wintermigratie van blankvoorn, brasem en ruisvoorn tussen meer en stromen, DOI 10.1111/j.1600-0633.2008.00291.x — habitatgebruik/beweging; migratie en tijdstip verschillen tussen systeem en seizoen.
+
+Avlijaš et al. (2018), DOI 10.1139/cjfas-2017-0171, is als review/risicobeoordeling gebruikt voor de voorzichtige mud-burrowing-context bij zeelt; dit is geen directe studie die de codegrens van 11 °C valideert.
+
+### 97.5 Conclusie en vervolg
+
+De bestaande positioneringsregels zijn zoekhypothesen en mogen niet in de dagelijkse activiteitsscore worden opgenomen. De sterkste tekstuele correctiekandidaat is de meervalregel onder 12 °C: de formulering “zonder actief te jagen” is te absoluut tegenover veldgegevens die populatie- en watertypeverschillen en activiteit bij zeer lage temperaturen laten zien. De zeeltregel onder 11 °C en de snoek-/voornregels onder 7–9 °C hebben eveneens geen gevalideerde exacte drempel.
+
+Er wordt nog geen runtimegedrag aangepast. De volgende auditstap is de bron-/claimtrace per soort afronden en de resterende tactiekregels expliciet classificeren als: behoud als voorzichtige zoekhypothese, uitsluitend beschrijvende context, of verwijderen/afzwakken wegens te stellige claim. De afzonderlijke keuze over het uitschakelen van numerieke voorvoer-suitability en grammen uit §96.5 blijft open en vereist expliciete goedkeuring voordat runtimeberekeningen veranderen.
+
+Fase 2 blijft open; Fase 3 blijft geblokkeerd.

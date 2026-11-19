@@ -721,3 +721,12 @@ De huidige implementatie is per factor verbonden met code, zichtbare UI, prognos
 De kandidaatmodelrichting en het chronologische validatieprotocol zijn vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §94 en `MODELARCHITECTUUR_FASE2.md` §85. Het ontwerp behoudt de bestaande dagscoreweergave en centrale prognoseketen. Factoren krijgen ieder een traceerbare respons, datastatus, onzekerheid en — alleen wanneer evidence en validatie dit toelaten — een eigen gewogen bijdrage. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid blijven onderscheiden responsen.
 
 De vier tijdvakken worden uiteindelijk afzonderlijk beoordeeld met tijdvakcondities, doelsoort, datum/seizoen en stekcontext; directe voedings-/foerageerevidence kan de tijdvakvoorkeur beïnvloeden. Brier blijft uitsluitend de evaluator van persoonlijke vangstkans; temperatuur, activiteit, voeding, habitat en tijdvak vereisen eigen passende evaluatie. Geen gewichten of runtimefactoren geactiveerd. De normalisatie, aggregatie, ontbrekende-data-regel en gewichtsbepaling blijven open ontwerpbesluiten vóór implementatie. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — herstel voorvoer-audit en vervolg habitat-/positioneringsbewijs (19 november 2026)
+
+De eerder in PR #146 gemergde voorvoer-audit is teruggezet in `FASE2_PROGNOSE_AUDIT.md` §96 nadat bleek dat deze sectie bij een latere documentatiesynchronisatie uit het huidige bestand was verdwenen. §97 bevat de aanvullende bron-/claimcontrole van temperatuurafhankelijke habitat- en positioneringsregels. Vijf nieuwe telemetriebronnen voor meerval, snoek en blankvoorn/voorn zijn als niet-goedgekeurde registry-context toegevoegd; alle 76 registry-records blijven `approvedForPrediction: false`.
+
+De huidige code gebruikt nog heuristische grenzen (<7–12 °C, afhankelijk van soort/regel) en bevat enkele te stellige formuleringen. Dit zijn ruimtelijke zoekhypothesen, geen dagscorefactoren. De meervalclaim “zonder actief te jagen” onder 12 °C is onvoldoende houdbaar; exacte grenzen voor zeelt, snoek en voorn zijn evenmin gevalideerd. De bestaande voerhoeveelheden blijven een afzonderlijk open besluit. Geen runtimeberekeningen of gewichten aangepast.
+
+**Volgende stap:** de claim-/brontrace per soort afronden en per regel vastleggen of de tekst als voorzichtige zoekhypothese kan blijven, alleen context moet zijn of moet worden afgezwakt. Daarna de zevenpunts-crosswalk bijwerken. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

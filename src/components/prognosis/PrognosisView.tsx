@@ -1581,8 +1581,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           Gestructureerd Voorvoerprogramma (Voerplanner)
                         </span>
                         <span className="text-[11px] text-slate-400">
-                          Gefundeerd voeradvies op maat voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
+                          Voorzichtige startindicatie voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
                         </span>
+                        <span className="text-[10px] text-amber-200/80 block mt-1">Temperatuurbanden en grammen zijn praktische indicaties, geen gevalideerde biologische normen.</span>
+                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.confidenceLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
                       </div>
                     </div>
                     <span
