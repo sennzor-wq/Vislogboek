@@ -4811,3 +4811,35 @@ Deze studie onderzoekt hoe temperatuur, dieet en consumptiesnelheid de darmpassa
 De literatuur biedt nu drie verschillende bewijsrichtingen die gescheiden moeten blijven: (1) voedselzoekgedrag en temperatuurkeuze in een gradiënt (§113), (2) dagelijkse consumptie onder gecontroleerde dieet-/temperatuurcondities (1980, nog te verifiëren), en (3) darmpassagetijd/veldschatting van consumptie (1982). Geen van deze afzonderlijke bronnen levert op dit moment een gevalideerde, overdraagbare dagelijkse thermische voedselopnamecurve voor wilde blankvoorn in Nederlandse binnenwateren.
 
 **Status:** meervalproceedings volledig op abstractniveau methodisch uitgewerkt; twee blankvoornbronnen als kandidaten/meetmethodische context toegevoegd. Geen registry-goedkeuring, geen runtime-, score-, gewicht- of parameterwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 119. Baars en blankvoorn — temperatuurafhankelijke prooivangst en foerageergedrag (19 november 2026)
+
+**Bron:** Linløkken, A.N., Bergman, E. & Greenberg, L. (2010). *Effect of temperature and roach Rutilus rutilus group size on swimming speed and prey capture rate of perch Perca fluviatilis and R. rutilus.* Journal of Fish Biology, 76, 900–912. DOI: 10.1111/j.1095-8649.2010.02545.x.
+
+De studie bevat twee afzonderlijke laboratoriumexperimenten. In het temperatuur-experiment werden baars en blankvoorn getest bij 4, 8, 12, 16 en 20 °C. De gemeten eindpunten waren zwemsnelheid en prooivangst/ capture rate. Baars had een lagere zwemsnelheid en vangstsnelheid dan blankvoorn, vooral bij 4 en 8 °C. Het tweede experiment onderzocht de invloed van aantallen blankvoorns (0, 2, 4 en 6) op beide soorten bij een vaste temperatuur van 16 °C. Bij baars waren zwemsnelheid en vangstsnelheid het laagst bij de hoogste blankvoorn-abundantie; blankvoorn werd relatief weinig beïnvloed. Baars bevond zich tijdens het foerageren vaker dichter bij de bodem, vooral bij hoge blankvoorn-abundantie.
+
+**Classificatie:** directe gedrags-/prooivangstrespons, geen dagelijkse voedselopname. De temperatuurreeks is relevant voor de efficiëntie van het vangen van natuurlijke prooien in een laboratoriumopstelling. Dit is dichter bij foraging success dan groei of metabolisme, maar nog steeds geen hengelaasrespons, geen vrijwillige dagelijkse intake en geen persoonlijke vangstkans. Het groepsgrootte-experiment is een afzonderlijke 16 °C-proef en mag niet worden vermengd met de temperatuurreeks.
+
+**Besluit:** bruikbare kandidaat voor een soortspecifieke, contextgebonden foerageer-/prooivangstrespons bij baars en blankvoorn. Niet gebruiken als thermische voedselopnamecurve of als directe voorspeller van vangst met een hengel. De bestaande soortkaarten blijven correct waar zij stellen dat geen voldoende gevalideerde dagelijkse thermische voedselopnamecurve beschikbaar is.
+
+## 120. Roofblei — volwassen beweging, seizoen en dagdeel (telemetrie, geen voedingsmeting)
+
+**Bron:** Kärgenberg, E., Sandlund, O.T., Thorstad, E.B., Thalfeldt, M., Økland, F., Kaasik, A. & Tambets, M. (2022). *Annual and diel activity cycles of a northern population of the large migratory cyprinid fish asp (Leuciscus aspius).* Environmental Biology of Fishes. DOI: 10.1007/s10641-022-01298-6.
+
+In een natuurlijk Ests meer-riviersysteem zijn volwassen roofbleien gedurende 32 maanden met akoestische telemetrie gevolgd. In de analyse werden 53 individuen en 12.435 bewegingsactiviteit-gebeurtenissen gebruikt. Activiteit in de betekenis van geregistreerde bewegingen was doorgaans hoger rond zonsopkomst of zonsondergang dan midden op de dag of 's nachts, maar de dagdeelpatronen verschilden tussen maanden en waren niet in alle jaren consistent. In juni, juli en september werd geen significant verschil tussen de vier dagperioden gevonden. De bewegingssnelheid hing samen met watertemperatuur en afvoer; de auteurs beschrijven een duidelijke seizoensverhoging van beweging in de warmere periode.
+
+Belangrijk: de studie meet verplaatsingen tussen akoestische ontvangers, geen voedselopname, prooiaanvallen of vangsten. De aanduiding van de warme periode als hoofdvoedingsperiode is gebaseerd op eerder gepubliceerde literatuur en eigen niet-gepubliceerde gegevens, niet op een directe voedingsmeting in deze telemetrieanalyse. Ook werd bijna 20% van de tijd in meren doorgebracht waar beweging niet op dezelfde wijze kon worden gemeten.
+
+**Classificatie:** sterke veldbron voor volwassen roofblei-beweging, seizoensactiviteit en variabele dagdeelpatronen; geen directe voedingsrespons. De studie ondersteunt nadrukkelijk geen universele schemerbonus: de patronen veranderen per maand en ontbreken in meerdere zomermaanden. Habitat, licht en rivierafvoer zijn mede bepalend.
+
+**Besluit:** opnemen als context voor habitat-/bewegingshypothesen en als uitsluitingscontrole tegen het gelijkstellen van beweging aan voeren. Geen tijdvakgewicht, voedingslabel of vangstkans afleiden. De bestaande scheiding tussen activiteit, aanwezigheid, voedselzoekgedrag, daadwerkelijke consumptie en vangbaarheid blijft gehandhaafd.
+
+### 120.1 Gevolg voor de modelarchitectuur
+
+- Prooivangstsnelheid (baars/blankvoorn) is een gedragsmatige tussenmaat en moet gescheiden blijven van dagelijkse voedselopname.
+- Telemetriebeweging (roofblei) is een activiteits-/verplaatsingsmaat en mag niet als voedingsactiviteit worden gelabeld.
+- Dagdeelrespons is seizoens- en contextafhankelijk; deze bronnen onderbouwen geen vaste ochtend-/schemer-/avondbonus.
+- Geen van beide bronnen levert een persoonlijke hengelvangstkans of een bewezen respons op method-feeder-aas.
+
+**Status:** twee aanvullende primaire bronnen methodisch geclassificeerd. Geen bron goedgekeurd voor numerieke runtime, geen score/gewicht/parameter aangepast. Fase 2 blijft open; Fase 3 geblokkeerd.
