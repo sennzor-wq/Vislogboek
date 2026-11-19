@@ -4164,3 +4164,90 @@ Een vangst is geen zuivere meting van biologische voedselopname: stekkeuze, aanw
 - Eventuele latere uitbreiding vereist aantoonbare gebruikerswaarde en mag de snelle basisregistratie niet blokkeren.
 
 **Status:** dit is het vastgestelde product-/registratiecontract voor verdere audit en ontwerp. Het schrijft geen runtimewijziging voor. Bestaande registratiefunctionaliteit moet eerst tegen dit contract worden gecontroleerd; alleen aantoonbare afwijkingen zijn aanleiding voor latere implementatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+## 105. Factor-naar-doelresponsmatrix en kandidaatprioriteit (19 november 2026)
+
+Deze stap vertaalt de vastgestelde productdoelrespons uit §103 en de gesloten inventaris uit §102 naar een eerste kandidaatmodelstructuur. Dit is een ontwerp-/auditmatrix, geen numerieke gewichtsverdeling en geen runtime-activatie. De matrix beantwoordt per factor: welk gedrag kan deze factor werkelijk verklaren, hoe dicht ligt dat bij de gewenste dagelijkse activiteit-/voedingspotentie, en wat is nodig voordat hij de bestaande 1–10-score mag beïnvloeden?
+
+### 105.1 Ontwerpprincipe: voorspel de beste verwachting met de gegevens die er wél zijn
+
+De prognose is een informatiebron en adviesinstrument, geen glazen bol. Onvolledige gegevens mogen een bruikbare prognose niet automatisch blokkeren. Het model moet de beste verdedigbare verwachting maken uit de beschikbare informatie, terwijl het expliciet laat zien welke relevante factoren ontbreken of onzeker zijn. Onbekend is niet hetzelfde als neutraal, maar onbekend betekent evenmin dat de hele prognose onbruikbaar is.
+
+Daarom worden drie zaken afzonderlijk behandeld:
+- **Verwachte biologische respons:** wat zeggen de beschikbare factoren over activiteit en voedsel-/foerageerpotentie?
+- **Datadekking en onzekerheid:** welke relevante factoren zijn gemeten, geschat, contextueel of onbekend?
+- **Praktische vangst-/tactiekvertaling:** wat kan de VisCoach met soort, stek, tijdvak, sessiecontext en optionele hengel/methode adviseren?
+
+De gebruiker blijft één bestaande 1–10-dagscore zien. De interne berekening mag meerdere lagen en soortspecifieke bijdragen bevatten; er komen geen zichtbare deelscores of tweede prognose.
+
+### 105.2 Kandidaatprioriteit van zwaar naar licht
+
+De onderstaande volgorde is een **biologische ontwerpprioriteit**, geen vaste universele rangschikking. De daadwerkelijke invloed kan per soort, seizoen, levensfase, watertype en lokale omstandigheden verschillen.
+
+| Kandidaatprioriteit | Factorfamilie | Respons die in de score mag worden onderbouwd | Voorlopige modelrol | Waarom deze positie |
+|---|---|---|---|---|
+| 1 — fundament | Watertemperatuur en thermische historie | Thermische activiteitspotentie; indirecte randvoorwaarde voor voedselopname | Bestaande voorlopige thermische prior blijft actief | Dit is de enige bestaande numerieke factor en heeft een expliciete soortcurve. Parameters blijven ongevalideerd; thermiek is geen directe voeropname. |
+| 2 — directe doelrespons | Voedingsintensiteit, voedselopname en foerageeractiviteit | Hoe actief de soort voedsel zoekt/eet en de aangeboden voedselbron kan benutten | Hoogste kandidaat voor aanvullende biologische scorebijdrage, uitsluitend bij directe passende soortrespons | Sluit het meest direct aan op het gewenste visgedrag. Registrydekking verschilt sterk per soort en meetcontext (§82). |
+| 3 — biologische modulators | Seizoen, levenscyclus, acclimatisatie en fysiologische toestand | Verandering van activiteit/voedselbehoefte en thermische/voedingsrespons | Soortspecifieke modifier of interactie; geen generieke seizoensbonus | Kan thermiek en voedselbehoefte veranderen, maar bronrespons en levensfase moeten overeenkomen. |
+| 4 — tijdvakmodulators | Licht, fotoperiode, schemering en diel-/voedingsritme | Wanneer activiteit/foerageren binnen de dag waarschijnlijker is | Primair kandidaat voor tijdvakverdeling; dagscore alleen als aantoonbare dagbrede invloed | Kan helpen het beste tijdvak te onderscheiden. Geen universele schemer- of nachtbonus; roofblei heeft momenteel geen directe voedingsritme-/intensiteitsdekking. |
+| 5 — watercondities | Opgeloste zuurstof, troebelheid/zicht, stroming en menging | Fysiologische beperking, zicht-/predator-prooireactie, lokale voedseltoegang of habitatbeweging | Soort- en contextgebonden modifier; nu vaak onbekend of context | Potentieel belangrijk, maar actuele lokale meetdekking is beperkt. Ernstige hypoxie bij karper is geen bewijs voor een normale veldgradiënt. |
+| 6 — meteorologische context | Wind, windrichting, luchtdruk, bewolking en neerslag | Indirecte verandering in waterbeweging, licht, zicht, habitat of beweging | Eerst bestaande positionerings-/habitatcontext; alleen directe onafhankelijke voedingsrespons kan scorebijdrage rechtvaardigen | Wind/drukbewijs betreft onder meer beweging; neerslag heeft geen geschikte directe doelsoortrespons. Dubbele telling met thermische schatting voorkomen. |
+| 7 — lokale voedsel-/habitatcontext | Natuurlijk prooiaanbod, diepte, bodem, vegetatie, structuur en stek | Voedseltoegankelijkheid en lokale aanwezigheid/zoekgebied | Afzonderlijke habitat-/tactieklaag; alleen een aantoonbare directe voedingsrespons kan in de dagscore | Belangrijk voor waar vissen zich bevinden en wat ze kunnen eten, maar niet gelijk aan algemene activiteit of voedselopname. |
+| Buiten dagscore | Hengelvangbaarheid, methode, aas/presentatie, persoonlijke vangsthistorie | Kans dat biologische activiteit in een beet/vangst wordt omgezet | VisCoach-/vangbaarheidslaag, niet de biologische 1–10-score | Dit helpt de tactiek en persoonlijke verwachting, maar zou de biologische dagscore vermengen met techniek en inspanning. |
+| Buiten dagscore | Datakwaliteit, dekking en onzekerheid | Vertrouwen in de onderbouwing | Aparte onzekerheids-/kwaliteitslaag | Onzekerheid is geen biologische factor en mag de dagscore niet als bonus of straf beïnvloeden. |
+
+### 105.3 Soortspecifieke responsdekking bepaalt toelating
+
+De bronregistratie telt records, geen effectgroottes of kwaliteitsgewichten. Alle 86 records blijven niet-goedgekeurd voor directe numerieke voorspelling. De volgende verschillen bepalen de auditvolgorde:
+
+- **Karper:** relatief brede registratie van voedingsintensiteit, voedingsritme en foerageerrespons; gecontroleerde voeropname, bait-stationbezoek en veldgedrag blijven verschillende meetcontexten. Hypoxiebron toont directe voeropnamevermindering bij ernstige experimentele hypoxie, maar er is geen actuele lokale zuurstofinvoer.
+- **Brasem:** voedingsintensiteit en ritme zijn geregistreerd; troebelheidsbewijs meet activiteit via PIT-beweging in één ondiep meer en is geen directe voeropname. Voedingsmechanica/prooikeuze is geen dagelijkse voedselopname.
+- **Snoek:** voedingsintensiteit is aanwezig, maar dieet-/bewegingsgegevens mogen niet als directe voedselopname worden behandeld. Dag-/nachtvoorkeur vereist passende directe tijdvakrespons.
+- **Baars:** voedingsintensiteit/ritme en beweging zijn vertegenwoordigd; wind-/druktelemetrie betreft vooral beweging, niet voedselopname. Aerobe-scopegegevens zijn geen directe dagelijkse voedingslabels.
+- **Blankvoorn:** voedingsintensiteit en ritme zijn relatief goed vertegenwoordigd; mechanica, dieet en beweging blijven onderscheiden van voedselopname.
+- **Zeelt:** kleinere bronbasis; voedingsintensiteit/ritme aanwezig, maar groei-/reproductiegegevens zijn geen dagelijkse voedingsrespons. Metabole registratie ontbreekt.
+- **Snoekbaars:** voedingsintensiteit is geregistreerd; directe voedingsritmedekking is beperkt. Beweging, dieet en aerobe scope mogen niet zonder overdraagbaarheidsargument als voedselopname worden gebruikt.
+- **Meerval:** voedingsintensiteit/ritme aanwezig, maar veldtelemetrie en gecontroleerde voeropstellingen hebben verschillende responsen. Metabole data ontbreken.
+- **Roofblei:** geen directe voedingsintensiteit, voedingsritme of foerageergedrag geregistreerd; de ene voedingsincidentie betreft seizoensgebonden maaginhoud/vacuïteit. Geen numerieke voedings- of tijdvakbonus op basis van die bron alleen.
+
+Deze dekking betekent niet dat een soort zonder directe bron geen prognose kan krijgen. De bestaande thermische prior en overige verdedigbare gegevens kunnen een voorlopige verwachting ondersteunen; de ontbrekende responsdekking verlaagt de zekerheid en beperkt welke aanvullende factoren numeriek mogen bijdragen.
+
+### 105.4 Dagscore versus tijdvakadvies
+
+- De **dagscore** blijft één 1–10-uitkomst voor de geselecteerde doelsoort en vat de verwachte biologische activiteit-/voedingspotentie van de dag samen.
+- De **tijdvakrangschikking** gebruikt dezelfde doelrespons, maar moet waar mogelijk tijdvakgebonden temperatuurontwikkeling, licht/dagritme, soortspecifieke voedingsrespons en beschikbare stek-/watercontext onderscheiden.
+- Een factor die alleen een tijdstip beïnvloedt, krijgt niet automatisch een dagbrede bonus. Een dagbrede factor wordt niet viermaal als onafhankelijke tijdvakbijdrage geteld.
+- De huidige gedeelde thermische waarde voor vier tijdvakken is alleen de baseline; zij kan geen gevalideerde beste vistijd bepalen.
+- Als de beschikbare informatie geen betekenisvol verschil tussen tijdvakken onderbouwt, mag de VisCoach dat zeggen in plaats van een kunstmatige winnaar te kiezen.
+- Het tijdvakadvies blijft praktisch: de gebruiker moet kunnen kiezen om op een gunstiger tijdstip of andere dag te vissen. Het is een relatieve verwachting, geen garantie.
+
+### 105.5 Hoe factoren uiteindelijk gewicht krijgen
+
+Er worden nu geen percentages of vaste punten toegekend. Voor iedere kandidaatfactor moeten eerst de volgende kenmerken zijn ingevuld:
+
+1. Doelsoort(en), relevante levensfase/seizoen/watertype en geografische overdraagbaarheid.
+2. Direct gemeten respons en of die activiteit, voedselopname, ritme, beweging, habitat, vangbaarheid of een andere uitkomst is.
+3. Richting en vorm van de relatie: gunstig, ongunstig, optimum, drempel, niet-lineair of contextafhankelijk.
+4. Bronkwaliteit, onafhankelijke replicatie en onzekerheid.
+5. Beschikbare app-invoer, bron/provenance, tijdresolutie en ruimtelijke toepasbaarheid.
+6. Overlap/correlatie met reeds opgenomen factoren en mogelijke dubbele telling.
+7. Welke onafhankelijke sessie-/veldlabels en evaluatiemaatstaf de voorspelde respons kunnen toetsen.
+8. Of de factor voorlopig numeriek kandidaat, uitsluitend context, onbekend of uitgesloten blijft.
+
+De thermische prior blijft voorlopig de enige bestaande numerieke bijdrage. Een kandidaatfactor krijgt pas een runtimegewicht na passende evidence, invoerkwaliteit, vooraf vastgelegde evaluatie en chronologische verbetering ten opzichte van de thermische baseline. Geen automatische gewichtstuning op basis van vangstdata of Brier.
+
+### 105.6 Sessiegegevens als leerbron zonder administratieve last
+
+De minimale vangstflow uit §104 blijft leidend. Soort, tijdstip en sessiecontext leveren basisinformatie; vooraf ingestelde hengel/methode en gewicht zijn optioneel. Ook een sessie zonder vangst is een uitkomst in de context van duur, doelsoort, tijdvak en omstandigheden. Deze gegevens kunnen over meerdere sessies patronen tonen, maar mogen niet als directe meting van voedselopname worden bestempeld. De prognose mag met onvolledige sessiedata blijven werken; lokale kalibratieclaims wachten op voldoende vergelijkbare waarnemingen.
+
+### 105.7 Actuele Fase-2-status en eerstvolgende stap
+
+Het productdoel van de bestaande 1–10-score is vastgesteld in §103; de vangstregistratiegrenzen in §104. Daarmee is de eerdere blocker in §89 om de doelrespons nog te definiëren achterhaald. §89 blijft een historische crosswalk; deze sectie actualiseert de resterende ontwerpstappen.
+
+**Nu afgerond:** factorinventaris, huidige input-/responsstatus, productdoel, minimale vangstregistratie en eerste kandidaatprioriteit per responsfamilie.
+
+**Nog open:** (a) factorrespons-normalisatie en kalibratie naar de bestaande 1–10-schaal; (b) expliciete behandeling van ontbrekende/geschatte invoer zonder de prognose onnodig te blokkeren of onbekend als neutraal te presenteren; (c) interacties/dubbele telling; (d) labels en metrics voor activiteit, voeding, habitat en tijdvak; (e) chronologische vergelijking met de thermische baseline, inclusief segmentatie per soort en relevante context.
+
+De eerstvolgende auditstap is de normalisatie- en coverage-/onzekerheidsarchitectuur ontwerpen, inclusief concrete voorbeelden van voldoende, gedeeltelijke en onvoldoende invoer. Geen runtimegewichten of tijdvakbonussen activeren. Fase 2 blijft open; Fase 3 geblokkeerd.
