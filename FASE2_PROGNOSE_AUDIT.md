@@ -4773,3 +4773,41 @@ De studie onderzocht herhaalde verstoring bij juveniele baars (gemiddeld 39,6 ±
 - Geen van beide studies valideert een dagdeelbonus, een hengelaasrespons, persoonlijke vangstkans of een lokale Culemborg/Lokkershoek-parameter.
 
 **Status:** twee bronnen methodisch geclassificeerd en toegevoegd aan de audit als bewijs/kandidaat, niet aan de goedgekeurde registry. Geen runtime, score, gewicht of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+## 117. Meerval — proceedingsbron met directe dagelijkse voeropname (19 november 2026)
+
+**Bron:** Havasi, M., Oláh, T., Felföldi, Z. & Bercsényi, M. (2011). *Passing times of two types of feeds in Wels (Silurus glanis) at three different temperatures.* In: *Diversification in Inland Finfish Aquaculture*, Abstract Book, University of South Bohemia, p. 49. ISBN 978-80-87437-14-8.
+
+De volledige abstractboeking is teruggevonden. De proef gebruikte meerval-fingerlings van 38,03 ± 8,04 g, twee voersoorten (commercieel droogvoer en visprooi), drie temperaturen (15, 20 en 24 °C), tien vissen per aquarium en drie replicaten. De auteurs rapporteerden voeracceptatie én dagelijkse gemiddelde geconsumeerde voerhoeveelheid. Bij 15 °C accepteerde 42,4% van de droogvoer-groep het voer, tegenover 90,9% van de groep met visprooi; bij 20 en 24 °C werd in beide voerbehandelingen 100% voeracceptatie gerapporteerd. De dagelijkse consumptie varieerde volgens de abstract tussen 3,20–10,68% lichaamsgewicht voor visprooi en 1,36–4,46% voor droogvoer.
+
+Bij 15 °C lag de gemeten hoeveelheid volgens de auteurs rond de meetfoutgrens, waardoor de passage-/doorgangstijd onzeker was. De abstract rapporteert bij 20 °C start van uitscheiding 26 uur na voeren, gedurende 22 uur; bij 24 °C startte dit na 10 uur en duurde 18 uur.
+
+**Classificatie:** directe dagelijkse voeropname/acceptatie is gerapporteerd, dus dit is een relevantere kandidaat dan uitsluitend groei- of metabolismeonderzoek. De bron blijft een studentpresentatie/abstract in proceedings, met beperkte methodedetails, kleine kweekopzet, fingerling-levensfase en sterk voertype-afhankelijk resultaat. De 15 °C-meetfout maakt vooral de koudebehandeling onzeker. Er is geen basis om de cijfers naar volwassen wilde meerval, natuurlijke prooikeuze of hengelaas te vertalen.
+
+**Besluit:** kandidaat voor een beperkte jonge-kweekmeerval voeracceptatie- en consumptierespons. Geen goedgekeurde dagelijkse thermische curve; volledige ruwe data/statistische methode en onafhankelijke replicatie ontbreken.
+
+## 118. Blankvoorn — historische directe consumptie- en darmdoorgangsliteratuur
+
+### 118.1 Hofer & Niederholzer (1980): dagelijkse relatieve consumptie
+
+**Bron:** Hofer, R. & Niederholzer, R. (1980). *The feeding of roach (Rutilus rutilus L.) and rudd (Scardinius erythrophthalmus L.). 2. Feeding experiments in the laboratory.* Ekologia Polska, 28(1), 61–70.
+
+Een bibliografische samenvatting meldt laboratoriumproeven naar dagelijkse relatieve consumptie en relatieve darminhoud bij vier temperaturen en vier diëten voor blankvoorn en rietvoorn. De gerapporteerde dagelijkse relatieve consumptie verschilde sterk per dieet; bij draadalgen en meelwormen bleef zij onder 8%, terwijl bij Chara/Zannichellia waarden tot 40% werden genoemd.
+
+**Classificatie:** interessante kandidaat voor direct gemeten consumptie onder gecontroleerde temperatuur- en dieetcondities, maar de volledige primaire publicatie en exacte temperatuurbehandelingen, visgrootte, replicaten en meetmethode zijn nog niet gecontroleerd. De sterke dieetafhankelijkheid maakt duidelijk dat een enkele soortcurve niet zonder voedseltype/context kan worden geïnterpreteerd.
+
+**Besluit:** alleen kandidaat voor verdere bronverificatie; niet opnemen in registry en geen numerieke thermische respons afleiden uit de secundaire samenvatting.
+
+### 118.2 Hofer, Forstner & Rettenwander (1982): darmdoorgang is geen voedselopnamecurve
+
+**Bron:** Hofer, R., Forstner, H. & Rettenwander, R. (1982). *Duration of gut passage and its dependence on temperature and food consumption in roach, Rutilus rutilus L: laboratory and field experiments.* Journal of Fish Biology, 20(3), 289–299. DOI: 10.1111/j.1095-8649.1982.tb04710.x.
+
+Deze studie onderzoekt hoe temperatuur, dieet en consumptiesnelheid de darmpassagetijd beïnvloeden. De samenvatting meldt snellere voedselpassage bij hogere temperatuur en hogere consumptie, regressies bij vier temperaturen en een veldmethode om darmpassagetijd en consumptiesnelheid in natuurlijke populaties te schatten.
+
+**Classificatie:** relevante methodische/veldcontext voor het schatten van consumptie, maar het primaire eindpunt is darmpassagetijd als functie van temperatuur en consumptie. Het is geen zelfstandige temperatuur-respons van vrijwillige voedselopname en mag niet als zodanig worden gebruikt.
+
+### 118.3 Gevolg voor blankvoorn
+
+De literatuur biedt nu drie verschillende bewijsrichtingen die gescheiden moeten blijven: (1) voedselzoekgedrag en temperatuurkeuze in een gradiënt (§113), (2) dagelijkse consumptie onder gecontroleerde dieet-/temperatuurcondities (1980, nog te verifiëren), en (3) darmpassagetijd/veldschatting van consumptie (1982). Geen van deze afzonderlijke bronnen levert op dit moment een gevalideerde, overdraagbare dagelijkse thermische voedselopnamecurve voor wilde blankvoorn in Nederlandse binnenwateren.
+
+**Status:** meervalproceedings volledig op abstractniveau methodisch uitgewerkt; twee blankvoornbronnen als kandidaten/meetmethodische context toegevoegd. Geen registry-goedkeuring, geen runtime-, score-, gewicht- of parameterwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
