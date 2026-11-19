@@ -760,3 +760,12 @@ De gerichte review van wind, druk, troebelheid, zuurstof, neerslag en stroming s
 Belangrijk: zuurstof kan bij ernstige hypoxie de karpervoeropname sterk verlagen, maar de app heeft geen betrouwbare lokale zuurstofmeting. Deze factor blijft onbekend en wordt niet uit andere weerdata afgeleid. Wind/druk zijn vooral beweging/context; troebelheid is contextafhankelijk; neerslag/stroming hebben nog geen voldoende directe doelsoortbasis. Geen score of gewicht gewijzigd.
 
 Volgende stap: de volledige factorstatus per soort en de zevenpunts-acceptatiecrosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — formele acceptatiecrosswalk gesynchroniseerd (19 november 2026)
+
+De actuele zevenpuntscrosswalk is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §89. De documentatie weerspiegelt nu de keuze voor thermische optie A, de actuele 86 registry-records, de volledige factortrace en de aanvullende soort-/omgevingsbronnen. Alle 86 bronnen blijven niet-goedgekeurd voor directe numerieke voorspelling.
+
+**Huidige formele blockers:** de doelrespons van de bestaande 1–10-score expliciet afbakenen; factorstatus en datadekking per soort sluiten; normalisatie en ontbrekende-data-regel ontwerpen; onafhankelijke evaluatie voor activiteit, voeding, habitat en tijdvak vastleggen. Brier blijft uitsluitend evaluatie van persoonlijke vangstkans. De thermische curve blijft voorlopige prior, exacte parameters ongevalideerd. Geen runtimegewichten of tijdvakbonussen geactiveerd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+**Volgende stap:** factorstatus-/datadekkingsmatrix definitief sluiten, daarna pas doelrespons, normalisatie, missing-data-regel en kandidaataggregatie vastleggen. Vervolgens chronologisch valideren tegen de bestaande thermische baseline.
