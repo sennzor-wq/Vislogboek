@@ -4873,3 +4873,46 @@ Een aanvullende bibliografische samenvatting bevestigt dat de studie dagelijkse 
 - Alle bronnen blijven bewijs voor audit/triage; er wordt geen registry-record goedgekeurd voor numerieke voorspelling.
 
 **Status:** twee aanvullende broncontroles vastgelegd. Geen score, gewicht, parameter, runtime of gebruikersinvoer aangepast. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 123. Snoek — wilde veldmetingen van voedselopname en dagritme via hartslagtelemetrie (1991)
+
+**Bron:** Lucas, M.C., Priede, I.G., Armstrong, J.D., Gindy, A.N.Z. & De Vera, L. (1991). *Direct measurements of metabolism, activity and feeding behaviour of pike, Esox lucius L., in the wild, by the use of heart rate telemetry.* Journal of Fish Biology, 39, 325–345.
+
+In juni 1988 werden drie wilde snoeken in twee Schotse meren gevolgd. Twee vissen in Loch Kinord leverden bruikbare langere registraties op van respectievelijk 72 en 90 uur; de derde vis werd 20 uur gevolgd. De auteurs schatten voor de twee Kinord-vissen de dagelijkse voedselopname uit postprandiale hartslag/Specific Dynamic Action op circa 1,4–1,6% van het natte lichaamsgewicht per dag vóór temperatuurcorrectie en circa 0,9–1,4% na correctie. De auteurs vatten de typische opname samen als ongeveer 1,0–1,5% lichaamsgewicht per dag. De waargenomen kleine prooien werden overdag gevangen; de verteringsrespons liep door in middag en avond, met rustige perioden 's nachts. De vermoedelijke prooi bestond uit kleine baarsbroedjes die lokaal zeer talrijk waren. Eén afzonderlijk geschat maaltijdmoment kwam overeen met circa 8 g baars.
+
+De watertemperatuur varieerde tijdens de korte veldregistraties (ongeveer 16–19,5 °C bij vis 1 en 17,5–22 °C bij vis 2). De auteurs corrigeerden de hartslag-baseline voor temperatuur, maar manipuleerden temperatuur niet experimenteel. De voedselopname is indirect berekend uit hartslag en aannames over het deel van maaltijdenergie dat als verteringsmetabolisme vrijkomt; de auteurs bespreken onzekerheden en de kleine, arbeidsintensieve steekproef.
+
+**Classificatie:** waardevolle directe veldbenadering van dagelijkse voedselopname en dagritme bij wilde snoek; sterker voor de scheiding tussen foerageren en verteren dan een uitsluitend laboratoriumgroei-onderzoek. Geen zuivere temperatuur-responsstudie, geen representatieve populatiecurve en geen bewijs dat dezelfde tijdverdeling geldt bij andere prooibeschikbaarheid, seizoenen of wateren.
+
+**Besluit:** gebruiken als contextbewijs voor volwassen/wilde snoekvoeding en voor het onderscheid tussen vangst-/foerageermoment en daaropvolgende vertering. Niet gebruiken als numerieke thermische curve, universele dagdeelbonus of hengelvangstkans. De geschatte opname mag niet worden geïnterpreteerd als een directe meting van aasacceptatie.
+
+## 124. Baars — dagelijkse rantsoenen van volwassen veldvis (Thorpe, 1977)
+
+**Bron:** Thorpe, J.E. (1977). *Daily ration of adult perch, Perca fluviatilis L. during summer in Loch Leven, Scotland.* Journal of Fish Biology, 11(1), 55–68. DOI: 10.1111/j.1095-8649.1977.tb04098.x.
+
+Volwassen baars werd in juni–september 1971 en in juni en augustus 1972 op drie-uursintervallen gedurende volledige 24-uursperioden bemonsterd. De onderzoekers combineerden maaginhoud bij vangst met maagledigingsmetingen bij tijdelijk gekooide vissen om de consumptie tussen bemonsteringstijden te schatten. De berekende dagelijkse rantsoenen daalden van circa 6,5% nat lichaamsgewicht in juni naar circa 3,2% in september. De auteurs merkten op dat maaglediging bij gekooide vissen langzamer was dan bij vrij levende vissen; de berekende voedselomzet was daarom een minimumschatting.
+
+**Classificatie:** directe veldschatting van dagelijkse consumptie bij volwassen baars, met een relevante seizoenscomponent. De studie is geen gecontroleerde temperatuurproef: seizoen, prooiaanbod, reproductieve toestand en andere ecologische factoren veranderen gelijktijdig. De waarden zijn bovendien locatie- en dieetgebonden (Loch Leven) en de methode onderschatte waarschijnlijk de werkelijke voedselomzet.
+
+**Besluit:** belangrijke veldreferentie voor seizoensvariatie in volwassen baarsconsumptie. Niet omzetten naar een temperatuurcurve of rechtstreeks naar vangst met hengelaas. De drie-uursbemonstering is waardevol voor dagritme-analyse, maar de dagelijkse rantsoenwaarden alleen leveren geen universeel beste hengeltijdvak.
+
+## 125. Blankvoorn en brasem — in-situ dag-nachtpatroon van zoöplanktonconsumptie (2004)
+
+**Bron:** Vašek, M. & Kubečka, J. (2004). *In situ diel patterns of zooplankton consumption by subadult/adult roach Rutilus rutilus, bream Abramis brama, and bleak Alburnus alburnus.* Folia Zoologica, 53(2), 203–214.
+
+De studie onderzocht subadulte en adulte blankvoorn, brasem en alver in het meso-eutrofe Římov-reservoir (Tsjechië). De onderzochte vissen foerageerden vrijwel uitsluitend op microcrustaceeën in het plankton. Alle drie soorten vertoonden een daggebonden voedingsperiodiciteit, met een duidelijke daling van maagvulling gedurende de nacht. De dag-nachtvariatie werd vastgesteld bij verschillende lengteklassen en seizoensmomenten: onder meer blankvoorn van circa 200–270 mm en brasem van circa 220–330 mm in mei, en kleinere lengteklassen van circa 110–170 mm in augustus. De samenvatting rapporteert dagelijkse zoöplanktonconsumptie tussen 1,5% nat lichaamsgewicht bij grotere brasem en 9,9% bij kleinere alver; die uitersten mogen niet aan blankvoorn of brasem afzonderlijk worden toegeschreven.
+
+**Classificatie:** veldbewijs voor dag-nachtverschillen in maagvulling/zoöplanktonconsumptie bij subadulte en adulte cypriniden. De waargenomen periodiciteit is gekoppeld aan planktonvoeding, lichtintensiteit, lengteklasse en seizoen. Het is geen directe respons op method-feeder-aas, geen algemene voedingscurve voor andere diëten en geen bewijs dat alle brasem- of blankvoornpopulaties hetzelfde tijdpatroon volgen.
+
+**Besluit:** relevante kwalitatieve veldbron voor soort- en levensfasegebonden dag-nachtcontext bij blankvoorn en brasem. Geen vaste ochtend-/avondbonus afleiden; geen numerieke factor activeren zonder passende lokale validatie en kennis van het relevante voedseltype.
+
+### 125.1 Gevolg voor soortdekking en tijdvakbewijs
+
+- Snoek heeft nu een kleinschalige maar directe veldbenadering van dagelijkse voedselopname en dagritme (§123); temperatuur is gecorrigeerd, niet experimenteel gevarieerd.
+- Baars heeft directe volwassen veldschattingen van dagelijkse consumptie en seizoensvariatie (§124), maar geen zuivere temperatuurcurve.
+- Blankvoorn en brasem hebben een in-situ dag-nachtbron voor planktonconsumptie (§125); overdraagbaarheid naar benthisch voer, pellets of method-feeder-presentatie is niet aangetoond.
+- Dagritme, dagelijkse hoeveelheid, prooivangst, vertering en hengelvangst blijven aparte responsen.
+- Geen bron wordt hierdoor automatisch goedgekeurd voor numerieke runtime; alle tijdvakclaims blijven bewijs- en contextgebonden.
+
+**Status:** drie aanvullende veldbronnen methodisch geclassificeerd. Geen score, gewicht, parameter, runtime of gebruikersinvoer aangepast. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
