@@ -1514,7 +1514,7 @@ De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschr
 - `SpeciesProfile` bevat als enige numerieke biologische profielparameters `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. `calculateThermalEfficiency()` gebruikt uitsluitend deze drie voorlopige waarden.
 - `description`, `assumptions` en `scientificReferences` zijn verklarende metadata. Ze worden in de geavanceerde prognoseweergave getoond, maar leveren geen numerieke bijdrage aan `activityScore`.
 - De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is nog geen soortspecifieke wind-, wolken-, regen-, zuurstof- of stromingsbron in het centrale register. De gerichte drukreview in §79 voegt twee beperkte drukbronnen toe; geen daarvan ondersteunt een universele activiteit- of voedingsbonus.
-- Alle 76 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. De vijf aanvullende telemetriebronnen uit §97 zijn uitsluitend contextregistraties; geen bron is vrijgegeven als numerieke voorspellingsfactor. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
+- Alle 83 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. De vijf aanvullende telemetriebronnen uit §97 en de zeven bibliografisch geverifieerde oudere bronnen uit §100 zijn uitsluitend contextregistraties; geen bron is vrijgegeven als numerieke voorspellingsfactor. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
 
 ### Soortspecifieke dekking in het research register
 
@@ -1523,15 +1523,15 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 | Doelsoort | Metabolisme / aerobe scope | Voedselopname / foerageren | Beweging / habitat | Dieet / prooikeuze | Vangbaarheid / vangstverdeling | Totaal records |
 |---|---:|---:|---:|---:|---:|---:|
 | Karper | 1 | 10 | 6 | 0 | 2 | 13 |
-| Brasem | 1 | 3 | 4 | 0 | 0 | 8 |
-| Snoek | 1 | 3 | 5 | 1 | 2 | 11 |
+| Brasem | 1 | 5 | 4 | 2 | 0 | 10 |
+| Snoek | 1 | 3 | 6 | 1 | 2 | 12 |
 | Baars | 1 | 3 | 2 | 1 | 1 | 8 |
-| Blankvoorn* | 1 | 5 | 4 | 1 | 0 | 9 |
-| Zeelt | 0 | 4 | 2 | 1 | 1 | 4 |
-| Snoekbaars | 1 | 3 | 3 | 2 | 0 | 9 |
-| Meerval | 0 | 4 | 6 | 1 | 0 | 9 |
+| Blankvoorn* | 1 | 6 | 4 | 2 | 0 | 11 |
+| Zeelt | 0 | 4 | 2 | 1 | 1 | 5 |
+| Snoekbaars | 1 | 3 | 3 | 2 | 0 | 10 |
+| Meerval | 0 | 4 | 6 | 1 | 0 | 10 |
 | Roofblei | 0 | 0 | 2 | 3 | 0 | 5 |
-| **Totaal** | — | — | — | — | — | **76** |
+| **Totaal** | — | — | — | — | — | **83 unieke records** |
 
 ### Wat deze dekking betekent
 
@@ -1547,7 +1547,7 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 - De beschrijvingen en aannames in `fishProfiles.ts` zijn herzien om directe voedselopname, locomotorische activiteit, habitatgebruik en fysiologie niet door elkaar te halen.
 - Onvoldoende onderbouwde vaste wind-, druk- en weersclaims zijn verwijderd of expliciet als niet-gevalideerde context geformuleerd. Diel-patronen zijn voorzien van context-/levensfasebeperkingen.
 - De numerieke thermische profielwaarden zijn ongewijzigd en blijven voorlopige modelprioren.
-- De profielreferentielijsten bevatten nu 79 vermeldingen: 48 DOI-verwijzingen zijn teruggevonden in het centrale register. Van 31 verwijzingen zonder DOI zijn er zes op auteursnaam teruggevonden; 25 zijn tijdens deze statische controle niet op auteursnaam gematcht. Dit betekent niet automatisch dat de bron onjuist is, maar deze oudere boeken/rapporten moeten afzonderlijk worden geverifieerd of als achtergrondliteratuur worden gemarkeerd voordat ze als directe modelonderbouwing gelden.
+- De profielreferentielijsten bevatten 79 vermeldingen. Na de bibliografische correctie in §100 zijn 52 DOI-verwijzingen in het centrale register teruggevonden. Van 27 verwijzingen zonder DOI zijn er 12 op auteursnaam teruggevonden; 15 blijven tijdens deze statische controle ongematcht. Dit zijn niet automatisch onjuiste bronnen; niet-geverifieerde boeken/rapporten blijven uitsluitend achtergrondliteratuur en mogen geen directe modelregel onderbouwen.
 - De geavanceerde UI vermeldt nu expliciet dat profielnotities context/aannames zijn en dat bronvermelding geen validatie van de numerieke thermische curve betekent.
 
 ### Status en vervolg
@@ -2211,3 +2211,30 @@ De dekkingstabel in §78 is opnieuw berekend op de actuele `RESEARCH_REGISTRY` o
 - De bestaande thermische bronlacunes blijven bestaan: geen vergelijkbare aerobe-scope-/metabolismebasis voor zeelt, meerval en roofblei; de huidige voorlopige thermische curveparameters zijn daarmee niet gevalideerd.
 
 Deze update verandert geen factorstatus, score, gewicht of runtimeberekening. Volgende stap: de resterende bron-/claimtrace afronden, daarna de formele zevenpunts-crosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 100. Bibliografische audit van oudere profielreferenties (19 november 2026)
+
+De statische referentiecontrole uit §78 is verdiept voor zeven oudere referenties die inhoudelijk relevant kunnen lijken voor de prognose. De bibliografische titels zijn gecontroleerd en waar nodig gecorrigeerd in `fishProfiles.ts`; zeven registraties zijn toegevoegd aan `researchRegistry.ts`. Alle blijven `approvedForPrediction: false`.
+
+| Bron | Gecontroleerde inhoud | Correcte modelclassificatie |
+|---|---|---|
+| Lammens (1985), DOI 10.1007/BF00002913 | Filtervoeding bij brasem; relatie tussen visgrootte, prooigrootte en prooidichtheid | Foraging/prey selection; geen voedingsintensiteit of dagritme |
+| Nagelkerke & Sibbing (1996) | Verwerkingsefficiëntie van driehoeksmosselen bij brasem, kolblei en blankvoorn; morfologie en handling time | Feeding physiology/foraging/prey selection; geen dagelijkse voedselopname of tijdvakritme |
+| Casselman (1978) | Groei, overleving en activiteit van snoek; spontane zwemactiviteit bij gevoerde laboratoriumvissen | Groei en locomotorische laboratoriumactiviteit; geen veldvoedingsintensiteit |
+| Goldspink (1979), DOI 10.1111/j.1095-8649.1979.tb03632.x | Mark-recapture, populatiedichtheid, groei en productie van blankvoorn in Tjeukemeer | Groei/populatieproductie; geen dagelijkse voedingsrespons |
+| Neophitou (1993) | Groei, maturiteit en paaitijd van zeelt in Lake Pamvotida | Groei/reproductiecontext; geen dagdeelvoedingsmeting |
+| Lappalainen et al. (2003), DOI 10.1034/j.1600-0633.2003.00005.x | Review van maturiteit, fecunditeit, paaiverplaatsing, paaigebied en eiontwikkeling bij snoekbaars | Reproductie-review; geen dagelijkse voedings- of activiteitsmeting |
+| Copp et al. (2009), DOI 10.1111/j.1467-2979.2008.00321.x | Review van milieu-ecologie, habitat, dieet en dispersie van Europese meerval in inheems en geïntroduceerd verspreidingsgebied | Algemene ecologische review; geen nieuwe primaire dagdeelrespons |
+
+### Betekenis voor de scoreketen
+
+- De nieuwe bronnen verdiepen vooral voedingsmechanica/prooikeuze, groei en algemene ecologische context. Ze leveren geen nieuwe gevalideerde dagelijkse voedingsintensiteit of vangstkans.
+- De Lammens- en Nagelkerke-studies mogen niet als directe aas-/voerrespons worden geïnterpreteerd; hun uitkomst is prooiverwerking of selectie.
+- Casselman meet ook locomotorische activiteit, maar de relevante zwemactiviteit is laboratoriumcontext. Dit valideert geen veldactiviteitsscore of de bestaande thermische curve.
+- Groei, maturiteit en reproductie zijn langzamere responsen. Zonder expliciete levensfase-invoer of betrouwbare populatiecontext mogen ze niet als dagelijkse factor worden gebruikt.
+- De profielvermeldingen van Kestemont (1995) en Tartally (2000) zijn tijdens deze ronde niet onafhankelijk bibliografisch bevestigd. Ze blijven voorlopig als niet-geverifieerde achtergrondreferenties in het profiel en worden niet in de research registry gebruikt als modelbewijs. Ook algemene handboeken en aquacultuur-/larvalevensfasebronnen blijven achtergrondliteratuur.
+
+De bijgewerkte registerdekking telt 83 unieke records. Eén nieuw record (Nagelkerke & Sibbing) is aan zowel brasem als blankvoorn gekoppeld; daarom kan de som van de soorttotalen één hoger zijn dan het aantal unieke records. Alle records blijven niet-goedgekeurd voor directe voorspelling. Geen score, gewicht, thermische curve of tijdvakbonus gewijzigd.
+
+Fase 2 blijft open; Fase 3 blijft geblokkeerd.

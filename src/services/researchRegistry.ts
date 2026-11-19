@@ -1588,6 +1588,139 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+
+  {
+    id: 'bream-planktivorous-filter-feeding-prey-size-1985',
+    topic: 'filtervoeding-en-prooigroottekeuze',
+    measuredOutcomes: ['foraging_behavior', 'prey_selection'],
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Lammens testte bij brasem een model voor planktivore filtervoeding. De geconsumeerde prooigrootte werd gerelateerd aan visgrootte, prooigrootte en prooidichtheid; de voorspellingen hielden vooral stand bij grotere brasem en verschilden bij kleinere vissen met meer partikel-/combinatievoeding.',
+    limitations: [
+      'De studie beschrijft prooigroottekeuze en filtervoedingsmechanica, niet dagelijkse voedselopname, voedingsintensiteit of een dag-nachtritme.',
+      'De bevindingen zijn gekoppeld aan specifieke zoöplanktonprooien en lichaamsgrootte; dit is geen directe aasrespons voor hengelsessies.',
+      'De bron levert geen numerieke activiteitsscore of lokale Nederlandse stekcorrectie.'
+    ],
+    sourceReferences: [
+      'Lammens, E.H.R.R. (1985). A test of a model for planktivorous filter feeding by bream Abramis brama. Environmental Biology of Fishes, 13(4), 289–296. https://doi.org/10.1007/BF00002913'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'cyprinid-zebra-mussel-feeding-efficiency-morphology-1996',
+    topic: 'voedingsmechanica-en-prooiverwerking',
+    measuredOutcomes: ['feeding_physiology', 'foraging_behavior', 'prey_selection'],
+    species: ['Brasem', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Nagelkerke en Sibbing vergeleken de efficiëntie waarmee brasem, kolblei en blankvoorn driehoeksmosselen verwerkten. De efficiëntie hing sterk samen met de benodigde verwerkingstijd, lichaamsmorfologie en prooigrootte; grote blankvoorn en kolblei bereikten de hoogste individuele efficiëntiewaarden.',
+    limitations: [
+      'De gemeten uitkomst is efficiëntie van verwerking van driehoeksmosselen, niet algemene voedselopname per uur, voedingsintensiteit of dagritme.',
+      'De prooi en experimentele voedingscontext zijn specifiek; overdracht naar pellets, boilies of natuurlijk voedsel in een andere stek is niet aangetoond.',
+      'Kolblei is geen afzonderlijke doelsoort in de huidige app; alleen de brasem- en blankvoornresultaten zijn aan app-soorten gekoppeld.'
+    ],
+    sourceReferences: [
+      'Nagelkerke, L.A.J. & Sibbing, F.A. (1996). Efficiency of feeding on zebra mussel (Dreissena polymorpha) by common bream (Abramis brama), white bream (Blicca bjoerkna), and roach (Rutilus rutilus): the effects of morphology and behavior. Canadian Journal of Fisheries and Aquatic Sciences, 53(12), 2847–2861.'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'northern-pike-environment-growth-survival-activity-1978',
+    topic: 'temperatuur-groei-en-locomotorische-activiteit',
+    measuredOutcomes: ['growth', 'locomotor_activity'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Casselman beschreef omgevingsinvloeden op groei, overleving, activiteit en exploitatie van snoek. De bron rapporteert temperatuurafhankelijke groei en maximale spontane zwemactiviteit rond 19–20 °C bij gevoerde laboratoriumvissen.',
+    limitations: [
+      'De gemelde zwemactiviteit is laboratoriumactiviteit bij gevoerde vissen, geen directe veldmeting van jacht, voedselopname of hengelvangbaarheid.',
+      'Groei is een langetermijnrespons en mag niet worden gelijkgesteld aan acute dagelijkse activiteit.',
+      'De bron valideert niet de exacte thermische curveparameters in fishProfiles.ts of een Nederlandse stekrespons.'
+    ],
+    sourceReferences: [
+      'Casselman, J.M. (1978). Effects of environmental factors on growth, survival, activity, and exploitation of northern pike. American Fisheries Society Special Publication 11, 114–128.'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'roach-population-growth-production-tjeukemeer-1979',
+    topic: 'populatiegroei-en-productie',
+    measuredOutcomes: ['growth'],
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een mark-recapturestudie in Tjeukemeer beschreef populatiedichtheid, groei, sterfte en productie van blankvoorn. De studie verwerkte meer dan twintigduizend gemerkte vissen en besprak beperkte groei in relatie tot voedselbeschikbaarheid en concurrentie.',
+    limitations: [
+      'De gemeten responsen zijn populatiegroei en productie, geen dagelijkse voedselopname, activiteit of dagritme.',
+      'De studie betreft één Nederlands meer en is historisch; de uitkomsten zijn geen actuele lokale stekparameter.',
+      'Groei- en productiegegevens worden niet gebruikt als directe activiteitsscore.'
+    ],
+    sourceReferences: [
+      'Goldspink, C.R. (1979). The population density, growth rate and production of roach Rutilus rutilus (L.) in Tjeukemeer, The Netherlands. Journal of Fish Biology, 15(4), 473–498. https://doi.org/10.1111/j.1095-8649.1979.tb03632.x'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'tench-growth-maturity-spawning-lake-pamvotis-1993',
+    topic: 'groei-maturiteit-en-voortplanting',
+    measuredOutcomes: ['growth'],
+    species: ['Zeelt'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een studie in het Griekse Lake Pamvotida beschreef groei en maturiteit van zeelt. De snelste groei vond plaats in het eerste levensjaar; beide geslachten bereikten volgens de studie in het derde jaar geslachtsrijpheid en de paai viel in mei–juni bij 18–20 °C.',
+    limitations: [
+      'De studie betreft één Grieks meer; populatie- en klimaatomstandigheden zijn niet zonder meer overdraagbaar naar Nederlandse wateren.',
+      'De gemeten uitkomst is groei/maturiteit; de paaitemperatuur is geen dagelijkse voedings- of activiteitstemperatuur.',
+      'De bron levert geen directe dagdeelvoedingsmeting of validatie van de voorlopige thermische curve.'
+    ],
+    sourceReferences: [
+      'Neophitou, C. (1993). Some biological data on tench (Tinca tinca (L.)) in Lake Pamvotida (Greece). Acta Hydrobiologica, 35(4), 367–379.'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'pikeperch-reproduction-biology-review-2003',
+    topic: 'voortplanting-en-paaigedrag',
+    species: ['Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Review van de voortplantingsbiologie van snoekbaars, waaronder maturiteit, fecunditeit, paaiverplaatsingen, paaigebieden en temperatuurafhankelijke ontwikkeling van eieren. De review beschrijft geografische verschillen in maturiteit en paaitiming.',
+    limitations: [
+      'Dit is een review over voortplanting, geen nieuwe primaire meting van dagelijkse voedselopname, activiteit of vangbaarheid.',
+      'Paaimigratie en eiontwikkeling zijn seizoens-/reproductieresponsen en mogen niet als dagelijkse voedingsritmefactor worden gebruikt.',
+      'De bron valideert geen tijdvakbonus buiten de reproductiecontext.'
+    ],
+    sourceReferences: [
+      'Lappalainen, J., Dörner, H. & Wysujack, K. (2003). Reproduction biology of pikeperch (Sander lucioperca (L.)) – a review. Ecology of Freshwater Fish, 12(2), 95–106. https://doi.org/10.1034/j.1600-0633.2003.00005.x'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'european-catfish-environmental-biology-review-2009',
+    topic: 'ecologische-context-en-habitatgebruik',
+    species: ['Meerval'],
+    application: 'general',
+    evidenceStrength: 'moderate',
+    summary: 'Review van gepubliceerde en grijze literatuur over de milieu-ecologie van Europese meerval in het oorspronkelijke en geïntroduceerde verspreidingsgebied, waaronder dieet, habitat, dispersie en mogelijke ecosysteemeffecten. De auteurs benoemen aanzienlijke kennislacunes over populaties buiten het oorspronkelijke verspreidingsgebied.',
+    limitations: [
+      'Dit is een review en geen nieuwe primaire meting; conclusies zijn afhankelijk van de onderliggende studies en verschillen tussen populaties.',
+      'De review valideert geen universele temperatuurgrens, dagelijkse voedingspiek of lokale Nederlandse vangstkans.',
+      'Informatie over geïntroduceerde populaties is niet automatisch overdraagbaar naar inheemse populaties of Nederlandse wateren.'
+    ],
+    sourceReferences: [
+      'Copp, G.H. et al. (2009). Voracious invader or benign feline? A review of the environmental biology of European catfish Silurus glanis in its native and introduced ranges. Fish and Fisheries, 10(3), 252–282. https://doi.org/10.1111/j.1467-2979.2008.00321.x'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**

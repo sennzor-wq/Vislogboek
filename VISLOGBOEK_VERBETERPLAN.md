@@ -744,3 +744,10 @@ Geen score, gewicht, temperatuurgrens, gramadvies of tijdvakbonus gewijzigd. Vol
 De actuele dekkingstabel in `FASE2_PROGNOSE_AUDIT.md` §78 is bijgewerkt op basis van 76 registerrecords; de aanvullende interpretatie staat in §99. Alle 76 bronnen blijven niet-goedgekeurd voor directe numerieke voorspelling. Roofblei mist directe tijdgebonden voedselopnamegegevens; meerval en karper hebben voedingsbronnen uit verschillende meetcontexten die niet als één respons mogen worden samengevoegd. De nieuwe snoek-/blankvoorntelemetrie voegt vooral bewegings-/habitatbewijs toe.
 
 Geen factor, gewicht of score geactiveerd. Volgende stap: resterende bron-/claimtrace afronden en daarna de zevenpunts-crosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — oudere profielreferenties geverifieerd (19 november 2026)
+
+Zeven oudere profielreferenties zijn bibliografisch gecontroleerd en waar nodig gecorrigeerd in `fishProfiles.ts`; de bijbehorende inhoud en beperkingen zijn vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §100 en zeven contextrecords zijn toegevoegd aan de research registry. Filtervoeding/prooikeuze, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie worden niet als dagelijkse voedselopname of vangbaarheid behandeld.
+
+Het register bevat nu 83 unieke records; alle blijven `approvedForPrediction: false`. Kestemont (1995) en Tartally (2000) blijven bibliografisch niet geverifieerde achtergrondverwijzingen. Geen score, gewicht of thermische curve gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

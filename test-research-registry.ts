@@ -626,3 +626,44 @@ if (getResearchByOutcome('Meerval', 'feeding_rhythm').every((item) => item.id !=
   throw new Error('Catfish diel rhythm evidence must be discoverable by species and outcome.');
 }
 console.log('Bream, pikeperch and catfish feeding evidence scope tests passed.');
+
+
+// Bibliografische herstelcontrole van oudere profielreferenties.
+const breamFilterFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'bream-planktivorous-filter-feeding-prey-size-1985');
+if (!breamFilterFeeding || !breamFilterFeeding.measuredOutcomes?.includes('prey_selection') || breamFilterFeeding.measuredOutcomes.includes('feeding_intensity') || breamFilterFeeding.approvedForPrediction) {
+  throw new Error('Lammens bream evidence must remain prey-selection/filter-feeding context, not feeding intensity.');
+}
+const cyprinidMusselEfficiency = RESEARCH_REGISTRY.find((item) => item.id === 'cyprinid-zebra-mussel-feeding-efficiency-morphology-1996');
+if (!cyprinidMusselEfficiency || !cyprinidMusselEfficiency.species.includes('Brasem') || !cyprinidMusselEfficiency.species.includes('Voorn') || !cyprinidMusselEfficiency.measuredOutcomes?.includes('feeding_physiology') || cyprinidMusselEfficiency.measuredOutcomes.includes('feeding_rhythm') || cyprinidMusselEfficiency.approvedForPrediction) {
+  throw new Error('Nagelkerke/Sibbing feeding-efficiency evidence must not be classified as a diel feeding rhythm.');
+}
+const casselmanPike = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-environment-growth-survival-activity-1978');
+if (!casselmanPike || !casselmanPike.measuredOutcomes?.includes('locomotor_activity') || casselmanPike.measuredOutcomes.includes('feeding_intensity') || casselmanPike.approvedForPrediction) {
+  throw new Error('Casselman pike evidence must remain growth/laboratory locomotor activity, not field feeding intensity.');
+}
+const goldspinkRoach = RESEARCH_REGISTRY.find((item) => item.id === 'roach-population-growth-production-tjeukemeer-1979');
+if (!goldspinkRoach || !goldspinkRoach.measuredOutcomes?.includes('growth') || goldspinkRoach.measuredOutcomes.includes('feeding_intensity') || goldspinkRoach.approvedForPrediction) {
+  throw new Error('Goldspink roach evidence must remain population growth/production, not daily feeding.');
+}
+const neophitouTench = RESEARCH_REGISTRY.find((item) => item.id === 'tench-growth-maturity-spawning-lake-pamvotis-1993');
+if (!neophitouTench || !neophitouTench.measuredOutcomes?.includes('growth') || neophitouTench.measuredOutcomes.includes('feeding_rhythm') || neophitouTench.approvedForPrediction) {
+  throw new Error('Neophitou tench evidence must remain growth/maturity context, not daily feeding rhythm.');
+}
+const pikeperchReproduction = RESEARCH_REGISTRY.find((item) => item.id === 'pikeperch-reproduction-biology-review-2003');
+const catfishEnvironmentReview = RESEARCH_REGISTRY.find((item) => item.id === 'european-catfish-environmental-biology-review-2009');
+if (!pikeperchReproduction || pikeperchReproduction.measuredOutcomes?.length || pikeperchReproduction.approvedForPrediction || !catfishEnvironmentReview || catfishEnvironmentReview.measuredOutcomes?.length || catfishEnvironmentReview.approvedForPrediction) {
+  throw new Error('Reproduction/environment reviews must remain background sources without inferred measured daily outcomes.');
+}
+for (const [species, ref] of Object.entries({
+  Brasem: '10.1007/BF00002913',
+  Snoek: 'Effects of environmental factors on growth, survival, activity',
+  Voorn: '10.1111/j.1095-8649.1979.tb03632.x',
+  Zeelt: 'Some biological data on tench',
+  Snoekbaars: '10.1034/j.1600-0633.2003.00005.x',
+  Meerval: '10.1111/j.1467-2979.2008.00321.x',
+})) {
+  if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((source) => source.includes(ref))) {
+    throw new Error('The ' + species + ' profile must link its bibliographically corrected reference ' + ref + '.');
+  }
+}
+console.log('Legacy profile bibliography verification and measured-outcome separation tests passed.');

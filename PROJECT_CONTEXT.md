@@ -1776,3 +1776,8 @@ Geen dagelijkse score, gewicht, temperatuurgrens, voerhoeveelheid of tijdvakbonu
 ### Fase 2 — soortspecifieke registerdekking (19 november 2026)
 
 De actuele soortdekking is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 76 records, alle niet-goedgekeurd voor directe numerieke voorspelling. Nieuwe telemetriebronnen verdiepen de habitat-/bewegingscontext voor meerval, snoek en blankvoorn/brasem; zij valideren geen voedings- of vangstkansfactor. Roofblei heeft nog geen directe tijdgebonden voedingsbron. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — broncontrole oudere profielreferenties (19 november 2026)
+
+Zeven oudere profielreferenties zijn gecontroleerd en waar nodig bibliografisch gecorrigeerd. De audit §100 onderscheidt filtervoeding/prooikeuze, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie van dagelijkse voedselopname en vangbaarheid. Zeven nieuwe contextregistraties zijn toegevoegd; alle 83 registry-records blijven niet-goedgekeurd voor directe voorspelling. Kestemont (1995) en Tartally (2000) blijven voorlopig achtergrondverwijzingen zonder modelstatus. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

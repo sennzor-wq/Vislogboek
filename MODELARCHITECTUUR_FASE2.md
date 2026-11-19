@@ -794,3 +794,8 @@ De wijzigingen zijn uitsluitend tekst-/onzekerheidscorrecties in de bestaande po
 ## 88. Actuele soortdekking in het research register
 
 De actuele registerdekking en interpretatie staan in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 76 records, alle `approvedForPrediction: false`. De extra telemetriebronnen voor meerval, snoek en blankvoorn/brasem verbeteren vooral de ruimtelijke bewegings-/habitatcontext; zij activeren geen voedings-, activiteit- of vangstkansfactor. Roofblei heeft nog geen directe geregistreerde tijdgebonden voedselopname; meerval- en karperbronnen moeten naar gecontroleerde voeropstelling versus natuurlijke veldrespons gescheiden blijven.
+
+
+## 89. Bibliografische en uitkomstclassificatie oudere profielbronnen
+
+De audit van oudere profielreferenties staat in `FASE2_PROGNOSE_AUDIT.md` §100. Bibliografisch gecorrigeerde bronnen zijn aan het research register toegevoegd met expliciete gemeten uitkomsten en beperkingen. Filtervoeding/prooigrootte, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie blijven onderscheiden van dagelijkse voedselopname en vangbaarheid. Alle nieuwe registraties zijn niet-goedgekeurd voor directe voorspelling.
