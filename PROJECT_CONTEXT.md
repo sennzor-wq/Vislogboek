@@ -1858,3 +1858,8 @@ De bron-/responsmatrix staat in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §
 ### Fase 2 — soortspecifieke responskaarten (19 november 2026)
 
 De eerste responskaarten voor alle tien profielen staan in `FASE2_PROGNOSE_AUDIT.md` §110. Geen profiel heeft op basis van de huidige registry een volledig gevalideerde dagelijkse temperatuur-voedselopnamecurve. Directe voedingsmetingen bij karper, zeelt en snoekbaars zijn contextgebonden; andere soorten hebben vooralsnog onvoldoende directe thermische voedingsdata. Fysiologie, beweging, dagritme, habitat en vangst blijven afzonderlijke eindpunten. Geen modelparameter of runtime gewijzigd; Fase 2 blijft open.
+
+
+### Fase 2 — responslabel-scheiding (19 november 2026)
+
+Audit §111 legt vast dat voedselopname, foerageergedrag, beweging en vangst verschillende responsen zijn. Onderzoeken met verschillende levensfasen, voedseltypen of meetmethoden mogen niet als één curve worden samengevoegd. Geen runtimewijziging.

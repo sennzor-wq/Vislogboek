@@ -4583,3 +4583,20 @@ Bewijsdekking hieronder beschrijft uitsluitend de huidige 86 registryrecords en 
 - **Vervolgens:** per kandidaatrespons vaste referentieankers en een onafhankelijk label/metric definiëren. Alleen daarna kandidaatcurves toetsen tegen de bestaande thermische baseline.
 
 **Besluitstatus:** eerste soortspecifieke responskaarten voltooid op basis van huidige registry; geen soort heeft op dit moment een volledig gevalideerde thermische voedingscurve. Geen bron goedgekeurd en geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 111. Responslabel-nuance: voedselopname versus foerageergedrag (19 november 2026)
+
+De karperbronnen in de registry meten niet allemaal hetzelfde:
+
+- Chen et al. (2012) registreert voedselopname en voedingsritme bij de onderzochte Aziatische karperondersoort, grootteklassen en gecontroleerde temperatuurbehandelingen.
+- Oyugi et al. (2012) onderzoekt juveniele gewone karper van circa 90–105 mm bij 16, 20, 24 en 28 °C. De gemeten foerageersnelheid was het hoogst bij 24 °C binnen die proefopzet. Het gemeten eindpunt is foraging rate, niet automatisch totale dagelijkse voedselopname, adult-gedrag of vangbaarheid.
+- De wilde-karperstudie van Bajer et al. (2010) meet consumptie van aangeboden maïs in een specifieke veldcontext en telemetrie-/bezoekgedrag bij bijgevoerd punt. Ook dit is niet gelijk aan een universele natuurlijke voedingscurve.
+
+Deze resultaten zijn complementair, maar mogen niet als één dataset worden samengevoegd of als drie onafhankelijke bevestigingen van hetzelfde thermische optimum worden geteld. De levensfase, soort-/ondersoort, experimentele opzet, voedseltype en gemeten respons verschillen.
+
+**Modelconsequentie:** een toekomstige responskaart houdt minimaal aparte labels voor (a) voedselopname/consumptie, (b) foerageersnelheid/voedselzoekgedrag, (c) locomotorische activiteit en (d) vangst. Een bron kan meer dan één label ondersteunen wanneer die werkelijk afzonderlijk zijn gemeten, maar de labels worden niet onderling vervangen. Voor de huidige scoredoelstelling is directe voedingsrespons relevanter dan alleen beweging; foerageergedrag is ondersteunend bewijs en moet als zodanig gemarkeerd blijven.
+
+De algemene review van Volkoff & Rønnestad (2020) onderstreept dat temperatuur effecten heeft op voedsel zoeken, voedselopname en vertering, maar dat die responsen soort-, levensfase-, acclimatisatie- en blootstellingsafhankelijk zijn. De review ondersteunt de scheiding van responslagen; zij levert geen exacte parameters voor de Vislogboek-soortcurves.
+
+**Besluitstatus:** responslabels zijn aangescherpt; geen bronstatus, parameter, gewicht of runtime gewijzigd.
