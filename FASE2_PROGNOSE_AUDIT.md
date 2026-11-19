@@ -4947,3 +4947,22 @@ Deze delta actualiseert de interpretatie van de responskaarten in §110. Zij ver
 **Interpretatie:** de aanvullende bronnen maken de bewijsdekking rijker, maar niet homogener. Een soort kan directe dagelijkse consumptie in een specifieke dieet-/veldcontext hebben zonder dat er een temperatuurcurve beschikbaar is. Evenzo kan telemetrie een dag-nachtritme van beweging tonen zonder iets rechtstreeks over voeren te meten. De centrale bewijsclassificatie blijft daarom per gemeten respons, levensfase, voedseltype, watertype, seizoen en onderzoeksopzet.
 
 **Vervolg:** de volgende stap is niet het activeren van gewichten, maar het sluiten van de formele respons-/bronmatrix en het vaststellen welke responsen überhaupt onafhankelijk kunnen worden geëvalueerd met toekomstige lokale sessiegegevens. Alle ontbrekende of niet-overdraagbare informatie blijft expliciet onzeker. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 128. Roofblei — seizoensvariatie in maagvulling en dieet in de Donau (2010)
+
+**Bron:** Krpo-Ćetković, J., Hegediš, A. & Lenhardt, M. (2010). *Diet and growth of asp, Aspius aspius (Linnaeus, 1758), in the Danube River near the confluence with the Sava River (Serbia).* Journal of Applied Ichthyology, 26, 513–521. DOI: 10.1111/j.1439-0426.2010.01456.x.
+
+De studie analyseerde 198 roofbleien uit een 28,5 km lang deel van de Donau. De lengte varieerde van 90 tot 405 mm en het gewicht van 5 tot 567 g; de steekproef bestond voornamelijk uit subadulte vissen van 0+ tot 4+ jaar. Het dieet bestond uitsluitend uit vis, met onder meer alver, blankvoorn en goudvis als belangrijke prooien. De seizoensgebonden vacuïteitsindex (aandeel lege magen) was het hoogst in november (94,1) en het laagst in juli (35,6). De breedte van het trofische niche was het grootst in mei en het kleinst in november.
+
+**Classificatie:** veldonderzoek naar dieet en seizoensgebonden maagvulling bij voornamelijk subadulte roofblei. De vacuïteitsindex is een momentopname van lege magen in de verzamelde steekproef en geen directe dagelijkse consumptiesnelheid of voedingsactiviteit per uur. De studie meet geen temperatuurrespons en de seizoensverschillen kunnen samenhangen met prooiaanbod, migratie, reproductiestatus en andere seizoensprocessen.
+
+**Besluit:** aanvulling op de roofblei-responskaart: er is wel degelijk veldbewijs voor seizoensvariatie in dieet/maagvulling, naast de volwassen bewegings-telemetrie uit §120. Er is nog geen directe volwassen dagelijkse voedselopnamecurve, thermische voedingscurve of gevalideerd dag-nachtritme voor roofblei. De telemetriebeweging en seizoensmaagvulling blijven twee verschillende responsen.
+
+### 128.1 Gevolg voor de soortdekking
+
+- Roofblei: seizoensgebonden dieet en maagvulling zijn nu aanvullend gedocumenteerd in een voornamelijk subadulte rivierpopulatie; volwassen telemetrie geeft afzonderlijke informatie over beweging en dagdeelvariatie.
+- De twee bronnen mogen niet worden gecombineerd tot een dagdeel- of temperatuurvoedingsscore: ze meten andere populaties, perioden en responsen.
+- De studie ondersteunt geen numerieke voedingsfactor, geen vaste schemerbonus en geen persoonlijke hengelvangstkans.
+
+**Status:** één aanvullende primaire veldbron methodisch geclassificeerd. Geen registry-goedkeuring, score, gewicht, parameter, runtime of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
