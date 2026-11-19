@@ -1486,3 +1486,13 @@ Maak bij toekomstige uitwerking expliciet onderscheid tussen:
 Een kleine numerieke wijziging, kompasverschil of nieuw meetmoment mag dus niet automatisch een adviesrecord of melding veroorzaken. Een gewijzigde prognose zonder gewijzigde praktische aanpak kan hoogstens een nieuwe interne snapshot rechtvaardigen. Alleen een werkelijk gewijzigde, voor de gebruiker relevante aanpak leidt tot een nieuw coachadvies.
 
 Onderzoek later per factor de functionele grens en eventuele hysterese/bevestiging, aansluitend op de bestaande classificaties en forecastbevestiging. **Geen arbitraire km/u-delta, universele drempel of nieuwe numerieke regel invoeren zonder code-audit, onderbouwing en regressievalidatie.** Deze verfijning wordt pas ingepland na afronding van het huidige hoofdspoor en wanneer de dynamische coachlaag aan de beurt is.
+## VisCoach — gebruik van de bestaande prognose en thermische prior (19 november 2026)
+
+VisCoach blijft de gebruikersgerichte coachlaag boven op de bestaande Prognose en gespecialiseerde engines. De prognose is de enige bron voor prognostische uitkomsten; VisCoach maakt geen tweede of eigen prognose en introduceert geen parallelle biologische regels.
+
+De bestaande thermische soortcurve blijft actief als voorlopige relatieve temperatuurrespons. In het coachplan mag dit alleen als thermische activiteitspotentie worden vertaald, met de bestaande waarschuwing dat de exacte curveparameters niet gevalideerd zijn. De thermische score is geen voedingsintensiteit, aasopname, aanwezigheid of vangstkans en mag die uitkomsten niet verhogen.
+
+Advies (wanneer/waarom/waar) en tactiek (hoe presenteren, voeren en positioneren) blijven logisch verbonden maar onderscheiden. Voedingsgedrag, habitat-/bewegingshypothesen, wind/positionering, voorvoer en persoonlijke vangsthistorie blijven afkomstig uit hun bestaande gespecialiseerde onderdelen. Tijdvakpresentatie houdt temperatuurrespons en voedingsgedrag uit elkaar; een thermische dagschatting wordt niet als bewezen beste voedings- of vistijd gepresenteerd.
+
+De gebruiker kiest de sessiestart. De bestaande starttijd-, snapshot- en dynamische sessiecoachketen blijft leidend. Deze keuze wijzigt geen tactiekengine, gebruikersinvoer of dynamische triggers en start fase 3 niet.
+

@@ -693,3 +693,16 @@ Alle bestaande registry-records blijven niet-goedgekeurd voor directe numerieke 
 De actuele zevenpunts-crosswalk staat in `FASE2_PROGNOSE_AUDIT.md` §89. De factorinventaris is afgerond voor deze onderzoeksronde (§88), maar criterium 2 blijft formeel open door de bestaande numerieke thermische curves en de validatie van hun exacte parameters. De nieuwe omgevingsfactoren zijn niet numeriek geactiveerd. Lokale Brier-kalibratie wacht op voldoende echte, vergelijkbare sessies; dit blokkeert geen lokale nauwkeurigheidsclaims, maar die claims blijven verboden zolang data ontbreekt.
 
 **Faseregie:** fase 2 is niet geaccepteerd; fase 3 blijft geblokkeerd. Eerst is een expliciet ontwerpbesluit nodig over het behouden van thermische curves als voorlopige mechanistische prior versus het uitschakelen van numerieke thermische activiteit waar passend direct bewijs ontbreekt. Geen runtimegedrag gewijzigd.
+## 81. Ontwerpbesluit: thermische curves behouden als voorlopige prior (19 november 2026)
+
+Optie A is gekozen. De bestaande asymmetrische thermische soortprofielen blijven actief binnen de bestaande prognoseketen als voorlopige mechanistische prior. Zij leveren uitsluitend een relatieve thermische activiteitspotentie op basis van de bestaande waterthermische engine.
+
+- De curves zijn geen directe meting van totale activiteit, voedselopname, aasacceptatie, habitat-aanwezigheid of hengelvangbaarheid.
+- De bestaande curveparameters en de omzetting naar 1–10 blijven expliciet voorlopig; geen exacte parameterfit of lokale validatie wordt geclaimd.
+- Er is geen koppeling van de thermische score naar de voedings-/voorvoerlaag, persoonlijke Poisson-vangkans of Brier-evaluatie.
+- De tijdvakpresentatie houdt thermische respons gescheiden van soortspecifiek voedings-/diel-gedrag. De thermische dagscore is op zichzelf geen bewijs voor een voedingspiek of beste vistijd.
+- fishProfiles.ts blijft de enige operationele bron voor soortprofielen en thermische parameters. prognosisEngine.ts blijft de bestaande prognoseketen; VisCoach consumeert de uitkomsten en introduceert geen eigen prognose.
+- Water-, habitat-, positionerings-, voedings- en evaluatie-engines behouden hun afzonderlijke verantwoordelijkheden. Geen dubbele logica of nieuwe modelarchitectuur.
+
+Alle bronnen blijven onderworpen aan de bestaande evidence-status. Latere numerieke verfijning vereist directe soort-/levensfase-/contextpassende onderbouwing, regressietests en onafhankelijke chronologische evaluatie. Dit besluit is geen wetenschappelijke validatie van de huidige parameters.
+

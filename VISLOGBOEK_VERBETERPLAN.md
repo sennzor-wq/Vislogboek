@@ -679,3 +679,11 @@ De zeven formele criteria zijn opnieuw beoordeeld in `FASE2_PROGNOSE_AUDIT.md` Â
 **Status:** technische borging, snapshot-/Brier-keten, tijdvakmetadata en huidige VisCoach-invoerflow zijn voor de huidige scope gerealiseerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies. De formele blocker blijft criterium 2: de exacte parameters van de bestaande thermische curves zijn niet onafhankelijk gevalideerd.
 
 **Volgende stap:** expliciet ontwerpbesluit voorbereiden over (A) thermische curves transparant behouden als voorlopige mechanistische prior, of (B) numerieke thermische activiteit uitschakelen voor soorten zonder passende directe fysiologische basis. Dit besluit verandert niet automatisch runtimegedrag. Fase 2 blijft open; fase 3 blijft geblokkeerd.
+### Fase 2 â€” ontwerpbesluit thermische prior (19 november 2026)
+
+Optie A is gekozen: de bestaande thermische curves blijven actief als transparant gelabelde voorlopige mechanistische prior. Ze bepalen uitsluitend de relatieve thermische respons binnen de bestaande prognose. Ze worden niet gebruikt om zelfstandig voedingskans, voorvoerhoeveelheid, persoonlijke vangstkans of Brier-score te verhogen.
+
+Dit is geen herontwerp van de prognose. De bestaande prognose blijft de centrale bron van prognostische uitkomsten; VisCoach consumeert de prognose en bestaande gespecialiseerde engines en maakt geen eigen prognose. Temperatuurrespons, voedingsgedrag, habitat/beweging, positionering en persoonlijke vangsthistorie blijven afzonderlijke respons-/informatielagen.
+
+De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal gevalideerd gepresenteerd. Bronstatus en onzekerheid blijven zichtbaar. Geen nieuwe gewichten, drempels of tijdvakbonussen worden toegevoegd. Fase 2 blijft onder de bestaande zevenpunts-acceptatiecrosswalk vallen; fase 3 blijft geblokkeerd tot formele fase-2-acceptatie.
+
