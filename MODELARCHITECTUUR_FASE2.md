@@ -1,7 +1,7 @@
 # Modelarchitectuur Vislogboek — Fase 2
 
 **Besluitdatum:** 16 november 2026  
-**Status:** gekozen architectuur; numerieke herkalibratie nog niet uitgevoerd.
+**Status:** gekozen architectuur; numerieke herkalibratie nog niet uitgevoerd. Laatste architectuursynchronisatie: 19 november 2026. Fase 2 is nog niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
 
 ## 1. Besluit in één zin
 
@@ -905,3 +905,40 @@ Geen van de huidige profielen heeft hiermee een volledig gevalideerde dagelijkse
 De aanvullende karperanalyse staat in `FASE2_PROGNOSE_AUDIT.md` §111. Voedselopname/consumptie, foerageersnelheid/voedselzoekgedrag, locomotorische activiteit en hengelvangst zijn verschillende responslabels. Een studie naar juveniele karper-foerageersnelheid is ondersteunend bewijs voor voedselzoekgedrag, maar geen directe adult-voedselopnamecurve of vangstcurve. Bronnen met verschillende soorten/ondersoorten, levensfasen, voedseltypen en experimentele context mogen niet worden samengevoegd alsof zij hetzelfde optimum meten.
 
 Temperatuur kan meerdere stappen in het voedingsproces beïnvloeden, maar de respons is soort- en contextafhankelijk; zie Volkoff & Rønnestad (2020), reeds opgenomen in de research registry. Deze review ondersteunt de conceptuele scheiding, niet de exacte numerieke soortparameters. Geen runtime of bronstatus gewijzigd.
+
+
+## 103. Werkelijke evaluatielabels en grenzen van de bestaande data (19 november 2026)
+
+De actuele datamodelaudit staat in FASE2_PROGNOSE_AUDIT.md §130. De bestaande sessie-/snapshotketen levert:
+- Afgeronde sessie-uitkomsten voor de persoonlijke vangstkans.
+- Vooraf voorspelde en achteraf gemeten watertemperatuur voor de aparte temperatuurschattervalidatie.
+- Beperkte beschrijvende tijdvakgegevens wanneer actieve hengelintervallen en betrouwbare, door de gebruiker aangepaste vangsttijdstippen bestaan.
+- Optionele tijdgebonden hengelgebeurtenissen (aanbeet/gemist/vangst), maar deze zijn vangbaarheids-/interactieproxy's en worden nog niet door de tijdvakbewijs-audit verwerkt.
+
+Er zijn geen directe lokale labels voor fysiologische activiteit, voedselopname of biologische tijdvakvoorkeur. Automatische formulier-open-tijdstippen zijn registratietijd, geen bewezen vangstmoment. Ontbrekende hengelintervallen zijn onbekende blootstelling, niet nul inzet. Een vangst, aanbeet, beweging of opportunistische aanwezigheidssignalering wordt niet als directe voedselopname gebruikt.
+
+## 104. Onafhankelijke evaluatie per respons
+
+De metric-/labelmatrix staat in FASE2_PROGNOSE_AUDIT.md §131:
+- Watertemperatuurschatter: MAE/RMSE/bias en waar passend intervaldekking.
+- Persoonlijke vangstkans: chronologische Brier/BSS en kalibratie.
+- Thermische activiteit, voedselopname, habitat en biologische tijdvakvoorkeur: eigen passende directe labels en metrics; deze lokale labels ontbreken momenteel.
+- Tijdvak-vangbaarheid: eventueel exposure-aware vangst-/aanbeetfrequentie per hengeluur, strikt als aparte praktijk-/vangbaarheidslaag.
+
+Brier/BSS wordt niet gebruikt voor de biologische 1–10-score of automatische gewichtstuning. Vangstdata valideren niet rechtstreeks voedselopname. Modelvergelijking blijft rolling-origin, met vaste modelversies, dezelfde ongeziene waarnemingen, factorablaties en rapportage van negatieve resultaten. Geen automatische gewichtswijziging.
+
+## 105. Factor-toelating en numerieke runtimegrens (19 november 2026)
+
+De geconsolideerde factor-toelatingsmatrix staat in FASE2_PROGNOSE_AUDIT.md §132. De research registry bevat 86 records en 0 goedgekeurde records voor directe numerieke voorspelling. De huidige thermische prior is de enige numerieke bijdrage aan de biologische dagscore en blijft een expliciete voorlopige uitzondering, niet een wetenschappelijk gevalideerde curve.
+
+Directe voedingsbronnen voor karper, zeelt, snoekbaars en enkele andere soorten zijn contextgebonden kandidaten; geen daarvan is automatisch toegelaten. Voedingsritme, beweging, dieet, prooikeuze, habitat, wind, druk, zuurstof, stroming, vangbaarheid en onzekerheid blijven hun eigen respons-/contextlaag. Voorvoergrammen zijn afzonderlijke tactiekheuristieken, geen biologische scorefactor; exacte hoeveelheden en invoerkwaliteitsgrens blijven een open productbesluit.
+
+Geen nieuwe factor, gewicht, interactie of tijdvakbonus activeren voordat respons, bron, invoerkwaliteit en onafhankelijke validatie dit toelaten.
+
+## 106. Vangstregistratie: architectuurcontract versus huidige UI (19 november 2026)
+
+De huidige conformiteitscontrole staat in FASE2_PROGNOSE_AUDIT.md §133. De basisflow is laagdrempelig: vissoort kiezen; aantal staat standaard op 1; tijdstip wordt automatisch ingevuld en blijft aanpasbaar; gewicht, lengte, aas, hengel/techniek, foto en notities zijn optioneel. De gebruiker kan opslaan zonder deze optionele velden te vullen.
+
+De huidige hengel-/techniekregistratie is echter een vrij tekstveld, geen selectie uit een vooraf ingesteld herbruikbaar profiel. Een SessionRod is sessiegebonden en vervangt geen gebruikerspreset. Dit verschil is gedocumenteerd; er is nog geen runtimewijziging of datamigratie gekozen. Een toekomstige preset moet optioneel blijven en de snelle vangstflow niet blokkeren.
+
+**Architectuurstatus:** geen runtime-, score-, parameter-, gewicht- of gebruikersflowwijziging door deze documentatie. Fase 2 blijft open; Fase 3 geblokkeerd.
