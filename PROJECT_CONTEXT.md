@@ -1771,3 +1771,8 @@ Volgende stap: per soort de claim-/brontrace afronden en daarna de zevenpunts-ac
 De broncontrole §97 leidde tot gerichte tekstcorrecties in de bestaande positioneringsengine voor snoek, zeelt, meerval en voorn. De eerdere absolute claims zijn vervangen door contextafhankelijke zoekhypothesen; de bestaande temperatuurcondities en zoneberekening zijn behouden. Regressietests bewaken dat onbewezen grenzen en gedragsclaims niet als feiten worden gepresenteerd.
 
 Geen dagelijkse score, gewicht, temperatuurgrens, voerhoeveelheid of tijdvakbonus gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — soortspecifieke registerdekking (19 november 2026)
+
+De actuele soortdekking is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 76 records, alle niet-goedgekeurd voor directe numerieke voorspelling. Nieuwe telemetriebronnen verdiepen de habitat-/bewegingscontext voor meerval, snoek en blankvoorn/brasem; zij valideren geen voedings- of vangstkansfactor. Roofblei heeft nog geen directe tijdgebonden voedingsbron. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -1514,31 +1514,33 @@ De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschr
 - `SpeciesProfile` bevat als enige numerieke biologische profielparameters `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. `calculateThermalEfficiency()` gebruikt uitsluitend deze drie voorlopige waarden.
 - `description`, `assumptions` en `scientificReferences` zijn verklarende metadata. Ze worden in de geavanceerde prognoseweergave getoond, maar leveren geen numerieke bijdrage aan `activityScore`.
 - De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is nog geen soortspecifieke wind-, wolken-, regen-, zuurstof- of stromingsbron in het centrale register. De gerichte drukreview in §79 voegt twee beperkte drukbronnen toe; geen daarvan ondersteunt een universele activiteit- of voedingsbonus.
-- Alle 59 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
+- Alle 76 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. De vijf aanvullende telemetriebronnen uit §97 zijn uitsluitend contextregistraties; geen bron is vrijgegeven als numerieke voorspellingsfactor. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
 
 ### Soortspecifieke dekking in het research register
 
 Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroep**, geen aantallen onafhankelijke steekproeven, kwaliteitscijfers of gevalideerde modelparameters. Eén record kan meerdere uitkomsten beschrijven en de overdraagbaarheid verschilt per levensfase, water en onderzoeksopzet.
 
-| Doelsoort | Metabolisme / aerobe scope | Voedselopname / foerageren | Beweging / habitat | Dieet / prooikeuze | Vangbaarheid / vangstverdeling |
-|---|---:|---:|---:|---:|---:|
-| Karper | 1 | 9 | 4 | 0 | 2 |
-| Brasem | 1 | 2 | 3 | 0 | 0 |
-| Snoek | 1 | 3 | 3 | 1 | 0 |
-| Baars | 1 | 3 | 2 | 1 | 0 |
-| Blankvoorn | 1 | 5 | 3 | 1 | 0 |
-| Zeelt | 0 | 4 | 2 | 1 | 1 |
-| Snoekbaars | 1 | 2 | 3 | 1 | 0 |
-| Meerval | 0 | 3 | 4 | 1 | 0 |
-| Roofblei | 0 | 0 | 2 | 2 | 0 |
+| Doelsoort | Metabolisme / aerobe scope | Voedselopname / foerageren | Beweging / habitat | Dieet / prooikeuze | Vangbaarheid / vangstverdeling | Totaal records |
+|---|---:|---:|---:|---:|---:|---:|
+| Karper | 1 | 10 | 6 | 0 | 2 | 13 |
+| Brasem | 1 | 3 | 4 | 0 | 0 | 8 |
+| Snoek | 1 | 3 | 5 | 1 | 2 | 11 |
+| Baars | 1 | 3 | 2 | 1 | 1 | 8 |
+| Blankvoorn* | 1 | 5 | 4 | 1 | 0 | 9 |
+| Zeelt | 0 | 4 | 2 | 1 | 1 | 4 |
+| Snoekbaars | 1 | 3 | 3 | 2 | 0 | 9 |
+| Meerval | 0 | 4 | 6 | 1 | 0 | 9 |
+| Roofblei | 0 | 0 | 2 | 3 | 0 | 5 |
+| **Totaal** | — | — | — | — | — | **76** |
 
 ### Wat deze dekking betekent
 
 1. **Thermische fysiologie:** voor baars en snoekbaars bestaat relatief directer bewijs voor metabolisme/aerobe scope; voor brasem/blankvoorn bestaan vergelijkende metabolismegegevens; voor karper en snoek zijn de geregistreerde thermische meetpunten beperkt. Voor zeelt, meerval en roofblei ontbreekt in het register een vergelijkbare soortspecifieke metabolisme-/aerobe-scopecurve. Geen van deze bronnen valideert de exacte `thermalOptimum` of curvebreedtes in `fishProfiles.ts`.
 2. **Voedselopname:** karper en blankvoorn hebben de breedste geregistreerde voedings-/ritmebasis, maar de bronnen verschillen sterk in veld versus gecontroleerde opzet, levensfase, aasstations en habitat. Brasem, snoek, baars, zeelt, snoekbaars en meerval hebben beperktere of contextgebonden dekking. Voor roofblei ontbreekt directe soortspecifieke dagdeel-resolved voedselopname; dieet- en telemetriebronnen vullen dat gat niet.
-3. **Beweging en habitat:** voor meerdere soorten bestaat telemetrie- of veldbewijs, maar beweging, dieptegebruik en habitatkeuze zijn geen directe voedselopname of vangbaarheid. De uitkomstsoorten blijven gescheiden.
-4. **Wind, luchtdruk, bewolking, regen, zuurstof en stroming:** voor deze factoren bevat het register momenteel geen soortspecifieke bronregistraties met een onafhankelijk gemeten effect op voedselopname of totale activiteit. Wind blijft bruikbaar voor lokale oever-/positioneringsanalyse, maar niet als generieke activiteitbonus. Luchtdruk en overige weersfactoren blijven context totdat onafhankelijke, soortspecifieke evidence is geregistreerd.
-5. **Levensfase en lichaamsgrootte:** meerdere fysiologische en voedingsstudies tonen levensfase- of lichaamsgrootte-effecten. De huidige app vraagt geen verplichte leeftijd of lengte voor de prognose; vangstlengtes zijn bovendien geen representatieve populatiesteekproef. Het model mag daarom geen volwassen/juveniele respons afleiden uit een willekeurige vangstmaat.
+3. **Beweging en habitat:** voor meerdere soorten bestaat telemetrie- of veldbewijs, maar beweging, dieptegebruik en habitatkeuze zijn geen directe voedselopname of vangbaarheid. De uitkomstsoorten blijven gescheiden. De vijf extra registraties verdiepen vooral de ruimtelijke context voor meerval, snoek en blankvoorn/brasem; ze leveren geen nieuwe directe voedings- of vangbaarheidslabels.
+4. **Belangrijkste soortspecifieke gaten:** voor roofblei ontbreken nog steeds directe tijdgebonden voedselopname- en voedingsritmegegevens; dieet- en bewegingsbronnen vullen dit niet in. Voor meerval bestaan wel meerdere voedingsritme-/voeropnameregistraties, maar een deel komt uit gecontroleerde voeropstellingen en de veldtelemetrie meet vooral beweging/diepte. Voor zeelt is de registerbasis klein en sterk contextafhankelijk. Voor karper is de bronbasis breder, maar aasstation-, gecontroleerde en wilde-veldresponsen blijven niet onderling uitwisselbaar.
+5. **Wind, luchtdruk, bewolking, regen, zuurstof en stroming:** voor deze factoren bevat het register momenteel geen soortspecifieke bronregistraties met een onafhankelijk gemeten effect op voedselopname of totale activiteit. Wind blijft bruikbaar voor lokale oever-/positioneringsanalyse, maar niet als generieke activiteitbonus. Luchtdruk en overige weersfactoren blijven context totdat onafhankelijke, soortspecifieke evidence is geregistreerd.
+6. **Levensfase en lichaamsgrootte:** meerdere fysiologische en voedingsstudies tonen levensfase- of lichaamsgrootte-effecten. De huidige app vraagt geen verplichte leeftijd of lengte voor de prognose; vangstlengtes zijn bovendien geen representatieve populatiesteekproef. Het model mag daarom geen volwassen/juveniele respons afleiden uit een willekeurige vangstmaat.
 
 ### Profielnotities en referenties opgeschoond
 
@@ -2196,3 +2198,16 @@ De claim-/brontrace uit §97 is afgerond voor de actieve soortspecifieke koudewa
 Vier regressieasserties bewaken dat de nieuwe teksten geen harde, onbewezen claims terugbrengen. Er zijn geen temperatuurgrenzen, gramadviezen, soortenprofielen, gewichten of tijdvakbonussen gewijzigd.
 
 Deze gerichte tekstcorrectie is noodzakelijk om te voorkomen dat een ruimtelijke zoekhypothese als vaststaand biologisch feit wordt gepresenteerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 99. Soortspecifieke registerdekking bijgewerkt na aanvullende telemetrie (19 november 2026)
+
+De dekkingstabel in §78 is opnieuw berekend op de actuele `RESEARCH_REGISTRY` op `main`. De vijf aanvullende bronnen uit §97 brengen het register van 71 naar 76 records. De telling per uitkomstgroep is het aantal unieke records per soort dat ten minste één van de uitkomstlabels in die groep bevat; één record kan in meerdere groepen meetellen. Dit zijn geen onafhankelijke steekproefaantallen, effectgroottes of goedgekeurde modelinputs.
+
+- Alle 76 records blijven `approvedForPrediction: false`; de bronstatus is niet gewijzigd.
+- De belangrijkste lacune voor een soortspecifieke tijdvakvoorkeur blijft roofblei: er zijn dieet- en bewegingsbronnen, maar geen directe `feeding_intensity`/`feeding_rhythm`-registraties.
+- De meervalregistraties omvatten gecontroleerde voedingsritmes en veld-/telemetrieonderzoek; de laatste meet vooral beweging en habitat. Die gegevens mogen niet worden samengevoegd tot een bewezen natuurlijke nachtelijke voedingspiek.
+- De nieuwe snoek- en blankvoornbronnen vullen vooral winter-/habitatbeweging aan, niet een directe voedings- of hengelvangstrespons.
+- De bestaande thermische bronlacunes blijven bestaan: geen vergelijkbare aerobe-scope-/metabolismebasis voor zeelt, meerval en roofblei; de huidige voorlopige thermische curveparameters zijn daarmee niet gevalideerd.
+
+Deze update verandert geen factorstatus, score, gewicht of runtimeberekening. Volgende stap: de resterende bron-/claimtrace afronden, daarna de formele zevenpunts-crosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -737,3 +737,10 @@ De huidige code gebruikt nog heuristische grenzen (<7–12 °C, afhankelijk van 
 Na de evidence-audit §97 zijn vier te stellige positioneringsteksten voor snoek, zeelt, meerval en voorn gecorrigeerd in `rodPositioningEngine.ts`. De 7–12 °C-condities en zonekeuzes zijn niet veranderd; alleen claims over vaste prooivisverplaatsing, extreme winterrust, volledige meervalinactiviteit en zonnige-middagverplaatsing zijn teruggebracht tot contextafhankelijke zoekhypothesen. Vier regressieasserties bewaken deze grenzen.
 
 Geen score, gewicht, temperatuurgrens, gramadvies of tijdvakbonus gewijzigd. Volgende stap: de resterende factor-/brontrace afronden en daarna de zevenpunts-crosswalk bijwerken. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — registerdekking per soort bijgewerkt (19 november 2026)
+
+De actuele dekkingstabel in `FASE2_PROGNOSE_AUDIT.md` §78 is bijgewerkt op basis van 76 registerrecords; de aanvullende interpretatie staat in §99. Alle 76 bronnen blijven niet-goedgekeurd voor directe numerieke voorspelling. Roofblei mist directe tijdgebonden voedselopnamegegevens; meerval en karper hebben voedingsbronnen uit verschillende meetcontexten die niet als één respons mogen worden samengevoegd. De nieuwe snoek-/blankvoorntelemetrie voegt vooral bewegings-/habitatbewijs toe.
+
+Geen factor, gewicht of score geactiveerd. Volgende stap: resterende bron-/claimtrace afronden en daarna de zevenpunts-crosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

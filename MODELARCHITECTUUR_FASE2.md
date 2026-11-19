@@ -789,3 +789,8 @@ Geen dagelijkse score, thermische curve, gewicht of tijdvakbonus gewijzigd. Fase
 De soortspecifieke koudewaterclaims uit `rodPositioningEngine.ts` zijn na de broncontrole in `FASE2_PROGNOSE_AUDIT.md` §97–§98 genuanceerd. De regels voor snoek, zeelt, meerval en voorn blijven tactische zoekhypothesen; de gebruikte 7–12 °C-condities zijn geen gevalideerde biologische omslagpunten. Met name volledige winterinactiviteit van meerval, “extreme winterrust” bij zeelt en een vaste zonnige-middagroute voor voorn worden niet meer als feit gepresenteerd.
 
 De wijzigingen zijn uitsluitend tekst-/onzekerheidscorrecties in de bestaande positioneringsengine, met regressietests. Geen dagelijkse score, factorgewicht, thermische curve of tijdvakvoorkeur gewijzigd.
+
+
+## 88. Actuele soortdekking in het research register
+
+De actuele registerdekking en interpretatie staan in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99. Het register bevat 76 records, alle `approvedForPrediction: false`. De extra telemetriebronnen voor meerval, snoek en blankvoorn/brasem verbeteren vooral de ruimtelijke bewegings-/habitatcontext; zij activeren geen voedings-, activiteit- of vangstkansfactor. Roofblei heeft nog geen directe geregistreerde tijdgebonden voedselopname; meerval- en karperbronnen moeten naar gecontroleerde voeropstelling versus natuurlijke veldrespons gescheiden blijven.
