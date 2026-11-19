@@ -3375,3 +3375,66 @@ Vervolg in deze volgorde:
 6. Houd Brier/BSS uitsluitend voor persoonlijke vangstkans en behoud de bestaande sessie-/snapshotvoorwaarden.
 
 Geen runtimewijziging, extra verplicht veld, automatisch trainingslabel of numerieke factor is door deze audit goedgekeurd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+## 131. Onafhankelijke evaluatiemaatstaven en toelatingspoorten per respons (19 november 2026)
+
+Deze sectie vertaalt de datalabel-audit (§130), de zeven Fase-2-criteria (§43 en §129) en de kandidaatarchitectuur (§§94–106) naar een concreet evaluatiekader. Het is een ontwerpvoorstel. Er worden geen nieuwe metrics in de app geactiveerd, geen minimumaantallen gekozen en geen runtimeberekeningen gewijzigd.
+
+### 131.1 Kernregel: elke metric toetst uitsluitend de respons waarvoor het label geschikt is
+
+Een metric kan alleen iets aantonen over het eindpunt dat daadwerkelijk is gemeten. Een goede vangstscore bewijst niet dat een biologische activiteitsscore juist is; een goede watertemperatuurschatting bewijst niet dat de vis op die temperatuur meer eet. De volgende lagen blijven daarom onafhankelijk.
+
+| Respons / modelonderdeel | Geschikt label of referentie | Kandidaatmetric(s) | Wat de metric kan aantonen | Huidige status |
+|---|---|---|---|---|
+| Watertemperatuurschatter | Onafhankelijke meting op passende locatie, diepte en tijd, met meetmethode en herkomst | MAE, RMSE, gemiddelde bias; waar een voorspelde band beschikbaar is ook intervaldekking | Fout en systematische afwijking van de voorspelde watertemperatuur | Bestaande aparte evaluatie aanwezig; lokale meetparen bepalen de bewijskracht. |
+| Thermische fysiologische respons | Direct gemeten, soort- en contextpassende activiteit-/fysiologierespons, met bekende levensfase, acclimatisatie, watertype en temperatuur | Afhankelijk van het gemeten eindpunt: foutmaat voor een continue respons en/of rangcorrelatie over vooraf vastgelegde condities | Of de soortspecifieke thermische prior de gemeten fysiologische respons ordent of kwantificeert | Geen direct lokaal label in de app; exacte curveparameters blijven voorlopige prior. Groei, aerobe scope of vertering mogen niet zonder responsargument als directe activiteit worden gebruikt. |
+| Voedselopname / voedingsintensiteit | Direct gemeten geconsumeerde hoeveelheid per tijdseenheid of gevalideerde directe voedingssnelheid, met voedseltype, visformaat en context | MAE/RMSE of relatieve fout voor continue opname; rangcorrelatie voor relatieve ordening; eventueel Brier/log loss uitsluitend bij een werkelijk binair voedingsgebeurtenislabel | Of een factor de gemeten voedselopname/voedingsintensiteit voorspelt | Geen lokaal direct label. Vangst, aanbeet, dieetcompositie en maagvacuïteit zijn niet automatisch dagelijkse intake. |
+| Voedingsritme / tijdvakvoorkeur | Directe tijdgebonden voedselopname of foerageersnelheid binnen dezelfde dag en passende soort-/seizoenscontext | Binnen-dag rangcorrelatie of paargewijze concordantie tussen voorspelde en gemeten tijdvakvolgorde; continue foutmaat wanneer werkelijke tijdvakopname is gemeten | Of het model het relatieve voedingsmoment correct ordent | Geen lokale directe labels. Bewegingsritme alleen is onvoldoende. |
+| Habitat / aanwezigheid | Herhaalde, gestandaardiseerde aanwezigheid-/afwezigheidswaarnemingen met expliciete zoekinspanning en detectiecontext | Log loss/Brier of classificatiemaatstaven; occupancy-/detectiemodel wanneer de steekproefopzet dat toelaat | Of de habitat-/aanwezigheidslaag aanwezigheid voorspelt, rekening houdend met detectiekans | Huidige aanwezigheidssignalen zijn opportunistisch en kwalitatief; 'geen waarnemingen' is geen afwezigheid. Geen gekalibreerde aanwezigheidskans. |
+| Persoonlijke vangstkans | Vooraf opgeslagen catch-chance en afgeronde, gekoppelde sessie-uitkomst onder vergelijkbare duur en tijdvenster | Brier/BSS en kalibratie, chronologisch met rolling baseline | Of de persoonlijke kans op minstens één vangst overeenkomt met sessie-uitkomsten | Bestaande evaluator aanwezig. Dit blijft de enige huidige Brier-toepassing en geen biologische gewichtstuner. |
+| Tijdvak-vangbaarheid / hengelinteractie | Betrouwbaar tijdstip van vangst/aanbeet/gemiste vis plus expliciete hengeluren en doelsoorttoeschrijving | Beschrijvende vangst-/aanbeetfrequentie per hengeluur; later eventueel een exposure-aware count/rate-model met chronologische holdout | Of een tijdvak onder vergelijkbare geregistreerde hengelinzet meer hengelinteracties/vangsten oplevert | Alleen gedeeltelijke optionele data; geen directe voedingsmeting en nog geen gevalideerde tijdvakvoorspeller. |
+| Samengestelde 1–10-biologische score | Vooraf gedefinieerde onafhankelijke biologische referentie die dezelfde samengestelde doelrespons meet | Eerst rankcorrelatie/ordening tegen de referentie; fout- of kalibratiemaat alleen wanneer vaste biologische scoreankers zijn gedefinieerd | Of de ene score de bedoelde biologische activiteit-/voedingspotentie betekenisvol en stabiel samenvat | Geen onafhankelijke samengestelde lokale labelset; niet valideerbaar met Brier of vangst alleen. |
+| Onzekerheid / coverage | Werkelijke fout/verificatie-uitkomst gegroepeerd naar vooraf gedefinieerde invoer- en bewijsdekking | Intervaldekking en fout/kalibratie per coverageklasse; aantallen en uitsluitingen | Of onzekerheidslabels en gedeeltelijke dekking eerlijk zijn | Ontwerp nog open; onzekerheid blijft buiten de biologische score. |
+
+### 131.2 Specifieke grens tussen tijdvakvoeding en tijdvakvangbaarheid
+
+De app kan op termijn twee verschillende vragen beantwoorden:
+- **Biologische tijdvakrespons:** wanneer de doelsoort aantoonbaar meer voedsel opneemt of foerageert. Hiervoor zijn directe tijdgebonden voedingslabels nodig.
+- **Praktische hengeluitkomst per tijdvak:** wanneer onder vergelijkbare hengeluren, stek, soort en techniek meer aanbeten of vangsten zijn geregistreerd. Dit is een vangbaarheids-/praktijklaag.
+
+De tweede kan nuttig zijn voor VisCoach, maar mag niet als directe validatie van de eerste worden gebruikt. De huidige optionele SessionRodEvent- en CatchItem-gegevens kunnen hoogstens een beperkte basis vormen voor de tweede. Soorttoeschrijving, timestampkwaliteit, expliciete hengelblootstelling, selectieve registratie en dubbeltelling moeten eerst worden afgedekt. De huidige tijdvakbewijs-audit is beschrijvend; er is nog geen goedgekeurd model of metric die een beste biologisch voedingsmoment valideert.
+
+### 131.3 Chronologische modelvergelijking en factor-toelating
+
+Voor iedere kandidaatfactor en iedere kandidaataggregatie gelden dezelfde vooraf vastgelegde stappen:
+
+1. Definieer de exacte respons, eenheid, observatiemoment, soort, levensfase, seizoen, watertype, geografische context en meetmethode.
+2. Leg vóór evaluatie vast welk label de respons werkelijk meet en welke observaties worden uitgesloten.
+3. Bevries de huidige thermische baseline en modelversie. Maak geen gelijktijdige wijziging van curveparameters en nieuwe factoren zonder afzonderlijke ablatietests.
+4. Gebruik rolling-origin evaluatie. Elke voorspelling gebruikt uitsluitend data die vóór het prognosetijdstip beschikbaar waren.
+5. Vergelijk baseline en kandidaat op dezelfde ongeziene sessies/waarnemingen; rapporteer aantallen, ontbrekende data, uitsluitingen, fout/kalibratie en onzekerheid.
+6. Voer per factor een ablatietest uit: laat zien of de factor bovenop de bestaande baseline extra informatie toevoegt en of de winst overeind blijft per soort en relevante context.
+7. Rapporteer ook regressies, nulresultaten en segmenten met onvoldoende data. Geen modelkeuze op basis van alleen een hogere score-spreiding of een gunstige totale gemiddelde uitkomst.
+8. Geen automatische gewichtsaanpassing. Een wijziging vraagt inhoudelijke review, versiebeheer, regressietests en nieuwe chronologische evaluatie.
+
+Er worden in deze stap geen universele minimumaantallen vastgelegd. Een softwareminimum (zoals het bestaande minimum voor het tonen van Brier) is geen bewijs van statistische robuustheid. De vereiste steekproefomvang moet passen bij responsvariatie, effectgrootte, onzekerheid, soortsegmentatie en de geplande evaluatie; bij onvoldoende aantallen blijft de uitkomst beschrijvend of niet-evalueerbaar.
+
+### 131.4 Harde toelatingsregels
+
+- Een label mag niet voor een andere respons worden hergebruikt zonder expliciete, onafhankelijke validatie van die koppeling.
+- Vangsten, aanbeten, gemiste vissen en vangstloze sessies zijn geen directe voedselopname- of fysiologische-activiteitslabels.
+- Automatische formulier-open-tijdstippen zijn geen werkelijk vangstmoment; alleen betrouwbare, door de gebruiker aangepaste tijdstippen kunnen de huidige beschrijvende tijdvakvangstregistratie voeden.
+- Geen geregistreerde hengelintervallen betekent onbekende blootstelling, niet nul hengeluren.
+- Geen waarneming betekent geen detectie, niet bewezen afwezigheid.
+- Brier/BSS blijft uitsluitend voor persoonlijke vangstkans; temperatuur-MAE/RMSE/bias uitsluitend voor de temperatuurschatter.
+- Een factor zonder passend label, bron, betrouwbare input of onafhankelijke evaluatie blijft contextueel, onbekend of uitgesloten; geen numerieke bijdrage.
+- Onzekerheid/coverage verandert niet de biologische toestand en wordt niet als bonus of straf bij de score opgeteld.
+- De bestaande 1–10-weergave blijft behouden; er komen geen zichtbare deelscores of verplichte gebruikersvelden bij.
+
+### 131.5 Fase-2-status en volgende stap
+
+Het evaluatiekader is nu per respons uitgeschreven, maar de directe labels voor thermische activiteit, voedselopname, habitat-aanwezigheid en biologische tijdvakvoorkeur ontbreken lokaal. Daarom kan dit ontwerp de ontbrekende praktijkdata niet vervangen en wordt er geen numerieke factor toegelaten.
+
+**Volgende stap:** maak de respons-/factor-toelatingsmatrix definitief door per bestaande factor te koppelen: bronstatus, responskaart, actuele invoer, toepassingsgebied, gekozen metric, beschikbaar label en toelatingsbesluit (numeriek kandidaat, uitsluitend context, onbekend of uitgesloten). De thermische prior blijft als expliciet voorlopige baseline apart herkenbaar. Daarna kan een finale kandidaatmodelreview plaatsvinden; geen runtimegewichten of scorewijziging voordat de formele acceptatiepoorten zijn gesloten.
+
+Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

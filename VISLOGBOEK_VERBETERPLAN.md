@@ -867,3 +867,11 @@ De belangrijkste beperking is dat er geen directe lokale labels voor fysiologisc
 De automatische vangsttijd bij openen van het formulier blijft gebruikersvriendelijk, maar wordt niet als werkelijk vangstmoment gebruikt zolang de gebruiker deze niet aanpast. SessionRodEvent bevat optionele tijdgebonden aanbeten/gemiste vissen/vangsten, maar wordt nog niet door de tijdvakbewijs-audit verwerkt; eerst moet soorttoeschrijving, exposure en dubbeltelling worden beoordeeld. Geen extra verplichte invoer of runtimewijziging.
 
 **Volgende stap:** ontwerp de afzonderlijke evaluatiemaatstaven en minimumvoorwaarden per respons op basis van deze aantoonbaar beschikbare labels. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+### Fase 2 — evaluatiekader per biologische respons uitgewerkt (19 november 2026)
+
+De kandidaatmetrics en harde labelgrenzen staan in FASE2_PROGNOSE_AUDIT.md §131. Iedere metric toetst uitsluitend het eindpunt dat daadwerkelijk is gemeten: temperatuur-MAE/RMSE/bias voor de temperatuurschatter; Brier/BSS uitsluitend voor persoonlijke vangstkans; directe activiteit-/voedingslabels voor de biologische respons; en expliciete blootstelling voor tijdvak-vangbaarheidsanalyse.
+
+Er zijn geen lokale directe labels voor fysiologische activiteit, voedselopname of biologische tijdvakvoorkeur. Vangsten, aanbeten, gemiste vissen, beweging en opportunistische aanwezigheidssignalen mogen deze labels niet vervangen. De bestaande tijdvakblootstellings- en vangstbewijs-audit is beschrijvend en nog geen gekalibreerde voorspeller. Geen extra verplichte invoer, nieuwe metric in runtime, gewichten of scorewijziging.
+
+**Volgende stap:** sluit de factor-toelatingsmatrix per soort en respons met bronstatus, invoerkwaliteit, toepassingsgebied, label, metric en expliciet besluit (numeriek kandidaat/context/onbekend/uitgesloten). Daarna volgt de finale kandidaatmodelreview; Fase 2 blijft niet geaccepteerd en Fase 3 geblokkeerd.
