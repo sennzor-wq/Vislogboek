@@ -1912,3 +1912,34 @@ Reden:
 **Acceptatie:** regressies moeten alle soorten, gemeten versus geschatte temperatuur, tijdvakrangschikking, VisCoach-starttijd en snapshots afdekken, plus volledige Quality Gate op exacte PR-head en mergecommit. De bestaande numerieke curves worden niet verwijderd uit de onderzoeksdocumentatie of stilzwijgend opnieuw geactiveerd.
 
 De runtime-implementatie loopt via PR; fase 2 blijft open tot implementatie en volledige validatie zijn afgerond. Fase 3 blijft geblokkeerd.
+
+
+### Implementatiestatus optie B — PR #144 afgerond (19 november 2026)
+
+De runtimewijziging is gemerged via [PR #144](https://github.com/sennzor-wq/Vislogboek/pull/144) in commit [8702529](https://github.com/sennzor-wq/Vislogboek/commit/8702529ee2872f7fa783d35cea588b4639355d97). De volledige Quality Gate is groen op zowel de exacte PR-head (`a441b439`, run [#44489948828](https://github.com/sennzor-wq/Vislogboek/actions/runs/44489948828)) als de main-mergecommit (run [#44490080010](https://github.com/sennzor-wq/Vislogboek/actions/runs/44490080010)).
+
+Bevestigd gedrag:
+- Geen actieve numerieke thermische activiteitsscore en geen automatische thermische tijdvakrangschikking.
+- Watertemperatuur, meetherkomst, schattingsstatus en onzekerheid blijven als afzonderlijke context beschikbaar.
+- Nieuwe snapshots bewaren `predictedActivityScore: null` en `activityScoreAvailable: false`.
+- Een expliciet door de gebruiker gekozen sessietijdvak blijft behouden in de start- en updatesnapshots.
+- De persoonlijke vangkans en afzonderlijke habitat-/positionerings-/voorvoerengines blijven gescheiden.
+- De oude profielwaarden blijven uitsluitend onderzoeks-/referentiecontext; de modelversie is verhoogd naar `v2.6-thermal-activity-disabled` en de prognosis-engine naar `1.2.0`.
+
+Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acceptatie blijft open totdat de volledige zevenpunts-crosswalk opnieuw is beoordeeld; Fase 3 blijft geblokkeerd.
+
+
+## 91. Resterende temperatuurafhankelijke tactische heuristieken — aparte read-only audit vereist
+
+Optie B uit PR #144 schakelt uitsluitend de numerieke thermische activiteitsscore en automatische thermische tijdvakrangschikking uit. Het schakelt niet stilzwijgend alle temperatuurafhankelijke tactiek uit.
+
+Een eerste codecontrole toont dat afzonderlijke tactische engines nog temperatuurafhankelijke regels gebruiken:
+- `prebaitEngine.ts`: temperatuurbanden (<6, <10, <16, ≤22 en >22 °C) sturen voorvoersuitability, dagen en gramadviezen; er wordt daarnaast een soortafhankelijke `amountFactor` toegepast. De engine noemt de uitkomst conservatieve startindicaties, geen universele biologische normen.
+- `habitatMovementEngine.ts`: watertemperatuur en thermische trend sturen mede de beschrijvende habitat-/zonehypothese.
+- `rodPositioningEngine.ts`: watertemperatuur wordt gebruikt als context bij de beoordeling van windkant en praktische positionering.
+
+Deze uitkomsten zijn geen vervanging van de uitgeschakelde activiteitsscore en tellen niet mee in de numerieke dagactiviteit. Hun eigen drempels, doseringen, bronbasis, soortoverdracht en presentatie moeten echter afzonderlijk worden gecontroleerd voordat criterium 2 formeel kan worden afgevinkt.
+
+**Volgende actie:** voer een read-only audit uit van alle temperatuurafhankelijke numerieke of drempelgestuurde tactiekregels. Leg per regel vast: bron/meetrespons, soort- en watertypeoverdracht, onzekerheid, gevolgen voor advies, en of de regel actief, uitsluitend beschrijvend of uitgeschakeld moet blijven. Wijzig nog geen drempels, gramadviezen of tactiekregels zonder een afzonderlijk onderbouwd besluit en regressies.
+
+Daarom blijft criterium 2 en de formele Fase-2-acceptatie voorlopig open, ondanks de succesvolle implementatie van optie B. Fase 3 blijft geblokkeerd.

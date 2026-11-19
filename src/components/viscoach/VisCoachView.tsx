@@ -258,7 +258,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
                 {plan.desiredEndTime ? ` – ${formatDateTime(plan.desiredEndTime)}` : ' – eindtijd nog onbekend'}
               </p>
             </div>
-            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-slate-200">{plan.prognosis.activityScoreAvailable === false ? 'Geen biologisch oordeel' : plan.prognosis.advice}</span>
+            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-slate-200">{plan.prognosis.activityScoreAvailable === false ? 'Thermische score uitgeschakeld' : plan.prognosis.advice}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
