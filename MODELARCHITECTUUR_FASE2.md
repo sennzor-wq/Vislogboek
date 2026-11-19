@@ -675,3 +675,14 @@ De zevende acceptatievoorwaarde betreft technische borging: regressies, typechec
 ## 78. Thermische tijdvakuitvoer en feitelijke sessiestart
 
 De algemene prognose presenteert het tijdvak met de hoogste relatieve thermische activiteitspotentie voortaan als 'thermisch gunstigste tijdvak', niet als bewezen beste vistijd. Dit is geen voedingspiek of vangstvoorkeur. De actie 'Start sessie op dit moment' is alleen beschikbaar bij de prognose voor vandaag en legt het actuele Amsterdamse starttijdvak vast in de snapshot in plaats van het latere thermisch gunstigste tijdvak. Bij VisCoach blijft de gekozen sessiestart leidend; bij sessies die meerdere tijdvakken beslaan wordt geen globaal dagwinnaar opgedrongen. Geen score of parameter is gewijzigd.
+
+## 79. Omgevingsfactoren: respons, bewijs en invoer strikt gescheiden (19 november 2026)
+
+De resterende factorinventaris is beoordeeld in FASE2_PROGNOSE_AUDIT.md §88. De uitkomst is een expliciete niet-activeringsbeslissing:
+
+- Wind blijft praktische positionerings-/presentatiecontext; geen zelfstandige biologische of vangstkansbonus.
+- Regen en bewolking hebben onvoldoende direct en overdraagbaar bewijs voor dagelijkse voeding of hengelvangst. Migratiebewijs wordt niet als dagelijkse voedingsrespons geïnterpreteerd.
+- Opgeloste zuurstof en stroming kunnen biologisch relevant zijn, maar zijn lokaal niet betrouwbaar beschikbaar in de huidige invoerketen. Onbekend blijft onbekend.
+- Druk en troebelheid blijven contextafhankelijk; er is geen universele richting of numerieke respons onderbouwd.
+
+Alle bestaande registry-records blijven niet-goedgekeurd voor directe numerieke voorspelling. De volgende fase-2-stap is de resterende formele acceptatiebesluiten en kandidaatmodel-/validatievoorwaarden afhandelen; geen extra parallelle factorengine toevoegen.
