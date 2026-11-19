@@ -29,6 +29,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Wind en luchtdruk zijn geen gevalideerde zelfstandige compensatie voor een thermische beperking en leveren geen numerieke activiteitbonus.',
     ],
     scientificReferences: [
+      'Bernier, N.J., Gorissen, M.H.A.G. & Flik, G. (2012). Differential effects of chronic hypoxia and feed restriction on the expression of leptin and its receptor, food intake regulation and the endocrine stress response in common carp. Journal of Experimental Biology, 215(13), 2273–2282. https://doi.org/10.1242/jeb.066183 (27 karpers; 10% O₂-verzadiging gaf 79% lagere voedselopname; ernstige laboratoriumhypoxie)',
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Chen, S., Chen, W. & Fan, Z. (2012). Effect of Water Temperature on Feeding Rhythm in Common Carp (Cyprinus carpio haematopterus Temminck et Schlegel). Journal of Northeast Agricultural University (English Edition), 19(1), 57–61. https://doi.org/10.1016/S1006-8104(12)60039-7 (abstract: 4–34 °C; adult 630–850 g en young 61–91 g; ochtend-/avondpieken; gecontroleerde studie, geen veldvangstdata)',
       'Rahman, M.M. & Meyer, C.G. (2009). Effects of food type on diel behaviours of common carp Cyprinus carpio in simulated aquaculture pond conditions. Journal of Fish Biology, 74(10), 2269–2278. https://doi.org/10.1111/j.1095-8649.2009.02236.x (gesimuleerde vijvercondities; geen wilde veldcurve)',
@@ -55,6 +56,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Windgedreven verplaatsing van natuurlijk voedsel is een mogelijke lokale tactische hypothese, geen gevalideerde brasem-activiteitsregel.',
     ],
     scientificReferences: [
+      'Hansen, J.H., Brodersen, J., Baktoft, H. & Skov, C. (2019). Relationship between bream (Abramis brama) activity and water turbidity in a shallow lake under different season conditions. Journal of Limnology. https://doi.org/10.4081/jlimnol.2019.1883 (448 vissen, vier jaar; activiteit en troebelheid in één ondiep meer; geen directe voedselopnamemeting)',
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Vašek, M. & Kubečka, J. (2004). In situ diel patterns of zooplankton consumption by subadult/adult roach, bream and bleak. Folia Zoologica, 53, 203–214. (één stuwmeer; zoöplanktonconsumptie)',
@@ -107,6 +109,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Zichtomstandigheden kunnen visueel jagen beïnvloeden, maar er is geen gevalideerde soortspecifieke drempel voor bewolking, regen of troebelheid.',
     ],
     scientificReferences: [
+      'Nakayama, S., Doering-Arjes, P., Linzmaier, S., Briege, J., Klefoth, T., Pieterek, T. & Arlinghaus, R. (2018). Fine-scale movement ecology of a freshwater top predator, Eurasian perch (Perca fluviatilis), in response to the abiotic environment over the course of a year. Ecology of Freshwater Fish, 27(3), 798–812. https://doi.org/10.1111/eff.12393 (16 volwassen baarzen; temperatuur/licht dominanter dan druk/wind; beweging, geen directe voedselopname)',
       'Volkoff, H. & Rønnestad, I. (2020). Effects of temperature on feeding and digestive processes in fish. Temperature, 7(4), 307–320. https://doi.org/10.1080/23328940.2020.1765950',
       'Tien, N.S.H. et al. (2024). Temperature-related increase in growth rate in four freshwater lake fish species. Journal of Fish Biology. https://doi.org/10.1111/jfb.15745 (groeirelatie; geen directe activiteit- of vangstcurve)',
       'Craig, J.F. (1987) The Biology of Perch and Related Fish. Croom Helm.',

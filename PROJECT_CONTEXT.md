@@ -1781,3 +1781,8 @@ De actuele soortdekking is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §§78 en 99.
 ### Fase 2 — broncontrole oudere profielreferenties (19 november 2026)
 
 Zeven oudere profielreferenties zijn gecontroleerd en waar nodig bibliografisch gecorrigeerd. De audit §100 onderscheidt filtervoeding/prooikeuze, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie van dagelijkse voedselopname en vangbaarheid. Zeven nieuwe contextregistraties zijn toegevoegd; alle 83 registry-records blijven niet-goedgekeurd voor directe voorspelling. Kestemont (1995) en Tartally (2000) blijven voorlopig achtergrondverwijzingen zonder modelstatus. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — gerichte omgevingsfactorreview (19 november 2026)
+
+De review van wind, luchtdruk, troebelheid, zuurstof, neerslag en stroming is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §101. Baarsbeweging toont beperkte wind-/drukeffecten; brasemactiviteit hangt in één ondiep meer samen met troebelheid; ernstige hypoxie verlaagt karpervoeropname in een laboratoriumstudie. Zuurstof ontbreekt als betrouwbare lokale invoer en blijft onbekend. Neerslag/stroming blijven context zonder voldoende direct doelsoortbewijs. Alle 86 registry-records blijven niet-goedgekeurd voor directe voorspelling. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

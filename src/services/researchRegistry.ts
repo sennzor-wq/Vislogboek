@@ -1721,6 +1721,65 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+
+  {
+    id: 'perch-fine-scale-abiotic-movement-lake-2018',
+    topic: 'abiotische-invloeden-op-beweging',
+    measuredOutcomes: ['locomotor_activity', 'habitat_use'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Drie-dimensionale akoestische telemetrie volgde 16 volwassen piscivore baarzen in een ondiep, mesotroof meer van 25 ha gedurende één jaar. Zwemactiviteit nam toe met watertemperatuur en lichtintensiteit; luchtdruk, windsnelheid en maanstand verklaarden eveneens variatie in beweging, maar hun effecten waren duidelijk kleiner. Activiteit en afgelegde afstand waren gemiddeld groter overdag dan ’s nachts.',
+    limitations: [
+      'De studie betreft 16 volwassen piscivore baarzen in één klein Duits meer; overdraagbaarheid naar andere soorten, waterlichamen en Nederlandse stekken is onzeker.',
+      'De uitkomst is locomotorische activiteit/habitatgebruik, niet directe voedselopname, jachtfrequentie of hengelvangbaarheid.',
+      'De kleinere druk- en windeffecten rechtvaardigen geen universele druk- of windbonus; temperatuur en licht waren de sterkere verklarende factoren.'
+    ],
+    sourceReferences: [
+      'Nakayama, S. et al. (2018). Fine-scale movement ecology of a freshwater top predator, Eurasian perch (Perca fluviatilis), in response to the abiotic environment over the course of a year. Ecology of Freshwater Fish, 27(3), 798–812. https://doi.org/10.1111/eff.12393'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'bream-activity-turbidity-shallow-lake-2019',
+    topic: 'activiteit-en-troebelheid',
+    measuredOutcomes: ['locomotor_activity'],
+    species: ['Brasem'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'PIT-telemetrie volgde 448 benthivore brasems in één ondiep Deens meer (39 ha) gedurende vier jaar. Dagelijkse brasemactiviteit hing samen met troebelheid, vooral bij watertemperaturen onder 15 °C. Windsnelheid en windrichting beïnvloedden eveneens de troebelheid, waarschijnlijk mede door resuspensie van sediment.',
+    limitations: [
+      'De studie betreft één ondiep meer en een benthivore brasempopulatie; de relatie is niet zonder meer overdraagbaar naar andere watertypen of doelsoorten.',
+      'PIT-activiteit is een bewegings-/activiteitsproxy, geen directe meting van voedselopname of hengelvangbaarheid.',
+      'Wind beïnvloedde de troebelheid; dit bewijst geen zelfstandige directe windbonus op brasemactiviteit. De causale richting tussen visactiviteit en troebelheid is contextafhankelijk.'
+    ],
+    sourceReferences: [
+      'Hansen, J.H., Brodersen, J., Baktoft, H. & Skov, C. (2019). Relationship between bream (Abramis brama) activity and water turbidity in a shallow lake under different season conditions. Journal of Limnology. https://doi.org/10.4081/jlimnol.2019.1883'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'common-carp-chronic-hypoxia-food-intake-2012',
+    topic: 'zuurstofbeschikbaarheid-en-voedselopname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_physiology'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'moderate',
+    summary: 'Een gecontroleerde studie onderzocht 27 karpers (gemiddeld circa 72 g) bij normoxie (75% O₂-verzadiging) en ernstige chronische hypoxie (10% O₂-verzadiging, circa 0,9 mg/L) bij ongeveer 23 °C. Na acht dagen hypoxie was de gemiddelde voedselopname 79% lager; de sterkste eetlustonderdrukking trad binnen 24 uur op.',
+    limitations: [
+      'De studie gebruikt kleine karpers in tanks en een zeer ernstige hypoxieconditie; de uitkomst mag niet lineair worden doorgetrokken naar normale veldwaarden of milde zuurstofschommelingen.',
+      'De meting is dagelijkse voeropname in een gecontroleerde pelletvoersituatie, geen natuurlijke foerageeractiviteit of hengelaasopname.',
+      'De studie bepaalt geen lokale Nederlandse zuurstofgrens of universele zuurstofgewichtsfactor; actuele opgeloste zuurstof is in de huidige prognose niet betrouwbaar beschikbaar.'
+    ],
+    sourceReferences: [
+      'Bernier, N.J., Gorissen, M.H.A.G. & Flik, G. (2012). Differential effects of chronic hypoxia and feed restriction on the expression of leptin and its receptor, food intake regulation and the endocrine stress response in common carp. Journal of Experimental Biology, 215(13), 2273–2282. https://doi.org/10.1242/jeb.066183'
+    ],
+    reviewedAt: '2026-11-19',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
