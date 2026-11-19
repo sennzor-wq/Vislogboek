@@ -1943,3 +1943,55 @@ Deze uitkomsten zijn geen vervanging van de uitgeschakelde activiteitsscore en t
 **Volgende actie:** voer een read-only audit uit van alle temperatuurafhankelijke numerieke of drempelgestuurde tactiekregels. Leg per regel vast: bron/meetrespons, soort- en watertypeoverdracht, onzekerheid, gevolgen voor advies, en of de regel actief, uitsluitend beschrijvend of uitgeschakeld moet blijven. Wijzig nog geen drempels, gramadviezen of tactiekregels zonder een afzonderlijk onderbouwd besluit en regressies.
 
 Daarom blijft criterium 2 en de formele Fase-2-acceptatie voorlopig open, ondanks de succesvolle implementatie van optie B. Fase 3 blijft geblokkeerd.
+
+
+## 92. Read-only audit: temperatuurafhankelijke voorvoer- en tactiekregels (19 november 2026)
+
+### 92.1 Voorvoerengine — actieve numerieke regels
+
+`prebaitEngine.ts` bevat buiten de uitgeschakelde thermische activiteitsscore nog een aparte temperatuurafhankelijke tactiekberekening:
+
+| Watertemperatuur | Huidige engine-uitkomst | Actieve numerieke consequentie |
+|---|---|---|
+| Onbekend | Geen voorvoer | 0 dagen / 0 gram |
+| < 6 °C | Niet aanbevolen | 0 dagen |
+| 6–<10 °C | Beperkt / voorzichtig | 1 dag, 100 g/dag |
+| 10–<16 °C | Matig zinvol | maximaal 2 dagen, 250 g/dag |
+| 16–22 °C | Zeer zinvol | maximaal 3 dagen, 450 g stilstaand water of 600 g stromend water |
+| > 22 °C | Beperkt / voorzichtig | 1 dag, 200 g/dag |
+
+De sessiehoeveelheid gebruikt daarnaast temperatuur-/techniekafhankelijke waarden (onder meer 30–150 g per standaardduur), en `getSpeciesFeed()` past soortfactoren toe: karper 1,00, brasem 0,65 en zeelt 0,55. De interne `suitabilityScore` gebruikt 0/1/4/6/8 en bepaalt mede of een voorvoercampagne wordt ingepland.
+
+### 92.2 Bronbasis en overdraagbaarheid
+
+- **Volkoff & Rønnestad (2020), DOI 10.1080/23328940.2020.1765950:** ondersteunt dat temperatuur voedselopname en vertering beïnvloedt, maar benadrukt grote soort-, acclimatisatie-, levensfase- en blootstellingsverschillen. Dit ondersteunt temperatuur als context, niet de vaste grenzen 6/10/16/22 °C of grammen per stek.
+- **Chen et al. (2012), DOI 10.1016/S1006-8104(12)60039-7:** experimentele voedselopname bij de Aziatische ondersoort `Cyprinus carpio haematopterus` over 4–34 °C. Bij 6 °C was de gemeten opname zeer laag maar niet nul; de hoogste dagelijkse opname trad op bij 28 °C en nam bij 34 °C af. Dit valideert niet de huidige grens van 22 °C als omslag naar voorzichtig voeren, en levert geen overdraagbare grammen per voerbeurt voor Nederlandse recreatieve karperstekken.
+- **Benjamin, Hill & Ricciardi (2026), DOI 10.1007/s10530-026-03767-w:** bij zeelt werd in een experimentele vergelijking een lagere maximale voedingssnelheid bij 25 °C dan bij 18 °C gevonden. Twee temperatuurbehandelingen in het St. Lawrence-systeem vormen geen volledige curve en ondersteunen geen universele grens van 22 °C of de soortfactor 0,55.
+- Voor brasem zijn in het register directe voedings-/dagritmebronnen opgenomen, maar geen passende soortspecifieke temperatuurrespons die de huidige voorvoerbanden of factor 0,65 valideert.
+
+De research registry bevat 71 records; alle 71 staan op `approvedForPrediction: false`. De `feedingEvidenceService` verzamelt directe voedings-, ritme-, foerageer- en dieetbronnen, maar de lijst met expliciet goedgekeurde directe voedingsbronnen is daardoor momenteel leeg. `prebaitEngine.ts` gebruikt deze bewijsstatus niet als voorwaarde voor zijn numerieke drempels of hoeveelheden.
+
+**Conclusie:** de algemene richting dat temperatuur voedingsprocessen beïnvloedt is onderbouwd; de exacte enginegrenzen, geschiktheidsscore, soortfactoren, rivierbonus en gramadviezen zijn niet rechtstreeks gevalideerd. De engine noemt ze zelf conservatieve startindicaties, maar de UI/adviesvertaling moet dit onderscheid prominent houden. `confidenceLevel` meet momenteel de volledigheid van temperatuur-, watertype- en diepte-invoer; het is geen maat voor de wetenschappelijke bewijssterkte van de gramadviezen.
+
+### 92.3 Presentatie- en consistentiecontrole
+
+- De VisCoach-vertaling toont voorafgaande grammen alleen wanneer `confidenceLevel === 'Redelijk'`, en toont sessiegrammen alleen bij bekende sessieduur en redelijke invoerkwaliteit.
+- De algemene `PrognosisView` toont de hoeveelheid uit `moments.amountDisplay` momenteel rechtstreeks, ook wanneer de invoerkwaliteit lager is. Dit wijkt af van de bestaande productregel dat exacte grammen bij lagere invoerkwaliteit verborgen blijven.
+- De algemene view gebruikte de kop “Gefundeerd voeradvies op maat”, terwijl de engine de waarden zelf als conservatieve startindicaties beschrijft. De kop is daarom verduidelijkt naar “Voorzichtige startindicatie”.
+- De tekst over “fysiologische temperatuurefficiëntie” in de prognoseview was verouderd na optie B en is vervangen door een uitleg dat watertemperatuur alleen context is en de thermische activiteitsscore uit staat.
+
+### 92.4 Habitat- en positioneringsregels
+
+De habitat- en positioneringsengines gebruiken nog temperatuurgrenzen als zoekhypothese, onder meer koudwaterregels rond 7–9 °C, een voorjaarsregel rond 11 °C, zeelt rond 11 °C en meerval rond 12 °C. Deze uitkomsten zijn geen numerieke activiteitsscore en worden op meerdere plaatsen expliciet als zoekhypothese/context omschreven. Enkele soortspecifieke teksten (“extreme winterrust”, “diepe inactieve spaarstand” of sterk vertraagde stofwisseling) zijn stelliger dan de huidige bronregistratie rechtvaardigt. De volgende audit moet deze formuleringen per soort koppelen aan passende fysiologische/veldbronnen of ze terugbrengen tot voorzichtige, niet-dwingende zoekhypothesen.
+
+### 92.5 Nog geen runtimebesluit
+
+Er zijn in deze audit geen temperatuurgrenzen, soortfactoren, gramadviezen of habitat-/positioneringsregels aangepast. De uitkomsten blijven buiten de thermische activiteitsscore en mogen niet als gevalideerde vangstkans worden gepresenteerd.
+
+**Ontwerpbesluit nodig:** 
+- Optie A: de bestaande voorvoerwaarden behouden als expliciet praktische heuristiek, met prominente waarschuwing, invoerkwaliteitsgrens en lokale bijstelling; of
+- Optie B: numerieke geschiktheidsscore en exacte gramadviezen uitschakelen totdat passende soort-/watercontext of lokale praktijkdata de parameters ondersteunen, terwijl kwalitatieve voer- en method-feederadviezen blijven bestaan.
+
+Mijn kwaliteitsadvies is optie B voor de numerieke score en exacte hoeveelheden. Behoud de kwalitatieve tactiek en de beschrijvende persoonlijke vergelijking; gebruik geen exacte grammen als schijnnauwkeurige biologische aanbeveling. Dit vereist expliciete goedkeuring voordat runtimegedrag wordt aangepast.
+
+Criterium 2 en de formele Fase-2-acceptatie blijven open. Fase 3 blijft geblokkeerd.
