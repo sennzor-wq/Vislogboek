@@ -6,7 +6,7 @@
 **Project:** Vislogboek  
 **Repository:** `sennzor-wq/Vislogboek`  
 **Huidige technische basis bij opstellen:** React 19, TypeScript, Vite, PWA, Dexie 4 / IndexedDB, Open-Meteo  
-**Documentstatus:** leidende product- en technische projectcontext; product- en architectuurbasis bijgewerkt tot en met 7 november 2026, met uitgebreide optimalisatie-audit en voortgangsupdate tot en met 16 november 2026.  
+**Documentstatus:** leidende product- en technische projectcontext; product- en architectuurbasis bijgewerkt tot en met 19 november 2026, met actuele Fase-2-audit, evaluatie- en toelatingsstatus.  
 **Belangrijk:** dit is een richtinggevend ontwerp en code-audit op hoofdlijnen, geen claim dat alle hieronder beschreven toekomstige functionaliteit al bestaat.
 
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Documenthiërarchie en actuele projectstatus — peildatum 16 november 2026
+## Documenthiërarchie en actuele projectstatus — peildatum 19 november 2026
 
 Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 
@@ -32,6 +32,8 @@ Deze documenten hebben ieder een eigen rol en spreken elkaar niet tegen:
 4. **`FASE0_DATA_DICTIONARY_AND_BASELINE.md` is het eerdere ondersteunende auditbewijs.** Het bevat de datadictionary en de read-only technische nulmeting op commit `65f56c4a7408d874defa415212b74cd165f01147` (6 november 2026).
 5. **`VISLOGBOEK_VERBETERPLAN.md` is het actuele overkoepelende uitvoeringsplan.** Het bepaalt de volgorde en acceptatiecriteria voor de nieuwe optimalisatie.
 6. **`FASE0_OPTIMIZATION_AUDIT.md` is het aanvullende auditbewijs voor de uitgebreide fase 0.** Deze audit is gestart op de actuele `main`-commit van 15 november 2026 en is nog in uitvoering. Het eerdere fase-0-document blijft een afgeronde historische nulmeting op zijn eigen commit.
+7. **`FASE2_PROGNOSE_AUDIT.md` is het gedetailleerde, doorlopende auditbewijs voor Fase 2.** Het document registreert de actuele codebevindingen, wetenschappelijke responsen, bronkwaliteit, datadekking, evaluatielabels en formele acceptatiestatus. Het is geen zelfstandige productvisie of vervanging van dit bestand.
+8. **`MODELARCHITECTUUR_FASE2.md` legt de architectuurregels voor de Fase-2-prognose vast.** Het beschrijft hoe de responslagen, bronstatus, normalisatie, onzekerheid en evaluatie wel/niet mogen worden gecombineerd. Het volgt de product- en architectuurprincipes uit dit bestand.
 
 ### Status op basis van de actuele `main`
 
@@ -1863,3 +1865,17 @@ De eerste responskaarten voor alle tien profielen staan in `FASE2_PROGNOSE_AUDIT
 ### Fase 2 — responslabel-scheiding (19 november 2026)
 
 Audit §111 legt vast dat voedselopname, foerageergedrag, beweging en vangst verschillende responsen zijn. Onderzoeken met verschillende levensfasen, voedseltypen of meetmethoden mogen niet als één curve worden samengevoegd. Geen runtimewijziging.
+
+
+### Fase 2 — geconsolideerde audit- en architectuurstatus (19 november 2026)
+
+De gedetailleerde actuele status staat in FASE2_PROGNOSE_AUDIT.md §§129–133 en de architectuursamenvatting in MODELARCHITECTUUR_FASE2.md §§103–106. De factorinventaris is inhoudelijk gesloten en per respons/doelsoort toegelaten als voorlopige prior, numerieke kandidaat, contextueel, onbekend of afzonderlijke responslaag.
+
+Belangrijke actuele grenzen:
+- De research registry bevat 86 records; geen record is goedgekeurd voor directe numerieke voorspelling.
+- De bestaande thermische prior blijft volgens het expliciete optie-A-besluit de enige numerieke bijdrage aan de biologische 1–10-dagscore. Dit is een voorlopige softwareprior, geen wetenschappelijk gevalideerde soortcurve.
+- Er zijn geen directe lokale labels voor fysiologische activiteit, voedselopname of biologische tijdvakvoorkeur. Brier/BSS blijft uitsluitend voor persoonlijke vangstkans; temperatuurfoutmaten blijven uitsluitend voor de watertemperatuurschatter.
+- Vangsten, aanbeten, beweging en opportunistische aanwezigheidssignalen worden niet als directe voedingslabels gebruikt. Tijdvakblootstelling vereist expliciete hengelintervallen; automatische formulier-open-tijdstippen zijn geen werkelijk vangstmoment.
+- De basisvangstflow blijft frictiearm. De huidige optionele hengel-/techniekregistratie is echter vrije tekst en nog geen selectie uit vooraf ingestelde herbruikbare hengelprofielen; dit is als afzonderlijk productbesluit vastgelegd.
+
+**Formele status:** Fase 2 is nog niet geaccepteerd en Fase 3 blijft geblokkeerd. Er zijn geen nieuwe biologische gewichten, factoren, interacties, tijdvakbonussen of runtime-scorewijzigingen geactiveerd. De volgende ontwerpstap is de finale kandidaatmodelreview, met expliciete behandeling van de voorlopige thermische uitzondering binnen criterium 2 en de nog open productkeuze rond hengelprofielen/voorvoergrammen.
