@@ -1738,3 +1738,10 @@ De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande 
 De code-audit in `FASE2_PROGNOSE_AUDIT.md` §92 bevestigt dat de huidige dagscore feitelijk alleen de voorlopige thermische respons weergeeft. Eén dagelijkse waterthermische analyse wordt hergebruikt voor Nacht/Ochtend/Middag/Avond; de vier scores zijn daardoor gelijk. Weer-, seizoen- en tijdvakfactoren zijn contextueel en soortspecifiek voedingsritme is alleen verklarende tekst. De huidige tijdvakrangschikking kan dus nog geen echte voedingspiek of beste tijdvak bepalen.
 
 Dit is een kritisch verschil met de gewenste geïntegreerde prognose, maar er worden geen ad-hoc gewichten of tijdvakbonussen toegevoegd. De bestaande scoreweergave en centrale prognose blijven behouden. Volgende stap: volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix en kandidaatmodel plus chronologisch validatieprotocol. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — factortrace huidige prognoseketen (19 november 2026)
+
+De volledige factor-naar-code/UI/snapshot/evaluatie-traceermatrix staat in `FASE2_PROGNOSE_AUDIT.md` §93. Huidige dagscore: uitsluitend thermische activiteitspotentie. Druk, wind, seizoen, licht/diel, bewolking en neerslag zijn context; habitat/beweging is een aparte ruimtelijke laag; persoonlijke vangstkans is een aparte empirische baseline. Brier evalueert die vangstkans, terwijl temperatuur eigen MAE/RMSE/bias-evaluatie heeft. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken onafhankelijke evaluatiemaatstaven.
+
+Volgende stap: kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van de volledige traceermatrix. Geen runtimefactoren, gewichten of tijdvakbonussen activeren voordat bewijs, databeschikbaarheid en onafhankelijke validatie zijn vastgelegd.

@@ -704,3 +704,10 @@ De exacte curveparameters blijven ongevalideerd en worden ook niet als lokaal ge
 De eerste trace van `calculateDayPrognosis()` en `analyzeTimeSlot()` staat in `FASE2_PROGNOSE_AUDIT.md` §92. De huidige dagscore is feitelijk de thermische score: dezelfde dagelijkse thermische analyse wordt in alle vier tijdvakken hergebruikt. Druk, wind, seizoen, tijdstip/licht, bewolking en neerslag zijn contextueel (`score: 0`); soortspecifiek voedingsritme is tekstuele context en persoonlijke tijdvakervaring wordt niet in de activiteitsscore verwerkt. De tijdvakrangschikking kan daardoor geen echte voedings-/tijdvakvoorkeur vaststellen.
 
 Dit is een belangrijk verschil met de beoogde geïntegreerde scoreketen, geen toestemming voor een snelle numerieke bonus. De volgende stap is de volledige factor-naar-UI/snapshot/evaluatie-traceermatrix en het kandidaatmodel-/chronologische validatieprotocol. De bestaande scoreweergave blijft behouden; geen runtimewijziging, extra score of parallelle engine.
+
+
+### Fase 2 — factor-naar-UI/snapshot/evaluatie-traceermatrix afgerond (19 november 2026)
+
+De huidige implementatie is per factor verbonden met code, zichtbare UI, prognosesnapshot en evaluatie in `FASE2_PROGNOSE_AUDIT.md` §93. De dagscore heeft alleen een numerieke thermische bijdrage; de overige meteorologische en tijdvakfactoren zijn context. Habitat/beweging blijft een aparte ruimtelijke laag, persoonlijke vangstkans een afzonderlijke empirische baseline en Brier toetst uitsluitend die vangstkans. Temperatuur heeft eigen MAE/RMSE/bias-evaluatie. Voor activiteit, voeding, habitat-aanwezigheid en tijdvakrangschikking ontbreken nog onafhankelijke evaluatiemaatstaven.
+
+**Volgende stap:** kandidaatmodel en chronologisch validatieprotocol ontwerpen op basis van deze traceermatrix. Geen nieuwe factor, gewicht, tijdvakbonus of runtimewijziging activeren vóór evidence-, data- en validatievoorwaarden zijn vastgesteld.
