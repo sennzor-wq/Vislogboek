@@ -271,7 +271,7 @@ export interface WeatherDataQuality {
 export interface TimeSlotAnalysis {
   slot: TimeSlot;
   timeRange: string;              // bijv. "06:00 – 12:00"
-  activityScore: number;          // 1.0 – 10.0 voorlopige thermische activiteitspotentie (geen gemeten visactiviteit)
+  activityScore: number;          // legacy numeriek veld; 0 is sentinel wanneer activityScoreAvailable=false
   activityScoreAvailable?: boolean;
   isPast?: boolean;               // Is dit tijdvak reeds volledig verstreken?
   remainingHours?: number;        // Aantal resterende uren in dit tijdvak
@@ -306,11 +306,11 @@ export interface DayPrognosis {
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
   species: FishSpecies | 'Algemeen';
-  activityScore: number;          // 1.0 - 10.0 (alleen presenteren wanneer activityScoreAvailable true is)
+  activityScore: number;          // legacy numeriek veld; 0 is sentinel wanneer activityScoreAvailable=false
   activityScoreAvailable?: boolean;
   weatherDataQuality?: WeatherDataQuality;
-  advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig';
-  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid';
+  advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig' | 'Niet beschikbaar';
+  bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid' | 'Niet beschikbaar';
   alternativeTimeSlots: TimeSlot[];
   summaryRationale: string;
   personalCatchChance: number | null; // % kans op >= 1 vangst van doelsoort tijdens sessie

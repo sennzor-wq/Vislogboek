@@ -1716,3 +1716,12 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Technische snapshot-/Brier-keten en tijdvak-/VisCoach-selectie zijn gerealiseerd voor de huidige scope; lokale kalibratie wacht op echte vergelijkbare sessies.
 - Formele blocker blijft criterium 2: besluit nodig over voorlopige thermische curves en validatie van de exacte curveparameters.
 - Fase 2 is niet geaccepteerd. Fase 3 blijft geblokkeerd. Geen runtimeberekening, score, parameter of gebruikersinvoer gewijzigd.
+
+
+### Fase 2 — besluit thermische activiteitsscore (19 november 2026)
+
+- Optie B is expliciet goedgekeurd: de numerieke thermische activiteitsscore en automatische thermische tijdvakrangschikking worden uit de actieve prognose verwijderd zolang exacte soortparameters niet onafhankelijk zijn onderbouwd en gevalideerd.
+- De bestaande waarden in `fishProfiles.ts` blijven alleen als onderzoeks-/referentiecontext bewaard. De actieve prognose gebruikt ze niet.
+- Watertemperatuurmetingen/-schattingen blijven beschikbaar als context en voor de afzonderlijke bestaande engines; zij leveren geen thermische activiteitsscore op.
+- Persoonlijke vangkans blijft een afzonderlijke empirische uitkomst. Een door de gebruiker gekozen sessietijdvak blijft in VisCoach en snapshots behouden.
+- De implementatie is in een aparte PR opgenomen; regressies, versiebeheer en groene exacte PR-head-/mergecommit-Quality Gates zijn vereist. Fase 2 blijft open; fase 3 blijft geblokkeerd tot afronding.

@@ -4,10 +4,10 @@
  * Verhoog de versie van een onderdeel wanneer de bijbehorende berekeningslogica
  * of betekenisvolle modelparameters wijzigen. Dit is provenance, geen tweede engine.
  */
-export const PROGNOSIS_MODEL_VERSION = 'v2.5-personal-poisson-baseline';
+export const PROGNOSIS_MODEL_VERSION = 'v2.6-thermal-activity-disabled';
 
 export const PROGNOSIS_ENGINE_VERSIONS: Record<string, string> = {
-  prognosis: '1.1.0',
+  prognosis: '1.2.0',
   speciesProfiles: '1.0.0',
   waterThermal: '1.0.0',
   waterTemperatureCalibration: '1.0.0',

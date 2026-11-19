@@ -183,3 +183,8 @@ Dit project heeft een eigen GitHub-issue en documentatie, maar blijft onderdeel 
 | Praktijkvalidatie van verbeterde kanskalibratie | Nog te verzamelen |
 
 **Eerstvolgende actie:** Fase A uitvoeren als read-only audit. Nog geen nieuwe leergewichten, correctiefactoren of automatische modelupdates implementeren.
+
+
+## Ontwerpbesluit thermische activiteitsscore — optie B (19 november 2026)
+
+De numerieke thermische activiteitsscore en automatische thermische tijdvakrangschikking zijn niet actief zolang de exacte soortspecifieke curveparameters niet onafhankelijk zijn onderbouwd en gevalideerd. De waarden in `fishProfiles.ts` blijven uitsluitend als onderzoekscontext bewaard. Watertemperatuur blijft beschikbaar als meet-/schattingscontext en voor afzonderlijke engines; zij wordt niet omgerekend naar een actieve thermische activiteitsscore. De persoonlijke vangkans blijft een aparte empirische uitkomst. Een expliciet gekozen sessiestart/tijdvak blijft behouden in VisCoach en snapshots.

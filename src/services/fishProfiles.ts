@@ -7,9 +7,9 @@ export interface SpeciesProfile {
   description: string;
   assumptions: string[];
   scientificReferences: string[];       // Bronnen ondersteunen biologische context, niet automatisch de numerieke modelparameters
-  // Modelinstellingen, geen universele soortgrenzen. Behandel als voorlopige
-  // responsparameters totdat per soort/levensstadium/watertype een bron de exacte
-  // waarden ondersteunt. De uitkomst is een relatieve modelschatting, geen gemeten activiteit.
+  // Historische modelinstellingen, geen universele soortgrenzen. Deze waarden
+  // blijven uitsluitend voor onderzoek/referentie bewaard en worden niet gebruikt
+  // in de actieve prognose zolang exacte parameters niet onafhankelijk gevalideerd zijn.
   thermalOptimum: number;
   thermalWidthCold: number;
   thermalWidthWarm: number;

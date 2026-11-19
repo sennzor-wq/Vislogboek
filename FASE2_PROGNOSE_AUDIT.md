@@ -1893,3 +1893,22 @@ De resterende formele blocker is criterium 2: de actieve numerieke thermische cu
 4. Fase 2 pas formeel accepteren na aantoonbare afhandeling van alle criteria; daarna pas fase 3 starten.
 
 Dit is een acceptatie- en ontwerpbesluit, geen stilzwijgende wijziging van runtimegedrag. Geen prognoseberekening, score, parameter, vangstkans of gebruikersinvoer is in deze update gewijzigd.
+
+
+## 90. Ontwerpbesluit thermische activiteit — optie B goedgekeurd (19 november 2026)
+
+**Besluit:** de numerieke thermische activiteitsscore en de daarop gebaseerde thermische tijdvakrangschikking worden uit de actieve prognose verwijderd totdat de exacte soortspecifieke responsparameters onafhankelijk zijn onderbouwd en gevalideerd.
+
+Reden:
+- De huidige optimum-/breedteparameters zijn geen rechtstreeks uit passende veldcurves gefitte soortparameters.
+- Aerobe-scope- of metabole bronnen valideren niet automatisch de exacte huidige curvevorm, optimumwaarden, breedtes, exponent of omzetting naar 1–10.
+- De voorlopige profielwaarden blijven uitsluitend als onderzoeks-/referentiecontext in `fishProfiles.ts`; zij beïnvloeden geen actieve activiteitsscore, dagadvies of tijdvakrangschikking.
+- De watertemperatuur-engine blijft bestaan voor meet-/schattingscontext en de afzonderlijke bestaande habitat-, positionerings- en voorvoerengines. Deze context wordt niet omgezet naar de uitgeschakelde thermische activiteitsscore.
+- De persoonlijke vangkans blijft een afzonderlijke empirische uitkomst en wordt niet uit de thermische index afgeleid.
+- Een expliciet door de gebruiker gekozen sessiestart/tijdvak blijft in VisCoach en snapshots bewaard. Alleen automatische thermische rangschikking vervalt.
+
+**Implementatiegrens:** legacy scorevelden blijven schema-compatibel, maar krijgen `activityScoreAvailable: false`, een niet-presentabele sentinelwaarde en `predictedActivityScore: null`. De UI toont dat de thermische index bewust uitgeschakeld is, niet dat de watertemperatuur ontbreekt. Model-/engineversies worden verhoogd zodat snapshots de nieuwe semantiek kunnen onderscheiden.
+
+**Acceptatie:** regressies moeten alle soorten, gemeten versus geschatte temperatuur, tijdvakrangschikking, VisCoach-starttijd en snapshots afdekken, plus volledige Quality Gate op exacte PR-head en mergecommit. De bestaande numerieke curves worden niet verwijderd uit de onderzoeksdocumentatie of stilzwijgend opnieuw geactiveerd.
+
+De runtime-implementatie loopt via PR; fase 2 blijft open tot implementatie en volledige validatie zijn afgerond. Fase 3 blijft geblokkeerd.

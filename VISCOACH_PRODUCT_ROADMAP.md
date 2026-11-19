@@ -1486,3 +1486,17 @@ Maak bij toekomstige uitwerking expliciet onderscheid tussen:
 Een kleine numerieke wijziging, kompasverschil of nieuw meetmoment mag dus niet automatisch een adviesrecord of melding veroorzaken. Een gewijzigde prognose zonder gewijzigde praktische aanpak kan hoogstens een nieuwe interne snapshot rechtvaardigen. Alleen een werkelijk gewijzigde, voor de gebruiker relevante aanpak leidt tot een nieuw coachadvies.
 
 Onderzoek later per factor de functionele grens en eventuele hysterese/bevestiging, aansluitend op de bestaande classificaties en forecastbevestiging. **Geen arbitraire km/u-delta, universele drempel of nieuwe numerieke regel invoeren zonder code-audit, onderbouwing en regressievalidatie.** Deze verfijning wordt pas ingepland na afronding van het huidige hoofdspoor en wanneer de dynamische coachlaag aan de beurt is.
+
+
+## VisCoach — thermische score uitgeschakeld, gekozen sessietijd blijft leidend (19 november 2026)
+
+Na het besluit voor optie B toont VisCoach geen numerieke thermische activiteitsscore of automatisch thermisch gunstigste tijdvak meer. De voorlopige soortcurves zijn niet gevalideerd op hun exacte parameters en blijven alleen als onderzoekscontext bewaard.
+
+De coach blijft:
+- de door de gebruiker gekozen starttijd en eventuele eindtijd gebruiken;
+- het gekozen tijdvak bewaren in de startsnapshot en latere sessie-updates;
+- watertemperatuur en meet-/schattingsonzekerheid als context tonen;
+- bestaande habitat-, positionerings-, wind-, voer- en tactiekuitkomsten gescheiden gebruiken;
+- persoonlijke vangkans uitsluitend tonen wanneer de bestaande historische/datadekkingseisen dit toelaten.
+
+De uitgeschakelde thermische index wordt niet vervangen door een nieuwe tijdvakbonus of andere ongevalideerde factor. Het advies blijft praktisch gericht op stek, waarnemingen, presentatie en gekozen sessieperiode.

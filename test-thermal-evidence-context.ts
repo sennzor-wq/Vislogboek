@@ -17,7 +17,7 @@ for (const species of ['Karper', 'Snoek', 'Brasem', 'Voorn'] as const) {
 for (const species of ['Zeelt', 'Meerval', 'Roofblei', 'Overig'] as const) {
   assert(getSpeciesThermalEvidenceContext(species).scope === 'none', `${species} must be explicit when no comparable thermal physiology source is registered.`);
 }
-assert(getSpeciesThermalEvidenceContextText('Baars').includes('niet goedgekeurd voor numerieke voorspelling'), 'Aerobic-scope approval status must be visible.');
+assert(getSpeciesThermalEvidenceContextText('Baars').includes('niet goedgekeurd voor numerieke voorspelling') && getSpeciesThermalEvidenceContextText('Baars').includes('niet gebruikt in de actieve prognose'), 'Aerobic-scope approval and inactive-profile status must be visible.');
 assert(getSpeciesThermalEvidenceContextText('Karper').includes('SMR/RMR is niet hetzelfde als activiteit of voedselopname'), 'Metabolic rate must be distinguished from activity and feeding.');
 assert(getSpeciesThermalEvidenceContextText('Roofblei').includes('niet soortspecifiek gevalideerd'), 'Missing species-specific curve status must be visible.');
 console.log('Species thermal evidence context tests passed.');

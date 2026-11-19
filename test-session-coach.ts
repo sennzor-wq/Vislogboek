@@ -279,6 +279,17 @@ async function run() {
     translatedText.includes('persoonlijke vangkans betrouwbaar'),
     'VisCoach maakt een praktisch plan, legt sterke wind en werprichting uit en benoemt onzekerheid begrijpelijk'
   );
+  const disabledLegacyRankingAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    activityScoreAvailable: false,
+    bestTimeSlot: 'Avond',
+  } as any);
+  assert(
+    disabledLegacyRankingAdvice.advice.toLowerCase().includes('geen thermische tijdvakrangschikking actief') &&
+    !disabledLegacyRankingAdvice.advice.toLowerCase().includes('avond de hoogste relatieve temperatuurrespons'),
+    'Een oude tijdvakwaarde wordt niet als thermische aanbeveling getoond wanneer de index is uitgeschakeld'
+  );
+
   const selectedWindowAdvice = buildVisCoachAdviceText({
     ...baselinePrognosis,
     bestTimeSlot: 'Avond',

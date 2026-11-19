@@ -679,3 +679,12 @@ De zeven formele criteria zijn opnieuw beoordeeld in `FASE2_PROGNOSE_AUDIT.md` Â
 **Status:** technische borging, snapshot-/Brier-keten, tijdvakmetadata en huidige VisCoach-invoerflow zijn voor de huidige scope gerealiseerd. Lokale kalibratie wacht op voldoende echte, vergelijkbare sessies. De formele blocker blijft criterium 2: de exacte parameters van de bestaande thermische curves zijn niet onafhankelijk gevalideerd.
 
 **Volgende stap:** expliciet ontwerpbesluit voorbereiden over (A) thermische curves transparant behouden als voorlopige mechanistische prior, of (B) numerieke thermische activiteit uitschakelen voor soorten zonder passende directe fysiologische basis. Dit besluit verandert niet automatisch runtimegedrag. Fase 2 blijft open; fase 3 blijft geblokkeerd.
+
+
+### Fase 2 â€” ontwerpbesluit thermische activiteitsscore (19 november 2026)
+
+Optie B is goedgekeurd: de numerieke thermische activiteitsscore en automatische thermische tijdvakrangschikking worden niet langer actief gebruikt zolang de exacte soortparameters niet onafhankelijk zijn onderbouwd en gevalideerd.
+
+De waarden in `fishProfiles.ts` blijven uitsluitend als onderzoekscontext. De waterthermische engine blijft temperatuurmetingen/-schattingen, herkomst en onzekerheid leveren als context; de aparte habitat-, positionerings- en voorvoerengines blijven onderscheiden. De persoonlijke vangkans blijft een afzonderlijke empirische baseline. De gekozen sessiestart/tijdvak van de gebruiker blijft behouden in VisCoach en snapshots.
+
+De runtimewijziging is in een aparte PR met regressies en model-/engineversie-update uitgewerkt. Fase 2 blijft open tot de volledige Quality Gate op PR-head en mergecommit slaagt; fase 3 blijft geblokkeerd.

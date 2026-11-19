@@ -304,8 +304,8 @@ async function run14Scenarios() {
   const progWinter = calculateDayPrognosis('2026-01-15', makeHourlySeries('2026-01-15', 1, () => 3), 'Snoek', []);
   const progSummer = calculateDayPrognosis('2026-07-15', makeHourlySeries('2026-07-15', 1, () => 22), 'Karper', []);
   assert(
-    progWinter.activityScore > 0 && progSummer.activityScore > 0,
-    `6.1 Zowel winter (${progWinter.activityScore}/10) als zomer (${progSummer.activityScore}/10) functioneren foutloos`
+    progWinter.activityScoreAvailable === false && progSummer.activityScoreAvailable === false,
+    '6.1 Thermische activiteitsscore blijft in winter en zomer uitgeschakeld, ongeacht de beschikbare watertemperatuur'
   );
 
   // 7. Ondiep versus dieper water
@@ -458,12 +458,12 @@ async function run14Scenarios() {
     Object.values(solarContextPrognosis.timeSlots).every((slot) => slot.timeOfDayFactor.score === 0),
     '12.2b Solar context must not create an unvalidated numerical time-of-day bonus'
   );
-  assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
+  assert(equalSlotPrognosis.bestTimeSlot === 'Niet beschikbaar',
     '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
   assert(
-    equalSlotPrognosis.summaryRationale.toLowerCase().includes('niet betekenisvol') &&
+    equalSlotPrognosis.summaryRationale.toLowerCase().includes('uitgeschakeld') &&
       !equalSlotPrognosis.summaryRationale.toLowerCase().includes('verstreken'),
-    '12.2c Gelijkwaardige tijdvakken worden niet ten onrechte als verstreken gepresenteerd'
+    '12.2c De thermische tijdvakrangschikking wordt expliciet als uitgeschakeld uitgelegd'
   );
   const allPastPrognosis = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
@@ -652,7 +652,7 @@ async function run14Scenarios() {
       locationName: 'Geïsoleerde synthetische teststek',
       durationHours: 4,
       durationKnown: true,
-      predictedActivityScore: prognosis.activityScore,
+      predictedActivityScore: prognosis.activityScoreAvailable === false ? null : prognosis.activityScore,
       predictedCatchChance: prognosis.personalCatchChance,
       actualOutcome: outcomes[index],
       linkedSessionId: sessionId,
