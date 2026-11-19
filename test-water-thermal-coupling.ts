@@ -130,8 +130,8 @@ async function runTestSuite() {
     '1.2a Zonder beschikbaar temperatuurinterval wordt geen scoreband verzonnen'
   );
   assert(
-    progColdSnap.activityScoreAvailable === false,
-    '1.3 Waterthermische context blijft berekenbaar, maar activeert geen niet-gevalideerde karperactiviteitsscore'
+    progColdSnap.activityScore >= 4.0,
+    `1.3 Karperactiviteit (${progColdSnap.activityScore}/10) weerspiegelt trage watermassa en raakt NIET in winterrust door koude lucht`
   );
 
   // Vergelijk met een hypothetische situatie waarin water echt 4 °C is (bijv. hartje winter)
@@ -148,8 +148,8 @@ async function runTestSuite() {
   );
 
   assert(
-    progColdSnap.activityScoreAvailable === false && progRealWinter.activityScoreAvailable === false,
-    '1.4 Zowel warm water tijdens een koudedip als echt afgekoeld winterwater blijven zonder numerieke activiteitsscore'
+    progColdSnap.activityScore > progRealWinter.activityScore + 1.0,
+    `1.4 Karper in warm water tijdens koudedip (${progColdSnap.activityScore}/10) is aanzienlijk actiever dan in daadwerkelijk afgekoeld winterwater (${progRealWinter.activityScore}/10)`
   );
 
   // =========================================================================
@@ -193,8 +193,8 @@ async function runTestSuite() {
     '2.2 Gemeten situatie heeft measured=true, temp=17.5 en hasMeasuredWaterTemp=true'
   );
   assert(
-    progMeasured.activityScoreAvailable === false && progUnmeasured.activityScoreAvailable === false,
-    '2.3 Gemeten en geschatte watertemperatuur blijven context en activeren geen numerieke activiteitsscore'
+    progMeasured.activityScore > progUnmeasured.activityScore,
+    `2.3 Gemeten watertemperatuur (17.5 °C) leidt tot hogere activiteit (${progMeasured.activityScore}/10) dan de modelschatting (${progUnmeasured.activityScore}/10)`
   );
   assert(progMeasured.thermalAnalysis?.waterTemperatureStatus === 'measured',
     '2.4 Herkomstmetadata markeert een actuele stekmeting expliciet als measured');
@@ -255,8 +255,8 @@ async function runTestSuite() {
     `3.3 Toekomstige dag gebruikt een geleidelijk afgekoelde modelschatting (~${progDay4Ahead.thermalAnalysis?.estimatedWaterTemp} °C) vanaf de oude 19 °C-meting, niet de meting als vaste waarde`
   );
   assert(
-    progDay4Ahead.activityScoreAvailable === false && progToday.activityScoreAvailable === false,
-    '3.4 Temperatuurontwikkeling voor vandaag en toekomstige dagen blijft beschikbaar zonder thermische activiteitsscore'
+    progDay4Ahead.activityScore < progToday.activityScore,
+    `3.4 Toekomstige activiteitsscore (${progDay4Ahead.activityScore}/10) daalt door naderende afkoeling t.o.v. vandaag (${progToday.activityScore}/10)`
   );
 
   // =========================================================================
@@ -293,9 +293,9 @@ async function runTestSuite() {
   );
   assert(
     anchoredForecastPrognosis.thermalAnalysis?.estimatedRange != null &&
-      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Watertemperatuur') &&
-      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen numerieke thermische activiteitsscore'),
-    '4.0a Een lokaal verankerde temperatuurschatting blijft context en wordt niet omgerekend naar een thermische scoreband'
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('Indicatieve thermische scoreband') &&
+      anchoredForecastPrognosis.timeSlots['Ochtend'].temperatureFactor.detail.includes('geen statistisch betrouwbaarheidsinterval'),
+    '4.0a Een lokaal verankerde schatting met temperatuurinterval toont een niet-statistische thermische scoreband'
   );
 
   assert(
@@ -453,8 +453,8 @@ async function runTestSuite() {
     `4.2 Diep water behoudt warmte beter (${progDeep.thermalAnalysis?.estimatedWaterTemp} °C) dan ondiep water (${progShallow.thermalAnalysis?.estimatedWaterTemp} °C)`
   );
   assert(
-    progDeep.activityScoreAvailable === false && progShallow.activityScoreAvailable === false,
-    '4.3 Diepteafhankelijke watertemperatuurschattingen blijven context; geen thermische activiteitsscore wordt geactiveerd'
+    progDeep.activityScore >= progShallow.activityScore,
+    `4.3 Karperactiviteit in diep water (${progDeep.activityScore}/10) is hoger/gelijker dan in snel afgekoeld ondiep water (${progShallow.activityScore}/10)`
   );
 
   // =========================================================================
@@ -464,20 +464,18 @@ async function runTestSuite() {
 
   assert(
     (progColdSnap.uncertaintyNotes ?? []).some(
-      (n) => n.includes('geschatte waarde') &&
-        n.includes('blijft uitsluitend context') &&
-        n.includes('thermische activiteitsscore is uitgeschakeld')
+      (n) => n.includes('thermische component gebruikt een geschatte watertemperatuur') &&
+        n.includes('geen directe meting of voorspelling van activiteit, foerageren of winterrust')
     ),
     '5.1 Onzekerheidsnotitie vermeldt expliciet dat karper niet automatisch in winterrust raakt door koude lucht'
   );
 
-  // The factor is now water-temperature context only, not an activity score.
+  // The UI label describes thermal activity potential, not metabolism alone.
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
-    slotMorning.temperatureFactor.title === 'Watertemperatuur (context)' &&
-      slotMorning.temperatureFactor.detail.includes('(geschat)') &&
-      slotMorning.temperatureFactor.detail.includes('geen numerieke thermische activiteitsscore'),
-    '5.2 Tijdvakfactoren tonen geschatte watertemperatuur uitsluitend als context'
+    slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
+      slotMorning.temperatureFactor.detail.includes('via thermische traagheid'),
+    '5.2 Tijdvakfactoren vermelden geschatte watertemperatuur via thermische traagheid'
   );
 
   const carpAssumptions = SPECIES_PROFILES['Karper'].assumptions;
@@ -504,10 +502,10 @@ async function runTestSuite() {
 
   const coldSlotConclusion = progRealWinter.timeSlots['Middag'].conclusion;
   assert(
-    coldSlotConclusion.includes('Geen thermische activiteitsscore') &&
-      coldSlotConclusion.includes('uitgeschakeld') &&
+    coldSlotConclusion.includes('Lage thermische activiteitspotentie') &&
+      coldSlotConclusion.includes('Dit stelt geen winterrust of volledige inactiviteit vast') &&
       !/dwingt .* winterstand/i.test(coldSlotConclusion),
-    '5.6 Zonder gevalideerde thermische index wordt geen winterrust- of activiteitsoordeel getoond'
+    '5.6 Lage thermische score wordt niet als bewezen winterrust of volledige inactiviteit gepresenteerd'
   );
 
   // =========================================================================

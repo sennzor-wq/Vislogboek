@@ -41,10 +41,10 @@ export function getSpeciesThermalEvidenceContextText(species: FishSpecies): stri
     const approval = context.approvedAerobicScopeEvidence.length > 0
       ? 'Er is expliciet goedgekeurde aerobe-scopekennis geregistreerd.'
       : 'De geregistreerde aerobe-scopecijfers zijn nog niet goedgekeurd voor numerieke voorspelling.';
-    return `Bronstatus: voor ${species} is direct aerobe-scopeonderzoek geregistreerd. De beschikbare studies zijn contextgebonden, onder meer door lichaamsgrootte, levensfase en/of kweekomstandigheden. ${approval} De numerieke profielwaarden zijn uitsluitend onderzoekscontext en worden niet gebruikt in de actieve prognose.`;
+    return `Bronstatus: voor ${species} is direct aerobe-scopeonderzoek geregistreerd. De beschikbare studies zijn contextgebonden, onder meer door lichaamsgrootte, levensfase en/of kweekomstandigheden. ${approval} De huidige profielcurve blijft voorlopig en wordt hierdoor niet aangepast.`;
   }
   if (context.scope === 'metabolic-only') {
-    return `Bronstatus: voor ${species} zijn metabole temperatuurmetingen geregistreerd, maar geen directe aerobe-scopecurve. SMR/RMR is niet hetzelfde als activiteit of voedselopname en onderbouwt op zichzelf geen activiteitoptimum. De numerieke profielwaarden zijn uitsluitend onderzoekscontext en worden niet gebruikt in de actieve prognose.`;
+    return `Bronstatus: voor ${species} zijn metabole temperatuurmetingen geregistreerd, maar geen directe aerobe-scopecurve. SMR/RMR is niet hetzelfde als activiteit of voedselopname en onderbouwt op zichzelf geen activiteitoptimum. De huidige profielcurve blijft voorlopig en wordt hierdoor niet aangepast.`;
   }
-  return `Bronstatus: voor ${species} is in het huidige register geen soortspecifieke meer-temperaturenmeting van aerobe scope of metabolisme opgenomen. De numerieke profielwaarden zijn uitsluitend onderzoekscontext, niet soortspecifiek gevalideerd en niet actief in de prognose.`;
+  return `Bronstatus: voor ${species} is in het huidige register geen soortspecifieke meer-temperaturenmeting van aerobe scope of metabolisme opgenomen. De huidige profielcurve is een voorlopige prior en niet soortspecifiek gevalideerd.`;
 }

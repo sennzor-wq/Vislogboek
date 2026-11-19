@@ -185,7 +185,7 @@ const prog1 = calculateDayPrognosis('2026-07-15', fc1, 'Karper', histSessions, u
 
 assert(prog1.positioningAdvice !== undefined, '1.1 Positioning advice is aanwezig in DayPrognosis');
 assert(prog1.positioningAdvice?.windContext.isCalmWind === false, '1.1a Matige wind wordt expliciet onderscheiden van kalme wind voor de VisCoach-tactiek');
-assert(prog1.activityScoreAvailable === false && prog1.activityScore === 0, '1.2 Niet-gevalideerde thermische activiteitsindex blijft uitgeschakeld');
+assert(typeof prog1.activityScore === 'number' && prog1.activityScore >= 1.0 && prog1.activityScore <= 10.0, '1.2 Activiteitsindex blijft geldig numeriek');
 assert(prog1.personalCatchChance !== null && prog1.personalCatchChance > 0, '1.3 Persoonlijke Poisson-vangstkans is correct berekend');
 assert(prog1.expectedCatches !== null, '1.4 Verwachte vangsten is berekend conform Poisson exposure');
 

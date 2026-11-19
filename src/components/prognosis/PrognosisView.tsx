@@ -315,8 +315,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               {showAdvancedDetails
-                ? 'Drie gescheiden uitkomsten: watertemperatuur als context, persoonlijke vangkans en tijdvakcontext.'
-                : 'Bekijk je persoonlijke vangkans, de watertemperatuurcontext en de weersomstandigheden rond je gekozen tijdvak.'}
+                ? 'Drie gescheiden uitkomsten: thermische activiteitspotentie, persoonlijke vangstkans en thermisch gunstigste toekomstige tijdvak.'
+                : 'Bekijk thermische activiteitspotentie, je persoonlijke vangstkans en het thermisch gunstigste tijdvak.'}
             </p>
           </div>
 
@@ -519,7 +519,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {day.activityScoreAvailable === false ? 'N/B' : day.activityScore.toFixed(1)}
                 </div>
                 <span className="text-[10px] text-slate-400 mt-1 truncate max-w-full">
-                  {day.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' ? 'Verstreken' : day.bestTimeSlot === 'Niet beschikbaar' ? 'Niet actief' : day.bestTimeSlot}
+                  {day.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' ? 'Verstreken' : day.bestTimeSlot}
                 </span>
               </button>
             );
@@ -571,13 +571,13 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
-                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">De numerieke thermische activiteitsscore en thermische tijdvakrangschikking zijn bewust uitgeschakeld totdat de soortspecifieke temperatuurresponsparameters voldoende zijn onderbouwd en gevalideerd. Watertemperatuur blijft afzonderlijk als context beschikbaar.</span>}
+                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en het thermisch gunstigste tijdvak zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
               </div>
             )}
 
             {!showAdvancedDetails && activeDayProg.activityScoreAvailable === false && (
               <div className="rounded-xl border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">
-                De thermische activiteitsscore en tijdvakrangschikking zijn uitgeschakeld; watertemperatuur blijft als context beschikbaar.
+                Onvoldoende watertemperatuurgegevens om thermische activiteitspotentie en het thermisch gunstigste tijdvak betrouwbaar te bepalen.
               </div>
             )}
 
@@ -588,28 +588,26 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                     <Gauge className="w-4 h-4" />
-                    Thermische activiteit
+                    Activiteitspotentie
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
                       {activeDayProg.activityScoreAvailable === false ? 'N/B' : activeDayProg.activityScore.toFixed(1)}
                     </span>
-                    {activeDayProg.activityScoreAvailable !== false && (
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">/ 10</span>
-                    )}
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      / 10
+                    </span>
                   </div>
                   <span
                     className={`inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                      activeDayProg.advice === 'Niet beschikbaar'
-                        ? 'bg-slate-700/60 text-slate-300'
-                        : activeDayProg.advice === 'Gunstig'
+                      activeDayProg.advice === 'Gunstig'
                         ? 'bg-emerald-500/20 text-emerald-300'
                         : activeDayProg.advice === 'Gemiddeld'
                         ? 'bg-amber-500/20 text-amber-300'
                         : 'bg-rose-500/20 text-rose-300'
                     }`}
                   >
-                    {activeDayProg.activityScoreAvailable === false ? 'Niet actief — parameters niet gevalideerd' : `${activeDayProg.advice} biologisch perspectief`}
+                    {activeDayProg.activityScoreAvailable === false ? 'Onvoldoende gegevens' : `${activeDayProg.advice} biologisch perspectief`}
                   </span>
 
                   {activeDayProg.presenceInfo && (
@@ -622,7 +620,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                 {showAdvancedDetails && (
 <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                  <strong>Modelstatus:</strong> De numerieke thermische activiteitsscore is uitgeschakeld. De voorlopige soortparameters blijven alleen beschikbaar voor onderzoek en worden niet gebruikt om activiteit of tijdvakvoorkeur te berekenen. Gemeten of geschatte watertemperatuur blijft afzonderlijke context; dit verandert de persoonlijke vangkans niet.
+                  <strong>Modelmatige indicatie:</strong> Deze score weerspiegelt uitsluitend de voorlopige soortspecifieke temperatuurrespons op gemeten of geschatte watertemperatuur. Wind, druk, seizoen, tijdstip, bewolking en neerslag zijn context en veranderen deze score niet. Dit is geen gemeten visactiviteit, voedingsactiviteit of vangstkans.
                 </div>
 )}
               </div>
@@ -708,7 +706,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 )}
               </div>
 
-              {/* VOORSPELLING C: Thermische tijdvakrangschikking */}
+              {/* VOORSPELLING C: Thermisch gunstigste toekomstige tijdvak */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
@@ -717,8 +715,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   </div>
 
                   {activeDayProg.activityScoreAvailable === false ? (
-                    <div className="text-sm font-bold text-slate-300">Niet actief — modelparameters niet gevalideerd</div>
-                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && activeDayProg.bestTimeSlot !== 'Geen betekenisvol onderscheid' && activeDayProg.bestTimeSlot !== 'Niet beschikbaar' ? (
+                    <div className="text-sm font-bold text-slate-300">Niet betrouwbaar te bepalen</div>
+                  ) : activeDayProg.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && activeDayProg.bestTimeSlot !== 'Geen betekenisvol onderscheid' ? (
                     <div>
                       <div className="text-xl sm:text-2xl font-black text-white">
                         {activeDayProg.bestTimeSlot}
@@ -1583,10 +1581,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           Gestructureerd Voorvoerprogramma (Voerplanner)
                         </span>
                         <span className="text-[11px] text-slate-400">
-                          Voorzichtige startindicatie voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
+                          Gefundeerd voeradvies op maat voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
                         </span>
-                        <span className="text-[10px] text-amber-200/80 block mt-1">Temperatuurbanden en grammen zijn praktische indicaties, geen gevalideerde biologische normen.</span>
-                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.confidenceLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
                       </div>
                     </div>
                     <span
@@ -1754,7 +1750,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </h3>
               {showAdvancedDetails && (
                 <span className="text-xs text-slate-400">
-                  Toont watertemperatuur als context, meet-/schattingsstatus en onzekerheid; de thermische activiteitsscore is uitgeschakeld
+                  Toont fysiologische temperatuurefficiëntie en niet-lineaire omgevingsfactoren
                 </span>
               )}
             </div>
@@ -1827,7 +1823,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         <div className="text-right">
                           <div className="text-lg font-black text-white">
                             {analysis.activityScoreAvailable === false ? 'N/B' : analysis.activityScore.toFixed(1)}
-                            {analysis.activityScoreAvailable !== false && <span className="text-xs text-slate-400 font-normal">/10</span>}
+                            <span className="text-xs text-slate-400 font-normal">/10</span>
                           </div>
                         </div>
                         {showAdvancedDetails && (

@@ -16,7 +16,7 @@ import {
   PrognosisInputContext,
   ManualWaterTemperatureInput,
 } from '../types';
-
+import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
 import { getSpeciesThermalEvidenceContextText } from './thermalEvidenceService';
 import { calculateCivilTwilightTimes } from './solarTimeEngine';
@@ -371,6 +371,7 @@ function analyzeTimeSlot(
   forecastsInSlot: WeatherHourlyForecast[],
   allForecasts: WeatherHourlyForecast[],
   species: FishSpecies,
+  profile: SpeciesProfile,
   date: Date,
   historicalSessions: FishingSession[],
   historicalCatches: CatchItem[],
@@ -422,9 +423,8 @@ function analyzeTimeSlot(
   const totalPrecip = hasPrecip ? precipSamples.reduce((a,h)=>a+h.precipitation,0) : null;
   const avgCloud = hasCloud ? cloudSamples.reduce((a,h)=>a+h.cloudCover,0)/cloudSamples.length : null;
   const representativeTimeIso = forecastsInSlot.length ? forecastsInSlot[Math.floor(forecastsInSlot.length/2)].time : targetDateStr + 'T' + String(hoursConfig.start+3).padStart(2,'0') + ':00';
-  // 1. Watertemperatuur blijft beschikbaar als meet-/schattingscontext.
-  // De soortspecifieke thermische activiteitscurves zijn bewust niet actief:
-  // hun exacte parameters zijn niet voldoende gevalideerd voor numerieke voorspelling.
+  // 1. Temperatuurfactor & Fysiologische Efficiëntie E_temp
+  // Onderscheid geverifieerde gemeten watertemperatuur vs. modelschatting vs. 2m-luchttemperatuur
   const hasMeasured = Boolean(
     thermalAnalysis?.hasMeasuredWaterTemp &&
     typeof thermalAnalysis.measuredWaterTemp === 'number' &&
@@ -439,18 +439,35 @@ function analyzeTimeSlot(
   if (hasMeasured) { effectiveTemp = thermalAnalysis!.measuredWaterTemp!; tempSource = 'gemeten'; }
   else if (hasEstimated) { effectiveTemp = thermalAnalysis!.estimatedWaterTemp!; tempSource = 'geschat'; }
   const hasKnownWaterTemp = effectiveTemp !== null;
+  const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
+  const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
   const thermalEvidenceDetail = getSpeciesThermalEvidenceContextText(species);
-  const tempDetailText = !hasKnownWaterTemp
-    ? 'Watertemperatuur onbekend: er is geen bruikbare meting of verantwoorde schatting beschikbaar. Luchttemperatuur wordt niet als vervanging gebruikt.'
-    : `Watertemperatuur ${effectiveTemp!.toFixed(1)} °C (${tempSource}). Deze waarde blijft beschikbaar als omgevingscontext; er wordt geen numerieke thermische activiteitsscore uit afgeleid.`;
-  const temperatureFactor: FactorBreakdown = {
-    score: 0,
-    impact: 'neutraal',
-    title: 'Watertemperatuur (context)',
-    detail: `${tempDetailText} ${thermalEvidenceDetail}`,
-    dataAvailable: false,
-  };
-
+  let thermalScoreBandDetail = '';
+  if (tempSource === 'geschat' && thermalAnalysis?.estimatedRange) {
+    const [rangeA, rangeB] = thermalAnalysis.estimatedRange;
+    if (Number.isFinite(rangeA) && Number.isFinite(rangeB)) {
+      const rangeMin = Math.min(rangeA, rangeB);
+      const rangeMax = Math.max(rangeA, rangeB);
+      const sampleTemperatures = [rangeMin, rangeMax];
+      if (profile.thermalOptimum >= rangeMin && profile.thermalOptimum <= rangeMax) {
+        sampleTemperatures.push(profile.thermalOptimum);
+      }
+      if (effectiveTemp !== null) sampleTemperatures.push(effectiveTemp);
+      const possibleScores = sampleTemperatures.map((sampleTemp) => {
+        const efficiency = calculateThermalEfficiency(sampleTemp, profile).efficiency;
+        return Math.round(Math.max(1, Math.min(10, 1 + 9 * Math.pow(efficiency, 0.85))) * 10) / 10;
+      });
+      const scoreMin = Math.min(...possibleScores);
+      const scoreMax = Math.max(...possibleScores);
+      thermalScoreBandDetail = ` Indicatieve thermische scoreband op basis van de geschatte watertemperatuurband (${rangeMin.toFixed(1)}–${rangeMax.toFixed(1)} °C): ${scoreMin.toFixed(1)}–${scoreMax.toFixed(1)}/10. Dit is alleen de doorwerking van watertemperatuuronzekerheid, geen statistisch betrouwbaarheidsinterval; onzekerheid in de voorlopige soortcurve is niet inbegrepen.`;
+    }
+  }
+  const tempDetailText = (!hasKnownWaterTemp
+    ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'
+    : tempSource === 'gemeten'
+      ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).'
+      : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).') + ` ${thermalScoreBandDetail} ${thermalEvidenceDetail}`;
+  const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Thermische activiteitspotentie', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
   // en vangstactiviteit is onvoldoende vastgesteld.
@@ -529,9 +546,13 @@ function analyzeTimeSlot(
     dataAvailable: hasPrecip || hasCloud,
   };
 
-  // Legacy numeriek veld: 0 is uitsluitend een sentinel wanneer de index uit staat.
-  // De voorlopige profielcurves worden niet in de actieve prognose gebruikt.
-  const activityScore = 0;
+  // --- THERMISCHE ACTIVITEITSPOTENTIE ---
+  // Alleen de soortspecifieke thermische respons beïnvloedt de huidige score.
+  // Andere factoren blijven uitlegbare context totdat hun effect afzonderlijk
+  // met passende soort-, levensstadium- en watertypegegevens is gevalideerd.
+  const metabolicCeiling = Math.pow(thermalEff, 0.85);
+  const rawActivityScore = 1.0 + 9.0 * metabolicCeiling;
+  const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
 
   // 7. Persoonlijke sessies analyseren
   const similarSessions = getSimilarSessions(historicalSessions, historicalCatches, species, slot);
@@ -572,14 +593,30 @@ function analyzeTimeSlot(
     else neutralFactors.push(`${f.title}: ${f.detail}`);
   }
 
-  // Geen conclusie op basis van de uitgeschakelde voorlopige thermische curve.
-  const conclusion = 'Geen thermische activiteitsscore: de soortspecifieke numerieke temperatuurrespons is uitgeschakeld totdat de exacte parameters onafhankelijk zijn onderbouwd en gevalideerd. Watertemperatuur blijft alleen context.';
+  // Conclusie
+  let conclusion = '';
+  if (!hasKnownWaterTemp) { conclusion = 'Thermische activiteitspotentie niet betrouwbaar te bepalen: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
+  else if (activityScore >= 8.5) {
+    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel. Licht en overige weersomstandigheden zijn afzonderlijke context en verhogen deze score niet.`;
+  } else if (activityScore >= 6.8) {
+    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel.`;
+  } else if (activityScore >= 4.8) {
+    conclusion = `Gemiddelde thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
+      thermalEff < 0.5 ? 'De curve schat een lagere relatieve respons dan rond het profieloptimum.' : 'De curve schat een gematigde respons; overige omstandigheden worden afzonderlijk als context getoond.'
+    }`;
+  } else {
+    conclusion = `Lage thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
+      thermalEff < 0.4
+        ? `Watertemperatuur (${effectiveTemp!.toFixed(1)} °C) ligt onder de voorlopige profielgrens; de curve schat een lage relatieve thermische respons. Dit stelt geen winterrust of volledige inactiviteit vast.`
+        : 'De curve schat een relatief lage respons ten opzichte van het voorlopige profieloptimum.'
+    }`;
+  }
 
   return {
     slot,
     timeRange: hoursConfig.rangeLabel,
     activityScore,
-    activityScoreAvailable: false,
+    activityScoreAvailable: hasKnownWaterTemp,
     isPast,
     remainingHours,
     temperatureFactor,
@@ -701,6 +738,7 @@ export function calculateDayPrognosis(
 
   const date = new Date(`${dateStr}T12:00:00.000Z`);
   const actualSpecies = species === 'Algemeen' ? 'Overig' : species;
+  const profile = SPECIES_PROFILES[actualSpecies];
 
   // Filter forecasts voor deze datum (YYYY-MM-DD)
   const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
@@ -721,6 +759,7 @@ export function calculateDayPrognosis(
       slotForecasts,
       forecasts,
       actualSpecies,
+      profile,
       date,
       historicalSessions,
       options?.catches ?? [],
@@ -737,16 +776,39 @@ export function calculateDayPrognosis(
     );
   }
 
-  // Er wordt geen tijdvak gerangschikt zolang de thermische activiteitsscore
-  // wetenschappelijk niet actief is. De feitelijk gekozen sessiestart blijft apart beschikbaar.
+  // Beste toekomstige tijdvak
   const futureOrActiveSlots = slots.filter((slot) => !timeSlotAnalyses[slot].isPast);
-  const bestSlot: DayPrognosis['bestTimeSlot'] = futureOrActiveSlots.length > 0
-    ? 'Niet beschikbaar'
-    : 'Geen toekomstig tijdvak meer vandaag';
-  const alternativeSlots: TimeSlot[] = [];
-  const dayScoreAvailable = false;
-  const dayScore = 0;
-  const advice: DayPrognosis['advice'] = 'Niet beschikbaar';
+
+  let bestSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid' = 'Geen toekomstig tijdvak meer vandaag';
+  let alternativeSlots: TimeSlot[] = [];
+
+  if (futureOrActiveSlots.length > 0) {
+    const sortedFuture = [...futureOrActiveSlots].sort(
+      (a, b) => timeSlotAnalyses[b].activityScore - timeSlotAnalyses[a].activityScore
+    );
+    const availableScores = sortedFuture
+      .filter((slot) => timeSlotAnalyses[slot].activityScoreAvailable !== false)
+      .map((slot) => timeSlotAnalyses[slot].activityScore);
+    const hasMeaningfulDifference = availableScores.length > 1 &&
+      Math.max(...availableScores) - Math.min(...availableScores) >= 0.1;
+    if (sortedFuture.length === 1 && availableScores.length === 1) {
+      bestSlot = sortedFuture[0];
+    } else if (hasMeaningfulDifference) {
+      bestSlot = sortedFuture[0];
+      alternativeSlots = sortedFuture.slice(1);
+    } else {
+      bestSlot = 'Geen betekenisvol onderscheid';
+      alternativeSlots = [];
+    }
+  }
+
+  const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
+  const dayScoreAvailable = slots.every(slot => timeSlotAnalyses[slot].activityScoreAvailable !== false);
+  const dayScore = dayScoreAvailable ? Math.round((allSlotScores.reduce((sum,v)=>sum+v,0)/allSlotScores.length)*10)/10 : 5.0;
+
+  let advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig' = 'Gemiddeld';
+  if (dayScoreAvailable && dayScore >= 7.0) advice = 'Gunstig';
+  else if (dayScoreAvailable && dayScore < 4.5) advice = 'Ongunstig';
 
   // --- STATISTISCHE VANGSTKANS BEREKENING (SECTIE 4) ---
   // Strikte scheiding van:
@@ -935,18 +997,25 @@ export function calculateDayPrognosis(
     dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
   }
 
-  // Geen thermisch oordeel of thermische tijdvakwinnaar suggereren.
+  // Samenvatting
   let summaryRationale = '';
-  if (bestSlot === 'Geen toekomstig tijdvak meer vandaag') {
-    summaryRationale = 'Alle tijdvakken voor vandaag zijn verstreken. De thermische activiteitsscore en tijdvakrangschikking zijn uitgeschakeld; bekijk een toekomstige datum voor de beschikbare weer- en watertemperatuurcontext.';
+  if (!dayScoreAvailable) {
+    summaryRationale = 'De thermische activiteitspotentie en het thermisch gunstigste tijdvak zijn niet betrouwbaar te bepalen: de thermische basisgegevens ontbreken voor één of meer tijdvakken.';
+  } else if (bestSlot === 'Geen betekenisvol onderscheid') {
+    summaryRationale = 'De beschikbare tijdvakken verschillen volgens de huidige prognose niet betekenisvol in thermische activiteitspotentie. Er is daarom geen thermisch gunstigst tijdvak; kies een moment dat praktisch past.';
+  } else if (bestSlot === 'Geen toekomstig tijdvak meer vandaag') {
+    summaryRationale = 'Alle tijdvakken voor vandaag zijn inmiddels verstreken. Bekijk de prognose voor morgen.';
   } else {
-    summaryRationale = 'De thermische activiteitsscore en thermische tijdvakrangschikking zijn uitgeschakeld totdat de soortspecifieke temperatuurresponsparameters voldoende onderbouwd en gevalideerd zijn. Watertemperatuur blijft afzonderlijk beschikbaar als meet- of schattingscontext. Dit is geen oordeel over aanwezigheid, voedingsactiviteit of vangstkans.';
+    const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
+    summaryRationale = `Het thermisch gunstigste toekomstige tijdvak is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). Dit is gebaseerd op thermische activiteitspotentie, niet op een bewezen voedingspiek of vangstkans. ${bestSlotAnalysis.conclusion}`;
   }
 
   // De coach kan een expliciet starttijdvak meegeven. De algemene dagprognose
   // behoudt haar dagbrede context en thermisch gunstigste tijdvak; alleen tijdgevoelige tactiek
   // gebruikt dan de gekozen startperiode.
-  const defaultTacticalSlot: TimeSlot | undefined = undefined;
+  const defaultTacticalSlot = bestSlot !== 'Geen toekomstig tijdvak meer vandaag' && bestSlot !== 'Geen betekenisvol onderscheid'
+    ? bestSlot as TimeSlot
+    : undefined;
   const explicitTargetTimeSlot = options?.targetTimeSlot;
   const tacticalTargetSlot = explicitTargetTimeSlot ?? defaultTacticalSlot;
   const tacticalForecasts = explicitTargetTimeSlot
@@ -964,11 +1033,11 @@ export function calculateDayPrognosis(
   if (!thermalAnalysis.hasMeasuredWaterTemp || thermalAnalysis.measuredWaterTemp === null) {
     if (thermalAnalysis.estimatedWaterTemp !== null) {
       uncertaintyNotes.push(
-        `Watertemperatuur is niet gemeten; de geschatte waarde (~${thermalAnalysis.estimatedWaterTemp} °C) blijft uitsluitend context op basis van thermische analyse en waterdiepte. De numerieke thermische activiteitsscore is uitgeschakeld.`
+        `Watertemperatuur is niet gemeten; de thermische component gebruikt een geschatte watertemperatuur (~${thermalAnalysis.estimatedWaterTemp} °C) op basis van thermische analyse en waterdiepte. Dit is een voorlopige temperatuurrespons, geen directe meting of voorspelling van activiteit, foerageren of winterrust.`
       );
     } else {
       uncertaintyNotes.push(
-        'Watertemperatuur is niet gemeten of verantwoord geschat en blijft onbekend. De thermische activiteitsscore is uitgeschakeld; luchttemperatuur wordt niet als vervanging gebruikt.'
+        'Watertemperatuur is niet gemeten of verantwoord geschat; de thermische activiteitspotentie is niet beschikbaar. Luchttemperatuur wordt niet als vervanging voor watertemperatuur gebruikt.'
       );
     }
   }
@@ -1248,16 +1317,11 @@ export async function savePrognosisSnapshot(
     targetWindowEnd?: string | null;
   }
 ): Promise<PrognosisSnapshot> {
-  // Een expliciet door de gebruiker gekozen sessietijdvak blijft bewaard,
-  // ook wanneer de thermische rangschikking uitgeschakeld is.
-  const targetSlot = chosenSlot ?? (
-    prognosis.activityScoreAvailable !== false &&
-    prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
-    prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid' &&
-    prognosis.bestTimeSlot !== 'Niet beschikbaar'
+  const targetSlot = prognosis.activityScoreAvailable === false ? undefined :
+    chosenSlot ||
+    (prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
       ? (prognosis.bestTimeSlot as TimeSlot)
-      : undefined
-  );
+      : undefined);
 
   // Controleer of er al een onveranderlijke, nog niet-gekoppelde momentopname bestaat
   // voor exact deze doeldatum, tijdvak, vissoort en locatie om duplicaten te voorkomen
@@ -1474,10 +1538,7 @@ export async function createLiveSnapshotForSessionStart(
     );
 
     const chosenSlot = targetTimeSlot ?? (
-      prog.activityScoreAvailable !== false &&
-      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
-      prog.bestTimeSlot !== 'Geen betekenisvol onderscheid' &&
-      prog.bestTimeSlot !== 'Niet beschikbaar'
+      prog.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' && prog.bestTimeSlot !== 'Geen betekenisvol onderscheid'
         ? (prog.bestTimeSlot as TimeSlot)
         : undefined
     );

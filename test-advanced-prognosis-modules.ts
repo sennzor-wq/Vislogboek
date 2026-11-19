@@ -622,8 +622,8 @@ assert(
   '4.5 prebaitPlan in DayPrognosis plant exact 2 dagen vooraf'
 );
 assert(
-  fullProg.activityScoreAvailable === false && fullProg.activityScore === 0,
-  '4.6 Niet-gevalideerde thermische activiteitsscore is uitgeschakeld (legacyveld gebruikt alleen sentinel 0)'
+  typeof fullProg.activityScore === 'number' && fullProg.activityScore >= 1 && fullProg.activityScore <= 10,
+  '4.6 Bestaande activiteitsscore blijft zuiver en ongewijzigd (geen kunstmatige inflatie)'
 );
 assert(
   fullProg.personalCatchChance !== null,
@@ -658,12 +658,12 @@ const staleMeasuredTempProg = calculateDayPrognosis(
 );
 assert(
   staleMeasuredTempProg.activityScoreAvailable === false,
-  '5.0 Thermische activiteitsscore blijft uitgeschakeld, ook wanneer een oude meting niet als actuele meting mag worden hergebruikt'
+  '5.0 Een actuele watertemperatuurmeting wordt niet als meting hergebruikt voor een toekomstige dag buiten het geldige tijdvenster'
 );
 
 assert(
   noWeatherProg.activityScoreAvailable === false,
-  '5.1 Zonder weerdata blijft de thermische activiteitsscore uitgeschakeld'
+  '5.1 Zonder gemeten of verantwoord geschatte watertemperatuur wordt de activiteitsindex niet als beschikbaar gemarkeerd'
 );
 assert(
   noWeatherProg.personalCatchChance === null,

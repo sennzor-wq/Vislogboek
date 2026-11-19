@@ -258,7 +258,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
                 {plan.desiredEndTime ? ` – ${formatDateTime(plan.desiredEndTime)}` : ' – eindtijd nog onbekend'}
               </p>
             </div>
-            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-slate-200">{plan.prognosis.activityScoreAvailable === false ? 'Thermische score uitgeschakeld' : plan.prognosis.advice}</span>
+            <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-bold text-slate-200">{plan.prognosis.advice}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -270,9 +270,9 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             </div>
             <div className="rounded-2xl bg-slate-900/80 p-4">
               <Fish className="w-5 h-5 text-emerald-300 mb-2" />
-              <p className="text-[11px] uppercase tracking-wide text-slate-500">Thermische activiteitsscore</p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500">Visactiviteit</p>
               <p className="text-base font-bold text-white">
-                {plan.prognosis.activityScoreAvailable === false ? 'Niet actief — soortparameters niet gevalideerd' : `${plan.prognosis.activityScore.toFixed(1)} / 10`}
+                {plan.prognosis.activityScoreAvailable === false ? 'Onvoldoende gegevens' : `${plan.prognosis.activityScore.toFixed(1)} / 10`}
               </p>
             </div>
             <div className="rounded-2xl bg-slate-900/80 p-4">
