@@ -4537,3 +4537,66 @@ De registry bevat daarnaast metabole/aerobe-scopegegevens voor karper, snoek, ba
 Per soort een responskaart maken waarin de directe voedingsdata, metabole/aerobe-scopecontext en bestaande profielprior afzonderlijk worden vastgelegd. Alleen als de bron voldoende temperatuurbehandelingen, levensfase, acclimatisatie en passende doelrespons bevat, kan zij kandidaat zijn voor een responsfunctie. Anders dient zij uitsluitend als context of kwalitatieve grens. Vervolgens moet worden vastgesteld welke soorten genoeg bewijs hebben voor een soortspecifieke kandidaatcurve en welke voorlopig op de bestaande baseline blijven.
 
 **Besluitstatus:** directe temperatuur-/voedingsrespons per relevante registrybron onderscheiden; geen bron goedgekeurd en geen curveparameter gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 110. Soortspecifieke responskaarten: huidige bewijsdekking (19 november 2026)
+
+### 110.1 Leeswijzer en beoordelingsregels
+
+Deze kaarten scheiden vier verschillende biologische responsen:
+- **Temperatuur → voedselopname:** directe meting van voedselopname/voedingsintensiteit bij verschillende temperaturen.
+- **Dagritme → voeding:** directe of indirecte informatie over wanneer voeding plaatsvindt; kloktijd is alleen overdraagbaar als lichtregime, seizoen, habitat en levensfase vergelijkbaar zijn.
+- **Fysiologie:** metabolisme/aerobe scope/groei; nuttige biologische context, maar geen directe voedings- of vangstrespons.
+- **Beweging/habitat:** verplaatsing, aanwezigheid of dieptegebruik; niet gelijk aan voeding of vangbaarheid.
+
+Bewijsdekking hieronder beschrijft uitsluitend de huidige 86 registryrecords en de al beoordeelde profielbronnen. Het is geen volledige wereldwijde literatuurreview. **Direct** betekent dat het genoemde eindpunt daadwerkelijk is gemeten; het betekent niet automatisch dat de bron voldoende is voor een voorspellende parameter. Geen van de records is door deze audit goedgekeurd voor automatische modeltoepassing.
+
+### 110.2 Responskaarten per profiel
+
+| Soort | Temperatuur → voedselopname | Dagritme / voeding | Fysiologie / beweging | Huidige modelstatus |
+|---|---|---|---|---|
+| **Karper** | Directe gecontroleerde voedselopname over 4–34 °C (Chen et al.); consumptie nam toe tot een gerapporteerde piek rond 28 °C en daalde bij 34 °C. Andere ondersoort en beperkte grootteklassen; volledige methode/acclimatisatie nog te toetsen. | Directe veldconsumptie/telemetrie toont nachtelijke consumptie bij bijgevoerd meer, terwijl rivier- en andere studies andere pieken laten zien. Geen universeel nachtpatroon. | Metabolisme/acuut temperatuuronderzoek; ernstige hypoxie kan voedselopname sterk remmen, maar de onderzochte crisiscontext is uitzonderlijk. | **Beperkt direct voedingsbewijs.** Geen geldige basis om huidige 21 °C Gaussische prior te vervangen of 28 °C als Nederlands optimum in te stellen. |
+| **Brasem** | Geen directe, passende soortspecifieke temperatuur-voedselopnamecurve in de huidige registry. Metabolisme over meerdere temperaturen en groeionderzoek zijn indirect. | Directe zoöplanktonconsumptie bij subadult/adult overwegend overdag; juveniele pelagische vis kan nachtelijk eten. Levensfase en habitat veranderen de uitkomst. | Veldactiviteit hangt samen met troebelheid in een ondiep meer; dit is geen directe voedselopname. | **Onvoldoende voor thermische voedingscurve; contextueel dagritmebewijs.** |
+| **Snoek** | Geen bruikbare directe temperatuur-voedselopnamecurve. Maagvulling-/seizoensstudie vond geen significante temperatuurcorrelatie; metabolisme bij beperkte temperatuurpunten is indirect. | Hartslagtelemetrie onderzocht voeding in wilde snoek; jonge 0+ voedingspatronen zijn niet zonder meer volwassen patroon. | Telemetrie van beweging en habitatwisselingen; weinig beweging betekent niet geen jacht. | **Onvoldoende voor thermische voedingscurve; beperkte directe voedings-/telemetriecontext.** |
+| **Baars** | Geen voldoende passende directe temperatuur-voedselopnamecurve in de huidige registry. Aerobe scope en metabolisme zijn indirect en lichaamsgrootte-afhankelijk. | Veldstudies beschrijven seizoensgebonden variatie in ochtend-, avond- en middagactiviteit/voeding; geen vaste kloktijd voor alle wateren. | Sterke fysiologische informatie over temperatuur × lichaamsgrootte, maar geen directe voedingscurve. | **Onvoldoende voor thermische voedingscurve; contextueel dagritmebewijs.** |
+| **Voorn** | Geen voldoende passende directe temperatuur-voedselopnamecurve. Metabolisme is onderzocht; dit blijft een ander eindpunt. | Veldonderzoek beschrijft verschuiving van dagvoeding naar schemer-/nachtvoeding in herfst bij afkoeling; andere studies laten levensfase- en habitatverschillen zien. Temperatuur, licht en predatierisico zijn verweven. | Groei-/metabolismegegevens uit Nederlandse meren zijn niet gelijk aan dagelijkse voedselopname. | **Onvoldoende voor geïsoleerde thermische voedingscurve; bruikbaar contextueel tijdritmebewijs.** |
+| **Zeelt** | Directe vergelijking bij 18 en 25 °C vond lagere maximale voedselopname bij 25 °C. Twee behandelingen, invasieve populatie in St. Lawrence-systeem; geen volledig optimum. | Veldonderzoek in één klein eutroof water en gecontroleerde studies ondersteunen avond-/nachtvoeding, maar niet als universele kloktijd. | Benthische habitatassociatie is ecologische context; geen dagelijkse activiteitsscore. | **Beperkt direct voedingsbewijs.** Twee punten zijn onvoldoende om een curve of optimum te fitten. |
+| **Snoekbaars** | Directe prooiconsumptie bij 4,5 / 8,5 / 12,5 °C in gekweekte broedvis tijdens winter-/voorpaaiperiode; consumptie nam toe over de behandelingen. Sekse/reproductiestatus en kweekcontext beperken overdraagbaarheid. | Schemergebonden beweging in telemetrie; beweging of ondiepe aanwezigheid bewijst geen jacht/voeding. | Aerobe-scopeonderzoek bij volwassen kweekvis; fysiologisch eindpunt, geen voedingscurve. | **Beperkt direct voedingsbewijs in een smalle context.** Geen algemene veldcurve of vaste schemerbonus. |
+| **Meerval** | Geen directe temperatuur-voedselopnamecurve in de huidige registry. Maagvulling per seizoen is contextueel en geen directe dagelijkse voedingsmeting. | Gecontroleerde zelfvoeropstelling toont sterk nachtelijk voederpatroon; veld-/maagvullingsbronnen zijn contextgebonden. | Veldtelemetrie beschrijft seizoensbeweging en dieptegebruik; geen gelijkstelling met voedselopname. | **Onvoldoende voor thermische voedingscurve; beperkt gecontroleerd dagritmebewijs.** |
+| **Roofblei** | Geen passende directe temperatuur-voedselopnamecurve in de huidige registry. | Telemetrie beschrijft seizoensbeweging rond dageraad/schemering; geen directe voedingsmeting. | Dieet- en bewegingsstudies geven ecologische context, geen voedingsintensiteit of vangbaarheid. | **Onvoldoende directe temperatuur-/voedingsrespons.** |
+| **Overig** | Geen soortspecifiek bewijs mogelijk omdat dit een generiek terugvalprofiel is. | Geen soortspecifiek dagritme toekennen. | Geen soortspecifieke fysiologie of habitatvoorkeur veronderstellen. | **Alleen fallback-context; nooit behandelen als een tiende biologisch gevalideerde soort.** |
+
+### 110.3 Wat de responskaarten wel en niet toelaten
+
+1. Voor geen van de tien profielen is op basis van de huidige registry een volledig gevalideerde dagelijkse temperatuur-voedselopnamecurve beschikbaar.
+2. Karper, zeelt en snoekbaars hebben directe maar contextgebonden temperatuur-/voedingsmetingen. Die zijn geschikt om hypotheses en onzekerheidsgrenzen te formuleren, niet om zonder verdere validatie parameters te fitten.
+3. Voor brasem, snoek, baars, blankvoorn, meerval en roofblei is de huidige temperatuur-voedingsdekking onvoldoende voor een eigen gekwantificeerde curve.
+4. Dagritmebewijs kan voor advies en tijdvakcontext relevant zijn, maar mag niet worden vertaald naar een vaste bonus zonder lokale/soortspecifieke verificatie en rekening te houden met levensfase, seizoen, licht en habitat.
+5. Fysiologische eindpunten (metabolisme, aerobe scope, groei) kunnen verklarende priors ondersteunen, maar zijn geen substituut voor voedselopname.
+6. Beweging/habitat en vangstgegevens blijven afzonderlijke lagen. Een vangst is geen directe voedingslabel en afwezigheid van vangst is geen bewijs van niet-voeden.
+
+### 110.4 Prioriteit voor verdere onderbouwing
+
+- **Eerst:** volledige methoden en ruwe responsgegevens controleren van de contextgebonden directe voedingsstudies voor karper, zeelt en snoekbaars; pas daarna beslissen of een beperkte kandidaatresponsfunctie verantwoord is.
+- **Daarna:** soortspecifieke directe temperatuur-/voedingsbronnen zoeken voor brasem, snoek, baars, blankvoorn, meerval en roofblei. Als er geen geschikte bron bestaat, blijft de respons onbekend/voorlopig; geen parameters lenen van verwante soorten.
+- **Parallel:** tijdritmebronnen per soort rubriceren naar direct gemeten voeding versus beweging/habitat, met levensfase, seizoen, lichtregime, watertype en prooiaanbod als overdraagbaarheidsvoorwaarden.
+- **Vervolgens:** per kandidaatrespons vaste referentieankers en een onafhankelijk label/metric definiëren. Alleen daarna kandidaatcurves toetsen tegen de bestaande thermische baseline.
+
+**Besluitstatus:** eerste soortspecifieke responskaarten voltooid op basis van huidige registry; geen soort heeft op dit moment een volledig gevalideerde thermische voedingscurve. Geen bron goedgekeurd en geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 111. Responslabel-nuance: voedselopname versus foerageergedrag (19 november 2026)
+
+De karperbronnen in de registry meten niet allemaal hetzelfde:
+
+- Chen et al. (2012) registreert voedselopname en voedingsritme bij de onderzochte Aziatische karperondersoort, grootteklassen en gecontroleerde temperatuurbehandelingen.
+- Oyugi et al. (2012) onderzoekt juveniele gewone karper van circa 90–105 mm bij 16, 20, 24 en 28 °C. De gemeten foerageersnelheid was het hoogst bij 24 °C binnen die proefopzet. Het gemeten eindpunt is foraging rate, niet automatisch totale dagelijkse voedselopname, adult-gedrag of vangbaarheid.
+- De wilde-karperstudie van Bajer et al. (2010) meet consumptie van aangeboden maïs in een specifieke veldcontext en telemetrie-/bezoekgedrag bij bijgevoerd punt. Ook dit is niet gelijk aan een universele natuurlijke voedingscurve.
+
+Deze resultaten zijn complementair, maar mogen niet als één dataset worden samengevoegd of als drie onafhankelijke bevestigingen van hetzelfde thermische optimum worden geteld. De levensfase, soort-/ondersoort, experimentele opzet, voedseltype en gemeten respons verschillen.
+
+**Modelconsequentie:** een toekomstige responskaart houdt minimaal aparte labels voor (a) voedselopname/consumptie, (b) foerageersnelheid/voedselzoekgedrag, (c) locomotorische activiteit en (d) vangst. Een bron kan meer dan één label ondersteunen wanneer die werkelijk afzonderlijk zijn gemeten, maar de labels worden niet onderling vervangen. Voor de huidige scoredoelstelling is directe voedingsrespons relevanter dan alleen beweging; foerageergedrag is ondersteunend bewijs en moet als zodanig gemarkeerd blijven.
+
+De algemene review van Volkoff & Rønnestad (2020) onderstreept dat temperatuur effecten heeft op voedsel zoeken, voedselopname en vertering, maar dat die responsen soort-, levensfase-, acclimatisatie- en blootstellingsafhankelijk zijn. De review ondersteunt de scheiding van responslagen; zij levert geen exacte parameters voor de Vislogboek-soortcurves.
+
+**Besluitstatus:** responslabels zijn aangescherpt; geen bronstatus, parameter, gewicht of runtime gewijzigd.

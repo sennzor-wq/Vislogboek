@@ -1853,3 +1853,13 @@ De bronherkomst-audit staat in `FASE2_PROGNOSE_AUDIT.md` §108. De huidige regis
 ### Fase 2 — soortspecifiek bewijs voor temperatuur en voeding (19 november 2026)
 
 De bron-/responsmatrix staat in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §100). Directe voedingsstudies voor karper, zeelt en snoekbaars zijn contextgebonden; blankvoorn heeft verweven temperatuur-/licht-/seizoensbewijs. Metabolisme, aerobe scope, groei, maagvulling en beweging blijven afzonderlijke responsen. Geen universele thermische curve is hiermee gevalideerd; geen bronstatus of runtimeparameter gewijzigd.
+
+
+### Fase 2 — soortspecifieke responskaarten (19 november 2026)
+
+De eerste responskaarten voor alle tien profielen staan in `FASE2_PROGNOSE_AUDIT.md` §110. Geen profiel heeft op basis van de huidige registry een volledig gevalideerde dagelijkse temperatuur-voedselopnamecurve. Directe voedingsmetingen bij karper, zeelt en snoekbaars zijn contextgebonden; andere soorten hebben vooralsnog onvoldoende directe thermische voedingsdata. Fysiologie, beweging, dagritme, habitat en vangst blijven afzonderlijke eindpunten. Geen modelparameter of runtime gewijzigd; Fase 2 blijft open.
+
+
+### Fase 2 — responslabel-scheiding (19 november 2026)
+
+Audit §111 legt vast dat voedselopname, foerageergedrag, beweging en vangst verschillende responsen zijn. Onderzoeken met verschillende levensfasen, voedseltypen of meetmethoden mogen niet als één curve worden samengevoegd. Geen runtimewijziging.

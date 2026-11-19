@@ -891,3 +891,17 @@ De bestaande soortcurves blijven voorlopige softwareprioren. Geen parameters afl
 De soortspecifieke registrydekking staat in `FASE2_PROGNOSE_AUDIT.md` §109. Directe voedselopname-/voedingsstudies bestaan onder meer voor karper, zeelt en snoekbaars, maar zijn beperkt door ondersoort, grootteklasse, kweek-/laboratoriumcontext, beperkt aantal temperatuurbehandelingen of reproductiestatus. Blankvoorn heeft veldbewijs voor een seizoensgebonden dagritmeverschuiving waarbij temperatuur, licht en predatierisico verweven zijn. Snoek-maagvulling/temperatuurcorrelatie was niet significant. Meervalvoerautomaatritme is geen temperatuurrespons.
 
 Deze bronnen ondersteunen geen universele soortcurve en valideren niet automatisch de bestaande profielparameters. Directe voedingsintensiteit, metabolisme, aerobe scope, groei, maagvulling en beweging blijven afzonderlijke eindpunten. Geen bronstatus, curvevorm of numerieke parameter is gewijzigd.
+
+
+## 101. Soortspecifieke responskaarten en bewijsniveaus
+
+De eerste responskaarten staan in `FASE2_PROGNOSE_AUDIT.md` §110. Per soort zijn temperatuurafhankelijke voedselopname, dagritme/voeding, fysiologie en beweging/habitat gescheiden. De huidige registry ondersteunt voor karper, zeelt en snoekbaars beperkte directe temperatuur-/voedingsobservaties, maar in contexten die niet zonder meer overdraagbaar zijn naar Nederlandse wilde populaties. Voor brasem, snoek, baars, blankvoorn, meerval en roofblei is de huidige directe temperatuur-voedingsdekking onvoldoende voor een eigen gekwantificeerde curve. Het generieke profiel Overig is geen soortspecifiek biologisch model.
+
+Geen van de huidige profielen heeft hiermee een volledig gevalideerde dagelijkse temperatuur-voedselopnamecurve. Dagritmebronnen kunnen tijdvakcontext ondersteunen, maar beweging, habitatgebruik, metabolisme, aerobe scope, groei en vangst blijven aparte eindpunten. Geen vaste tijdvakbonus of geleende soortcurve. De huidige thermische baseline blijft ongewijzigd en onzekerheid blijft expliciet.
+
+
+## 102. Responslabels blijven gescheiden
+
+De aanvullende karperanalyse staat in `FASE2_PROGNOSE_AUDIT.md` §111. Voedselopname/consumptie, foerageersnelheid/voedselzoekgedrag, locomotorische activiteit en hengelvangst zijn verschillende responslabels. Een studie naar juveniele karper-foerageersnelheid is ondersteunend bewijs voor voedselzoekgedrag, maar geen directe adult-voedselopnamecurve of vangstcurve. Bronnen met verschillende soorten/ondersoorten, levensfasen, voedseltypen en experimentele context mogen niet worden samengevoegd alsof zij hetzelfde optimum meten.
+
+Temperatuur kan meerdere stappen in het voedingsproces beïnvloeden, maar de respons is soort- en contextafhankelijk; zie Volkoff & Rønnestad (2020), reeds opgenomen in de research registry. Deze review ondersteunt de conceptuele scheiding, niet de exacte numerieke soortparameters. Geen runtime of bronstatus gewijzigd.

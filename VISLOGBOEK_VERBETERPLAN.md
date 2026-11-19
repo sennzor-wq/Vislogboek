@@ -835,3 +835,15 @@ De registry-audit in `FASE2_PROGNOSE_AUDIT.md` §108 vond geen directe thermisch
 De relevante directe voedingsstudies en hun overdraagbaarheidsgrenzen staan in `FASE2_PROGNOSE_AUDIT.md` §109 (architectuur §100). Karper, zeelt en snoekbaars hebben contextgebonden directe voedselopnamebronnen; blankvoorn heeft verweven temperatuur-/licht-/seizoensbewijs; voor snoek en meerval zijn de beschikbare records geen bruikbare thermische voedingscurve. Dit bevestigt dat geen universele Gaussische curve of geleende soortparameters mogen worden aangenomen.
 
 **Nog open:** per soort responskaarten maken, exacte responsvorm en referentie alleen kiezen waar de bron dat ondersteunt, en voldoende datadekking/validatie bepalen. Geen bron goedgekeurd en geen runtimeparameter gewijzigd.
+
+
+### Fase 2 — eerste soortspecifieke responskaarten voltooid (19 november 2026)
+
+De huidige bewijsdekking voor alle tien profielen is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §110 (architectuur §101). Karper, zeelt en snoekbaars hebben beperkte directe maar contextgebonden temperatuur-/voedingsstudies. Voor brasem, snoek, baars, blankvoorn, meerval en roofblei is de huidige registry onvoldoende voor een eigen gekwantificeerde temperatuur-voedingscurve. `Overig` blijft een generiek fallback-profiel en geen gevalideerde soort.
+
+**Volgende werkzaamheden:** primaire bronmethoden en data van de drie beperkte directe studies verifiëren; ontbrekende soorten gericht onderzoeken; tijdritmebronnen scheiden naar directe voeding versus beweging/habitat; pas daarna referentieankers en kandidaatresponsfuncties ontwerpen. Geen runtimewijziging of bron goedgekeurd.
+
+
+### Fase 2 — responslabels verder gescheiden (19 november 2026)
+
+Audit §111 verduidelijkt dat voedselopname, foerageersnelheid, locomotorische activiteit en vangst verschillende eindpunten zijn. Met name de juveniele karperstudie meet foerageersnelheid en mag niet als adult-voedselopnamecurve worden gebruikt. Geen bronstatus, parameter of runtime gewijzigd.
