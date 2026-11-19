@@ -3629,10 +3629,10 @@ Deze crosswalk vervangt de eerdere momentopname na PR #142. De status is gebasee
 
 **Fase 2 is nog niet geaccepteerd. Fase 3 blijft geblokkeerd.**
 
-De factor- en broninventaris is ver gevorderd, maar de gewenste geïntegreerde scoreketen is nog niet gerealiseerd. De huidige dagscore wordt numeriek uitsluitend door de voorlopige thermische prior bepaald. De overige factoren zijn contextueel of afzonderlijke responslagen. De belangrijkste resterende blockers zijn:
+De factorstatus- en datadekkingsinventaris is nu samengebracht in §§82, 93, 101 en 102. De gewenste geïntegreerde scoreketen is nog niet gerealiseerd. De huidige dagscore wordt numeriek uitsluitend door de voorlopige thermische prior bepaald. De overige factoren zijn contextueel of afzonderlijke responslagen. De belangrijkste resterende blockers zijn:
 
 1. De exacte doelrespons van de bestaande 1–10-score expliciet vastleggen, zodat activiteit en voedings-/foerageerrespons niet onbedoeld met habitat, persoonlijke vangstkans of betrouwbaarheid worden vermengd.
-2. Per relevante factor en soort de status, datadekking, onzekerheid en mogelijke interacties definitief sluiten.
+2. De doelrespons van de bestaande score bevestigen en de toegestane factorgrenzen/interacties vastleggen; de actuele bron-/inputstatus is samengebracht in §§82, 93, 101 en 102.
 3. Een transparante normalisatie-, ontbrekende-data- en aggregatieregel ontwerpen zonder fictieve neutrale waarden of arbitraire herweging.
 4. Voor activiteit, voeding, habitat en tijdvak passende onafhankelijke evaluatiemaatstaven en chronologische backtests vastleggen.
 5. De thermische prior als voorlopige uitzondering transparant behouden; exacte parameters blijven ongevalideerd en mogen niet als gevalideerde soortcurves worden gepresenteerd.
@@ -3641,7 +3641,7 @@ Lokale sessiedata blokkeren niet het afronden van de softwarearchitectuur, maar 
 
 ### Volgende stap volgens de roadmap
 
-Sluit nu de factorstatus-/datadekkingsmatrix en leg de doelrespons en factorgrenzen vast. Daarna pas de ontbrekende-data-regel, normalisatie en kandidaataggregatie uitwerken. Vervolgens per respons een eigen validatieprotocol en chronologische vergelijking met de bestaande thermische baseline. Geen Fase 3-start vóór formele acceptatie.
+De factorstatus-/datadekkingsmatrix is samengebracht in §102. De eerstvolgende stap is de doelrespons van de bestaande 1–10-score vastleggen. Daarna pas de ontbrekende-data-regel, normalisatie en kandidaataggregatie uitwerken. Vervolgens per respons een eigen validatieprotocol en chronologische vergelijking met de bestaande thermische baseline. Geen Fase 3-start vóór formele acceptatie.
 
 
 ## 90. Ontwerpbesluit thermische curves — optie A behouden als voorlopige prior (19 november 2026)
@@ -4022,3 +4022,52 @@ Toegevoegd aan `researchRegistry.ts`:
 Alle 86 registry-records blijven `approvedForPrediction: false`. Geen score, factorgewicht, temperatuurcurve of tijdvakbonus gewijzigd.
 
 Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 102. Geconsolideerde factor-, input- en evaluatiestatus — auditinventaris gesloten (19 november 2026)
+
+Deze sectie brengt de code-/UI-/snapshottrace (§93), soortspecifieke gemeten responsen (§82), omgevingsbewijs (§101), tactische temperatuurregels (§96–§98) en de formele crosswalk (§89) samen. Dit sluit de inventaris van factoren die in de huidige prognose of aangrenzende tactiekengines voorkomen. Het betekent niet dat alle factoren meetbaar zijn, wetenschappelijk gevalideerd zijn of numeriek mogen bijdragen.
+
+| Factor / element | Respons die het werkelijk beschrijft | Huidige invoer in app | Huidige rol | Eigen evaluatie die nodig is vóór numerieke bijdrage |
+|---|---|---|---|---|
+| Watertemperatuur / thermische curve | Voorlopige fysiologische thermische activiteitspotentie | Gebruikersmeting en/of modelinschatting met herkomst en onzekerheid | Enige numerieke bijdrage aan bestaande dagscore; optie A: voorlopige prior | Temperatuurinschatting: MAE/RMSE/bias. Thermische activiteit zelf: onafhankelijke soortspecifieke activiteitlabels; exacte curveparameters nog niet gevalideerd. |
+| Luchttemperatuur | Weerinput voor thermische ontwikkeling, geen directe watertemperatuur | Uurlijkse weersverwachting | Alleen indirecte input in waterthermische schatting; nooit vervanging van ontbrekende watertemperatuur | Validatie van de waterthermische schatter; geen zelfstandige visrespons zonder direct bewijs. |
+| Voedingsintensiteit / voedselopname | Hoeveelheid of snelheid van eten | Alleen literatuur-/sessiecontext; geen actuele lokale meting van natuurlijke voedselopname | Geen numerieke dagscorebijdrage; brongebonden context | Directe voedselopname-/voedingsintensiteitslabels per soort, seizoen en relevante voedsel-/watertypecontext. Vangst is geen zuivere voedselopnamemeting. |
+| Voedingsritme / dielgedrag | Wanneer voedselopname/foerageren plaatsvindt | Datum, zon-/schemertijden en soortspecifieke broncontext; geen live voedingssensor | Alleen context; nog geen gevalideerde tijdvakscore | Direct tijdgebonden voedings-/foerageerrespons, met soort-/seizoen-/habitatdekking en onafhankelijke tijdvakvalidatie. Bewegingsritme alleen is onvoldoende. |
+| Voedingsfysiologie / prooikeuze / dieet | Verwerkingsmechanica, prooitype of dieetcompositie | Alleen soortprofiel en broncontext | Geen directe dagelijkse voedselopname of aasrespons; tactische context waar relevant | Alleen gebruiken wanneer prooitype/voedsel en levensfase overeenkomen; geen automatische pellet-/haakaasbonus. |
+| Licht / dagdeel / seizoen | Omgevingscontext en mogelijke biologische interactie | Zon-/schemertijden, datum/maand, bewolking en instraling uit weerbron | Context en mogelijke modulator; geen universele dagdeel-/seizoensbonus | Soortspecifieke interactie met directe voedings- of activiteitrespons; tijdvakvalidatie. |
+| Wind / windrichting | Oever-, oppervlakte-, drift- en presentatiecontext; beperkt veldbewijs voor beweging bij baars | Uurlijkse windsnelheid/-richting; oeveroriëntatie optioneel | Bestaande positionering-/tactiekengines; geen algemene dagelijkse voedingsbonus | Directe soortspecifieke respons die beweging van voedselopname onderscheidt; lokale wind-/oevervalidatie. |
+| Luchtdruk / druktrend | In enkele studies context voor locomotorische beweging | Uurlijkse weersdruk en trend | Beschrijvende context; geen zelfstandige scorebijdrage | Repliceerbare soortspecifieke respons, onafhankelijke validatie en aantoonbare extra voorspelwaarde boven temperatuur/licht. |
+| Troebelheid / zicht | Zichtcondities en in specifieke context activiteit/predator-prooi-interactie | Geen betrouwbare actuele lokale NTU-/zichtmeting | Context; bream evidence uit één ondiep meer is niet universeel | Lokale meting plus soort-/zichtstrategiegebonden respons; onderscheid tussen beweging, foerageren en voedselopname. |
+| Opgeloste zuurstof | Fysiologische stress, habitatkeuze en bij ernstige hypoxie voedselopname | Geen betrouwbare lokale zuurstofmeting | Onbekend; niet uit temperatuur/weer afleiden | Betrouwbare lokale DO-meting met tijd/diepte en soortrespons; geen extrapolatie van ernstige laboratoriumhypoxie naar normale waarden. |
+| Neerslag | Indirecte verandering van peil, afvoer, troebelheid of habitattoegang | Uurlijkse neerslagverwachting | Weercontext; geen zelfstandige dagelijkse scorebijdrage | Alleen via werkelijk gemeten/verifieerbare lokale hydrologische verandering en passende soortrespons. |
+| Stroming / afvoer | Verplaatsing, habitatgebruik en voedseltoegankelijkheid in stromend water | Watertype hooguit grof; geen lokale stroomsnelheid/afvoer | Kwalitatieve habitatcontext; geen numerieke bijdrage | Lokale stroomsnelheid/afvoer en soort-/responslabels; geen overdracht naar stilstaand water. |
+| Habitat / structuur / diepte / stek | Potentiële geschiktheid en ruimtelijke zoekhypothese | GPS, door gebruiker ingevoerde stekken, diepte en structuren waar beschikbaar | Aparte habitat-/positioneringslaag; geen fysiologische activiteit of voedselopname | Onafhankelijke aanwezigheid-/habitatlabels, lokale kaart-/dieptedata en kalibratie; niet gelijkstellen aan vangbaarheid. |
+| Lokale prooibeschikbaarheid | Aanwezigheid en toegankelijkheid van natuurlijk voedsel/prooi | Geen actuele lokale prooidichtheid | Onbekend; geen veronderstelde voedselbonus | Lokale prooidichtheid/-verdeling of betrouwbare proxy plus passende soort-/seizoensrespons. |
+| Persoonlijke vangstkans | Empirische kans op vangst in vergelijkbare sessies | Historische sessies, vangsten, duur en geregistreerde context | Afzonderlijke Poisson-baseline; Brier/BSS evalueert uitsluitend deze uitkomst | Chronologische Brier/BSS en kalibratie op voldoende vergelijkbare echte sessies; niet vermengen met biologische score. |
+| Hengelvangbaarheid / techniek / aas | Respons op presentatie, aas, visserijdruk, visgrootte en ervaring | Sessie-/techniekgegevens en beperkte literatuurdekking | Afzonderlijke vangbaarheidscontext; geen directe biologische activiteitsscore | Eigen vangbaarheids-/catch-rate-uitkomst per techniek, aas, soort en context; geen overdracht tussen vismethoden. |
+| Betrouwbaarheid / onzekerheid / datadekking | Kwaliteit en volledigheid van de voorspelling | Provenance, bronstatus, inputdekking, modelversie en steekproefomvang | Kwaliteits-/onzekerheidslaag, geen biologische scorefactor | Kalibratie van onzekerheidsbanden en dekking; geen optelling als extra biologische bonus. |
+| Voorvoer-suitability / grammen | Praktische voer-/tactiekindicatie, geen dagelijkse visactiviteit | Temperatuur, stekcontext, soortprofiel en sessieduur waar bekend | Aparte VisCoach-/tactiekengine; niet opnemen in dagscore | Aparte evidence-/uitkomstvalidatie van hoeveelheid en respons; exacte grammen blijven open besluit en moeten bij lage inputkwaliteit worden afgeschermd. |
+
+### 102.1 Wat nu aantoonbaar compleet is
+
+- Alle bestaande prognosefactoren en aangrenzende tactiek-/habitatlagen zijn terug te vinden in de code-/UI-/snapshottrace.
+- Per soort zijn de geregistreerde gemeten responsen uitgesplitst; de registry bevat 86 unieke records en alle blijven niet-goedgekeurd voor directe numerieke voorspelling.
+- Voor iedere factor is nu expliciet vastgelegd of de app een actuele invoer heeft, welke respons het bewijs werkelijk meet, wat de huidige rol is en welke onafhankelijke evaluatie nog nodig is.
+- Ontbrekende zuurstof-, stromings-, troebelheids- en prooigegevens zijn expliciet als onbekend vastgelegd. Zij worden niet uit weersvariabelen afgeleid.
+- Beweging, habitat, voeding, prooikeuze, groei, vangbaarheid, persoonlijke vangstkans en onzekerheid blijven gescheiden responsen.
+
+### 102.2 Wat bewust nog niet is besloten
+
+1. **Doelrespons van de bestaande 1–10-score:** de gebruikersweergave blijft één score. De wetenschappelijk zuivere kandidaat is een geïntegreerde biologische activiteit-/voedingspotentie: thermische activiteit plus alleen die voedings-/foerageerfactoren die dezelfde dagelijkse respons onderbouwen. Habitat/aanwezigheid, persoonlijke vangstkans en betrouwbaarheid meten andere uitkomsten en blijven afzonderlijk, tenzij een expliciet ander productdoel wordt gekozen.
+2. **Normalisatie en aggregatie:** verschillende responsen mogen niet op basis van hun ruwe waarden worden opgeteld. Eerst moeten schaal, richting, interacties en dubbele telling worden gedefinieerd.
+3. **Ontbrekende gegevens:** geen fictieve neutrale factorwaarde en geen automatische hernormalisatie die een ontbrekende ongunstige factor onzichtbaar maakt. De keuze tussen expliciete coverage-/onzekerheidsbehandeling, onderbouwde schatting of N/B moet in het kandidaatmodel worden getest.
+4. **Gewichten:** geen vaste universele percentages. Gewichten moeten per respons, soort en waar bewijs dit toelaat seizoen-/watertypecontext, uit directe evidence en chronologische validatie volgen.
+5. **Tijdvakscore:** ieder tijdvak krijgt uiteindelijk dezelfde factorarchitectuur met tijdvakgebonden invoer en soortspecifiek voedingsbewijs. De huidige gedeelde dagthermische waarde is geen tijdvakrespons.
+6. **Evaluatie:** Brier blijft voor persoonlijke vangstkans; temperatuurfoutmaten voor de watertemperatuurschatter; activiteit, voeding, habitat en tijdvak krijgen eigen labels en metrics.
+
+### 102.3 Auditstatus en vervolg
+
+**De factorinventaris en huidige input-/evidence-status zijn voor de bestaande prognoseketen gesloten. De modelaudit is daarmee nog niet formeel afgerond.** De resterende fase-2-werkzaamheden zijn de doelrespons van de bestaande score expliciet vastleggen, normalisatie en ontbrekende-data-regels ontwerpen, per respons onafhankelijke validatie definiëren en het kandidaatmodel chronologisch vergelijken met de bestaande thermische baseline.
+
+De huidige dagscore blijft ongewijzigd en thermisch bepaald totdat deze ontwerp- en validatiepoorten zijn doorlopen. Geen nieuwe factor, gewicht, tijdvakbonus of tweede score activeren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -776,3 +776,10 @@ De actuele zevenpuntscrosswalk is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §89. 
 De exacte registrytelling per soort en gemeten respons is bijgewerkt in `FASE2_PROGNOSE_AUDIT.md` §82. Alle 86 records blijven niet-goedgekeurd voor directe numerieke voorspelling. De belangrijkste gaten blijven directe voedingsintensiteit/-ritme voor roofblei, de overdraagbaarheid van gecontroleerde voedingsstudies bij meerval/karper en onafhankelijke validatie van activiteit, habitat en tijdvak.
 
 **Volgende stap:** koppel deze responsdekking aan de doelrespons van de bestaande 1–10-score en sluit de factor-/datadekkingsmatrix. Daarna pas normalisatie, missing-data-regel en kandidaataggregatie uitwerken. Geen runtimegewichten of tijdvakbonussen activeren.
+
+
+### Fase 2 — factorinventaris gesloten, modelontwerp nog open (19 november 2026)
+
+De geconsolideerde factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` §102. De inventaris van de bestaande prognoseketen is gesloten: per factor is de biologische respons, invoerbeschikbaarheid, huidige rol en vereiste onafhankelijke evaluatie vastgelegd. Ontbrekende zuurstof-, stromings-, troebelheids- en prooigegevens blijven expliciet onbekend; zij worden niet uit weerdata afgeleid.
+
+**Nog open vóór scoremodelbouw:** doelrespons van de bestaande 1–10-score expliciet bevestigen; normalisatie, interacties en missing-data-regel ontwerpen; eigen evaluatie voor activiteit, voeding, habitat en tijdvak vastleggen; kandidaat chronologisch vergelijken met de thermische baseline. De huidige scoreweergave blijft behouden. Geen nieuwe gewichten of tijdvakbonussen. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
