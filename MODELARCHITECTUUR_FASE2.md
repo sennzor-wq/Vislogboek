@@ -866,3 +866,14 @@ Ontbrekende, geschatte, contextuele, ongeldige, tegenstrijdige en niet-toepassel
 Datadekking en onzekerheid staan los van de biologische score: lage dekking verlaagt niet de biologische activiteit, maar begrenst de zekerheid van onze verwachting. De gebruiker houdt één bestaande 1–10-dagscore en bestaande tijdvakweergave; geen zichtbare deelsectoren, percentage of tweede score. De scoremapping moet met vaste referentieankers worden gekalibreerd en versieerbaar blijven, niet dagelijks relatief herschaald.
 
 De huidige thermische optie A blijft de enige numerieke runtimebijdrage en de baseline. Een factor of interactie wordt pas toegelaten na passende directe respons, invoerkwaliteit, expliciete overlapcontrole, eigen onafhankelijke labels/metrics en chronologische verbetering ten opzichte van de thermische baseline. Brier blijft uitsluitend voor persoonlijke vangstkans. Geen runtimewijziging; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 98. Huidige thermische baseline: exacte mapping en onzekerheidsgrenzen
+
+De actuele code-audit en soortparameters staan in `FASE2_PROGNOSE_AUDIT.md` §107. De bestaande prior gebruikt een asymmetrische Gaussische curve per soort, begrensd op efficiëntie 0,08–1,00, gevolgd door `1 + 9 × efficiency^0.85` en afronding op één decimaal. De dagscore is het gemiddelde van vier tijdvakscores die op dit moment dezelfde thermische respons delen.
+
+De profieloptima en curvebreedtes zijn voorlopige softwareprioren, niet empirisch gevalideerde voedselopname-/activiteitscurves. Door de efficiëntievloer is de theoretische minimumscore ongeveer 2,1/10; de mapping benut de 1–10-schaal dus niet volledig. De relatieve efficiëntie-uitvoer mag niet als percentage biologische activiteit of voedselopname worden geïnterpreteerd.
+
+Gemeten, geschatte en onbekende watertemperatuur moeten gescheiden blijven. De interne placeholder bij onbekende temperatuur is niet beschikbaar als prognose, wordt niet als scorelabel opgeslagen en mag nooit als neutrale factorbijdrage of trainingsdata worden gebruikt. Temperatuurinvoeronzekerheid en responsparameteronzekerheid zijn afzonderlijke bronnen.
+
+Geen wijziging van profielparameters, formule, scoremapping of runtime. De baseline blijft ongewijzigd totdat responslabels, vaste referentieankers en onafhankelijke chronologische evaluatie beschikbaar zijn.

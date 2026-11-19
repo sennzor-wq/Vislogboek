@@ -814,3 +814,10 @@ De ontwerpuitwerking staat in `FASE2_PROGNOSE_AUDIT.md` §106 en is samengevat i
 Gemeten, geschatte, proxy/contextuele, ontbrekende, ongeldige, tegenstrijdige en niet-toepasselijke invoer worden onderscheiden. Onbekend wordt niet neutraal ingevuld en resterende gewichten worden niet stilzwijgend herverdeeld. Een gedeeltelijke prognose blijft mogelijk wanneer de betreffende factorcombinatie gevalideerd is; zonder bruikbare thermische basis en zonder andere toegelaten responsinformatie blijft de huidige uitkomst N/B.
 
 **Nog open:** responsfuncties/referentieankers per soort invullen, app-invoer aan status koppelen, validatie per ontbrekend-data-patroon bepalen, onafhankelijke labels/metrics afronden en pas daarna kandidaataggregatie chronologisch vergelijken met de thermische baseline. Geen runtimewijziging, geen nieuwe score of verplichte gebruikersinvoer. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — technische thermische-baseline-audit (19 november 2026)
+
+De exacte huidige soortparameters, Gaussische responsvorm, efficiëntievloer en 1–10-mapping zijn geauditeerd in `FASE2_PROGNOSE_AUDIT.md` §107; architectuursamenvatting in `MODELARCHITECTUUR_FASE2.md` §98. De huidige curve is een voorlopige softwareprior, geen gevalideerde directe voedselopname-/activiteitscurve. Door de efficiëntievloer 0,08 komt de theoretische minimumscore op circa 2,1/10. Gemeten, geschatte en onbekende watertemperatuur zijn onderscheiden; de interne placeholder bij onbekende invoer is geen geldige score of trainingslabel.
+
+**Nog open:** parameterherkomst per soort verifiëren, statusoverdracht naar snapshots/evaluatie controleren, passend thermisch responslabel vastleggen en scoreankers onafhankelijk toetsen. Geen runtimewijziging of scoreaanpassing. Fase 2 blijft open; Fase 3 geblokkeerd.

@@ -1836,3 +1836,10 @@ De uitwerking staat in `FASE2_PROGNOSE_AUDIT.md` §106 en de architectuursamenva
 Gemeten, geschatte, proxy/contextuele, onbekende, ongeldige, tegenstrijdige en niet-toepasselijke invoer blijven onderscheiden. Ontbrekende factoren worden niet stilzwijgend neutraal gemaakt en resterende gewichten worden niet verborgen herverdeeld. Een gedeeltelijke prognose blijft mogelijk wanneer die combinatie gevalideerd is; zonder bruikbare thermische basis of andere toegelaten directe responsinformatie blijft de huidige uitkomst N/B.
 
 Dit is een ontwerpvoorstel, geen implementatie of formele Fase-2-acceptatie. Geen runtimegewichten, scoremapping, tijdvakbonussen of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — technische thermische-baseline-audit (19 november 2026)
+
+De huidige thermische profielcurve, exacte soortparameters, scoremapping en temperatuurstatussen zijn vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §107 (architectuur §98). Het betreft een voorlopige softwareprior, geen gevalideerde voedselopname-/activiteitscurve. De ondergrens van de huidige efficiëntiefunctie betekent een theoretische minimumscore van circa 2,1/10. Een interne placeholder bij onbekende temperatuur is geen geldige prognose of trainingslabel.
+
+Geen runtimewijziging; de bestaande 1–10-score blijft ongewijzigd. Fase 2 blijft open tot de biologische responslabels, parameterherkomst, vaste kalibratieankers en onafhankelijke validatie zijn onderbouwd.

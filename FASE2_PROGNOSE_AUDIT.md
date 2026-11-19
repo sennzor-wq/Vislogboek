@@ -4383,3 +4383,79 @@ Deze sectie legt de normalisatie- en onzekerheidsprincipes vast als ontwerpvoors
 6. Pas daarna een kandidaataggregatie ontwerpen en chronologisch vergelijken met de thermische baseline.
 
 **Besluitstatus:** ontwerpprincipes vastgelegd voor verdere audit; nog niet formeel geaccepteerd als definitief modelontwerp. Geen runtimecode, gewichten, scoremapping of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 107. Technische normalisatie-audit van de huidige thermische prior (19 november 2026)
+
+**Doel:** de bestaande numerieke baseline exact beschrijven voordat een kandidaatnormalisatie of kalibratie wordt ontworpen. Dit is een code-audit; er worden geen parameters of runtime-uitkomsten gewijzigd.
+
+### 107.1 Huidige berekening
+
+De huidige keten in `src/services/fishProfiles.ts` en `src/services/prognosisEngine.ts` is:
+
+1. Selecteer de profielparameters voor de gekozen soort.
+2. Gebruik de gemeten watertemperatuur als die beschikbaar en geldig is; anders de door `waterThermalEngine` geleverde schatting.
+3. Bereken een asymmetrische Gaussische respons:
+   `raw = exp(-((T - optimum)^2) / (2 × width^2))`, waarbij `width` de koude of warme breedte is afhankelijk van de positie ten opzichte van het optimum.
+4. Begrens de respons op `0.08–1.00`.
+5. Zet om naar de bestaande score met `round_0.1(clamp(1 + 9 × efficiency^0.85, 1, 10))`.
+6. De dagscore is het gemiddelde van de vier tijdvak-scores. In de huidige code gebruiken alle tijdvakken dezelfde thermische respons; andere factoren hebben geen numerieke invloed op deze score.
+
+Dit is een deterministische profieltransformatie, geen empirisch gekalibreerde relatie tussen watertemperatuur en dagelijkse voedselopname of vangst.
+
+### 107.2 Exacte profielparameters in de huidige code
+
+| Soortprofiel | Optimum (°C) | Koude breedte | Warme breedte |
+|---|---:|---:|---:|
+| Karper | 21,0 | 5,8 | 5,5 |
+| Brasem | 17,5 | 6,2 | 5,8 |
+| Snoek | 12,5 | 6,5 | 6,0 |
+| Baars | 16,5 | 6,0 | 5,5 |
+| Voorn | 15,0 | 6,5 | 6,0 |
+| Zeelt | 20,5 | 5,0 | 5,0 |
+| Snoekbaars | 15,0 | 6,2 | 6,0 |
+| Meerval | 22,0 | 5,0 | 5,0 |
+| Roofblei | 18,5 | 5,5 | 5,0 |
+| Overig | 16,5 | 6,0 | 5,5 |
+
+De waarden zijn expliciet als voorlopige modelprioren gedocumenteerd. Ze zijn geen gemeten soortoptima, fysiologische tolerantiegrenzen of gevalideerde Nederlandse veldcurves. De tabel registreert wat de code nu doet; zij is geen goedkeuring van de parameters.
+
+### 107.3 Belangrijke eigenschappen van de scoremapping
+
+- Bij het profieloptimum is de thermische efficiëntie 1 en de score 10.
+- De efficiëntie wordt onderaan afgekapt op 0,08. Daardoor is de theoretische minimumscore van de huidige mapping ongeveer 2,1/10, niet 1,0/10. De bestaande schaal wordt dus niet volledig benut.
+- De scoremapping is een monotone machtsfunctie van de thermische efficiëntie. De exponent 0,85 en de ondergrens 0,08 zijn softwarekeuzes; in de geraadpleegde code is geen empirische kalibratie ervan aangetoond.
+- De huidige profielparameters en mapping mogen daarom niet worden geïnterpreteerd als gekalibreerde percentages biologische activiteit. De factorbeschrijving die de efficiëntie als percentage weergeeft, is een relatieve modelschaal en geen gemeten percentage voedselopname of activiteit.
+- Een nieuwe kalibratie mag niet alleen de outputspreiding maximaliseren of de score kunstmatig tot 1–10 oprekken. De betekenis moet met vooraf gedefinieerde responsankers en onafhankelijke gegevens worden onderbouwd.
+
+### 107.4 Temperatuurstatus en ontbrekende invoer in de huidige keten
+
+De code onderscheidt:
+- **Gemeten:** een expliciet ingevoerde, geldige watertemperatuur; deze wordt als actuele meting behandeld.
+- **Geschat:** een bruikbare temperatuur uit een historische meting als anker, thermische ontwikkeling/weerdekking of historisch seizoensprofiel. De bronstatus, ankerleeftijd, onzekerheid en eventuele temperatuurrange worden meegedragen.
+- **Onbekend:** geen bruikbare gemeten of geschatte watertemperatuur. Luchttemperatuur wordt niet als vervanging gebruikt.
+
+Bij een onbekende temperatuur gebruikt de interne berekening momenteel een placeholder-efficiëntie van 0,5 om tussenstappen te kunnen uitvoeren. Tegelijk wordt `activityScoreAvailable=false` gezet; de snapshot bewaart `predictedActivityScore=null` en de dagscore wordt niet als beschikbare voorspelling gepresenteerd (de interne fallbackwaarde 5,0 is geen geldige prognose). Dit onderscheid moet in toekomstige code behouden blijven: placeholderwaarden mogen nooit als gemeten, neutrale of voorspellende factorbijdrage in een modelscore of traininglabel terechtkomen.
+
+Een geschatte temperatuur is niet gelijk aan een meting. De huidige code berekent voor een beschikbare geschatte temperatuur ook een indicatieve scoreband op basis van de temperatuurrange. Die band omvat niet de onzekerheid van de soortcurve zelf en is expliciet geen statistisch betrouwbaarheidsinterval.
+
+### 107.5 Consequenties voor normalisatie en latere kalibratie
+
+De huidige thermische prior heeft twee verschillende onzekerheidsbronnen die niet samengevoegd mogen worden:
+
+1. **Invoer-/temperatuuronzekerheid:** hoe goed representeert de gemeten of geschatte watertemperatuur de doeldag, stek, diepte en relevante watermassa?
+2. **Respons-/parameteronzekerheid:** hoe goed zijn optimum, koude/warme breedte, responsvorm, ondergrens en exponent onderbouwd voor de doelsoort, levensfase en watertype?
+
+Een nauwe temperatuurrange betekent dus niet automatisch dat de biologische responscurve nauwkeurig bekend is. Latere kalibratie moet beide afzonderlijk rapporteren en evalueren.
+
+De thermische prior blijft de historische baseline waarmee een kandidaatmodel chronologisch wordt vergeleken. Een eventuele toekomstige herkalibratie van de thermische prior zelf moet als afzonderlijke modelwijziging worden geëvalueerd; zij mag niet tegelijk met nieuwe factoren worden aangepast zonder ablatietest, omdat anders niet zichtbaar is welke wijziging de verbetering veroorzaakte.
+
+### 107.6 Nog open
+
+1. Verifieer per soort de herkomst en toepassingscontext van de huidige optimum-/breedteparameters; ontbrekende directe curvegegevens blijven expliciet onbekend.
+2. Controleer de precieze statusoverdracht van gemeten/geschatte/onbekende temperatuur naar snapshots en historische evaluaties, zodat placeholders niet als trainingsdata kunnen worden gelezen.
+3. Definieer een onafhankelijke thermische responslabel/metric die past bij het doel van de curve; groei, metabolisme, aerobe scope en voedselopname blijven verschillende eindpunten.
+4. Ontwerp vaste scoreankers en toets de huidige ondergrens/exponent tegen die labels, zonder de huidige runtime te wijzigen.
+5. Pas daarna de directe voedingsrespons en eventuele extra factoren normaliseren en kandidaatmodellen vergelijken met de thermische baseline.
+
+**Besluitstatus:** huidige thermische normalisatie exact in kaart gebracht; wetenschappelijke kalibratie en scoremapping nog niet geaccepteerd. Geen runtimewijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
