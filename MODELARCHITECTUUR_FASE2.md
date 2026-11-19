@@ -729,3 +729,10 @@ Dit sluit uitsluitend de implementatieactie voor optie B. De formele Fase-2-acce
 De uitschakeling uit §81 betreft uitsluitend de thermische activiteitsscore en automatische tijdvakrangschikking. De afzonderlijke voorvoer-, habitat- en positioneringsengines blijven bestaan, maar gebruiken nog temperatuurafhankelijke drempels of contextregels. Vooral `prebaitEngine.ts` heeft actieve temperatuurbanden, suitabilitywaarden en gramadviezen.
 
 Voordat criterium 2 of Fase 2 wordt geaccepteerd, moet een read-only audit vaststellen of iedere dergelijke tactiekregel voldoende directe bronbasis en overdraagbaarheid heeft. Tot dat besluit blijven bestaande tactiekregels ongewijzigd; ze mogen niet worden gepresenteerd als gevalideerde thermische activiteit of vangstkans.
+
+
+## 83. Read-only bevindingen: voorvoer- en thermische tactiekregels
+
+De gedetailleerde audit staat in `FASE2_PROGNOSE_AUDIT.md` §92. De voorvoerengine bevat nog actieve temperatuurbanden, een interne geschiktheidsscore, soortfactoren en gramadviezen. De bronnen ondersteunen temperatuur als voedingscontext, maar niet de exacte enginegrenzen of hoeveelheden. Alle 71 research-registryrecords blijven niet-goedgekeurd voor numerieke voorspelling; de voorvoerengine gebruikt de goedkeuringsstatus niet als numerieke gate.
+
+Habitat- en positioneringsregels gebruiken daarnaast temperatuurgrenzen als zoekhypothese; enkele soortspecifieke formuleringen zijn stelliger dan de huidige bronbasis. Er is geen runtimegedrag aangepast. Eerst is een expliciet besluit nodig of de numerieke voorvoeruitkomsten als praktische heuristiek behouden blijven of worden uitgeschakeld totdat zij voldoende zijn onderbouwd.
