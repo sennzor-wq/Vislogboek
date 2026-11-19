@@ -4728,3 +4728,48 @@ De uitgeversabstract rapporteert metingen van stikstofconsumptie, totale stiksto
 - Geen van beide studies onderbouwt een volwassen wilde brasemcurve voor Nederlandse binnenwateren, een method-feederrespons of een dag-/tijdvakbonus.
 
 **Status:** Tatrai (1986) toegevoegd als aanvullende kandidaat voor volledige methodecontrole; Tatrai & Penczak (1985) blijft kandidaat met expliciete methode-onzekerheid. Geen bron aan de registry toegevoegd of goedgekeurd, geen score/gewicht/runtime gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 115. Snoekbaars — directe prooiconsumptie bij volwassen vissen (19 november 2026)
+
+**Bron:** Malinovskyi, O., Veselý, L., Yanes-Roca, C. & Policar, T. (2022). *The effect of water temperature, prey availability and presence of conspecifics on prey consumption of pikeperch (Sander lucioperca).* Czech Journal of Animal Science, 67(11), 465–473. DOI: 10.17221/162/2022-CJAS.
+
+### 115.1 Experimentele opzet en direct gemeten eindpunt
+
+Experiment 1 gebruikte tien volwassen/ subadulte kweek-/vijverafkomstige snoekbaarzen: vijf mannetjes (gemiddeld 1.070 ± 100 g; 473 ± 22 mm) en vijf vrouwtjes (1.060 ± 100 g; 464 ± 12 mm). Iedere predator verbleef afzonderlijk in een tank van 380 liter. Dezelfde prooisoort, *Pseudorasbora parva*, en vergelijkbare prooigrootte (gemiddeld 2,06 ± 0,4 g) werden aangeboden bij vijf prooidichtheden (3, 6, 12, 24 en 48 prooivissen per tank).
+
+De temperatuur werd in opeenvolgende thermische trials verhoogd van 4,5 naar 8,5 en 12,5 °C. Elke trial duurde 12 dagen, met een geleidelijke temperatuur-/fotoperiodeaanpassing van zeven dagen tussen trials; de volledige proef duurde 64 dagen inclusief initiële aanpassing. Prooien werden dagelijks vervangen. Consumptie werd bepaald door het aantal overlevende prooivissen te tellen, dus via direct getelde verdwenen/geconsumeerde prooien en niet via groei, metabolisme of een aangeboden rantsoen.
+
+### 115.2 Resultaten en interpretatie
+
+De auteurs rapporteren dat prooiconsumptie bij 4,5 °C vrijwel afwezig was, dat een duidelijke stijging optrad bij 8,5 °C en dat consumptie bij 12,5 °C hoger lag. Prooidichtheid had bij alle drie temperaturen een significant effect. De algemene sekseverschillen waren niet statistisch significant. De resultaten ondersteunen dus een interactie tussen temperatuur en beschikbare prooidichtheid; ze ondersteunen geen simpele temperatuurcurve die onafhankelijk van prooiaanbod kan worden toegepast.
+
+Experiment 2 moet afzonderlijk worden gehouden: dit gebruikte kleinere vissen (gemiddeld 560 ± 61 g), een vaste temperatuur van circa 19,8 °C en 1, 2, 4 of 8 snoekbaarzen per tank. De gemiddelde consumptie per predator was hoger in tanks met meerdere soortgenoten dan bij een solitair gehouden predator. Dit is bewijs voor een effect van sociale/tankcontext op consumptie, niet een vierde temperatuurpunt voor Experiment 1.
+
+### 115.3 Grenzen voor overdraagbaarheid
+
+- Sterke directe endpoint-match: dagelijks getelde consumptie van levende prooivissen, met temperatuurbehandelingen en meerdere prooidichtheden.
+- De vissen waren afkomstig uit vijver-/kweekcontext en werden in RAS-tanks gehouden; dit is geen veldmeting in Nederlandse open wateren.
+- De drie temperatuurtrials volgden oplopend in tijd en zijn niet als gelijktijdige, gerandomiseerde temperatuurbehandelingen beschreven. Temperatuur is daardoor niet volledig los te zien van seizoens-/tijdvolgorde en acclimatisatiegeschiedenis.
+- Tien individuele predatoren vormen een beperkte steekproef; het eindpunt is consumptie van één kleine prooivissoort zonder natuurlijke habitatcomplexiteit.
+- De proef geeft geen volwassen snoekbaarscurve over het volledige seizoensbereik, geen dagdeelpatroon en geen directe respons op method-feeder-aas of hengelvangbaarheid.
+
+**Besluit:** dit is een sterke, directe kandidaatbron voor een beperkte volwassen snoekbaars-prooiconsumptierespons en voor een expliciete temperatuur × prooibeschikbaarheid-interactie. De bron verdient een hogere bewijsklasse dan studies die alleen groei, voerconversie of metabolisme meten. Zij mag nog niet worden omgezet in een algemene veldcurve of universeel optimum; daarvoor zijn onafhankelijke veld-/soortgelijke studies en verdere temperatuurdekking nodig.
+
+## 116. Baars — voeropname bij twee temperaturen onder verstoringsexperiment (19 november 2026)
+
+**Bron:** Strand, Å., Magnhagen, C. & Alanärä, A. (2007). *Effects of repeated disturbances on feed intake, growth rates and energy expenditures of juvenile perch, Perca fluviatilis.* Aquaculture, 265, 163–168.
+
+De studie onderzocht herhaalde verstoring bij juveniele baars (gemiddeld 39,6 ± 14,7 g) en rapporteerde voeropname en groei bij twee gemeten temperatuurcondities: 16,6 ± 0,7 en 22,7 ± 1,1 °C. Twaalf groepen werden per behandelingscategorie gebruikt. De verstoringsbehandeling verlaagde voeropname, groei en groeiefficiëntie significant; bij beide temperaturen hadden verstoorde groepen een lagere voeropname dan niet-verstoorde groepen.
+
+**Classificatie:** directe voeropname als meeteindpunt, maar geen zuivere temperatuur-responsstudie. De hoofdvraag en experimentele manipulatie betreffen verstoring; de twee temperaturen bieden hoogstens context voor temperatuurafhankelijke voeropname, geen breed geteste of onafhankelijk gevalideerde thermische curve. De studie is bovendien aquacultuurgericht en betreft juveniele baars. De verstoringsgevoeligheid is relevant als bewijs dat stress-/verstoringcontext voeropname kan beïnvloeden, maar mag niet worden vertaald naar een numerieke hengeldrukfactor zonder veldvalidatie.
+
+**Besluit:** kandidaat voor contextuele kennis over verstoring en directe voeropname; niet gebruiken om een thermisch optimum of zelfstandige temperatuurcurve voor wilde baars vast te leggen.
+
+### 116.1 Gevolg voor soortdekking
+
+- Snoekbaars: directe prooiconsumptie bij grotere vissen is nu sterker onderbouwd dan alleen de eerder geïnventariseerde pre-spawning/kweekstudies, maar de temperatuur × prooidichtheid-interactie en de sequentiële proefopzet beperken overdraagbaarheid.
+- Baars: er is directe voeropname gemeten, maar de temperatuurvergelijking is niet de primaire experimentele factor. De bestaande conclusie “geen gevalideerde thermische voedselopnamecurve” blijft daarom ongewijzigd.
+- Geen van beide studies valideert een dagdeelbonus, een hengelaasrespons, persoonlijke vangstkans of een lokale Culemborg/Lokkershoek-parameter.
+
+**Status:** twee bronnen methodisch geclassificeerd en toegevoegd aan de audit als bewijs/kandidaat, niet aan de goedgekeurde registry. Geen runtime, score, gewicht of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
