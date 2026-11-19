@@ -695,6 +695,49 @@ assert(
   `10.11 Voorn adviseert overgangszones in de midden- en onderlaag ("${adviceRoach.recommendedZone}")`
 );
 
+// --- TESTGROEP 10.8: Evidencegrenzen bij koude soorthypothesen ---
+console.log('\\n--- TESTGROEP 10.8: Evidencegrenzen bij koude soorthypothesen ---');
+
+const coldPike = analyzeRodPositioning('2026-01-15', fcWinter, 'Snoek', {
+  location: baseLoc,
+  thermalAnalysis: thermalWinter,
+  historicalSessions: [],
+});
+assert(
+  coldPike.rationale.includes('lichaamsgrootte') && coldPike.rationale.includes('geen gevalideerde biologische grens'),
+  '10.12 Koude snoekhypothese benoemt grootte/context en presenteert 7/9 °C niet als gevalideerde grens'
+);
+
+const coldTench = analyzeRodPositioning('2026-01-15', fcWinter, 'Zeelt', {
+  location: baseLoc,
+  thermalAnalysis: thermalWinter,
+  historicalSessions: [],
+});
+assert(
+  coldTench.rationale.includes('geen vaste omslag bij 11 °C') && !coldTench.rationale.includes('inactieve spaarstand'),
+  '10.13 Zeeltadvies noemt modder als mogelijke schuilplek zonder vaste 11 °C-inactiviteitsclaim'
+);
+
+const coldCatfish = analyzeRodPositioning('2026-01-15', fcWinter, 'Meerval', {
+  location: baseLoc,
+  thermalAnalysis: thermalWinter,
+  historicalSessions: [],
+});
+assert(
+  coldCatfish.rationale.includes('onder 5 °C') && !coldCatfish.rationale.includes('zonder actief te jagen'),
+  '10.14 Meervaladvies erkent populatieverschillen en activiteit bij zeer lage temperaturen'
+);
+
+const coldRoach = analyzeRodPositioning('2026-01-15', fcWinter, 'Voorn', {
+  location: baseLoc,
+  thermalAnalysis: thermalWinter,
+  historicalSessions: [],
+});
+assert(
+  coldRoach.rationale.includes('verbonden stromen') && !coldRoach.rationale.includes('zonnige namiddag'),
+  '10.15 Voornaadvies beschrijft contextafhankelijke wintermigratie zonder onbewezen zonnige-middagroute'
+);
+
 // --- TESTGROEP 11: Geactiveerde Profielparameters in Prognose-Engine ---
 console.log('\n--- TESTGROEP 11: Geactiveerde Profielparameters in Prognose-Engine ---');
 

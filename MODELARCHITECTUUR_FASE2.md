@@ -782,3 +782,10 @@ De herstelde voorvoer-audit staat in `FASE2_PROGNOSE_AUDIT.md` §96; de aanvulle
 - De bestaande PrognosisView-waarschuwing voor voerhoeveelheden is hersteld; exacte hoeveelheidsgating bij lage invoerkwaliteit blijft een apart open implementatiepunt. 
 
 Geen dagelijkse score, thermische curve, gewicht of tijdvakbonus gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 87. Koudewater-zoekhypothesen: claimgrenzen (19 november 2026)
+
+De soortspecifieke koudewaterclaims uit `rodPositioningEngine.ts` zijn na de broncontrole in `FASE2_PROGNOSE_AUDIT.md` §97–§98 genuanceerd. De regels voor snoek, zeelt, meerval en voorn blijven tactische zoekhypothesen; de gebruikte 7–12 °C-condities zijn geen gevalideerde biologische omslagpunten. Met name volledige winterinactiviteit van meerval, “extreme winterrust” bij zeelt en een vaste zonnige-middagroute voor voorn worden niet meer als feit gepresenteerd.
+
+De wijzigingen zijn uitsluitend tekst-/onzekerheidscorrecties in de bestaande positioneringsengine, met regressietests. Geen dagelijkse score, factorgewicht, thermische curve of tijdvakvoorkeur gewijzigd.

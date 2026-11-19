@@ -730,3 +730,10 @@ De eerder in PR #146 gemergde voorvoer-audit is teruggezet in `FASE2_PROGNOSE_AU
 De huidige code gebruikt nog heuristische grenzen (<7–12 °C, afhankelijk van soort/regel) en bevat enkele te stellige formuleringen. Dit zijn ruimtelijke zoekhypothesen, geen dagscorefactoren. De meervalclaim “zonder actief te jagen” onder 12 °C is onvoldoende houdbaar; exacte grenzen voor zeelt, snoek en voorn zijn evenmin gevalideerd. De bestaande voerhoeveelheden blijven een afzonderlijk open besluit. Geen runtimeberekeningen of gewichten aangepast.
 
 **Volgende stap:** de claim-/brontrace per soort afronden en per regel vastleggen of de tekst als voorzichtige zoekhypothese kan blijven, alleen context moet zijn of moet worden afgezwakt. Daarna de zevenpunts-crosswalk bijwerken. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — koudewater-zoekclaims genuanceerd (19 november 2026)
+
+Na de evidence-audit §97 zijn vier te stellige positioneringsteksten voor snoek, zeelt, meerval en voorn gecorrigeerd in `rodPositioningEngine.ts`. De 7–12 °C-condities en zonekeuzes zijn niet veranderd; alleen claims over vaste prooivisverplaatsing, extreme winterrust, volledige meervalinactiviteit en zonnige-middagverplaatsing zijn teruggebracht tot contextafhankelijke zoekhypothesen. Vier regressieasserties bewaken deze grenzen.
+
+Geen score, gewicht, temperatuurgrens, gramadvies of tijdvakbonus gewijzigd. Volgende stap: de resterende factor-/brontrace afronden en daarna de zevenpunts-crosswalk bijwerken. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

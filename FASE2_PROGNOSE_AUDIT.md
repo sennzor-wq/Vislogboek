@@ -2179,3 +2179,20 @@ De bestaande positioneringsregels zijn zoekhypothesen en mogen niet in de dageli
 Er wordt nog geen runtimegedrag aangepast. De volgende auditstap is de bron-/claimtrace per soort afronden en de resterende tactiekregels expliciet classificeren als: behoud als voorzichtige zoekhypothese, uitsluitend beschrijvende context, of verwijderen/afzwakken wegens te stellige claim. De afzonderlijke keuze over het uitschakelen van numerieke voorvoer-suitability en grammen uit §96.5 blijft open en vereist expliciete goedkeuring voordat runtimeberekeningen veranderen.
 
 Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 98. Correctie van te stellige koudewater-zoekclaims (19 november 2026)
+
+De claim-/brontrace uit §97 is afgerond voor de actieve soortspecifieke koudewaterregels. Vier teksten in `rodPositioningEngine.ts` waren stelliger dan de geregistreerde bronnen rechtvaardigen. De correctie is beperkt tot de formulering en de expliciete onzekerheid; de bestaande temperatuurcondities, zonestructuur en scoreberekeningen blijven ongewijzigd.
+
+| Regel | Correctie | Wat bewust ongewijzigd blijft |
+|---|---|---|
+| Snoek <7 °C / <9 °C met koude wind | Geen algemene claim meer dat witvis altijd diep trekt en snoek die concentratie volgt; lichaamsgrootte, vegetatie, zuurstof en lokale prooivis worden benoemd. De drempel is expliciet een praktische zoektrigger. | Bestaande conditionele route naar diepe taluds blijft staan; geen numerieke prognosescore. |
+| Zeelt <11 °C | “Extreme winterrust” en “diepe inactieve spaarstand” verwijderd. Modder/zachte bodem wordt een mogelijke schuilplek; geen vaste 11 °C-omslag. | Bestaande zonekeuze blijft een voorzichtige zoekhypothese; geen voer-/activiteitsscore. |
+| Meerval <12 °C | “Zonder actief te jagen” en universele 12–14 °C-inactiviteitsclaim verwijderd. Populatie-/watertypevariatie en veldactiviteit onder 5 °C worden vermeld. | Bestaande diepere rust-/aggregatiezone blijft alleen een lokale zoekhypothese; geen vaste biologische omslag of activiteitsscore. |
+| Voorn <7 °C | Specifieke zonnige-middagverplaatsing naar ondiepe oever verwijderd. Wintermigratie naar verbonden refuges wordt als waterlichaamafhankelijk beschreven. | Bestaande conditionele route naar rustige refuges blijft; geen vaste temperatuurrespons in de dagscore. |
+| Generieke koudewaterregel en voorjaarsregel | Taal verduidelijkt naar mogelijke contextinvloed en lokale controle; geen universele visverplaatsing of gegarandeerde voedingszone. | Drempels blijven uitsluitend tactische heuristieken, niet de biologische dagscore. |
+
+Vier regressieasserties bewaken dat de nieuwe teksten geen harde, onbewezen claims terugbrengen. Er zijn geen temperatuurgrenzen, gramadviezen, soortenprofielen, gewichten of tijdvakbonussen gewijzigd.
+
+Deze gerichte tekstcorrectie is noodzakelijk om te voorkomen dat een ruimtelijke zoekhypothese als vaststaand biologisch feit wordt gepresenteerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
