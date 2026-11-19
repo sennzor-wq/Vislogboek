@@ -857,3 +857,13 @@ De belangrijkste resterende blockers zijn: (1) onafhankelijke onderbouwing/toela
 **Volgende stap:** audit van het bestaande sessie-/vangst-/snapshotdatamodel om vast te stellen welke evaluatielabels werkelijk beschikbaar zijn. Geen extra verplichte invoer, geen nieuwe gewichten of runtimewijziging. Fase 3 blijft geblokkeerd tot formele Fase-2-acceptatie.
 
 De documentintegriteitscorrectie PR #175 is gemerged als abe721db42d2d4e8bb7eb222e46a72d167cdc816. De Quality Gate op de mergecommit is completed/success.
+
+### Fase 2 — sessie-, vangst- en snapshotlabels geaudit (19 november 2026)
+
+De datamodelaudit staat in FASE2_PROGNOSE_AUDIT.md §130. De bestaande data ondersteunen al (1) persoonlijke vangstkans via afgeronde sessie-uitkomsten en vooraf opgeslagen snapshots, (2) watertemperatuurvalidatie via voorspelde versus achteraf gemeten waarden, en (3) beperkte beschrijvende tijdvakdiagnostiek via expliciete hengeluren en betrouwbaar aangepaste vangsttijdstippen.
+
+De belangrijkste beperking is dat er geen directe lokale labels voor fysiologische activiteit of voedselopname bestaan. Een vangst, aanbeet, gemiste vis, beweging of aanwezigheidssignaal mag niet als directe voedingsmeting worden gebruikt. De bestaande Brier-evaluator toetst alleen persoonlijke vangstkans; de tijdvakbewijs-audit is beschrijvend en geen gekalibreerde tijdvakvoorspeller. Optionele hengelintervallen blijven de enige betrouwbare basis voor geregistreerde blootstelling; ontbrekende inzet wordt niet geschat.
+
+De automatische vangsttijd bij openen van het formulier blijft gebruikersvriendelijk, maar wordt niet als werkelijk vangstmoment gebruikt zolang de gebruiker deze niet aanpast. SessionRodEvent bevat optionele tijdgebonden aanbeten/gemiste vissen/vangsten, maar wordt nog niet door de tijdvakbewijs-audit verwerkt; eerst moet soorttoeschrijving, exposure en dubbeltelling worden beoordeeld. Geen extra verplichte invoer of runtimewijziging.
+
+**Volgende stap:** ontwerp de afzonderlijke evaluatiemaatstaven en minimumvoorwaarden per respons op basis van deze aantoonbaar beschikbare labels. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

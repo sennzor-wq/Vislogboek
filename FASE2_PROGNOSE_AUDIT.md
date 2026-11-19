@@ -3282,3 +3282,96 @@ De thermische optie A blijft de expliciet gekozen voorlopige baseline. Zij mag n
 ### 129.3 Documentintegriteit en codeconsistentie
 
 De dubbele kopie van §§1–82 is in PR #175 verwijderd; de audit bevat nu één kop van §1 en behoudt §§82–128. Daarnaast is de tussentijdse optie-B-tekst in §96.3 gecorrigeerd: de actuele code en het latere optie-A-besluit bevestigen dat de thermische prior actief is. Dit herstelt alleen de documentbeschrijving; runtimegedrag is niet gewijzigd.
+
+## 130. Audit bestaande sessie-, vangst- en snapshotlabels voor onafhankelijke evaluatie (19 november 2026)
+
+Deze audit controleert welke uitkomsten de huidige datamodellen daadwerkelijk vastleggen en welke daarvan geschikt zijn om de biologische prognoselagen te evalueren. De controle is read-only; er zijn geen nieuwe verplichte velden, labels, berekeningen of gebruikersflows toegevoegd.
+
+### 130.1 Wat de bestaande gegevens werkelijk vastleggen
+
+| Gegevensbron | Aanwezige velden / herkomst | Wat dit betrouwbaar kan ondersteunen | Wat dit niet zelfstandig bewijst |
+|---|---|---|---|
+| FishingSession | Start/eindtijd, duur, sessie-uitkomst (catch, skunk_confirmed, unknown), doelsoort(en), stek, optionele omstandigheden, bitesCount/missedCount | Afgeronde sessie-uitkomst en persoonlijke vangsthistorie; sessieduur en context wanneer geldig | Geen directe meting van fysiologische activiteit of voedselopname. bitesCount/missedCount zijn sessietotalen zonder noodzakelijk tijdstip. |
+| CatchItem | Soort, aantal, optioneel gewicht/lengte, tijdstip, timestampEntryMode, optionele hengel/aas/techniek | Gebeurtenis van een geregistreerde vangst; soort en aantal; tijdvakpositief signaal wanneer tijdstip door gebruiker is aangepast en binnen de sessie valt | Geen zuivere voedingsmeting, geen bewijs dat de vis op dat moment begon te eten en geen bewijs voor causaliteit van aas/methode. |
+| SessionRod en activeIntervals | Optionele hengelrecords met expliciete begin-/eindtijden van actieve periodes | Werkelijke geregistreerde hengelblootstelling; berekening van hengeluren per tijdvak | Geen blootstelling afleiden uit alleen sessieduur of totaal aantal hengels. Ontbrekende intervallen betekenen onbekende inzet, niet nul inzet. |
+| SessionRodEvent | Optionele gebeurtenis per hengel: bite, missed, catch of other; tijdstip en timestampEntryMode | Tijdgebonden hengelinteractie wanneer gebeurtenis en tijdstip betrouwbaar zijn vastgelegd | Geen directe biologische voedingsintensiteit; gebeurtenissen zijn hengel-/vangbaarheidsuitkomsten. |
+| PresenceObservation | Vis springen/rollen, zichtbare aasbellen/bodemwoeling, recente vangst op stek, geen waarnemingen, onbekend | Kwalitatieve context over waargenomen activiteit of mogelijke aanwezigheid | Geen gestandaardiseerde afwezigheidsmeting; 'geen waarnemingen' bewijst geen afwezigheid of inactiviteit. Aasbellen zijn geen gekwantificeerde voedselopname. |
+| PrognosisSnapshot | Vooraf voorspelde activityScore, catchChance, tijdvak/tijdvenster, doelsoort, duur, model-/engineversies, inputcontext, werkelijke sessie-uitkomst en optioneel vangstaantal; voorspelde en achteraf gemeten watertemperatuur | Reproduceerbare modelbaseline; persoonlijke vangstkans; afzonderlijke validatie van de watertemperatuurschatter | Bevat geen onafhankelijk gemeten label voor biologische activiteit of voedselopname. actualOutcome is een sessie-uitkomst, geen voedingslabel. |
+
+### 130.2 Tijdstip van vangst: automatische registratie is geen werkelijk vangstmoment
+
+De vangstregistratie vult het tijdstip automatisch in wanneer het formulier wordt geopend. De gebruiker kan het tijdstip aanpassen. De herkomst wordt als automatic of user_adjusted bewaard.
+
+Dit sluit aan op de minimale gebruikersflow uit §104: de gebruiker hoeft niet eerst een tijdstip in te voeren om een vangst op te slaan. Voor wetenschappelijke tijdvakdiagnostiek geldt echter een strengere interpretatie:
+
+- Een automatisch formulier-open-tijdstip is het registratiemoment, niet noodzakelijk het moment waarop de vis daadwerkelijk werd gevangen.
+- Een automatische timestamp wordt daarom door de bestaande timeSlotCatchEvidenceAudit expliciet niet als werkelijk vangstmoment geteld.
+- Alleen een door de gebruiker aangepast tijdstip binnen de bevestigde sessiegrenzen levert momenteel een positief gebruikersgerapporteerd vangstsignaal voor dat tijdvak.
+- Oude records zonder timestamp-herkomst blijven ongeclassificeerd; ze worden niet stilzwijgend als echte vangsttijd behandeld.
+
+**Gevolg:** automatische registratie blijft gebruikersvriendelijk en wordt niet verplicht aangepast. Voor tijdvakvalidatie blijft de automatische tijd alleen provenance van het formuliermoment. Er mag geen vangstpiek uit automatische registratietijden worden afgeleid.
+
+### 130.3 Bestaande tijdvakblootstelling en vangstbewijs
+
+De bestaande timeSlotExposureEngine verdeelt expliciet geregistreerde hengelintervallen over de vier Amsterdamse lokale tijdvakken en berekent hengeluren. De engine houdt rekening met lokale tijdgrenzen en zomertijd. Ontbrekende intervallen worden niet afgeleid uit sessieduur of rodCount.
+
+De bestaande timeSlotCatchEvidenceAudit hanteert al conservatieve labelregels:
+
+1. Alleen een afgeronde sessie met geldige start-/eindtijd en precies één doelsoort is soortspecifiek beoordeelbaar.
+2. Benchmarksessies en sessies met onbekende uitkomst worden uitgesloten.
+3. Een bevestigde nulvangst geeft uitsluitend een nul-label voor tijdvakken waarin expliciete hengelblootstelling is geregistreerd. Tijdvakken zonder geregistreerde inzet blijven no_recorded_exposure.
+4. Bij een sessie met vangst levert een geldige, user_adjusted CatchItem-timestamp een positief signaal voor het betreffende tijdvak.
+5. Andere tijdvakken in diezelfde vangstsessie blijven unknown; het ontbreken van een geregistreerde vangst in zo'n tijdvak wordt niet als nul geïnterpreteerd.
+6. Automatische, legacy-onbekende, ongeldige of buiten de sessie vallende vangsttijdstippen worden niet als tijdvakvangst gebruikt.
+7. Bijvangst van een andere soort en sessies met meerdere doelsoorten worden niet als soortspecifiek positief of negatief label gebruikt.
+
+De bestaande tests bewaken onder meer deze positieve, nul-, onbekende, conflicterende en niet-soortspecifieke situaties. Dit is een **beschrijvende bewijs-/kwaliteitsaudit**, nog geen gekalibreerde tijdvakvoorspeller of onafhankelijke validatiemaatstaf.
+
+### 130.4 Belangrijke datakloof: hengelgebeurtenissen versus vangstregistraties
+
+SessionRodEvent ondersteunt optionele tijdstempels voor aanbeten, gemiste vissen, vangsten en overige gebeurtenissen. De gebruiker kan een gebeurtenistijdstip aanpassen; een niet-aangepaste automatische tijd blijft als automatic herkenbaar.
+
+De huidige timeSlotCatchEvidenceAudit gebruikt SessionRod-gegevens voor actieve hengelintervallen en CatchItem-records voor vangstsignalen, maar verwerkt SessionRodEvent-gebeurtenissen niet in de tijdvaklabels. De bestaande Brier-evaluator gebruikt evenmin deze gebeurtenissen; die toetst uitsluitend de vooraf voorspelde persoonlijke vangstkans aan de afgeronde sessie-uitkomst.
+
+Dit is een aantoonbare toekomstige ontwerpkans, maar geen toestemming om nu automatisch alle gebeurtenissen als trainingslabels te gebruiken:
+- Aanbeten en gemiste vissen zijn nuttige hengelinteractie-/vangbaarheidsproxy's, niet directe metingen van voedselopname.
+- Een geregistreerde gebeurtenis moet een betrouwbare tijdstempel, doelsoortkoppeling en passende hengelblootstelling hebben.
+- De huidige eventregistratie heeft geen verplichte soortkoppeling per gebeurtenis; bij meerdere doelsoorten kan soorttoeschrijving ontbreken.
+- Gebeurtenissen kunnen door de gebruiker optioneel worden ingevoerd en zijn daardoor selectief; niet-geregistreerde gebeurtenissen zijn geen nul.
+- De eventstroom moet afzonderlijk van CatchItem-vangsten worden geanalyseerd om dubbeltelling van dezelfde vangst te voorkomen.
+
+### 130.5 Label- en evaluatiematrix
+
+| Gewenste respons | Beschikbaar label | Geschikte huidige interpretatie | Status voor Fase 2 |
+|---|---|---|---|
+| Persoonlijke vangstkans tijdens een sessie | Afgeronde catch/skunk-uitkomst, gekoppeld aan voorafgaande snapshot en vergelijkbare duur/tijdvenster | Brier/BSS en kalibratie van persoonlijke vangstkans | Technisch aanwezig; blijft strikt gescheiden van biologische score. |
+| Watertemperatuurschatter | Vooraf voorspelde temperatuur versus achteraf gemeten temperatuur met meettijd/provenance | MAE/RMSE/bias, mits meetlocatie, diepte, tijd en methode vergelijkbaar zijn | Technisch aanwezig; voldoende echte meetparen nodig voor lokale claims. |
+| Tijdvakblootstelling | Expliciete activeIntervals per hengel | Hengeluren per tijdvak; geen biologische respons | Beschikbaar wanneer gebruiker dit optioneel registreert; anders onbekend. |
+| Tijdvakvangstsignaal | User-adjusted CatchItem-tijdstip plus expliciete hengelblootstelling; bevestigde nulvangst alleen op blootgestelde tijdvakken | Beschrijvende catch-/exposure-context en later eventueel vangbaarheidsevaluatie | Gedeeltelijk beschikbaar; geen directe voedingsrespons en nog geen gekalibreerde tijdvakmetric. |
+| Aanbeten/gemiste vissen | Optionele SessionRodEvent of sessietotalen bitesCount/missedCount | Hengelinteractie-/vangbaarheidsproxy, bij betrouwbare tijdstempel en exposure | Niet geïntegreerd in de huidige tijdvaklabelaudit; eerst soorttoeschrijving, dubbeltelling en selectieve registratie beoordelen. |
+| Lokale aanwezigheid/habitat | Optionele PresenceObservation | Kwalitatieve waarneming van mogelijke aanwezigheid/activiteit | Geen gestandaardiseerde aanwezigheid-/afwezigheidslabels; 'geen waarnemingen' is geen afwezigheid. |
+| Thermische fysiologische activiteit | Geen directe lokale activiteitssensor of gestandaardiseerd biologisch veldlabel in de huidige sessie-/vangstmodellen | Niet vervangen door vangst, beet, beweging of groei | Onafhankelijke labelbron ontbreekt; curve blijft voorlopige mechanistische prior. |
+| Voedselopname/voedingsintensiteit | Geen directe lokale voedselopname- of foerageerlabel in de huidige standaardflow | Literatuur blijft context-/kandidaatbewijs; vangst en beet zijn geen directe intake | Onafhankelijke labelbron ontbreekt; geen numerieke voedingsbijdrage toelaten. |
+| Samengestelde biologische 1–10-score | Geen onafhankelijk samengesteld biologisch doel-label | Alleen toetsen via vooraf vastgelegde biologische responsmetingen; persoonlijke vangst kan hoogstens een afzonderlijke downstream-uitkomst zijn | Ontwerp en onafhankelijke validatie blijven open. |
+
+### 130.6 Consequenties voor de evaluatiearchitectuur
+
+- De bestaande evaluationEngine is een sessieniveau-evaluator voor persoonlijke vangstkans. Hij gebruikt de vroegste vooraf vastgelegde voorspelling per sessie/doelsoort, een afgeronde gekoppelde sessie, een voorspelling vóór de werkelijke start en passende tijdvenster-/duurvergelijking.
+- Deze Brier-evaluatie meet niet de biologische activiteitsscore, voedselopname, habitat-aanwezigheid of tijdvakvoorkeur.
+- De timeSlotCatchEvidenceAudit kan de kwaliteit en beschikbaarheid van tijdvakvangst-/blootstellingsgegevens beschrijven, maar berekent geen onafhankelijke voorspelfout, kalibratie of skill-score voor de biologische tijdvakrangschikking.
+- De thermische prior heeft een afzonderlijke temperatuurinputvalidatie. Dat valideert de voorspelde watertemperatuur, niet automatisch de fysiologische responsfunctie.
+- Voor activiteit en voeding ontbreekt een direct lokaal label. Er mag geen schijnvalidatie ontstaan door dezelfde vangstdata tegelijk als biologische waarheid en als persoonlijke vangstkansuitkomst te gebruiken.
+
+### 130.7 Besluit en vervolgstappen
+
+**Besluit:** de bestaande data bieden een bruikbare technische basis voor persoonlijke vangstkans, temperatuurvalidatie en beperkte beschrijvende tijdvak-/blootstellingsanalyse. Ze leveren momenteel geen directe lokale biologische labels voor fysiologische activiteit of voedselopname. Dat onderscheid is een inhoudelijke grens, geen reden om extra verplichte registratievelden aan de gebruiker toe te voegen.
+
+Vervolg in deze volgorde:
+1. Behoud de automatische vangsttijd als laagdrempelige registratietijd en blijf deze uitsluiten als werkelijk vangstmoment zolang de gebruiker hem niet aanpast.
+2. Behoud expliciete hengelintervallen als optionele blootstellingsregistratie; ontbrekende intervallen blijven onbekend.
+3. Beoordeel afzonderlijk of SessionRodEvent (aanbeet/gemist/vangst) verantwoord kan worden gekoppeld aan tijdvakblootstelling en doelsoort, zonder gebeurtenissen dubbel te tellen. Geen directe voedingsinterpretatie.
+4. Definieer de evaluatiemaatstaf voor tijdvak-vangbaarheid alleen als aparte responslaag; laat biologische voedings-/activiteitvalidatie daarvan gescheiden.
+5. Leg voor activiteit en voedselopname vast welke onafhankelijke meetlabels in theorie beschikbaar of praktisch haalbaar zijn zonder de vangstflow te verzwaren. Tot die tijd blijven deze responsen niet lokaal gevalideerd.
+6. Houd Brier/BSS uitsluitend voor persoonlijke vangstkans en behoud de bestaande sessie-/snapshotvoorwaarden.
+
+Geen runtimewijziging, extra verplicht veld, automatisch trainingslabel of numerieke factor is door deze audit goedgekeurd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
