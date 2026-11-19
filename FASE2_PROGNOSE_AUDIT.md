@@ -1863,3 +1863,33 @@ Deze beoordeling sluit de resterende factorinventaris uit de centrale roadmap af
 De resterende weer-/hydrologische factorinventaris is voor deze onderzoeksronde inhoudelijk beoordeeld. De volgende stap is niet meer factoren verzamelen, maar de volledige acceptatiecrosswalk sluiten en het expliciete ontwerpbesluit over de voorlopige thermische priors uit §86 voorbereiden. Daarna kan een kandidaatmodel uitsluitend worden ontworpen met gescheiden responslagen en een chronologisch validatieprotocol. De lokale zuurstof-/stromingsdata en lokale Brier-kalibratie blijven afhankelijk van toekomstige echte metingen en sessies.
 
 **Bronnen voor deze audit:** Benito et al. (2015), DOI 10.1080/00028487.2015.1017656; Bauer & Schlott (2006), DOI 10.1111/j.1365-2109.2005.01426.x; Taylor & Cooke (2012), DOI 10.1139/a2012-009; Ouellet et al. (2025), DOI 10.1002/wat2.1752; Schlautmann et al. (2026), DOI 10.1111/faf.70063; Zanghi & Ioannou (2024), DOI 10.1111/fwb.14354.
+
+
+## 89. Fase-2-acceptatiecrosswalk — bijgewerkt na PR #142 (19 november 2026)
+
+Deze status bouwt voort op de zeven formele criteria uit §43 en de technische crosswalk uit §85. De factorinventaris uit §88 en de inmiddels op `main` gevalideerde PR's #140, #141 en #142 zijn meegenomen.
+
+| Criterium | Actuele status | Wat aantoonbaar is afgerond | Wat nog openstaat |
+|---|---|---|---|
+| 1. Gescheiden biologische responsen | **Technisch grotendeels geborgd** | Thermische activiteit, voedingscontext, habitat/beweging, persoonlijke vangstbaseline en onzekerheid zijn aparte lagen. Bewijs voor beweging, metabolisme, dieet en hengelvangbaarheid wordt niet als uitwisselbaar behandeld. | Eindcontrole van de volledige UI-/engineketen en onafhankelijke validatie van de biologische tussenlagen. |
+| 2. Bronkwaliteit en overdraagbaarheid | **Open — formele blocker** | 71 registry-records voor negen doelsoorten; bronstatus en soortspecifieke thermische evidence zijn zichtbaar. Alle registry-records blijven niet-goedgekeurd voor directe numerieke voorspelling. Wind/regen/bewolking/zuurstof/stroming/druk/troebelheid zijn beoordeeld in §88 en niet als nieuwe numerieke factoren geactiveerd. | Expliciet besluit over de bestaande numerieke thermische curves: behouden als beperkte voorlopige mechanistische prior, of numerieke thermische activiteit uitschakelen waar de passende directe fysiologische basis ontbreekt. Ook voor baars/snoekbaars valideren de geregistreerde bronnen niet automatisch de exacte bestaande curveparameters. |
+| 3. Water- en omgevingsdata | **Technisch gerealiseerd; lokale dekking beperkt** | Watertemperatuurprovenance, meettijd, bron/methode/diepte waar beschikbaar, onzekerheid en onbekende waarden worden bewaard. | Betrouwbare lokale zuurstof- en stromingsmetingen ontbreken; zonder meting blijven deze factoren onbekend. Lokale thermische biascorrectie wacht op voldoende echte meetparen. |
+| 4. Tijdvak- en gedragslogica | **Technisch grotendeels gerealiseerd** | Gekozen sessietijd stuurt de coachcontext; de daguitvoer heet thermisch gunstigste tijdvak en wordt niet als bewezen beste vistijd gepresenteerd. De feitelijke starttijd wordt in de snapshot vastgelegd; geen geforceerde dagwinnaar bij sessies over meerdere tijdvakken. | Een betrouwbare lokale tijdvak-vangstkans is nog niet onderbouwd; diagnostische tijdvakdata blijven gescheiden van prognosescores. |
+| 5. Lokale leer- en evaluatieketen | **Technisch gerealiseerd; praktijkkalibratie wacht op data** | Reproduceerbare snapshots, koppeling, chronologische baseline, benchmarkuitsluiting en Brier-controle op duur én gepland/werkelijk tijdvenster zijn getest. | Na de clean start zijn voldoende echte, vergelijkbare sessies nodig voor lokale Brier-kalibratie en prestatieclaims. |
+| 6. Gebruiksvriendelijkheid en VisCoach | **Gerealiseerd voor huidige scope** | Normale invoer blijft doelsoort, stek en gewenste starttijd; advies en tactiek zijn onderscheiden en gebruiken bestaande engines. Geen verplichte uitgebreide biologische invoer. | De dynamische sessiecoach-audit bevat vervolgverbeteringen voor latere productuitwerking; deze starten niet vóór de fasepoort. |
+| 7. Technische borging | **Gerealiseerd voor huidige wijzigingsreeks** | PR #138–#142 zijn op exacte PR-heads gevalideerd; voor PR #142 zijn zowel PR-head Quality Gate #44487615903 als main mergecommit Quality Gate #44487694423 volledig geslaagd. Documentatie is na de factorinventaris gesynchroniseerd. | Iedere volgende wijziging vereist opnieuw tests, diff-review, documentatiesynchronisatie en groene exacte-head- én mergecommit-gates. |
+
+### Formele uitkomst
+
+**Fase 2 is nog niet geaccepteerd. Fase 3 blijft geblokkeerd.**
+
+De resterende formele blocker is criterium 2: de actieve numerieke thermische curves hebben nog niet de vereiste onderbouwing/validatie van hun exacte parameters. Het ontbreken van lokale sessiedata blokkeert op zichzelf niet het afronden van de softwarefase, maar blokkeert wel lokale nauwkeurigheidsclaims en statistische kalibratie.
+
+### Volgende besluit en volgorde
+
+1. Leg het ontwerpbesluit over de thermische priors expliciet vast vóór een kandidaatmodelwijziging. Optie A: transparant behouden als voorlopige mechanistische prior, maar niet als gevalideerde soortcurve of vangstkans. Optie B: numerieke thermische activiteit uitschakelen voor soorten waarvoor passende directe fysiologische basis ontbreekt; de bestaande curveparameters zijn ook bij soorten met aerobe-scopebronnen nog niet automatisch gevalideerd.
+2. Beoordeel na dit besluit of de huidige initiële prognose binnen de formele acceptatiecriteria kan blijven bestaan, of dat de numerieke thermische laag moet worden teruggebracht.
+3. Pas daarna kandidaatmodel en chronologisch validatieprotocol vastleggen. Geen automatische activering van voedings-, weers-, zuurstof-, stromings- of tijdvakfactoren.
+4. Fase 2 pas formeel accepteren na aantoonbare afhandeling van alle criteria; daarna pas fase 3 starten.
+
+Dit is een acceptatie- en ontwerpbesluit, geen stilzwijgende wijziging van runtimegedrag. Geen prognoseberekening, score, parameter, vangstkans of gebruikersinvoer is in deze update gewijzigd.
