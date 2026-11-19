@@ -751,3 +751,12 @@ Geen factor, gewicht of score geactiveerd. Volgende stap: resterende bron-/claim
 Zeven oudere profielreferenties zijn bibliografisch gecontroleerd en waar nodig gecorrigeerd in `fishProfiles.ts`; de bijbehorende inhoud en beperkingen zijn vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §100 en zeven contextrecords zijn toegevoegd aan de research registry. Filtervoeding/prooikeuze, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie worden niet als dagelijkse voedselopname of vangbaarheid behandeld.
 
 Het register bevat nu 83 unieke records; alle blijven `approvedForPrediction: false`. Kestemont (1995) en Tartally (2000) blijven bibliografisch niet geverifieerde achtergrondverwijzingen. Geen score, gewicht of thermische curve gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — omgevingsfactoren gericht onderzocht (19 november 2026)
+
+De gerichte review van wind, druk, troebelheid, zuurstof, neerslag en stroming staat in `FASE2_PROGNOSE_AUDIT.md` §101. Drie aanvullende bronnen zijn geregistreerd: baarsbeweging bij wind/druk, brasemactiviteit/troebelheid en karpervoeropname onder ernstige hypoxie. Alle 86 registry-records blijven niet-goedgekeurd voor directe voorspelling.
+
+Belangrijk: zuurstof kan bij ernstige hypoxie de karpervoeropname sterk verlagen, maar de app heeft geen betrouwbare lokale zuurstofmeting. Deze factor blijft onbekend en wordt niet uit andere weerdata afgeleid. Wind/druk zijn vooral beweging/context; troebelheid is contextafhankelijk; neerslag/stroming hebben nog geen voldoende directe doelsoortbasis. Geen score of gewicht gewijzigd.
+
+Volgende stap: de volledige factorstatus per soort en de zevenpunts-acceptatiecrosswalk actualiseren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

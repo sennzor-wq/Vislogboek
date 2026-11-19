@@ -667,3 +667,28 @@ for (const [species, ref] of Object.entries({
   }
 }
 console.log('Legacy profile bibliography verification and measured-outcome separation tests passed.');
+
+
+// Wind, pressure, turbidity and oxygen evidence must retain their measured response boundaries.
+const perchAbioticMovement = RESEARCH_REGISTRY.find((item) => item.id === 'perch-fine-scale-abiotic-movement-lake-2018');
+if (!perchAbioticMovement || !perchAbioticMovement.measuredOutcomes?.includes('locomotor_activity') || perchAbioticMovement.measuredOutcomes.includes('feeding_intensity') || perchAbioticMovement.approvedForPrediction || !perchAbioticMovement.summary.includes('16 volwassen')) {
+  throw new Error('Perch wind/pressure telemetry must remain movement-only, scoped and non-approved.');
+}
+const breamTurbidityActivity = RESEARCH_REGISTRY.find((item) => item.id === 'bream-activity-turbidity-shallow-lake-2019');
+if (!breamTurbidityActivity || !breamTurbidityActivity.measuredOutcomes?.includes('locomotor_activity') || breamTurbidityActivity.measuredOutcomes.includes('feeding_intensity') || breamTurbidityActivity.approvedForPrediction || !breamTurbidityActivity.summary.includes('448 benthivore brasems') || !breamTurbidityActivity.limitations.some((item) => item.includes('geen directe meting van voedselopname'))) {
+  throw new Error('Bream turbidity evidence must remain a field activity proxy, not direct feeding intensity.');
+}
+const carpHypoxiaFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'common-carp-chronic-hypoxia-food-intake-2012');
+if (!carpHypoxiaFeeding || !carpHypoxiaFeeding.measuredOutcomes?.includes('feeding_intensity') || carpHypoxiaFeeding.approvedForPrediction || !carpHypoxiaFeeding.summary.includes('79% lager') || !carpHypoxiaFeeding.limitations.some((item) => item.includes('zeer ernstige hypoxie'))) {
+  throw new Error('Carp hypoxia evidence must preserve its direct food-intake outcome and severe laboratory limits.');
+}
+for (const [species, ref] of Object.entries({
+  Baars: '10.1111/eff.12393',
+  Brasem: '10.4081/jlimnol.2019.1883',
+  Karper: '10.1242/jeb.066183',
+})) {
+  if (!SPECIES_PROFILES[species as keyof typeof SPECIES_PROFILES].scientificReferences.some((source) => source.includes(ref))) {
+    throw new Error('The ' + species + ' profile must link its abiotic/oxygen evidence ' + ref + '.');
+  }
+}
+console.log('Abiotic movement, turbidity and dissolved-oxygen evidence scope tests passed.');

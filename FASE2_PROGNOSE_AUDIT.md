@@ -1514,7 +1514,7 @@ De registratie blijft `approvedForPrediction: false`. De bron verrijkt de beschr
 - `SpeciesProfile` bevat als enige numerieke biologische profielparameters `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. `calculateThermalEfficiency()` gebruikt uitsluitend deze drie voorlopige waarden.
 - `description`, `assumptions` en `scientificReferences` zijn verklarende metadata. Ze worden in de geavanceerde prognoseweergave getoond, maar leveren geen numerieke bijdrage aan `activityScore`.
 - De overige factoren (wind, druk, seizoen/licht, bewolking, neerslag) blijven context of worden door afzonderlijke habitat-/positioneringsmodules gebruikt. Er is nog geen soortspecifieke wind-, wolken-, regen-, zuurstof- of stromingsbron in het centrale register. De gerichte drukreview in §79 voegt twee beperkte drukbronnen toe; geen daarvan ondersteunt een universele activiteit- of voedingsbonus.
-- Alle 83 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. De vijf aanvullende telemetriebronnen uit §97 en de zeven bibliografisch geverifieerde oudere bronnen uit §100 zijn uitsluitend contextregistraties; geen bron is vrijgegeven als numerieke voorspellingsfactor. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
+- Alle 86 registraties in `RESEARCH_REGISTRY` hebben `approvedForPrediction: false`. De aanvullende bronnen uit §§97, 100 en 101 zijn uitsluitend context-/bewijsregistraties; geen bron is vrijgegeven als numerieke voorspellingsfactor. Een bronregistratie of evidenceStrength is dus geen toestemming om een factor als numerieke voorspellingsregel te activeren.
 
 ### Soortspecifieke dekking in het research register
 
@@ -1522,16 +1522,16 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 
 | Doelsoort | Metabolisme / aerobe scope | Voedselopname / foerageren | Beweging / habitat | Dieet / prooikeuze | Vangbaarheid / vangstverdeling | Totaal records |
 |---|---:|---:|---:|---:|---:|---:|
-| Karper | 1 | 10 | 6 | 0 | 2 | 13 |
-| Brasem | 1 | 5 | 4 | 2 | 0 | 10 |
+| Karper | 1 | 11 | 6 | 0 | 2 | 14 |
+| Brasem | 1 | 5 | 5 | 2 | 0 | 11 |
 | Snoek | 1 | 3 | 6 | 1 | 2 | 12 |
-| Baars | 1 | 3 | 2 | 1 | 1 | 8 |
+| Baars | 1 | 3 | 3 | 1 | 1 | 9 |
 | Blankvoorn* | 1 | 6 | 4 | 2 | 0 | 11 |
 | Zeelt | 0 | 4 | 2 | 1 | 1 | 5 |
 | Snoekbaars | 1 | 3 | 3 | 2 | 0 | 10 |
 | Meerval | 0 | 4 | 6 | 1 | 0 | 10 |
 | Roofblei | 0 | 0 | 2 | 3 | 0 | 5 |
-| **Totaal** | — | — | — | — | — | **83 unieke records** |
+| **Totaal** | — | — | — | — | — | **86 unieke records** |
 
 ### Wat deze dekking betekent
 
@@ -1547,7 +1547,7 @@ Onderstaande aantallen zijn **aantallen registerrecords per gemeten uitkomstgroe
 - De beschrijvingen en aannames in `fishProfiles.ts` zijn herzien om directe voedselopname, locomotorische activiteit, habitatgebruik en fysiologie niet door elkaar te halen.
 - Onvoldoende onderbouwde vaste wind-, druk- en weersclaims zijn verwijderd of expliciet als niet-gevalideerde context geformuleerd. Diel-patronen zijn voorzien van context-/levensfasebeperkingen.
 - De numerieke thermische profielwaarden zijn ongewijzigd en blijven voorlopige modelprioren.
-- De profielreferentielijsten bevatten 79 vermeldingen. Na de bibliografische correctie in §100 zijn 52 DOI-verwijzingen in het centrale register teruggevonden. Van 27 verwijzingen zonder DOI zijn er 12 op auteursnaam teruggevonden; 15 blijven tijdens deze statische controle ongematcht. Dit zijn niet automatisch onjuiste bronnen; niet-geverifieerde boeken/rapporten blijven uitsluitend achtergrondliteratuur en mogen geen directe modelregel onderbouwen.
+- De profielreferentielijsten bevatten 82 vermeldingen. Na de bronupdates in §§100–101 zijn 55 DOI-verwijzingen in het centrale register teruggevonden. Van 27 verwijzingen zonder DOI zijn er 12 op auteursnaam teruggevonden; 15 blijven tijdens deze statische controle ongematcht. Dit zijn niet automatisch onjuiste bronnen; niet-geverifieerde boeken/rapporten blijven uitsluitend achtergrondliteratuur en mogen geen directe modelregel onderbouwen.
 - De geavanceerde UI vermeldt nu expliciet dat profielnotities context/aannames zijn en dat bronvermelding geen validatie van de numerieke thermische curve betekent.
 
 ### Status en vervolg
@@ -2236,5 +2236,40 @@ De statische referentiecontrole uit §78 is verdiept voor zeven oudere referenti
 - De profielvermeldingen van Kestemont (1995) en Tartally (2000) zijn tijdens deze ronde niet onafhankelijk bibliografisch bevestigd. Ze blijven voorlopig als niet-geverifieerde achtergrondreferenties in het profiel en worden niet in de research registry gebruikt als modelbewijs. Ook algemene handboeken en aquacultuur-/larvalevensfasebronnen blijven achtergrondliteratuur.
 
 De bijgewerkte registerdekking telt 83 unieke records. Eén nieuw record (Nagelkerke & Sibbing) is aan zowel brasem als blankvoorn gekoppeld; daarom kan de som van de soorttotalen één hoger zijn dan het aantal unieke records. Alle records blijven niet-goedgekeurd voor directe voorspelling. Geen score, gewicht, thermische curve of tijdvakbonus gewijzigd.
+
+Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 101. Gerichte audit wind, luchtdruk, troebelheid, zuurstof, neerslag en stroming (19 november 2026)
+
+Deze ronde vult de ontbrekende omgevingsfactoren uit §93 aan. Drie bronnen zijn aan het register toegevoegd; alle drie blijven `approvedForPrediction: false`.
+
+### 101.1 Bevindingen per factor
+
+| Factor | Nieuw/verwerkt bewijs | Gemeten respons | Modelstatus nu |
+|---|---|---|---|
+| Wind | Nakayama et al. (2018) bij 16 volwassen baarzen: windsnelheid verklaarde een kleiner deel van de beweging dan temperatuur/licht. Hansen et al. (2019) vond dat wind snelheid/richting troebelheid beïnvloedde in één ondiep meer. | Beweging bij baars; sedimentresuspensie/troebelheid bij brasem. Geen zelfstandige voedingsintensiteit. | Context/positionering; geen generieke activiteit- of voedingsbonus. |
+| Luchtdruk | Nakayama et al. (2018) en de eerder geregistreerde Sandberg (2020) laten in specifieke baarspopulaties verbanden met beweging zien; effect is contextafhankelijk en kleiner dan temperatuur/licht in de 2018-studie. | Locomotorische activiteit/beweging, niet voedselopname. | Context; geen directe voedings- of universele drukregel. |
+| Troebelheid/zicht | Hansen et al. (2019): 448 benthivore brasems in één ondiep meer, vier jaar; activiteit hing met troebelheid samen, vooral onder 15 °C. De review van Zanghi & Ioannou (2024) omvat 281 studies en vindt gemengde, soort-/predatorafhankelijke richtingen. | Brasemactiviteit als PIT-bewegingsproxy; brede review van predator-prooi-effecten. | Kandidaat context-/activiteitsfactor bij passende lokale meting; geen universele NTU-grens en geen automatische voedingsbonus. |
+| Opgeloste zuurstof | Bernier et al. (2012): bij karper daalde voeropname 79% onder ernstige chronische hypoxie (10% O₂-verzadiging, circa 0,9 mg/L) in een gecontroleerde proef. | Directe voeropname/voedingsfysiologie bij kleine karpers in tanks. | Biologisch relevante kandidaatfactor voor karper, maar huidige app heeft geen betrouwbare lokale DO-invoer. Niet uit temperatuur, regen of luchtdruk afleiden; nu onbekend/context. |
+| Neerslag | De gerichte zoekronde leverde geen voldoende directe, soortspecifieke meting op die neerslag zelfstandig koppelt aan dagelijkse voedselopname of activiteit van de negen app-soorten. | Geen geschikte directe respons voor deze scoreketen gevonden. | Context via weer-/waterontwikkeling; geen zelfstandige scorebijdrage. |
+| Stroming/afvoer | Er is ecologisch bewijs voor relatie tussen afvoer, voedselbronnen en dieet bij andere stromingsgebonden soorten, maar in deze ronde geen voldoende overdraagbare directe bron voor de negen app-soorten en hun dagelijkse voedingsrespons. | Geen geschikte directe doelsoortrespons voor de huidige app-factor. | Alleen lokale habitat-/positioneringscontext wanneer actuele stromingsdata bestaan; geen universele scorebijdrage. |
+
+### 101.2 Interpretatie en beperkingen
+
+- De nieuwe baarstelemetrie toont dat wind en luchtdruk beweging kunnen verklaren, maar niet dat deze factoren voedselopname of vangbaarheid verhogen. De studie betrof 16 volwassen piscivore baarzen in één Duits meer; temperatuur en licht waren de sterkere verklarende factoren.
+- De brasemstudie meet activiteit in een ondiep meer en de invloed op troebelheid. Wind beïnvloedde troebelheid mede via resuspensie; dit is geen bewijs dat wind direct meer voedselopname veroorzaakt.
+- De karper-hypoxiestudie is direct bewijs dat ernstige zuurstofschaarste voedselopname kan onderdrukken. De proef gebruikte kleine karpers, circa 23 °C, tanks en zeer lage zuurstofverzadiging. Zij rechtvaardigt geen lineaire bonus/malus bij normale veldwaarden en geen Nederlandse zuurstofgrens.
+- Zuurstof is een belangrijke ontbrekende invoer. Zolang betrouwbare lokale metingen ontbreken, blijft deze factor expliciet onbekend; geen schatting op basis van luchttemperatuur of andere weersfactoren.
+- Neerslag en stroming blijven voorlopig context, omdat de gevonden bronnen niet direct genoeg zijn voor soortspecifieke dagelijkse scorebijdragen.
+
+### 101.3 Bronregistraties
+
+Toegevoegd aan `researchRegistry.ts`:
+- Nakayama et al. (2018), DOI 10.1111/eff.12393 — baars, locomotorische activiteit/habitatgebruik; wind/druk kleinere effecten dan temperatuur/licht.
+- Hansen et al. (2019), DOI 10.4081/jlimnol.2019.1883 — brasem, activiteit/troebelheid; geen directe voedselopnamemeting.
+- Bernier et al. (2012), DOI 10.1242/jeb.066183 — karper, directe voeropname onder ernstige hypoxie; gecontroleerde laboratoriumcontext.
+
+Alle 86 registry-records blijven `approvedForPrediction: false`. Geen score, factorgewicht, temperatuurcurve of tijdvakbonus gewijzigd.
 
 Fase 2 blijft open; Fase 3 blijft geblokkeerd.

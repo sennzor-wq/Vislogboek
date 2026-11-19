@@ -799,3 +799,8 @@ De actuele registerdekking en interpretatie staan in `FASE2_PROGNOSE_AUDIT.md` �
 ## 89. Bibliografische en uitkomstclassificatie oudere profielbronnen
 
 De audit van oudere profielreferenties staat in `FASE2_PROGNOSE_AUDIT.md` §100. Bibliografisch gecorrigeerde bronnen zijn aan het research register toegevoegd met expliciete gemeten uitkomsten en beperkingen. Filtervoeding/prooigrootte, voedingsmechanica, groei, laboratoriumzwemactiviteit en reproductie blijven onderscheiden van dagelijkse voedselopname en vangbaarheid. Alle nieuwe registraties zijn niet-goedgekeurd voor directe voorspelling.
+
+
+## 90. Omgevingsfactoren: bewijs en invoergrenzen
+
+De factorreview in `FASE2_PROGNOSE_AUDIT.md` §101 onderscheidt beweging van voedselopname. Wind en luchtdruk hebben beperkte, contextafhankelijke telemetrieverbanden met baarsbeweging; troebelheid hangt in één ondiep meer samen met brasemactiviteit; ernstige hypoxie kan karpervoeropname sterk onderdrukken. Deze bronnen zijn niet goedgekeurd voor numerieke voorspelling. Zuurstof is biologisch relevant maar niet betrouwbaar als actuele lokale invoer beschikbaar; onbekend blijft onbekend. Neerslag en stroming blijven context zonder voldoende direct doelsoortbewijs. Geen universele bonus of drempel.
