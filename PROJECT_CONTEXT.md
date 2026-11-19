@@ -1805,3 +1805,10 @@ De exacte registrytelling per soort en gemeten respons staat in `FASE2_PROGNOSE_
 De volledige factor-/input-/evaluatiematrix staat in `FASE2_PROGNOSE_AUDIT.md` §102. Per factor zijn respons, actuele invoer, huidige rol en vereiste onafhankelijke evaluatie vastgelegd. De bestaande factorinventaris is gesloten, maar het modelontwerp is nog niet formeel afgerond.
 
 De bestaande dagscore blijft één score en wordt nu alleen thermisch bepaald. Voordat nieuwe bijdragen worden gebouwd, moet de doelrespons van die score worden bevestigd, daarna normalisatie, ontbrekende-data-regels en eigen evaluatie voor activiteit, voeding, habitat en tijdvak. Brier blijft uitsluitend persoonlijke vangstkans evalueren. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — productbesluit bestaande 1–10-dagscore (19 november 2026)
+
+De gebruiker heeft bevestigd dat de bestaande cijferschaal en scoreweergave behouden blijven. Eén eenvoudig dagcijfer moet direct helpen een gunstige of ongunstige dag te herkennen, met een begrijpelijke onderbouwing. Het cijfer staat voor de verwachte biologische activiteit- en voedings-/foerageerpotentie van de geselecteerde doelsoort; het is geen persoonlijke vangstkans, stekaanwezigheid of vangbaarheid. Geen nieuwe zichtbare deelscores of extra invoer.
+
+De ontwerpregels en resterende modelstappen staan in `FASE2_PROGNOSE_AUDIT.md` §103. De huidige thermische berekening blijft voorlopig ongewijzigd totdat normalisatie, missing-data-regels, factorweging en chronologische validatie zijn afgerond. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
