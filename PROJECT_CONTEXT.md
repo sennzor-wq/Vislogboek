@@ -1716,3 +1716,9 @@ Niet-blokkerende verbetering voor een latere uitwerkingsronde: onderscheid tusse
 - Technische snapshot-/Brier-keten en tijdvak-/VisCoach-selectie zijn gerealiseerd voor de huidige scope; lokale kalibratie wacht op echte vergelijkbare sessies.
 - Formele blocker blijft criterium 2: besluit nodig over voorlopige thermische curves en validatie van de exacte curveparameters.
 - Fase 2 is niet geaccepteerd. Fase 3 blijft geblokkeerd. Geen runtimeberekening, score, parameter of gebruikersinvoer gewijzigd.
+### Fase 2 — gekozen begrenzing thermische curves (19 november 2026)
+
+De gebruiker kiest optie A: behoud de bestaande thermische curves als transparante voorlopige modelprior binnen de bestaande prognose. De curves bepalen uitsluitend de relatieve thermische respons; ze verhogen niet zelfstandig voedingskans, voerhoeveelheid of persoonlijke vangstkans. De exacte parameters blijven ongevalideerd en worden niet als lokaal gevalideerd gepresenteerd.
+
+De prognose blijft de centrale bron. VisCoach gebruikt de prognose en bestaande gespecialiseerde engines voor advies en tactiek, zonder een eigen prognose of parallelle biologische logica. Temperatuurrespons en voedingsgedrag blijven onderscheiden. Geen onnodige herbouw of nieuwe numerieke factoren.
+

@@ -1893,3 +1893,29 @@ De resterende formele blocker is criterium 2: de actieve numerieke thermische cu
 4. Fase 2 pas formeel accepteren na aantoonbare afhandeling van alle criteria; daarna pas fase 3 starten.
 
 Dit is een acceptatie- en ontwerpbesluit, geen stilzwijgende wijziging van runtimegedrag. Geen prognoseberekening, score, parameter, vangstkans of gebruikersinvoer is in deze update gewijzigd.
+## 90. Ontwerpbesluit thermische curves — optie A behouden als voorlopige prior (19 november 2026)
+
+**Besluit:** behoud de bestaande soortprofielcurves actief als voorlopige mechanistische prior binnen de bestaande prognose. De curves bepalen uitsluitend de relatieve thermische respons op gemeten of verantwoord geschatte watertemperatuur.
+
+Dit besluit betekent nadrukkelijk niet dat de exacte soortparameters empirisch of lokaal gevalideerd zijn. De bestaande modelpiek, curvebreedtes, efficiëntievloer, exponent en 1–10-schaal blijven voorlopige modelkeuzes. De gebruikersinterface en documentatie moeten dit consequent als **thermische activiteitspotentie** en **voorlopige modelprior** aanduiden.
+
+### Harde scheiding tussen prognoselagen
+
+- Thermische activiteitspotentie beschrijft uitsluitend de relatieve respons van het bestaande temperatuurmodel. Zij is geen directe meting van beweging, voedselopname, aasbezoek of vangbaarheid.
+- De thermische curve verhoogt of verlaagt niet zelfstandig de voedingskans, voorvoerhoeveelheid, persoonlijke vangstkans of Brier-uitkomst. Er komt geen verborgen vermenigvuldiging, optelling of nieuwe gewichtsfactor.
+- Voedings-/foerageerbewijs blijft een afzonderlijke soortspecifieke laag. Bewegings- of habitatbewijs wordt niet als voedingsbewijs gebruikt.
+- Habitat, aanwezigheidshypothesen, wind/positionering, voorvoeren en persoonlijke vangsthistorie blijven bij hun bestaande engines en betekenis. Geen tweede prognose- of VisCoach-engine.
+- Een thermische dagschatting is niet automatisch een voedingspiek of beste vistijd. Tijdvakpresentatie moet thermische respons en voedingsgedrag expliciet onderscheiden; de gebruiker houdt de keuze van sessiestart.
+
+### Gevolgen voor bewijs en validatie
+
+Alle bestaande research-registryrecords blijven op hun huidige goedkeuringsstatus; een bronregistratie maakt een numerieke curve niet automatisch gevalideerd. De bronstatus per soort blijft zichtbaar. Er worden geen curveparameters, drempels, soortgewichten of tijdvakbonussen gewijzigd door dit besluit.
+
+De curves mogen voor de huidige software-scope worden behouden als transparante voorlopige prior. Claims dat de exacte parameters biologisch gefit, lokaal gevalideerd of voorspellend voor voeding/vangst zijn, blijven verboden. Latere parameterwijzigingen vereisen passende soort-/levensfase-/watertypebronnen, regressies en onafhankelijke chronologische evaluatie.
+
+### Scopebewaking
+
+Dit is een gerichte keuze binnen de bestaande prognosearchitectuur, geen herontwerp. De prognose blijft de enige bron van modeluitkomsten. VisCoach consumeert de bestaande prognose en de bestaande gespecialiseerde engines en vertaalt deze naar advies en tactiek; VisCoach maakt geen eigen prognose. Bestaande berekeningen blijven behouden tenzij een concrete audit een aantoonbare fout of onveilige claim aanwijst.
+
+De eerdere tijdelijke uitschakeling van de thermische score is teruggedraaid op main in commit bf95145e7ca0523944b01b842957a65d7f93647c. De Quality Gate op deze herstelcommit is volledig geslaagd (run #44492544444). Dit herstel activeert uitsluitend het bestaande thermische modelgedrag; het voegt geen nieuwe biologische factor of vangstkanskoppeling toe.
+

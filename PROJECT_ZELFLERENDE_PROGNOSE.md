@@ -183,3 +183,7 @@ Dit project heeft een eigen GitHub-issue en documentatie, maar blijft onderdeel 
 | Praktijkvalidatie van verbeterde kanskalibratie | Nog te verzamelen |
 
 **Eerstvolgende actie:** Fase A uitvoeren als read-only audit. Nog geen nieuwe leergewichten, correctiefactoren of automatische modelupdates implementeren.
+## Thermische modelprior — begrensd gebruik (19 november 2026)
+
+De bestaande thermische soortcurves blijven als voorlopige prior actief voor relatieve thermische respons binnen de bestaande prognose. De score wordt niet teruggekoppeld naar persoonlijke vangstkans, voedingsintensiteit of Brier-evaluatie. Exacte parameters blijven ongevalideerd; geen lokale nauwkeurigheidsclaim. Latere verfijning vereist passende soort-/levensfase-/watertype-evidence en onafhankelijke chronologische validatie.
+
