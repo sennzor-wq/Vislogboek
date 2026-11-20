@@ -1919,3 +1919,8 @@ De volwassen snoek-biosensorreeks van Nilsson-Örtman et al. (2026) is gemeten i
 ### Fase 2 — larvale baars/snoekbaars veldrantsoen geregistreerd (20 november 2026)
 
 Worischka & Mehner (1998) is toegevoegd als beperkte veldgebaseerde voedingsintensiteitsbron voor larvale baars en snoekbaars. Dagelijkse rantsoenen zijn geschat uit uurlijkse maagvulling en maagledigingsmodellen; de methode is gevoelig voor bemonsteringsinterval. Levensfase en ontbrekende volledige primaire methodedetails verhinderen overdracht naar volwassen Nederlandse vis. Bron blijft niet-goedgekeurd voor voorspelling. Zie audit §139.
+
+
+### Fase 2 — volwassen baars/blankvoorn seizoensrantsoen geregistreerd (20 november 2026)
+
+Jamet (1994) is toegevoegd als beperkte veldbron voor volwassen baars en blankvoorn. Dagelijkse consumptie werd geschat uit maandelijkse maaginhoudsmonsters en een temperatuurafhankelijke maagledigingsfunctie. Dit levert seizoenscontext, geen zuivere temperatuurcurve of sessiegebonden tijdvakvoorkeur. Bron blijft niet-goedgekeurd voor voorspelling. Zie audit §140.
