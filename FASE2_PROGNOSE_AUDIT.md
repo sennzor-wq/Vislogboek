@@ -3728,3 +3728,18 @@ De ruwe CSV en Analysis.R zijn via de Dryad-downloadlinks in deze controleomgevi
 Bronnen:
 - Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026). Effects of temperature and browning on the functional response of a freshwater top predator. Journal of Animal Ecology, 95(5), 824–836. https://doi.org/10.1111/1365-2656.70233
 - Dataset en README: https://doi.org/10.5061/dryad.kkwh70sjc
+
+
+## 139. Larvale baars en snoekbaars: veldschattingen dagelijkse voedselopname (20 november 2026)
+
+Worischka & Mehner (1998), *Comparison of field-based and indirect estimates of daily food consumption in larval perch and zander*, Journal of Fish Biology 53(5), 1050–1059, DOI 10.1111/j.1095-8649.1998.tb00462.x, is als beperkte aanvullende bron beoordeeld.
+
+De auteurs vergeleken dagelijkse rantsoenen die in het veld werden geschat uit maagvullingsgegevens over een 24-uurscyclus met indirecte bio-energetische modelschattingen. De veldmethode gebruikte uurlijkse bemonstering en zowel lineaire als exponentiële maagledigingsfuncties. De gerapporteerde dagelijkse rantsoenen waren:
+- Larvale baars, gemiddelde totale lengte 13,1 mm: 0,21–0,27 g/g/dag.
+- Larvale snoekbaars, gemiddelde totale lengte 10,6 mm: 0,31–0,40 g/g/dag.
+
+De hogere waarden kwamen uit het exponentiële maagledigingsmodel. De auteurs vonden bovendien dat schattingen op basis van alleen iedere derde uurmeting slechts 41–72% bedroegen van de schattingen op basis van uurlijkse metingen. Dat onderstreept dat de afgeleide rantsoenen gevoelig zijn voor het bemonsteringsinterval en de gekozen evacuatiefunctie.
+
+**Beperkingen:** dit zijn larvale vissen, geen volwassen sportvispopulaties. De waarden zijn modelgebaseerde veldschattingen uit maagvulling, geen rechtstreeks gewogen individuele voedselopname. De volledige primaire tekst was niet toegankelijk via Wiley (HTTP 403); steekproefomvang, exacte locatie, temperatuurreeks, prooisamenstelling en volledige modeldiagnostiek zijn daarom niet onafhankelijk gecontroleerd.
+
+De bron is geregistreerd als feeding_intensity voor Baars en Snoekbaars, bewijssterkte **limited**, approvedForPrediction=false, en aan beide soortprofielen gekoppeld. De bron levert geen volwassen thermische curve, lokale Nederlandse referentielabels, hengelvangbaarheid of tijdvakbonus. Geen profielparameter, score, gewicht of runtimefactor gewijzigd.

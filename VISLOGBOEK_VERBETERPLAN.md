@@ -932,3 +932,8 @@ Bron blijft limited en approvedForPrediction=false. Registry: 90 records, 0 nume
 De volledige primaire publicatie is vergeleken met de Dryad-metadata. De zes volwassen snoeken met lichaamstemperatuursensoren werden twaalf maanden gevolgd in drie experimentele vijvers; dit is geen representatieve natuurlijke veldpopulatie en bevat geen voedingslabels. De Dryad-paginabeschrijving noemt ze vrijlevend, maar de primaire methodesectie is leidend.
 
 Er is ook een discrepantie vastgelegd: de paper noemt 24 0+-snoeken in experiment 1 en drie uitgesloten proefwaarnemingen; de Dryad-README noemt n=23 en spreekt van drie individuen. Experiment 2 sluit afzonderlijk twee dieren uit wegens schimmelinfectie. De ruwe data/R-code konden via Dryad niet worden gedownload (HTTP 403), dus geen onafhankelijke heruitvoering geclaimd. Bron blijft limited en approvedForPrediction=false. Geen runtimewijziging. Zie audit §138.
+
+
+### Fase 2 — larvale baars/snoekbaars veldrantsoen toegevoegd (20 november 2026)
+
+Worischka & Mehner (1998) is als beperkte veldgebaseerde feeding_intensity-bron toegevoegd voor larvale baars en snoekbaars. De dagelijkse rantsoenen zijn afgeleid uit uurlijkse maagvulling over 24 uur en lineaire/exponentiële maagledigingsfuncties; gerapporteerd is 0,21–0,27 g/g/dag voor larvale baars (13,1 mm) en 0,31–0,40 g/g/dag voor larvale snoekbaars (10,6 mm). Iedere derde uurmeting gaf slechts 41–72% van de schatting met uurlijkse bemonstering. De volledige primaire tekst was niet toegankelijk, zodat locatie, steekproef en temperatuurcontext nog niet zijn geverifieerd. Bron blijft limited en approvedForPrediction=false; geen runtimewijziging. Zie audit §139.
