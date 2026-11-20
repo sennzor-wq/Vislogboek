@@ -76,6 +76,39 @@ export interface PresenceObservation {
   createdAt: string;
 }
 
+export interface WaterTemperatureWeatherContext {
+  /** Hourly model/reanalysis sample closest to the physical water measurement. */
+  sampleTimestamp: string;
+  /** When this weather context was retrieved; distinct from sampleTimestamp. */
+  retrievedAt: string;
+  source: 'open-meteo-forecast' | 'open-meteo-recent-model' | 'open-meteo-cache' | 'open-meteo-reanalysis';
+  airTemperatureC?: number;
+  relativeHumidityPct?: number;
+  dewPointC?: number;
+  shortwaveRadiationWm2?: number;
+  pressureHpa?: number;
+  windSpeedKmh?: number;
+  windDirectionDeg?: number;
+  cloudCoverPct?: number;
+  precipitationMm?: number;
+}
+
+/** One physical water-temperature measurement; multiple events may belong to one fishing session. */
+export interface WaterTemperatureMeasurement {
+  id: string;
+  sessionId?: string;
+  locationId: string;
+  temperatureC: number;
+  /** Exact physical measurement time, not the time the record was saved. */
+  measuredAt: string;
+  recordedAt: string;
+  measurementSource: 'manual' | 'imported' | 'unknown';
+  measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown';
+  measurementDepthM?: number;
+  /** Immutable weather context around this measurement; missing means unavailable, not zero. */
+  weatherContext?: WaterTemperatureWeatherContext;
+}
+
 export interface WeatherSnapshot {
   temperature: number;            // °C luchttemperatuur
   relativeHumidity?: number;       // % relatieve luchtvochtigheid, indien beschikbaar

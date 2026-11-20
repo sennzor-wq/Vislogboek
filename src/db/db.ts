@@ -10,6 +10,7 @@ import {
   SessionRod,
   PlannedFishingSession,
   CoachAdviceRecord,
+  WaterTemperatureMeasurement,
 } from '../types';
 export const LOKKERSHOEK_PIER_ID = 'spot-mvp1g19d-dfemr2';
 
@@ -24,6 +25,7 @@ export class VislogboekDatabase extends Dexie {
   sessionRods!: Table<SessionRod, string>;
   plannedSessions!: Table<PlannedFishingSession, string>;
   coachAdviceRecords!: Table<CoachAdviceRecord, string>;
+  waterTemperatureMeasurements!: Table<WaterTemperatureMeasurement, string>;
 
   constructor() {
     super('VislogboekDB');
@@ -140,6 +142,72 @@ export class VislogboekDatabase extends Dexie {
         }
       }
     });
+
+    // v6: afzonderlijke fysieke watertemperatuurmeetmomenten per vissessie.
+    // Bestaande sessie-/snapshotmetingen worden éénmalig overgezet; bronrecords blijven behouden.
+    this.version(6).stores({
+      locations: 'id, name, isBenchmark, createdAt',
+      sessions: 'id, locationId, startTime, outcome, isBenchmark, createdAt',
+      catches: 'id, sessionId, locationId, species, timestamp, createdAt',
+      weatherCache: 'id, latitude, longitude, fetchedAt',
+      settings: 'id',
+      prognosisSnapshots: 'id, forecastTimestamp, targetSpecies, linkedSessionId, modelVersion, createdAt',
+      presenceObservations: 'id, locationId, sessionId, observationType, timestamp, createdAt',
+      sessionRods: 'id, sessionId, rodNumber, createdAt, updatedAt',
+      plannedSessions: 'id, locationId, plannedStartTime, status, startedSessionId, planSnapshotId, createdAt',
+      coachAdviceRecords: 'id, sessionId, prognosisSnapshotId, previousAdviceId, createdAt, trigger',
+      waterTemperatureMeasurements: 'id, locationId, sessionId, measuredAt, recordedAt',
+    }).upgrade(async (tx) => {
+      const sessions = await tx.table('sessions').toArray() as FishingSession[];
+      const snapshots = await tx.table('prognosisSnapshots').toArray() as import('../types').PrognosisSnapshot[];
+      const seen = new Set<string>();
+      const addLegacyMeasurement = async (record: {
+        id: string; locationId?: string; sessionId?: string; temperature?: number | null;
+        measuredAt?: string; recordedAt?: string; source?: 'manual' | 'imported' | 'unknown';
+        method?: 'thermometer' | 'probe' | 'other' | 'unknown'; depth?: number;
+      }) => {
+        if (!record.locationId || typeof record.temperature !== 'number' ||
+            !Number.isFinite(record.temperature) || record.temperature < 0 || record.temperature > 35 ||
+            !record.measuredAt || !Number.isFinite(Date.parse(record.measuredAt))) return;
+        const depth = typeof record.depth === 'number' && Number.isFinite(record.depth) && record.depth >= 0
+          ? Math.round(record.depth * 100) / 100 : null;
+        const key = [record.locationId, Date.parse(record.measuredAt), record.temperature, depth ?? 'unknown'].join('|');
+        if (seen.has(key)) return;
+        seen.add(key);
+        const measurement: WaterTemperatureMeasurement = {
+          id: `legacy-water-temp-${record.id}`,
+          ...(record.sessionId ? { sessionId: record.sessionId } : {}),
+          locationId: record.locationId,
+          temperatureC: record.temperature,
+          measuredAt: new Date(record.measuredAt).toISOString(),
+          recordedAt: record.recordedAt && Number.isFinite(Date.parse(record.recordedAt))
+            ? new Date(record.recordedAt).toISOString() : new Date(record.measuredAt).toISOString(),
+          measurementSource: record.source || 'unknown',
+          measurementMethod: record.method || 'unknown',
+          ...(depth !== null ? { measurementDepthM: depth } : {}),
+        };
+        await tx.table('waterTemperatureMeasurements').put(measurement);
+      };
+      // Session rows first: if a linked snapshot repeats the same physical reading, keep one event.
+      for (const session of sessions) {
+        await addLegacyMeasurement({
+          id: `session-${session.id}`, locationId: session.locationId, sessionId: session.id,
+          temperature: session.waterTemperature, measuredAt: session.waterTemperatureMeasuredAt,
+          recordedAt: session.updatedAt || session.createdAt,
+          source: session.waterTemperatureMeasurementSource, method: session.waterTemperatureMeasurementMethod,
+          depth: session.waterTemperatureMeasurementDepthM,
+        });
+      }
+      for (const snapshot of snapshots) {
+        await addLegacyMeasurement({
+          id: `snapshot-${snapshot.id}`, locationId: snapshot.locationId,
+          sessionId: snapshot.linkedSessionId, temperature: snapshot.actualWaterTemperature,
+          measuredAt: snapshot.actualWaterTemperatureTimestamp, recordedAt: snapshot.createdAt,
+          source: snapshot.actualWaterTemperatureMeasurementSource, method: snapshot.actualWaterTemperatureMeasurementMethod,
+          depth: snapshot.actualWaterTemperatureMeasurementDepthM,
+        });
+      }
+    });
   }
 }
 
@@ -230,7 +298,7 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
     throw new Error('De referentiesessie Lokkershoek is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.transaction('rw', [db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
+  await db.transaction('rw', [db.sessions, db.catches, db.prognosisSnapshots, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, db.waterTemperatureMeasurements], async () => {
     // 1. Verwijder gekoppelde vangsten
     await db.catches.where('sessionId').equals(sessionId).delete();
 
@@ -284,7 +352,10 @@ export async function deleteSessionSafely(sessionId: string): Promise<boolean> {
     // 5. Verwijder optionele hengeldetails van deze sessie.
     await db.sessionRods.where('sessionId').equals(sessionId).delete();
 
-    // 6. Verwijder sessie zelf
+    // 6. Verwijder alle afzonderlijke watertemperatuurmeetmomenten van deze sessie.
+    await db.waterTemperatureMeasurements.where('sessionId').equals(sessionId).delete();
+
+    // 7. Verwijder sessie zelf
     await db.sessions.delete(sessionId);
   });
   return true;

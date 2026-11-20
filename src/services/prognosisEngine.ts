@@ -15,6 +15,7 @@ import {
   WeatherSnapshot,
   PrognosisInputContext,
   ManualWaterTemperatureInput,
+  WaterTemperatureMeasurement,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
@@ -653,6 +654,7 @@ export interface PrognosisOptions {
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  waterTemperatureMeasurements?: WaterTemperatureMeasurement[];
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
@@ -722,6 +724,7 @@ export function calculateDayPrognosis(
     historicalSessions,
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
+    waterTemperatureMeasurements: options?.waterTemperatureMeasurements,
     forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
   });
 
@@ -790,6 +793,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
+        waterTemperatureMeasurements: options?.waterTemperatureMeasurements,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
@@ -1465,7 +1469,8 @@ export async function savePrognosisSnapshot(
 export async function saveSessionWithPrognosisSnapshot(
   session: FishingSession,
   pending: PendingPrognosisSnapshot,
-  rods?: import('../types').SessionRod[]
+  rods?: import('../types').SessionRod[],
+  waterMeasurements?: WaterTemperatureMeasurement[]
 ): Promise<FishingSession> {
   if (!session.id || !session.startTime || session.outcome !== 'active') {
     throw new Error('Een prognosesnapshot kan alleen samen met een nieuwe actieve sessie worden opgeslagen.');
@@ -1478,7 +1483,7 @@ export async function saveSessionWithPrognosisSnapshot(
     throw new Error('De prognosesnapshot moet een geldig berekeningstijdstip vóór de daadwerkelijke sessiestart hebben. De sessie is niet gestart.');
   }
 
-  return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, db.sessionRods, async () => {
+  return db.transaction('rw', db.sessions, db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.waterTemperatureMeasurements, async () => {
     const snapshot = await savePrognosisSnapshot(
       pending.prognosis,
       pending.durationHours,
@@ -1501,6 +1506,11 @@ export async function saveSessionWithPrognosisSnapshot(
     const linkedSession: FishingSession = { ...session, snapshotId: snapshot.id };
     await db.prognosisSnapshots.update(snapshot.id, { linkedSessionId: session.id });
     await db.sessions.put(linkedSession);
+    if (waterMeasurements !== undefined && waterMeasurements.length > 0) {
+      await db.waterTemperatureMeasurements.bulkPut(waterMeasurements.map((item) => ({
+        ...item, sessionId: session.id, locationId: item.locationId || session.locationId || '',
+      })));
+    }
     await syncSessionPresenceObservations(linkedSession);
     if (rods !== undefined && rods.length > 0) {
       await db.sessionRods.bulkPut(rods.map((rod) => ({ ...rod, sessionId: session.id })));
@@ -1526,11 +1536,12 @@ export async function createLiveSnapshotForSessionStart(
     const lat = location.latitude ?? 51.961;
     const lon = location.longitude ?? 5.228;
     const weather = await getForecast(lat, lon, false);
-    const [allSessions, allCatches, allSnapshots, allLocations] = await Promise.all([
+    const [allSessions, allCatches, allSnapshots, allLocations, allWaterTemperatureMeasurements] = await Promise.all([
       db.sessions.toArray(),
       db.catches.toArray(),
       db.prognosisSnapshots.toArray(),
       db.locations.toArray(),
+      db.waterTemperatureMeasurements.toArray(),
     ]);
     const now = new Date();
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
@@ -1539,7 +1550,8 @@ export async function createLiveSnapshotForSessionStart(
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       allSessions,
       allSnapshots,
-      allLocations
+      allLocations,
+      allWaterTemperatureMeasurements
     );
     const historyFeatures = createPrognosisHistoryFeatureSnapshot(allSessions, allCatches);
     const forecastTimestamp = now.toISOString();
@@ -1593,6 +1605,7 @@ export async function createLiveSnapshotForSessionStart(
         location,
         catches: allCatches,
         historicalWaterTemperatures,
+        waterTemperatureMeasurements: allWaterTemperatureMeasurements,
         waterTemperatureCalibration,
       }
     );

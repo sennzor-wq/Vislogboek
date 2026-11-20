@@ -104,11 +104,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       const weather = await getForecast(lat, lon, forceRefresh);
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
-      const storedSnapshots = await db.prognosisSnapshots.toArray();
+      const [storedSnapshots, waterTemperatureMeasurements] = await Promise.all([
+        db.prognosisSnapshots.toArray(),
+        db.waterTemperatureMeasurements.toArray(),
+      ]);
       const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
         sessions,
         storedSnapshots,
-        locations
+        locations,
+        waterTemperatureMeasurements
       );
       setWeatherUpdatedAt(weather.fetchedAt);
       setIsCachedWeather(weather.isFromCache);
@@ -140,6 +144,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             location: selectedLoc,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             historicalWaterTemperatures,
+            waterTemperatureMeasurements,
             dailySolarTimes: weather.dailySummaries,
             presenceObservation: selectedPresenceObs,
             catches,
@@ -236,11 +241,15 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   const handleStartSessionFromPrognosis = async () => {
     if (!activeDayProg || !selectedLoc || activeDayProg.date !== formatAmsterdamDate(new Date())) return;
     // Alleen tijdelijke formulierdata; IndexedDB wordt pas bij definitief opslaan gewijzigd.
-    const storedSnapshots = await db.prognosisSnapshots.toArray();
+    const [storedSnapshots, waterTemperatureMeasurements] = await Promise.all([
+      db.prognosisSnapshots.toArray(),
+      db.waterTemperatureMeasurements.toArray(),
+    ]);
     const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
       sessions,
       storedSnapshots,
-      locations
+      locations,
+      waterTemperatureMeasurements
     );
     const calculatedAt = new Date().toISOString();
     // Deze knop start de sessie nu; gebruik het werkelijke starttijdvak, niet het thermisch gunstigste tijdvak later op de dag.

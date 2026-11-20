@@ -9,7 +9,7 @@ import {
 } from './src/services/backupService';
 import {
   FishingLocation, FishingSession, CatchItem, WeatherCacheEntry,
-  PrognosisSnapshot, PresenceObservation, AppSettings, SessionRod, PlannedFishingSession, CoachAdviceRecord,
+  PrognosisSnapshot, PresenceObservation, AppSettings, SessionRod, PlannedFishingSession, CoachAdviceRecord, WaterTemperatureMeasurement,
 } from './src/types';
 
 let passed = 0;
@@ -83,6 +83,25 @@ async function run() {
     plannedStartTime: '2026-11-03T08:00:00.000Z', plannedEndTime: null, status: 'planned',
     planSnapshotId: snapshot.id, createdAt: '2026-11-02T08:00:00.000Z', updatedAt: '2026-11-02T08:00:00.000Z',
   };
+
+  const waterMeasurement: WaterTemperatureMeasurement = {
+    id: 'backup-water-temperature-measurement',
+    sessionId: session.id,
+    locationId: location.id,
+    temperatureC: 8.2,
+    measuredAt: '2026-11-02T11:30:00.000Z',
+    recordedAt: '2026-11-02T11:31:00.000Z',
+    measurementSource: 'manual',
+    measurementMethod: 'thermometer',
+    measurementDepthM: 0.5,
+    weatherContext: {
+      sampleTimestamp: '2026-11-02T11:00:00.000Z',
+      retrievedAt: '2026-11-02T11:01:00.000Z',
+      source: 'open-meteo-recent-model',
+      airTemperatureC: 9.1,
+      windSpeedKmh: 3,
+    },
+  };
   const advice: CoachAdviceRecord = {
     id: 'backup-roundtrip-advice', sessionId: session.id, prognosisSnapshotId: snapshot.id,
     createdAt: '2026-11-02T09:05:00.000Z', trigger: 'session_start', summary: 'Testadvies',
@@ -105,9 +124,10 @@ async function run() {
   await db.sessionRods.put(rodDetail);
   await db.plannedSessions.put(planned);
   await db.coachAdviceRecords.put(advice);
+  await db.waterTemperatureMeasurements.put(waterMeasurement);
 
   const backup = await collectBackupData();
-  assert(backup.version === 5, 'Nieuwe export gebruikt backupformaat v5');
+  assert(backup.version === 6, 'Nieuwe export gebruikt backupformaat v6');
   assert(backup.cleanStartVersion === 1, 'Nieuwe export bevat expliciete clean-startgeneratiemarkering');
   assert(backup.locations.length === 1 && backup.sessions.length === 1,
     'Locaties en sessies uit alle records worden geëxporteerd');
@@ -120,6 +140,7 @@ async function run() {
   assert(same(backup.sessionRods, [rodDetail]), 'Per-hengelgegevens, intervallen en gebeurtenissen worden geëxporteerd');
   assert(same(backup.plannedSessions, [planned]), 'Geplande sessies worden geëxporteerd');
   assert(same(backup.coachAdviceRecords, [advice]), 'Coachadvieshistorie wordt geëxporteerd');
+  assert(same(backup.waterTemperatureMeasurements, [waterMeasurement]), 'Afzonderlijke watertemperatuurmeetmomenten inclusief weerscontext worden geëxporteerd');
   assert(backup.sessions.find(x => x.id === session.id)?.photoUrls?.[0] === session.photoUrls?.[0],
     'Sessiefoto-data blijft behouden in JSON-export');
   assert(backup.catches.find(x => x.id === catchItem.id)?.photoUrl === catchItem.photoUrl,
@@ -127,7 +148,7 @@ async function run() {
 
   // Simuleer een nieuw toestel: lege database, daarna volledige restore.
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, db.waterTemperatureMeasurements], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
@@ -138,13 +159,14 @@ async function run() {
       await db.sessionRods.clear();
       await db.plannedSessions.clear();
       await db.coachAdviceRecords.clear();
+      await db.waterTemperatureMeasurements.clear();
     });
   await restoreBackupData(backup);
 
-  const [locations, sessions, catches, restoredSettings, weatherCache, snapshots, observations, rods, plans, adviceRecords] =
+  const [locations, sessions, catches, restoredSettings, weatherCache, snapshots, observations, rods, plans, adviceRecords, waterMeasurements] =
     await Promise.all([db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
       db.settings.get('user_settings'), db.weatherCache.toArray(), db.prognosisSnapshots.toArray(),
-      db.presenceObservations.toArray(), db.sessionRods.toArray(), db.plannedSessions.toArray(), db.coachAdviceRecords.toArray()]);
+      db.presenceObservations.toArray(), db.sessionRods.toArray(), db.plannedSessions.toArray(), db.coachAdviceRecords.toArray(), db.waterTemperatureMeasurements.toArray()]);
   assert(same(locations.sort((a,b)=>a.id.localeCompare(b.id)), backup.locations.sort((a,b)=>a.id.localeCompare(b.id))),
     'Restore herstelt alle locaties en IDs exact');
   assert(same(sessions.sort((a,b)=>a.id.localeCompare(b.id)), backup.sessions.sort((a,b)=>a.id.localeCompare(b.id))),
@@ -160,6 +182,7 @@ async function run() {
   assert(same(rods, backup.sessionRods), 'Restore herstelt per-hengelrecords, intervallen en gebeurtenissen exact');
   assert(same(plans, backup.plannedSessions), 'Restore herstelt geplande sessies exact');
   assert(same(adviceRecords, backup.coachAdviceRecords), 'Restore herstelt coachadvieshistorie exact');
+  assert(same(waterMeasurements, backup.waterTemperatureMeasurements), 'Restore herstelt meetevents en weerscontext exact');
 
   // Merge moet ook alle tabellen en de instellingen meenemen, zonder dubbele records.
   await db.settings.put({ ...settings, defaultSpecies: 'Brasem' });
@@ -183,7 +206,8 @@ async function run() {
     'Volledige v5-backup wordt gevalideerd vóór import');
   assert(imported.preview.weatherCacheCount === 1 && imported.preview.prognosisSnapshotsCount === 1 &&
     imported.preview.presenceObservationsCount === 1 && imported.preview.sessionRodsCount === 1 &&
-    imported.preview.plannedSessionsCount === 1 && imported.preview.coachAdviceRecordsCount === 1, 'Importpreview toont aantallen van alle tabellen inclusief planning en coachadviezen');
+    imported.preview.plannedSessionsCount === 1 && imported.preview.coachAdviceRecordsCount === 1 &&
+    imported.preview.waterTemperatureMeasurementsCount === 1, 'Importpreview toont aantallen van alle tabellen inclusief planning, coachadviezen en meetevents');
 
   const legacy = normalizeRawBackup({ version: 2, appName: 'Vislogboek', locations: [], sessions: [], catches: [] });
   assert(legacy.weatherCache?.length === 0 && legacy.prognosisSnapshots?.length === 0 &&
@@ -203,6 +227,23 @@ async function run() {
   const duplicateRodBackup = { ...backup, sessionRods: [rodDetail, { ...rodDetail, id: 'backup-roundtrip-rod-duplicate' }] };
   const duplicateRodImport = await inspectImportFile(JSON.stringify(duplicateRodBackup));
   assert(!duplicateRodImport.preview.valid, 'Dubbele hengelnummers binnen één sessie worden vóór import geweigerd');
+
+
+  const orphanWaterMeasurement = await inspectImportFile(JSON.stringify({
+    ...backup, waterTemperatureMeasurements: [{ ...waterMeasurement, sessionId: 'missing-session' }],
+  }));
+  assert(!orphanWaterMeasurement.preview.valid, 'Watertemperatuurmeting zonder bestaande sessierelatie wordt vóór import geweigerd');
+
+  const legacyV5 = normalizeRawBackup({
+    version: 5, appName: 'Vislogboek', exportedAt: '2026-11-02T12:00:00.000Z',
+    locations: [location],
+    sessions: [{ ...session, waterTemperature: 8.2, waterTemperatureMeasuredAt: '2026-11-02T11:30:00.000Z',
+      waterTemperatureMeasurementSource: 'manual', waterTemperatureMeasurementMethod: 'thermometer' }],
+    catches: [], prognosisSnapshots: [],
+  });
+  assert(legacyV5.waterTemperatureMeasurements?.length === 1 &&
+    legacyV5.waterTemperatureMeasurements[0].temperatureC === 8.2,
+    'Legacy v5-backup wordt zonder gegevensverlies naar afzonderlijke meetevents genormaliseerd');
 
   const orphanCatch = await inspectImportFile(JSON.stringify({
     ...backup, catches: [{ ...catchItem, sessionId: 'missing-session' }],

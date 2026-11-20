@@ -188,6 +188,11 @@ async function runTestSuite() {
     coachVersion: 'test-v1',
   };
   await db.coachAdviceRecords.put(adviceRecord);
+  await db.waterTemperatureMeasurements.put({
+    id: 'measurement-for-deleted-session', sessionId: sess2.id, locationId: sess2.locationId,
+    temperatureC: 8.4, measuredAt: '2026-11-01T12:00:00.000Z', recordedAt: '2026-11-01T12:01:00.000Z',
+    measurementSource: 'manual', measurementMethod: 'thermometer',
+  });
 
   // Verwijder de sessie
   const sessDeleted = await deleteSessionSafely(sess2.id);
@@ -206,6 +211,8 @@ async function runTestSuite() {
     '2.4 Gekoppelde momentopname (via session.snapshotId) is eveneens definitief verwijderd'
   );
   assert(await db.coachAdviceRecords.get(adviceRecord.id) === undefined, '2.4a Coachadviezen worden bij expliciete sessieverwijdering meegenomen');
+  assert(await db.waterTemperatureMeasurements.get('measurement-for-deleted-session') === undefined,
+    '2.4b Afzonderlijke watertemperatuurmeetmomenten worden bij expliciete sessieverwijdering meegenomen');
   const planAfterSessionDelete = await db.plannedSessions.get(plannedRecord.id);
   assert(
     planAfterSessionDelete !== undefined &&

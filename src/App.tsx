@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, initializeDatabase, syncSessionPresenceObservations } from './db/db';
-import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod, PlannedFishingSession } from './types';
+import { FishingLocation, FishingSession, CatchItem, FishSpecies, SessionRod, PlannedFishingSession, WaterTemperatureMeasurement } from './types';
 import { PendingPrognosisSnapshot, saveSessionWithPrognosisSnapshot } from './services/prognosisEngine';
 import { Navbar, TabType } from './components/Navbar';
 import { PrognosisView } from './components/prognosis/PrognosisView';
@@ -224,7 +224,8 @@ export default function App() {
   const handleSaveSession = async (
     sessionData: Partial<FishingSession>,
     pendingSnapshot?: PendingPrognosisSnapshot,
-    rods?: SessionRod[]
+    rods?: SessionRod[],
+    waterMeasurements?: WaterTemperatureMeasurement[]
   ) => {
     if (!sessionData.id) return;
 
@@ -238,16 +239,27 @@ export default function App() {
       savedSession = await saveSessionWithPrognosisSnapshot(
         sessionData as FishingSession,
         pendingSnapshot,
-        rods
+        rods,
+        waterMeasurements
       );
     } else {
       const hasPresenceObservations = Object.prototype.hasOwnProperty.call(sessionData, 'presenceObservations');
-      await db.transaction('rw', db.sessions, db.presenceObservations, db.sessionRods, async () => {
+      await db.transaction('rw', db.sessions, db.presenceObservations, db.sessionRods, db.waterTemperatureMeasurements, async () => {
         const existing = await db.sessions.get(sessionData.id!);
         const mergedSession = existing
           ? ({ ...existing, ...sessionData } as FishingSession)
           : (sessionData as FishingSession);
         await db.sessions.put(mergedSession);
+        if (waterMeasurements !== undefined) {
+          await db.waterTemperatureMeasurements.where('sessionId').equals(sessionData.id!).delete();
+          if (waterMeasurements.length > 0) {
+            await db.waterTemperatureMeasurements.bulkPut(waterMeasurements.map((item) => ({
+              ...item,
+              sessionId: sessionData.id!,
+              locationId: item.locationId || mergedSession.locationId || '',
+            })));
+          }
+        }
         if (hasPresenceObservations) {
           await syncSessionPresenceObservations(mergedSession);
         }
@@ -512,8 +524,8 @@ export default function App() {
           createStartSnapshot={true}
           isNewSession={true}
           initialRodDetails={[]}
-          onSave={async (newSess, pendingSnapshot, rods) => {
-            await handleSaveSession(newSess, pendingSnapshot, rods);
+          onSave={async (newSess, pendingSnapshot, rods, waterMeasurements) => {
+            await handleSaveSession(newSess, pendingSnapshot, rods, waterMeasurements);
             setCurrentTab('sessions');
             setIsStartingSession(false);
             setPendingPrognosisSnapshot(undefined);

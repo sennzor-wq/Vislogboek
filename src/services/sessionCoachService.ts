@@ -686,19 +686,20 @@ export async function reassessActiveSessions(
   trigger: CoachAdviceTrigger = 'weather_update',
   sessionId?: string
 ): Promise<SessionCoachReassessmentResult[]> {
-  const [sessions, locations, catches, snapshots, observations] = await Promise.all([
+  const [sessions, locations, catches, snapshots, observations, waterTemperatureMeasurements] = await Promise.all([
     db.sessions.toArray(),
     db.locations.toArray(),
     db.catches.toArray(),
     db.prognosisSnapshots.toArray(),
     db.presenceObservations.toArray(),
+    db.waterTemperatureMeasurements.toArray(),
   ]);
 
   const activeSessions = sessions.filter((session) => session.outcome === 'active' && (!sessionId || session.id === sessionId));
   if (activeSessions.length === 0) return [];
 
   const locationById = new Map(locations.map((location) => [location.id, location]));
-  const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(sessions, snapshots, locations);
+  const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(sessions, snapshots, locations, waterTemperatureMeasurements);
   const results: SessionCoachReassessmentResult[] = [];
 
   for (const session of activeSessions) {
@@ -750,6 +751,7 @@ export async function reassessActiveSessions(
           observations: sessionObservations,
           presenceObservation: latestObservation?.observationType ?? 'onbekend',
           historicalWaterTemperatures,
+          waterTemperatureMeasurements,
           waterTemperatureCalibration,
         }
       );
