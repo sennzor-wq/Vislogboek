@@ -942,3 +942,27 @@ Worischka & Mehner (1998) is als beperkte veldgebaseerde feeding_intensity-bron 
 ### Fase 2 — volwassen baars/blankvoorn seizoensrantsoen toegevoegd (20 november 2026)
 
 Jamet (1994) is geregistreerd voor volwassen baars en blankvoorn als beperkte veldbron voor dagelijkse voedingsintensiteit en dieet. Maandelijkse maaginhoudsmonsters in één eutroof Frans meer (april 1987–juli 1988) zijn via het Eggers-model omgezet in dagelijkse consumptieschattingen met temperatuurafhankelijke maaglediging. De methode levert geen directe individuele inname of sessiegebonden tijdvaklabel; seizoen, prooiaanbod, zuurstof en habitat zijn verweven. Bron blijft limited en approvedForPrediction=false. Zie audit §140.
+
+
+### Fase 2 — leeftijds- en methodeoverdracht verder afgebakend (20 november 2026)
+
+De audit §§141–145 voegen drie broncontroles toe: leeftijdsafhankelijk voedingsritme bij blankvoorn (Jamet et al. 1990), juveniele kweekvoerbehoefte bij meerval (Filipiak et al. 1997) en primaire methodeverificatie van Eggers-consumptieschattingen bij volwassen baars/blankvoorn (Jamet 1994).
+
+De resultaten versterken de scheiding tussen direct voedingsritme, dagelijkse kweekvoerbehoefte, modelgeschatte populatieconsumptie en individuele voedselopname. Geen van deze bronnen valideert een lokale Nederlandse thermische curve, universele tijdvakbonus of vangstkans. Alle blijven buiten actieve parameters; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+### Fase 2 — zevenpunts-acceptatiecrosswalk herijkt (20 november 2026)
+
+De formele crosswalk in `FASE2_PROGNOSE_AUDIT.md` §89 is bijgewerkt op basis van de actuele kandidaatmodelreview en broninventaris. De registry telt 92 unieke records, 0 numeriek goedgekeurd. Optie A is de expliciet geaccepteerde productkeuze: de thermische curves blijven een voorlopige prior, niet een gevalideerde voedings- of vangstcurve.
+
+De resterende blockers zijn de geïntegreerde biologische dagscore, overdraagbare soort-/levensfase-evidence, directe lokale biologische labels, een gevalideerde tijdvakrespons en twee afzonderlijke tactische productbesluiten (voorvoerhoeveelheden/gating en optionele hengel-/methodepreset). Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — meervalbron 2025 methodologisch aangescherpt (20 november 2026)
+
+Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie gebruikt maandelijkse maagvullingsindices bij 200 meervallen. Het winter-FI maximum (0,827) berust op slechts n=7; de andere seizoensgroepen tellen 49, 98 en 46 vissen. Leeftijdsgroepen zijn eveneens ongelijk. Er is geen directe individuele opname, watertemperatuurcurve of diel-label. Registry blijft niet-goedgekeurd; geen winterbonus of runtimefactor. Zie audit §144.
+
+
+### Fase 2 — snoekbron 2025 statistische rapportage aangescherpt (20 november 2026)
+
+De volledige primaire PDF van Yazıcıoğlu et al. (2025) is gecontroleerd. De FI-seizoenswaarden zijn numeriek, maar de abstracttekst is intern tegenstrijdig over significantie (p<0,05 terwijl de tekst “niet significant” zegt); de resultaten rapporteren geen eenduidige aparte FI-teststatistiek. De temperatuurcorrelatie is expliciet zwak en niet significant (r_s=0,117; p>0,05). Geen thermische curve of seizoensbonus. Zie audit §145.

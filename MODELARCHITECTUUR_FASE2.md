@@ -997,3 +997,41 @@ Dit is geen rechtstreeks gewogen individuele voedselopname. Levensfase, methodeg
 Audit §140 registreert Jamet (1994) voor volwassen baars en blankvoorn. De studie gebruikte maandelijkse maaginhoudsbemonstering in één eutroof Frans meer gedurende april 1987–juli 1988 en schatte dagelijkse consumptie met het Eggers-model (24-uursgemiddelde maaginhoud × temperatuurafhankelijke maagledigingsrate).
 
 De bron ondersteunt uitsluitend context voor seizoensgebonden voedingsintensiteit en dieet. Het is een modelmatige schatting, geen direct gewogen individuele inname; maandelijkse bemonstering geeft geen tijdvakscore. Seizoen, prooiaanbod, zuurstof, habitat en voortplanting zijn verweven. Geen lokale validatie of runtimebijdrage; approvedForPrediction=false.
+
+
+## 114. Levensfase en leeftijdsspecifiek tijdvakbewijs
+
+Audit §141 registreert Jamet et al. (1990) als beperkt direct voedingsritmebewijs voor blankvoorn: 253 vissen (98–240 mm) bemonsterd per vier uur gedurende één zomerse 24-uurscyclus. Jongere 2–3-jarige vissen voedden vooral van 14:00 tot schemering; oudere vissen voedden dag en nacht met leeftijdsafhankelijke intensiteit en periodiciteit.
+
+Dit bewijs ondersteunt een leeftijds-/dieetafhankelijke context, niet één universeel blankvoorn-tijdvakprofiel. De steekproef is één eutroof Frans meer en één zomerdatum; geen Nederlandse lokale validatie of method-feeder/catchability-label. Geen vaste dusk-bonus of numerieke tijdvakfactor afleiden.
+
+## 115. Meerval: juveniele voerbehoefte is geen veldvangstrespons
+
+Audit §142 registreert Filipiak et al. (1997) als kandidaat voor dagelijkse voerbehoefte van juveniele gekweekte meerval. De beschikbare samenvatting rapporteert 1–1,5% versus 2% W^0,8 dagelijkse voerbehoefte over brede temperatuurbanden 18–23 en 24–28 °C. De precieze opname-/restvoer- en temperatuurmethodiek is nog niet onafhankelijk geverifieerd.
+
+De bron kan geen volwassen wilde meervalcurve, natuurlijke prooiconsumptie of method-feederrespons onderbouwen. Blijft buiten actieve parameters en registry-goedkeuring tot volledige methodologische verificatie.
+
+## 116. Baars/blankvoorn: interpretatie van Eggers-consumptieschattingen
+
+Audit §143 bevestigt Jamet (1994): dagelijkse consumptie is afgeleid uit gemiddelde maaginhoud en een temperatuurafhankelijke maagledigingsrate, en vervolgens aan leeftijdsklasse-/populatieomvang gerelateerd. Het is geen rechtstreekse individuele inname. Maandelijkse bemonstering, eutrofe meercontext en verweven seizoensfactoren beperken overdracht; geen thermische curve of tijdvakscore.
+
+
+## 117. Actuele formele Fase-2-acceptatiecrosswalk (20 november 2026)
+
+Audit §89 is bijgewerkt op basis van de kandidaatmodelreview §§134–145 en de actuele registrytelling: 92 unieke bronnen, 0 numeriek goedgekeurd. De eigenaarbeslissing optie A is expliciet geaccepteerd: de bestaande thermische curve blijft alleen een voorlopige mechanistische prior, niet een gevalideerde voedselopnamecurve.
+
+De formele blockers zijn nu concreet gescheiden: (1) geïntegreerde dagscore met directe responsbijdragen bestaat nog niet; (2) bron-/levensfaseoverdracht blijft per soort beperkt; (3) er zijn geen directe lokale biologische labels; (4) een gevalideerde tijdvakrespons ontbreekt; (5) voorvoerhoeveelheden/gating en de optionele hengel-/methodepreset zijn afzonderlijke eigenaarbesluiten. Brier blijft uitsluitend voor persoonlijke vangstkans. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 118. Meerval: seizoensmaagvulling en steekproefonbalans
+
+Audit §144 controleert de volledige primaire tekst van Yazici et al. (2025). De studie omvat 200 meervallen uit één Anatolisch stuwmeer, met maandelijkse bemonstering en maagvullings-/vacuïteitsindices. Het wintergemiddelde FI was het hoogst (0,827), maar de wintergroep telde slechts n=7 tegenover voorjaar n=49, zomer n=98 en herfst n=46. Leeftijdsgroepen waren eveneens ongelijk (n=3–81).
+
+De studie ondersteunt beperkte veldcontext voor maagvulling en dieet, niet individuele dagelijkse opname, een temperatuurcurve of een diel-tijdvakrespons. Er is geen gerapporteerde watertemperatuurreeks per vangst; temperatuur wordt in de discussie als mogelijke verklaring genoemd, niet als gecontroleerde of onafhankelijk geanalyseerde respons. Geen winterbonus of numerieke runtimebijdrage; registrystatus blijft approvedForPrediction=false.
+
+
+## 119. Snoek: veldmaagvulling 2025 en statistische brononzekerheid
+
+Audit §145 controleert Yazıcıoğlu et al. (2025) op de volledige primaire PDF. De FI-waarden zijn numeriek hoger in zomer/herfst en lager in winter/voorjaar, maar de abstracttekst is statistisch tegenstrijdig: zij noemt de FI-seizoensverschillen niet significant en vermeldt tegelijk K-W p<0,05. De resultaten rapporteren p>0,05 expliciet voor VI, maar geven geen eenduidige aparte FI-teststatistiek. De registry houdt deze onzekerheid expliciet open.
+
+De gemeten maandelijkse oppervlaktetemperatuur correleerde slechts zwak met FI (r_s=0,117; p>0,05). Gillnetten stonden minimaal twaalf uur van schemering tot de volgende ochtend; geen individuele voedingsmomenten. Geen thermische curve of diel-tijdvakbonus afleiden; bron blijft limited en non-approved.
