@@ -1134,3 +1134,14 @@ De voorkeursberekening is één chronologische toestandsdoorloop vanaf het meeta
 Voorlopig wordt één referentietemperatuur gemodelleerd. Een gelaagd verticaal temperatuurprofiel vereist voldoende onafhankelijke meetdieptes en wordt niet afgeleid uit één onbekend gepositioneerde meting. De ongebruikte `targetHour` wordt niet als los uurgetal uitgebreid; een expliciet tijdstip is vereist.
 
 Geen runtimewijziging. Eerst testdekking voor meetdiepte, continuïteit, tijdzone/DST en forecast-as-of; daarna pas een implementatievoorstel.
+
+
+## 131. Sessiegebonden watertemperatuurmetingen als primaire lokale meetstrategie
+
+De praktische meetstrategie vereist geen dagelijkse handmatige temperatuurregistratie. De gebruiker meet wanneer hij daadwerkelijk gaat vissen en koppelt de waarneming aan die sessie. Een meting is een tijdgestempelde lokale observatie, geen volledige dagcurve.
+
+De bestaande engine blijft bruikbaar op dagen zonder nieuwe meting: gebruik het laatst geldige meetanker, historische referenties en beschikbare weersforceringen, en laat onzekerheid toenemen wanneer het anker ouder wordt of de meetdiepte onbekend is. De tijdspecifieke thermische toestand wordt vanuit één chronologische toestandsdoorloop geschat; meerdere handmatige metingen per dag zijn niet vereist. De engine mag deze schatting niet presenteren als een reeks daadwerkelijk gemeten ochtend-, middag- en avondtemperaturen.
+
+Over circa een jaar kunnen sessiegebonden waarnemingen een waardevolle lokale/seizoensgebonden basis vormen. De bruikbaarheid hangt af van spreiding over seizoenen, stekken, meetdieptes en meetmomenten. Een jaar aan metingen is geen automatische garantie op dekking of validatie. Foutmeting gebruikt alleen prognoses die vóór de latere waarneming zijn gemaakt; forecast-as-of en meettijd blijven gescheiden. De bestaande minimale kalibratiegate van acht geschikte lokale/seizoensmetingen is een softwarematige ondergrens, niet een bewijs van robuuste statistiek.
+
+Geen dagelijkse meetplicht, verplichte extra invoer of UI-wijziging. Geen nieuwe engine: de bestaande waterThermalEngine wordt gericht verfijnd voor dieptesemantiek, tijdzone/DST, tijdstipgerichte uitvoer en testbare onzekerheid. Zie audit §156.
