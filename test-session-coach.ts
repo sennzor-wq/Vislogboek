@@ -885,10 +885,10 @@ async function run() {
     prebaitOptions: { availableDaysBefore: 2, planningDate: '2026-07-20' },
   };
   const dayWidePrognosis = calculateDayPrognosis(
-    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow, slotBaseOptions
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-19T21:00:00.000Z', 20, slotNow, slotBaseOptions
   );
   const selectedEveningPrognosis = calculateDayPrognosis(
-    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-20T00:00:00.000Z', 20, slotNow,
+    '2026-07-20', slotForecasts, 'Karper', [], '2026-07-19T21:00:00.000Z', 20, slotNow,
     { ...slotBaseOptions, targetTimeSlot: 'Avond' }
   );
   assert(
@@ -906,7 +906,7 @@ async function run() {
   );
   const partialEveningForecasts = slotForecasts.filter((forecast) => Number(forecast.time.slice(11, 13)) >= 20);
   const partialEveningPrognosis = calculateDayPrognosis(
-    '2026-07-20', partialEveningForecasts, 'Karper', [], '2026-07-20T20:00:00.000Z', 20,
+    '2026-07-20', partialEveningForecasts, 'Karper', [], '2026-07-20T17:00:00.000Z', 20,
     new Date('2026-07-20T20:00:00+02:00'),
     { ...slotBaseOptions, targetTimeSlot: 'Avond' }
   );

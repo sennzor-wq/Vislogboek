@@ -12,7 +12,7 @@ import {
   RodPositioningAdvice,
   WindCastingGuidance,
 } from '../types';
-import { getAmsterdamMonth } from '../utils/dateTime';
+import { getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth } from '../utils/dateTime';
 import { TIME_SLOT_HOURS } from './prognosisEngine';
 
 export interface RodPositioningOptions {
@@ -580,13 +580,13 @@ export function analyzeRodPositioning(
   const { location, userWaterTemp, thermalAnalysis, historicalSessions, historicalCatches = [], targetSlot } = options;
 
   // 1. Relevante weersperiode selecteren (targetSlot of daggemiddelde)
-  const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
+  const dayForecasts = forecasts.filter((h) => getAmsterdamDateKey(h.time) === dateStr);
 
   const slotForecasts = targetSlot && TIME_SLOT_HOURS[targetSlot]
     ? dayForecasts.filter((h) => {
-        const hour = parseInt(h.time.slice(11, 13), 10);
+        const hour = getAmsterdamHour(h.time);
         const config = TIME_SLOT_HOURS[targetSlot];
-        return hour >= config.start && hour < config.end;
+        return hour !== null && hour >= config.start && hour < config.end;
       })
     : dayForecasts;
   const sampleForecasts = slotForecasts;

@@ -586,7 +586,7 @@ const fullProg = calculateDayPrognosis(
   mockHourlyForecasts,
   'Karper',
   mockHistoricalSessions,
-  '2026-07-20T08:00:00Z',
+  '2026-07-20T05:00:00Z',
   19.5, // Gemeten watertemp
   new Date('2026-07-20T06:00:00Z'),
   {
@@ -640,7 +640,7 @@ const noWeatherProg = calculateDayPrognosis(
   [],
   'Karper',
   [],
-  '2026-07-20T08:00:00Z',
+  '2026-07-20T05:00:00Z',
   null,
   new Date('2026-07-20T06:00:00Z'),
   { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
@@ -696,7 +696,7 @@ const partialWeatherProg = calculateDayPrognosis(
   partialForecasts,
   'Karper',
   [],
-  '2026-07-20T08:00:00Z',
+  '2026-07-20T05:00:00Z',
   null,
   new Date('2026-07-20T06:00:00Z'),
   { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }

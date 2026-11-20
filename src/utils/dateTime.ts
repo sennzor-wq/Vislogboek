@@ -42,7 +42,7 @@ function getAmsterdamWallParts(date: Date): number[] {
  * to use. For the repeated autumn hour, choose the earlier instant; nonexistent
  * spring-forward wall times are rejected instead of silently shifted.
  */
-function parseAmsterdamLocalDateTime(value: string): Date | null {
+function parseAmsterdamLocalDateTime(value: string, disambiguation: 'earlier' | 'later' = 'earlier'): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(value);
   if (!match) return null;
 
@@ -73,7 +73,7 @@ function parseAmsterdamLocalDateTime(value: string): Date | null {
     }
   }
   candidates.sort((a, b) => a.getTime() - b.getTime());
-  return candidates[0] ?? null;
+  return candidates.length ? candidates[disambiguation === 'later' ? candidates.length - 1 : 0] : null;
 }
 
 function parseValidDate(value: Date | string): Date | null {
@@ -101,6 +101,26 @@ export function getAmsterdamHour(value: Date | string): number | null {
   if (!date) return null;
   const hour = Number(hourFormatter.format(date));
   return Number.isInteger(hour) && hour >= 0 && hour <= 23 ? hour : null;
+}
+
+/**
+ * Parseert absolute ISO-tijdstempels en legacy Amsterdam-wandtijden onafhankelijk
+ * van de apparaat-/runtimezone. Ongeldige of niet-bestaande lokale tijden blijven null.
+ */
+export function parseAppTimestamp(value: Date | string): Date | null {
+  return parseValidDate(value);
+}
+
+/** Oude timezone-loze caches kunnen tijdens de herfstovergang tweemaal 02:00 bevatten. */
+export function parseForecastTimestamp(value: string, previousTimestampMs = Number.NEGATIVE_INFINITY): Date | null {
+  const isAmsterdamWallTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/.test(value);
+  if (!isAmsterdamWallTime) return parseValidDate(value);
+  const earlier = parseAmsterdamLocalDateTime(value, 'earlier');
+  if (earlier && earlier.getTime() <= previousTimestampMs) {
+    const later = parseAmsterdamLocalDateTime(value, 'later');
+    if (later && later.getTime() > previousTimestampMs) return later;
+  }
+  return earlier;
 }
 
 export type AmsterdamTimeSlot = 'Nacht' | 'Ochtend' | 'Middag' | 'Avond';

@@ -1,4 +1,5 @@
 import { FishingLocation, FishingSession, PrognosisSnapshot } from '../types';
+import { parseAppTimestamp } from '../utils/dateTime';
 
 /**
  * Alleen echte, achteraf geregistreerde watertemperatuurmetingen mogen een
@@ -148,7 +149,7 @@ export function deriveHistoricalWaterTemperatureProfile(
   const seen = new Set<string>();
   const valid = observations.filter((observation) => {
     if (observation.isBenchmark === true) return false;
-    const measuredAt = new Date(observation.timestamp).getTime();
+    const measuredAt = parseAppTimestamp(observation.timestamp)?.getTime() ?? Number.NaN;
     if (!Number.isFinite(measuredAt) || measuredAt >= targetTime) return false;
     if (typeof observation.temperatureC !== 'number' || !Number.isFinite(observation.temperatureC) ||
         observation.temperatureC < 0 || observation.temperatureC > 35) return false;

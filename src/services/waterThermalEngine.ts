@@ -6,6 +6,7 @@ import {
   ThermalTrend,
 } from '../types';
 import { deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
+import { getAmsterdamDateKey, getAmsterdamHour, parseAppTimestamp } from '../utils/dateTime';
 
 export interface ThermalAnalysisOptions {
   location?: FishingLocation;
@@ -13,6 +14,7 @@ export interface ThermalAnalysisOptions {
   historicalSessions?: FishingSession[];
   /** Exact instant (ISO timestamp) at which the water state is estimated. */
   targetTime?: string;
+  forecastAsOf?: string | null;
   /** @deprecated Use targetTime; hour-only targets cannot represent dates or DST safely. */
   targetHour?: number;
   currentDateRef?: Date;
@@ -39,20 +41,13 @@ export function analyzeWaterThermalDevelopment(
   // 1. Verzamel echte temperatuurmetingen voor exact dezelfde stek.
   // Een oudere meting blijft bruikbaar als startpunt voor een modelschatting,
   // maar wordt nooit als actuele meting voor een latere doeldag gepresenteerd.
-  const targetDateMs = new Date(`${targetDateStr}T12:00:00`).getTime();
+  const targetDateMs = parseAppTimestamp(`${targetDateStr}T12:00:00`)?.getTime() ?? Date.UTC(
+    Number(targetDateStr.slice(0, 4)), Number(targetDateStr.slice(5, 7)) - 1, Number(targetDateStr.slice(8, 10)), 11
+  );
   const refMs = currentDateRef ? currentDateRef.getTime() : targetDateMs;
-  // De app gebruikt Europe/Amsterdam. ISO.toISOString() vergelijkt de UTC-datum
-  // en kan rond middernacht de verkeerde lokale dag opleveren (bijv. 00:30 CEST).
-  const currentAmsterdamDate = currentDateRef
-    ? new Intl.DateTimeFormat('sv-SE', {
-        timeZone: 'Europe/Amsterdam',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).format(currentDateRef)
-    : '';
+  const currentAmsterdamDate = currentDateRef ? getAmsterdamDateKey(currentDateRef) ?? '' : '';
   const targetIsCurrentDate = Boolean(currentDateRef && currentAmsterdamDate === targetDateStr);
-  const parsedTargetTimeMs = options?.targetTime ? Date.parse(options.targetTime) : Number.NaN;
+  const parsedTargetTimeMs = options?.targetTime ? parseAppTimestamp(options.targetTime)?.getTime() ?? Number.NaN : Number.NaN;
   const hasValidTargetTime = Number.isFinite(parsedTargetTimeMs);
   // Een expliciet tijdstip is leidend. Zonder tijdstip blijft de bestaande dagbrede
   // referentie compatibel: nu voor vandaag, lokale-dagreferentie voor andere dagen.
@@ -60,6 +55,8 @@ export function analyzeWaterThermalDevelopment(
     ? parsedTargetTimeMs
     : targetIsCurrentDate && currentDateRef ? currentDateRef.getTime() : targetDateMs;
   const targetTimestamp = hasValidTargetTime ? new Date(parsedTargetTimeMs).toISOString() : null;
+  const parsedForecastAsOf = options?.forecastAsOf ? parseAppTimestamp(options.forecastAsOf) : null;
+  const forecastAsOf = parsedForecastAsOf?.toISOString() ?? null;
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
@@ -71,10 +68,10 @@ export function analyzeWaterThermalDevelopment(
       if (session.locationId !== location.id || session.isBenchmark === true) continue;
       if (typeof session.waterTemperature !== 'number' || !Number.isFinite(session.waterTemperature) ||
           session.waterTemperature < 0 || session.waterTemperature > 35 ||
-          !session.waterTemperatureMeasuredAt || !Number.isFinite(Date.parse(session.waterTemperatureMeasuredAt)) ||
+          !session.waterTemperatureMeasuredAt || !parseAppTimestamp(session.waterTemperatureMeasuredAt) ||
           !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
           !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
-      const timestampMs = new Date(session.waterTemperatureMeasuredAt).getTime();
+      const timestampMs = parseAppTimestamp(session.waterTemperatureMeasuredAt)?.getTime() ?? Number.NaN;
       if (!Number.isFinite(timestampMs)) continue;
       measurementCandidates.push({ temperature: session.waterTemperature, timestampMs, source: 'session' });
     }
@@ -92,10 +89,13 @@ export function analyzeWaterThermalDevelopment(
   // de meting te oud is of de weersdekking onvoldoende is voor extrapolatie.
   const weatherSinceAnchor = anchor
     ? forecasts.filter((h) => {
-        const t = new Date(h.time).getTime();
+        const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
         return Number.isFinite(t) && t > anchor.timestampMs && t <= estimationTargetMs &&
           Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
-      }).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
+      }).sort((a, b) =>
+        (parseAppTimestamp(a.time)?.getTime() ?? Number.POSITIVE_INFINITY) -
+        (parseAppTimestamp(b.time)?.getTime() ?? Number.POSITIVE_INFINITY)
+      )
     : [];
   // Een oude sessiemeting wordt niet actueel enkel omdat de prognose voor vandaag is.
   // Alleen een expliciet bij deze prognoserun ingevoerde meting is actueel.
@@ -113,7 +113,7 @@ export function analyzeWaterThermalDevelopment(
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
-  const dayForecasts = forecasts.filter((h) => h.time.startsWith(targetDateStr));
+  const dayForecasts = forecasts.filter((h) => getAmsterdamDateKey(h.time) === targetDateStr);
   const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
   const expectedAnchorHours = anchorAgeHours === null ? 0 : Math.max(0, Math.floor(anchorAgeHours));
   let weatherCoverageRatio = expectedAnchorHours > 0
@@ -130,6 +130,7 @@ export function analyzeWaterThermalDevelopment(
       trend: 'Onvoldoende gegevens',
       trendConfidence: 'Onvoldoende gegevens',
       targetTimestamp,
+      forecastAsOf,
       hasMeasuredWaterTemp: hasMeasured,
       measuredWaterTemp: measuredTemp,
       estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
@@ -176,15 +177,17 @@ export function analyzeWaterThermalDevelopment(
   const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
 
   // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
-  const targetTimeMs = new Date(`${targetDateStr}T12:00:00`).getTime();
+  const targetTimeMs = parseAppTimestamp(`${targetDateStr}T12:00:00`)?.getTime() ?? Date.UTC(
+    Number(targetDateStr.slice(0, 4)), Number(targetDateStr.slice(5, 7)) - 1, Number(targetDateStr.slice(8, 10)), 11
+  );
 
   // Forecasts in vensters vóór de doeldag
   const past24hForecasts = forecasts.filter((h) => {
-    const t = new Date(h.time).getTime();
+    const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
     return t < targetTimeMs && t >= targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
   const past72hForecasts = forecasts.filter((h) => {
-    const t = new Date(h.time).getTime();
+    const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
     return t < targetTimeMs && t >= targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
 
@@ -217,17 +220,17 @@ export function analyzeWaterThermalDevelopment(
 
   // Zonnestralingsindicatie (gebaseerd op bewolking overdag tussen 08:00 en 18:00)
   const daytimeHours = dayTemperatureForecasts.filter((h) => {
-    const hour = parseInt(h.time.slice(11, 13), 10);
-    return hour >= 8 && hour <= 18;
+    const hour = getAmsterdamHour(h.time);
+    return hour !== null && hour >= 8 && hour <= 18;
   });
   const daytimeCloudSamples = dayForecasts.filter((h) => {
-    const hour = parseInt(h.time.slice(11, 13), 10);
-    return hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
+    const hour = getAmsterdamHour(h.time);
+    return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
   });
   const daytimeCloudAvg = daytimeCloudSamples.length > 0 ? daytimeCloudSamples.reduce((s,h)=>s+h.cloudCover,0)/daytimeCloudSamples.length : null;
   const daytimeRadiationSamples = dayForecasts.filter((h) => {
-    const hour = parseInt(h.time.slice(11, 13), 10);
-    return hour >= 8 && hour <= 18 && Number.isFinite(h.shortwaveRadiation) && (h.shortwaveRadiation as number) >= 0 && (h.shortwaveRadiation as number) <= 1600;
+    const hour = getAmsterdamHour(h.time);
+    return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.shortwaveRadiation) && (h.shortwaveRadiation as number) >= 0 && (h.shortwaveRadiation as number) <= 1600;
   });
   const averageShortwaveRadiation = daytimeRadiationSamples.length >= 4
     ? daytimeRadiationSamples.reduce((sum, sample) => sum + (sample.shortwaveRadiation as number), 0) / daytimeRadiationSamples.length
@@ -354,7 +357,7 @@ export function analyzeWaterThermalDevelopment(
 
       // Vooraf timestamps en prefix-sommen maken 24u/72u-gemiddelden O(n) in plaats
       // van bij ieder uur opnieuw de volledige reeks te filteren (O(n²)).
-      const weatherTimes = orderedWeather.map((sample) => new Date(sample.time).getTime());
+      const weatherTimes = orderedWeather.map((sample) => parseAppTimestamp(sample.time)?.getTime() ?? Number.NaN);
       const temperaturePrefix = [0];
       for (const sample of orderedWeather) {
         temperaturePrefix.push(temperaturePrefix[temperaturePrefix.length - 1] + sample.temperature);
@@ -506,6 +509,7 @@ export function analyzeWaterThermalDevelopment(
     trend,
     trendConfidence,
     targetTimestamp,
+    forecastAsOf,
     hasMeasuredWaterTemp: hasMeasured,
     measuredWaterTemp: measuredTemp,
     estimatedWaterTemp,
