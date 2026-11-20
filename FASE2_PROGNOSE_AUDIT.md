@@ -4468,3 +4468,59 @@ De confidence-level beschrijft uitsluitend de volledigheid/kwaliteit van de inge
 **Buiten scope:** alle andere prognosefactoren, de algemene biologische score, weersanalyse, VisCoach-intake, habitat-/wind-/positioneringsmodules, sessiegegevens en gebruikersdata. Geen temperatuurgrenzen of berekeningsfuncties wijzigen.
 
 **Validatiegrens:** bestaande engine-regressietests blijven de berekende waarden controleren. De UI-wijziging is een presentatielaag-gate; een volledige lokale typecheck/test/build is in deze werksessie niet uitgevoerd en mag niet als groen worden gerapporteerd.
+
+
+## 164. Vervolgcontrole punt 5 — volledige zichtbare hoeveelheidsroutes (20 november 2026)
+
+**Status: gerichte statische code-audit uitgevoerd; punt 5 nog niet volledig afgesloten.** Deze controle bouwt voort op het eigenaarbesluit §163 en de implementatie op commit `3e46b401ddf08e4706f0ae6c3d896f8d0a8bb330`. Er is geen applicatiecode gewijzigd.
+
+### 164.1 Confidence-classificatie en betekenis
+
+In `prebaitEngine.ts` wordt `Redelijk` alleen toegekend wanneer de watertemperatuur als meting is aangeleverd én watertype en positieve waterdiepte bruikbaar zijn. Een bruikbare modelschatting met watertype, of een gemeten temperatuur met ontbrekende diepte, valt terug op `Matig`. Ontbrekende bruikbare temperatuur of watertype leidt tot `Laag`.
+
+Dit is uitsluitend een invoercompleetheidsregel. De watertype- en dieptewaarden zijn gebruikersregistraties; de classificatie controleert niet of ze fysiek juist zijn. Ook `Redelijk` valideert de biologische juistheid van temperatuurbanden, soortfactoren of gramadviezen niet.
+
+### 164.2 Algemene Prognose — zichtbare uitvoer gecontroleerd
+
+De relevante uitvoer in `PrognosisView.tsx` is gecontroleerd:
+- voorafgaande voerbeurten tonen `amountDisplay` alleen bij `Redelijk`; anders blijft het geplande moment zichtbaar met “Hoeveelheid niet weergegeven”;
+- de hoeveelheid tijdens de sessie wordt alleen bij `Redelijk` numeriek getoond; bij lagere invoerkwaliteit blijft kwalitatief “Spaarzaam bijvoeren; hoeveelheid niet gekwantificeerd” staan;
+- de voersamenstelling, toelichting, method-feederuitleg, beperkingen en eventuele persoonlijke historie blijven afzonderlijke kwalitatieve/contextuele onderdelen;
+- in de gecontroleerde voorvoerweergave wordt `totalAmountGrams` niet als alternatieve numerieke totaalsom getoond.
+
+De algemene Prognose geeft een geplande sessieduur via de bestaande selector door; de huidige standaardselectie is 3 uur. Dit is een planningsinstelling, geen gemeten sessieduur. Er is geen nieuw verplicht invoerveld toegevoegd.
+
+### 164.3 VisCoach — zichtbare uitvoer gecontroleerd
+
+De bestaande `buildVisCoachAdviceText`-route in `sessionCoachService.ts` is eveneens gecontroleerd:
+- campagnegrammen worden alleen opgenomen bij `confidenceLevel === 'Redelijk'`; bij lagere kwaliteit blijft de voorbereidingsdag/timing zichtbaar zonder gramwaarde;
+- sessiegrammen vereisen tegelijk `Redelijk`, een expliciet bekende eindtijd/duur die eindig en groter dan nul is, een actief sessievoeradvies en een positieve berekende hoeveelheid;
+- zonder bekende sessieduur blijft het kwalitatieve sessieadvies staan, maar wordt geen sessiehoeveelheid getoond;
+- method-feederuitleg blijft instant-presentatie onderscheiden van vooraf aangelegd voer.
+
+De interne engine gebruikt bij ontbrekende duur nog een technische standaard van 3 uur voor de berekening. De VisCoach-presentatielaag laat die sessiegrammen echter niet zien zonder expliciet bekende duur. Dit onderscheid is belangrijk en moet bij toekomstige wijzigingen behouden blijven.
+
+### 164.4 Bestaande regressiedekking
+
+`test-session-coach.ts` bevat gerichte assertions voor:
+- exacte campagne- en sessiehoeveelheden bij `Redelijk`;
+- verborgen grammen en behouden voorbereidingstiming bij `Matig`;
+- ontbrekend watertype zonder onterechte eis om een andere stek te kiezen;
+- instant-presentatie zonder verzonnen grammen;
+- verborgen sessiehoeveelheid wanneer de duur ontbreekt, terwijl een voldoende onderbouwd voorbereidingsschema zichtbaar kan blijven.
+
+Deze tests zijn in deze vervolgsessie statisch geïnspecteerd, niet uitgevoerd. In de package-scripts staat geen afzonderlijke componenttest voor de algemene `PrognosisView`; de nieuwe UI-gate is daarom nog niet door een uitgevoerde component-/runtime-test bevestigd. Typecheck en productiebuild zijn in deze sessie evenmin uitgevoerd.
+
+### 164.5 Behouden engine-uitvoer en grenzen
+
+`prebaitEngine.ts` is ongewijzigd. De interne temperatuurbanden, geschiktheidsscores, soortfactoren, campagnehoeveelheden, sessiehoeveelheden, persoonlijke vergelijking en method-feederregels blijven berekend en beschikbaar. De zichtbare gate verwijdert of herkalibreert deze informatie niet.
+
+De code-inspectie bevestigt de twee belangrijkste presentatiepaden (algemene Prognose en VisCoach). Dit is geen biologische validatie van de voerregels en geen bewijs dat iedere toekomstige export-, detail- of nieuwe UI-route automatisch dezelfde gate toepast. Nieuwe presentaties moeten dit contract expliciet volgen.
+
+**Vervolg vanaf hier:**
+1. Controleer de resterende tests en codepaden rond voorvoerplanning, met name soortondersteuning, voorbereidingstijd, campagnegrenzen, persoonlijke vergelijking en method-feeder-/instant-semantiek.
+2. Bepaal of een gerichte regressietest voor de algemene PrognosisView-gate haalbaar is binnen de bestaande testinrichting; voeg geen brede testinfrastructuur of runtimewijziging toe zonder noodzaak.
+3. Voer daarna de relevante tests, typecheck en productiebuild uit zodra de beschikbare uitvoeromgeving dit toelaat, en controleer de definitieve diff.
+4. Rond punt 5 pas af nadat deze controles zijn vastgelegd. Daarna volgt het resterende Fase-2-closeoutwerk; Fase 3 blijft geblokkeerd.
+
+**Wijzigingsscope van deze controle:** uitsluitend auditdocumentatie. Geen berekeningsregels, gebruikersdata, invoervelden, prognoses of VisCoach-functionaliteit gewijzigd.
