@@ -59,7 +59,7 @@ if (
   adultAydatRation.approvedForPrediction ||
   !adultAydatRation.summary.includes('Eggers-model') ||
   !adultAydatRation.limitations.some((item) => item.includes('één eutroof Frans meer')) ||
-  !adultAydatRation.limitations.some((item) => item.includes('geen zuivere temperatuurcausaliteit')) ||
+  !adultAydatRation.limitations.some((item) => item.includes('niet als zuivere temperatuurcausaliteit')) ||
   !adultAydatRation.sourceReferences.some((source) => source.includes('10.1007/BF00877183'))
 ) {
   throw new Error('Jamet adult roach/perch field-ration evidence must remain model-qualified and non-approved.');
