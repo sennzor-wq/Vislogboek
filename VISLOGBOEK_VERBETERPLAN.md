@@ -1060,3 +1060,12 @@ Resterend: tijdstipgerichte chronologische waterthermische API, deterministische
 Twee tactische productpunten blijven gescheiden: (1) niet-gevalideerde exacte voorvoergrammen/temperatuurbanden en inconsistente confidence-gating; numerieke uitschakeling (optie B) is aanbevolen maar vraagt expliciete eigenaarstoestemming; (2) de gewenste optionele herbruikbare hengel-/methodepreset ontbreekt nog in de vangstflow. Geen van beide mag verplichte invoer worden.
 
 **Status:** Fase 2 niet formeel geaccepteerd; Fase 3 geblokkeerd. De hoofdtaak is gerichte technische uitvoering en toetsing, niet meer brede literatuuruitbreiding. Zie FASE2_PROGNOSE_AUDIT.md §157.
+
+
+### Fase 2 — voortgang punt 1: tijdstipgerichte thermische toestand (20 november 2026)
+
+Punt 1 is afgerond in [PR #203](https://github.com/sennzor-wq/Vislogboek/pull/203). De bestaande waterthermische engine ondersteunt nu een expliciet doeltijdstip en de vier tijdvakken gebruiken elk een chronologisch berekende toestand vanaf hetzelfde meetanker. Een latere meting wordt niet teruggeprojecteerd op eerdere tijdvakken. Een eerste regressie in de dagscore is gevonden en hersteld; de volledige Quality Gate is daarna groen gegaan op zowel de PR-head als de mergecommit.
+
+Geen wijziging aan de zichtbare 1–10-score, scoreformule, database, UI of gebruikersinvoer. Dit is technische implementatie, geen empirische validatie van de thermische tijdconstanten.
+
+**Volgende stap: punt 2 — deterministische tijdzone-/DST-verwerking en expliciete forecast-as-of.** Zie audit §158. Fase 2 blijft open; fase 3 geblokkeerd.

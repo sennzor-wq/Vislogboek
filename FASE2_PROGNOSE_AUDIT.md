@@ -4338,3 +4338,24 @@ De biologische activiteit-/voedingslaag kan als conservatief ontwerp worden afge
 ### 157.5 Formele uitkomst
 
 **Fase 2 is nog niet formeel afgerond of geaccepteerd. Fase 3 blijft geblokkeerd.** De literatuur- en architectuurinventaris zijn voldoende ver gevorderd; verder breed literatuur verzamelen is niet de hoofdtaak. De resterende softwarewerkzaamheden zijn concreet afgebakend in §157.4. Onafhankelijke biologische validatie en lokale thermische kalibratie blijven afhankelijk van toekomstige echte meetgegevens en mogen niet door documentatie of synthetische tests worden geclaimd.
+
+
+## 158. Uitvoering punt 1 — tijdstipgerichte thermische toestand (20 november 2026)
+
+**Status: technisch geïmplementeerd en gevalideerd binnen de bestaande engine.** PR [#203](https://github.com/sennzor-wq/Vislogboek/pull/203) is gemerged. De exacte PR-head Quality Gate én de Quality Gate op de mergecommit zijn geslaagd.
+
+De bestaande `analyzeWaterThermalDevelopment` ondersteunt nu `targetTime` als expliciet doeltijdstip. De prognose berekent voor elk tijdvak een eigen thermische toestand op een representatief forecastmoment. Elke berekening begint bij hetzelfde laatst geldige meetanker en verwerkt de beschikbare uurlijkse weersontwikkeling chronologisch tot het gevraagde moment. Een meting die ná het doelmoment plaatsvond, wordt niet als anker gebruikt. Een actuele meting wordt voor een toekomstig tijdstip behandeld als historisch startanker en niet opnieuw als actuele meting gepresenteerd.
+
+Verstreken tijdvakken worden niet achteraf herschreven met een latere meting; zij behouden de bestaande actuele/dagbrede analyse. De bestaande lokale temperatuur-biascorrectie wordt op de tijdstipgerichte schattingen op dezelfde manier toegepast. De zichtbare 1–10-score, het scoremodel, de database, gebruikersinvoer en UI zijn niet gewijzigd.
+
+Nieuwe regressietests controleren:
+- expliciete tijdstempel per berekening;
+- een gemeten 8 °C als gedeeld startanker voor middag, avond en volgende ochtend;
+- stabiele luchttemperatuur en weinig wind veroorzaken geen ongefundeerde abrupte temperatuurdaling;
+- toekomstige schattingen blijven schattingen en behouden de herkomst van hetzelfde meetanker.
+
+De eerste CI-run vond een bestaande dagscore-regressie doordat verstreken tijdvakken met een later meetmoment werden herberekend. Dit is hersteld: verstreken tijdvakken gebruiken de bestaande actuele analyse. De herhaalde volledige Quality Gate is groen, inclusief waterthermische koppeling, alle regressietests en productiebuild.
+
+**Begrenzing:** de targettijd wordt nu doorgegeven en gebruikt, maar de deterministische interpretatie van forecasttijdstempels, `forecastAsOf`, Europe/Amsterdam en zomer-/wintertijd hoort bij punt 2 en is nog open. Dit resultaat valideert ook nog niet de fysieke tijdconstanten; daarvoor zijn echte lokale meetreeksen nodig.
+
+**Volgende stap: punt 2 — tijdzonebewuste en reproduceerbare forecast-/tijdstempelverwerking.** Geen fase-3-overgang.
