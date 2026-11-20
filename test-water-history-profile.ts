@@ -113,7 +113,13 @@ const multiMeasurementSession = {
       id: 'event-2', locationId: target.id, temperatureC: 12.6,
       measuredAt: '2026-06-10T11:00:00.000Z', recordedAt: '2026-06-10T11:01:00.000Z',
       measurementSource: 'manual' as const, measurementMethod: 'probe' as const,
-      measurementDepthM: 0.5,
+      measurementDepthM: 0.4,
+    },
+    {
+      id: 'event-3', locationId: target.id, temperatureC: 12.8,
+      measuredAt: '2026-06-10T12:00:00.000Z', recordedAt: '2026-06-10T12:01:00.000Z',
+      measurementSource: 'manual' as const, measurementMethod: 'probe' as const,
+      measurementDepthM: 0.4,
     },
     {
       id: 'event-unknown-method', locationId: target.id, temperatureC: 12.8,
@@ -131,13 +137,16 @@ const eventDuplicateSnapshot = {
 const eventObservations = collectHistoricalWaterTemperatureObservations(
   [multiMeasurementSession], [eventDuplicateSnapshot], [target],
 );
-assert(eventObservations.length === 2,
-  'Meerdere fysieke metingen binnen één sessie worden afzonderlijk verzameld en dubbele snapshotkopieën tellen niet dubbel');
+assert(eventObservations.length === 4,
+  'Drie afzonderlijke fysieke meetevents plus de snapshotkopie blijven als herleidbare bronrecords beschikbaar');
 assert(eventObservations.some((item) => item.measurementId === 'event-1' &&
   item.weatherContext?.airTemperatureC === 17 && item.measurementDepthM === 0.4),
   'Een meetevent behoudt zijn eigen weerscontext en meetdiepte in de historische dataset');
 assert(!eventObservations.some((item) => item.measurementId === 'event-unknown-method'),
   'Een meetevent met onbekende methode blijft bewaard maar wordt niet als gevalideerde kalibratiemeting gebruikt');
+const eventProfile = deriveHistoricalWaterTemperatureProfile(eventObservations, target, '2026-06-11');
+assert(eventProfile?.sampleCount === 3 && eventProfile.baselineC === 12.6,
+  'Meerdere meetevents binnen één sessie dragen afzonderlijk bij; een dubbele snapshotkopie telt in het profiel slechts eenmaal');
 
 const localHistory: HistoricalWaterTemperatureObservation[] = [
   { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z' },

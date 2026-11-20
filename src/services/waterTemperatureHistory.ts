@@ -121,16 +121,7 @@ export function collectHistoricalWaterTemperatureObservations(
     });
   }
 
-  const unique = new Map<string, HistoricalWaterTemperatureObservation>();
-  for (const observation of observations) {
-    const measuredAt = parseAppTimestamp(observation.timestamp)?.getTime();
-    if (measuredAt === undefined) continue;
-    const depth = typeof observation.measurementDepthM === 'number' ? Math.round(observation.measurementDepthM * 100) / 100 : 'unknown';
-    const key = `${observation.locationId}|${measuredAt}|${observation.temperatureC}|${depth}`;
-    const existing = unique.get(key);
-    if (!existing || (observation.measurementId && !existing.measurementId)) unique.set(key, observation);
-  }
-  return [...unique.values()];
+  return observations;
 }
 
 export interface HistoricalWaterTemperatureProfile {
