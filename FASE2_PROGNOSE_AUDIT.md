@@ -3963,3 +3963,44 @@ Daarom blijft de interne representatie voorlopig componentgericht. Voor een same
 5. Bevries de baseline en ontwerp een reproduceerbare rolling-origin/ablatietest; rapporteer per soort, seizoen, datadekking en respons, inclusief negatieve of niet-evalueerbare uitkomsten.
 
 **Status:** enginecontract inhoudelijk uitgewerkt als ontwerp; nog niet formeel geaccepteerd en niet geïmplementeerd. Geen runtimecode, profielparameter, gewicht, scoremapping, tijdvakbonus, UI of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 151. Gerichte audit van open biologische datasets: bruikbare responsen en grenzen (20 november 2026)
+
+Deze controle richtte zich op de vraag of openbaar beschikbare datasets de onafhankelijke labels kunnen leveren die de engine nodig heeft (§131 en §150). Er is niet gezocht naar meer algemene soortinformatie, maar naar datasets met ruwe meetmomenten en een werkelijk gemeten biologische respons.
+
+### 151.1 Norin et al. (2024) — fysiologie, beweging en dagelijkse voedselopname
+
+De primaire publicatie en methodesectie zijn gecontroleerd. De studie onderzocht juveniele marine Cunner in gecontroleerde aquaria bij 2, 5, 8, 11 en 14 °C. Metabolisme, aerobe scope, bewegingsactiviteit en groei zijn afzonderlijk gemeten. In een snelle afkoelproef werd daarnaast dagelijkse pelletopname bepaald: een vast aantal pellets werd rond 08:30 aangeboden en de resterende opname werd aan het einde van de dag geteld.
+
+De relevante uitkomst voor het engineontwerp is dat thermische plasticiteit van metabolisme niet samenviel met thermische plasticiteit van bewegingsactiviteit. De studie onderstreept dus dat fysiologische capaciteit en feitelijke beweging niet zonder bewijs als dezelfde respons mogen worden behandeld. De voedselopname is een direct dagtotaal, maar geen tijdvakverdeling.
+
+**Toelatingsbesluit:** contextueel bewijs voor het gescheiden modelleren van fysiologie, beweging en voedselopname. Niet overdraagbaar als soortcurve of veldparameter naar de Nederlandse zoetwatersoorten; geen numerieke scorebijdrage of tijdvakbonus. Toegevoegd als 94e registry-record, soortgebonden aan Cunner en approvedForPrediction=false.
+
+### 151.2 Monk & Arlinghaus (2018) — wilde karper/zeelt, telemetrie en aaslocaties
+
+De Dryad-dataset bevat hoogfrequente telemetrieposities van wilde karper en zeelt, diepte-/temperatuursensorinformatie, locaties van acht gevoerde aasplekken, tijden en hoeveelheden aangeboden voer, vangstgegevens en expliciete hengelinzet. De voederregistratie beschrijft wat op de stek werd aangeboden; zij meet niet hoeveel natuurlijk of aangeboden voedsel de vis daadwerkelijk consumeerde. De telemetrie meet positie, beweging en aanwezigheid bij aaslocaties, niet de voedselopname zelf.
+
+De publicatie rapporteert dat het tegenkomen van aas noodzakelijk maar onvoldoende is om individuele vangbaarheid te verklaren. Dit is nuttig voor de scheiding tussen lokale ontmoeting, aasbezoek en uiteindelijke hengelvangbaarheid.
+
+**Toelatingsbesluit:** potentieel bruikbaar voor afzonderlijke habitat-/bewegings-/aasontmoetings- en vangbaarheidsanalyse; geen direct voedingslabel voor de biologische dagscore en geen maat voor dagelijkse natuurlijke voedselopname. Geen runtimefactor.
+
+### 151.3 Rieble et al. (2026) — dagelijkse bewegingsactiviteit van karper en baars
+
+De Dryad-dataset bevat whole-lake akoestische telemetrie, ruwe posities en afgeleide dagelijkse bewegingsactiviteit voor karper en baars in Kleiner Döllnsee (Duitsland), plus vangst-/tagginggegevens en een BACIPS-analyse van catch-and-release-effecten. De dataset bevat geen directe dagelijkse voedselopname of tijdvakgebonden voedingslabels. De gepubliceerde dagelijkse bewegingsreeks is bovendien gekoppeld aan een studie naar vangst-/terugzetbelasting en herstel; die experimentele context moet behouden blijven.
+
+De dataset bevat bij vangstmetingen ook temperatuur, troebelheid en opgeloste zuurstof, maar deze losse meetmomenten bij vangst zijn geen continue onafhankelijke responsreeks voor de hele dag.
+
+**Toelatingsbesluit:** waardevol kandidaatmateriaal voor een latere afzonderlijke bewegings-/habitatlaag en voor inzicht in detectie-/inspanningseisen. Niet gebruiken als voedselopname- of tijdvakvoedingslabel en niet direct overzetten naar een algemene dagelijkse activiteitsscore.
+
+### 151.4 Geconsolideerde conclusie en stopbesluit
+
+De gerichte datasetcontrole levert nuttige bevestiging van de responsgrenzen, maar geen dataset die nu de ontbrekende onafhankelijke Nederlandse veldlabels voor de samengestelde biologische dagscore of tijdvakvoeding oplost:
+
+- Norin et al. meet directe dagelijkse pelletopname, maar bij juveniele marine Cunner in aquaria en zonder tijdvakverdeling.
+- Monk & Arlinghaus meet wilde karper-/zeeltbeweging, aaslocatiebezoek en hengelvangbaarheid, maar niet de werkelijk geconsumeerde voedselhoeveelheid.
+- Rieble et al. meet dagelijkse beweging van karper/baars, niet voedselopname; de dataset is gericht op effecten en herstel na catch-and-release.
+
+Daarom is het niet verantwoord deze datasets als numerieke voedingsfactoren of tijdvaklabels toe te laten. Ze versterken wel de gekozen architectuur: thermische fysiologie, beweging/aanwezigheid, voedselopname en vangbaarheid moeten aparte responsen blijven. De data kunnen later gericht worden hergebruikt voor hun eigen responslaag, zonder de engine nu te verbreden.
+
+**Stopbesluit:** geen verdere brede datasetzoektocht naar algemene visactiviteit. Hervat gericht onderzoek alleen als een concrete soort-/responsvraag een mogelijk direct label, tijdvakrespons of parameter oplevert. De ontbrekende lokale biologische labels blijven een formele validatiebeperking; geen geforceerde vervanging door vangstdata. Fase 2 blijft open; Fase 3 geblokkeerd.

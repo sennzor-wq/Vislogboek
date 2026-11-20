@@ -1077,3 +1077,10 @@ Belangrijk ontwerpbesluit: thermische efficiëntie, voedselopname en tijdvakvoor
 De vier vensters blijven nacht 00–06, ochtend 06–12, middag 12–18 en avond 18–24. De huidige code gebruikt dezelfde dagbrede thermalAnalysis voor alle vier vensters; de weer-/zondata leveren vooral context en geen gevalideerde biologische tijdvakrangorde. Een toekomstige tijdvakrespons vereist tijdspecifieke watertemperatuur/provenance en directe soort-/contextpassende voedingslabels. Geen generieke schemerbonus.
 
 De volledige factorresponsmatrix, invoerflow, tijdvakvoorwaarden en vervolgstappen staan in audit §150. Geen runtimewijziging; Fase 2 blijft open.
+
+
+## 126. Open datasets en responsvalidatie: geen substituut tussen fysiologie, beweging en voeding
+
+Audit §151 documenteert een gerichte controle van drie openbaar beschikbare datasets. Norin et al. (2024) meet bij juveniele marine Cunner metabolisme, beweging en dagelijkse pelletopname afzonderlijk; thermische plasticiteit van metabolisme en beweging viel niet samen, terwijl de voedselopname slechts als dagtotaal is vastgelegd. Monk & Arlinghaus (2018) biedt wilde karper-/zeelttelemetrie, aaslocatiebezoek en hengelinzet, maar geen gemeten voedselconsumptie. Rieble et al. (2026) biedt dagelijkse beweging van karper en baars, maar geen directe voedingslabels en heeft een catch-and-release-herstelcontext.
+
+Deze datasets zijn daarom niet numeriek toegelaten voor de biologische dagscore of tijdvakvoeding. Ze bevestigen wel dat thermische fysiologie, beweging, voedselopname en hengelvangbaarheid gescheiden responsen moeten blijven. Hergebruik voor een eigen bewegings-/habitat- of vangbaarheidslaag kan later worden onderzocht. Geen runtimewijziging; Fase 2 blijft open.

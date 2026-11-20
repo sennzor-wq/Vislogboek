@@ -1936,6 +1936,30 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
 
+
+  {
+    id: 'norin-et-al-2024-cunner-thermal-behavior-feeding',
+    topic: 'temperatuur-metabolisme-beweging-en-voedselopname',
+    species: ['Cunner'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    measuredOutcomes: ['metabolic_rate', 'aerobic_scope', 'locomotor_activity', 'feeding_intensity', 'growth'],
+    summary: 'Gecontroleerde studie met juveniele marine Cunner (Tautogolabrus adspersus; oorspronkelijk n=75) bij 2, 5, 8, 11 en 14 °C. De auteurs vonden dat individuele thermische plasticiteit van metabolisme niet samenviel met thermische plasticiteit van bewegingsactiviteit. In de snelle afkoelproef werd dagelijkse pelletopname gemeten door een vast aantal pellets rond 08:30 aan te bieden en de resterende opname aan het einde van de dag te tellen. De studie ondersteunt dat fysiologische, bewegings- en voedingsresponsen afzonderlijk moeten worden behandeld.',
+    limitations: [
+      'Dit betreft juveniele marine Cunner in gecontroleerde aquaria, niet de Nederlandse zoetwatersoorten en wilde visserijcontext van Vislogboek.',
+      'De dagelijkse voedselopname werd als dagtotaal gemeten na één dagelijkse voedering; de studie levert geen tijdvakgebonden voedingsintensiteit of veldvangstrespons.',
+      'Bewegingsactiviteit werd in de langzame afkoelproef over korte dag-/nachtvideo-opnamen gemeten; dit is geen continue veldactiviteit of directe voedingsmeting.',
+      'De resultaten mogen niet worden gebruikt om thermische parameters, voedselopnamecurves, soortgewichten of tijdvakbonussen voor andere soorten af te leiden.',
+      'De registratie is uitsluitend contextueel en niet goedgekeurd voor directe numerieke voorspelling.'
+    ],
+    sourceReferences: [
+      'Norin, T., Rowsey, L.E., Houslay, T.M., Reeve, C. & Speers-Roesch, B. (2024). Among-individual variation in thermal plasticity of fish metabolic rates causes profound variation in temperature-specific trait repeatability, but does not co-vary with behavioural plasticity. Philosophical Transactions of the Royal Society B, 379(1896), 20220488. https://doi.org/10.1098/rstb.2022.0488',
+      'Supplementary data: https://doi.org/10.6084/m9.figshare.c.6948919'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+
 ];
 
 /**
