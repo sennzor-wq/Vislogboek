@@ -1026,3 +1026,15 @@ De volgende ontwerpstap is een minimale tijdstipgerichte API voor de bestaande w
 Audit §153 en modelarchitectuur §128 verduidelijken dat `waterThermalEngine` al een eenvoudige uurlijkse toestandsupdate uitvoert bij een bruikbaar echt meetanker en voldoende weersdekking. De code gebruikt onder meer vaste diepte-afhankelijke tijdconstanten, zonnestraling/bewolking en een windmengingproxy, maar retourneert één dagwaarde. Deze parameters zijn heuristisch; er is nog geen expliciet temperatuurprofiel per dieptelaag en meetdiepte wordt nog niet als volwaardige toestanddimensie benut.
 
 Vastgelegd besluit: de bestaande `waterThermalEngine` verbeteren, geen nieuwe engine bouwen. Volgende stap is de volledige dataflow en dekking van waterdiepte, meetdiepte, meettijd, tijdzone en uurlijkse weersvelden controleren. Daarna volgt een minimale tijdstipgerichte API-/testspecificatie. Geen runtime-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — datastroom watermetingen en weersherkomst gecontroleerd (20 november 2026)
+
+Audit §154 en modelarchitectuur §129 leggen vast:
+- locatie-waterdiepte en fysieke meetdiepte zijn verschillende gegevens;
+- de bestaande historische profielselectie gebruikt meetdiepte nog niet en kan daardoor metingen uit verschillende waterlagen combineren;
+- de snelle prognose-invoer "Gemeten aan stek" heeft wel een invoermoment maar geen expliciet fysiek meettijdstip, methode of meetdiepte;
+- uurlijkse weerdata zijn Open-Meteo-forceringen, geen watertemperatuur; tijdzoneparsing van Amsterdam-uurstrings moet reproduceerbaar worden gemaakt;
+- forecast-as-of, berekeningstijd en gevraagd tijdstip moeten apart blijven.
+
+Volgende stap: ontwerp de minimale meet-/toestandsspecificatie en regressietests voor meetdieptes, onbekende meetdiepte, tijdzone/DST, forecast-as-of en tijdstipupdates. Bestaande `waterThermalEngine` blijft de enige engine. Geen runtime-, database-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
