@@ -3894,3 +3894,72 @@ Geen minimumaantal bronnen per soort, geen doel om de registry verder te laten g
 Fase 2 moet het engine-ontwerp, de feature-/responscontracten, onzekerheidsregels, tijdvaklogica en onafhankelijke evaluatiepoort toetsbaar afronden. Lokale praktijklabels zijn niet vereist om het ontwerp te documenteren, maar wél voordat lokale kalibratie of prestatieclaims worden gedaan en voordat nieuwe lokale empirische factoren numeriek worden toegelaten. Bestaande vangstregistraties mogen niet als directe activiteit-/voedingslabels worden hernoemd.
 
 De tactische productbesluiten over voorvoergrammen en optionele hengel-/methodepresets worden apart gehouden en zijn geen reden om de biologische engine-ontwerpfase stil te zetten. Er wordt geen runtimefactor, gewicht, scoremapping of gebruikersinvoer aangepast door deze herprioritering. Fase 2 blijft open; Fase 3 blijft geblokkeerd totdat de engine-acceptatiecriteria aantoonbaar zijn afgevinkt.
+
+## 150. Concreet enginecontract: responslagen, featureflow en tijdvaklogica (20 november 2026)
+
+**Doel:** de kandidaatarchitectuur uit §134 vertalen naar een uitvoerbaar contract voor de prognose-engine. Dit is een ontwerpbesluit voor de verdere audit; geen runtimewijziging, geen numerieke toelating en geen wijziging van de gebruikersscore.
+
+### 150.1 Doelrespons versus huidige implementatie
+
+Het productdoel blijft één bestaande 1–10-dagscore voor de verwachte biologische activiteit- en voedings-/foerageerpotentie van de gekozen doelsoort. De huidige code realiseert dat samengestelde doel nog niet: zij berekent uitsluitend een voorlopige thermische prior. Dat verschil moet in code, uitleg en validatie expliciet blijven.
+
+De engine mag componenten intern apart modelleren en evalueren. Een samengestelde numerieke score ontstaat pas wanneer de componenten aantoonbaar dezelfde vooraf gedefinieerde doelrespons ondersteunen en er een onafhankelijke referentie bestaat om de combinatie te toetsen. Een optelsom van thermische efficiëntie, voedingsintensiteit, licht, wind en habitat is niet toegestaan alleen omdat alle factoren biologisch plausibel klinken.
+
+### 150.2 Voorgestelde verwerkingsketen
+
+| Stap | Engine-laag | Invoer en verwerking | Uitvoer / grens |
+|---|---|---|---|
+| 1 | Canonieke context | Doelsoort, datum, lokaal tijdvak, seizoen, watertype en beschikbare levensfase-/voedselcontext. Ontbrekende context blijft onbekend. | Eén contextobject dat alle responsmodules delen; geen parallelle soortcatalogus. |
+| 2 | Dataprovenance en validatie | Meet-/schattingsstatus, eenheid, meettijd, diepte/locatie, bron, geldigheid en onzekerheid. | Alleen valide, representatieve invoer gaat door; conflicten en veroudering blijven expliciet. |
+| 3 | Thermische prior | Bestaande waterThermalEngine plus canonieke soortparameters uit fishProfiles; respons op water, niet luchttemperatuur. | Huidige enige numerieke scorebijdrage, expliciet voorlopig. Parameter- en invoeronzekerheid apart. |
+| 4 | Directe voedings-/foerageerrespons | feedingEvidenceService en soort-/contextspecifieke responskaarten; alleen directe passende eindpunten mogen kandidaatresponsen leveren. | Momenteel uitsluitend context/kandidaatbewijs: 0 goedgekeurde numerieke voedingsrecords. Geen fictieve voedingsscore. |
+| 5 | Tijd-/omgevingsmodulatie | Tijdvakgebonden temperatuurontwikkeling, directe voedingsritmegegevens en uitsluitend gevalideerde omgevingsresponsen. | Modulatoren veranderen een respons alleen als directe evidence, input en onafhankelijke validatie passen. Geen universele schemer-, wind-, druk- of seizoensbonus. |
+| 6 | Habitat-/aanwezigheidscontext | Bestaande habitatMovementEngine, bankWindEngine en rodPositioningEngine. | Afzonderlijke ruimtelijke zoekhypothese voor VisCoach; geen dagscorebijdrage of aanwezigheidkans zonder eigen labels. |
+| 7 | Scorecompositie en tijdvakken | Alleen toegelaten responsen met een gemeenschappelijk doel, gecontroleerde overlap en gevalideerde ontbrekend-data-patronen. | Eén bestaande 1–10-dagscore en vier tijdvakverwachtingen; geen nieuwe zichtbare subscores. Tot de voorwaarden zijn vervuld blijft de thermische baseline apart herkenbaar. |
+| 8 | Uitleg en onzekerheid | Provenance, bewijsstatus, coverage, ontbrekende/geschatte input, modelversie en relevante beperkingen. | Korte uitleg aan gebruiker; onzekerheid is geen biologische bonus of aftrek. |
+| 9 | Evaluatie | Eigen labels/metrics per respons, rolling-origin vergelijking, factorablaties en coverage-strata. | Toelating alleen bij aantoonbare aanvullende waarde op ongeziene data; geen automatische gewichtstuning. |
+
+### 150.3 Responscontract per factorfamilie
+
+| Factorfamilie | Primaire respons | Rol in kandidaat-engine | Huidige beslissing |
+|---|---|---|---|
+| Watertemperatuur en thermische historie | Voorlopige thermische/fysiologische potentie | Baseline/prior; input uit waterThermalEngine, soortcurve uit fishProfiles | Actief als optie-A-uitzondering; niet gevalideerd als dagelijkse voedselopname. |
+| Directe voedselopname / voedingsintensiteit | Geconsumeerde hoeveelheid of snelheid | Potentiële directe biologische responscomponent | Niet numeriek toegelaten; broncontext verschilt per soort, levensfase, voedsel en watertype; geen lokale directe labels. |
+| Foerageeractiviteit / prooivangst | Voedselzoeken of natuurlijke prooivangst | Alleen kandidaat als eindpunt en overdraagbaarheid passen bij de gekozen doelrespons | Contextueel; niet gelijkstellen aan dagelijkse intake of hengelaasrespons. |
+| Voedingsritme / dag-nachtrespons | Wanneer voeding/foerageren plaatsvindt | Primair tijdvakmodule, eventueel dagbreed alleen als een dagbrede verandering direct is aangetoond | Contextueel; bron- en dieet-/levensfasegebonden; geen algemene schemerbonus. |
+| Seizoen / levenscyclus / acclimatisatie | Modulator van thermische of voedingsrespons | Interactie/modulator, nooit zelfstandig een algemene bonus | Alleen context tot directe interactie-evidence en validatie bestaan. |
+| Licht / fotoperiode / bewolking | Lichtconditie en zonne-relatieve timing | Tijdvakcontext; kandidaatmodulator als directe responsdata bestaan | Geen huidige numerieke bijdrage; fotoperiode, dageraad, schemering en bewolking niet dubbel tellen. |
+| Wind / windrichting / luchtdruk / neerslag | Wateroppervlak, drift, lokale beweging of indirecte weercontext | Bestaande tactiek-/habitatcontext; alleen aparte directe voedingsrespons kan heroverweging rechtvaardigen | Geen biologische dagscorebijdrage; overlap met waterthermische schatting bewaken. |
+| Zuurstof / troebelheid / stroming / lokaal prooiaanbod | Fysiologische beperking, zicht, lokale toegang of voedselbeschikbaarheid | Potentieel relevante lokale responsen, maar alleen bij betrouwbare actuele invoer | Momenteel onbekend of niet beschikbaar; geen proxy uit weer of temperatuur. |
+| Diepte / bodem / vegetatie / structuur / stek | Habitatgeschiktheid en lokale aanwezigheid | Afzonderlijke ruimtelijke laag voor VisCoach | Geen dagscorebijdrage; bestaande engines hergebruiken. |
+| Hengeluren / aas / methode / vangsten | Praktische vangbaarheid en persoonlijke sessie-uitkomst | Afzonderlijke tactiek-/vangbaarheidslaag | Geen biologisch activiteit-/voedingslabel; Brier blijft persoonlijke vangstkans. |
+| Datadekking / onzekerheid | Betrouwbaarheid van de voorspelling | Metadata en uitleg | Nooit als biologische scorebonus of -straf. |
+
+### 150.4 Tijdvakcontract: vier bestaande vensters, geen kunstmatige winnaar
+
+De code gebruikt vier vaste lokale vensters: nacht 00:00–06:00, ochtend 06:00–12:00, middag 12:00–18:00 en avond 18:00–24:00. analyzeTimeSlot() leest per venster weerssamples en maakt context voor luchtdruk, wind, neerslag, bewolking en zonneovergangen. De actuele biologische thermische berekening ontvangt echter dezelfde thermalAnalysis voor de dag; de vier tijdvakken hergebruiken daardoor dezelfde thermische respons. De huidige tijdvakweergave is dus geen afzonderlijk gevalideerde biologische rangschikking.
+
+Voor een echte tijdvakrespons zijn de volgende eisen nodig:
+
+1. **Tijdspecifieke invoer:** elk venster gebruikt alleen data die voor dat venster beschikbaar en tijdig voorspeld waren. Watertemperatuur per venster mag alleen worden geschat als de waterthermische keten dit met een onderbouwde tijdsontwikkeling en onzekerheid kan leveren; luchttemperatuur is geen vervanging.
+2. **Tijdspecifieke biologie:** directe voedings-/foerageerrespons moet waar mogelijk het relevante venster, seizoen, levensfase, voedselgilde en watertype dekken. Dagritme van beweging is geen voedingsritme.
+3. **Geen dubbele telling:** dagbrede thermische of seizoensinvloed mag niet vier keer als onafhankelijke factor worden opgeteld. Lichtvariabelen die dezelfde zonneovergang beschrijven worden één context-/responsfamilie.
+4. **Geen geforceerde rangorde:** als geen toegelaten respons een verschil tussen vensters onderbouwt, mogen de vensters biologisch niet als verschillend worden gerangschikt. De coach kan praktische context tonen zonder een beste tijd te claimen.
+5. **Dagscoreaggregatie:** de bestaande dagscore blijft één getal. Een toekomstige aggregatie van tijdvakresponsen moet rekening houden met de vaste vensterduur, geldige voorspelde blootstelling en vooraf vastgelegde dagrespons. Geen gemiddelde of gewogen som kiezen voordat het gemeenschappelijke label en de evaluatie aantonen dat dit de juiste samenvatting is.
+6. **Evaluatie:** tijdvakvoeding en tijdvakvangbaarheid worden apart getoetst. Directe tijdgebonden voedselopname/foerageerlabels toetsen biologische voorkeur; vangsten/aanbeten per expliciet hengeluur toetsen alleen praktijkvangbaarheid.
+
+### 150.5 Kritieke modelkeuze: geen aggregatie vóór gemeenschappelijke referentie
+
+Thermische efficiëntie, directe voedselopname en tijdvakvoorkeur zijn verschillende responsen. Het is biologisch plausibel dat thermische toestand de capaciteit voor activiteit/vertering beïnvloedt en dat voedselbeschikbaarheid of dagritme bepaalt wanneer en hoeveel wordt gegeten. Maar die plausibiliteit levert geen numerieke aggregatieformule op.
+
+Daarom blijft de interne representatie voorlopig componentgericht. Voor een samengestelde 1–10-score moeten we eerst vastleggen welk onafhankelijk meetbaar eindpunt de combinatie vertegenwoordigt, welke vaste referentiecondities de scoreankers bepalen en hoe een samengestelde voorspelling tegen dat eindpunt wordt geëvalueerd. Als zulke labels ontbreken, blijft de thermische prior de bestaande baseline en blijven overige componenten contextueel; we doen niet alsof een ongetoetste optelsom de productdoelrespons al meet.
+
+### 150.6 Eerstvolgende enginewerkzaamheden
+
+1. Verifieer de volledige invoer-/provenanceketen per factor en per tijdvak, inclusief of een voorspelde watertemperatuur werkelijk tijdvakgebonden is of een dagbrede waarde.
+2. Maak een responskaart per doelsoort waarin uitsluitend relevante directe voedings-/foerageerbronnen en tijdvakbronnen aan het juiste eindpunt worden gekoppeld; behoud bron-/levensfase-/voedselcontext.
+3. Controleer welke onafhankelijke externe datasets de labels uit §131 daadwerkelijk kunnen leveren en welke niet overdraagbaar zijn naar de gewenste wilde Nederlandse visserijcontext.
+4. Leg vaste referentieankers en de kandidaat-scorecompositie alleen vast als de gemeenschappelijke referentie meetbaar is; anders documenteer de onopgeloste validatiepoort zonder fictieve formule.
+5. Bevries de baseline en ontwerp een reproduceerbare rolling-origin/ablatietest; rapporteer per soort, seizoen, datadekking en respons, inclusief negatieve of niet-evalueerbare uitkomsten.
+
+**Status:** enginecontract inhoudelijk uitgewerkt als ontwerp; nog niet formeel geaccepteerd en niet geïmplementeerd. Geen runtimecode, profielparameter, gewicht, scoremapping, tijdvakbonus, UI of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
