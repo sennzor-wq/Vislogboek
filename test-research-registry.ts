@@ -193,8 +193,14 @@ if (
   throw new Error('Wels catfish 2025 stomach-fullness evidence must preserve seasonal sample imbalance and lack of temperature/diel labels.');
 }
 const pikeFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-field-seasonal-feeding-diet-2025');
-if (!pikeFeeding?.summary.includes('niet statistisch significant')) {
-  throw new Error('The pike evidence must preserve the non-significant seasonal/temperature result.');
+if (
+  !pikeFeeding ||
+  !pikeFeeding.summary.includes('intern conflict') ||
+  !pikeFeeding.summary.includes('r_s=0,117') ||
+  !pikeFeeding.limitations.some((item) => item.includes('p<0,05')) ||
+  !pikeFeeding.limitations.some((item) => item.includes('niet significant (p>0,05)'))
+) {
+  throw new Error('The pike evidence must preserve the abstract/results p-value conflict and non-significant temperature correlation.');
 }
 const pikeFieldSeasonal = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-field-seasonal-feeding-diet-2025');
 if (
