@@ -1087,3 +1087,14 @@ Punt 3 is afgerond in [PR #207](https://github.com/sennzor-wq/Vislogboek/pull/20
 De bestaande totale waterdiepte blijft een aparte vergelijkingsfactor voor nabijgelegen stekken. Geen schema-, UI- of verplichte invoerwijziging. De Quality Gate is groen op PR-head en mergecommit.
 
 **Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents met meettijd en beschikbare weerscontext.** Zie audit §160. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+### Fase 2 — uitvoering punt 4: meerdere sessiemetingen en weerscontext (20 november 2026)
+
+Punt 4 is uitgewerkt in [PR #211](https://github.com/sennzor-wq/Vislogboek/pull/211). De sessie-editor ondersteunt meerdere afzonderlijke meetevents per vissessie, met fysiek meettijdstip, apart registratiemoment, bron/methode, optionele meetdiepte en beschikbare weerscontext. Het meettijdstip staat standaard op de actuele Amsterdamse tijd en is aanpasbaar. Er is geen dagelijkse meetplicht en geen verplichte extra invoer.
+
+De events zijn als array in het bestaande sessierecord opgeslagen; daardoor is geen nieuwe IndexedDB-tabel of migratie nodig en blijven bestaande sessie-/backupstromen compatibel. De oude scalaire velden blijven de samenvatting van de meest recente bruikbare meting. Legacy metingen blijven behouden; onbekende meettijd wordt niet verzonnen.
+
+Weerscontext wordt alleen gekoppeld wanneer een uurlijkse Open-Meteo-waarde maximaal 60 minuten van het fysieke meetmoment afligt. Bron, weeruur, ophaaltijd en offset worden vastgelegd. Ontbrekende context blijft onbekend. De fysieke meettijd wordt ook als anker aan de waterthermische engine doorgegeven. Historische profielen kunnen elk geldig meetevent afzonderlijk gebruiken; dubbele snapshotkopieën tellen niet dubbel mee. Events met onbekende methode/herkomst blijven opgeslagen maar worden niet als gevalideerde profielmetingen gebruikt.
+
+**Status:** implementatie en regressietests staan in PR #211; formele afvinking volgt uitsluitend na groene Quality Gate op de definitieve PR-head en mergecommit. Zie audit §161. Fase 2 blijft open; fase 3 geblokkeerd.
