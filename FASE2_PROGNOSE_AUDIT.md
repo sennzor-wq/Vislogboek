@@ -3554,3 +3554,71 @@ De huidige audit kiest niet tussen deze richtingen en wijzigt geen runtimegedrag
 Criterium 6 is voor de eenvoudige basisflow grotendeels gerealiseerd. De precieze presetselectie uit §104 is nog niet aanwezig; de eigenaar moet bepalen of vrije tekst voldoende is of dat de optionele presetselectie daadwerkelijk moet worden gebouwd. Dit is een afgebakend product-/datamodelpunt en geen reden om extra verplichte vangstinvoer toe te voegen.
 
 Geen runtimewijziging, migratie of extra verplicht veld. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 134. Finale kandidaatmodelreview: huidige baseline, doelarchitectuur en toelatingsbesluit (20 november 2026)
+
+Deze review sluit aan op de factor-toelatingsmatrix (§132), de feitelijke vangstflowcontrole (§133), de onafhankelijke evaluatiepoorten (§131) en de gekozen modelarchitectuur. De review is gebaseerd op de actuele `main`-implementatie en is read-only: geen runtimecode, parameters, gewichten, scoremapping, gebruikersinvoer of bestaande registraties zijn gewijzigd.
+
+### 134.1 Feitelijke huidige modelketen op main
+
+| Onderdeel | Aantoonbare huidige werking | Betekenis voor kandidaatmodel |
+|---|---|---|
+| Canonieke soortrespons | `fishProfiles.ts` bevat de soortprofielen en voorlopige thermische parameters; `prognosisEngine.ts` consumeert deze via `calculateThermalEfficiency()`. | Eén bron van waarheid behouden; geen tweede profielcatalogus of parallelle prognose-engine. |
+| Biologische dagscore | Bij beschikbare gemeten of voldoende onderbouwde geschatte watertemperatuur wordt `1 + 9 × thermalEfficiency^0.85` toegepast en begrensd op 1–10. De thermische efficiëntie heeft een vloer van 0,08. | De actieve score is een thermische prior/proxy. Zij is nog geen gevalideerde samengestelde maat voor activiteit én voedselopname. De theoretische minimumscore blijft circa 2,1/10. |
+| Ontbrekende temperatuur | De interne rekenplaceholder 0,5 wordt niet als score getoond; zonder bruikbare watertemperatuur concludeert de engine N/B. | Geen ontbrekende factor invullen met een neutrale waarde en geen placeholder als label of trainingsdata gebruiken. |
+| Tijdvakken | Dezelfde dagbrede thermische respons wordt hergebruikt in de vier tijdvakken; soortspecifieke dielinformatie verschijnt als context. | De huidige tijdvakuitvoer bewijst geen afzonderlijke biologische tijdvakvoorkeur en mag geen rangorde suggereren die niet uit labels volgt. |
+| Voedingsbewijs | `feedingEvidenceService` scheidt voedingsintensiteit, voedingsritme, foerageergedrag, dieet en prooikeuze. Alleen expliciet goedgekeurde kennis kan de goedgekeurde lijst vullen; de actuele registry heeft 0 goedgekeurde records. | Er is momenteel geen toegelaten numerieke voedingsbijdrage. Contextgebonden studies blijven kandidaatbewijs, geen runtimefactor. |
+| Habitat en positionering | `habitatMovementEngine`, `bankWindEngine` en `rodPositioningEngine` leveren ruimtelijke/kwalitatieve context buiten de biologische dagscore. | Behouden als afzonderlijke aanwezigheid-/habitatlaag; niet opnemen als activiteit- of voedingsbonus. |
+| Persoonlijke vangstkans | De empirische sessielaag gebruikt vooraf opgeslagen snapshots en afgeronde sessie-uitkomsten; Brier/BSS toetst de persoonlijke vangstkans. | Geen vervangend label voor activiteit of voedselopname en geen feedbackgewicht voor de biologische score. |
+| Voorvoer | `prebaitEngine` berekent aparte suitability-, timing- en gramadviezen op basis van onder meer temperatuur en datakwaliteit. | Aparte tactiekheuristiek; geen onderdeel van de biologische score en nog geen onafhankelijke bewijsgevalideerde gramvoorspeller. |
+
+### 134.2 Beoordeling van de kandidaatarchitectuur
+
+De passende kandidaat is geen tweede totaalmodel en ook geen ongedifferentieerde optelsom van alle factoren. Het is één versiebeheerste, modulaire prognoseketen met intern gescheiden responsen:
+
+1. **Fysiologische/thermische potentie:** voorlopige soortspecifieke thermische prior, met expliciete bron- en parameteronzekerheid.
+2. **Voedings-/foerageerrespons:** afzonderlijke soort-, levensfase-, voedseltype- en contextgebonden respons; alleen numeriek wanneer directe passende bronnen en onafhankelijke labels dit toelaten.
+3. **Omgevingsmodulatie:** alleen responsrelevante invloeden, na controle op dubbeltelling en overlap met de thermische schatting.
+4. **Habitat/aanwezigheid:** bestaande afzonderlijke ruimtelijke analyse; geen bijdrage aan de totale biologische activiteit-/voedingsrespons zonder passend bewijs.
+5. **Vangbaarheid/persoonlijke vangstkans:** afzonderlijke empirische laag met expliciete inspanning; niet vermengen met de biologische score.
+6. **Datadekking en onzekerheid:** afzonderlijke metadata; onzekerheid verlaagt de zekerheid van de prognose, niet de biologische score zelf.
+
+De gebruiker blijft één bestaande 1–10-dagscore zien. Intern mogen responscomponenten gescheiden blijven voor bewijs, diagnose en evaluatie. Een samengestelde score mag pas numeriek worden gevormd wanneer de componenten aantoonbaar dezelfde vooraf gedefinieerde doelrespons ondersteunen, de overlap is gecontroleerd, ontbrekende-data-patronen zijn vastgelegd en de combinatie chronologisch onafhankelijk beter of minstens niet slechter presteert dan de baseline op geschikte labels.
+
+### 134.3 Kandidaatbesluit per modelonderdeel
+
+| Onderdeel | Reviewbesluit | Voorwaarde voor latere toelating |
+|---|---|---|
+| Bestaande thermische curve | **Voorlopige baseline-uitzondering behouden (optie A)**; niet presenteren als gevalideerde soortcurve of dagelijkse voedselopname. | Expliciete eigenaaracceptatie van de beperkte uitzondering; betere soort-/contextdata, vaste referentieankers en onafhankelijke responsvalidatie blijven gewenst. |
+| Directe voedingsrespons | **Numeriek niet toegelaten**; alleen context/kandidaatbewijs. | Direct passend responslabel, geverifieerde bronmethoden, toepasbaarheidsgrenzen en onafhankelijke chronologische evaluatie. |
+| Seizoen, licht en dielgedrag | **Contextueel per soort**; geen universele schemer-/nachtbonus. | Directe tijdgebonden voedingsrespons voor de relevante soort, levensfase en context. |
+| Wind, luchtdruk, neerslag, troebelheid, zuurstof en stroming | **Geen algemene numerieke bijdrage**; onbekende of locatiespecifieke factoren blijven expliciet onbekend/contextueel. | Betrouwbare invoer en een passende soort-/watertype-respons; overlap met reeds gemodelleerde watercondities uitsluiten. |
+| Habitat/aanwezigheid | **Afzonderlijke laag**. | Representatieve, gestandaardiseerde aanwezigheid-/afwezigheidslabels met zoekinspanning en detectiekans. |
+| Persoonlijke vangstkans | **Afzonderlijke laag**. | Eigen chronologische Brier/BSS- en kalibratie-evaluatie; geen biologische scorefeedback. |
+| Tijdvakscore | **Geen nieuwe biologische tijdvakscore of rangorde toelaten**. | Tijdvakgebonden responslabels en geldige blootstelling; vangst per hengeluur blijft vangbaarheidsinformatie, geen voedingslabel. |
+| Voorvoergrammen | **Buiten kandidaatmodel biologische score houden**; huidig tactiekadvies niet stilzwijgend wijzigen. | Afzonderlijk besluit over lage invoerkwaliteit en hoeveelheden, plus eigen evidence-/uitkomstvalidatie. |
+| Hengel-/methodepreset bij vangst | **Productkeuze open**; vrije tekst blijft optioneel en de vangstflow blijft zonder keuze opslaan. | Eigenaar bepaalt of vrije tekst voldoende is of dat een optionele herbruikbare presetselectie gewenst is. |
+
+### 134.4 Onafhankelijke evaluatie: wat kan nu wel en niet worden bewezen
+
+- Watertemperatuurschatting kan met gemeten temperatuurparen via MAE/RMSE/bias worden geëvalueerd; dit valideert niet automatisch de biologische responscurve.
+- Persoonlijke vangstkans kan met de bestaande chronologische Brier/BSS-keten worden geëvalueerd; dit valideert niet de biologische dagscore.
+- Tijdvakvangbaarheid kan beperkt beschrijvend worden onderzocht met expliciete hengeluren en betrouwbare vangsttijdstippen; dit valideert geen tijdvakvoedingsvoorkeur.
+- Voor lokale fysiologische activiteit, dagelijkse voedselopname/foerageerintensiteit, habitat-aanwezigheid en een samengestelde biologische 1–10-respons ontbreken momenteel geschikte directe labels.
+- De huidige historische sessie-uitkomsten mogen daarom niet worden hergebruikt als schijnlabel voor de samengestelde biologische score. Synthetische tests bewijzen softwaregedrag, geen biologische nauwkeurigheid.
+
+### 134.5 Formele reviewuitkomst en hervattingspunt
+
+**Kandidaatarchitectuur inhoudelijk beoordeeld; kandidaatmodel niet numeriek toegelaten.** Optie A blijft uitsluitend als transparante voorlopige thermische baseline bestaan. De huidige runtime blijft ongewijzigd en mag niet worden omschreven als een reeds gerealiseerd gecombineerd activiteit-/voedingsmodel. Er zijn geen nieuwe factoren, gewichten, interacties, scoreankers, tijdvakbonussen of datavelden geactiveerd.
+
+De documentreview kan hiermee als afgerond worden beschouwd, maar de formele Fase-2-acceptatie niet. De onafhankelijke biologische evaluatiepoort blijft open zolang passende labels ontbreken. Criterium 2 vereist expliciete erkenning van de voorlopige thermische uitzondering zonder de bewijsnorm te verlagen. De afzonderlijke productbesluiten over voorvoergrammen bij lage invoerkwaliteit en de optionele hengel-/methodepreset blijven bij de eigenaar.
+
+**Vaste vervolgstappen:**
+1. Leg de expliciete eigenaarbesluiten over optie A, voorvoergrammen/invoerkwaliteit en hengel-/methodepreset vast; verander niets stilzwijgend.
+2. Onderzoek of bestaande of extern beschikbare onafhankelijke directe biologische datasets bruikbaar zijn voor responsvalidatie; documenteer populatie, levensfase, meetmethode, context en overdraagbaarheid per dataset.
+3. Werk pas daarna referentieankers en kandidaatresponsfuncties uit voor de responsen waarvoor het bewijs werkelijk geschikt is.
+4. Voer bij beschikbare labels een rolling-origin vergelijking uit met identieke waarnemingen voor baseline en kandidaat, factorablaties, coverage-strata en rapportage van negatieve uitkomsten.
+5. Werk de zevenpunts-crosswalk bij en vraag formele Fase-2-acceptatie pas wanneer de resterende criteria aantoonbaar zijn afgehandeld. Fase 3 blijft geblokkeerd.
+
+Geen runtimewijziging, geen nieuwe gebruikersinvoer en geen wijziging aan historische data.

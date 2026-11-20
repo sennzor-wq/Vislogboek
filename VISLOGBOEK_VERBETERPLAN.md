@@ -891,3 +891,14 @@ De read-only conformiteitscontrole staat in FASE2_PROGNOSE_AUDIT.md §133. De ge
 **Afwijking:** de vastgelegde wens noemt een optionele vooraf ingestelde hengel-/methodeconfiguratie. De huidige CatchModal heeft hiervoor alleen een vrij tekstveld en het CatchItem bevat geen herbruikbare profielreferentie. SessionRod is sessiegebonden en is geen gebruikerspreset.
 
 Er wordt niets aangepast zonder expliciet productbesluit: óf de vrije tekst is voldoende en §104 wordt daarop verduidelijkt, óf een kleine optionele presetselectie wordt apart ontworpen. In beide gevallen blijft opslaan zonder hengel-/methodekeuze mogelijk. Geen runtimewijziging of migratie.
+
+
+### Fase 2 — finale kandidaatmodelreview uitgevoerd (20 november 2026)
+
+De read-only review van de actuele main-code en kandidaatarchitectuur staat in `FASE2_PROGNOSE_AUDIT.md` §134 en is samengevat in `MODELARCHITECTUUR_FASE2.md` §107. De kandidaat blijft één versiebeheerste modulaire prognoseketen; er komt geen tweede totaalmodel of ongedifferentieerde factorsom.
+
+De huidige biologische 1–10-score blijft uitsluitend de voorlopige thermische prior. De voedingsbewijsservice heeft 0 goedgekeurde numerieke bronnen; habitat/positionering, persoonlijke vangstkans/Brier en voorvoergrammen blijven aparte lagen. Dezelfde thermische dagrespons wordt nu in de vier tijdvakken hergebruikt. Er ontbreken directe lokale labels om een samengesteld activiteit-/voedingsmodel onafhankelijk te valideren.
+
+**Reviewuitkomst:** kandidaatarchitectuur inhoudelijk beoordeeld, kandidaatmodel niet numeriek toegelaten. Optie A blijft een expliciete voorlopige baseline-uitzondering, geen wetenschappelijke validatie. Geen runtime-, score-, parameter-, gewicht-, interactie- of UI-wijziging. Fase 2 blijft niet geaccepteerd; Fase 3 geblokkeerd.
+
+**Volgende werkzaamheden:** expliciete eigenaarbesluiten vastleggen voor (1) de beperkte thermische optie-A-uitzondering, (2) de afzonderlijke voorvoergrammen bij lage invoerkwaliteit en (3) vrije tekst versus optionele hengel-/methodepreset. Parallel wordt alleen waar zinvol gezocht naar onafhankelijke directe biologische datasets; daarna volgen responsankers en chronologische baselinevergelijking. Geen extra verplichte gebruikersinvoer.
