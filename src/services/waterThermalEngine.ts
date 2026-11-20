@@ -11,6 +11,9 @@ export interface ThermalAnalysisOptions {
   location?: FishingLocation;
   userMeasuredWaterTemp?: number | null;
   historicalSessions?: FishingSession[];
+  /** Exact instant (ISO timestamp) at which the water state is estimated. */
+  targetTime?: string;
+  /** @deprecated Use targetTime; hour-only targets cannot represent dates or DST safely. */
   targetHour?: number;
   currentDateRef?: Date;
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
@@ -49,8 +52,14 @@ export function analyzeWaterThermalDevelopment(
       }).format(currentDateRef)
     : '';
   const targetIsCurrentDate = Boolean(currentDateRef && currentAmsterdamDate === targetDateStr);
-  // Voor vandaag rekenen we vanaf het echte huidige tijdstip, niet vanaf een vaste middagreferentie.
-  const estimationTargetMs = targetIsCurrentDate && currentDateRef ? currentDateRef.getTime() : targetDateMs;
+  const parsedTargetTimeMs = options?.targetTime ? Date.parse(options.targetTime) : Number.NaN;
+  const hasValidTargetTime = Number.isFinite(parsedTargetTimeMs);
+  // Een expliciet tijdstip is leidend. Zonder tijdstip blijft de bestaande dagbrede
+  // referentie compatibel: nu voor vandaag, lokale-dagreferentie voor andere dagen.
+  const estimationTargetMs = hasValidTargetTime
+    ? parsedTargetTimeMs
+    : targetIsCurrentDate && currentDateRef ? currentDateRef.getTime() : targetDateMs;
+  const targetTimestamp = hasValidTargetTime ? new Date(parsedTargetTimeMs).toISOString() : null;
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
@@ -71,8 +80,9 @@ export function analyzeWaterThermalDevelopment(
     }
   }
 
+  // Een meting na het gevraagde tijdstip mag nooit als anker voor het verleden dienen.
   const usableAnchors = measurementCandidates
-    .filter((measurement) => measurement.timestampMs <= estimationTargetMs || (measurement.source === 'current' && targetIsCurrentDate))
+    .filter((measurement) => measurement.timestampMs <= estimationTargetMs)
     .sort((a, b) => b.timestampMs - a.timestampMs);
   const anchor = usableAnchors[0] ?? null;
   const anchorAgeHours = anchor
@@ -91,7 +101,14 @@ export function analyzeWaterThermalDevelopment(
   // Alleen een expliciet bij deze prognoserun ingevoerde meting is actueel.
   // Sessiemetingen blijven historische ankers, ook wanneer ze pas kort geleden
   // zijn geregistreerd; bij herbeoordeling worden ze dus geëxtrapoleerd/geschat.
-  const isActualSituation = Boolean(anchor && anchor.source === 'current' && (!currentDateRef || targetIsCurrentDate));
+  // Een handmatige meting is alleen "actueel" op/voor het meetmoment.
+  // Voor een toekomstig tijdstip wordt dezelfde meting een historisch anker
+  // en wordt de ontwikkeling vanaf dat moment chronologisch doorgerekend.
+  const isActualSituation = Boolean(
+    anchor && anchor.source === 'current' &&
+    (!currentDateRef || targetIsCurrentDate) &&
+    estimationTargetMs <= refMs
+  );
   const hasMeasured = isActualSituation;
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
@@ -112,6 +129,7 @@ export function analyzeWaterThermalDevelopment(
     return {
       trend: 'Onvoldoende gegevens',
       trendConfidence: 'Onvoldoende gegevens',
+      targetTimestamp,
       hasMeasuredWaterTemp: hasMeasured,
       measuredWaterTemp: measuredTemp,
       estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
@@ -487,6 +505,7 @@ export function analyzeWaterThermalDevelopment(
   return {
     trend,
     trendConfidence,
+    targetTimestamp,
     hasMeasuredWaterTemp: hasMeasured,
     measuredWaterTemp: measuredTemp,
     estimatedWaterTemp,

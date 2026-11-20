@@ -340,6 +340,51 @@ async function run14Scenarios() {
     '8.2 Ontbrekende meting blijft strikt null (nooit gefingeerd als 0 °C)'
   );
 
+  // 8.3 Tijdstipgerichte thermische toestand vanaf één echt meetanker.
+  console.log('\n--- SCENARIO 8.3: Chronologische thermische toestand per tijdstip ---');
+  const thermalReferenceTime = new Date('2026-10-23T12:00:00');
+  const stableWaterForecasts = makeHourlySeries('2026-10-23', 2, () => 8, () => 100, 0);
+  const waterAfternoon = analyzeWaterThermalDevelopment('2026-10-23', stableWaterForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 8,
+    currentDateRef: thermalReferenceTime,
+    targetTime: '2026-10-23T15:00:00',
+  });
+  const waterEvening = analyzeWaterThermalDevelopment('2026-10-23', stableWaterForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 8,
+    currentDateRef: thermalReferenceTime,
+    targetTime: '2026-10-23T21:00:00',
+  });
+  const waterNextMorning = analyzeWaterThermalDevelopment('2026-10-24', stableWaterForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 8,
+    currentDateRef: thermalReferenceTime,
+    targetTime: '2026-10-24T08:00:00',
+  });
+  assert(
+    waterAfternoon.targetTimestamp === '2026-10-23T15:00:00.000Z' &&
+      waterEvening.targetTimestamp === '2026-10-23T21:00:00.000Z' &&
+      waterNextMorning.targetTimestamp === '2026-10-24T08:00:00.000Z',
+    '8.3.1 Iedere tijdvakberekening bewaart het expliciete doeltijdstip'
+  );
+  assert(
+    waterAfternoon.estimatedWaterTemp !== null &&
+      waterEvening.estimatedWaterTemp !== null &&
+      waterNextMorning.estimatedWaterTemp !== null &&
+      Math.abs(waterAfternoon.estimatedWaterTemp - 8) <= 0.1 &&
+      Math.abs(waterEvening.estimatedWaterTemp - 8) <= 0.1 &&
+      Math.abs(waterNextMorning.estimatedWaterTemp - 8) <= 0.1,
+    '8.3.2 Stabiele lucht en weinig wind veroorzaken geen onverklaarde temperatuurdaling van 8°C'
+  );
+  assert(
+    waterAfternoon.hasMeasuredWaterTemp === false &&
+      waterEvening.hasMeasuredWaterTemp === false &&
+      waterNextMorning.hasMeasuredWaterTemp === false &&
+      waterEvening.anchorMeasurementTimestamp === waterAfternoon.anchorMeasurementTimestamp,
+    '8.3.3 Een toekomstige toestand gebruikt dezelfde echte meting als historisch anker, niet als nieuwe actuele meting'
+  );
+
   // 9. Ontbrekende of onvolledige historische weergegevens
   console.log('\n--- SCENARIO 9: Ontbrekende of onvolledige weerdata ---');
   const s9 = analyzeWaterThermalDevelopment('2026-10-23', [], { location: locLokkershoek });

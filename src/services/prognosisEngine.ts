@@ -754,6 +754,53 @@ export function calculateDayPrognosis(
       return hour >= hoursConfig.start && hour < hoursConfig.end;
     });
 
+    // Bepaal voor ieder tijdvak een eigen thermische toestand op het representatieve
+    // forecastmoment. De engine rekent steeds vanaf hetzelfde laatst geldige meetanker
+    // door tot dit tijdstip; dit zijn geen vier onafhankelijke temperatuurmodellen.
+    const orderedSlotForecasts = [...slotForecasts].sort(
+      (a, b) => Date.parse(a.time) - Date.parse(b.time)
+    );
+    let slotThermalAnalysis = thermalAnalysis;
+    const slotTargetTime = orderedSlotForecasts.length > 0
+      ? orderedSlotForecasts[Math.floor(orderedSlotForecasts.length / 2)].time
+      : null;
+    const slotTargetIsFutureOrCurrent = Boolean(
+      slotTargetTime &&
+      (!currentDateRef || Date.parse(slotTargetTime) >= currentDateRef.getTime())
+    );
+    // Verstreken tijdvakken blijven bij de actuele/dagbrede analyse; een meting
+    // van later vandaag mag nooit achteraf worden gebruikt om het verleden te herschrijven.
+    if (slotTargetTime && slotTargetIsFutureOrCurrent && (!userWaterTemp || currentDateRef)) {
+      const targetTime = slotTargetTime;
+      slotThermalAnalysis = analyzeWaterThermalDevelopment(dateStr, forecasts, {
+        location,
+        userMeasuredWaterTemp: userWaterTemp,
+        historicalSessions,
+        currentDateRef,
+        historicalWaterTemperatures: options?.historicalWaterTemperatures,
+        targetTime,
+      });
+
+      // Houd de bestaande gevalideerde lokale biascorrectie identiek voor elk tijdstip.
+      if (
+        temperatureCalibration &&
+        !slotThermalAnalysis.hasMeasuredWaterTemp &&
+        slotThermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
+        typeof slotThermalAnalysis.estimatedWaterTemp === 'number'
+      ) {
+        const correction = temperatureCalibration.appliedCorrectionC;
+        slotThermalAnalysis.estimatedWaterTemp =
+          Math.round((slotThermalAnalysis.estimatedWaterTemp - correction) * 10) / 10;
+        if (slotThermalAnalysis.estimatedRange) {
+          slotThermalAnalysis.estimatedRange = [
+            Math.round((slotThermalAnalysis.estimatedRange[0] - correction) * 10) / 10,
+            Math.round((slotThermalAnalysis.estimatedRange[1] - correction) * 10) / 10,
+          ];
+        }
+        slotThermalAnalysis.calibration = temperatureCalibration;
+      }
+    }
+
     timeSlotAnalyses[slot] = analyzeTimeSlot(
       slot,
       slotForecasts,
@@ -766,7 +813,7 @@ export function calculateDayPrognosis(
       slotReferenceDate,
       userWaterTemp,
       presenceObs,
-      thermalAnalysis,
+      slotThermalAnalysis,
       (() => {
         const dailySolar = options?.dailySolarTimes?.find((item) => item.date === dateStr);
         return dailySolar && typeof location?.latitude === 'number'
