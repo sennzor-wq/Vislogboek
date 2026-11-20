@@ -4214,3 +4214,26 @@ Nog niet afgedekt zijn: profielselectie op meetdiepte, tijdspecifieke temperatuu
 Deze contractschets is de basis voor de resterende data-/acceptatietoets. Eerst moeten de tijdzonehelper en dieptelaagsemantiek worden gekozen en de testdata/fixtures worden vastgesteld. Pas daarna kan een kleine implementatie in de bestaande `waterThermalEngine` worden voorbereid, met regressietests en onafhankelijke meetvalidatie als aparte gates.
 
 Geen runtime-, database-, score-, gewicht-, UI- of gebruikersinvoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### 156. Praktische meetstrategie: sessiegebonden metingen, geen dagelijkse meetplicht
+
+De gebruiker wil niet dagelijks of op vaste ochtend-/middag-/avondmomenten handmatig watertemperatuur meten. De beoogde praktijk is meten wanneer daadwerkelijk een vissessie plaatsvindt en die meting bij de sessie vastleggen. Dit is de gewenste gegevensstrategie; de engine mag niet afhankelijk worden van een dagelijkse meetroutine of van volledige dagprofielen die de gebruiker niet gaat verzamelen.
+
+**Ontwerpbesluiten:**
+- Een meting tijdens een vissessie is een opportunistische, sessiegebonden observatie op het werkelijke meetmoment. Sla meettijdstip, waarde en meetdiepte op wanneer bekend; onderscheid invoertijd van fysiek meettijdstip.
+- Geen dagelijkse meetplicht en geen verplichte meting in ieder dagdeel. Bestaande optionele invoer blijft laagdrempelig; ontbrekende metingen zijn normaal en worden niet als nul, gemiddelde of negatief signaal behandeld.
+- Bouw over langere tijd een lokale historische reeks op (bijvoorbeeld gedurende een jaar). Die reeks kan seizoens- en locatiespecifieke thermische referenties verbeteren, maar is niet automatisch een volledige tijdreeks of onafhankelijke validatie van ieder uur.
+- Een sessiemeting kan een actuele thermische ankerwaarde leveren voor de sessie en latere toestandsontwikkeling, mits fysieke meettijd, meetdiepte, bron/methode en weersdekking voldoende duidelijk zijn. Als kenmerken ontbreken, blijft de observatie bruikbaar met expliciete lagere kwaliteit/onzekerheid, maar niet als volledig gekarakteriseerde kalibratie-observatie.
+- Prognoses op dagen zonder nieuwe sessiemeting blijven mogelijk op basis van de laatst geldige ankers, historische profielen en beschikbare weersforceringen, met toenemende onzekerheid naarmate het anker ouder wordt. De engine mag geen verse meting suggereren die niet is gedaan.
+- Tijdspecifieke temperatuuruitvoer mag worden geschat vanuit één chronologische toestand en beschikbare uurlijkse weersforceringen. Meerdere metingen per dag zijn niet vereist. Zonder onafhankelijke metingen op verschillende momenten kan de tijdspecifieke nauwkeurigheid echter niet als empirisch gevalideerd worden gepresenteerd.
+
+**Dataverzameling en evaluatie:**
+- Koppel de temperatuurwaarneming aan de sessie en bewaar het werkelijke meetmoment apart van sessiestart, invoermoment en prognoseberekening.
+- Gebruik alleen forecast→later gemeten paren voor foutmeting; een meting die al beschikbaar was vóór de prognose mag niet als toekomstige validatie worden gebruikt.
+- Behoud de bestaande lokale/seizoensgebonden kalibratiegate: minimaal acht geschikte metingen is een technische ondergrens, geen garantie op statistisch robuuste kalibratie. Niet automatisch aanpassen vóór de gate en nooit toekomstige informatie laten teruglekken.
+- Analyseer aantallen en spreiding per seizoen, stek/water en meetdiepte. Een jaar aan onregelmatige sessiemetingen kan een nuttige basis opleveren, maar dekking en onzekerheid moeten expliciet worden gerapporteerd; niet elk seizoen of tijdvak zal noodzakelijk voldoende waarnemingen bevatten.
+
+Deze strategie vervangt geen noodzakelijke technische voorbereiding. De bestaande engine heeft al een basis voor meetankers, historische profielen en uur-voor-uur thermische toestandsupdate; de nog openstaande punten uit §153–155 (dieptescheiding, betrouwbare tijdzone, tijdstipgerichte uitvoer, continuïteit en forecast-as-of-tests) blijven staan. Geen dagelijkse meetfunctie, verplichte extra gebruikersinvoer, runtimewijziging, score-/gewichtwijziging of UI-wijziging.
+
+Fase 2 blijft open; Fase 3 geblokkeerd.

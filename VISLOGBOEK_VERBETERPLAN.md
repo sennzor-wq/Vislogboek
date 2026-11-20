@@ -1047,3 +1047,12 @@ Audit §155 en modelarchitectuur §130 leggen de gewenste contractrichting vast 
 De voorkeursstrategie is één chronologische toestandsdoorloop die de temperatuurtoestand op meerdere tijdstippen vastlegt. Middag bouwt voort op ochtend; geen vier onafhankelijke dagberekeningen of kunstmatige temperatuurinterpolatie. De huidige tests dekken thermische demping en grove diepteklassen, maar nog niet tijdspecifieke continuïteit, meetdiepteselectie, DST/runtimezone en forecast-as-of.
 
 Volgende stap: tijdzone-/meetdiepte-semantiek en reproduceerbare fixtures concretiseren. Daarna pas implementatievoorstel binnen de bestaande engine. Geen runtime-, database-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — praktische meetstrategie vastgesteld (20 november 2026)
+
+Audit §156 en modelarchitectuur §131 leggen vast dat handmatige watertemperatuurmetingen sessiegebonden en optioneel zijn: meten wanneer de gebruiker gaat vissen, niet dagelijks en niet verplicht in ieder dagdeel. Een meting wordt als lokale observatie aan de sessie gekoppeld met werkelijk meettijdstip en meetdiepte indien bekend.
+
+De bestaande engine moet ook zonder een nieuwe meting op iedere visdag kunnen prognosticeren vanuit geldige eerdere ankers, historische profielen en beschikbare weersforceringen, met passende onzekerheid naarmate het anker ouder wordt. Een tijdspecifieke temperatuurcurve is een modelschatting uit één chronologische toestand, geen reeks gemeten dagdeeltemperaturen. Een jaar aan sessiemetingen kan een nuttige lokale/seizoensbasis vormen, afhankelijk van spreiding en dekking; dit is geen garantie op volledige tijdvakvalidatie.
+
+Voor evaluatie tellen uitsluitend prognose→latere meting-paren; toekomstige informatie mag niet teruglekken. De bestaande ondergrens van acht geschikte lokale/seizoensmetingen blijft een softwarematige kalibratiegate, niet een claim van statistische robuustheid. Geen dagelijkse meetplicht, verplichte extra invoer, runtime-, score-, gewicht- of UI-wijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
