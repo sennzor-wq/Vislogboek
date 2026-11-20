@@ -983,3 +983,17 @@ Prejs (1978) is als primaire bron toegevoegd na volledige PDF-controle. Macrophy
 ### Fase 2 — broninventaris naar 93 records uitgebreid (20 november 2026)
 
 Prejs (1978) is als 93e bron toegevoegd met beperkte, dieet-/populatiegebonden blankvoorn-feeding-rhythm evidence. Geen overdracht naar method-feederpellets, thermische curve of soortbrede tijdvakbonus. PR #191 is gemerged; exacte PR-head en mergecommit Quality Gates zijn volledig geslaagd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — engine-gerichte herprioritering en stopcriteria (20 november 2026)
+
+De verdere Fase-2-uitvoering richt zich primair op de prognose-engine, niet op het vergroten van de literatuurregistratie. Audit §149 en modelarchitectuur §124 leggen de nieuwe werkvolgorde vast:
+
+1. doelrespons en samenstelling van de bestaande 1–10-dagscore;
+2. factor-/featurecontracten, normalisatie, ontbrekende data, onzekerheid, interacties en dubbeltelling;
+3. tijdspecifieke respons voor de vier tijdvakken;
+4. onafhankelijke evaluatie per biologische respons, met passende labels, metrics, chronologische toetsing en baselines.
+
+Bestaande water-, habitat-, wind- en positioneringsengines worden hergebruikt. Extra soortkennis over beweging en habitat blijft optimalisatie voor later, tenzij zij een concrete enginebeslissing verandert. Nieuwe bronnen worden alleen uitgewerkt als zij een responsclassificatie, parameter-/vormkeuze, overdraagbaarheidsgrens, tijdvaklogica of evaluatieontwerp kunnen veranderen. Geen bronquota of geforceerde soortcurves.
+
+Voorvoergrammen en optionele hengel-/methodepresets blijven afzonderlijke tactiek-/productbesluiten en blokkeren het biologische engine-ontwerp niet. Geen runtimefactor, gewicht, scoremapping of extra verplichte invoer is door deze herprioritering gewijzigd. Lokale labels blijven noodzakelijk voor latere lokale kalibratie en prestatieclaims, maar worden niet als voorwaarde gebruikt om het ontwerp zelf te documenteren. Fase 2 blijft open; Fase 3 geblokkeerd.

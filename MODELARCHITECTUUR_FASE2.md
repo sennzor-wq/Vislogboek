@@ -1056,3 +1056,14 @@ De bron is geen method-feeder-/pelletbewijs, heeft slechts een temperatuurcontex
 Prejs (1978) is in audit §147 als 93e registry-record toegevoegd. De bron geeft beperkt direct veldbewijs voor macrophyten-etende blankvoorn en toont dat het tijdvakpatroon sterk kan verschillen naar voedselgilde. De auteur waarschuwt tegen generalisatie naar de soort als geheel. Geen method-feeder-/pelletrespons, thermische curve of numerieke tijdvakbonus. Registry blijft non-approved.
 
 PR #191 is gemerged; de exacte PR-head Quality Gate is geslaagd. De mergecommit Quality Gate is eveneens volledig geslaagd; deze wijzigingsreeks is technisch gevalideerd.
+
+
+## 124. Uitvoeringsprioriteit: engine-ontwerp boven verdere bronuitbreiding (20 november 2026)
+
+De uitvoeringsvolgorde is aangescherpt in audit §149. De prognose-engine is het primaire Fase-2-product; verdere soortliteratuur is ondersteunend en wordt alleen opgezocht als zij een concreet ontwerp-, toelatings- of evaluatiebesluit verandert.
+
+De P0-enginewerkzaamheden zijn: (1) één heldere doelrespons voor de bestaande 1–10-dagscore; (2) feature- en responscontract per factor, inclusief normalisatie, onzekerheid, ontbrekende invoer, interacties en dubbeltelling; (3) tijdspecifieke respons voor de vier tijdvakken; (4) onafhankelijke evaluatie per respons met passende labels, metrics, chronologische splitsing en baseline. Bestaande deel-engines worden hergebruikt; er wordt geen parallelle habitat-, wind- of temperatuurengine gebouwd.
+
+Beweging, habitat en extra soortgedrag blijven afzonderlijke context-/coachlagen en zijn geen reden om de engine-afronding uit te stellen. Ze worden later alleen verdiept wanneer ze een concreet advies aantoonbaar verbeteren. Voorvoergrammen en optionele hengel-/methodepresets blijven aparte tactiek-/productbesluiten, niet blockers voor het biologische engine-ontwerp.
+
+Stopcriterium voor literatuur: geen nieuwe bron verzamelen tenzij de uitkomst een responsclassificatie, parameter-/vormkeuze, overdraagbaarheidsgrens, featuretoelating, tijdvaklogica of evaluatielabel kan veranderen. Geen bronquota, geen geforceerde soortcurves en geen willekeurige gewichten. Ontbrekend bewijs blijft expliciet onbekend. Geen runtime- of scorewijziging vóór formele afronding en toetsing van Fase 2; Fase 3 blijft geblokkeerd.
