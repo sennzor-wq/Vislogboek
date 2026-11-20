@@ -4214,3 +4214,77 @@ Nog niet afgedekt zijn: profielselectie op meetdiepte, tijdspecifieke temperatuu
 Deze contractschets is de basis voor de resterende data-/acceptatietoets. Eerst moeten de tijdzonehelper en dieptelaagsemantiek worden gekozen en de testdata/fixtures worden vastgesteld. Pas daarna kan een kleine implementatie in de bestaande `waterThermalEngine` worden voorbereid, met regressietests en onafhankelijke meetvalidatie als aparte gates.
 
 Geen runtime-, database-, score-, gewicht-, UI- of gebruikersinvoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+
+## 156. Meetmomenten als lokale kalibratiebasis en expliciete thermische traagheid (20 november 2026)
+
+Dit onderdeel legt de gebruikerswens vast om watertemperatuur praktisch tijdens vissessies te meten, zonder een dagelijkse meetroutine of vaste meetmomenten te eisen. Het doel is een groeiende, lokale en tijdgestempelde meetreeks waarmee de thermische toestand en de vertraging van water op weersveranderingen later beter kunnen worden getoetst.
+
+### 156.1 Meetfrequentie: opportunistisch tijdens vissessies
+
+- De gebruiker meet watertemperatuur wanneer hij/zij daadwerkelijk gaat vissen en registreert iedere fysieke meting.
+- Er is geen verplichting om dagelijks, elk dagdeel of op vaste kloktijden te meten. Niet-gemeten dagen blijven ontbrekend; ze worden niet geïnterpoleerd alsof er waarnemingen zijn.
+- Iedere afzonderlijke fysieke meting krijgt een eigen meetmoment. Als tijdens één sessie meerdere metingen worden gedaan, mogen eerdere waarnemingen niet worden overschreven door alleen de laatst ingevoerde sessiewaarde.
+- Behoud een snelle, laagdrempelige invoer. Alleen gegevens die al bekend/beschikbaar zijn worden vastgelegd; geen extra verplichte dagelijkse handelingen of uitgebreide vragenlijst.
+
+### 156.2 Context die aan elk meetmoment gekoppeld moet worden
+
+De fysieke watertemperatuurwaarneming moet waar beschikbaar aan de volgende context worden gekoppeld:
+
+- gemeten watertemperatuur in °C;
+- exact fysiek meettijdstip, apart van het moment waarop de gebruiker het record opslaat;
+- stek/waterlichaam en watertype;
+- meetmethode en bron/herkomst;
+- meetdiepte, indien bekend, afzonderlijk van de totale waterdiepte;
+- luchttemperatuur rond het meetmoment;
+- windsnelheid en windrichting rond het meetmoment;
+- bewolking en/of zonnestraling wanneer betrouwbare gegevens beschikbaar zijn;
+- datum, maand, seizoen en lokaal tijdvak, automatisch afleidbaar uit het fysieke meettijdstip in Europe/Amsterdam;
+- bron, tijddekking en ophaal-/as-of-tijd van gekoppelde weersgegevens.
+
+De weerscontext mag uit een betrouwbare tijdspecifieke weerbron worden gekoppeld; dit is geen claim dat de gebruiker zelf luchttemperatuur of wind moet meten. De weerbron en het tijdstip waarop de gegevens beschikbaar kwamen moeten worden bewaard. Als een veld niet betrouwbaar beschikbaar is, blijft het expliciet onbekend. Weersgegevens op het meetmoment zijn context bij de waarneming; de weersreeks ná het meetmoment is de forcing voor de latere toestandsupdate. Deze rollen mogen niet worden verwisseld.
+
+### 156.3 Thermische traagheid: de gemeten watertemperatuur is het startanker
+
+Water heeft thermische massa en reageert vertraagd op veranderingen in luchttemperatuur en weer. De engine mag een gemeten watertemperatuur daarom niet vervangen door de actuele luchttemperatuur of op basis van één koude avond/nacht abrupt meerdere graden laten dalen.
+
+Voorbeeld van het gewenste gedrag: als tijdens een middagsessie 8 °C water wordt gemeten, de luchttemperatuur daarna ongeveer gelijk blijft en er weinig wind is, moet de avond- en volgende-ochtendinschatting in beginsel dicht bij de bestaande waterstaat blijven. Een daling naar bijvoorbeeld 5 °C in de avond of 3–4 °C de volgende ochtend is niet gerechtvaardigd zonder een voldoende sterke, langdurige en passende warmte-uitwisseling die door de invoer en onzekerheidsmarge wordt ondersteund. Dit is een gedragstest, geen vaste temperatuurregel of gegarandeerde uitkomst.
+
+De berekening moet daarom:
+1. starten vanaf de meest recente geldige fysieke watermeting met het echte meettijdstip;
+2. de weersforceringen sinds dat meettijdstip chronologisch verwerken;
+3. luchttemperatuur, straling/bewolking, wind/menging, waterdiepte, watertype en meetdiepte alleen gebruiken voor zover beschikbaar en passend;
+4. de waterstaat geleidelijk aanpassen volgens een expliciete thermische tijdsrespons, met onzekerheid die toeneemt bij langere extrapolatie en ontbrekende dekking;
+5. dezelfde doorlopende toestand gebruiken voor avond, nacht en volgende ochtend, in plaats van elk tijdvak los vanaf luchttemperatuur te schatten;
+6. geen sterke afkoeling of opwarming verzinnen wanneer de relevante weerdata ontbreken of de meting te oud/onduidelijk is.
+
+De huidige engine bevat al een eenvoudige uur-voor-uur demping en diepte-afhankelijke tijdconstanten (zie §§153 en 155). Deze parameters zijn heuristisch. Deze gebruikersinbreng maakt ze niet automatisch gevalideerd: ze moeten met echte lokale metingen worden getoetst en waar nodig worden herzien. Geen willekeurige vaste correctie of nieuwe universele tijdconstante invoeren.
+
+### 156.4 Wat de meetreeks ons moet leren
+
+Door metingen uit verschillende sessies te combineren ontstaat geleidelijk een lokale dataset over:
+- hoe watertemperatuur zich op deze stek/watermassa door maanden en seizoenen ontwikkelt;
+- hoe snel water reageert op korte versus langdurige warme of koude perioden;
+- hoe rustige en winderige omstandigheden samenhangen met de gemeten ontwikkeling;
+- mogelijke verschillen tussen ondiep/diep water en bekende meetdieptes;
+- verschillen tussen middag-, avond- en ochtendmetingen, zonder te veronderstellen dat elk dagdeel dagelijks wordt bemeten.
+
+Deze reeks kan later tijdconstanten, onzekerheidsbanden en seizoensprofielen helpen beoordelen. Alleen herhaalde, vergelijkbare waarnemingen met voldoende spreiding en dekking kunnen een lokale relatie onderbouwen. Een paar metingen of een correlatie tussen wind en temperatuur bewijzen geen causaliteit en mogen geen schijnprecisie opleveren.
+
+### 156.5 Verplichte tests en grenzen
+
+| Scenario | Verwachte eigenschap |
+|---|---|
+| 8 °C middagmeting, stabiele luchttemperatuur, weinig wind | Water blijft op korte termijn relatief stabiel; geen abrupte avond-/ochtendval |
+| 8 °C middagmeting, langdurige koude-inval en sterke menging | Geleidelijke afkoeling kan optreden; grootte volgt uit forcing, diepte en onzekerheid |
+| Zelfde weer, verschillende bekende water-/meetdieptes | Reactiesnelheid mag verschillen, maar alleen binnen onderbouwde modelgrenzen |
+| Geen meting op tussenliggende dagen | Geen fictieve waarneming of schijnbaar gemeten dagwaarde toevoegen |
+| Meerdere metingen in één sessie | Iedere fysieke meting blijft afzonderlijk herleidbaar en overschrijft de vorige niet |
+| Weercontext bij meettijd ontbreekt | Temperatuurmeting blijft behouden; ontbrekende weercontext blijft onbekend |
+| Weer na meetmoment ontbreekt | Geen ongefundeerde extrapolatie; onzekerheid/status wordt aangepast |
+| Metingen in verschillende maanden/seizoenen | Meetmoment en kalendercontext blijven reproduceerbaar en vergelijkbaar |
+
+**Besluit:** sessiegebonden watertemperatuurmetingen vormen de gewenste praktische basis voor lokale thermische kalibratie. Dagelijkse metingen zijn geen vereiste. Elke meting moet als afzonderlijke tijdgestempelde observatie met beschikbare weerscontext worden bewaard. De bestaande waterThermalEngine blijft de enige engine; de thermische traagheid wordt eerst met deze lokale reeks en onafhankelijke meetvalidatie getoetst voordat parameters of runtimegedrag veranderen.
+
+Geen runtime-, database-, score-, gewicht-, UI- of verplichte invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
