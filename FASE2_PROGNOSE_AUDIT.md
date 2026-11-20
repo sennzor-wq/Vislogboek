@@ -4569,3 +4569,26 @@ Openstaand binnen punt 5:
 3. gerichte regressiecontrole van de confidence-gate in de algemene PrognosisView en daadwerkelijke uitvoering van relevante tests, typecheck en productiebuild.
 
 Geen van deze punten rechtvaardigt een wijziging van de numerieke voorvoerengine. Voor de legacy-classificatie wordt eerst de veiligste, niet-destructieve correctie bepaald; bestaande vrije tekst en expliciete `prebaited`-waarden moeten behouden blijven. Punt 5 is nog niet afgerond; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 166. Eigenaarcorrectie en betekenis totaalsom — vervolg punt 5 (20 november 2026)
+
+### 166.1 Historische sessies / legacy-fallback
+
+De eigenaar heeft bevestigd dat de oudere sessies waarop de fallback-waarschuwing uit §165.4 betrekking had, inmiddels verwijderd zijn. Deze gegevens bestaan niet meer in de huidige dataset. De mogelijke herkenning van de vrije tekst “geen voorvoer” als positieve voorvoerregistratie is daarom **geen actueel probleem in de aanwezige sessies** en vormt geen reden om bestaande data te corrigeren, terug te halen of opnieuw te classificeren.
+
+De code-observatie blijft uitsluitend een toekomstig aandachtspunt voor een eventuele import, herstelactie of nieuwe legacy-dataset. Bij zo'n toekomstige bron moet de import expliciete `prebaited`-waarden respecteren en negatieve vrije tekst niet als positieve registratie interpreteren. Er is geen wijziging aan de fallbacklogica uitgevoerd.
+
+### 166.2 Definitie van `totalAmountGrams`
+
+De engine telt in de lokale accumulatie eerst de grammen van alle voorafgaande campagnebeurten op en telt daarna ook de hoeveelheid van het sessiemoment erbij. Het geretourneerde veld `PrebaitProgramPlan.totalAmountGrams` is dus de **totale geplande hoeveelheid over alle opgenomen momenten: voorafgaande voerbeurten plus de sessiehoeveelheid**. Het is niet uitsluitend het gewicht van de voorafgaande campagne.
+
+De naam is op zichzelf niet fout, maar de interne variabelenaam `totalCampaignGrams` is smaller dan de feitelijke inhoud. In de huidige gecontroleerde PrognosisView wordt dit veld niet als aparte totaalsom getoond; de afzonderlijke momenten en hoeveelheden zijn de relevante uitvoer. Er is daarom geen reden voor een runtimewijziging of een hernoeming die onnodige compatibiliteitsrisico's introduceert. De semantiek is hiermee gedocumenteerd: consumers mogen dit veld niet interpreteren als alleen vooraf gevoerd voer.
+
+### 166.3 Testinventaris en uitvoerbaarheid
+
+De repository bevat `test-session-coach.ts`, met bestaande regressiegevallen voor de coach-presentatie van voorvoer en confidence-gating. Er is daarnaast geen afzonderlijk benoemd `test-prebait-engine`- of `test-prognosis-view`-bestand aangetroffen in de root testinventaris. De test `test-thermal-and-prognosis.ts` controleert andere prognose-/historieaspecten, maar bevat geen gerichte assertions voor `calculatePrebaitPlan` of `totalAmountGrams`.
+
+De package-scripts bieden `lint` (TypeScript `tsc --noEmit`) en een beperkte set benoemde tests; `test-session-coach.ts` is niet als npm-script geregistreerd. In deze werksessie is geen repository-runtime of lokale package-installatie beschikbaar waarmee de tests, typecheck en build daadwerkelijk kunnen worden uitgevoerd. Er wordt daarom geen geslaagde test- of buildstatus geclaimd.
+
+**Vervolg:** de statische audit van punt 5 is inhoudelijk vrijwel rond. Voor een betrouwbare afsluiting resteert een uitvoerbare technische validatie van ten minste de bestaande VisCoach-regressietest, TypeScript typecheck en productiebuild, plus bij voorkeur een gerichte test voor de planneruitvoer als die in de projectruntime kan worden toegevoegd zonder brede testinfrastructuur. Tot die tijd blijft punt 5 open en blijft Fase 3 geblokkeerd.
