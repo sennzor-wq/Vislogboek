@@ -1144,3 +1144,14 @@ Audit §156 legt vast dat de gebruiker watertemperatuur tijdens vissessies wil m
 De gemeten watertemperatuur is het startanker van de thermische toestand. Dezelfde toestand wordt chronologisch verder ontwikkeld; een stabiele luchttemperatuur en weinig wind rechtvaardigen geen abrupte daling van bijvoorbeeld 8 °C in de middag naar 5 °C 's avonds of 3–4 °C de volgende ochtend. Dit voorbeeld is een regressiescenario, geen vaste regel. De mate van verandering moet volgen uit de duur en sterkte van de weersforcering, watermassa/diepte, menging en expliciete onzekerheid.
 
 De bestaande waterThermalEngine bevat al een heuristische uur-voor-uur demping. Lokale sessiemetingen kunnen deze respons en de seizoensprofielen later toetsen; zij valideren de huidige tijdconstanten niet automatisch. Geen dagelijkse meetplicht, geen fictieve tussenmetingen en geen runtime-/parameterwijziging voordat voldoende lokale waarnemingen en onafhankelijke validatie beschikbaar zijn. Zie audit §156.
+
+
+## 132. Fase-2-closeout: technische implementatie versus onafhankelijke biologische validatie
+
+Audit §157 is de actuele closeoutcontrole. De respons-/featurearchitectuur is ontworpen, maar de actieve 1–10-score blijft de expliciet gekozen voorlopige thermische prior; een geïntegreerde voedings-/activiteitsscore is niet numeriek toegelaten omdat directe, onafhankelijke doelresponslabels ontbreken. Brier blijft uitsluitend persoonlijke vangstkans; MAE/RMSE/bias blijven uitsluitend watertemperatuurvalidatie.
+
+De resterende technische volgorde is: (1) tijdstipgerichte, tijdzonebewuste chronologische toestand in de bestaande waterThermalEngine, met targetTime, forecastAsOf, calculatedAt, anker/provenance en onzekerheid; (2) deterministische Europe/Amsterdam-/DST-parsing en regressies; (3) historische profielselectie op meetdiepte; (4) afzonderlijke sessiegebonden meetobservaties met beschikbare weerscontext op het fysieke meetmoment, zonder dagelijkse meetplicht. De huidige sessie heeft één watertemperatuurveld; meerdere fysieke meetmomenten binnen één sessie zijn daarmee nog niet als afzonderlijke records gemodelleerd.
+
+De voorvoerengine bevat nog niet-gevalideerde exacte grammen en temperatuur-/soortdrempels; uitschakelen vereist expliciete productgoedkeuring. De vangstflow heeft vrije tekst, maar nog geen optionele herbruikbare hengel-/methodepreset. Deze productpunten blijven gescheiden van de biologische score.
+
+Fase 2 kan niet eerlijk formeel worden geaccepteerd zolang technische tijdstip-/meetregistratiepunten openstaan en onafhankelijke biologische labels ontbreken. Geen synthetische labels, geforceerde literatuurquota, runtimegewichten of tijdvakbonussen. Fase 3 blijft geblokkeerd. Zie audit §157.
