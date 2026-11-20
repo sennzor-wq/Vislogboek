@@ -36,10 +36,6 @@ export function analyzeWaterThermalDevelopment(
   const userMeasured = options?.userMeasuredWaterTemp;
   const historicalSessions = options?.historicalSessions || [];
   const currentDateRef = options?.currentDateRef;
-  const historicalProfile = deriveHistoricalWaterTemperatureProfile(
-    options?.historicalWaterTemperatures || [], location, targetDateStr, options?.measurementDepthM
-  );
-
   // 1. Verzamel echte temperatuurmetingen voor exact dezelfde stek.
   // Een oudere meting blijft bruikbaar als startpunt voor een modelschatting,
   // maar wordt nooit als actuele meting voor een latere doeldag gepresenteerd.
@@ -59,15 +55,33 @@ export function analyzeWaterThermalDevelopment(
   const targetTimestamp = hasValidTargetTime ? new Date(parsedTargetTimeMs).toISOString() : null;
   const parsedForecastAsOf = options?.forecastAsOf ? parseAppTimestamp(options.forecastAsOf) : null;
   const forecastAsOf = parsedForecastAsOf?.toISOString() ?? null;
-  const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
+  const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session'; measurementDepthM?: number }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
-    measurementCandidates.push({ temperature: userMeasured, timestampMs: refMs, source: 'current' });
+    measurementCandidates.push({ temperature: userMeasured, timestampMs: refMs, source: 'current', measurementDepthM: options?.measurementDepthM ?? undefined });
   }
 
   if (location?.id) {
     for (const session of historicalSessions) {
       if (session.locationId !== location.id || session.isBenchmark === true) continue;
+      if (session.waterTemperatureMeasurements?.length) {
+        for (const measurement of session.waterTemperatureMeasurements) {
+          if (typeof measurement.temperatureC !== 'number' || !Number.isFinite(measurement.temperatureC) ||
+              measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+              !measurement.measuredAt || !parseAppTimestamp(measurement.measuredAt) ||
+              !measurement.measurementSource || measurement.measurementSource === 'unknown' ||
+              !measurement.measurementMethod || measurement.measurementMethod === 'unknown') continue;
+          const timestampMs = parseAppTimestamp(measurement.measuredAt)?.getTime() ?? Number.NaN;
+          if (!Number.isFinite(timestampMs)) continue;
+          measurementCandidates.push({
+            temperature: measurement.temperatureC,
+            timestampMs,
+            source: 'session',
+            measurementDepthM: measurement.measurementDepthM,
+          });
+        }
+        continue;
+      }
       if (typeof session.waterTemperature !== 'number' || !Number.isFinite(session.waterTemperature) ||
           session.waterTemperature < 0 || session.waterTemperature > 35 ||
           !session.waterTemperatureMeasuredAt || !parseAppTimestamp(session.waterTemperatureMeasuredAt) ||
@@ -75,7 +89,12 @@ export function analyzeWaterThermalDevelopment(
           !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
       const timestampMs = parseAppTimestamp(session.waterTemperatureMeasuredAt)?.getTime() ?? Number.NaN;
       if (!Number.isFinite(timestampMs)) continue;
-      measurementCandidates.push({ temperature: session.waterTemperature, timestampMs, source: 'session' });
+      measurementCandidates.push({
+        temperature: session.waterTemperature,
+        timestampMs,
+        source: 'session',
+        measurementDepthM: session.waterTemperatureMeasurementDepthM,
+      });
     }
   }
 
@@ -84,6 +103,12 @@ export function analyzeWaterThermalDevelopment(
     .filter((measurement) => measurement.timestampMs <= estimationTargetMs)
     .sort((a, b) => b.timestampMs - a.timestampMs);
   const anchor = usableAnchors[0] ?? null;
+  const targetMeasurementDepthM = options?.measurementDepthM !== undefined
+    ? options.measurementDepthM
+    : anchor?.measurementDepthM ?? null;
+  const historicalProfile = deriveHistoricalWaterTemperatureProfile(
+    options?.historicalWaterTemperatures || [], location, targetDateStr, targetMeasurementDepthM
+  );
   const anchorAgeHours = anchor
     ? Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000)
     : null;

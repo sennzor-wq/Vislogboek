@@ -89,11 +89,11 @@ async function run14Scenarios() {
     { id: 'adjusted', sessionId: 's1', species: 'Karper', count: 1, timestamp: '2026-11-18T09:10:00.000Z', timestampEntryMode: 'user_adjusted', createdAt: '2026-11-18T09:11:00.000Z' },
     { id: 'legacy', sessionId: 's1', species: 'Karper', count: 1, timestamp: '2026-11-18T09:20:00.000Z', createdAt: '2026-11-18T09:21:00.000Z' },
   ]);
-  assert(provenanceHistory.historyFeatureSchemaVersion === 2 &&
+  assert(provenanceHistory.historyFeatureSchemaVersion === 3 &&
     provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'auto')?.timestampEntryMode === 'automatic' &&
     provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'adjusted')?.timestampEntryMode === 'user_adjusted' &&
     provenanceHistory.historicalCatchFeatures?.find((item) => item.id === 'legacy')?.timestampEntryMode === undefined,
-    'Timestamp 6: prognosehistorie v2 bewaart herkomst zonder oude records te classificeren');
+    'Timestamp 6: prognosehistorie v3 bewaart herkomst zonder oude records te classificeren');
 
   const unknownDuration = getSessionDurationHours({
     id: 'unknown-duration',

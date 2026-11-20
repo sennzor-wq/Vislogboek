@@ -398,6 +398,30 @@ async function runTestSuite() {
     sessionWithUnknownMethod.anchorAgeHours === null,
     'Een sessiemeting met onbekende meetmethode wordt niet als thermisch anker gebruikt');
 
+  const eventOnlySession = {
+    ...staleSameDaySession,
+    id: 'thermal-session-with-measurement-events',
+    waterTemperature: null,
+    waterTemperatureMeasuredAt: undefined,
+    waterTemperatureMeasurements: [{
+      id: 'thermal-measurement-event',
+      measuredAt: '2026-10-23T09:00:00.000Z',
+      recordedAt: '2026-10-23T09:05:00.000Z',
+      temperatureC: 8.2,
+      measurementSource: 'manual' as const,
+      measurementMethod: 'thermometer' as const,
+      measurementDepthM: 0.4,
+    }],
+  };
+  const eventOnlyAnchor = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    historicalSessions: [eventOnlySession],
+    currentDateRef: new Date('2026-10-23T12:00:00.000Z'),
+  });
+  assert(eventOnlyAnchor.anchorMeasurementTimestamp === '2026-10-23T09:00:00.000Z' &&
+    eventOnlyAnchor.anchorAgeHours === 3,
+    'De thermische engine gebruikt een afzonderlijk meetevent als historisch meetanker, ook zonder legacy-hoofdveld');
+
   const noThermalData = analyzeWaterThermalDevelopment('2026-10-23', [], {
     location: locLokkershoek,
     currentDateRef: new Date('2026-10-23T12:00:00'),
