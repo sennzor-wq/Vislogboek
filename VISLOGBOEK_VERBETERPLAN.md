@@ -1019,3 +1019,10 @@ Besluit: geen van deze datasets wordt numeriek toegelaten voor de biologische sc
 Audit §152 documenteert een concrete codebevinding: de waterthermische engine retourneert één watertemperatuurschatting per doeldag; de gedeclareerde targetHour-optie wordt niet gebruikt en prognosisEngine deelt dezelfde thermalAnalysis met de vier tijdvakken. Uurlijkse weersdata is dus nog geen tijdspecifieke watertemperatuur.
 
 De volgende ontwerpstap is een minimale tijdstipgerichte API voor de bestaande waterThermalEngine, inclusief tijdzone, voorspelmoment, waterthermische toestand, provenance en onzekerheid. Geen interpolatie of directe omzetting van luchttemperatuur naar watertemperatuur. Ook na zo'n technische uitbreiding zijn directe voedingslabels nog nodig om een biologische tijdvakvoorkeur te onderbouwen. Geen runtimewijziging; Fase 2 blijft open.
+
+
+### Fase 2 — bestaande thermische toestandsupdate verdiept (20 november 2026)
+
+Audit §153 en modelarchitectuur §128 verduidelijken dat `waterThermalEngine` al een eenvoudige uurlijkse toestandsupdate uitvoert bij een bruikbaar echt meetanker en voldoende weersdekking. De code gebruikt onder meer vaste diepte-afhankelijke tijdconstanten, zonnestraling/bewolking en een windmengingproxy, maar retourneert één dagwaarde. Deze parameters zijn heuristisch; er is nog geen expliciet temperatuurprofiel per dieptelaag en meetdiepte wordt nog niet als volwaardige toestanddimensie benut.
+
+Vastgelegd besluit: de bestaande `waterThermalEngine` verbeteren, geen nieuwe engine bouwen. Volgende stap is de volledige dataflow en dekking van waterdiepte, meetdiepte, meettijd, tijdzone en uurlijkse weersvelden controleren. Daarna volgt een minimale tijdstipgerichte API-/testspecificatie. Geen runtime-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
