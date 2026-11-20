@@ -198,12 +198,13 @@ async function run() {
   assert(mergedAgain.addedLocations === 0 && mergedAgain.addedSessions === 0 &&
     mergedAgain.addedCatches === 0 && mergedAgain.addedWeatherCache === 0 &&
     mergedAgain.addedPrognosisSnapshots === 0 && mergedAgain.addedPresenceObservations === 0 && mergedAgain.addedSessionRods === 0 &&
-    mergedAgain.addedPlannedSessions === 0 && mergedAgain.addedCoachAdviceRecords === 0,
+    mergedAgain.addedPlannedSessions === 0 && mergedAgain.addedCoachAdviceRecords === 0 &&
+    mergedAgain.addedWaterTemperatureMeasurements === 0,
     'Herhaald samenvoegen blijft idempotent en maakt geen duplicaten');
 
   const imported = await inspectImportFile(JSON.stringify(backup));
-  assert(imported.preview.valid && imported.data?.version === 5,
-    'Volledige v5-backup wordt gevalideerd vóór import');
+  assert(imported.preview.valid && imported.data?.version === 6,
+    'Volledige v6-backup wordt gevalideerd vóór import');
   assert(imported.preview.weatherCacheCount === 1 && imported.preview.prognosisSnapshotsCount === 1 &&
     imported.preview.presenceObservationsCount === 1 && imported.preview.sessionRodsCount === 1 &&
     imported.preview.plannedSessionsCount === 1 && imported.preview.coachAdviceRecordsCount === 1 &&
@@ -212,7 +213,8 @@ async function run() {
   const legacy = normalizeRawBackup({ version: 2, appName: 'Vislogboek', locations: [], sessions: [], catches: [] });
   assert(legacy.weatherCache?.length === 0 && legacy.prognosisSnapshots?.length === 0 &&
     legacy.presenceObservations?.length === 0 && legacy.sessionRods?.length === 0 &&
-    legacy.plannedSessions?.length === 0 && legacy.coachAdviceRecords?.length === 0, 'Oudere v2-backup blijft importeerbaar zonder nieuwe tabellen');
+    legacy.plannedSessions?.length === 0 && legacy.coachAdviceRecords?.length === 0 &&
+    legacy.waterTemperatureMeasurements?.length === 0, 'Oudere v2-backup blijft importeerbaar zonder nieuwe tabellen');
 
   const legacyV3 = normalizeRawBackup({
     version: 3, appName: 'Vislogboek', locations: [location], sessions: [session], catches: [],
@@ -298,7 +300,7 @@ async function run() {
     legacyPreview.preview.skippedLegacySessionsCount === 1 && legacyPreview.preview.skippedLegacyCatchesCount === 1,
     'Importpreview toont expliciet welke oude sessies en vangsten worden overgeslagen');
 
-  const future = await inspectImportFile(JSON.stringify({ version: 6, locations: [], sessions: [], catches: [] }));
+  const future = await inspectImportFile(JSON.stringify({ version: 7, locations: [], sessions: [], catches: [] }));
   assert(!future.preview.valid, 'Niet-ondersteunde toekomstige backupversie wordt geweigerd');
   const malformed = await inspectImportFile(JSON.stringify({ version: 5, locations: [{ name: 'Geen ID' }], sessions: [], catches: [] }));
   assert(!malformed.preview.valid, 'Record zonder ID wordt vóór databasewijziging geweigerd');
