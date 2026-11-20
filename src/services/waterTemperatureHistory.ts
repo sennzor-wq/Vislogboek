@@ -1,251 +1,277 @@
-import { collectHistoricalWaterTemperatureObservations, deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './src/services/waterTemperatureHistory';
-import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { FishingLocation, FishingSession, PrognosisSnapshot, WeatherHourlyForecast, WaterTemperatureMeasurement } from './src/types';
+import { FishingLocation, FishingSession, PrognosisSnapshot, WaterTemperatureMeasurement, WaterTemperatureWeatherContext } from '../types';
+import { getAmsterdamMonth, parseAppTimestamp } from '../utils/dateTime';
 
-let passed = 0;
-let failed = 0;
-function assert(condition: boolean, name: string) {
-  if (condition) { passed++; console.log(`PASS ${name}`); }
-  else { failed++; console.error(`FAIL ${name}`); }
+/**
+ * Alleen echte, achteraf geregistreerde watertemperatuurmetingen mogen een
+ * historisch profiel vormen. Voorspellingen en synthetische waarden zijn uitgesloten.
+ */
+export interface HistoricalWaterTemperatureObservation {
+  locationId: string;
+  temperatureC: number;
+  timestamp: string;
+  waterType?: FishingLocation['waterType'];
+  waterDepth?: number;
+  latitude?: number;
+  longitude?: number;
+  isBenchmark?: boolean;
+  /** Herkomst en methode van de fysieke meting; apart van het meetmoment. */
+  measurementSource?: 'manual' | 'imported' | 'unknown';
+  measurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+  measurementDepthM?: number;
+  /** Wanneer het record is opgeslagen, los van het daadwerkelijke meetmoment. */
+  recordedAt?: string;
+  recordId?: string;
+  recordType?: 'session' | 'snapshot' | 'measurement';
+  weatherContext?: WaterTemperatureWeatherContext;
 }
 
-const target: FishingLocation = {
-  id: 'location-a',
-  name: 'Testplas',
-  waterType: 'Onbekend',
-  latitude: 52,
-  longitude: 5,
-  createdAt: '',
-  updatedAt: '',
-};
+/**
+ * Bouwt één gedeelde lijst met echte historische metingen voor alle prognose-ingangen.
+ * Zowel de Prognosepagina als VisCoach gebruiken hiermee dezelfde meetselectie.
+ */
+export function collectHistoricalWaterTemperatureObservations(
+  sessions: FishingSession[],
+  snapshots: PrognosisSnapshot[],
+  locations: FishingLocation[],
+  measurements: WaterTemperatureMeasurement[] = []
+): HistoricalWaterTemperatureObservation[] {
+  const locationById = new Map(locations.map((location) => [location.id, location]));
+  const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
+  const observations: HistoricalWaterTemperatureObservation[] = [];
 
-
-const makeMeasuredSession = (
-  id: string,
-  startTime: string,
-  measuredAt: string | undefined,
-  temperature: number,
-  method: FishingSession['waterTemperatureMeasurementMethod'] = 'thermometer',
-  source: FishingSession['waterTemperatureMeasurementSource'] = 'manual',
-  isBenchmark = false,
-): FishingSession => ({
-  id,
-  locationId: target.id,
-  startTime,
-  outcome: 'unknown',
-  waterTemperature: temperature,
-  waterTemperatureMeasuredAt: measuredAt,
-  waterTemperatureMeasurementSource: source,
-  waterTemperatureMeasurementMethod: method,
-  waterTemperatureMeasurementDepthM: 0.4,
-  isBenchmark,
-  createdAt: startTime,
-  updatedAt: startTime,
-} as unknown as FishingSession);
-
-const measuredSessions = [
-  makeMeasuredSession('session-a', '2026-06-10T08:00:00Z', '2026-06-10T10:00:00+02:00', 14),
-  makeMeasuredSession('session-b', '2026-06-20T08:00:00Z', '2026-06-20T10:00:00+02:00', 15),
-  makeMeasuredSession('session-c', '2026-07-01T08:00:00Z', '2026-07-01T10:00:00+02:00', 16),
-  makeMeasuredSession('session-no-time', '2026-06-25T10:00:00Z', undefined, 34),
-  makeMeasuredSession('session-unknown-method', '2026-06-26T10:00:00Z', '2026-06-26T10:00:00Z', 33, 'unknown'),
-  makeMeasuredSession('session-unknown-source', '2026-06-27T10:00:00Z', '2026-06-27T10:00:00Z', 32, 'thermometer', 'unknown'),
-  makeMeasuredSession('session-benchmark', '2026-06-28T10:00:00Z', '2026-06-28T10:00:00Z', 35, 'thermometer', 'manual', true),
-];
-const duplicateSnapshot = {
-  id: 'snapshot-session-a',
-  locationId: target.id,
-  linkedSessionId: 'session-a',
-  actualWaterTemperature: 14,
-  actualWaterTemperatureTimestamp: '2026-06-10T08:00:00Z',
-  actualWaterTemperatureMeasurementSource: 'manual',
-  actualWaterTemperatureMeasurementMethod: 'thermometer',
-  actualWaterTemperatureMeasurementDepthM: 0.4,
-  createdAt: '2026-06-10T08:30:00Z',
-} as unknown as PrognosisSnapshot;
-const collectedMeasurements = collectHistoricalWaterTemperatureObservations(
-  measuredSessions,
-  [duplicateSnapshot],
-  [target],
-);
-assert(collectedMeasurements.length === 4,
-  'Alleen sessie- en snapshotmetingen met exact meetmoment en bekende herkomst/methode worden verzameld');
-const sessionMeasurement = collectedMeasurements.find((item) => item.recordId === 'session-a');
-const snapshotMeasurement = collectedMeasurements.find((item) => item.recordId === 'snapshot-session-a');
-assert(sessionMeasurement?.recordType === 'session' &&
-  sessionMeasurement.recordedAt === '2026-06-10T08:00:00Z' &&
-  sessionMeasurement.measurementSource === 'manual' &&
-  sessionMeasurement.measurementMethod === 'thermometer' &&
-  sessionMeasurement.measurementDepthM === 0.4,
-  'Sessiemeting bewaart record-ID, registratiemoment, bron, methode en meetdiepte apart van meettijd');
-assert(snapshotMeasurement?.recordType === 'snapshot' &&
-  snapshotMeasurement.recordedAt === '2026-06-10T08:30:00Z' &&
-  snapshotMeasurement.measurementDepthM === 0.4,
-  'Snapshotmeting bewaart eigen herkomst en meetdiepte');
-assert(sessionMeasurement?.timestamp === '2026-06-10T10:00:00+02:00',
-  'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
-
-const separateMeasurement: WaterTemperatureMeasurement = {
-  id: 'measurement-session-a-evening',
-  sessionId: 'session-a',
-  locationId: target.id,
-  temperatureC: 13.8,
-  measuredAt: '2026-06-10T18:00:00+02:00',
-  recordedAt: '2026-06-10T18:01:00+02:00',
-  measurementSource: 'manual',
-  measurementMethod: 'thermometer',
-  measurementDepthM: 0.6,
-  weatherContext: {
-    sampleTimestamp: '2026-06-10T16:00:00.000Z',
-    retrievedAt: '2026-06-10T16:01:00.000Z',
-    source: 'open-meteo-recent-model',
-    airTemperatureC: 19,
-    windSpeedKmh: 4,
-    windDirectionDeg: 220,
-  },
-};
-const eventObservations = collectHistoricalWaterTemperatureObservations(
-  measuredSessions, [duplicateSnapshot], [target], [separateMeasurement]
-);
-const eventObservation = eventObservations.find((item) => item.recordId === separateMeasurement.id);
-assert(eventObservation?.recordType === 'measurement' &&
-  eventObservation.measurementDepthM === 0.6 &&
-  eventObservation.weatherContext?.airTemperatureC === 19 &&
-  eventObservation.weatherContext?.sampleTimestamp === '2026-06-10T16:00:00.000Z',
-  'Afzonderlijk meetevent behoudt meetdiepte en onveranderlijke weerscontext op het meetmoment');
-
-const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
-assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
-  'Een sessie- en snapshotkopie van dezelfde meting telt door tijdzone-normalisatie slechts eenmaal');
-
-const localHistory: HistoricalWaterTemperatureObservation[] = [
-  { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z' },
-  { locationId: 'location-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z' },
-  { locationId: 'location-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z' },
-  { locationId: 'location-a', temperatureC: 34, timestamp: '2026-06-25T10:00:00Z', isBenchmark: true },
-  // Same target day and future observations must never leak into the profile.
-  { locationId: 'location-a', temperatureC: 30, timestamp: '2026-07-04T00:00:00Z' },
-  { locationId: 'location-a', temperatureC: 31, timestamp: '2026-07-05T10:00:00Z' },
-];
-
-const localProfile = deriveHistoricalWaterTemperatureProfile(localHistory, target, '2026-07-04');
-assert(localProfile !== null, 'same-location profile is created from at least three earlier real measurements');
-assert(localProfile?.baselineC === 15, 'same-location profile uses the median, not the mean');
-assert(localProfile?.sampleCount === 3, 'same-day, future and benchmark measurements are excluded');
-
-const layeredLocalHistory: HistoricalWaterTemperatureObservation[] = [
-  { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z', measurementDepthM: 0.4 },
-  { locationId: 'location-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z', measurementDepthM: 0.4 },
-  { locationId: 'location-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z', measurementDepthM: 0.4 },
-  { locationId: 'location-a', temperatureC: 19, timestamp: '2026-06-11T10:00:00Z', measurementDepthM: 0.8 },
-  { locationId: 'location-a', temperatureC: 20, timestamp: '2026-06-21T10:00:00Z', measurementDepthM: 0.8 },
-  { locationId: 'location-a', temperatureC: 21, timestamp: '2026-07-02T10:00:00Z', measurementDepthM: 0.8 },
-];
-assert(deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04') === null,
-  'Meerdere bekende meetdieptes zonder doelmeetdiepte leveren geen gemengd profiel op');
-const shallowLayerProfile = deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04', 0.4);
-assert(shallowLayerProfile?.sampleCount === 3 && shallowLayerProfile.baselineC === 15 &&
-  shallowLayerProfile.measurementDepthM === 0.4,
-  'Expliciete doelmeetdiepte gebruikt uitsluitend de overeenkomende historische meetlaag');
-const deepLayerProfile = deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04', 0.8);
-assert(deepLayerProfile?.sampleCount === 3 && deepLayerProfile.baselineC === 20 &&
-  deepLayerProfile.measurementDepthM === 0.8,
-  'Een andere verticale meetlaag krijgt een afzonderlijk profiel en eigen baseline');
-const knownAndUnknownDepthHistory: HistoricalWaterTemperatureObservation[] = [
-  ...layeredLocalHistory.slice(0, 3),
-  { locationId: 'location-a', temperatureC: 22, timestamp: '2026-06-12T10:00:00Z' },
-  { locationId: 'location-a', temperatureC: 23, timestamp: '2026-06-22T10:00:00Z' },
-  { locationId: 'location-a', temperatureC: 24, timestamp: '2026-07-03T10:00:00Z' },
-];
-const knownDepthOnlyProfile = deriveHistoricalWaterTemperatureProfile(knownAndUnknownDepthHistory, target, '2026-07-04');
-assert(knownDepthOnlyProfile?.sampleCount === 3 && knownDepthOnlyProfile.measurementDepthM === 0.4 &&
-  knownDepthOnlyProfile.baselineC === 15,
-  'Bekende meetdieptes worden niet met metingen van onbekende diepte samengevoegd');
-
-const nearbyTarget: FishingLocation = {
-  ...target,
-  id: 'location-target',
-  waterType: 'Kanaal',
-  waterDepth: 1,
-};
-const nearbyHistory: HistoricalWaterTemperatureObservation[] = [
-  { locationId: 'near-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01 },
-  { locationId: 'near-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01 },
-  { locationId: 'near-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01 },
-  { locationId: 'near-b', temperatureC: 15, timestamp: '2026-06-12T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02 },
-  { locationId: 'near-b', temperatureC: 16, timestamp: '2026-06-22T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02 },
-];
-const nearbyProfile = deriveHistoricalWaterTemperatureProfile(nearbyHistory, nearbyTarget, '2026-07-04');
-assert(nearbyProfile?.source === 'nearby_same_type', 'nearby profile requires comparable water type and nearby coordinates');
-assert(nearbyProfile?.locationCount === 2, 'nearby profile records the number of contributing locations');
-const layeredNearbyHistory: HistoricalWaterTemperatureObservation[] = [
-  { locationId: 'near-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
-  { locationId: 'near-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
-  { locationId: 'near-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
-  { locationId: 'near-b', temperatureC: 15, timestamp: '2026-06-12T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.4 },
-  { locationId: 'near-b', temperatureC: 16, timestamp: '2026-06-22T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.4 },
-  { locationId: 'near-b', temperatureC: 20, timestamp: '2026-06-13T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.8 },
-];
-assert(deriveHistoricalWaterTemperatureProfile(layeredNearbyHistory, nearbyTarget, '2026-07-04') === null,
-  'Nearby fallback wordt niet over verschillende meetdieptes samengesteld als doelmeetdiepte onbekend is');
-const nearbyShallowLayer = deriveHistoricalWaterTemperatureProfile(layeredNearbyHistory, nearbyTarget, '2026-07-04', 0.4);
-assert(nearbyShallowLayer?.sampleCount === 5 && nearbyShallowLayer.locationCount === 2 &&
-  nearbyShallowLayer.measurementDepthM === 0.4,
-  'Nearby fallback gebruikt meerdere stekken maar uitsluitend de gevraagde meetdiepte');
-assert(deriveHistoricalWaterTemperatureProfile(nearbyHistory, { ...nearbyTarget, waterType: 'Onbekend' }, '2026-07-04') === null,
-  'unknown water type does not borrow a profile from unrelated water bodies');
-
-function makeForecasts(): WeatherHourlyForecast[] {
-  const result: WeatherHourlyForecast[] = [];
-  for (let day = 0; day < 5; day++) {
-    const date = new Date(Date.UTC(2026, 6, 1 + day)).toISOString().slice(0, 10);
-    for (let hour = 0; hour < 24; hour++) {
-      result.push({
-        time: `${date}T${String(hour).padStart(2, '0')}:00`,
-        temperature: 18,
-        relativeHumidity: 55,
-        dewPoint: 8,
-        shortwaveRadiation: hour >= 8 && hour <= 18 ? 600 : 0,
-        pressure: 1015,
-        windSpeed: 12,
-        windDirection: 225,
-        windDirectionText: 'ZW',
-        precipitation: 0,
-        precipitationProbability: 0,
-        cloudCover: 90,
-        weatherCode: 3,
-      });
-    }
+  for (const snapshot of snapshots) {
+    if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
+    if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
+        !snapshot.actualWaterTemperatureTimestamp || !parseAppTimestamp(snapshot.actualWaterTemperatureTimestamp) ||
+        !snapshot.actualWaterTemperatureMeasurementSource || snapshot.actualWaterTemperatureMeasurementSource === 'unknown' ||
+        !snapshot.actualWaterTemperatureMeasurementMethod || snapshot.actualWaterTemperatureMeasurementMethod === 'unknown') continue;
+    const location = locationById.get(snapshot.locationId);
+    observations.push({
+      locationId: snapshot.locationId,
+      temperatureC: snapshot.actualWaterTemperature,
+      timestamp: snapshot.actualWaterTemperatureTimestamp,
+      measurementSource: snapshot.actualWaterTemperatureMeasurementSource,
+      measurementMethod: snapshot.actualWaterTemperatureMeasurementMethod,
+      measurementDepthM: snapshot.actualWaterTemperatureMeasurementDepthM,
+      recordedAt: snapshot.createdAt,
+      recordId: snapshot.id,
+      recordType: 'snapshot',
+      waterType: location?.waterType,
+      waterDepth: location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
   }
-  return result;
+
+  for (const session of sessions) {
+    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number' ||
+        !session.waterTemperatureMeasuredAt || !parseAppTimestamp(session.waterTemperatureMeasuredAt) ||
+        !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
+        !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
+    const location = locationById.get(session.locationId);
+    observations.push({
+      locationId: session.locationId,
+      temperatureC: session.waterTemperature,
+      timestamp: session.waterTemperatureMeasuredAt,
+      measurementSource: session.waterTemperatureMeasurementSource,
+      measurementMethod: session.waterTemperatureMeasurementMethod,
+      measurementDepthM: session.waterTemperatureMeasurementDepthM,
+      recordedAt: session.createdAt,
+      recordId: session.id,
+      recordType: 'session',
+      waterType: location?.waterType,
+      waterDepth: session.waterDepth ?? location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
+  }
+
+
+  for (const measurement of measurements) {
+    if (!measurement.locationId || typeof measurement.temperatureC !== 'number' ||
+        !Number.isFinite(measurement.temperatureC) || measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+        !measurement.measuredAt || !parseAppTimestamp(measurement.measuredAt) ||
+        measurement.measurementSource === 'unknown' || measurement.measurementMethod === 'unknown') continue;
+    const location = locationById.get(measurement.locationId);
+    if (location?.isBenchmark) continue;
+    observations.push({
+      locationId: measurement.locationId,
+      temperatureC: measurement.temperatureC,
+      timestamp: measurement.measuredAt,
+      measurementSource: measurement.measurementSource,
+      measurementMethod: measurement.measurementMethod,
+      measurementDepthM: measurement.measurementDepthM,
+      recordedAt: measurement.recordedAt,
+      recordId: measurement.id,
+      recordType: 'measurement',
+      weatherContext: measurement.weatherContext,
+      waterType: location?.waterType,
+      waterDepth: location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
+  }
+
+  return observations;
 }
 
-const forecasts = makeForecasts();
-const modelResult = analyzeWaterThermalDevelopment('2026-07-04', forecasts, {
-  location: target,
-  historicalWaterTemperatures: localHistory,
-  currentDateRef: new Date('2026-07-04T12:00:00Z'),
-});
-assert(modelResult.estimatedWaterTemp !== null, 'historical profile provides a usable estimate without a local current measurement');
-assert(modelResult.waterTemperatureStatus === 'estimated_from_history', 'historical estimate is never labelled as a current measurement');
-assert(modelResult.dataPointsAvailable.depthKnown === false && modelResult.dataPointsAvailable.waterDepthMeters === undefined,
-  'unknown water depth stays unknown and is not replaced by a 2m default');
-assert(modelResult.dataPointsAvailable.solarRadiationIndication === 'Sterk (zonnig)',
-  'measured shortwave radiation takes precedence over a conflicting cloud-cover proxy');
-assert(modelResult.dataPointsAvailable.humidityAvailable === true && modelResult.dataPointsAvailable.dewPointAvailable === true,
-  'humidity and dew point availability are exposed for the evaporation assessment');
-assert(modelResult.dataPointsAvailable.evaporationPotential === 'hoog',
-  'dry-air and wind context is reflected in the evaporation-potential assessment');
+export interface HistoricalWaterTemperatureProfile {
+  baselineC: number;
+  lowerC: number;
+  upperC: number;
+  uncertaintyC: number;
+  sampleCount: number;
+  locationCount: number;
+  source: 'same_location' | 'nearby_same_type';
+  measurementDepthM: number | null;
+}
 
-const measuredResult = analyzeWaterThermalDevelopment('2026-07-04', forecasts, {
-  location: target,
-  userMeasuredWaterTemp: 16.4,
-  historicalWaterTemperatures: localHistory,
-  currentDateRef: new Date('2026-07-04T12:00:00Z'),
-});
-assert(measuredResult.hasMeasuredWaterTemp && measuredResult.measuredWaterTemp === 16.4 &&
-  measuredResult.estimatedWaterTemp === 16.4 && measuredResult.waterTemperatureStatus === 'measured',
-  'an actual local measurement always overrides the historical/model estimate');
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
 
-console.log(`Water temperature history tests: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+function percentile(values: number[], fraction: number): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const position = (sorted.length - 1) * fraction;
+  const lower = Math.floor(position);
+  const upper = Math.ceil(position);
+  if (lower === upper) return sorted[lower];
+  return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
+}
+
+function normalizeMeasurementDepth(depth: number | undefined): number | null {
+  return typeof depth === 'number' && Number.isFinite(depth) && depth >= 0
+    ? Math.round(depth * 100) / 100
+    : null;
+}
+
+function monthDistance(a: number, b: number): number {
+  const direct = Math.abs(a - b);
+  return Math.min(direct, 12 - direct);
+}
+
+function distanceKm(a: { latitude?: number; longitude?: number }, b: { latitude?: number; longitude?: number }): number | null {
+  if (![a.latitude, a.longitude, b.latitude, b.longitude].every((v) => typeof v === 'number' && Number.isFinite(v))) return null;
+  const toRad = (degrees: number) => degrees * Math.PI / 180;
+  const dLat = toRad((b.latitude as number) - (a.latitude as number));
+  const dLon = toRad((b.longitude as number) - (a.longitude as number));
+  const lat1 = toRad(a.latitude as number);
+  const lat2 = toRad(b.latitude as number);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * Maakt een seizoensprofiel uit echte historische metingen.
+ * Voorkeur: dezelfde stek (minimaal 3 metingen). Terugval: hetzelfde watertype
+ * binnen 50 km, vergelijkbare totale waterdiepte, minimaal 5 metingen van 2 stekken.
+ * Verschillende of onbekende verticale meetlagen worden nooit met bekende dieptes gemengd.
+ * Alleen metingen vóór de doeldag en uit dezelfde/naastliggende Amsterdamse kalendermaand tellen mee.
+ */
+export function deriveHistoricalWaterTemperatureProfile(
+  observations: HistoricalWaterTemperatureObservation[],
+  location: FishingLocation | undefined,
+  targetDate: string,
+  targetMeasurementDepthM?: number | null
+): HistoricalWaterTemperatureProfile | null {
+  if (!location?.id) return null;
+  const targetTime = parseAppTimestamp(`${targetDate}T00:00:00`)?.getTime() ?? Number.NaN;
+  const targetMonth = /^\d{4}-\d{2}-\d{2}$/.test(targetDate) ? Number(targetDate.slice(5, 7)) : Number.NaN;
+  if (!Number.isFinite(targetTime) || !Number.isInteger(targetMonth) || targetMonth < 1 || targetMonth > 12) return null;
+
+  const seen = new Set<string>();
+  const valid = observations.filter((observation) => {
+    if (observation.isBenchmark === true) return false;
+    const measuredAt = parseAppTimestamp(observation.timestamp)?.getTime() ?? Number.NaN;
+    if (!Number.isFinite(measuredAt) || measuredAt >= targetTime) return false;
+    if (typeof observation.temperatureC !== 'number' || !Number.isFinite(observation.temperatureC) ||
+        observation.temperatureC < 0 || observation.temperatureC > 35) return false;
+    // Normaliseer tijdzones zodat dezelfde fysieke meting uit sessie en snapshot
+    // niet dubbel telt door bijvoorbeeld Z versus +02:00.
+    const depthKey = normalizeMeasurementDepth(observation.measurementDepthM);
+    const key = `${observation.locationId}|${measuredAt}|${observation.temperatureC}|${depthKey ?? 'unknown'}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    const measuredMonth = getAmsterdamMonth(observation.timestamp);
+    return measuredMonth !== null && monthDistance(targetMonth, measuredMonth) <= 1;
+  });
+
+  const sameLocation = valid.filter((observation) => observation.locationId === location.id);
+  const explicitDepth = normalizeMeasurementDepth(
+    typeof targetMeasurementDepthM === 'number' ? targetMeasurementDepthM : undefined
+  );
+  const selectOneDepthLayer = (candidates: HistoricalWaterTemperatureObservation[], requestedDepth: number | null) => {
+    if (requestedDepth !== null) {
+      return {
+        observations: candidates.filter((item) => normalizeMeasurementDepth(item.measurementDepthM) === requestedDepth),
+        depth: requestedDepth,
+        ambiguous: false,
+      };
+    }
+    const knownDepths = [...new Set(candidates
+      .map((item) => normalizeMeasurementDepth(item.measurementDepthM))
+      .filter((depth): depth is number => depth !== null))].sort((a, b) => a - b);
+    if (knownDepths.length > 1) return { observations: [], depth: null, ambiguous: true };
+    const depth = knownDepths[0] ?? null;
+    return {
+      observations: candidates.filter((item) => normalizeMeasurementDepth(item.measurementDepthM) === depth),
+      depth,
+      ambiguous: false,
+    };
+  };
+
+  const localLayer = selectOneDepthLayer(sameLocation, explicitDepth);
+  if (localLayer.ambiguous) return null;
+  let selected = localLayer.observations;
+  let selectedMeasurementDepthM = localLayer.depth;
+  let source: HistoricalWaterTemperatureProfile['source'] = 'same_location';
+
+  if (selected.length < 3) {
+    if (!location.waterType || location.waterType === 'Onbekend') return null;
+    const nearbyCandidates = valid.filter((observation) => {
+      if (observation.locationId === location.id || observation.waterType !== location.waterType) return false;
+      const distance = distanceKm(location, observation);
+      if (distance === null || distance > 50) return false;
+      if (typeof location.waterDepth === 'number' && typeof observation.waterDepth === 'number') {
+        const tolerance = Math.max(1.5, location.waterDepth * 0.5);
+        if (Math.abs(location.waterDepth - observation.waterDepth) > tolerance) return false;
+      }
+      return true;
+    });
+    const nearbyLayer = sameLocation.length > 0
+      ? {
+          observations: nearbyCandidates.filter((item) =>
+            normalizeMeasurementDepth(item.measurementDepthM) === selectedMeasurementDepthM
+          ),
+          depth: selectedMeasurementDepthM,
+          ambiguous: false,
+        }
+      : selectOneDepthLayer(nearbyCandidates, explicitDepth);
+    if (nearbyLayer.ambiguous) return null;
+    selected = nearbyLayer.observations;
+    selectedMeasurementDepthM = nearbyLayer.depth;
+    const distinctLocations = new Set(selected.map((item) => item.locationId));
+    if (selected.length < 5 || distinctLocations.size < 2) return null;
+    source = 'nearby_same_type';
+  }
+
+  const values = selected.map((item) => item.temperatureC);
+  const baselineC = median(values);
+  const lowerC = percentile(values, 0.2);
+  const upperC = percentile(values, 0.8);
+  return {
+    baselineC: Math.round(baselineC * 10) / 10,
+    lowerC: Math.round(lowerC * 10) / 10,
+    upperC: Math.round(upperC * 10) / 10,
+    uncertaintyC: Math.round(Math.max(0.5, (upperC - lowerC) / 2) * 10) / 10,
+    sampleCount: selected.length,
+    locationCount: new Set(selected.map((item) => item.locationId)).size,
+    source,
+    measurementDepthM: selectedMeasurementDepthM,
+  };
+}
