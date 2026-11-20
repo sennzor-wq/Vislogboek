@@ -956,3 +956,8 @@ De resultaten versterken de scheiding tussen direct voedingsritme, dagelijkse kw
 De formele crosswalk in `FASE2_PROGNOSE_AUDIT.md` §89 is bijgewerkt op basis van de actuele kandidaatmodelreview en broninventaris. De registry telt 92 unieke records, 0 numeriek goedgekeurd. Optie A is de expliciet geaccepteerde productkeuze: de thermische curves blijven een voorlopige prior, niet een gevalideerde voedings- of vangstcurve.
 
 De resterende blockers zijn de geïntegreerde biologische dagscore, overdraagbare soort-/levensfase-evidence, directe lokale biologische labels, een gevalideerde tijdvakrespons en twee afzonderlijke tactische productbesluiten (voorvoerhoeveelheden/gating en optionele hengel-/methodepreset). Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — meervalbron 2025 methodologisch aangescherpt (20 november 2026)
+
+Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie gebruikt maandelijkse maagvullingsindices bij 200 meervallen. Het winter-FI maximum (0,827) berust op slechts n=7; de andere seizoensgroepen tellen 49, 98 en 46 vissen. Leeftijdsgroepen zijn eveneens ongelijk. Er is geen directe individuele opname, watertemperatuurcurve of diel-label. Registry blijft niet-goedgekeurd; geen winterbonus of runtimefactor. Zie audit §144.

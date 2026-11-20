@@ -1021,3 +1021,10 @@ Audit §143 bevestigt Jamet (1994): dagelijkse consumptie is afgeleid uit gemidd
 Audit §89 is bijgewerkt op basis van de kandidaatmodelreview §§134–143 en de actuele registrytelling: 92 unieke bronnen, 0 numeriek goedgekeurd. De eigenaarbeslissing optie A is expliciet geaccepteerd: de bestaande thermische curve blijft alleen een voorlopige mechanistische prior, niet een gevalideerde voedselopnamecurve.
 
 De formele blockers zijn nu concreet gescheiden: (1) geïntegreerde dagscore met directe responsbijdragen bestaat nog niet; (2) bron-/levensfaseoverdracht blijft per soort beperkt; (3) er zijn geen directe lokale biologische labels; (4) een gevalideerde tijdvakrespons ontbreekt; (5) voorvoerhoeveelheden/gating en de optionele hengel-/methodepreset zijn afzonderlijke eigenaarbesluiten. Brier blijft uitsluitend voor persoonlijke vangstkans. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 118. Meerval: seizoensmaagvulling en steekproefonbalans
+
+Audit §144 controleert de volledige primaire tekst van Yazici et al. (2025). De studie omvat 200 meervallen uit één Anatolisch stuwmeer, met maandelijkse bemonstering en maagvullings-/vacuïteitsindices. Het wintergemiddelde FI was het hoogst (0,827), maar de wintergroep telde slechts n=7 tegenover voorjaar n=49, zomer n=98 en herfst n=46. Leeftijdsgroepen waren eveneens ongelijk (n=3–81).
+
+De studie ondersteunt beperkte veldcontext voor maagvulling en dieet, niet individuele dagelijkse opname, een temperatuurcurve of een diel-tijdvakrespons. Er is geen gerapporteerde watertemperatuurreeks per vangst; temperatuur wordt in de discussie als mogelijke verklaring genoemd, niet als gecontroleerde of onafhankelijk geanalyseerde respons. Geen winterbonus of numerieke runtimebijdrage; registrystatus blijft approvedForPrediction=false.

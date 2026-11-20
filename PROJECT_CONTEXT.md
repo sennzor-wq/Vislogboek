@@ -1940,3 +1940,8 @@ Filipiak et al. (1997) is als kandidaat voor juveniele meerval-voerbehoefte beoo
 De zevenpunts-crosswalk in `FASE2_PROGNOSE_AUDIT.md` §89 is geactualiseerd na de kandidaatmodelreview en broncontroles §§134–143. De Research Registry telt 92 unieke records; 0 zijn numeriek goedgekeurd. De eigenaarkeuze optie A blijft gelden: de bestaande thermische curves zijn uitsluitend voorlopige mechanistische prioren, geen gevalideerde soortspecifieke voedselopnamecurves.
 
 De geïntegreerde score met directe voedingsbijdrage en een gevalideerde tijdvakrespons is nog niet gerealiseerd. Lokale biologische labels ontbreken. Brier blijft uitsluitend evaluatie van persoonlijke vangstkans. Voorvoergrammen/gating en een optionele hengel-/methodepreset blijven afzonderlijke open productbesluiten. Fase 2 is niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — primaire methodecontrole meerval 2025 (20 november 2026)
+
+Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie meet maagvulling en dieet bij 200 meervallen in één Anatolisch stuwmeer. Het hoogste seizoens-FI viel in de winter (0,827), maar de wintersteekproef omvat slechts zeven vissen; seizoens- en leeftijdsgroepen zijn sterk ongelijk. Er is geen directe temperatuurcurve, individuele voedselopname of dagdeelrespons. Bron blijft limited/moderate context en approvedForPrediction=false; geen winterbonus of runtimewijziging. Zie audit §144.

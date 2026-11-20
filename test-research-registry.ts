@@ -179,6 +179,19 @@ for (const [species, id] of Object.entries(directFeedingEvidenceBySpecies)) {
     throw new Error(`Feeding evidence for ${species} must retain source limitations and remain non-approved.`);
   }
 }
+const welsSeasonalField = RESEARCH_REGISTRY.find((item) => item.id === 'wels-catfish-seasonal-diet-feeding-2025');
+if (
+  !welsSeasonalField ||
+  !welsSeasonalField.species.includes('Meerval') ||
+  !welsSeasonalField.measuredOutcomes?.includes('feeding_intensity') ||
+  welsSeasonalField.approvedForPrediction ||
+  !welsSeasonalField.limitations.some((item) => item.includes('winter n=7')) ||
+  !welsSeasonalField.limitations.some((item) => item.includes('geen gerapporteerde watertemperatuurreeks')) ||
+  !welsSeasonalField.limitations.some((item) => item.includes('geen diel-/tijdvaklabels')) ||
+  !welsSeasonalField.sourceReferences.some((source) => source.includes('10.1155/anu/4619857'))
+) {
+  throw new Error('Wels catfish 2025 stomach-fullness evidence must preserve seasonal sample imbalance and lack of temperature/diel labels.');
+}
 const pikeFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-field-seasonal-feeding-diet-2025');
 if (!pikeFeeding?.summary.includes('niet statistisch significant')) {
   throw new Error('The pike evidence must preserve the non-significant seasonal/temperature result.');
