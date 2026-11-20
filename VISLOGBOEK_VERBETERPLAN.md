@@ -966,3 +966,10 @@ Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie 
 ### Fase 2 — snoekbron 2025 statistische rapportage aangescherpt (20 november 2026)
 
 De volledige primaire PDF van Yazıcıoğlu et al. (2025) is gecontroleerd. De FI-seizoenswaarden zijn numeriek, maar de abstracttekst is intern tegenstrijdig over significantie (p<0,05 terwijl de tekst “niet significant” zegt); de resultaten rapporteren geen eenduidige aparte FI-teststatistiek. De temperatuurcorrelatie is expliciet zwak en niet significant (r_s=0,117; p>0,05). Geen thermische curve of seizoensbonus. Zie audit §145.
+
+
+### Fase 2 — PR #189 afgerond en formele status bijgewerkt (20 november 2026)
+
+PR #189 is gemerged en zowel de exacte PR-head als mergecommit Quality Gate zijn groen. De broncontroles staan in audit §§141–145; de afgeronde gate en documentatiestatus in §146; de actuele zevenpunts-crosswalk in §89. Registry: 92 records, 0 numeriek goedgekeurd.
+
+Optie A is als eigenaarbesluit gesloten. De thermische curve blijft een voorlopige prior, niet een gevalideerde voedingscurve. Fase 2 blijft open wegens de nog niet gerealiseerde geïntegreerde biologische score, ontbrekende directe lokale biologische labels, ontbrekende gevalideerde tijdvakrespons en open productbesluiten over voorvoerhoeveelheden/gating en optionele hengel-/methodepreset. Fase 3 blijft geblokkeerd.

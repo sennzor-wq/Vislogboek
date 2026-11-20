@@ -1035,3 +1035,10 @@ De studie ondersteunt beperkte veldcontext voor maagvulling en dieet, niet indiv
 Audit §145 controleert Yazıcıoğlu et al. (2025) op de volledige primaire PDF. De FI-waarden zijn numeriek hoger in zomer/herfst en lager in winter/voorjaar, maar de abstracttekst is statistisch tegenstrijdig: zij noemt de FI-seizoensverschillen niet significant en vermeldt tegelijk K-W p<0,05. De resultaten rapporteren p>0,05 expliciet voor VI, maar geven geen eenduidige aparte FI-teststatistiek. De registry houdt deze onzekerheid expliciet open.
 
 De gemeten maandelijkse oppervlaktetemperatuur correleerde slechts zwak met FI (r_s=0,117; p>0,05). Gillnetten stonden minimaal twaalf uur van schemering tot de volgende ochtend; geen individuele voedingsmomenten. Geen thermische curve of diel-tijdvakbonus afleiden; bron blijft limited en non-approved.
+
+
+## 120. Technische afronding PR #189 en actuele ontwerpstatus
+
+PR #189 is gemerged naar `main` als `6661623cb591623c40ba7886a85a0cbb3c99ab86`; zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig geslaagd. De bron-/overdraagbaarheidsbevindingen staan in audit §§141–145 en de actuele formele crosswalk in §89.
+
+De eigenaarbeslissing optie A is gesloten: de thermische curves blijven een transparante voorlopige prior. Dit is geen wetenschappelijke validatie. De registry telt 92 bronnen, 0 numeriek goedgekeurd. Er is geen open technische gate voor deze wijzigingsreeks; de open fase-2-punten zijn inhoudelijk: geïntegreerde score, directe biologische labels, gevalideerde tijdvakrespons en afzonderlijke eigenaarbesluiten over voorvoerhoeveelheden/gating en optionele hengel-/methodepreset. Fase 3 blijft geblokkeerd.
