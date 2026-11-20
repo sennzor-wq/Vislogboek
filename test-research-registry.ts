@@ -48,6 +48,26 @@ if (
   throw new Error('Wild-river carp feeding evidence must retain its measured outcome, source scope and non-approved status.');
 }
 
+
+const larvalPercidRation = RESEARCH_REGISTRY.find((item) => item.id === 'larval-perch-pikeperch-field-daily-ration-worischka-mehner-1998');
+if (
+  !larvalPercidRation ||
+  !['Baars', 'Snoekbaars'].every((species) => larvalPercidRation.species.includes(species as any)) ||
+  !larvalPercidRation.measuredOutcomes?.includes('feeding_intensity') ||
+  larvalPercidRation.approvedForPrediction ||
+  !larvalPercidRation.summary.includes('elk uur bemonsteren') ||
+  !larvalPercidRation.limitations.some((item) => item.includes('larvale vissen')) ||
+  !larvalPercidRation.limitations.some((item) => item.includes('41–72%')) ||
+  !larvalPercidRation.sourceReferences.some((source) => source.includes('10.1111/j.1095-8649.1998.tb00462.x'))
+) {
+  throw new Error('Worischka & Mehner larval perch/pikeperch field-ration evidence must remain scoped and non-approved.');
+}
+if (
+  !SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.includes('10.1111/j.1095-8649.1998.tb00462.x')) ||
+  !SPECIES_PROFILES.Snoekbaars.scientificReferences.some((source) => source.includes('10.1111/j.1095-8649.1998.tb00462.x'))
+) {
+  throw new Error('The larval percid field-ration source must be linked to both species profiles.');
+}
 const adultPerchRation = RESEARCH_REGISTRY.find((item) => item.id === 'adult-perch-loch-leven-daily-ration-1977');
 if (
   !adultPerchRation ||
@@ -215,6 +235,8 @@ const outcomeExpectations: Array<[string, string, string]> = [
   ['Snoek', 'northern-pike-functional-response-temperature-browning-2026', 'feeding_intensity'],
   ['Baars', 'perch-field-diel-feeding-seasonal-diet-1986', 'feeding_rhythm'],
   ['Baars', 'adult-perch-loch-leven-daily-ration-1977', 'feeding_intensity'],
+  ['Baars', 'larval-perch-pikeperch-field-daily-ration-worischka-mehner-1998', 'feeding_intensity'],
+  ['Snoekbaars', 'larval-perch-pikeperch-field-daily-ration-worischka-mehner-1998', 'feeding_intensity'],
   ['Voorn', 'roach-autumnal-diel-feeding-shift-2008', 'feeding_rhythm'],
   ['Zeelt', 'tench-field-diel-seasonal-feeding-2018', 'feeding_intensity'],
   ['Snoekbaars', 'pikeperch-winter-spring-feeding-temperature-2020', 'feeding_physiology'],

@@ -983,3 +983,10 @@ Audit §138 corrigeert de broncontext van Nilsson-Örtman et al. (2026). De zes 
 De 0+-voedingsproeven blijven directe maar contextgebonden laboratoriumdata. De primaire paper rapporteert 24 dieren in experiment 1 en drie uitgesloten proefwaarnemingen; de Dryad-README vermeldt n=23 en omschrijft het outlierveld als drie individuen. Experiment 2 sloot afzonderlijk twee dieren wegens schimmelinfectie uit. Deze aantallen en uitsluitingen zijn niet samengevoegd.
 
 De dataset blijft limited en approvedForPrediction=false; geen volwassen veldcurve, voedingslabel uit de biosensorreeks of runtimefactor. De ruwe CSV/R-code kon via de Dryad-downloadlink niet onafhankelijk worden opgehaald (HTTP 403), dus geen claim van heruitvoering.
+
+
+## 112. Larvale baars en snoekbaars: veldrantsoen op basis van maagvulling (20 november 2026)
+
+Audit §139 registreert Worischka & Mehner (1998) als beperkte feeding_intensity-bron voor larvale baars en snoekbaars. De auteurs schatten dagelijkse rantsoenen uit uurlijkse maagvullingsmetingen gedurende 24 uur en lineaire/exponentiële maagledigingsfuncties. De gerapporteerde waarden zijn 0,21–0,27 g/g/dag bij larvale baars (13,1 mm) en 0,31–0,40 g/g/dag bij larvale snoekbaars (10,6 mm). Iedere derde uurmeting leverde slechts 41–72% van de rantsoenschatting met uurlijkse bemonstering.
+
+Dit is geen rechtstreeks gewogen individuele voedselopname. Levensfase, methodegevoeligheid en ontbrekende volledige primaire methodedetails beperken overdraagbaarheid; geen volwassen curve of runtimebijdrage. De bron blijft approvedForPrediction=false.

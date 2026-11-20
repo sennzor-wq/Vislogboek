@@ -803,6 +803,27 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'larval-perch-pikeperch-field-daily-ration-worischka-mehner-1998',
+    topic: 'larvale-baars-en-snoekbaars-veldvoedselopname',
+    measuredOutcomes: ['feeding_intensity'],
+    species: ['Baars', 'Snoekbaars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Worischka & Mehner (1998) vergeleken veldgebaseerde en indirect gemodelleerde dagelijkse voedselrantsoenen bij larvale baars en snoekbaars. De veldschattingen kwamen uit maagvullingsgegevens gedurende een 24-uurscyclus, met elk uur bemonsteren en lineaire of exponentiële maagledigingsfuncties. Geschatte dagelijkse rantsoenen bedroegen 0,21–0,27 g/g/dag voor baars (gemiddelde totale lengte 13,1 mm) en 0,31–0,40 g/g/dag voor snoekbaars (10,6 mm); de hogere waarden kwamen uit het exponentiële model.',
+    limitations: [
+      'De bron betreft larvale vissen met zeer kleine gemiddelde lengtes; deze uitkomsten zijn niet overdraagbaar op volwassen baars of snoekbaars of op de hengelvisserij.',
+      'Het zijn veldgebaseerde modelschattingen uit maagvulling en maaglediging, geen rechtstreeks gewogen individuele voedselopname. De uitkomst hangt af van de gekozen lineaire of exponentiële evacuatiefunctie.',
+      'De volledige primaire tekst kon niet worden ingezien; locatie, steekproefomvang, temperatuurreeks, prooisamenstelling en volledige modeldiagnostiek zijn daarom niet onafhankelijk gecontroleerd.',
+      'De auteurs melden dat gebruik van slechts iedere derde uurmeting dagelijkse rantsoenschattingen opleverde van 41–72% van de schattingen op basis van uurlijkse bemonstering; de methode is dus gevoelig voor bemonsteringsinterval.',
+      'De studie levert geen volwassen soortcurve, Nederlandse lokale referentielabels, hengelvangbaarheidsmeting of onafhankelijke validatie van de huidige thermische profielparameters.'
+    ],
+    sourceReferences: [
+      'Worischka, S. & Mehner, T. (1998). Comparison of field-based and indirect estimates of daily food consumption in larval perch and zander. Journal of Fish Biology, 53(5), 1050–1059. https://doi.org/10.1111/j.1095-8649.1998.tb00462.x'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'adult-perch-loch-leven-daily-ration-1977',
     topic: 'volwassen-baars-veldvoedingsintensiteit-en-seizoen',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],

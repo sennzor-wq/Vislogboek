@@ -1914,3 +1914,8 @@ Thorpe (1977) is als beperkte volwassen-baarsbron opgenomen: dagelijkse rantsoen
 ### Fase 2 — snoekdataset 2026: broncontext gecorrigeerd (20 november 2026)
 
 De volwassen snoek-biosensorreeks van Nilsson-Örtman et al. (2026) is gemeten in drie experimentele vijvers, niet in een representatieve natuurlijke veldpopulatie; de data bevatten alleen lichaamstemperatuur, geen voedingslabels. De primaire paper rapporteert 24 0+-dieren in experiment 1 en drie uitgesloten proefwaarnemingen, terwijl de Dryad-README n=23 en drie individuen noemt. Experiment 2 had daarnaast twee uitsluitingen wegens schimmelinfectie. Ruwe bestanden waren via Dryad niet downloadbaar (HTTP 403), dus er is geen onafhankelijke heruitvoering geclaimd. De bron blijft beperkt en niet-goedgekeurd. Zie audit §138.
+
+
+### Fase 2 — larvale baars/snoekbaars veldrantsoen geregistreerd (20 november 2026)
+
+Worischka & Mehner (1998) is toegevoegd als beperkte veldgebaseerde voedingsintensiteitsbron voor larvale baars en snoekbaars. Dagelijkse rantsoenen zijn geschat uit uurlijkse maagvulling en maagledigingsmodellen; de methode is gevoelig voor bemonsteringsinterval. Levensfase en ontbrekende volledige primaire methodedetails verhinderen overdracht naar volwassen Nederlandse vis. Bron blijft niet-goedgekeurd voor voorspelling. Zie audit §139.
