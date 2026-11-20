@@ -1049,3 +1049,10 @@ De eigenaarbeslissing optie A is gesloten: de thermische curves blijven een tran
 Audit §147 controleert Prejs (1978) op de volledige primaire PDF. De studie geeft direct maag-/darmvullingsbewijs voor een plantenetende blankvoorn-groep: de onderzochte groep voedde overdag door en macrophytenopname viel volgens de auteur vrijwel stil in volledige duisternis. Dit geldt niet voor de soort als geheel; het is afhankelijk van voedselgilde, populatie, leeftijd en lokale omstandigheden. De geschatte natuurlijke dagelijkse macrophytenrantsoenen (9,5–4,8% of 15,5–7,7% BW, afhankelijk van turnovervariant) zijn passage-rate-modeluitkomsten, geen rechtstreekse individuele veldmetingen.
 
 De bron is geen method-feeder-/pelletbewijs, heeft slechts een temperatuurcontext rond 20 °C en ondersteunt geen thermische curve. Registry: limited, approvedForPrediction=false. Geen tijdvakbonus of runtimefactor.
+
+
+## 123. Prejs (1978) en de dieetafhankelijke blankvoornrespons
+
+Prejs (1978) is in audit §147 als 93e registry-record toegevoegd. De bron geeft beperkt direct veldbewijs voor macrophyten-etende blankvoorn en toont dat het tijdvakpatroon sterk kan verschillen naar voedselgilde. De auteur waarschuwt tegen generalisatie naar de soort als geheel. Geen method-feeder-/pelletrespons, thermische curve of numerieke tijdvakbonus. Registry blijft non-approved.
+
+PR #191 is gemerged; de exacte PR-head Quality Gate is geslaagd. De mergecommit Quality Gate moet afzonderlijk slagen voordat deze wijzigingsreeks technisch volledig gevalideerd is.
