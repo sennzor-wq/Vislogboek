@@ -4359,3 +4359,20 @@ De eerste CI-run vond een bestaande dagscore-regressie doordat verstreken tijdva
 **Begrenzing:** de targettijd wordt nu doorgegeven en gebruikt, maar de deterministische interpretatie van forecasttijdstempels, `forecastAsOf`, Europe/Amsterdam en zomer-/wintertijd hoort bij punt 2 en is nog open. Dit resultaat valideert ook nog niet de fysieke tijdconstanten; daarvoor zijn echte lokale meetreeksen nodig.
 
 **Volgende stap: punt 2 — tijdzonebewuste en reproduceerbare forecast-/tijdstempelverwerking.** Geen fase-3-overgang.
+
+
+## 159. Uitvoering punt 2 — tijdzonebewuste forecasttijd en forecast-as-of (20 november 2026)
+
+**Status: technisch geïmplementeerd en gevalideerd.** PR [#205](https://github.com/sennzor-wq/Vislogboek/pull/205) is gemerged; de exacte PR-head en mergecommit Quality Gates zijn groen.
+
+De forecastketen vraagt Open-Meteo nu expliciet om Unix-tijdstempels. Uurlijkse tijden worden direct genormaliseerd naar absolute UTC-ISO-instanties. Daarmee worden zomertijd en wintertijd als werkelijke tijdsverloop behouden; de herhaalde lokale 02:00 krijgt twee verschillende instanties. De daily zonsopkomst/-ondergang wordt terugvertaald naar Amsterdamse lokale datum/tijd voor de bestaande schemerberekening.
+
+Oude cachewaarden blijven bruikbaar: timezone-loze Amsterdam-wandtijden worden bij cachelezing genormaliseerd; bij de herhaalde herfstuurwaarde wordt de tweede opeenvolgende 02:00 aan de latere CET-instant gekoppeld. Niet-bestaande lokale tijden in de voorjaarswisseling worden verworpen. Relevante filters en tijdvakken in de thermische engine, prognose-engine, hengelpositionering en historische temperatuurprofielen gebruiken de gedeelde Amsterdamse datum-/uurparser.
+
+Het moment waarop de forecastpayload is opgehaald (`weatherFetchedAt` / `forecastAsOf`) blijft onderscheiden van het prognoseberekeningstijdstip (`calculatedAt`). Wanneer de opgehaalde forecast aantoonbaar later is dan het berekeningstijdstip of een ongeldige as-of heeft, wordt die weerspayload niet gebruikt. De onveranderlijke snapshot blijft de exacte weersinvoer en ophaaltijd bewaren.
+
+Regressies dekken de dubbele herfst-02:00, de niet-bestaande lente-02:00, tijdvakselectie, thermische chronologie en future-leakage. De bestaande tests voor sessies, coach, historische meetankers, weerverrijking en productiebuild zijn groen.
+
+**Begrenzing:** oude cachegegevens die ooit met de vaste offset van de API zijn opgeslagen, kunnen de historische overgangsuren niet met terugwerkende kracht exact herstellen; ze blijven best-effort genormaliseerd. Nieuwe payloads hebben de exacte absolute tijdstempels. Dit is technische tijd-/provenanceborging, geen empirische validatie van thermische tijdconstanten.
+
+**Volgende stap: punt 3 — meetdiepte meenemen in selectie en vergelijkbaarheid van historische watertemperatuurprofielen.**

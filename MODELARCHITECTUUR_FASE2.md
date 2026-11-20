@@ -1164,3 +1164,14 @@ Punt 1 is geïmplementeerd in PR #203 en de PR-head- en mergecommit-Quality-Gate
 De zichtbare 1–10-score, scoreformule, database, gebruikersinvoer en UI zijn niet gewijzigd. Regressietests dekken expliciete doeltijden en stabiliteit van 8 °C bij stabiele lucht en weinig wind. Dit is technische tijdstipfunctionaliteit, geen empirische validatie van de bestaande tijdconstanten.
 
 Punt 2 blijft open: deterministische Europe/Amsterdam-/DST-parsing, expliciete forecast-as-of en voorkomen van forecast future leakage. Zie audit §158.
+
+
+## 134. Uitvoering punt 2 — Amsterdamse tijd en forecast-as-of (20 november 2026)
+
+Punt 2 is geïmplementeerd in PR #205; PR-head- en mergecommit-Quality-Gates zijn groen. Open-Meteo wordt voor forecast en archief met `timeformat=unixtime` aangeroepen. Uurlijkse data worden absolute UTC-ISO-instanties; lokale datum-/uurselectie gebruikt de centrale Europe/Amsterdam-parser. Oude timezone-loze cachewaarden blijven leesbaar en worden bij cachelezing genormaliseerd, inclusief deterministische behandeling van het dubbele herfstuur en afwijzing van niet-bestaande lente-uren.
+
+`weatherFetchedAt` / `forecastAsOf` is expliciet onderscheiden van `calculatedAt`. Een forecastpayload die aantoonbaar na het berekeningstijdstip is opgehaald of een ongeldige as-of heeft, wordt niet gebruikt. Snapshot-weatherInput en as-of blijven immutable bewaard.
+
+De Open-Meteo daily sunrise/sunset wordt naar lokale datum/tijd omgezet voor de bestaande schemerlogica. Regressies, volledige Quality Gate en productiebuild zijn groen. Zie audit §159.
+
+Volgende stap: punt 3 — historische profielselectie op fysieke meetdiepte.
