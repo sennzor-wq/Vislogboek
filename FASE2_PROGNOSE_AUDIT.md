@@ -4524,3 +4524,48 @@ De code-inspectie bevestigt de twee belangrijkste presentatiepaden (algemene Pro
 4. Rond punt 5 pas af nadat deze controles zijn vastgelegd. Daarna volgt het resterende Fase-2-closeoutwerk; Fase 3 blijft geblokkeerd.
 
 **Wijzigingsscope van deze controle:** uitsluitend auditdocumentatie. Geen berekeningsregels, gebruikersdata, invoervelden, prognoses of VisCoach-functionaliteit gewijzigd.
+
+
+## 165. Vervolgcontrole punt 5 — plannergrenzen, soorten en persoonlijke vergelijking (20 november 2026)
+
+**Status: statische engine-audit uitgevoerd; geen runtimewijziging.** De controle betreft `src/services/prebaitEngine.ts` en bouwt voort op §163–164.
+
+### 165.1 Soortondersteuning en temperatuurbanden
+
+De planner wordt momenteel uitsluitend aangemaakt voor Karper, Zeelt en Brasem. Voor andere soorten en de algemene keuze retourneert `calculatePrebaitPlan` geen voorvoerplan. De drie ondersteunde soorten gebruiken dezelfde temperatuurbandstructuur, met soortafhankelijke hoeveelheid-/voermixfactoren:
+- Brasem: factor 0,65;
+- Zeelt: factor 0,55;
+- Karper: factor 1,00.
+
+De huidige temperatuurklassen zijn: onder 6 °C geen vooraf voeren; 6 tot onder 10 °C maximaal één voorafgaande dag; 10 tot onder 16 °C maximaal twee dagen; 16 tot en met 22 °C maximaal drie dagen; boven 22 °C maximaal één dag en terughoudend voeren. Deze grenzen en factoren blijven heuristische code-instellingen, geen gevalideerde soortspecifieke biologische normen. Ze zijn niet gewijzigd.
+
+### 165.2 Voorbereidingstijd en campagnebegrenzing
+
+De opgegeven beschikbare voorbereidingstijd wordt naar een geheel aantal dagen begrensd op 0–3. Het uiteindelijke aantal voorafgaande voerbeurten wordt daarnaast begrensd door de temperatuurklasse, de interne geschiktheidsscore en het werkelijk aantal kalenderdagen tussen planning en sessie. Een sessie op dezelfde dag krijgt dus geen voorafgaande voerbeurt. De planner maakt alleen voorafgaande momenten aan wanneer temperatuur en watertype bruikbaar zijn en de geschiktheidsscore ten minste 4 is.
+
+Dit voorkomt dat de planner een niet-bestaande voorbereidingstijd verzint. De bovengrens van drie dagen is een product-/enginegrens, geen biologische aanbeveling om altijd drie dagen te voeren.
+
+### 165.3 Sessiehoeveelheid en method feeder
+
+De sessiehoeveelheid wordt intern proportioneel geschaald op basis van sessieduur, met een rekenbereik van 0,25 tot 24 uur en een technische standaard van 3 uur wanneer de optie ontbreekt. De zichtbare duurregels uit §164 blijven daarom essentieel: de interne default mag niet als expliciet bekende sessieduur worden gepresenteerd.
+
+Method feeder wordt in de engine terecht als instant-presentatie rond het haakaas beschreven, niet als een afzonderlijke voorafgaande voerbeurt. Een eventuele voorafgaande campagne blijft conceptueel apart. Wel telt de code de berekende sessiehoeveelheid op bij `totalAmountGrams`; de veldnaam kan daardoor gelezen worden als uitsluitend campagnegewicht terwijl de inhoud ook de sessiehoeveelheid omvat. De gecontroleerde PrognosisView toont dit totaal momenteel niet. Geen wijziging voorgesteld zolang het veld niet als gebruikersuitvoer wordt gebruikt.
+
+### 165.4 Persoonlijke voorvoervergelijking
+
+De persoonlijke vergelijking wordt beperkt tot dezelfde stek-ID en doelsoort, sluit benchmark-sessies uit en gebruikt alleen vangstsessies of expliciet bevestigde nulvangsten. Een vangstsessie telt voor de doelsoort alleen mee wanneer een bijbehorende soortspecifieke vangst aanwezig is; bevestigde nulvangsten worden afzonderlijk toegelaten.
+
+Percentages verschijnen pas bij minimaal vijf geclassificeerde sessies, met ten minste twee sessies met en twee zonder voorvoeren. De uitkomst is een beschrijvende vergelijking van het aandeel vangstsessies, geen causale effectschatting en geen vangstgarantie. Deze beperking staat ook in de gegenereerde samenvatting.
+
+**Aandachtspunt voor legacy-registraties:** wanneer het expliciete veld `prebaited` ontbreekt, wordt de vrije tekst `baitAndFeed` gebruikt als terugval. De huidige positieve herkenning controleert alleen of de tekst het woorddeel “voorvoer” bevat. Daardoor kan een tekst als “geen voorvoer” onbedoeld als mét voorvoeren worden geclassificeerd. Dit raakt alleen sessies zonder expliciete boolean en kan de persoonlijke vergelijking vertekenen. Er is geen automatische herclassificatie uitgevoerd en geen historische gebruikersdata gewijzigd. Een eventuele correctie moet conservatief zijn en de bestaande vrije tekst behouden.
+
+### 165.5 Tussenconclusie en eerstvolgende stap
+
+De plannergrenzen, ondersteunde soorten, method-feedersemantiek en persoonlijke vergelijkingsdrempels zijn nu statisch in kaart gebracht. Er zijn geen nieuwe biologische claims of numerieke parameters toegelaten.
+
+Openstaand binnen punt 5:
+1. besluit/afbakening voor de legacy-tekstfallback bij persoonlijke voorvoerhistorie (“geen voorvoer” kan positief worden herkend);
+2. vaststellen of de ambiguë naam/inhoud van `totalAmountGrams` alleen documentatie behoeft of later een compatibele verduidelijking;
+3. gerichte regressiecontrole van de confidence-gate in de algemene PrognosisView en daadwerkelijke uitvoering van relevante tests, typecheck en productiebuild.
+
+Geen van deze punten rechtvaardigt een wijziging van de numerieke voorvoerengine. Voor de legacy-classificatie wordt eerst de veiligste, niet-destructieve correctie bepaald; bestaande vrije tekst en expliciete `prebaited`-waarden moeten behouden blijven. Punt 5 is nog niet afgerond; Fase 2 blijft open en Fase 3 geblokkeerd.
