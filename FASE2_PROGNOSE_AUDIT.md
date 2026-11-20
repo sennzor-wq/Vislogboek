@@ -3653,3 +3653,32 @@ De bron is toegevoegd als `northern-pike-functional-response-temperature-brownin
 **Geen toelating voor runtime:** de studie mag uitsluitend als direct maar levensfase- en contextgebonden kandidaatbewijs worden gebruikt. Zij valideert de bestaande volwassen Snoek-thermische parameters niet, levert geen generieke temperatuurcurve en rechtvaardigt geen zicht-/troebelheidsbonus. De volwassen lichaamstemperatuurreeks mag niet als voedingslabel aan de jonge-snoekproeven worden gekoppeld.
 
 **Vervolg:** controleer de downloadbare CSV en analysecode op reproduceerbaarheid en op de exacte modelvariabelen/uitsluitingen voordat eventueel een beperkte responskaart of referentie wordt ontworpen. Geen numerieke parameter, gewicht, tijdvakbonus of runtimegedrag gewijzigd.
+
+
+## 136. Veldschattingen van dagelijkse voedselopname: karper, brasem en blankvoorn (20 november 2026)
+
+Twee aanvullende veldpublicaties zijn bibliografisch en op basis van hun publiek beschikbare samenvattingen getrieerd. Beide schatten dagelijkse voedselopname via maag-/darminhoud en ledigingsmodellen; zij leveren dus relevante voedingsintensiteitsinformatie, maar geen rechtstreeks geobserveerde individuele voedselinname en geen lokale Nederlandse modelvalidatie.
+
+### 136.1 Garcia & Adelman (1985) — karper
+
+Garcia, L.M. & Adelman, I.R. (1985), *An in situ estimate of daily food consumption and alimentary canal evacuation rates of common carp, Cyprinus carpio L.*, Journal of Fish Biology 27(4), 487–493, DOI 10.1111/j.1095-8649.1985.tb03196.x.
+
+De publiek beschikbare samenvatting beschrijft schattingen met intervallen van vier weken van april tot oktober 1979. De berekende dagelijkse consumptie varieerde van 3,87 mg/g visnatgewicht/dag (0,39% lichaamsgewicht) bij 14 °C in april tot 40,75 mg/g/dag (4,08%) bij 26,5 °C in augustus. De ledigingsrate nam exponentieel toe met temperatuur. Een ogenschijnlijk ochtend-/avondverschil in voedselopname was niet statistisch significant.
+
+**Beperking:** het betreft een modelmatige veldschatting via gastro-intestinale lediging. De publiek beschikbare samenvatting geeft geen volledige steekproefomvang, grootteverdeling, exact waterlichaam of volledige methode-/modeldiagnostiek. De seizoens- en temperatuurvariatie mogen daarom niet als zuivere temperatuurcausaliteit of Nederlandse karpercurve worden geïnterpreteerd.
+
+### 136.2 Specziár (2002) — meerdere cypriniden in het Balatonmeer
+
+Specziár, A. (2002), *An in situ estimate of food consumption of five cyprinid species in Lake Balaton*, Journal of Fish Biology 60(5), 1237–1251, DOI 10.1111/j.1095-8649.2002.tb01717.x.
+
+De samenvatting rapporteert modelgeschatte dagelijkse rantsoenen voor karper, brasem en blankvoorn, naast zilverbrasem en giebel, bij watertemperaturen van circa 8,7–25,8 °C. De Eggers- en Elliott–Persson-schattingen verschilden gemiddeld slechts beperkt (−4,3 tot +7,3%). De dagelijkse rantsoenen namen exponentieel toe met temperatuur voor karper en blankvoorn. Voor brasem werd een significante relatie alleen verkregen nadat één rantsoenwaarneming uit de analyse was verwijderd.
+
+**Beperking:** beide rantsoenmodellen gebruiken dezelfde maag-/darminhoudscontext en vormen geen twee onafhankelijke biologische replicaties. Het betreft één groot ondiep Hongaars meer; de volledige primaire steekproef-/methodedetails en onderliggende waarnemingen zijn nog niet gecontroleerd. De brasemrelatie is gevoelig voor een uitgesloten waarneming en mag niet als robuuste curve worden behandeld.
+
+### 136.3 Registrybesluit en modelgrenzen
+
+Beide publicaties zijn opgenomen als `feeding_intensity`-kandidaatbewijs met bewijssterkte **limited** en `approvedForPrediction: false`. De Garcia-bron is gekoppeld aan Karper; de Specziár-bron aan Karper, Brasem en Voorn. De Snoek-, Karper-, Brasem- en Voorn-profielen verwijzen nu naar de passende publicaties.
+
+Deze bronnen vergroten de externe bewijsbasis, maar leveren geen lokale onafhankelijke labels voor de Vislogboek-score en valideren niet de huidige thermische profielparameters. De gemelde rantsoenen mogen niet rechtstreeks worden omgerekend naar vangstkans, method-feederprestatie, voergrammen of tijdvakbonussen. De ochtend-/avondwaarneming bij Garcia is niet significant; voor brasem is de temperatuursamenhang bij Specziár gevoelig voor één weggelaten datapunt.
+
+Registrytelling: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor, parameter, gewicht, interactie of tijdvakbonus geactiveerd. Eerst volledige primaire methoden en steekproefcontext verifiëren voordat responsankers worden overwogen.

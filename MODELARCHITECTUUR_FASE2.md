@@ -960,3 +960,10 @@ Audit §135 registreert Nilsson-Örtman et al. (2026), Journal of Animal Ecology
 De bron is in de research registry opgenomen als directe `feeding_intensity`-respons, maar blijft **limited** en `approvedForPrediction: false`: uitsluitend 0+-snoek, één Zuid-Zweedse populatie, laboratoriumarena's, gestandaardiseerde prooidichtheden en vrijwel uitsluitend jonge blankvoorn. De volwassen snoeken in dezelfde studie leverden alleen lichaamstemperatuurdata, geen gekoppelde voedingslabels. De bron valideert dus geen volwassen Nederlandse veldcurve, geen tijdvakvoorkeur en geen bestaande thermische profielparameter.
 
 Registrytelling: 87 records, 0 numeriek goedgekeurd. Geen runtimefactor, gewicht of tijdvakbonus geactiveerd.
+
+
+## 109. Modelgeschatte veldrantsoenen als beperkte voedingscontext (20 november 2026)
+
+Audit §136 registreert Garcia & Adelman (1985) voor karper en Specziár (2002) voor karper, brasem en blankvoorn. Beide gebruiken maag-/darminhoud en ledigings-/rantsoenmodellen om dagelijkse voedselopname in het veld te schatten. De eerste rapporteert seizoensmetingen bij karper van april tot oktober en geen statistisch significant ochtend-/avondverschil. De tweede rapporteert temperatuurgerelateerde dagelijkse rantsoenen in één groot Hongaars meer; de brasemrelatie is afhankelijk van het weglaten van één waarneming.
+
+Deze bronnen zijn bruikbare beperkte kandidaatcontext voor `feeding_intensity`, maar geen rechtstreeks geobserveerde individuele inname, lokale Nederlandse labels of gevalideerde thermische profielcurves. Beide blijven `approvedForPrediction: false`; de onderliggende methoden, steekproefcontext en overdraagbaarheid moeten eerst verder worden gecontroleerd. Geen runtimefactor of gewicht geactiveerd.
