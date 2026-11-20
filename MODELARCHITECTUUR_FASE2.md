@@ -1014,3 +1014,10 @@ De bron kan geen volwassen wilde meervalcurve, natuurlijke prooiconsumptie of me
 ## 116. Baars/blankvoorn: interpretatie van Eggers-consumptieschattingen
 
 Audit §143 bevestigt Jamet (1994): dagelijkse consumptie is afgeleid uit gemiddelde maaginhoud en een temperatuurafhankelijke maagledigingsrate, en vervolgens aan leeftijdsklasse-/populatieomvang gerelateerd. Het is geen rechtstreekse individuele inname. Maandelijkse bemonstering, eutrofe meercontext en verweven seizoensfactoren beperken overdracht; geen thermische curve of tijdvakscore.
+
+
+## 117. Actuele formele Fase-2-acceptatiecrosswalk (20 november 2026)
+
+Audit §89 is bijgewerkt op basis van de kandidaatmodelreview §§134–143 en de actuele registrytelling: 92 unieke bronnen, 0 numeriek goedgekeurd. De eigenaarbeslissing optie A is expliciet geaccepteerd: de bestaande thermische curve blijft alleen een voorlopige mechanistische prior, niet een gevalideerde voedselopnamecurve.
+
+De formele blockers zijn nu concreet gescheiden: (1) geïntegreerde dagscore met directe responsbijdragen bestaat nog niet; (2) bron-/levensfaseoverdracht blijft per soort beperkt; (3) er zijn geen directe lokale biologische labels; (4) een gevalideerde tijdvakrespons ontbreekt; (5) voorvoerhoeveelheden/gating en de optionele hengel-/methodepreset zijn afzonderlijke eigenaarbesluiten. Brier blijft uitsluitend voor persoonlijke vangstkans. Fase 2 blijft open; Fase 3 geblokkeerd.

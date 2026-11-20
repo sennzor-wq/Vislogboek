@@ -1933,3 +1933,10 @@ Jamet et al. (1990) is in de audit als beperkt direct voedingsritmebewijs opgeno
 De primaire methodesectie van Jamet (1994) is gecontroleerd. Dagelijkse consumptie is berekend uit maaginhoud en een temperatuurafhankelijke maagledigingsrate (Eggers-model) en vervolgens gerelateerd aan leeftijdsklasse-/populatieomvang. Dit blijft beperkte seizoens-/dieetcontext, geen directe individuele opname of onafhankelijke thermische respons.
 
 Filipiak et al. (1997) is als kandidaat voor juveniele meerval-voerbehoefte beoordeeld. De beschikbare samenvatting meldt rantsoenen per metabool gewicht in brede temperatuurbanden, maar de precieze opname- en temperatuurmethodiek is niet voldoende geverifieerd. Geen registry-goedkeuring of runtimegebruik. Zie audit §§141–143.
+
+
+### Fase 2 — actuele acceptatiestatus en broninventaris (20 november 2026)
+
+De zevenpunts-crosswalk in `FASE2_PROGNOSE_AUDIT.md` §89 is geactualiseerd na de kandidaatmodelreview en broncontroles §§134–143. De Research Registry telt 92 unieke records; 0 zijn numeriek goedgekeurd. De eigenaarkeuze optie A blijft gelden: de bestaande thermische curves zijn uitsluitend voorlopige mechanistische prioren, geen gevalideerde soortspecifieke voedselopnamecurves.
+
+De geïntegreerde score met directe voedingsbijdrage en een gevalideerde tijdvakrespons is nog niet gerealiseerd. Lokale biologische labels ontbreken. Brier blijft uitsluitend evaluatie van persoonlijke vangstkans. Voorvoergrammen/gating en een optionele hengel-/methodepreset blijven afzonderlijke open productbesluiten. Fase 2 is niet geaccepteerd; Fase 3 blijft geblokkeerd.

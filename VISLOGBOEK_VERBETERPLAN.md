@@ -949,3 +949,10 @@ Jamet (1994) is geregistreerd voor volwassen baars en blankvoorn als beperkte ve
 De audit §§141–143 voegen drie broncontroles toe: leeftijdsafhankelijk voedingsritme bij blankvoorn (Jamet et al. 1990), juveniele kweekvoerbehoefte bij meerval (Filipiak et al. 1997) en primaire methodeverificatie van Eggers-consumptieschattingen bij volwassen baars/blankvoorn (Jamet 1994).
 
 De resultaten versterken de scheiding tussen direct voedingsritme, dagelijkse kweekvoerbehoefte, modelgeschatte populatieconsumptie en individuele voedselopname. Geen van deze bronnen valideert een lokale Nederlandse thermische curve, universele tijdvakbonus of vangstkans. Alle blijven buiten actieve parameters; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+### Fase 2 — zevenpunts-acceptatiecrosswalk herijkt (20 november 2026)
+
+De formele crosswalk in `FASE2_PROGNOSE_AUDIT.md` §89 is bijgewerkt op basis van de actuele kandidaatmodelreview en broninventaris. De registry telt 92 unieke records, 0 numeriek goedgekeurd. Optie A is de expliciet geaccepteerde productkeuze: de thermische curves blijven een voorlopige prior, niet een gevalideerde voedings- of vangstcurve.
+
+De resterende blockers zijn de geïntegreerde biologische dagscore, overdraagbare soort-/levensfase-evidence, directe lokale biologische labels, een gevalideerde tijdvakrespons en twee afzonderlijke tactische productbesluiten (voorvoerhoeveelheden/gating en optionele hengel-/methodepreset). Fase 2 blijft open; Fase 3 blijft geblokkeerd.
