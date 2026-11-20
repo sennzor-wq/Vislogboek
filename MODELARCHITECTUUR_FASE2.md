@@ -1184,3 +1184,17 @@ Punt 3 is geïmplementeerd in PR #207; PR-head- en mergecommit-Quality-Gates zij
 De selectie blijft de totale waterdiepte apart gebruiken voor de nabijgelegen-stekkenfallback. De gekozen verticale meetdiepte wordt als provenance in WaterThermalAnalysis opgenomen. Geen databasewijziging, verplicht invoerveld of UI-wijziging. Zie audit §160.
 
 Volgende stap: punt 4 — meerdere afzonderlijke fysieke meetmomenten per sessie met beschikbare weerscontext.
+
+
+
+## 136. Punt 4 — sessiegebonden watertemperatuurmeetevents
+
+De uitvoering van audit §161 gebruikt een aparte IndexedDB-tabel waterTemperatureMeasurements; één sessie kan meerdere fysieke meetevents bevatten. Een event bewaart locationId, optioneel sessionId, temperatureC, fysiek measuredAt, apart recordedAt, bron, methode, optionele measurementDepthM en optionele weerscontext. De sessievelden voor één watertemperatuur blijven als compatibiliteitssamenvatting bestaan; zij worden gevuld met de laatste meting op de huidige sessielocatie. Meetevents op een andere locatie behouden hun eigen locatie en worden niet aan de nieuwe sessielocatie toegeschreven.
+
+De weerscontext bewaart het dichtstbijzijnde uurlijkse sampletijdstip, het ophaaltijdstip, bronsoort en alleen werkelijk beschikbare numerieke velden. De bron onderscheidt forecast, recent model/cache en archive-reanalyse. Dit is geen directe lokale weerobservatie. Ontbrekende waarden blijven onbekend en mogen de fysieke meetregistratie niet blokkeren. Het weer bij de meting is context; latere uurdata zijn de afzonderlijke thermische forcing.
+
+Database v6 backfillt legacy sessie- en snapshotmetingen, dedupliceert identieke fysieke waarnemingen en verzint geen ontbrekende weerscontext. Niet-gekoppelde snapshotmetingen blijven zonder sessie-ID behouden. Backup v6 export/restore/merge en oudere v1-v5-normalisatie nemen events mee. Sessieverwijdering verwijdert gekoppelde meetevents.
+
+De sessiemodaliteit laat meerdere optionele meetmomenten toevoegen. Temperatuur en meettijd zijn de eventkern; methode en meetdiepte zijn optioneel. Geen dagelijkse meetplicht. Meetevents worden aan de bestaande historische selectie, waterThermalEngine, prognose, VisCoach en SessionCoach doorgegeven. Onbekende bron/methode blijft expliciet onbekend en wordt niet automatisch gekwalificeerd als modelanker.
+
+De thermische engine blijft één referentietemperatuur modelleren; meetdiepte wordt als provenance bewaard, niet als volledig verticaal temperatuurprofiel. Geen wijziging aan zichtbare 1–10-score of gewichten. Zie audit §161.

@@ -4393,3 +4393,45 @@ Regressietests controleren meerdere meetlagen op één stek, expliciete dieptese
 **Begrenzing:** de profielselectie is nu dieptebewust, maar als meerdere historische dieptelagen bestaan en het beoogde meetniveau niet bekend is, wordt bewust geen profiel gebruikt. Dat is betrouwbaarder dan een schijnnauwkeurige menging. De thermische tijdconstanten blijven afhankelijk van toekomstige echte lokale meetreeksen.
 
 **Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents bewaren met meettijdstip en beschikbare weerscontext, zonder dagelijkse meetplicht.**
+
+
+
+## 161. Uitvoering punt 4 — afzonderlijke sessiegebonden meetevents en weerscontext (20 november 2026)
+
+**Implementatie opgenomen in PR #210; de exacte PR-head- en mergecommit-Quality-Gates zijn de formele acceptatiepoort.**
+
+### Datamodel en compatibiliteit
+
+Er is een afzonderlijke waterTemperatureMeasurements-tabel toegevoegd. Ieder fysiek meetmoment is een eigen record met:
+- locatie en optionele sessiekoppeling;
+- gemeten watertemperatuur;
+- fysiek meettijdstip (measuredAt) en apart registratiemoment (recordedAt);
+- bron en meetmethode;
+- optionele fysieke meetdiepte;
+- optionele onveranderlijke weerscontext met het dichtstbijzijnde uurlijkse sampletijdstip, ophaaltijdstip en expliciete bron.
+
+Een sessie kan daardoor meerdere metingen bevatten. De oude enkelvoudige temperatuurvelden op FishingSession blijven bestaan als compatibiliteits-/samenvattingsvelden en worden bij sessieopslag gevuld met de laatste meting op de huidige sessielocatie. De meeteventtabel is de volledige bron voor de reeks; bestaande snapshots blijven immutable.
+
+Databaseversie 6 migreert bestaande sessie- en snapshotmetingen naar meetevents. Dubbele kopieën van dezelfde fysieke meting worden gededupliceerd op locatie, absoluut meettijdstip, temperatuur en meetdiepte. Een losse snapshotmeting zonder sessiekoppeling blijft behouden zonder fictieve sessie-ID. Historische weerscontext wordt niet achteraf verzonnen.
+
+### Weerscontext en tijdsemantiek
+
+Bij het toevoegen van een meetevent wordt, als locatiecoördinaten en bruikbare uurdata beschikbaar zijn, automatisch de dichtstbijzijnde weerscontext opgehaald. Recente uurdata worden als forecast-/recent-modelbron gelabeld; oudere data komen uit de Open-Meteo-archive/reanalyse. Het record bewaart sampleTimestamp, retrievedAt en de bron afzonderlijk. De context kan luchttemperatuur, luchtvochtigheid, dauwpunt, straling, luchtdruk, wind, bewolking en neerslag bevatten.
+
+Dit zijn model-/reanalysegegevens, geen onafhankelijke lokale weerinstrumentmetingen. De app presenteert ze daarom niet als rechtstreeks gemeten weer. Ontbrekende velden blijven onbekend; ontbrekende weerscontext verhindert het opslaan van de fysieke watertemperatuurmeting niet. De context bij het fysieke meetmoment blijft onderscheiden van de latere uurlijkse weersforcering waarmee de waterthermische toestand wordt doorgerekend.
+
+### Gebruikersflow en modelkoppeling
+
+De sessiemodaliteit heeft een optioneel blok voor meerdere meetmomenten. Temperatuur en fysiek meettijdstip zijn nodig voor een meetevent; meetmethode en meetdiepte blijven optioneel. De tijd wordt standaard op het invoermoment gezet en is aanpasbaar. De gebruiker hoeft niet dagelijks te meten: alleen meetmomenten tijdens vissessies worden vastgelegd. Weerverrijking draait best-effort en blokkeert het vastleggen van de fysieke meting niet.
+
+Meetevents worden meegenomen in de gedeelde historische temperatuurselectie en als thermisch anker aangeboden aan de bestaande waterThermalEngine. De gegevensstroom is aangesloten op de algemene prognose, VisCoach-planning, live sessiestart en SessionCoach-herbeoordeling. Een onbekende bron of methode blijft opgeslagen als onbekend en wordt niet stilzwijgend opgewaardeerd tot een gekwalificeerd thermisch anker of historisch profielsample.
+
+### Back-up, verwijdering en regressies
+
+Het back-upformaat is verhoogd naar v6. Export, restore, merge, importpreview, validatie en oudere v1-v5-normalisatie nemen de meetevents mee. Legacy single-measurementvelden worden bij import naar events genormaliseerd; ongeldige locatie-/sessiekoppelingen en ongeldige weerscontext worden vóór import geweigerd. Het veilig verwijderen van een sessie verwijdert ook de bijbehorende meetevents.
+
+Regressies dekken databasev6-migratie en deduplicatie, behoud van losse snapshotmetingen, eventgebruik als thermisch anker, weerssample-/bronprovenance, v6 backup-roundtrip, oudere backupnormalisatie en cascadeverwijdering.
+
+**Begrenzing:** de eventstructuur bewaart meetdiepte, maar introduceert geen afzonderlijke gelaagde verticale watertemperatuurtoestand. De huidige thermische schatting blijft één referentietemperatuur. Weerscontext uit Open-Meteo is modeldata en geen lokale directe weerwaarneming. Dit werk valideert geen thermische tijdconstanten of biologische voedingsrespons.
+
+Geen wijziging aan de zichtbare 1–10-scoreformule, gewichten of verplichte gebruikersinvoer. PROJECT_CONTEXT.md blijft ongewijzigd. Fase 2 blijft open; fase 3 blijft geblokkeerd totdat de resterende criteria en onafhankelijke validatie zijn afgedekt.
