@@ -15,6 +15,8 @@ export interface ThermalAnalysisOptions {
   /** Exact instant (ISO timestamp) at which the water state is estimated. */
   targetTime?: string;
   forecastAsOf?: string | null;
+  /** Known vertical depth of the target water-temperature measurement, in metres. */
+  measurementDepthM?: number | null;
   /** @deprecated Use targetTime; hour-only targets cannot represent dates or DST safely. */
   targetHour?: number;
   currentDateRef?: Date;
@@ -35,7 +37,7 @@ export function analyzeWaterThermalDevelopment(
   const historicalSessions = options?.historicalSessions || [];
   const currentDateRef = options?.currentDateRef;
   const historicalProfile = deriveHistoricalWaterTemperatureProfile(
-    options?.historicalWaterTemperatures || [], location, targetDateStr
+    options?.historicalWaterTemperatures || [], location, targetDateStr, options?.measurementDepthM
   );
 
   // 1. Verzamel echte temperatuurmetingen voor exact dezelfde stek.
@@ -144,6 +146,7 @@ export function analyzeWaterThermalDevelopment(
       uncertaintyC: recentAnchorEstimate !== null ? 1.0 : historicalProfile?.uncertaintyC ?? null,
       historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
       historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+      historicalWaterTemperatureMeasurementDepthM: historicalProfile?.measurementDepthM ?? null,
       historicalWaterTemperatureSource: historicalProfile?.source ?? null,
       surfaceVsBulkNote: recentAnchorEstimate !== null ? 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.' : historicalProfile ? 'Historisch seizoensprofiel is beschikbaar, maar zonder weerdekking kan geen actuele waterstratificatie worden berekend.' : 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
       inertiaFactor: 'Gemiddeld',
@@ -521,6 +524,7 @@ export function analyzeWaterThermalDevelopment(
     uncertaintyC: estimatedRange ? Math.round(((estimatedRange[1] - estimatedRange[0]) / 2) * 10) / 10 : null,
     historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
     historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+    historicalWaterTemperatureMeasurementDepthM: historicalProfile?.measurementDepthM ?? null,
     historicalWaterTemperatureSource: historicalProfile?.source ?? null,
     surfaceVsBulkNote,
     inertiaFactor,

@@ -60,7 +60,7 @@ const duplicateSnapshot = {
   actualWaterTemperatureTimestamp: '2026-06-10T08:00:00Z',
   actualWaterTemperatureMeasurementSource: 'manual',
   actualWaterTemperatureMeasurementMethod: 'thermometer',
-  actualWaterTemperatureMeasurementDepthM: 0.5,
+  actualWaterTemperatureMeasurementDepthM: 0.4,
   createdAt: '2026-06-10T08:30:00Z',
 } as unknown as PrognosisSnapshot;
 const collectedMeasurements = collectHistoricalWaterTemperatureObservations(
@@ -80,7 +80,7 @@ assert(sessionMeasurement?.recordType === 'session' &&
   'Sessiemeting bewaart record-ID, registratiemoment, bron, methode en meetdiepte apart van meettijd');
 assert(snapshotMeasurement?.recordType === 'snapshot' &&
   snapshotMeasurement.recordedAt === '2026-06-10T08:30:00Z' &&
-  snapshotMeasurement.measurementDepthM === 0.5,
+  snapshotMeasurement.measurementDepthM === 0.4,
   'Snapshotmeting bewaart eigen herkomst en meetdiepte');
 assert(sessionMeasurement?.timestamp === '2026-06-10T10:00:00+02:00',
   'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
@@ -103,6 +103,35 @@ assert(localProfile !== null, 'same-location profile is created from at least th
 assert(localProfile?.baselineC === 15, 'same-location profile uses the median, not the mean');
 assert(localProfile?.sampleCount === 3, 'same-day, future and benchmark measurements are excluded');
 
+const layeredLocalHistory: HistoricalWaterTemperatureObservation[] = [
+  { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z', measurementDepthM: 0.4 },
+  { locationId: 'location-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z', measurementDepthM: 0.4 },
+  { locationId: 'location-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z', measurementDepthM: 0.4 },
+  { locationId: 'location-a', temperatureC: 19, timestamp: '2026-06-11T10:00:00Z', measurementDepthM: 0.8 },
+  { locationId: 'location-a', temperatureC: 20, timestamp: '2026-06-21T10:00:00Z', measurementDepthM: 0.8 },
+  { locationId: 'location-a', temperatureC: 21, timestamp: '2026-07-02T10:00:00Z', measurementDepthM: 0.8 },
+];
+assert(deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04') === null,
+  'Meerdere bekende meetdieptes zonder doelmeetdiepte leveren geen gemengd profiel op');
+const shallowLayerProfile = deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04', 0.4);
+assert(shallowLayerProfile?.sampleCount === 3 && shallowLayerProfile.baselineC === 15 &&
+  shallowLayerProfile.measurementDepthM === 0.4,
+  'Expliciete doelmeetdiepte gebruikt uitsluitend de overeenkomende historische meetlaag');
+const deepLayerProfile = deriveHistoricalWaterTemperatureProfile(layeredLocalHistory, target, '2026-07-04', 0.8);
+assert(deepLayerProfile?.sampleCount === 3 && deepLayerProfile.baselineC === 20 &&
+  deepLayerProfile.measurementDepthM === 0.8,
+  'Een andere verticale meetlaag krijgt een afzonderlijk profiel en eigen baseline');
+const knownAndUnknownDepthHistory: HistoricalWaterTemperatureObservation[] = [
+  ...layeredLocalHistory.slice(0, 3),
+  { locationId: 'location-a', temperatureC: 22, timestamp: '2026-06-12T10:00:00Z' },
+  { locationId: 'location-a', temperatureC: 23, timestamp: '2026-06-22T10:00:00Z' },
+  { locationId: 'location-a', temperatureC: 24, timestamp: '2026-07-03T10:00:00Z' },
+];
+const knownDepthOnlyProfile = deriveHistoricalWaterTemperatureProfile(knownAndUnknownDepthHistory, target, '2026-07-04');
+assert(knownDepthOnlyProfile?.sampleCount === 3 && knownDepthOnlyProfile.measurementDepthM === 0.4 &&
+  knownDepthOnlyProfile.baselineC === 15,
+  'Bekende meetdieptes worden niet met metingen van onbekende diepte samengevoegd');
+
 const nearbyTarget: FishingLocation = {
   ...target,
   id: 'location-target',
@@ -119,6 +148,20 @@ const nearbyHistory: HistoricalWaterTemperatureObservation[] = [
 const nearbyProfile = deriveHistoricalWaterTemperatureProfile(nearbyHistory, nearbyTarget, '2026-07-04');
 assert(nearbyProfile?.source === 'nearby_same_type', 'nearby profile requires comparable water type and nearby coordinates');
 assert(nearbyProfile?.locationCount === 2, 'nearby profile records the number of contributing locations');
+const layeredNearbyHistory: HistoricalWaterTemperatureObservation[] = [
+  { locationId: 'near-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
+  { locationId: 'near-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
+  { locationId: 'near-a', temperatureC: 16, timestamp: '2026-07-01T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.1, latitude: 52.01, longitude: 5.01, measurementDepthM: 0.4 },
+  { locationId: 'near-b', temperatureC: 15, timestamp: '2026-06-12T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.4 },
+  { locationId: 'near-b', temperatureC: 16, timestamp: '2026-06-22T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.4 },
+  { locationId: 'near-b', temperatureC: 20, timestamp: '2026-06-13T10:00:00Z', waterType: 'Kanaal', waterDepth: 1.2, latitude: 52.02, longitude: 5.02, measurementDepthM: 0.8 },
+];
+assert(deriveHistoricalWaterTemperatureProfile(layeredNearbyHistory, nearbyTarget, '2026-07-04') === null,
+  'Nearby fallback wordt niet over verschillende meetdieptes samengesteld als doelmeetdiepte onbekend is');
+const nearbyShallowLayer = deriveHistoricalWaterTemperatureProfile(layeredNearbyHistory, nearbyTarget, '2026-07-04', 0.4);
+assert(nearbyShallowLayer?.sampleCount === 5 && nearbyShallowLayer.locationCount === 2 &&
+  nearbyShallowLayer.measurementDepthM === 0.4,
+  'Nearby fallback gebruikt meerdere stekken maar uitsluitend de gevraagde meetdiepte');
 assert(deriveHistoricalWaterTemperatureProfile(nearbyHistory, { ...nearbyTarget, waterType: 'Onbekend' }, '2026-07-04') === null,
   'unknown water type does not borrow a profile from unrelated water bodies');
 

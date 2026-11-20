@@ -1,5 +1,5 @@
 import { FishingLocation, FishingSession, PrognosisSnapshot } from '../types';
-import { parseAppTimestamp } from '../utils/dateTime';
+import { getAmsterdamMonth, parseAppTimestamp } from '../utils/dateTime';
 
 /**
  * Alleen echte, achteraf geregistreerde watertemperatuurmetingen mogen een
@@ -40,7 +40,7 @@ export function collectHistoricalWaterTemperatureObservations(
   for (const snapshot of snapshots) {
     if (snapshot.linkedSessionId && benchmarkSessionIds.has(snapshot.linkedSessionId)) continue;
     if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' ||
-        !snapshot.actualWaterTemperatureTimestamp || !Number.isFinite(Date.parse(snapshot.actualWaterTemperatureTimestamp)) ||
+        !snapshot.actualWaterTemperatureTimestamp || !parseAppTimestamp(snapshot.actualWaterTemperatureTimestamp) ||
         !snapshot.actualWaterTemperatureMeasurementSource || snapshot.actualWaterTemperatureMeasurementSource === 'unknown' ||
         !snapshot.actualWaterTemperatureMeasurementMethod || snapshot.actualWaterTemperatureMeasurementMethod === 'unknown') continue;
     const location = locationById.get(snapshot.locationId);
@@ -64,7 +64,7 @@ export function collectHistoricalWaterTemperatureObservations(
 
   for (const session of sessions) {
     if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number' ||
-        !session.waterTemperatureMeasuredAt || !Number.isFinite(Date.parse(session.waterTemperatureMeasuredAt)) ||
+        !session.waterTemperatureMeasuredAt || !parseAppTimestamp(session.waterTemperatureMeasuredAt) ||
         !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
         !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
     const location = locationById.get(session.locationId);
@@ -97,6 +97,7 @@ export interface HistoricalWaterTemperatureProfile {
   sampleCount: number;
   locationCount: number;
   source: 'same_location' | 'nearby_same_type';
+  measurementDepthM: number | null;
 }
 
 function median(values: number[]): number {
@@ -112,6 +113,12 @@ function percentile(values: number[], fraction: number): number {
   const upper = Math.ceil(position);
   if (lower === upper) return sorted[lower];
   return sorted[lower] + (sorted[upper] - sorted[lower]) * (position - lower);
+}
+
+function normalizeMeasurementDepth(depth: number | undefined): number | null {
+  return typeof depth === 'number' && Number.isFinite(depth) && depth >= 0
+    ? Math.round(depth * 100) / 100
+    : null;
 }
 
 function monthDistance(a: number, b: number): number {
@@ -133,18 +140,20 @@ function distanceKm(a: { latitude?: number; longitude?: number }, b: { latitude?
 /**
  * Maakt een seizoensprofiel uit echte historische metingen.
  * Voorkeur: dezelfde stek (minimaal 3 metingen). Terugval: hetzelfde watertype
- * binnen 50 km, vergelijkbare bekende diepte, minimaal 5 metingen van 2 stekken.
- * Alleen metingen vóór de doeldag en uit dezelfde/naastliggende kalendermaand tellen mee.
+ * binnen 50 km, vergelijkbare totale waterdiepte, minimaal 5 metingen van 2 stekken.
+ * Verschillende of onbekende verticale meetlagen worden nooit met bekende dieptes gemengd.
+ * Alleen metingen vóór de doeldag en uit dezelfde/naastliggende Amsterdamse kalendermaand tellen mee.
  */
 export function deriveHistoricalWaterTemperatureProfile(
   observations: HistoricalWaterTemperatureObservation[],
   location: FishingLocation | undefined,
-  targetDate: string
+  targetDate: string,
+  targetMeasurementDepthM?: number | null
 ): HistoricalWaterTemperatureProfile | null {
   if (!location?.id) return null;
-  const targetTime = new Date(`${targetDate}T00:00:00`).getTime();
-  if (!Number.isFinite(targetTime)) return null;
-  const targetMonth = new Date(`${targetDate}T12:00:00`).getMonth() + 1;
+  const targetTime = parseAppTimestamp(`${targetDate}T00:00:00`)?.getTime() ?? Number.NaN;
+  const targetMonth = /^\d{4}-\d{2}-\d{2}$/.test(targetDate) ? Number(targetDate.slice(5, 7)) : Number.NaN;
+  if (!Number.isFinite(targetTime) || !Number.isInteger(targetMonth) || targetMonth < 1 || targetMonth > 12) return null;
 
   const seen = new Set<string>();
   const valid = observations.filter((observation) => {
@@ -155,20 +164,47 @@ export function deriveHistoricalWaterTemperatureProfile(
         observation.temperatureC < 0 || observation.temperatureC > 35) return false;
     // Normaliseer tijdzones zodat dezelfde fysieke meting uit sessie en snapshot
     // niet dubbel telt door bijvoorbeeld Z versus +02:00.
-    const key = `${observation.locationId}|${measuredAt}|${observation.temperatureC}`;
+    const depthKey = normalizeMeasurementDepth(observation.measurementDepthM);
+    const key = `${observation.locationId}|${measuredAt}|${observation.temperatureC}|${depthKey ?? 'unknown'}`;
     if (seen.has(key)) return false;
     seen.add(key);
-    const measuredMonth = new Date(measuredAt).getMonth() + 1;
-    return monthDistance(targetMonth, measuredMonth) <= 1;
+    const measuredMonth = getAmsterdamMonth(observation.timestamp);
+    return measuredMonth !== null && monthDistance(targetMonth, measuredMonth) <= 1;
   });
 
   const sameLocation = valid.filter((observation) => observation.locationId === location.id);
-  let selected = sameLocation;
+  const explicitDepth = normalizeMeasurementDepth(
+    typeof targetMeasurementDepthM === 'number' ? targetMeasurementDepthM : undefined
+  );
+  const selectOneDepthLayer = (candidates: HistoricalWaterTemperatureObservation[], requestedDepth: number | null) => {
+    if (requestedDepth !== null) {
+      return {
+        observations: candidates.filter((item) => normalizeMeasurementDepth(item.measurementDepthM) === requestedDepth),
+        depth: requestedDepth,
+        ambiguous: false,
+      };
+    }
+    const knownDepths = [...new Set(candidates
+      .map((item) => normalizeMeasurementDepth(item.measurementDepthM))
+      .filter((depth): depth is number => depth !== null))].sort((a, b) => a - b);
+    if (knownDepths.length > 1) return { observations: [], depth: null, ambiguous: true };
+    const depth = knownDepths[0] ?? null;
+    return {
+      observations: candidates.filter((item) => normalizeMeasurementDepth(item.measurementDepthM) === depth),
+      depth,
+      ambiguous: false,
+    };
+  };
+
+  const localLayer = selectOneDepthLayer(sameLocation, explicitDepth);
+  if (localLayer.ambiguous) return null;
+  let selected = localLayer.observations;
+  let selectedMeasurementDepthM = localLayer.depth;
   let source: HistoricalWaterTemperatureProfile['source'] = 'same_location';
 
   if (selected.length < 3) {
     if (!location.waterType || location.waterType === 'Onbekend') return null;
-    selected = valid.filter((observation) => {
+    const nearbyCandidates = valid.filter((observation) => {
       if (observation.locationId === location.id || observation.waterType !== location.waterType) return false;
       const distance = distanceKm(location, observation);
       if (distance === null || distance > 50) return false;
@@ -178,6 +214,18 @@ export function deriveHistoricalWaterTemperatureProfile(
       }
       return true;
     });
+    const nearbyLayer = sameLocation.length > 0
+      ? {
+          observations: nearbyCandidates.filter((item) =>
+            normalizeMeasurementDepth(item.measurementDepthM) === selectedMeasurementDepthM
+          ),
+          depth: selectedMeasurementDepthM,
+          ambiguous: false,
+        }
+      : selectOneDepthLayer(nearbyCandidates, explicitDepth);
+    if (nearbyLayer.ambiguous) return null;
+    selected = nearbyLayer.observations;
+    selectedMeasurementDepthM = nearbyLayer.depth;
     const distinctLocations = new Set(selected.map((item) => item.locationId));
     if (selected.length < 5 || distinctLocations.size < 2) return null;
     source = 'nearby_same_type';
@@ -195,5 +243,6 @@ export function deriveHistoricalWaterTemperatureProfile(
     sampleCount: selected.length,
     locationCount: new Set(selected.map((item) => item.locationId)).size,
     source,
+    measurementDepthM: selectedMeasurementDepthM,
   };
 }

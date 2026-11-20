@@ -456,6 +456,7 @@ export interface WaterThermalAnalysis {
   uncertaintyC?: number | null;
   historicalWaterTemperatureBaselineC?: number | null;
   historicalWaterTemperatureSamples?: number;
+  historicalWaterTemperatureMeasurementDepthM?: number | null;
   historicalWaterTemperatureSource?: 'same_location' | 'nearby_same_type' | null;
 }
 
