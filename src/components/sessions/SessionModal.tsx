@@ -791,6 +791,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
                   <option value="probe">Meetprobe / sonde</option>
                   <option value="other">Anders</option>
                 </select>
+                <p className="mt-1 text-[10px] text-slate-500">Onbekend blijft bewaard, maar telt niet mee voor profielkalibratie.</p>
               </label>
               <label className="block text-xs text-slate-300">
                 Meetdiepte in meter (optioneel)
