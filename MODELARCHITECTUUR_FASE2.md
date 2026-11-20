@@ -997,3 +997,20 @@ Dit is geen rechtstreeks gewogen individuele voedselopname. Levensfase, methodeg
 Audit §140 registreert Jamet (1994) voor volwassen baars en blankvoorn. De studie gebruikte maandelijkse maaginhoudsbemonstering in één eutroof Frans meer gedurende april 1987–juli 1988 en schatte dagelijkse consumptie met het Eggers-model (24-uursgemiddelde maaginhoud × temperatuurafhankelijke maagledigingsrate).
 
 De bron ondersteunt uitsluitend context voor seizoensgebonden voedingsintensiteit en dieet. Het is een modelmatige schatting, geen direct gewogen individuele inname; maandelijkse bemonstering geeft geen tijdvakscore. Seizoen, prooiaanbod, zuurstof, habitat en voortplanting zijn verweven. Geen lokale validatie of runtimebijdrage; approvedForPrediction=false.
+
+
+## 114. Levensfase en leeftijdsspecifiek tijdvakbewijs
+
+Audit §141 registreert Jamet et al. (1990) als beperkt direct voedingsritmebewijs voor blankvoorn: 253 vissen (98–240 mm) bemonsterd per vier uur gedurende één zomerse 24-uurscyclus. Jongere 2–3-jarige vissen voedden vooral van 14:00 tot schemering; oudere vissen voedden dag en nacht met leeftijdsafhankelijke intensiteit en periodiciteit.
+
+Dit bewijs ondersteunt een leeftijds-/dieetafhankelijke context, niet één universeel blankvoorn-tijdvakprofiel. De steekproef is één eutroof Frans meer en één zomerdatum; geen Nederlandse lokale validatie of method-feeder/catchability-label. Geen vaste dusk-bonus of numerieke tijdvakfactor afleiden.
+
+## 115. Meerval: juveniele voerbehoefte is geen veldvangstrespons
+
+Audit §142 registreert Filipiak et al. (1997) als kandidaat voor dagelijkse voerbehoefte van juveniele gekweekte meerval. De beschikbare samenvatting rapporteert 1–1,5% versus 2% W^0,8 dagelijkse voerbehoefte over brede temperatuurbanden 18–23 en 24–28 °C. De precieze opname-/restvoer- en temperatuurmethodiek is nog niet onafhankelijk geverifieerd.
+
+De bron kan geen volwassen wilde meervalcurve, natuurlijke prooiconsumptie of method-feederrespons onderbouwen. Blijft buiten actieve parameters en registry-goedkeuring tot volledige methodologische verificatie.
+
+## 116. Baars/blankvoorn: interpretatie van Eggers-consumptieschattingen
+
+Audit §143 bevestigt Jamet (1994): dagelijkse consumptie is afgeleid uit gemiddelde maaginhoud en een temperatuurafhankelijke maagledigingsrate, en vervolgens aan leeftijdsklasse-/populatieomvang gerelateerd. Het is geen rechtstreekse individuele inname. Maandelijkse bemonstering, eutrofe meercontext en verweven seizoensfactoren beperken overdracht; geen thermische curve of tijdvakscore.

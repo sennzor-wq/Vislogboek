@@ -1924,3 +1924,12 @@ Worischka & Mehner (1998) is toegevoegd als beperkte veldgebaseerde voedingsinte
 ### Fase 2 — volwassen baars/blankvoorn seizoensrantsoen geregistreerd (20 november 2026)
 
 Jamet (1994) is toegevoegd als beperkte veldbron voor volwassen baars en blankvoorn. Dagelijkse consumptie werd geschat uit maandelijkse maaginhoudsmonsters en een temperatuurafhankelijke maagledigingsfunctie. Dit levert seizoenscontext, geen zuivere temperatuurcurve of sessiegebonden tijdvakvoorkeur. Bron blijft niet-goedgekeurd voor voorspelling. Zie audit §140.
+
+
+### Fase 2 — leeftijdsafhankelijk blankvoornritme en bronmethodes bevestigd (20 november 2026)
+
+Jamet et al. (1990) is in de audit als beperkt direct voedingsritmebewijs opgenomen: 253 blankvoorns, vieruursbemonstering gedurende één zomerse 24-uurscyclus. Jongere vissen voedden vooral vanaf de middag tot schemering; oudere vissen ook overdag en 's nachts. Dit ondersteunt leeftijdsafhankelijke variatie, geen universele dusk-bonus.
+
+De primaire methodesectie van Jamet (1994) is gecontroleerd. Dagelijkse consumptie is berekend uit maaginhoud en een temperatuurafhankelijke maagledigingsrate (Eggers-model) en vervolgens gerelateerd aan leeftijdsklasse-/populatieomvang. Dit blijft beperkte seizoens-/dieetcontext, geen directe individuele opname of onafhankelijke thermische respons.
+
+Filipiak et al. (1997) is als kandidaat voor juveniele meerval-voerbehoefte beoordeeld. De beschikbare samenvatting meldt rantsoenen per metabool gewicht in brede temperatuurbanden, maar de precieze opname- en temperatuurmethodiek is niet voldoende geverifieerd. Geen registry-goedkeuring of runtimegebruik. Zie audit §§141–143.

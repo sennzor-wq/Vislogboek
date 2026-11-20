@@ -3756,3 +3756,36 @@ De studie beschrijft duidelijke seizoensveranderingen in dieet en consumptie. Bl
 **Beperkingen:** het betreft één eutroof Frans meer met eigen prooiaanbod, zuurstofstratificatie, habitat en visstand. De dagelijkse consumptie is een modelschatting uit maaginhoud en maaglediging, geen rechtstreeks gemeten individuele voedselinname. De temperatuurafhankelijke maaglediging maakt deel uit van de berekening. Maandelijkse bemonstering ondersteunt geen sessie- of uurgebonden tijdvakvoorkeur. Seizoensveranderingen vallen samen met prooiaanbod, voortplanting, zuurstof en habitatgebruik; zij mogen niet als zuivere temperatuurcausaliteit worden gebruikt.
 
 De bron is geregistreerd als feeding_intensity en diet_composition voor Baars en Voorn, bewijssterkte **limited**, approvedForPrediction=false, en gekoppeld aan beide soortprofielen. Zij levert geen lokale Nederlandse labels, volwassen thermische curve, hengelvangbaarheid of validatie van bestaande profielparameters. Geen score, gewicht, parameter of runtimefactor gewijzigd.
+
+
+## 141. Volwassen blankvoorn: leeftijdsafhankelijke dag-nachtvoeding in Lake Aydat (20 november 2026)
+
+Jamet, Gres, Lair & Lasserre (1990), *Diel feeding cycle of roach (Rutilus rutilus, L.) in eutrophic Lake Aydat (Massif Central, France)*, Archiv für Hydrobiologie 118(3), 371–382, DOI 10.1127/archiv-hydrobiol/118/1990/371, is op basis van de beschikbare primaire samenvatting beoordeeld als direct maar smal feeding-rhythm-bewijs.
+
+Op 20–21 juli 1988 werden volwassen blankvoorns met vieruursintervallen bemonsterd; de maaginhoud van 253 vissen met lengtes van 98–240 mm werd onderzocht op samenstelling en vullingsgraad. De voedingsactiviteit verschilde met leeftijd: jongere 2- en 3-jarige vissen voedden vooral vanaf 14:00 uur tot de schemering en selecteerden cladoceren; oudere vissen voedden zowel overdag als 's nachts, met intensiteit en periodiciteit die per leeftijd verschilden en een gemengd dieet.
+
+**Overdraagbaarheid:** dit is direct maaginhoud-/voedingsritmebewijs, maar slechts één 24-uurscyclus op één zomerdatum in één eutroof Frans meer. De steekproef is leeftijds- en lengtegestructureerd; het patroon is niet één universele blankvoorncurve. Vieruursintervallen geven geen nauwkeurige aanvang/eindtijd en de studie levert geen Nederlandse lokale labels, method-feederrespons, aasvangbaarheid of temperatuurrespons. De bron ondersteunt dat leeftijd en dieet het tijdvakpatroon kunnen wijzigen, niet een algemene dusk-bonus. De volledige primaire tekst en alle methodedetails zijn in deze controle niet onafhankelijk opgehaald; classificatie blijft beperkt tot de bibliografische primaire samenvatting.
+
+**Besluit:** behouden als beperkte, leeftijdsafhankelijke feeding_rhythm-context voor blankvoorn; niet numeriek goedgekeurd en niet vertaald naar vaste tijdvakgewichten. Geen score, gewicht, parameter of runtimefactor gewijzigd.
+
+## 142. Europese meerval: juveniele dagelijkse voerbehoefte in koelwaterkweek (20 november 2026)
+
+Filipiak, Sadowski & Trzebiatowski (1997), *Comparative analysis of results of using different food rations in juvenile wels (Silurus glanis) culture*, Acta Ichthyologica et Piscatoria 27(1), 41–51, DOI 10.3750/AIP1997.27.1.03, is opnieuw beoordeeld als kandidaatbron voor temperatuurafhankelijke dagelijkse voerbehoefte.
+
+De beschikbare primaire artikelweergave/abstract beschrijft twee juveniele gewichtsgroepen (65 ± 10 g en 110 ± 10 g per vis), gehouden in kooien in koelwater gedurende 49 dagen. Semi-geëxtrudeerd voer (48,5% ruw eiwit; 14,4% lipiden; 20,97 kJ/g bruto-energie) werd in vijf aangeboden rantsoenniveaus getest: 1%, 1,5%, 2%, 2,5% en 3% van metabool gewicht (W^0,8). De auteurs rapporteren een dagelijkse voerbehoefte van 2% W^0,8 bij 24–28 °C en maximaal 1,5% W^0,8 bij 18–23 °C.
+
+**Overdraagbaarheid:** de bron is direct relevant voor dagelijkse voerbehoefte binnen een juveniel kweekregime, maar de beschikbare weergave maakt niet voldoende duidelijk hoe feitelijke opname, restvoer, voerfrequentie, replicatie en temperatuurverloop precies zijn gemeten of toegewezen. De temperatuurbanden zijn breed en geen gecontroleerde fijnmazige responscurve. Het gaat om kleine juvenielen, kunstvoer met hoge eiwitfractie en koelwaterkooien; niet om volwassen wilde meerval, natuurlijk prooiaanbod, method-feederpellets of aasopname. De uitkomst is bovendien een kweekrantsoen per metabool gewicht, niet de kans dat een vis op een bepaalde sessie eet of wordt gevangen.
+
+**Besluit:** kandidaat voor verdere methodologische verificatie; niet als gevalideerde thermische curve of actieve parameter gebruiken. Geen registry-goedkeuring, score, gewicht, voorvoerhoeveelheid of runtimefactor op basis van deze samenvatting. De volledige PDF-link gaf in deze controle HTTP 403; de methodeclaims blijven daarom expliciet beperkt.
+
+## 143. Volwassen baars en blankvoorn: primaire methodecontrole Jamet (1994) (20 november 2026)
+
+De volledige primaire tekst van Jamet (1994), *Feeding activity of adult roach, perch and ruffe in eutrophic Lake Aydat (France)*, Aquatic Sciences 56(4), 376–387, DOI 10.1007/BF00877183, is nu gecontroleerd. Dit bevestigt en preciseert audit §140.
+
+De studie bemonsterde maandelijks van april 1987 tot juli 1988 (juni 1988 uitgezonderd) in littorale en pelagische zones met bodem- en drijvende kieuwnetten. Maaginhoud werd gewogen en prooien werden geïdentificeerd. De auteurs berekenden dagelijkse consumptie met het Eggers-model: D24 = 24 × S × R, waarbij S de gemiddelde maaginhoud over 24 uur is en R de instantane maagledigingsrate, die exponentieel afhankelijk is van watertemperatuur. De dagelijkse consumptie werd vervolgens gerelateerd aan de geschatte biomassa/stand van de leeftijdsklassen.
+
+De primaire tekst bevestigt dat de studie een eutroof, gestratificeerd meer betreft (60,3 ha; maximale diepte 15,5 m), met tijdens de zomer gemeten temperatuurverschillen van 22,1 °C aan het oppervlak tot 8,0 °C op de bodem en een lage bodemzuurstofwaarde van 0,9 mg/L. Voedselcompartimenten en seizoenspatronen verschilden duidelijk: onder meer voortplantingsgerelateerde lage voedingsactiviteit in april/mei, hoge consumptie in bepaalde zomer- en herfstperioden, en een winterdieet met veel sediment bij blankvoorn. Bij baars was de voedingsactiviteit in de winter sterk verminderd.
+
+**Methodologische precisering:** dit is een populatie-/leeftijdsklasse-gerelateerde consumptieschatting uit maaginhoud en een temperatuurafhankelijke maagledigingsfunctie, niet een rechtstreeks gemeten individuele dagelijkse opname. Omdat temperatuur onderdeel is van de berekende maaglediging, mag de geschatte consumptie niet onafhankelijk als zuivere temperatuurrespons worden behandeld. Maandelijkse bemonstering kan bovendien geen sessie- of uurgebonden tijdvakscore valideren. Temperatuur, zuurstofstratificatie, prooiaanbod, habitat, voortplanting en seizoensverloop zijn verweven.
+
+**Besluit:** §140 blijft inhoudelijk juist maar is met deze primaire methodedetails aangescherpt. Jamet (1994) blijft limited en approvedForPrediction=false voor Baars en Voorn; alleen seizoens-/dieetcontext, geen thermische curve, lokale Nederlandse referentielabels of tijdvakbonus. Geen score, gewicht, parameter of runtimefactor gewijzigd.

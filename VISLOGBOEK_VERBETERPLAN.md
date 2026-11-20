@@ -942,3 +942,10 @@ Worischka & Mehner (1998) is als beperkte veldgebaseerde feeding_intensity-bron 
 ### Fase 2 — volwassen baars/blankvoorn seizoensrantsoen toegevoegd (20 november 2026)
 
 Jamet (1994) is geregistreerd voor volwassen baars en blankvoorn als beperkte veldbron voor dagelijkse voedingsintensiteit en dieet. Maandelijkse maaginhoudsmonsters in één eutroof Frans meer (april 1987–juli 1988) zijn via het Eggers-model omgezet in dagelijkse consumptieschattingen met temperatuurafhankelijke maaglediging. De methode levert geen directe individuele inname of sessiegebonden tijdvaklabel; seizoen, prooiaanbod, zuurstof en habitat zijn verweven. Bron blijft limited en approvedForPrediction=false. Zie audit §140.
+
+
+### Fase 2 — leeftijds- en methodeoverdracht verder afgebakend (20 november 2026)
+
+De audit §§141–143 voegen drie broncontroles toe: leeftijdsafhankelijk voedingsritme bij blankvoorn (Jamet et al. 1990), juveniele kweekvoerbehoefte bij meerval (Filipiak et al. 1997) en primaire methodeverificatie van Eggers-consumptieschattingen bij volwassen baars/blankvoorn (Jamet 1994).
+
+De resultaten versterken de scheiding tussen direct voedingsritme, dagelijkse kweekvoerbehoefte, modelgeschatte populatieconsumptie en individuele voedselopname. Geen van deze bronnen valideert een lokale Nederlandse thermische curve, universele tijdvakbonus of vangstkans. Alle blijven buiten actieve parameters; Fase 2 blijft open en Fase 3 geblokkeerd.
