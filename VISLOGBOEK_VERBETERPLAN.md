@@ -1078,3 +1078,12 @@ Punt 2 is afgerond in [PR #205](https://github.com/sennzor-wq/Vislogboek/pull/20
 De ophaaltijd van de forecast (`weatherFetchedAt`) is onderscheiden van het berekeningstijdstip. Forecastdata met een latere of ongeldige as-of worden niet gebruikt. Daily zonsopkomst/-ondergang blijft compatibel met de bestaande schemerberekening. PR-head- en mergecommit-Quality-Gates zijn groen.
 
 **Volgende stap: punt 3 — historische temperatuurprofielen selecteren op meetdiepte.** Zie audit §159. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+### Fase 2 — voortgang punt 3: meetdieptebewuste historische profielen (20 november 2026)
+
+Punt 3 is afgerond in [PR #207](https://github.com/sennzor-wq/Vislogboek/pull/207). Historische profielen mengen geen verschillende bekende meetdieptes en ook geen bekende met onbekende dieptes. Bij een expliciet doelmeetniveau wordt uitsluitend die laag geselecteerd; zonder doelmeetniveau wordt alleen een eenduidige laag gebruikt. Bij meerdere mogelijke lagen wordt geen profiel geforceerd. De geselecteerde diepte is als provenance beschikbaar.
+
+De bestaande totale waterdiepte blijft een aparte vergelijkingsfactor voor nabijgelegen stekken. Geen schema-, UI- of verplichte invoerwijziging. De Quality Gate is groen op PR-head en mergecommit.
+
+**Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents met meettijd en beschikbare weerscontext.** Zie audit §160. Fase 2 blijft open; fase 3 geblokkeerd.

@@ -4376,3 +4376,20 @@ Regressies dekken de dubbele herfst-02:00, de niet-bestaande lente-02:00, tijdva
 **Begrenzing:** oude cachegegevens die ooit met de vaste offset van de API zijn opgeslagen, kunnen de historische overgangsuren niet met terugwerkende kracht exact herstellen; ze blijven best-effort genormaliseerd. Nieuwe payloads hebben de exacte absolute tijdstempels. Dit is technische tijd-/provenanceborging, geen empirische validatie van thermische tijdconstanten.
 
 **Volgende stap: punt 3 — meetdiepte meenemen in selectie en vergelijkbaarheid van historische watertemperatuurprofielen.**
+
+
+## 160. Uitvoering punt 3 — meetdieptebewuste historische temperatuurprofielen (20 november 2026)
+
+**Status: technisch geïmplementeerd en gevalideerd.** PR [#207](https://github.com/sennzor-wq/Vislogboek/pull/207) is gemerged; de exacte PR-head en mergecommit Quality Gates zijn groen.
+
+De historische profielselectie bewaart nu de verticale meetlaag als aparte dimensie, los van de totale waterdiepte. Een profiel combineert nooit bekende meetdieptes met onbekende dieptes of met een andere bekende diepte. Dieptes worden op centimeterprecisie genormaliseerd om identieke invoer zoals 0,40 en 0,4 meter gelijk te behandelen.
+
+Wanneer een expliciete doelmeetdiepte bekend is, gebruikt de selectie uitsluitend metingen op die diepte. Zonder expliciete doelmeetdiepte wordt alleen een eenduidige laag gebruikt: één bekende meetdiepte of uitsluitend onbekende-diepte-metingen. Als meerdere bekende dieptelagen aanwezig zijn en het doelmeetniveau niet bekend is, wordt geen profiel gekozen in plaats van willekeurig lagen te mengen. Dezelfde regel geldt voor de terugval naar nabije stekken van hetzelfde watertype; de bestaande vergelijking van totale waterdiepte blijft afzonderlijk bestaan.
+
+De gekozen profielmeetdiepte wordt als provenance in de thermische analyse teruggegeven. De targetdatum en maandselectie gebruiken de gedeelde Europe/Amsterdam-tijdparser. De bestaande records met onbekende meetdiepte blijven bruikbaar als afzonderlijke onbekende-dieptegroep; er is geen nieuw verplicht invoerveld of databaseschema toegevoegd.
+
+Regressietests controleren meerdere meetlagen op één stek, expliciete diepteselectie, bekende versus onbekende diepte en de nabijgelegen-stekkenfallback. De volledige Quality Gate en productiebuild zijn groen.
+
+**Begrenzing:** de profielselectie is nu dieptebewust, maar als meerdere historische dieptelagen bestaan en het beoogde meetniveau niet bekend is, wordt bewust geen profiel gebruikt. Dat is betrouwbaarder dan een schijnnauwkeurige menging. De thermische tijdconstanten blijven afhankelijk van toekomstige echte lokale meetreeksen.
+
+**Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents bewaren met meettijdstip en beschikbare weerscontext, zonder dagelijkse meetplicht.**
