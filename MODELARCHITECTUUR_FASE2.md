@@ -967,3 +967,10 @@ Registrytelling: 87 records, 0 numeriek goedgekeurd. Geen runtimefactor, gewicht
 Audit §136 registreert Garcia & Adelman (1985) voor karper en Specziár (2002) voor karper, brasem en blankvoorn. Beide gebruiken maag-/darminhoud en ledigings-/rantsoenmodellen om dagelijkse voedselopname in het veld te schatten. De eerste rapporteert seizoensmetingen bij karper van april tot oktober en geen statistisch significant ochtend-/avondverschil. De tweede rapporteert temperatuurgerelateerde dagelijkse rantsoenen in één groot Hongaars meer; de brasemrelatie is afhankelijk van het weglaten van één waarneming.
 
 Deze bronnen zijn bruikbare beperkte kandidaatcontext voor `feeding_intensity`, maar geen rechtstreeks geobserveerde individuele inname, lokale Nederlandse labels of gevalideerde thermische profielcurves. Beide blijven `approvedForPrediction: false`; de onderliggende methoden, steekproefcontext en overdraagbaarheid moeten eerst verder worden gecontroleerd. Geen runtimefactor of gewicht geactiveerd.
+
+
+## 110. Volwassen baars: veldrantsoen als beperkte seizoenscontext (20 november 2026)
+
+Audit §137 registreert Thorpe (1977): volwassen baars in Loch Leven, bemonsterd om de drie uur gedurende 24-uurscycli in zomerperioden. Het dagelijkse rantsoen werd geschat via maaginhoud en maaglediging en nam af van circa 6,5% lichaamsgewicht/dag in juni naar 3,2% in september. Door tragere lediging bij kooivissen zijn de schattingen minimaal; er is geen watertemperatuurreeks in de beschikbare samenvatting.
+
+De bron is beperkte, niet-goedgekeurde `feeding_intensity`-/ritmecontext, geen Nederlandse veldcurve of validatie van thermische parameters. Geen runtimebijdrage.

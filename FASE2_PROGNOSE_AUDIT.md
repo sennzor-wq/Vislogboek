@@ -3682,3 +3682,14 @@ Beide publicaties zijn opgenomen als `feeding_intensity`-kandidaatbewijs met bew
 Deze bronnen vergroten de externe bewijsbasis, maar leveren geen lokale onafhankelijke labels voor de Vislogboek-score en valideren niet de huidige thermische profielparameters. De gemelde rantsoenen mogen niet rechtstreeks worden omgerekend naar vangstkans, method-feederprestatie, voergrammen of tijdvakbonussen. De ochtend-/avondwaarneming bij Garcia is niet significant; voor brasem is de temperatuursamenhang bij Specziár gevoelig voor één weggelaten datapunt.
 
 Registrytelling: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor, parameter, gewicht, interactie of tijdvakbonus geactiveerd. Eerst volledige primaire methoden en steekproefcontext verifiëren voordat responsankers worden overwogen.
+
+
+## 137. Volwassen baars: dagelijkse veldrantsoenen in Loch Leven (20 november 2026)
+
+Thorpe, J.E. (1977), *Daily ration of adult perch, Perca fluviatilis L. during summer in Loch Leven, Scotland*, Journal of Fish Biology 11(1), 55–68, DOI 10.1111/j.1095-8649.1977.tb04098.x, is toegevoegd als beperkte veldbron voor Baars.
+
+Volwassen baarzen werden tijdens 24-uurscycli om de drie uur bemonsterd in juni–september 1971 en juni/augustus 1972. De dagelijkse rantsoenen werden geschat uit maaginhoud en maaglediging en namen af van circa 6,5% nat lichaamsgewicht per dag in juni tot 3,2% in september.
+
+**Belangrijke beperkingen:** maaglediging bij gekooide vissen was langzamer dan bij vrijlevende vissen; de auteurs beschouwen de rantsoenschattingen daarom als minimale waarden. De studie betreft één Schots meer en zomerperioden. De publiek beschikbare samenvatting bevat geen watertemperatuurreeks, zodat dit geen temperatuur-responscurve oplevert. Het is een voedingsintensiteits-/seizoensbron, geen lokale Nederlandse labelset, geen vangstkansmeting en geen validatie van de thermische profielcurve.
+
+De bron is geregistreerd als `feeding_intensity` en `feeding_rhythm`, bewijssterkte **limited**, `approvedForPrediction: false`, en gekoppeld aan het Baars-profiel. Registrytelling: 90 records, 0 numeriek goedgekeurd. Geen tijdvakbonus of runtimefactor geactiveerd.

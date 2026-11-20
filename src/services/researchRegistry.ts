@@ -803,6 +803,26 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'adult-perch-loch-leven-daily-ration-1977',
+    topic: 'volwassen-baars-veldvoedingsintensiteit-en-seizoen',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Baars'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Veldonderzoek aan volwassen baars in Loch Leven (Schotland) bemonsterde vissen om de drie uur gedurende 24-uurscycli in juni–september 1971 en juni/augustus 1972. De dagelijkse voedselopname werd geschat uit maaginhoud en maaglediging; de berekende rantsoenen namen af van circa 6,5% van het natte lichaamsgewicht per dag in juni tot 3,2% in september.',
+    limitations: [
+      'De studie betreft volwassen baars in één Schots meer en uitsluitend zomerperioden; de seizoens- en voedselwebcontext is niet zonder meer overdraagbaar naar Nederlandse wateren.',
+      'De dagelijkse rantsoenen zijn schattingen uit maaginhoud en ledigingsmetingen. De lediging bij gekooide vissen verliep langzamer dan bij vrijlevende vissen, waardoor de gerapporteerde voedselomzet volgens de auteurs minimale schattingen zijn.',
+      'De publiek beschikbare samenvatting geeft geen bijbehorende watertemperatuurreeks; de seizoensverandering kan niet als zuivere temperatuurrespons worden gebruikt.',
+      'De studie levert geen lokale Nederlandse referentielabels of hengelvangbaarheidsmeting en valideert de huidige thermische profielparameters niet.'
+    ],
+    sourceReferences: [
+      'Thorpe, J.E. (1977). Daily ration of adult perch, Perca fluviatilis L. during summer in Loch Leven, Scotland. Journal of Fish Biology, 11(1), 55–68. https://doi.org/10.1111/j.1095-8649.1977.tb04098.x'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'perch-field-diel-feeding-seasonal-diet-1986',
     topic: 'dagritme-seizoensdieet-en-prooikeuze',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition', 'prey_selection'],

@@ -918,3 +918,10 @@ Registry: 87 records, 0 goedgekeurd. Geen score-, parameter-, gewicht- of runtim
 Twee oudere veldstudies zijn toegevoegd als beperkte, niet-goedgekeurde voedingsintensiteitsbronnen: Garcia & Adelman (1985) voor karper en Specziár (2002) voor karper, brasem en blankvoorn. Beide schatten dagelijkse rantsoenen via maag-/darminhoud en ledigingsmodellen. Garcia rapporteert geen statistisch significant ochtend-/avondverschil; Specziár rapporteert temperatuurrelaties voor karper/blankvoorn, terwijl de brasemrelatie gevoelig is voor één uitgesloten waarneming.
 
 De methoden en steekproefcontext zijn nog niet volledig geverifieerd. De bronnen zijn geen lokale onafhankelijke labels en valideren geen bestaande thermische profielcurve. Registry: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor, gewicht of tijdvakbonus geactiveerd.
+
+
+### Fase 2 — volwassen baars veldrantsoen toegevoegd als beperkte bron (20 november 2026)
+
+Thorpe (1977) is geregistreerd voor volwassen baars: 24-uurscycli met drie-uurlijkse bemonstering in de zomer; modelgeschat rantsoen daalde van circa 6,5% lichaamsgewicht/dag in juni naar 3,2% in september. Door tragere maaglediging bij kooivissen zijn dit minimale schattingen. De bron bevat in de publiek beschikbare samenvatting geen watertemperatuurreeks en valideert dus geen thermische curve.
+
+Bron blijft limited en approvedForPrediction=false. Registry: 90 records, 0 numeriek goedgekeurd. Geen runtimefactor of tijdvakbonus geactiveerd.
