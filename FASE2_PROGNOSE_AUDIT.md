@@ -4094,3 +4094,62 @@ De toestandsupdate mag geen luchttemperatuur als watertemperatuur presenteren. L
 6. Vergelijk de bestaande daguitvoer met de voorgestelde tijdstipuitvoer voordat runtimegedrag wordt gewijzigd. Evalueer uitsluitend tegen echte tijdgestempelde watertemperatuurmetingen, apart van de biologische visrespons.
 
 Geen runtimecode, tijdconstanten, score, gewichten, UI of gebruikersinvoer gewijzigd. De huidige dagwaarde blijft de enige thermische uitvoer totdat een tijdspecifieke uitbreiding afzonderlijk is ontworpen en getoetst. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 154. Dataflow-audit meetdiepte, waterdiepte en weers-as-of (20 november 2026)
+
+Deze audit volgt de daadwerkelijke invoerroute van de bestaande `waterThermalEngine`, vanaf invoerschermen en weersprovider tot historische profielen en prognosesnapshot. Het doel is vast te stellen welke gegevens de bestaande toestandsupdate werkelijk kan gebruiken; er is geen runtimecode gewijzigd.
+
+### 154.1 Waterdiepte versus meetdiepte zijn twee verschillende gegevens
+
+- `FishingLocation.waterDepth` is een optionele locatie-eigenschap, ingevoerd als één waterdiepte in meters. Dit is de enige diepte die `prognosisEngine` op dit moment aan `waterThermalEngine` doorgeeft.
+- `FishingSession.waterDepth` bestaat daarnaast als sessiegegeven. De prognose-engine gebruikt dit niet als actuele locatie-diepteparameter; de huidige berekening gebruikt `location.waterDepth`.
+- De thermische engine reduceert de locatie-waterdiepte tot drie grove categorieën voor de vaste tijdconstante: maximaal 1,4 m; tussen 1,4 en 3,5 m; dieper dan 3,5 m. Dit is een heuristische diepteproxy, geen gemeten thermische menglaag of temperatuurprofiel.
+- De sessieregistratie kan afzonderlijk `waterTemperatureMeasurementDepthM` vastleggen. Dit meetdiepteveld wordt via historische observaties bewaard, maar wordt niet door de thermische toestandupdate gebruikt.
+
+**Gevolg:** waterdiepte beschrijft de watermassa/locatie; meetdiepte beschrijft waar de thermometer de temperatuur heeft gemeten. Die waarden mogen niet als onderling verwisselbaar worden behandeld.
+
+### 154.2 Meetdiepte gaat nu verloren in de profielselectie
+
+`collectHistoricalWaterTemperatureObservations()` bewaart meetdiepte voor sessies en snapshots. Daarna gebruikt `deriveHistoricalWaterTemperatureProfile()` de meetdiepte echter niet bij selectie of aggregatie:
+
+- Alle geldige metingen van dezelfde stek en vergelijkbare kalendermaand kunnen in één profiel terechtkomen, ongeacht of ze aan oppervlak, halverwege of nabij de bodem zijn gemeten.
+- De terugval naar nabijgelegen wateren vergelijkt de totale waterdiepte van de locatie, niet de meetdiepte van de temperatuurwaarneming.
+- De uiteindelijke mediaan en percentielband kunnen dus verschillende meetlagen combineren.
+
+Dit is een relevante datakwaliteitsbeperking: een oppervlaktetemperatuur en een bodem-/dieptemeting kunnen op een zonnige, gestratificeerde dag verschillende fysieke toestanden beschrijven. Een historisch profiel dat zulke waarden samenvoegt, kan de actuele laagtemperatuur verkeerd voorstellen.
+
+**Besluit:** historische meetdiepte moet in een volgende profielversie een expliciete selectiedimensie zijn. Metingen met onbekende diepte blijven bruikbaar als afzonderlijke categorie met passende onzekerheid, maar mogen niet stilzwijgend bij een bekende dieptelaag worden gevoegd. Geen automatische diepteklasse of interpolatie verzinnen.
+
+### 154.3 Betekenis van de handmatige watertemperatuur in de prognose
+
+De Prognosepagina noemt de optionele invoer expliciet "Gemeten aan stek". De invoer wordt als een handmatige temperatuurwaarde aan `calculateDayPrognosis()` doorgegeven. De helper `createManualWaterTemperatureInput()` bewaart het invoermoment, maar zet het fysieke meettijdstip, de meetmethode en meetdiepte op onbekend/null. In de huidige thermische engine krijgt de waarde het tijdstip van de prognoserun via `currentDateRef` en wordt ze als actuele meetreferentie gebruikt.
+
+Dit is functioneel begrijpelijk voor een gebruiker die zojuist ter plaatse heeft gemeten, maar het onderscheid moet expliciet blijven:
+- invoermoment is niet noodzakelijk hetzelfde als fysiek meetmoment;
+- de handmatige prognose-invoer bevat geen meetdiepte;
+- de waarde is een gebruiker-gerapporteerd actueel anker, geen automatisch geverifieerde of volledig gekarakteriseerde meting.
+
+**Ontwerpbesluit:** behoud de snelle invoer, maar houd deze bronstatus en ontbrekende meetmetadata expliciet. Gebruik haar niet als volledig gevalideerde laagmeting of onafhankelijke kalibratie-observatie. De uitgebreidere sessiemeting met meettijd, methode, herkomst en optionele meetdiepte blijft de route voor rijkere meetmetadata.
+
+### 154.4 Weersdekking en tijdsherkomst
+
+De bestaande provider vraagt Open-Meteo-uurlijkse luchtdata voor `Europe/Amsterdam`, waaronder temperatuur, kortgolvige straling, bewolking en wind. Straling is optioneel en wordt alleen opgenomen wanneer het providerresultaat een plausibele waarde bevat; bewolking is de bestaande terugval. De cache bewaart `fetchedAt`; de prognose ontvangt dit als `weatherUpdatedAt`, bewaart de uurlijkse invoer in `weatherInput` en de berekeningstijd in `forecastTimestamp`/inputcontext.
+
+Er zijn twee aandachtspunten voor een reproduceerbare tijdstipgerichte update:
+1. De uurlijkse `time`-strings worden door Open-Meteo met de lokale Amsterdam-tijdzone aangeleverd, maar bevatten niet noodzakelijk een expliciete UTC-offset. De thermische engine gebruikt `Date.parse()`/`new Date()` op die strings. De interpretatie kan daardoor afhangen van de tijdzone van de runtime; de app moet dit expliciet toetsen en zo nodig één gedeelde Europe/Amsterdam-conversie gebruiken.
+2. De cache- en prognoseketen bewaart de ophaaltijd en berekeningstijd op verschillende plekken. De toekomstige API moet deze begrippen afzonderlijk en expliciet houden: `forecastAsOf` (wanneer de weerdata is opgehaald), `calculatedAt` (wanneer de prognose is gemaakt), en de geldige lokale tijd van elk weeruur.
+
+De provider levert weersforceringen, geen watertemperatuur. Uurlijkse straling/wind/luchttemperatuur zijn invoer voor de waterthermische toestandsontwikkeling, nooit directe vervangers voor een watermeting.
+
+### 154.5 Concrete gevolgen voor de volgende API-/datatoets
+
+1. Definieer de toestand als minimaal: temperatuurwaarde, fysiek meettijdstip, invoer-/registratietijd, meetdiepte (of onbekend), meetmethode/herkomst, locatie/watertype en onzekerheid.
+2. Definieer de watermassa-invoer afzonderlijk: locatie-waterdiepte (met semantiek/bron), eventueel sessie-/stekdiepte en onbekend wanneer niet betrouwbaar bekend.
+3. Maak dieptelaagselectie van historische waarnemingen expliciet; meng geen bekende verschillende meetdieptes in één referentieprofiel.
+4. Leg tijdzoneconversie vast voor alle weeruur- en meettijdstempels; test zomertijdwissels en runtime met een andere systeemtijdzone.
+5. Houd `forecastAsOf`, `calculatedAt` en `targetTime` gescheiden en voorkom dat latere weerupdates in historische voorspellingen lekken.
+6. Behoud de bestaande canonieke `waterThermalEngine`; geen parallelle engine en geen nieuwe verplichte gebruikersinvoer.
+7. Pas runtime-/profielgedrag pas aan nadat de gewenste semantiek en regressietests zijn vastgesteld.
+
+Geen runtime-, database-, score-, gewicht-, UI- of gebruikersinvoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.

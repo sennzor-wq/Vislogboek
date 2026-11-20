@@ -1102,3 +1102,18 @@ Audit §153 verduidelijkt dat `waterThermalEngine` al een eenvoudige uur-voor-uu
 **Ontwerpbesluit:** geen nieuwe engine. Verbeter de bestaande canonieke `waterThermalEngine` en maak de toestand tijdstipgericht reproduceerbaar. Houd de echte watertemperatuur als toestand en lucht/zon/wind als warmte-uitwisselingsinvloeden. Een oppervlaktetemperatuur, bulktemperatuur en temperatuur op meetdiepte zijn niet onderling uitwisselbaar. Onbekende meetdiepte of waterdiepte blijft onbekend en verhoogt de onzekerheid.
 
 De eerstvolgende stap is een dataflow-/coverage-audit van waterdiepte, meetdiepte, meettijd, tijdzone, weersvelden en forecast-as-of. Daarna volgt pas een minimale API-specificatie en tests; nog geen runtimewijziging. Een tijdspecifieke watertemperatuur blijft bovendien een thermische invoer, geen bewijs voor een tijdvakvoedingsvoorkeur.
+
+
+## 129. Water- en meetdiepte als afzonderlijke thermische dimensies
+
+Audit §154 toont dat de bestaande keten twee verschillende dieptes kent:
+- locatie-waterdiepte (`FishingLocation.waterDepth`), die de thermische engine als grove proxy voor watermassa gebruikt;
+- meetdiepte (`waterTemperatureMeasurementDepthM`), die bij sessies/snapshots kan worden opgeslagen maar momenteel niet in de thermische toestandsupdate of historische profielselectie wordt gebruikt.
+
+Een historische profielmediaan kan daardoor momenteel waarnemingen van oppervlak en dieper water combineren. Dat is fysisch niet altijd representatief, vooral bij mogelijke stratificatie. In een volgende profielversie moeten meetdieptes expliciet worden gescheiden; onbekende meetdiepte blijft een eigen onzekerheidscategorie en wordt niet aan een bekende laag toegewezen.
+
+De snelle prognose-invoer "Gemeten aan stek" wordt als actuele gebruikersmeting aan de engine doorgegeven, maar de fysieke meettijd, meetmethode en meetdiepte zijn in die route onbekend. Behoud deze eenvoudige route, maar behandel haar niet als een volledig gekarakteriseerde laagmeting of onafhankelijke kalibratie-observatie.
+
+De uurlijkse Open-Meteo-data zijn in Europe/Amsterdam-tijd aangevraagd en leveren lucht-/stralings-/windforceringen. De engine parseert uurstrings met `Date`; de tijdzone van de runtime moet daarom expliciet worden getest. Houd bij tijdstipgerichte berekeningen `forecastAsOf`, `calculatedAt` en `targetTime` afzonderlijk.
+
+Geen runtimewijziging. Volgende stap is specificeren van dieptelaagsemantiek, tijdzoneconversie en tests voordat de bestaande engine of profielselectie wordt aangepast.
