@@ -1042,3 +1042,10 @@ De gemeten maandelijkse oppervlaktetemperatuur correleerde slechts zwak met FI (
 PR #189 is gemerged naar `main` als `6661623cb591623c40ba7886a85a0cbb3c99ab86`; zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig geslaagd. De bron-/overdraagbaarheidsbevindingen staan in audit §§141–145 en de actuele formele crosswalk in §89.
 
 De eigenaarbeslissing optie A is gesloten: de thermische curves blijven een transparante voorlopige prior. Dit is geen wetenschappelijke validatie. De registry telt 92 bronnen, 0 numeriek goedgekeurd. Er is geen open technische gate voor deze wijzigingsreeks; de open fase-2-punten zijn inhoudelijk: geïntegreerde score, directe biologische labels, gevalideerde tijdvakrespons en afzonderlijke eigenaarbesluiten over voorvoerhoeveelheden/gating en optionele hengel-/methodepreset. Fase 3 blijft geblokkeerd.
+
+
+## 122. Blankvoorn: macrophytenvoeding als dieetgebonden tijdvakbewijs
+
+Audit §147 controleert Prejs (1978) op de volledige primaire PDF. De studie geeft direct maag-/darmvullingsbewijs voor een plantenetende blankvoorn-groep: de onderzochte groep voedde overdag door en macrophytenopname viel volgens de auteur vrijwel stil in volledige duisternis. Dit geldt niet voor de soort als geheel; het is afhankelijk van voedselgilde, populatie, leeftijd en lokale omstandigheden. De geschatte natuurlijke dagelijkse macrophytenrantsoenen (9,5–4,8% of 15,5–7,7% BW, afhankelijk van turnovervariant) zijn passage-rate-modeluitkomsten, geen rechtstreekse individuele veldmetingen.
+
+De bron is geen method-feeder-/pelletbewijs, heeft slechts een temperatuurcontext rond 20 °C en ondersteunt geen thermische curve. Registry: limited, approvedForPrediction=false. Geen tijdvakbonus of runtimefactor.

@@ -50,6 +50,25 @@ if (
 
 
 
+const roachMacrophyteDiel = RESEARCH_REGISTRY.find(
+  (item) => item.id === 'roach-macrophyte-diel-feeding-and-daily-intake-prejs-1978'
+);
+if (
+  !roachMacrophyteDiel ||
+  !roachMacrophyteDiel.species.includes('Voorn') ||
+  !roachMacrophyteDiel.measuredOutcomes?.includes('feeding_rhythm') ||
+  !roachMacrophyteDiel.measuredOutcomes?.includes('feeding_intensity') ||
+  roachMacrophyteDiel.approvedForPrediction ||
+  !roachMacrophyteDiel.summary.includes('macrophyten-etende blankvoorn') ||
+  !roachMacrophyteDiel.limitations.some((item) => item.includes('niet naar de blankvoornsoort als geheel')) ||
+  !roachMacrophyteDiel.limitations.some((item) => item.includes('geen method-feederpellets')) ||
+  !roachMacrophyteDiel.limitations.some((item) => item.includes('geen temperatuurbehandeling')) ||
+  !roachMacrophyteDiel.sourceReferences.some((source) => source.includes('WA058_86972_P2840-T26_Eko-Pol-A-Nr-4.pdf')) ||
+  !SPECIES_PROFILES.Voorn.scientificReferences.some((source) => source.includes('Prejs, A. (1978)')) ||
+  !SPECIES_PROFILES.Voorn.assumptions.some((item) => item.includes('Prejs (1978)'))
+) {
+  throw new Error('Prejs 1978 roach evidence must remain diet-guild-specific, non-approved, and separate from pellet/temperature response.');
+}
 const adultAydatRation = RESEARCH_REGISTRY.find((item) => item.id === 'adult-roach-perch-lake-aydat-daily-consumption-1994');
 if (
   !adultAydatRation ||
