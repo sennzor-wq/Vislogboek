@@ -1005,3 +1005,10 @@ Audit §150 en modelarchitectuur §125 leggen de volgende inhoudelijke ontwerpst
 De vier bestaande tijdvakken zijn 00–06, 06–12, 12–18 en 18–24. De huidige implementatie hergebruikt dezelfde dagbrede thermische analyse voor elk tijdvak; er bestaat dus nog geen afzonderlijk gevalideerde biologische tijdvakrangorde. Tijdvakvoorspelling vereist tijdspecifieke waterinformatie en directe voedings-/foerageerlabels. Geen generieke schemerbonus.
 
 Thermische efficiëntie, voedselopname en tijdvakvoorkeur worden niet opgeteld voordat een gemeenschappelijke onafhankelijke referentie en vaste scoreankers bestaan. Geen runtime-, score-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — gerichte controle van onafhankelijke datasets (20 november 2026)
+
+Audit §151 registreert drie concrete openbare datasets. De controle vond geen overdraagbare onafhankelijke veldlabels die de samengestelde biologische dagscore of tijdvakvoeding nu kunnen valideren. De bronnen zijn wel nuttig voor responsafbakening: Norin et al. scheidt thermische fysiologie, beweging en dagtotaal voedselopname; Monk & Arlinghaus levert karper-/zeelttelemetrie en aasontmoeting/hengelvangbaarheid, geen werkelijk geconsumeerde hoeveelheid; Rieble et al. levert dagelijkse beweging van karper/baars, geen voedingslabels.
+
+Besluit: geen van deze datasets wordt numeriek toegelaten voor de biologische score. Ze kunnen later uitsluitend voor hun eigen bewegings-/habitat-/vangbaarheidsrespons worden hergebruikt. De registry is bijgewerkt met één contextuele Cunner-bron (94 records, 0 numeriek goedgekeurd). Geen runtime-, score- of UI-wijziging; Fase 2 blijft open.
