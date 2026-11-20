@@ -39,7 +39,6 @@ async function run() {
     waterTemperatureMeasuredAt: '2026-11-02T11:15:00.000Z',
     waterTemperatureMeasurementSource: 'manual',
     waterTemperatureMeasurementMethod: 'probe',
-    waterTemperatureMeasurementMeasurements: undefined,
     waterTemperatureMeasurements: [
       {
         id: 'backup-water-temperature-1', locationId: location.id, temperatureC: 12.4,
