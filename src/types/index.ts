@@ -447,6 +447,8 @@ export interface WaterThermalAnalysis {
   };
   /** Herkomst van de watertemperatuur; een schatting wordt nooit als meting gepresenteerd. */
   waterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
+  /** Exact instant for which this thermal state was calculated; null for a day-wide legacy call. */
+  targetTimestamp?: string | null;
   anchorMeasurementTimestamp?: string | null;
   anchorAgeHours?: number | null;
   weatherCoverageRatio?: number;
