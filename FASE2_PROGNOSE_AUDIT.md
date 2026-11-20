@@ -3610,10 +3610,10 @@ De gebruiker blijft één bestaande 1–10-dagscore zien. Intern mogen responsco
 
 **Kandidaatarchitectuur inhoudelijk beoordeeld; kandidaatmodel niet numeriek toegelaten.** Optie A blijft uitsluitend als transparante voorlopige thermische baseline bestaan. De huidige runtime blijft ongewijzigd en mag niet worden omschreven als een reeds gerealiseerd gecombineerd activiteit-/voedingsmodel. Er zijn geen nieuwe factoren, gewichten, interacties, scoreankers, tijdvakbonussen of datavelden geactiveerd.
 
-De documentreview kan hiermee als afgerond worden beschouwd, maar de formele Fase-2-acceptatie niet. De onafhankelijke biologische evaluatiepoort blijft open zolang passende labels ontbreken. Criterium 2 vereist expliciete erkenning van de voorlopige thermische uitzondering zonder de bewijsnorm te verlagen. De afzonderlijke productbesluiten over voorvoergrammen bij lage invoerkwaliteit en de optionele hengel-/methodepreset blijven bij de eigenaar.
+De documentreview kan hiermee als afgerond worden beschouwd, maar de formele Fase-2-acceptatie niet. De onafhankelijke biologische evaluatiepoort blijft open zolang passende labels ontbreken. De eigenaar heeft optie A expliciet geaccepteerd; de voorlopige thermische uitzondering is transparant vastgelegd zonder de bewijsnorm voor nieuwe factoren te verlagen. De afzonderlijke productbesluiten over voorvoergrammen bij lage invoerkwaliteit en de optionele hengel-/methodepreset blijven nog bij de eigenaar.
 
 **Vaste vervolgstappen:**
-1. Leg de expliciete eigenaarbesluiten over optie A, voorvoergrammen/invoerkwaliteit en hengel-/methodepreset vast; verander niets stilzwijgend.
+1. Optie A is al expliciet door de eigenaar gekozen en vastgelegd. Vraag vóór runtimewijzigingen alleen nog de afzonderlijke eigenaarbesluiten over voorvoergrammen/invoerkwaliteit en de optionele hengel-/methodepreset; verander deze punten niet stilzwijgend.
 2. Onderzoek of bestaande of extern beschikbare onafhankelijke directe biologische datasets bruikbaar zijn voor responsvalidatie; documenteer populatie, levensfase, meetmethode, context en overdraagbaarheid per dataset.
 3. Werk pas daarna referentieankers en kandidaatresponsfuncties uit voor de responsen waarvoor het bewijs werkelijk geschikt is.
 4. Voer bij beschikbare labels een rolling-origin vergelijking uit met identieke waarnemingen voor baseline en kandidaat, factorablaties, coverage-strata en rapportage van negatieve uitkomsten.
