@@ -3850,3 +3850,47 @@ PR #191 is squash-merged naar `main` als `eeaacfec1813bb1c223e098ef2762956b43232
 Prejs (1978) is als 93e registry-record toegevoegd voor blankvoorn, met direct maar dieet-/populatiegebonden veldbewijs voor macrophytenvoeding en een passage-rate-schatting van dagelijkse inname. De bron is limited en approvedForPrediction=false. De auteur waarschuwt expliciet dat de nachtelijke pauze niet als soortbrede regel geldt. Er is geen vertaling naar method-feederpellets, temperatuurcurve, tijdvakbonus of vangstkans.
 
 De registry telt nu 93 records en 0 numeriek goedgekeurd. Geen runtime, score, gewicht, parameter of UX gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 149. Fase 2 herprioritering: prognose-engine eerst, onderzoek met stopcriteria (20 november 2026)
+
+**Besluit voor de verdere uitvoering:** de prognose-engine en de biologische dag-/tijdvakrespons zijn het primaire Fase-2-doel. De research registry is een hulpmiddel voor ontwerpbesluiten, geen doel op zichzelf. De huidige 93 records (0 numeriek goedgekeurd) rechtvaardigen geen verdere brede bronverzameling zonder concrete vraag die het kandidaatmodel kan veranderen.
+
+### 149.1 Prioriteiten en status
+
+| Prioriteit | Werkstroom | Nodig voor Fase 2? | Uitvoering / grens |
+|---|---|---|---|
+| P0 | Definitieve doelrespons en samenstelling van de bestaande 1–10-dagscore | Ja | Eén praktische verwachting van biologische activiteit én voedings-/foerageerpotentie. Thermische optie A blijft expliciete voorlopige prior. Geen habitat-, vangbaarheids- of betrouwbaarheidsbonus. |
+| P0 | Factorrespons, normalisatie en interacties | Ja | Per factor vastleggen: respons, richting/vorm, schaal, benodigde input, onzekerheid, overlap/confounding en ontbrekende-data-gedrag. Geen gewichten of interacties kiezen zonder inhoudelijke en toetsbare grond. |
+| P0 | Tijdvakmodel | Ja | Vier tijdvakken krijgen tijdspecifieke omgevingsinvoer en soort-/seizoensrespons waar bewijs dat ondersteunt. Dezelfde dagwaarde kopiëren of een universele schemerbonus toepassen geldt niet als tijdvakmodel. |
+| P0 | Onafhankelijke evaluatie en data-readiness | Ja | Voor elke respons passende labels, metrics, chronologische splitsing, baseline, minimumdekking en beperkingen definiëren. Brier/BSS blijft uitsluitend voor persoonlijke vangstkans. |
+| P1 | Gericht brononderzoek | Alleen waar het P0-besluit ervan afhangt | Controleer primaire methoden/overdraagbaarheid voor factoren of soorten die daadwerkelijk in de kandidaatlogica komen. Een onbekende respons blijft expliciet onbekend. |
+| P2 | Extra soortkennis over beweging, habitat en gedrag | Nee, optimalisatie achteraf | Alleen toevoegen wanneer het een concrete habitat-/tijdvak-/coachbeslissing verbetert. Bestaande habitatMovement-, bankWind- en rodPositioning-engines hergebruiken. |
+| Buiten scope van de engine-gate | Voorvoergrammen en optionele hengel-/methodepreset | Nee | Afzonderlijke tactiek-/productbesluiten; niet gebruiken om de biologische dagscore of fase-2-engineontwerp onnodig te blokkeren. Eventuele numerieke tactiekheuristieken blijven apart te beoordelen. |
+
+### 149.2 Ontwerpvolgorde voor de engine
+
+1. **Featurecontract:** inventariseer per tijdvak welke actuele/afgeleide waarden beschikbaar zijn, met bron, tijdstip, ruimtelijke relevantie, meet-/schattingsstatus en onzekerheid. Hergebruik de bestaande waterThermal-, habitatMovement-, bankWind- en rodPositioning-ketens; bouw geen parallelle engines.
+2. **Responscontract:** scheid thermische/fysiologische potentie, voedings-/foerageerrespons en lokale habitat-/aanwezigheidsrespons. Definieer welke componenten werkelijk bijdragen aan de bestaande dagscore en welke uitsluitend context voor VisCoach blijven.
+3. **Normalisatie en ontbrekende data:** leg per feature de biologisch betekenisvolle responsfunctie en schaal vast. Onbekend is niet nul, gemiddeld of neutraal. Rapporteer dekking/onzekerheid apart; laat ontbrekende factoren niet stilzwijgend de resterende factoren herwegen.
+4. **Interacties en dubbeltelling:** toets alleen vooraf gemotiveerde interacties (bijvoorbeeld watertemperatuur × recente trend of wind × oeveroriëntatie × diepte). Controleer of meerdere features dezelfde onderliggende weers-/waterverandering dubbel representeren.
+5. **Dag- en tijdvakuitvoer:** houd dezelfde doelrespons aan. De dagsamenvatting en vier tijdvakken verschillen door tijdspecifieke invoer/respons, niet door achteraf toegevoegde generieke bonussen. Een tijdvakadvies zonder geschikte responsdata wordt als onzeker/contextueel gepresenteerd.
+6. **Evaluatiepoort:** vergelijk de kandidaat met de huidige transparante baseline en eenvoudige referenties via chronologische backtests en factorablaties. Gebruik alleen labels die de betreffende respons werkelijk meten; vangstdata zijn geen directe voedingslabels.
+
+### 149.3 Stopcriteria voor aanvullend onderzoek
+
+Een nieuwe bron wordt alleen gezocht of volledig uitgewerkt als vooraf duidelijk is welk open modelbesluit zij kan veranderen: responsclassificatie, parameter-/vormkeuze, overdraagbaarheidsgrens, featuretoelating, tijdvaklogica of evaluatielabel. Stop met zoeken zodra:
+
+- de bron alleen een reeds bekende contextuele relatie herhaalt;
+- de bron beweging, habitat, groei, metabolisme of aquacultuurvoer meet terwijl de open vraag directe voedselopname/foerageeractiviteit betreft;
+- levensfase, voedseltype, meetmethode of watertype overdracht naar de beoogde toepassing niet rechtvaardigt;
+- er geen betrouwbare invoer of onafhankelijk passend label bestaat om de bevinding veilig te gebruiken;
+- de uitkomst geen ontwerp-, toelatings- of validatiebesluit verandert.
+
+Geen minimumaantal bronnen per soort, geen doel om de registry verder te laten groeien en geen geforceerde numerieke curve. Onvoldoende bewijs wordt als kennislacune vastgelegd en kan later worden geoptimaliseerd.
+
+### 149.4 Formele fasegrens
+
+Fase 2 moet het engine-ontwerp, de feature-/responscontracten, onzekerheidsregels, tijdvaklogica en onafhankelijke evaluatiepoort toetsbaar afronden. Lokale praktijklabels zijn niet vereist om het ontwerp te documenteren, maar wél voordat lokale kalibratie of prestatieclaims worden gedaan en voordat nieuwe lokale empirische factoren numeriek worden toegelaten. Bestaande vangstregistraties mogen niet als directe activiteit-/voedingslabels worden hernoemd.
+
+De tactische productbesluiten over voorvoergrammen en optionele hengel-/methodepresets worden apart gehouden en zijn geen reden om de biologische engine-ontwerpfase stil te zetten. Er wordt geen runtimefactor, gewicht, scoremapping of gebruikersinvoer aangepast door deze herprioritering. Fase 2 blijft open; Fase 3 blijft geblokkeerd totdat de engine-acceptatiecriteria aantoonbaar zijn afgevinkt.
