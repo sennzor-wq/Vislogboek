@@ -1055,6 +1055,29 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
   },
 
   {
+    id: 'northern-pike-functional-response-temperature-browning-2026',
+    topic: 'temperatuur-en-zichtafhankelijke-prooiconsumptie',
+    measuredOutcomes: ['feeding_intensity'],
+    species: ['Snoek'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Twee gecontroleerde experimenten maten de daadwerkelijk gegeten prooivissen door jonge 0+-snoek. Experiment 1 omvatte 192 proeven bij 5, 9 en 13 °C, twee zichtcondities en vier prooidichtheden; elk proefvenster duurde gemiddeld circa 23,5 uur. Experiment 2 omvatte 80 proeven bij 9 °C over vijf gradaties van waterverbruining. De effecten van temperatuur en verbruining op de voedingssnelheid bleken opvallend zwak; alleen bij 5 °C in helder water werd een koepelvormige Type-IV-respons gevonden, terwijl de responsvorm onder de meeste overige omstandigheden niet eenduidig was.',
+    limitations: [
+      'De proeven betroffen uitsluitend jonge 0+-snoek van circa 34,5–79,2 g en 165–220 mm uit één Zuid-Zweedse meerpopulatie; dit is niet rechtstreeks overdraagbaar op volwassen snoek in Nederlandse wateren.',
+      'De laboratoriumproeven gebruikten kleine 700-literarena’s, gestandaardiseerde vastenperioden, vaste prooidichtheden en vrijwel uitsluitend jonge blankvoorn als prooi. De gemeten respons is een contextgebonden functionele voedingsrespons, geen algemene dagelijkse veldrantsoen- of hengelvangstcurve.',
+      'De uitkomst combineert prooi-ontmoeting, prooigedrag, aanval en consumptie. Zij is geen zuivere fysiologische activiteitspotentie en mag niet als universele thermische optimumcurve worden gebruikt.',
+      'De proeven duurden ongeveer een volledig etmaal en registreerden geen individuele vangsttijdstippen; zij ondersteunen geen afzonderlijke ochtend-, avond- of schemertijdvakscore.',
+      'De aanvullende lichaamstemperatuurreeks betreft zes vrijlevende volwassen snoeken, maar bevat geen gekoppelde voedingsmetingen. Deze reeks mag niet worden gecombineerd alsof volwassen veldvoedingslabels zijn gemeten.',
+      'De studie vond zwakke temperatuureffecten en onzekere responsvormen buiten de specifieke koude/heldere behandeling; er is geen pike-parameter voor de bestaande thermische profielcurve gevalideerd.'
+    ],
+    sourceReferences: [
+      'Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026). Effects of temperature and browning on the functional response of a freshwater top predator. Journal of Animal Ecology, 95(5), 824–836. https://doi.org/10.1111/1365-2656.70233',
+      'Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026). Data and code from: Effects of temperature and browning on the functional response of a freshwater top predator. Dryad. https://doi.org/10.5061/dryad.kkwh70sjc'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'pike-juvenile-feeding-rhythm-first-year-1998', topic: 'levensfasegebonden-dagritme-en-voedselopname', measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'], species: ['Snoek'], application: 'biology', evidenceStrength: 'limited',
     summary: 'Onderzoek naar jonge snoek in het eerste levensjaar beschreef dagactieve jacht in de planktivore, insectivore en piscivore ontwikkelingsstadia. In de planktivore fase was het voedingsritme duidelijk bifasisch. Het patroon is expliciet levensfase- en dieetstadiumgebonden.',
     limitations: ['De studie betreft uitsluitend jonge snoek jonger dan één jaar; dit patroon mag niet als volwassen snoekprofiel worden toegepast.','De voedingsfasen hangen samen met de overgang van plankton naar insecten en vis; de app vraagt niet standaard om levensfase of dieetstadium.','De studie levert geen gevalideerde numerieke tijdvakgewichten voor Nederlandse hengelwateren.'],

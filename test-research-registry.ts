@@ -115,6 +115,19 @@ const pikeFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-
 if (!pikeFeeding?.summary.includes('niet statistisch significant')) {
   throw new Error('The pike evidence must preserve the non-significant seasonal/temperature result.');
 }
+const pikeFunctionalResponse = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-functional-response-temperature-browning-2026');
+if (
+  !pikeFunctionalResponse ||
+  !pikeFunctionalResponse.species.includes('Snoek') ||
+  !pikeFunctionalResponse.measuredOutcomes?.includes('feeding_intensity') ||
+  pikeFunctionalResponse.approvedForPrediction ||
+  !pikeFunctionalResponse.summary.includes('0+-snoek') ||
+  !pikeFunctionalResponse.limitations.some((item) => item.includes('volwassen snoek')) ||
+  !pikeFunctionalResponse.sourceReferences.some((source) => source.includes('10.1111/1365-2656.70233')) ||
+  !pikeFunctionalResponse.sourceReferences.some((source) => source.includes('10.5061/dryad.kkwh70sjc'))
+) {
+  throw new Error('The 2026 pike functional-response dataset must remain direct, scoped and non-approved evidence.');
+}
 const catfishFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'wels-catfish-seasonal-diet-feeding-2025');
 if (!catfishFeeding?.sourceReferences.some((source) => source.includes('Aquaculture Nutrition'))) {
   throw new Error('The catfish feeding study must retain its verified journal metadata.');
@@ -123,7 +136,7 @@ console.log('Direct feeding evidence coverage and non-activation tests passed.')
 const profileFeedingSourceChecks: Record<string, string> = {
   Karper: '10.1111/j.1095-8649.2009.02236.x',
   Brasem: 'In situ diel patterns of zooplankton consumption',
-  Snoek: '10.3409/fb_73-3.10',
+  Snoek: '10.1111/1365-2656.70233',
   Baars: 'annzool.net/PDF/anzf23/anz23-049-056.pdf',
   Voorn: '10.1111/j.1095-8649.2008.02020.x',
   Zeelt: '10.1134/S003294521804001X',
@@ -145,6 +158,7 @@ const outcomeExpectations: Array<[string, string, string]> = [
   ['Karper', 'common-carp-temperature-feeding-rhythm-2012', 'feeding_intensity'],
   ['Brasem', 'bream-roach-in-situ-diel-zooplankton-feeding-2004', 'feeding_intensity'],
   ['Snoek', 'northern-pike-field-seasonal-feeding-diet-2025', 'diet_composition'],
+  ['Snoek', 'northern-pike-functional-response-temperature-browning-2026', 'feeding_intensity'],
   ['Baars', 'perch-field-diel-feeding-seasonal-diet-1986', 'feeding_rhythm'],
   ['Voorn', 'roach-autumnal-diel-feeding-shift-2008', 'feeding_rhythm'],
   ['Zeelt', 'tench-field-diel-seasonal-feeding-2018', 'feeding_intensity'],

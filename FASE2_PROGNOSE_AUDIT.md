@@ -3622,3 +3622,34 @@ De documentreview kan hiermee als afgerond worden beschouwd, maar de formele Fas
 5. Werk de zevenpunts-crosswalk bij en vraag formele Fase-2-acceptatie pas wanneer de resterende criteria aantoonbaar zijn afgehandeld. Fase 3 blijft geblokkeerd.
 
 Geen runtimewijziging, geen nieuwe gebruikersinvoer en geen wijziging aan historische data.
+
+
+## 135. Nieuwe open dataset: directe prooiconsumptie bij jonge snoek (20 november 2026)
+
+### 135.1 Bron en meetopzet
+
+Een nieuwe, nog niet in de registry aanwezige publicatie en open dataset zijn gecontroleerd:
+- Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026), *Effects of temperature and browning on the functional response of a freshwater top predator*, Journal of Animal Ecology 95(5), 824–836, DOI: 10.1111/1365-2656.70233.
+- Bijbehorende ruwe data en reproduceerbare R-code: Dryad DOI 10.5061/dryad.kkwh70sjc.
+
+De studie meet direct hoeveel prooivissen jonge 0+-snoek daadwerkelijk consumeerden:
+- Experiment 1: 192 gecontroleerde proeven; 5, 9 en 13 °C; helder versus matig bruin water; vier prooidichtheden (2, 5, 10, 20); gemiddeld circa 23,5 uur per proef.
+- Experiment 2: 80 proeven bij 9 °C; twee prooidichtheden en vijf gradaties van verbruining.
+- De eerste proef gebruikte 24 snoeken van gemiddeld 51,8 g (range 34,5–79,2 g; circa 165–220 mm), uitsluitend 0+-dieren uit één Zuid-Zweedse meerpopulatie. Blankvoorn vormde meer dan 95% van de prooien.
+- De aanvullende volwassen-snoekdata zijn lichaamstemperatuurregistraties van zes vrijlevende dieren; er zijn geen gelijktijdige voedingslabels voor deze volwassen dieren.
+
+### 135.2 Wat deze bron wel en niet toevoegt
+
+**Wel:** direct gemeten, experimentele voedingsintensiteit/functionele respons bij jonge snoek, met temperatuur, zichtconditie en prooidichtheid als expliciete behandelingen. De open CSV-data bevatten onder meer temperatuur, prooidichtheid, replicaat, individuele PIT-tag, trialduur en aantal gegeten prooien. De R-analyse is beschikbaar voor reproduceerbare controle.
+
+**Niet:** een volwassen veldcurve, een algemeen dagelijks rantsoen, een directe fysiologische activiteitsscore, een Nederlandse stekrespons of een tijdvakvoorkeur. De proeven omvatten vrijwel een volledig etmaal en geven geen individuele vangsttijdstippen.
+
+De belangrijkste inhoudelijke uitkomst is dat temperatuur- en verbruiningseffecten op de voedingssnelheid opvallend zwak waren. Alleen bij 5 °C in helder water werd een koepelvormige Type-IV-functionele respons gevonden; bij de meeste andere behandelingen was de exacte responsvorm niet overtuigend te onderscheiden. Dit is een waarschuwing tegen het aannemen van een sterke monotone temperatuurbijdrage voor snoekvoeding en tegen het overzetten van één koude behandeling naar een algemene curve.
+
+### 135.3 Registry- en modelbesluit
+
+De bron is toegevoegd als `northern-pike-functional-response-temperature-browning-2026`, gemeten respons `feeding_intensity`, soort Snoek, bewijssterkte **limited**, `approvedForPrediction: false`. De bron is ook als traceerbare referentie aan het Snoek-profiel gekoppeld. De registry telt hiermee 87 records; nog steeds zijn 0 records goedgekeurd voor directe numerieke voorspelling.
+
+**Geen toelating voor runtime:** de studie mag uitsluitend als direct maar levensfase- en contextgebonden kandidaatbewijs worden gebruikt. Zij valideert de bestaande volwassen Snoek-thermische parameters niet, levert geen generieke temperatuurcurve en rechtvaardigt geen zicht-/troebelheidsbonus. De volwassen lichaamstemperatuurreeks mag niet als voedingslabel aan de jonge-snoekproeven worden gekoppeld.
+
+**Vervolg:** controleer de downloadbare CSV en analysecode op reproduceerbaarheid en op de exacte modelvariabelen/uitsluitingen voordat eventueel een beperkte responskaart of referentie wordt ontworpen. Geen numerieke parameter, gewicht, tijdvakbonus of runtimegedrag gewijzigd.

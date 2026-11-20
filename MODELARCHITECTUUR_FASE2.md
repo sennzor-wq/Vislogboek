@@ -951,3 +951,12 @@ De read-only kandidaatmodelreview en de exacte huidige codeketen staan in `FASE2
 De huidige 1–10-score wordt op main uitsluitend door de voorlopige thermische prior bepaald: `1 + 9 × thermalEfficiency^0.85`. Dezelfde dagbrede thermische respons wordt momenteel voor de vier tijdvakken hergebruikt. De feedingEvidenceService heeft op basis van de huidige registry geen goedgekeurde numerieke voedingsbron. Habitat-/positioneringsengines, Brier/BSS en voorvoergrammen blijven afzonderlijke respons-/tactieklassen.
 
 **Reviewbesluit:** optie A blijft uitsluitend als transparante voorlopige baseline-uitzondering behouden. De kandidaat is niet numeriek toegelaten als gecombineerd activiteit-/voedingsmodel: directe lokale biologische labels ontbreken en de exacte thermische parameters/scoremapping zijn niet onafhankelijk gevalideerd. Geen nieuwe factor, gewicht, interactie, scoremapping of tijdvakbonus activeren. De onafhankelijke biologische evaluatiepoort blijft open; Fase 2 is niet geaccepteerd en Fase 3 blijft geblokkeerd. Productbesluiten over voorvoergrammen bij lage invoerkwaliteit en optionele hengel-/methodepresets blijven expliciet bij de eigenaar.
+
+
+## 108. Nieuwe directe maar levensfasegebonden voedingsbron voor snoek (20 november 2026)
+
+Audit §135 registreert Nilsson-Örtman et al. (2026), Journal of Animal Ecology, DOI 10.1111/1365-2656.70233, en de open Dryad-data/code, DOI 10.5061/dryad.kkwh70sjc. De studie meet daadwerkelijk gegeten prooivissen bij jonge 0+-snoek in 192 proeven bij 5/9/13 °C en 80 aanvullende proeven over een verbruininggradiënt. De gevonden temperatuur-/verbruiningseffecten waren opvallend zwak; alleen de koude/heldere behandeling liet een koepelvormige Type-IV-respons zien.
+
+De bron is in de research registry opgenomen als directe `feeding_intensity`-respons, maar blijft **limited** en `approvedForPrediction: false`: uitsluitend 0+-snoek, één Zuid-Zweedse populatie, laboratoriumarena's, gestandaardiseerde prooidichtheden en vrijwel uitsluitend jonge blankvoorn. De volwassen snoeken in dezelfde studie leverden alleen lichaamstemperatuurdata, geen gekoppelde voedingslabels. De bron valideert dus geen volwassen Nederlandse veldcurve, geen tijdvakvoorkeur en geen bestaande thermische profielparameter.
+
+Registrytelling: 87 records, 0 numeriek goedgekeurd. Geen runtimefactor, gewicht of tijdvakbonus geactiveerd.

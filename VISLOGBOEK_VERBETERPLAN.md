@@ -902,3 +902,12 @@ De huidige biologische 1–10-score blijft uitsluitend de voorlopige thermische 
 **Reviewuitkomst:** kandidaatarchitectuur inhoudelijk beoordeeld, kandidaatmodel niet numeriek toegelaten. Optie A blijft een expliciete voorlopige baseline-uitzondering, geen wetenschappelijke validatie. Geen runtime-, score-, parameter-, gewicht-, interactie- of UI-wijziging. Fase 2 blijft niet geaccepteerd; Fase 3 geblokkeerd.
 
 **Volgende werkzaamheden:** expliciete eigenaarbesluiten vastleggen voor (1) de beperkte thermische optie-A-uitzondering, (2) de afzonderlijke voorvoergrammen bij lage invoerkwaliteit en (3) vrije tekst versus optionele hengel-/methodepreset. Parallel wordt alleen waar zinvol gezocht naar onafhankelijke directe biologische datasets; daarna volgen responsankers en chronologische baselinevergelijking. Geen extra verplichte gebruikersinvoer.
+
+
+### Fase 2 — directe 0+-snoekvoedingsdataset uit 2026 toegevoegd (20 november 2026)
+
+Een nieuwe open publicatie-/datasetcombinatie is gecontroleerd en toegevoegd aan `researchRegistry.ts`: Nilsson-Örtman et al. (2026), DOI 10.1111/1365-2656.70233, met reproduceerbare Dryad-data/code, DOI 10.5061/dryad.kkwh70sjc. De studie meet daadwerkelijk gegeten prooien door jonge 0+-snoek in 192 temperatuur-/zichtproeven en 80 aanvullende verbruiningproeven. De temperatuureffecten op voedingssnelheid waren opvallend zwak; de responsvorm was alleen bij 5 °C in helder water duidelijk koepelvormig.
+
+De bron is geclassificeerd als directe `feeding_intensity`, bewijssterkte limited en niet-goedgekeurd voor voorspelling. De jonge levensfase, laboratoriumsetting, kleine Zuid-Zweedse populatie en prooidichtheidsafhankelijkheid verhinderen overdracht naar volwassen snoek in Nederlandse wateren. De volwassen snoeken in de studie leverden uitsluitend lichaamstemperatuurdata, geen voedingslabels. Het Snoek-profiel verwijst nu ook naar deze bron en de registrytest bewaakt de scope en niet-goedkeurde status.
+
+Registry: 87 records, 0 goedgekeurd. Geen score-, parameter-, gewicht- of runtimewijziging.
