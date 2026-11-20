@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
-import { db, deleteSessionSafely, deletePrognosisSnapshotSafely } from './src/db/db';
+import { db, deleteSessionSafely, deletePrognosisSnapshotSafely, deleteLocationSafely } from './src/db/db';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod, PlannedFishingSession, CoachAdviceRecord } from './src/types';
 
@@ -443,6 +443,22 @@ async function runTestSuite() {
   );
   const benchSnapInDb = await db.prognosisSnapshots.get(benchmarkSnapshot.id);
   assert(benchSnapInDb !== undefined, '5.4 Benchmark snapshot bevindt zich nog veilig in de database');
+
+
+  const removableLocationId = 'spot-delete-with-measurement';
+  await db.locations.put({
+    id: removableLocationId, name: 'Stek voor verwijdertest', latitude: 52, longitude: 5,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  });
+  await db.waterTemperatureMeasurements.put({
+    id: 'measurement-for-deleted-location', locationId: removableLocationId,
+    temperatureC: 8.1, measuredAt: '2026-11-01T12:00:00.000Z',
+    recordedAt: '2026-11-01T12:01:00.000Z',
+    measurementSource: 'manual', measurementMethod: 'thermometer',
+  });
+  assert(await deleteLocationSafely(removableLocationId), 'Verwijderen van een gewone locatie slaagt');
+  assert(await db.waterTemperatureMeasurements.get('measurement-for-deleted-location') === undefined,
+    'Meetevents van een verwijderde locatie worden ook verwijderd zodat geen verweesde meetdata achterblijft');
 
   console.log('\n======================================================');
   console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);

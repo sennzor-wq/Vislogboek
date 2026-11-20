@@ -419,7 +419,10 @@ export async function deleteLocationSafely(locationId: string): Promise<boolean>
     throw new Error('De referentiestek Lokkershoek is een beschermde benchmark en kan niet worden verwijderd.');
   }
 
-  await db.locations.delete(locationId);
+  await db.transaction('rw', db.locations, db.waterTemperatureMeasurements, async () => {
+    await db.waterTemperatureMeasurements.where('locationId').equals(locationId).delete();
+    await db.locations.delete(locationId);
+  });
   return true;
 }
 
