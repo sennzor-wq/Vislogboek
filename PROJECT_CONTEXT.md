@@ -1950,3 +1950,10 @@ Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie 
 ### Fase 2 — snoekbron 2025: primaire statistische controle (20 november 2026)
 
 Yazıcıoğlu et al. (2025) is op de volledige primaire PDF gecontroleerd. De maandelijkse oppervlaktetemperatuur-FI-correlatie is zwak en niet significant (r_s=0,117; p>0,05). De FI-waarden variëren numeriek per seizoen, maar het abstract bevat een intern p-waardeconflict (niet-significant genoemd met p<0,05); de resultaten geven geen eenduidige aparte FI-teststatistiek. De bron blijft limited en approvedForPrediction=false; geen thermische of seizoensbonus. Zie audit §145.
+
+
+### Fase 2 — technische en documentatieafronding PR #189 (20 november 2026)
+
+PR #189 is op `main` gemerged als `6661623cb591623c40ba7886a85a0cbb3c99ab86`. De exacte PR-head en mergecommit Quality Gates zijn geslaagd. Audit §§141–146 en de zevenpunts-crosswalk §89 zijn actueel. De Research Registry telt 92 records, 0 numeriek goedgekeurd.
+
+Optie A is expliciet als eigenaarbesluit gesloten: thermische curves blijven uitsluitend een voorlopige mechanistische prior. Fase 2 is nog niet geaccepteerd; de geïntegreerde biologische score, directe lokale biologische labels, gevalideerde tijdvakrespons en twee afzonderlijke tactische productbesluiten blijven open. Fase 3 blijft geblokkeerd.
