@@ -1962,3 +1962,8 @@ Optie A is expliciet als eigenaarbesluit gesloten: thermische curves blijven uit
 ### Fase 2 — Prejs (1978) primaire blankvoornbron toegevoegd (20 november 2026)
 
 De volledige primaire PDF van Prejs (1978) is gecontroleerd. Deze geeft dieetgebonden dag-/nachtvoedingsinformatie voor macrophyten-etende blankvoorn en passage-rate-schattingen voor dagelijkse planteninname. De auteur waarschuwt expliciet tegen generalisatie naar de soort als geheel; voedselgilde, populatie, leeftijd en omgeving zijn bepalend. Geen overdracht naar method-feederpellets of thermische curve. Registry telt 93 records, 0 numeriek goedgekeurd; zie audit §147.
+
+
+### Fase 2 — Prejs (1978) toegevoegd als 93e bron (20 november 2026)
+
+PR #191 voegt Prejs (1978) toe na volledige primaire PDF-controle. Het betreft dieetgebonden veldbewijs voor macrophyten-etende blankvoorn en een passage-rate-schatting van dagelijkse planteninname; geen soortbrede, pellet- of thermische respons. Registry telt 93 records, 0 numeriek goedgekeurd. Zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig geslaagd. Zie audit §§147–148.

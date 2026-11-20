@@ -978,3 +978,8 @@ Optie A is als eigenaarbesluit gesloten. De thermische curve blijft een voorlopi
 ### Fase 2 — dieetgebonden blankvoornritme verder afgebakend (20 november 2026)
 
 Prejs (1978) is als primaire bron toegevoegd na volledige PDF-controle. Macrophyten-etende blankvoorn vertoonde in één specifieke veldcontext vrijwel geen plantenopname tijdens volledige duisternis; de auteur stelt expliciet dat dit niet als soortbrede regel geldt. De geschatte dagelijkse plantenrantsoenen komen uit een passage-rate-methode en zijn geen individuele directe veldmetingen. Geen method-feeder-/pelletvertaling of tijdvakbonus. Registry: 93 records, 0 numeriek goedgekeurd. Zie audit §147.
+
+
+### Fase 2 — broninventaris naar 93 records uitgebreid (20 november 2026)
+
+Prejs (1978) is als 93e bron toegevoegd met beperkte, dieet-/populatiegebonden blankvoorn-feeding-rhythm evidence. Geen overdracht naar method-feederpellets, thermische curve of soortbrede tijdvakbonus. PR #191 is gemerged; exacte PR-head en mergecommit Quality Gates zijn volledig geslaagd. Fase 2 blijft open; Fase 3 geblokkeerd.
