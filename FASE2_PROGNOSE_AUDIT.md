@@ -4004,3 +4004,43 @@ De gerichte datasetcontrole levert nuttige bevestiging van de responsgrenzen, ma
 Daarom is het niet verantwoord deze datasets als numerieke voedingsfactoren of tijdvaklabels toe te laten. Ze versterken wel de gekozen architectuur: thermische fysiologie, beweging/aanwezigheid, voedselopname en vangbaarheid moeten aparte responsen blijven. De data kunnen later gericht worden hergebruikt voor hun eigen responslaag, zonder de engine nu te verbreden.
 
 **Stopbesluit:** geen verdere brede datasetzoektocht naar algemene visactiviteit. Hervat gericht onderzoek alleen als een concrete soort-/responsvraag een mogelijk direct label, tijdvakrespons of parameter oplevert. De ontbrekende lokale biologische labels blijven een formele validatiebeperking; geen geforceerde vervanging door vangstdata. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 152. Code-audit tijdresolutie waterthermische invoer (20 november 2026)
+
+Deze read-only controle werkt de eerste taak uit §150.6 uit: kan de huidige thermische keten een afzonderlijke watertemperatuurrespons per tijdvak leveren?
+
+### 152.1 Feitelijke implementatie
+
+De huidige code laat het volgende zien:
+
+- analyzeWaterThermalDevelopment() retourneert één WaterThermalAnalysis met één estimatedWaterTemp en één estimatedRange voor de opgegeven doeldatum.
+- Voor een toekomstige doeldatum wordt de referentietijd in de huidige implementatie op 12:00 van die doeldatum gezet. Voor de huidige lokale dag wordt vanaf het actuele tijdstip gerekend.
+- De optionele targetHour staat wel in ThermalAnalysisOptions, maar wordt in de functie niet gelezen. Er bestaat dus geen werkende uurparameter die een afzonderlijke watertemperatuurschatting per tijdvak oplevert.
+- De functie gebruikt uurlijkse weersontwikkeling, maar reduceert die tot één doeldagwaarde/temperatuurband; de aanwezigheid van uurlijkse weersdata betekent niet dat de watertemperatuur zelf per uur beschikbaar is.
+- prognosisEngine roept de thermische analyse één keer per dagprognose aan en geeft hetzelfde thermalAnalysis-object door aan de vier analyzeTimeSlot()-aanroepen.
+- De vier vensters verzamelen wel afzonderlijke uurlijkse lucht-/weersamples en zonnecontext. Deze samples leveren momenteel uitleg/context voor wind, druk, bewolking en neerslag; zij wijzigen de thermische score niet.
+
+### 152.2 Gevolg voor de prognose
+
+De huidige vier tijdvakuitkomsten hebben geen vier onafhankelijke thermische invoerwaarden. De thermische scorecomponent is daardoor voor alle vensters dezelfde dagbrede respons. De tijdvakverschillen die in de uitleg of praktische context verschijnen mogen niet worden geïnterpreteerd als een gevalideerde biologische rangorde.
+
+Een toekomstig tijdvakmodel mag niet simpelweg de uurlijkse luchttemperatuur door de soortcurve halen. Water reageert vertraagd en afhankelijk van diepte, menging, instraling en lokale watermassa. Een tijdspecifieke watertemperatuurschatting vraagt daarom een expliciet tijdstip, een passende waterthermische toestandsupdate en een eigen onzekerheids-/provenance-uitvoer.
+
+### 152.3 Ontwerpvereisten voor eventuele uitbreiding
+
+1. Definieer de tijdsemantiek expliciet: lokale tijdzone, tijdvakstart/einde, referentietijd en het moment waarop de voorspelling wordt gemaakt.
+2. Gebruik alleen weerdata die op het prognosemoment beschikbaar waren; voorkom toekomstlek in historische backtests.
+3. Laat de waterthermische engine per gevraagd tijdstip een schatting plus onzekerheidsband en bronstatus teruggeven, alleen als de warmtebalans-/ankerdata dat ondersteunen.
+4. Behoud één canonieke waterthermische engine; geen tweede tijdvaktemperatuurmodel naast de bestaande implementatie.
+5. Evalueer tijdspecifieke watermetingen apart met MAE/RMSE/bias en passende intervaldekking, per diepte/locatie/watertype en voorspelhorizon.
+6. Een tijdspecifieke thermische waarde maakt op zichzelf nog geen tijdvakvoedingsvoorkeur. Daarvoor blijven directe soort-/contextpassende voedingslabels noodzakelijk.
+7. Geen vier tijdvaktemperaturen interpoleren of verzinnen wanneer de beschikbare waterdata alleen een dagwaarde ondersteunen; gebruik dan dezelfde thermische context met expliciete beperking.
+
+### 152.4 Besluit en volgende stap
+
+**Vastgesteld:** de huidige code levert één thermische schatting per doeldag; targetHour is ongebruikt en dezelfde analyse wordt gedeeld door de vier tijdvakken. Dit is een concrete technische ontwerpgap voor de latere tijdvak-engine, niet een reden om nu runtimecode aan te passen.
+
+**Volgende stap:** specificeer een minimale, reproduceerbare tijdstipgerichte API voor de bestaande waterThermalEngine en toets eerst of de huidige weer-/waterankers genoeg informatie bieden om een tijdvakschatting te maken. Pas daarna kan worden besloten of code-uitbreiding zinvol is. Directe tijdvakvoedingslabels blijven een afzonderlijke biologische voorwaarde.
+
+Geen runtimewijziging, geen nieuw modelgewicht, geen tijdvakbonus en geen gebruikersinvoer toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.
