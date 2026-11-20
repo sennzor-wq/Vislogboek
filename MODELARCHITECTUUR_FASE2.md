@@ -974,3 +974,12 @@ Deze bronnen zijn bruikbare beperkte kandidaatcontext voor `feeding_intensity`, 
 Audit §137 registreert Thorpe (1977): volwassen baars in Loch Leven, bemonsterd om de drie uur gedurende 24-uurscycli in zomerperioden. Het dagelijkse rantsoen werd geschat via maaginhoud en maaglediging en nam af van circa 6,5% lichaamsgewicht/dag in juni naar 3,2% in september. Door tragere lediging bij kooivissen zijn de schattingen minimaal; er is geen watertemperatuurreeks in de beschikbare samenvatting.
 
 De bron is beperkte, niet-goedgekeurde `feeding_intensity`-/ritmecontext, geen Nederlandse veldcurve of validatie van thermische parameters. Geen runtimebijdrage.
+
+
+## 111. Snoek 2026: volwassen temperatuurreeks is afkomstig uit experimentele vijvers
+
+Audit §138 corrigeert de broncontext van Nilsson-Örtman et al. (2026). De zes volwassen snoeken met biosensoren werden twaalf maanden gevolgd in drie grote experimentele vijvers, niet in een representatieve natuurlijke meer-/rivierpopulatie. Hun lichaamstemperatuurdata bevatten geen gekoppelde voedingslabels. De Dryad-paginabeschrijving noemt ze vrijlevend, maar de primaire methodesectie beschrijft expliciet de experimentele vijvers; die primaire methode is leidend.
+
+De 0+-voedingsproeven blijven directe maar contextgebonden laboratoriumdata. De primaire paper rapporteert 24 dieren in experiment 1 en drie uitgesloten proefwaarnemingen; de Dryad-README vermeldt n=23 en omschrijft het outlierveld als drie individuen. Experiment 2 sloot afzonderlijk twee dieren wegens schimmelinfectie uit. Deze aantallen en uitsluitingen zijn niet samengevoegd.
+
+De dataset blijft limited en approvedForPrediction=false; geen volwassen veldcurve, voedingslabel uit de biosensorreeks of runtimefactor. De ruwe CSV/R-code kon via de Dryad-downloadlink niet onafhankelijk worden opgehaald (HTTP 403), dus geen claim van heruitvoering.

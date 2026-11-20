@@ -925,3 +925,10 @@ De methoden en steekproefcontext zijn nog niet volledig geverifieerd. De bronnen
 Thorpe (1977) is geregistreerd voor volwassen baars: 24-uurscycli met drie-uurlijkse bemonstering in de zomer; modelgeschat rantsoen daalde van circa 6,5% lichaamsgewicht/dag in juni naar 3,2% in september. Door tragere maaglediging bij kooivissen zijn dit minimale schattingen. De bron bevat in de publiek beschikbare samenvatting geen watertemperatuurreeks en valideert dus geen thermische curve.
 
 Bron blijft limited en approvedForPrediction=false. Registry: 90 records, 0 numeriek goedgekeurd. Geen runtimefactor of tijdvakbonus geactiveerd.
+
+
+### Fase 2 — snoekdataset 2026: primaire broncontext aangescherpt (20 november 2026)
+
+De volledige primaire publicatie is vergeleken met de Dryad-metadata. De zes volwassen snoeken met lichaamstemperatuursensoren werden twaalf maanden gevolgd in drie experimentele vijvers; dit is geen representatieve natuurlijke veldpopulatie en bevat geen voedingslabels. De Dryad-paginabeschrijving noemt ze vrijlevend, maar de primaire methodesectie is leidend.
+
+Er is ook een discrepantie vastgelegd: de paper noemt 24 0+-snoeken in experiment 1 en drie uitgesloten proefwaarnemingen; de Dryad-README noemt n=23 en spreekt van drie individuen. Experiment 2 sluit afzonderlijk twee dieren uit wegens schimmelinfectie. De ruwe data/R-code konden via Dryad niet worden gedownload (HTTP 403), dus geen onafhankelijke heruitvoering geclaimd. Bron blijft limited en approvedForPrediction=false. Geen runtimewijziging. Zie audit §138.

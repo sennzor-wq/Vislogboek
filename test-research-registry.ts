@@ -150,6 +150,8 @@ if (
   pikeFunctionalResponse.approvedForPrediction ||
   !pikeFunctionalResponse.summary.includes('0+-snoek') ||
   !pikeFunctionalResponse.limitations.some((item) => item.includes('volwassen snoek')) ||
+  !pikeFunctionalResponse.limitations.some((item) => item.includes('experimentele vijvers')) ||
+  !pikeFunctionalResponse.limitations.some((item) => item.includes('geen gekoppelde voedingsmetingen')) ||
   !pikeFunctionalResponse.sourceReferences.some((source) => source.includes('10.1111/1365-2656.70233')) ||
   !pikeFunctionalResponse.sourceReferences.some((source) => source.includes('10.5061/dryad.kkwh70sjc'))
 ) {

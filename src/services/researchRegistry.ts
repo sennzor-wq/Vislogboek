@@ -1087,7 +1087,7 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
       'De laboratoriumproeven gebruikten kleine 700-literarena’s, gestandaardiseerde vastenperioden, vaste prooidichtheden en vrijwel uitsluitend jonge blankvoorn als prooi. De gemeten respons is een contextgebonden functionele voedingsrespons, geen algemene dagelijkse veldrantsoen- of hengelvangstcurve.',
       'De uitkomst combineert prooi-ontmoeting, prooigedrag, aanval en consumptie. Zij is geen zuivere fysiologische activiteitspotentie en mag niet als universele thermische optimumcurve worden gebruikt.',
       'De proeven duurden ongeveer een volledig etmaal en registreerden geen individuele vangsttijdstippen; zij ondersteunen geen afzonderlijke ochtend-, avond- of schemertijdvakscore.',
-      'De aanvullende lichaamstemperatuurreeks betreft zes vrijlevende volwassen snoeken, maar bevat geen gekoppelde voedingsmetingen. Deze reeks mag niet worden gecombineerd alsof volwassen veldvoedingslabels zijn gemeten.',
+      'De aanvullende lichaamstemperatuurreeks betreft zes volwassen snoeken in drie grote experimentele vijvers; de paper beschrijft implantatie en vrijlating in deze vijvers, niet een representatieve natuurlijke meer-/rivierpopulatie. Er zijn geen gekoppelde voedingsmetingen. De Dryad-paginabeschrijving noemt ze vrijlevend, maar de methodesectie specificeert de experimentele vijvers; de primaire methodesectie is leidend.',
       'De studie vond zwakke temperatuureffecten en onzekere responsvormen buiten de specifieke koude/heldere behandeling; er is geen pike-parameter voor de bestaande thermische profielcurve gevalideerd.'
     ],
     sourceReferences: [
