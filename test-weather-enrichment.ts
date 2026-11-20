@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { getCurrentWeatherSnapshot, getForecast } from './src/services/weatherService';
+import { getCurrentWeatherSnapshot, getForecast, attachWaterTemperatureWeatherContext } from './src/services/weatherService';
 
 async function run() {
   await db.delete();
@@ -37,6 +37,46 @@ async function run() {
     const snapshot = await getCurrentWeatherSnapshot(52, 5);
     if (snapshot.relativeHumidity !== 76 || snapshot.dewPoint !== 6 || snapshot.shortwaveRadiation !== 125) {
       throw new Error('Current weather snapshot must preserve optional heat-flux context.');
+    }
+
+    const measurementEvents = await attachWaterTemperatureWeatherContext([
+      {
+        id: 'weather-context-near',
+        locationId: 'measurement-location',
+        temperatureC: 12.5,
+        measuredAt: '2026-11-02T11:30:00.000Z',
+        recordedAt: '2026-11-02T11:31:00.000Z',
+        measurementSource: 'manual',
+        measurementMethod: 'thermometer',
+      },
+      {
+        id: 'weather-context-too-far',
+        locationId: 'measurement-location',
+        temperatureC: 12.6,
+        measuredAt: '2026-11-02T14:30:00.000Z',
+        recordedAt: '2026-11-02T14:31:00.000Z',
+        measurementSource: 'manual',
+        measurementMethod: 'probe',
+      },
+      {
+        id: 'weather-context-no-location',
+        temperatureC: 12.7,
+        measuredAt: '2026-11-02T11:30:00.000Z',
+        recordedAt: '2026-11-02T11:31:00.000Z',
+        measurementSource: 'manual',
+        measurementMethod: 'thermometer',
+      },
+    ], [{ id: 'measurement-location', latitude: 52, longitude: 5 }]);
+    const matchedContext = measurementEvents.find((item) => item.id === 'weather-context-near');
+    if (matchedContext?.weatherContext?.airTemperatureC !== 10 ||
+        matchedContext.weatherContext.windSpeedKmh !== 9 ||
+        matchedContext.weatherContext.offsetMinutes !== 30 ||
+        matchedContext.weatherContext.source !== 'gecached') {
+      throw new Error('A nearby hourly weather sample must be attached with its exact offset and cached provenance.');
+    }
+    if (measurementEvents.find((item) => item.id === 'weather-context-too-far')?.weatherContextStatus !== 'unavailable' ||
+        measurementEvents.find((item) => item.id === 'weather-context-no-location')?.weatherContextStatus !== 'unavailable') {
+      throw new Error('Weather context outside the one-hour window or without location must remain unknown, not fabricated.');
     }
     console.log('Weather enrichment tests passed.');
   } finally {

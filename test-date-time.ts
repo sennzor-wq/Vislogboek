@@ -1,4 +1,4 @@
-import { addCalendarDays, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, getAmsterdamTimeSlot, parseAppTimestamp, parseForecastTimestamp } from './src/utils/dateTime';
+import { addCalendarDays, formatAmsterdamDateTimeLocalInput, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, getAmsterdamTimeSlot, parseAppTimestamp, parseForecastTimestamp } from './src/utils/dateTime';
 
 // datetime-local follows the device timezone; the production audience uses Dutch local time.
 process.env.TZ = 'Europe/Amsterdam';
@@ -62,6 +62,8 @@ assert(formatDateTimeLocalInput('2026-11-07T20:56:00.000Z') === '2026-11-07T21:5
   'UTC session start timestamps are formatted as the correct Dutch local datetime-local value in winter');
 assert(formatDateTimeLocalInput('2026-07-07T19:56:00.000Z') === '2026-07-07T21:56',
   'UTC session start timestamps are formatted as the correct Dutch local datetime-local value in summer');
+assert(formatAmsterdamDateTimeLocalInput('2026-07-07T19:56:00.000Z') === '2026-07-07T21:56',
+  'Measurement datetime-local values always use Europe/Amsterdam independent of the device timezone');
 assert(getAmsterdamDateKey('2026-10-25T23:30:00.000Z') === '2026-10-26',
   'Autumn DST day boundary resolves to the correct local date');
 

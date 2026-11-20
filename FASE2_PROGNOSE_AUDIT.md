@@ -4393,3 +4393,42 @@ Regressietests controleren meerdere meetlagen op één stek, expliciete dieptese
 **Begrenzing:** de profielselectie is nu dieptebewust, maar als meerdere historische dieptelagen bestaan en het beoogde meetniveau niet bekend is, wordt bewust geen profiel gebruikt. Dat is betrouwbaarder dan een schijnnauwkeurige menging. De thermische tijdconstanten blijven afhankelijk van toekomstige echte lokale meetreeksen.
 
 **Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents bewaren met meettijdstip en beschikbare weerscontext, zonder dagelijkse meetplicht.**
+
+
+## 161. Uitvoering punt 4 — afzonderlijke sessiemetingen en weerscontext (20 november 2026)
+
+**Status: implementatie in PR #211; formele afvinking wacht op de exacte PR-head Quality Gate.** Dit onderdeel verbetert registratie en provenance. Het verandert geen score, thermische tijdconstanten, factorweging of verplichte gebruikersinvoer.
+
+### Datamodel en compatibiliteit
+
+Elke fysieke meting wordt als eigen WaterTemperatureMeasurement-record bewaard in FishingSession.waterTemperatureMeasurements[]. Een event bevat een eigen ID en stek-ID (zodat de oorspronkelijke stek behouden blijft als de sessie later wordt aangepast), watertemperatuur, fysiek meetmoment (measuredAt), afzonderlijk registratiemoment (recordedAt), bron en meetmethode, meetdiepte indien bekend, en optionele weerscontext met expliciete status wanneer die context niet beschikbaar is.
+
+De bestaande scalaire FishingSession.waterTemperature*-velden blijven als compatibiliteitssamenvatting bestaan en weerspiegelen de meest recente bruikbare meting. Bestaande sessies zonder event-array blijven leesbaar; bij openen wordt de oude scalaire meting als één legacy-event getoond. Een onbekend oud meetmoment blijft null en wordt niet uit sessiestart of invoermoment verzonnen.
+
+Er is bewust geen nieuwe IndexedDB-tabel of schema-migratie nodig: de meetevents zitten in het bestaande sessierecord en lopen daardoor mee in bestaande sessieopslag, transacties en JSON-back-ups. Back-upimport valideert event-ID's, temperatuur, tijdstempels, bron/methode, meetdiepte en weerscontext.
+
+### Gebruikersflow
+
+De sessie-editor toont een optionele lijst van metingen en een invoer om een volgende meting toe te voegen. Het meettijdstip wordt standaard gevuld met het actuele Europe/Amsterdam-tijdstip en blijft aanpasbaar. De gebruiker kan binnen één sessie meerdere metingen toevoegen of verwijderen. Methode en meetdiepte blijven optioneel. Er is geen dagelijkse meetplicht, geen automatische fictieve tussenmeting en geen verplicht extra formuliermoment.
+
+Een fysiek meettijdstip in de toekomst wordt geweigerd. Oude records zonder exact meetmoment blijven bewaard maar zijn niet geschikt voor tijdsafhankelijke kalibratie.
+
+### Weerscontext en provenance
+
+Bij opslaan probeert de app per stek de dichtstbijzijnde beschikbare uurlijkse weerwaarde te koppelen, uitsluitend wanneer deze maximaal 60 minuten van het fysieke meetmoment afligt. Vastgelegd worden onder meer luchttemperatuur, windsnelheid/-richting, bewolking, druk, neerslag en waar beschikbaar relatieve vochtigheid, dauwpunt en zonnestraling. Ook de bron, het exacte weeruur, het ophaalmoment en het tijdsverschil worden bewaard.
+
+Dit is context uit de Open-Meteo-uurreeks, geen directe lokale weerwaarneming. Ontbrekende data, geen coördinaten of een te grote tijdsafstand leiden tot weatherContextStatus: unavailable; er worden geen standaardwaarden of geschatte omstandigheden ingevuld. Oudere meetmomenten buiten de beschikbare recente uurreeks kunnen dus zonder weerscontext blijven.
+
+### Gebruik in de bestaande prognoseketen
+
+Alle afzonderlijke events worden aan de gedeelde historische watertemperatuur-observatielijst toegevoegd. Elke geldige meting kan zo afzonderlijk bijdragen aan het lokale seizoens-/diepteprofiel. Een sessie- en snapshotkopie van hetzelfde fysieke meetmoment blijven als herleidbare bronrecords beschikbaar; de profielberekening telt dezelfde meting slechts één keer. Events met onbekende bron/methode of zonder exact meetmoment blijven opgeslagen maar worden niet als gevalideerde profielmeting gebruikt.
+
+De meest recente bruikbare sessiemeting blijft beschikbaar als anker voor de bestaande waterThermalEngine. Bij een nieuwe sessie wordt ook het fysieke meettijdstip, los van het moment waarop de snapshot wordt opgeslagen, aan de thermische engine doorgegeven. De engine rekent vanaf dat meetanker door naar het prognosetijdstip; recordedAt wordt nooit als fysieke meettijd gebruikt. De immutable snapshot bewaart het meettijdstip, de methode, meetdiepte en beschikbare weerscontext.
+
+VisCoach herkent een gewijzigde meeteventreeks als nieuwe observatie-invoer. Back-up-roundtrip-, datum/tijd-, historische profiel- en weerscontexttests zijn toegevoegd.
+
+### Begrenzing en acceptatie
+
+De registratie en koppeling van beschikbare weerscontext zijn nog geen empirische validatie van de thermische tijdconstanten. De weerscontext is modeldata en mag niet als gemeten weer worden gepresenteerd. Een event met onbekende meetmethode blijft zichtbaar en bewaard, maar telt volgens de bestaande datakwaliteitsregel niet mee voor profielkalibratie.
+
+**Afvinkcriterium:** PR #211 moet op de definitieve PR-head volledig groen zijn, inclusief typecheck, alle regressietests, backup round-trip en productiebuild. Daarna controle op de mergecommit op main. Bij groen is punt 4 technisch afgerond; lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Daarna volgt punt 5, niet fase 3.

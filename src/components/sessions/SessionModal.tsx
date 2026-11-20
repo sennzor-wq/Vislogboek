@@ -8,11 +8,12 @@ import {
   CompassDirection,
   COMPASS_DIRECTIONS,
   SessionRod,
+  WaterTemperatureMeasurement,
 } from '../../types';
-import { getCurrentWeatherSnapshot, fetchHistoricalWeatherSnapshot } from '../../services/weatherService';
+import { getCurrentWeatherSnapshot, fetchHistoricalWeatherSnapshot, attachWaterTemperatureWeatherContext } from '../../services/weatherService';
 import { createLiveSnapshotForSessionStart, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { Calendar, Clock, MapPin, Sparkles, Thermometer, Wind, AlertCircle, History, Compass } from 'lucide-react';
-import { formatDateTimeLocalInput as formatDateTimeLocal } from '../../utils/dateTime';
+import { formatDateTimeLocalInput as formatDateTimeLocal, formatAmsterdamDateTimeLocalInput, parseAppTimestamp } from '../../utils/dateTime';
 
 interface SessionModalProps {
   session?: FishingSession | null;
@@ -74,11 +75,27 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   const [bitesCount, setBitesCount] = useState<number | undefined>(session?.bitesCount);
   const [missedCount, setMissedCount] = useState<number | undefined>(session?.missedCount);
   const [waterDepth, setWaterDepth] = useState<number | undefined>(session?.waterDepth);
-  const [waterTemperature, setWaterTemperature] = useState<number | undefined>(session?.waterTemperature ?? undefined);
-  const [waterTemperatureMeasuredAt, setWaterTemperatureMeasuredAt] = useState<string>(session?.waterTemperatureMeasuredAt ? formatDateTimeLocal(new Date(session.waterTemperatureMeasuredAt)) : '');
-  const [waterTemperatureMeasurementSource, setWaterTemperatureMeasurementSource] = useState<'manual' | 'imported' | 'unknown'>(session?.waterTemperatureMeasurementSource ?? 'manual');
-  const [waterTemperatureMeasurementMethod, setWaterTemperatureMeasurementMethod] = useState<'thermometer' | 'probe' | 'other' | 'unknown'>(session?.waterTemperatureMeasurementMethod ?? 'unknown');
-  const [waterTemperatureMeasurementDepthM, setWaterTemperatureMeasurementDepthM] = useState<number | undefined>(session?.waterTemperatureMeasurementDepthM);
+  const [waterTemperatureMeasurements, setWaterTemperatureMeasurements] = useState<WaterTemperatureMeasurement[]>(() => {
+    if (session?.waterTemperatureMeasurements?.length) return session.waterTemperatureMeasurements;
+    if (typeof session?.waterTemperature === 'number' && Number.isFinite(session.waterTemperature)) {
+      return [{
+        id: `legacy-water-temperature-${session.id}`,
+        locationId: session.locationId,
+        temperatureC: session.waterTemperature,
+        measuredAt: session.waterTemperatureMeasuredAt ?? null,
+        recordedAt: session.updatedAt || session.createdAt || new Date().toISOString(),
+        measurementSource: session.waterTemperatureMeasurementSource ?? 'unknown',
+        measurementMethod: session.waterTemperatureMeasurementMethod ?? 'unknown',
+        measurementDepthM: session.waterTemperatureMeasurementDepthM,
+      }];
+    }
+    return [];
+  });
+  const [measurementDraftTemperature, setMeasurementDraftTemperature] = useState('');
+  const [measurementDraftMeasuredAt, setMeasurementDraftMeasuredAt] = useState(formatAmsterdamDateTimeLocalInput(now));
+  const [measurementDraftMethod, setMeasurementDraftMethod] = useState<WaterTemperatureMeasurement['measurementMethod']>('unknown');
+  const [measurementDraftDepthM, setMeasurementDraftDepthM] = useState('');
+  const [measurementInputError, setMeasurementInputError] = useState<string | null>(null);
   const [notes, setNotes] = useState(session?.notes || '');
   const [fetchingWeather, setFetchingWeather] = useState(false);
   const [weatherSnapshot, setWeatherSnapshot] = useState(session?.weatherSnapshot);
@@ -152,6 +169,42 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     });
   };
 
+  const addWaterTemperatureMeasurement = () => {
+    const temperatureC = Number(measurementDraftTemperature.replace(',', '.'));
+    const measuredAt = parseAppTimestamp(measurementDraftMeasuredAt);
+    const measurementDepthM = measurementDraftDepthM.trim() === '' ? undefined : Number(measurementDraftDepthM);
+    if (!Number.isFinite(temperatureC) || temperatureC < 0 || temperatureC > 35) {
+      setMeasurementInputError('Vul een watertemperatuur tussen 0 en 35 °C in.'); return;
+    }
+    if (!measuredAt) { setMeasurementInputError('Controleer het meetdatum- en tijdstip.'); return; }
+    if (measuredAt.getTime() > Date.now() + 5 * 60 * 1000) {
+      setMeasurementInputError('Een fysieke meting kan niet in de toekomst liggen.'); return;
+    }
+    if (measurementDepthM !== undefined &&
+        (!Number.isFinite(measurementDepthM) || measurementDepthM < 0 || measurementDepthM > 100)) {
+      setMeasurementInputError('De meetdiepte moet tussen 0 en 100 meter liggen.'); return;
+    }
+    const recordedAt = new Date().toISOString();
+    setWaterTemperatureMeasurements((previous) => [...previous, {
+      id: `water-temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      locationId,
+      temperatureC: Math.round(temperatureC * 10) / 10,
+      measuredAt: measuredAt.toISOString(),
+      recordedAt,
+      measurementSource: 'manual' as const,
+      measurementMethod: measurementDraftMethod,
+      ...(measurementDepthM !== undefined ? { measurementDepthM } : {}),
+    }].sort((a, b) =>
+      (parseAppTimestamp(a.measuredAt ?? a.recordedAt)?.getTime() ?? 0) -
+      (parseAppTimestamp(b.measuredAt ?? b.recordedAt)?.getTime() ?? 0)
+    ));
+    setMeasurementDraftTemperature('');
+    setMeasurementDraftMeasuredAt(formatAmsterdamDateTimeLocalInput(new Date()));
+    setMeasurementDraftMethod('unknown');
+    setMeasurementDraftDepthM('');
+    setMeasurementInputError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
@@ -202,16 +255,28 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         bitesCount: bitesCount !== undefined ? Number(bitesCount) : undefined,
         missedCount: missedCount !== undefined ? Number(missedCount) : undefined,
         waterDepth: waterDepth !== undefined ? Number(waterDepth) : undefined,
-        waterTemperature: waterTemperature !== undefined ? Number(waterTemperature) : undefined,
-        waterTemperatureMeasuredAt: waterTemperature !== undefined && waterTemperatureMeasuredAt ? new Date(waterTemperatureMeasuredAt).toISOString() : undefined,
-        waterTemperatureMeasurementSource: waterTemperature !== undefined ? waterTemperatureMeasurementSource : undefined,
-        waterTemperatureMeasurementMethod: waterTemperature !== undefined ? waterTemperatureMeasurementMethod : undefined,
-        waterTemperatureMeasurementDepthM: waterTemperature !== undefined && waterTemperatureMeasurementDepthM !== undefined ? Number(waterTemperatureMeasurementDepthM) : undefined,
+        waterTemperatureMeasurements,
         notes,
         weatherSnapshot,
         presenceObservations: selectedPresenceObs,
         updatedAt: new Date().toISOString(),
       };
+
+      // Iedere fysieke meting blijft een apart event. Koppel alleen echte uurwaarden
+      // die maximaal één uur van het fysieke meetmoment afliggen.
+      const enrichedMeasurements = await attachWaterTemperatureWeatherContext(waterTemperatureMeasurements, locations);
+      payload.waterTemperatureMeasurements = enrichedMeasurements;
+      const latestUsableMeasurement = [...enrichedMeasurements]
+        .filter((item) => item.measuredAt && parseAppTimestamp(item.measuredAt) &&
+          item.measurementSource !== 'unknown' && item.measurementMethod !== 'unknown')
+        .sort((a, b) =>
+          (parseAppTimestamp(a.measuredAt!)?.getTime() ?? 0) - (parseAppTimestamp(b.measuredAt!)?.getTime() ?? 0)
+        ).slice(-1)[0];
+      payload.waterTemperature = latestUsableMeasurement?.temperatureC;
+      payload.waterTemperatureMeasuredAt = latestUsableMeasurement?.measuredAt ?? undefined;
+      payload.waterTemperatureMeasurementSource = latestUsableMeasurement?.measurementSource;
+      payload.waterTemperatureMeasurementMethod = latestUsableMeasurement?.measurementMethod;
+      payload.waterTemperatureMeasurementDepthM = latestUsableMeasurement?.measurementDepthM;
 
       if (isEditing && session?.id) {
         payload.id = session.id;
@@ -238,7 +303,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               snapshotDurationHours,
               technique,
               payload.weatherSnapshot,
-              payload.waterTemperature ?? null
+              latestUsableMeasurement?.measurementSource === 'manual' ? latestUsableMeasurement.temperatureC : null,
+              latestUsableMeasurement?.measurementSource === 'manual' ? latestUsableMeasurement : null
             ) ?? undefined;
           } catch (snapErr) {
             console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
@@ -662,65 +728,84 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             </p>
           </div>
 
-          {/* Gemeten watertemperatuur (optioneel) */}
-          <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-300" htmlFor="session-water-temperature">
-              Gemeten watertemperatuur (°C) — optioneel
-            </label>
-            <input
-              id="session-water-temperature"
-              type="number"
-              min={0}
-              max={35}
-              step="0.1"
-              inputMode="decimal"
-              placeholder="Bijv. 12,5"
-              value={waterTemperature ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                setWaterTemperature(value === '' ? undefined : Number(value));
-              }}
-              className="w-full sm:max-w-xs bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          {/* Afzonderlijke watertemperatuurmetingen — optioneel, geen dagelijkse meetplicht */}
+          <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-3">
+            <div>
+              <p className="text-xs font-semibold text-slate-200">Watertemperatuurmetingen (optioneel)</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Voeg alleen een meting toe wanneer je daadwerkelijk meet. Iedere meting blijft apart bewaard; meettijd en beschikbare weerscontext worden eraan gekoppeld.
+              </p>
+            </div>
+            {waterTemperatureMeasurements.length > 0 && (
+              <div className="space-y-2">
+                {waterTemperatureMeasurements.slice().sort((a, b) =>
+                  (parseAppTimestamp(b.measuredAt ?? b.recordedAt)?.getTime() ?? 0) -
+                  (parseAppTimestamp(a.measuredAt ?? a.recordedAt)?.getTime() ?? 0)
+                ).map((measurement) => (
+                  <div key={measurement.id} className="flex items-center justify-between gap-3 rounded-xl bg-slate-900/80 border border-slate-700 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white">{measurement.temperatureC.toFixed(1)} °C</p>
+                      <p className="text-[11px] text-slate-400">
+                        {measurement.measuredAt
+                          ? new Date(measurement.measuredAt).toLocaleString('nl-NL', { timeZone: 'Europe/Amsterdam', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                          : 'Meetmoment onbekend'}
+                        {typeof measurement.measurementDepthM === 'number' ? ` · ${measurement.measurementDepthM} m diep` : ''}
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        {measurement.weatherContext
+                          ? `Weercontext gekoppeld: ${measurement.weatherContext.airTemperatureC.toFixed(1)} °C lucht, wind ${measurement.weatherContext.windSpeedKmh.toFixed(0)} km/u`
+                          : measurement.weatherContextStatus === 'unavailable'
+                            ? 'Weercontext niet beschikbaar'
+                            : 'Weercontext wordt automatisch gecontroleerd bij opslaan'}
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => setWaterTemperatureMeasurements((previous) => previous.filter((item) => item.id !== measurement.id))}
+                      className="shrink-0 rounded-lg border border-rose-500/30 px-2.5 py-1.5 text-[10px] font-semibold text-rose-300 hover:bg-rose-500/10">
+                      Verwijderen
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <label className="block text-xs text-slate-300">
-                Meetdatum en -tijd
-                <input type="datetime-local" value={waterTemperatureMeasuredAt}
-                  onChange={(e) => setWaterTemperatureMeasuredAt(e.target.value)}
+                Watertemperatuur (°C)
+                <input type="text" inputMode="decimal" placeholder="Bijv. 12,5"
+                  value={measurementDraftTemperature}
+                  onChange={(e) => setMeasurementDraftTemperature(e.target.value)}
                   className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
               </label>
               <label className="block text-xs text-slate-300">
-                Meetmethode
-                <select value={waterTemperatureMeasurementMethod}
-                  onChange={(e) => setWaterTemperatureMeasurementMethod(e.target.value as typeof waterTemperatureMeasurementMethod)}
+                Meetdatum en -tijd
+                <input type="datetime-local" value={measurementDraftMeasuredAt}
+                  onChange={(e) => setMeasurementDraftMeasuredAt(e.target.value)}
+                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
+              </label>
+              <label className="block text-xs text-slate-300">
+                Meetmethode (optioneel)
+                <select value={measurementDraftMethod}
+                  onChange={(e) => setMeasurementDraftMethod(e.target.value as WaterTemperatureMeasurement['measurementMethod'])}
                   className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
                   <option value="unknown">Onbekend</option>
                   <option value="thermometer">Thermometer</option>
                   <option value="probe">Meetprobe / sonde</option>
                   <option value="other">Anders</option>
                 </select>
+                <p className="mt-1 text-[10px] text-slate-500">Onbekend blijft bewaard, maar telt niet mee voor profielkalibratie.</p>
               </label>
               <label className="block text-xs text-slate-300">
                 Meetdiepte in meter (optioneel)
-                <input type="number" min={0} max={100} step="0.1" value={waterTemperatureMeasurementDepthM ?? ''}
-                  onChange={(e) => setWaterTemperatureMeasurementDepthM(e.target.value === '' ? undefined : Number(e.target.value))}
+                <input type="number" min={0} max={100} step="0.1" value={measurementDraftDepthM}
+                  onChange={(e) => setMeasurementDraftDepthM(e.target.value)}
                   placeholder="Bijv. 0,5"
                   className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white" />
               </label>
-              <label className="block text-xs text-slate-300">
-                Herkomst
-                <select value={waterTemperatureMeasurementSource}
-                  onChange={(e) => setWaterTemperatureMeasurementSource(e.target.value as typeof waterTemperatureMeasurementSource)}
-                  className="mt-1 w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
-                  <option value="manual">Handmatig ingevoerd</option>
-                  <option value="imported">Geïmporteerd</option>
-                  <option value="unknown">Onbekend</option>
-                </select>
-              </label>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Het meettijdstip wordt niet meer afgeleid van de sessiestart. Alleen met een expliciet meettijdstip en bekende herkomst en methode kan deze meting worden gebruikt voor temperatuurvalidatie. Oude metingen blijven behouden, maar tellen zonder deze gegevens niet mee.
-            </p>
+            {measurementInputError && <p className="text-[11px] text-rose-300">{measurementInputError}</p>}
+            <button type="button" onClick={addWaterTemperatureMeasurement}
+              className="rounded-xl bg-emerald-600/90 hover:bg-emerald-500 px-3 py-2 text-xs font-semibold text-white">
+              + Meting toevoegen
+            </button>
           </div>
 
           {/* Aanbeten & Gemist */}

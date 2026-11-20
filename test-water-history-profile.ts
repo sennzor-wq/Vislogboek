@@ -88,6 +88,66 @@ const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMea
 assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
   'Een sessie- en snapshotkopie van dezelfde meting telt door tijdzone-normalisatie slechts eenmaal');
 
+const eventWeatherContext = {
+  source: 'open-meteo' as const,
+  weatherTimestamp: '2026-06-10T10:00:00.000Z',
+  retrievedAt: '2026-06-10T10:20:00.000Z',
+  offsetMinutes: 20,
+  airTemperatureC: 17,
+  windSpeedKmh: 4,
+  windDirectionDegrees: 180,
+  cloudCoverPercent: 25,
+  pressureHpa: 1016,
+  precipitationMm: 0,
+};
+const multiMeasurementSession = {
+  ...makeMeasuredSession('session-multiple-events', '2026-06-10T08:00:00Z', '2026-06-10T11:00:00Z', 12.6),
+  waterTemperatureMeasurements: [
+    {
+      id: 'event-1', locationId: target.id, temperatureC: 12.4,
+      measuredAt: '2026-06-10T10:00:00.000Z', recordedAt: '2026-06-10T10:01:00.000Z',
+      measurementSource: 'manual' as const, measurementMethod: 'thermometer' as const,
+      measurementDepthM: 0.4, weatherContext: eventWeatherContext, weatherContextStatus: 'matched' as const,
+    },
+    {
+      id: 'event-2', locationId: target.id, temperatureC: 12.6,
+      measuredAt: '2026-06-10T11:00:00.000Z', recordedAt: '2026-06-10T11:01:00.000Z',
+      measurementSource: 'manual' as const, measurementMethod: 'probe' as const,
+      measurementDepthM: 0.4,
+    },
+    {
+      id: 'event-3', locationId: target.id, temperatureC: 12.8,
+      measuredAt: '2026-06-10T12:00:00.000Z', recordedAt: '2026-06-10T12:01:00.000Z',
+      measurementSource: 'manual' as const, measurementMethod: 'probe' as const,
+      measurementDepthM: 0.4,
+    },
+    {
+      id: 'event-unknown-method', locationId: target.id, temperatureC: 12.8,
+      measuredAt: '2026-06-10T11:30:00.000Z', recordedAt: '2026-06-10T11:31:00.000Z',
+      measurementSource: 'manual' as const, measurementMethod: 'unknown' as const,
+    },
+  ],
+} as unknown as FishingSession;
+const eventDuplicateSnapshot = {
+  id: 'snapshot-event-1', locationId: target.id,
+  actualWaterTemperature: 12.4, actualWaterTemperatureTimestamp: '2026-06-10T10:00:00.000Z',
+  actualWaterTemperatureMeasurementSource: 'manual', actualWaterTemperatureMeasurementMethod: 'thermometer',
+  actualWaterTemperatureMeasurementDepthM: 0.4, createdAt: '2026-06-10T10:05:00.000Z',
+} as unknown as PrognosisSnapshot;
+const eventObservations = collectHistoricalWaterTemperatureObservations(
+  [multiMeasurementSession], [eventDuplicateSnapshot], [target],
+);
+assert(eventObservations.length === 4,
+  'Drie afzonderlijke fysieke meetevents plus de snapshotkopie blijven als herleidbare bronrecords beschikbaar');
+assert(eventObservations.some((item) => item.measurementId === 'event-1' &&
+  item.weatherContext?.airTemperatureC === 17 && item.measurementDepthM === 0.4),
+  'Een meetevent behoudt zijn eigen weerscontext en meetdiepte in de historische dataset');
+assert(!eventObservations.some((item) => item.measurementId === 'event-unknown-method'),
+  'Een meetevent met onbekende methode blijft bewaard maar wordt niet als gevalideerde kalibratiemeting gebruikt');
+const eventProfile = deriveHistoricalWaterTemperatureProfile(eventObservations, target, '2026-06-11');
+assert(eventProfile?.sampleCount === 3 && eventProfile.baselineC === 12.6,
+  'Meerdere meetevents binnen één sessie dragen afzonderlijk bij; een dubbele snapshotkopie telt in het profiel slechts eenmaal');
+
 const localHistory: HistoricalWaterTemperatureObservation[] = [
   { locationId: 'location-a', temperatureC: 14, timestamp: '2026-06-10T10:00:00Z' },
   { locationId: 'location-a', temperatureC: 15, timestamp: '2026-06-20T10:00:00Z' },

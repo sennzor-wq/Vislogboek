@@ -163,3 +163,12 @@ export function formatDateTimeLocalInput(value: Date | string): string {
   const pad = (part: number) => String(part).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+/** Formats an absolute instant as a datetime-local value in the app's fixed Europe/Amsterdam timezone. */
+export function formatAmsterdamDateTimeLocalInput(value: Date | string): string {
+  const date = parseValidDate(value);
+  if (!date) return '';
+  const [year, month, day, hour, minute] = getAmsterdamWallParts(date);
+  const pad = (part: number) => String(part).padStart(2, '0');
+  return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}`;
+}

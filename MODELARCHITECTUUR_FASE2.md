@@ -1184,3 +1184,16 @@ Punt 3 is geïmplementeerd in PR #207; PR-head- en mergecommit-Quality-Gates zij
 De selectie blijft de totale waterdiepte apart gebruiken voor de nabijgelegen-stekkenfallback. De gekozen verticale meetdiepte wordt als provenance in WaterThermalAnalysis opgenomen. Geen databasewijziging, verplicht invoerveld of UI-wijziging. Zie audit §160.
 
 Volgende stap: punt 4 — meerdere afzonderlijke fysieke meetmomenten per sessie met beschikbare weerscontext.
+
+
+## 136. Uitvoering punt 4 — sessiegebonden watertemperatuurmeetevents
+
+PR #211 implementeert WaterTemperatureMeasurement[] als geneste eventreeks op FishingSession. Elk fysiek meetmoment is een eigen record met eigen ID, oorspronkelijke locationId, temperatuur, measuredAt, afzonderlijk recordedAt, bron, methode, optionele meetdiepte en optionele WaterTemperatureWeatherContext. De scalaire sessievelden blijven uitsluitend compatibiliteitssamenvatting van de meest recente bruikbare meting. Legacy sessies worden niet herschreven; zonder event-array wordt de oude scalaire waarde als legacy-event getoond en onbekende meettijd blijft onbekend.
+
+De keuze voor een geneste reeks voorkomt een aparte IndexedDB-tabel en migratie en blijft binnen bestaande sessieopslag en back-uptransacties. De JSON-import valideert eventstructuur en numerieke/tijdstempelgrenzen. Historische observatieverzameling behoudt afzonderlijke events; de profielberekening dedupliceert een snapshotkopie van dezelfde fysieke meting. VisCoach triggert herbeoordeling wanneer de fysieke eventreeks verandert.
+
+De sessie-editor laat meerdere metingen per sessie toevoegen/verwijderen. Meetmoment start op actuele Europe/Amsterdam-tijd en is aanpasbaar; methode en meetdiepte zijn optioneel. Geen dagelijkse meetplicht of verplichte extra invoer. De beschikbare uurweerscontext wordt alleen gekoppeld bij een sample binnen 60 minuten; bron, uur, ophaaltijd en offset worden vastgelegd. Ontbrekende context blijft onbekend. Het betreft Open-Meteo-modelcontext, geen lokale directe weerwaarneming.
+
+De fysieke measuredAt wordt ook aan ManualWaterTemperatureInput en de waterthermische engine doorgegeven. Daarmee wordt vanaf het echte meetanker doorgerekend en niet vanaf het moment waarop het sessierecord of snapshot wordt opgeslagen. Events met onbekende methode/herkomst of zonder exact meetmoment blijven bewaard maar voldoen niet aan de bestaande profielkwaliteitsregel.
+
+Punt 4 geldt pas als afgerond na groene Quality Gate op de definitieve PR-head én de mergecommit. De technische registratie valideert nog niet de thermische tijdconstanten; daarvoor blijven echte lokale meetreeksen nodig. Zie audit §161.

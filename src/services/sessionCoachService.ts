@@ -111,7 +111,13 @@ export function getSessionUpdateTrigger(
     'waterTemperatureMeasurementMethod',
     'waterTemperatureMeasurementDepthM',
   ];
-  const measurementChanged = measurementFields.some((field) => previous[field] !== current[field]);
+  const normalizeWaterMeasurements = (items: FishingSession['waterTemperatureMeasurements']) =>
+    (items ?? []).map((item) => [
+      item.id, item.locationId ?? '', item.temperatureC, item.measuredAt ?? '',
+      item.measurementSource, item.measurementMethod, item.measurementDepthM ?? '',
+    ]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))).map((item) => JSON.stringify(item)).join('|');
+  const measurementChanged = measurementFields.some((field) => previous[field] !== current[field]) ||
+    normalizeWaterMeasurements(previous.waterTemperatureMeasurements) !== normalizeWaterMeasurements(current.waterTemperatureMeasurements);
 
   return observationChanged || measurementChanged ? 'observation_recorded' : 'session_changed';
 }

@@ -35,6 +35,29 @@ async function run() {
     startTime: '2026-11-02T10:00:00.000Z', endTime: '2026-11-02T12:00:00.000Z',
     durationMinutes: 120, outcome: 'catch', targetSpecies: ['Karper'], rodCount: 2, participantCount: 1,
     photoUrls: ['data:image/png;base64,c2Vzc2ll'],
+    waterTemperature: 12.6,
+    waterTemperatureMeasuredAt: '2026-11-02T11:15:00.000Z',
+    waterTemperatureMeasurementSource: 'manual',
+    waterTemperatureMeasurementMethod: 'probe',
+    waterTemperatureMeasurements: [
+      {
+        id: 'backup-water-temperature-1', locationId: location.id, temperatureC: 12.4,
+        measuredAt: '2026-11-02T10:45:00.000Z', recordedAt: '2026-11-02T10:46:00.000Z',
+        measurementSource: 'manual', measurementMethod: 'thermometer', measurementDepthM: 0.4,
+        weatherContext: {
+          source: 'open-meteo', weatherTimestamp: '2026-11-02T10:00:00.000Z',
+          retrievedAt: '2026-11-02T10:46:30.000Z', offsetMinutes: 45, airTemperatureC: 10.8,
+          windSpeedKmh: 7, windDirectionDegrees: 225, cloudCoverPercent: 60,
+          pressureHpa: 1017, precipitationMm: 0,
+        }, weatherContextStatus: 'matched',
+      },
+      {
+        id: 'backup-water-temperature-2', locationId: location.id, temperatureC: 12.6,
+        measuredAt: '2026-11-02T11:15:00.000Z', recordedAt: '2026-11-02T11:16:00.000Z',
+        measurementSource: 'manual', measurementMethod: 'probe', measurementDepthM: 0.5,
+        weatherContextStatus: 'unavailable',
+      },
+    ],
     createdAt: '2026-11-02T10:00:00.000Z', updatedAt: '2026-11-02T12:00:00.000Z',
   };
   const catchItem: CatchItem = {
@@ -122,6 +145,8 @@ async function run() {
   assert(same(backup.coachAdviceRecords, [advice]), 'Coachadvieshistorie wordt geëxporteerd');
   assert(backup.sessions.find(x => x.id === session.id)?.photoUrls?.[0] === session.photoUrls?.[0],
     'Sessiefoto-data blijft behouden in JSON-export');
+  assert(same(backup.sessions.find(x => x.id === session.id)?.waterTemperatureMeasurements, session.waterTemperatureMeasurements),
+    'Meerdere watertemperatuurmetingen en hun weerscontext blijven behouden in JSON-export');
   assert(backup.catches.find(x => x.id === catchItem.id)?.photoUrl === catchItem.photoUrl,
     'Vangstfoto-data blijft behouden in JSON-export');
 

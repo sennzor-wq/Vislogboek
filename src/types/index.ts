@@ -95,6 +95,35 @@ export interface WeatherSnapshot {
   capturedAt: string;             // ISO
 }
 
+export interface WaterTemperatureWeatherContext {
+  source: 'open-meteo' | 'gecached';
+  weatherTimestamp: string;
+  retrievedAt: string;
+  offsetMinutes: number;
+  airTemperatureC: number;
+  windSpeedKmh: number;
+  windDirectionDegrees: number;
+  cloudCoverPercent: number;
+  pressureHpa: number;
+  precipitationMm: number;
+  relativeHumidityPercent?: number;
+  dewPointC?: number;
+  shortwaveRadiationWm2?: number;
+}
+
+export interface WaterTemperatureMeasurement {
+  id: string;
+  locationId?: string;
+  temperatureC: number;
+  measuredAt: string | null;
+  recordedAt: string;
+  measurementSource: 'manual' | 'imported' | 'unknown';
+  measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown';
+  measurementDepthM?: number;
+  weatherContext?: WaterTemperatureWeatherContext | null;
+  weatherContextStatus?: 'matched' | 'unavailable';
+}
+
 export interface FishingLocation {
   waterFacingDirection?: CompassDirection;
   habitatFeatures?: string[];
@@ -168,6 +197,8 @@ export interface FishingSession {
   waterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
   waterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
   waterTemperatureMeasurementDepthM?: number;
+  /** Separate physical observations; legacy scalar fields above remain a latest-measurement summary. */
+  waterTemperatureMeasurements?: WaterTemperatureMeasurement[];
   baitDirection?: CompassDirection | null; // Richting van aasaanbieding (optioneel, nooit verplicht)
   notes?: string;
   weatherSnapshot?: WeatherSnapshot;
@@ -523,6 +554,7 @@ export interface ManualWaterTemperatureInput {
   measurementSource: 'manual';
   measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown' | null;
   measurementDepthM: number | null;
+  weatherContext?: WaterTemperatureWeatherContext;
 }
 
 export interface PrognosisInputContext {
@@ -591,6 +623,8 @@ export interface PrognosisInputContext {
     recordedAt?: string;
     recordId?: string;
     recordType?: 'session' | 'snapshot';
+    measurementId?: string;
+    weatherContext?: WaterTemperatureWeatherContext;
   }>;
   historyFingerprint?: string;
   historySummary: {

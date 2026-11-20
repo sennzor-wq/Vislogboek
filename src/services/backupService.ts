@@ -1,5 +1,6 @@
 import { db } from '../db/db';
 import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
+import { parseAppTimestamp } from '../utils/dateTime';
 
 export interface BackupData {
   version: number;
@@ -417,11 +418,54 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
       return `De back-up bevat een niet-toegestane fotoverwijzing bij vangst ${catchRecord.id}.`;
     }
   }
+  let totalWaterTemperatureMeasurements = 0;
   for (const sessionRecord of data.sessions as Array<FishingSession & { photoUrls?: unknown }>) {
     if (sessionRecord.photoUrls !== undefined) {
       if (!Array.isArray(sessionRecord.photoUrls) ||
           sessionRecord.photoUrls.some((photo) => !isSafeLocalPhoto(photo))) {
         return `De back-up bevat een niet-toegestane fotolijst bij sessie ${sessionRecord.id}.`;
+      }
+    }
+    const measurements = sessionRecord.waterTemperatureMeasurements;
+    if (measurements !== undefined) {
+      if (!Array.isArray(measurements) || measurements.length > 500) {
+        return `Sessie ${sessionRecord.id} bevat een ongeldige of te grote lijst watertemperatuurmetingen.`;
+      }
+      totalWaterTemperatureMeasurements += measurements.length;
+      if (totalWaterTemperatureMeasurements > 100_000) return 'De back-up bevat te veel watertemperatuurmetingen.';
+      const measurementIds = new Set<string>();
+      for (const measurement of measurements) {
+        if (!measurement || typeof measurement !== 'object' || Array.isArray(measurement) ||
+            typeof measurement.id !== 'string' || !measurement.id.trim() || measurement.id.length > 256 ||
+            measurementIds.has(measurement.id) ||
+            typeof measurement.temperatureC !== 'number' || !Number.isFinite(measurement.temperatureC) ||
+            measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+            (measurement.measuredAt !== null && (typeof measurement.measuredAt !== 'string' || !parseAppTimestamp(measurement.measuredAt))) ||
+            typeof measurement.recordedAt !== 'string' || !parseAppTimestamp(measurement.recordedAt) ||
+            !['manual', 'imported', 'unknown'].includes(measurement.measurementSource) ||
+            !['thermometer', 'probe', 'other', 'unknown'].includes(measurement.measurementMethod) ||
+            (measurement.locationId !== undefined && (typeof measurement.locationId !== 'string' || !measurement.locationId.trim())) ||
+            (measurement.measurementDepthM !== undefined &&
+              (typeof measurement.measurementDepthM !== 'number' || !Number.isFinite(measurement.measurementDepthM) ||
+                measurement.measurementDepthM < 0 || measurement.measurementDepthM > 100)) ||
+            (measurement.weatherContextStatus !== undefined && !['matched', 'unavailable'].includes(measurement.weatherContextStatus))) {
+          return `Sessie ${sessionRecord.id} bevat een ongeldige watertemperatuurmeting.`;
+        }
+        measurementIds.add(measurement.id);
+        if (measurement.weatherContext) {
+          const context = measurement.weatherContext;
+          if (!['open-meteo', 'gecached'].includes(context.source) ||
+              !parseAppTimestamp(context.weatherTimestamp) || !parseAppTimestamp(context.retrievedAt) ||
+              !Number.isFinite(context.offsetMinutes) || context.offsetMinutes < 0 || context.offsetMinutes > 60 ||
+              !Number.isFinite(context.airTemperatureC) || context.airTemperatureC < -50 || context.airTemperatureC > 60 ||
+              !Number.isFinite(context.windSpeedKmh) || context.windSpeedKmh < 0 || context.windSpeedKmh > 250 ||
+              !Number.isFinite(context.windDirectionDegrees) || context.windDirectionDegrees < 0 || context.windDirectionDegrees > 360 ||
+              !Number.isFinite(context.cloudCoverPercent) || context.cloudCoverPercent < 0 || context.cloudCoverPercent > 100 ||
+              !Number.isFinite(context.pressureHpa) || context.pressureHpa < 800 || context.pressureHpa > 1200 ||
+              !Number.isFinite(context.precipitationMm) || context.precipitationMm < 0 || context.precipitationMm > 500) {
+            return `Sessie ${sessionRecord.id} bevat ongeldige weerscontext bij een watertemperatuurmeting.`;
+          }
+        }
       }
     }
   }

@@ -15,6 +15,7 @@ import {
   WeatherSnapshot,
   PrognosisInputContext,
   ManualWaterTemperatureInput,
+  WaterTemperatureMeasurement,
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
@@ -42,18 +43,20 @@ import { APP_TIME_ZONE, addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, 
  */
 export function createManualWaterTemperatureInput(
   temperatureC: number | null | undefined,
-  recordedAt: string
+  recordedAt: string,
+  measurement?: WaterTemperatureMeasurement | null
 ): ManualWaterTemperatureInput | null {
   if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !parseAppTimestamp(recordedAt)) {
     return null;
   }
   return {
     temperatureC,
-    recordedAt,
-    measurementTimestamp: null,
+    recordedAt: measurement?.recordedAt ?? recordedAt,
+    measurementTimestamp: measurement?.measuredAt ?? null,
     measurementSource: 'manual',
-    measurementMethod: null,
-    measurementDepthM: null,
+    measurementMethod: measurement?.measurementMethod === 'unknown' ? null : measurement?.measurementMethod ?? null,
+    measurementDepthM: measurement?.measurementDepthM ?? null,
+    ...(measurement?.weatherContext ? { weatherContext: { ...measurement.weatherContext } } : {}),
   };
 }
 
@@ -653,6 +656,8 @@ export interface PrognosisOptions {
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  /** Exact physical timestamp of the supplied water-temperature reading, when known. */
+  userWaterTempMeasuredAt?: string | null;
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
@@ -719,6 +724,7 @@ export function calculateDayPrognosis(
   const thermalAnalysis = analyzeWaterThermalDevelopment(dateStr, forecasts, {
     location,
     userMeasuredWaterTemp: userWaterTemp,
+    userMeasuredWaterTempAt: options?.userWaterTempMeasuredAt,
     historicalSessions,
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
@@ -787,6 +793,7 @@ export function calculateDayPrognosis(
       slotThermalAnalysis = analyzeWaterThermalDevelopment(dateStr, forecasts, {
         location,
         userMeasuredWaterTemp: userWaterTemp,
+        userMeasuredWaterTempAt: options?.userWaterTempMeasuredAt,
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
@@ -1520,7 +1527,8 @@ export async function createLiveSnapshotForSessionStart(
   durationHours?: number,
   technique?: string,
   weatherSnap?: WeatherSnapshot,
-  userWaterTemp?: number | null
+  userWaterTemp?: number | null,
+  manualWaterTemperatureMeasurement?: WaterTemperatureMeasurement | null
 ): Promise<PendingPrognosisSnapshot | null> {
   try {
     const lat = location.latitude ?? 51.961;
@@ -1551,7 +1559,7 @@ export async function createLiveSnapshotForSessionStart(
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
-      manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp),
+      manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp, manualWaterTemperatureMeasurement),
       waterTemperatureCalibration,
       location: {
         id: location.id,
@@ -1593,6 +1601,7 @@ export async function createLiveSnapshotForSessionStart(
         location,
         catches: allCatches,
         historicalWaterTemperatures,
+        userWaterTempMeasuredAt: manualWaterTemperatureMeasurement?.measuredAt ?? null,
         waterTemperatureCalibration,
       }
     );

@@ -1,4 +1,4 @@
-import { FishingLocation, FishingSession, PrognosisSnapshot } from '../types';
+import { FishingLocation, FishingSession, PrognosisSnapshot, WaterTemperatureWeatherContext } from '../types';
 import { getAmsterdamMonth, parseAppTimestamp } from '../utils/dateTime';
 
 /**
@@ -22,6 +22,8 @@ export interface HistoricalWaterTemperatureObservation {
   recordedAt?: string;
   recordId?: string;
   recordType?: 'session' | 'snapshot';
+  measurementId?: string;
+  weatherContext?: WaterTemperatureWeatherContext;
 }
 
 /**
@@ -63,11 +65,44 @@ export function collectHistoricalWaterTemperatureObservations(
   }
 
   for (const session of sessions) {
-    if (session.isBenchmark === true || !session.locationId || typeof session.waterTemperature !== 'number' ||
+    if (session.isBenchmark === true || !session.locationId) continue;
+    const location = locationById.get(session.locationId);
+    const events = session.waterTemperatureMeasurements ?? [];
+    if (events.length > 0) {
+      for (const measurement of events) {
+        const measurementLocationId = measurement.locationId || session.locationId;
+        if (typeof measurement.temperatureC !== 'number' || !Number.isFinite(measurement.temperatureC) ||
+            measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+            !measurement.measuredAt || !parseAppTimestamp(measurement.measuredAt) ||
+            !measurement.measurementSource || measurement.measurementSource === 'unknown' ||
+            !measurement.measurementMethod || measurement.measurementMethod === 'unknown') continue;
+        const measurementLocation = locationById.get(measurementLocationId);
+        observations.push({
+          locationId: measurementLocationId,
+          temperatureC: measurement.temperatureC,
+          timestamp: measurement.measuredAt,
+          measurementSource: measurement.measurementSource,
+          measurementMethod: measurement.measurementMethod,
+          measurementDepthM: measurement.measurementDepthM,
+          recordedAt: measurement.recordedAt,
+          recordId: session.id,
+          measurementId: measurement.id,
+          recordType: 'session',
+          waterType: measurementLocation?.waterType,
+          waterDepth: measurementLocation?.waterDepth ?? session.waterDepth,
+          latitude: measurementLocation?.latitude,
+          longitude: measurementLocation?.longitude,
+          weatherContext: measurement.weatherContext ?? undefined,
+          isBenchmark: false,
+        });
+      }
+      continue;
+    }
+    // Backward compatibility: pre-event sessions still expose their one scalar measurement.
+    if (typeof session.waterTemperature !== 'number' ||
         !session.waterTemperatureMeasuredAt || !parseAppTimestamp(session.waterTemperatureMeasuredAt) ||
         !session.waterTemperatureMeasurementSource || session.waterTemperatureMeasurementSource === 'unknown' ||
         !session.waterTemperatureMeasurementMethod || session.waterTemperatureMeasurementMethod === 'unknown') continue;
-    const location = locationById.get(session.locationId);
     observations.push({
       locationId: session.locationId,
       temperatureC: session.waterTemperature,
@@ -75,7 +110,7 @@ export function collectHistoricalWaterTemperatureObservations(
       measurementSource: session.waterTemperatureMeasurementSource,
       measurementMethod: session.waterTemperatureMeasurementMethod,
       measurementDepthM: session.waterTemperatureMeasurementDepthM,
-      recordedAt: session.createdAt,
+      recordedAt: session.updatedAt || session.createdAt,
       recordId: session.id,
       recordType: 'session',
       waterType: location?.waterType,

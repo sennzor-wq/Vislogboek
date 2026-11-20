@@ -1,4 +1,4 @@
-import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry } from '../types';
+import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry, WaterTemperatureMeasurement } from '../types';
 import { db } from '../db/db';
 import { APP_TIME_ZONE, parseAppTimestamp, parseForecastTimestamp } from '../utils/dateTime';
 
@@ -468,4 +468,81 @@ export async function fetchHistoricalWeatherSnapshot(
       success: false,
     };
   }
+}
+
+
+/**
+ * Koppelt beschikbare uurlijkse weerscontext aan afzonderlijke fysieke
+ * watertemperatuurmetingen. Er worden nooit ontbrekende waarden ingevuld.
+ * De dichtstbijzijnde uurwaarde moet maximaal 60 minuten van het meetmoment liggen.
+ */
+export async function attachWaterTemperatureWeatherContext(
+  measurements: WaterTemperatureMeasurement[],
+  locations: Array<{ id: string; latitude?: number; longitude?: number }>
+): Promise<WaterTemperatureMeasurement[]> {
+  const pending = measurements.filter((item) =>
+    !item.weatherContext && item.weatherContextStatus !== 'unavailable' &&
+    typeof item.measuredAt === 'string' && Boolean(parseAppTimestamp(item.measuredAt))
+  );
+  if (pending.length === 0) return measurements;
+  const locationById = new Map(locations.map((location) => [location.id, location]));
+  const locationIds = [...new Set(pending.map((item) => item.locationId).filter((id): id is string => Boolean(id)))];
+  const contextByLocation = new Map<string, Map<string, WaterTemperatureMeasurement['weatherContext']>>();
+  await Promise.all(locationIds.map(async (locationId) => {
+    const location = locationById.get(locationId);
+    if (!location || typeof location.latitude !== 'number' || !Number.isFinite(location.latitude) ||
+        typeof location.longitude !== 'number' || !Number.isFinite(location.longitude)) {
+      contextByLocation.set(locationId, new Map());
+      return;
+    }
+    try {
+      const forecast = await getForecast(location.latitude, location.longitude, false);
+      const samples = forecast.hourly
+        .map((sample) => ({ sample, timestamp: parseAppTimestamp(sample.time)?.getTime() ?? Number.NaN }))
+        .filter((item) => Number.isFinite(item.timestamp));
+      const matched = new Map<string, WaterTemperatureMeasurement['weatherContext']>();
+      for (const item of pending.filter((measurement) => measurement.locationId === locationId)) {
+        const targetMs = parseAppTimestamp(item.measuredAt!)?.getTime() ?? Number.NaN;
+        let closest: typeof samples[number] | null = null;
+        let minimumDifference = Infinity;
+        for (const candidate of samples) {
+          const difference = Math.abs(candidate.timestamp - targetMs);
+          if (difference < minimumDifference) { minimumDifference = difference; closest = candidate; }
+        }
+        if (!closest || minimumDifference > 60 * 60 * 1000 ||
+            (forecast.source !== 'open-meteo' && forecast.source !== 'gecached') ||
+            !parseAppTimestamp(forecast.fetchedAt)) {
+          matched.set(item.id, null);
+          continue;
+        }
+        const sample = closest.sample;
+        matched.set(item.id, {
+          source: forecast.source,
+          weatherTimestamp: sample.time,
+          retrievedAt: forecast.fetchedAt,
+          offsetMinutes: Math.round(minimumDifference / 60000),
+          airTemperatureC: sample.temperature,
+          windSpeedKmh: sample.windSpeed,
+          windDirectionDegrees: sample.windDirection,
+          cloudCoverPercent: sample.cloudCover,
+          pressureHpa: sample.pressure,
+          precipitationMm: sample.precipitation,
+          ...(typeof sample.relativeHumidity === 'number' ? { relativeHumidityPercent: sample.relativeHumidity } : {}),
+          ...(typeof sample.dewPoint === 'number' ? { dewPointC: sample.dewPoint } : {}),
+          ...(typeof sample.shortwaveRadiation === 'number' ? { shortwaveRadiationWm2: sample.shortwaveRadiation } : {}),
+        });
+      }
+      contextByLocation.set(locationId, matched);
+    } catch (error) {
+      console.warn('Weercontext voor watertemperatuurmeting niet beschikbaar:', error);
+      contextByLocation.set(locationId, new Map());
+    }
+  }));
+  return measurements.map((item) => {
+    if (item.weatherContext || item.weatherContextStatus === 'unavailable') return item;
+    if (!item.locationId || !item.measuredAt) return { ...item, weatherContextStatus: 'unavailable' };
+    const context = contextByLocation.get(item.locationId)?.get(item.id) ?? null;
+    return context ? { ...item, weatherContext: context, weatherContextStatus: 'matched' }
+      : { ...item, weatherContextStatus: 'unavailable' };
+  });
 }
