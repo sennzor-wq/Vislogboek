@@ -1945,3 +1945,8 @@ De geïntegreerde score met directe voedingsbijdrage en een gevalideerde tijdvak
 ### Fase 2 — primaire methodecontrole meerval 2025 (20 november 2026)
 
 Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie meet maagvulling en dieet bij 200 meervallen in één Anatolisch stuwmeer. Het hoogste seizoens-FI viel in de winter (0,827), maar de wintersteekproef omvat slechts zeven vissen; seizoens- en leeftijdsgroepen zijn sterk ongelijk. Er is geen directe temperatuurcurve, individuele voedselopname of dagdeelrespons. Bron blijft limited/moderate context en approvedForPrediction=false; geen winterbonus of runtimewijziging. Zie audit §144.
+
+
+### Fase 2 — snoekbron 2025: primaire statistische controle (20 november 2026)
+
+Yazıcıoğlu et al. (2025) is op de volledige primaire PDF gecontroleerd. De maandelijkse oppervlaktetemperatuur-FI-correlatie is zwak en niet significant (r_s=0,117; p>0,05). De FI-waarden variëren numeriek per seizoen, maar het abstract bevat een intern p-waardeconflict (niet-significant genoemd met p<0,05); de resultaten geven geen eenduidige aparte FI-teststatistiek. De bron blijft limited en approvedForPrediction=false; geen thermische of seizoensbonus. Zie audit §145.

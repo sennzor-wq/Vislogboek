@@ -929,11 +929,14 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     species: ['Snoek'],
     application: 'biology',
     evidenceStrength: 'limited',
-    summary: 'Maandelijkse maaginhoudanalyse van 133 snoeken uit een diep Anatolisch stuwmeer vond een overwegend visetend dieet, vooral zeelt en Atherina. De gemiddelde maagvullingsindex was numeriek hoger in de zomer en lager in de winter, maar de seizoensverschillen waren niet statistisch significant; de gemeten temperatuurcorrelatie was eveneens niet significant.',
+    summary: 'Maandelijkse maaginhoudanalyse van 133 snoeken in één diep Anatolisch stuwmeer vond een overwegend visetend dieet. De maagvullingsindex (FI) was numeriek hoger in zomer/herfst dan winter/voorjaar. De maandelijkse oppervlaktetemperatuur correleerde slechts zwak en niet significant met FI (r_s=0,117; p>0,05). Het artikel bevat een intern conflict over de significantie van seizoensverschillen in FI: het abstract noemt niet-significantie met p<0,05, terwijl de resultaten geen eenduidige aparte FI-teststatistiek geven.',
     limitations: [
       'De studie betreft één diep stuwmeer in Centraal-Anatolië en een specifieke prooivisgemeenschap; dit verschilt van veel Nederlandse wateren.',
-      'De seizoensverschillen in maagvulling waren niet statistisch significant en mogen niet als bewezen seizoensbonus worden geïnterpreteerd.',
-      'Maaginhoud is een momentopname van voedselopname, geen directe maat voor jachtactiviteit of hengelvangbaarheid.'
+      'De abstracttekst is statistisch tegenstrijdig over de seizoens-FI (niet significant genoemd met p<0,05); de resultaten rapporteren geen eenduidige aparte FI-teststatistiek. Seizoensverschillen blijven daarom numerieke observaties met onduidelijke inferentiële status.',
+      'De FI-temperatuurcorrelatie is zeer zwak (Spearman r_s=0,117) en niet significant (p>0,05); geen thermische voedingscurve afleiden.',
+      'Temperatuur betreft maandelijkse metingen aan het oppervlak; geen diepteprofiel of individuele temperatuur op vangstmoment.',
+      'Gillnetten werden bij schemering uitgezet en minimaal twaalf uur later tussen 08:00 en 09:00 opgehaald; maaginhoud levert geen exact individueel voedingsmoment of diel-tijdvaklabel.',
+      'Maaginhoud is een momentopname/proxy voor recente voedselopname, geen directe maat voor jachtactiviteit of hengelvangbaarheid.'
     ],
     sourceReferences: [
       'Yazıcıoğlu, O., Yazıcı, R., Yağcı, A. & Yılmaz, M. (2025). Diet and feeding strategy of northern pike (Esox lucius L., 1758) inhabiting a deep dam lake in Central Anatolia, Türkiye. Folia Biologica (Kraków), 73, 92–103. https://doi.org/10.3409/fb_73-3.10'

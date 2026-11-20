@@ -961,3 +961,8 @@ De resterende blockers zijn de geïntegreerde biologische dagscore, overdraagbar
 ### Fase 2 — meervalbron 2025 methodologisch aangescherpt (20 november 2026)
 
 Yazici et al. (2025) is op de volledige primaire tekst gecontroleerd. De studie gebruikt maandelijkse maagvullingsindices bij 200 meervallen. Het winter-FI maximum (0,827) berust op slechts n=7; de andere seizoensgroepen tellen 49, 98 en 46 vissen. Leeftijdsgroepen zijn eveneens ongelijk. Er is geen directe individuele opname, watertemperatuurcurve of diel-label. Registry blijft niet-goedgekeurd; geen winterbonus of runtimefactor. Zie audit §144.
+
+
+### Fase 2 — snoekbron 2025 statistische rapportage aangescherpt (20 november 2026)
+
+De volledige primaire PDF van Yazıcıoğlu et al. (2025) is gecontroleerd. De FI-seizoenswaarden zijn numeriek, maar de abstracttekst is intern tegenstrijdig over significantie (p<0,05 terwijl de tekst “niet significant” zegt); de resultaten rapporteren geen eenduidige aparte FI-teststatistiek. De temperatuurcorrelatie is expliciet zwak en niet significant (r_s=0,117; p>0,05). Geen thermische curve of seizoensbonus. Zie audit §145.

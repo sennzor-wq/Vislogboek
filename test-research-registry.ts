@@ -196,6 +196,21 @@ const pikeFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-
 if (!pikeFeeding?.summary.includes('niet statistisch significant')) {
   throw new Error('The pike evidence must preserve the non-significant seasonal/temperature result.');
 }
+const pikeFieldSeasonal = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-field-seasonal-feeding-diet-2025');
+if (
+  !pikeFieldSeasonal ||
+  !pikeFieldSeasonal.species.includes('Snoek') ||
+  !pikeFieldSeasonal.measuredOutcomes?.includes('feeding_intensity') ||
+  pikeFieldSeasonal.approvedForPrediction ||
+  !pikeFieldSeasonal.summary.includes('r_s=0,117') ||
+  !pikeFieldSeasonal.summary.includes('intern conflict') ||
+  !pikeFieldSeasonal.limitations.some((item) => item.includes('p<0,05')) ||
+  !pikeFieldSeasonal.limitations.some((item) => item.includes('geen thermische voedingscurve')) ||
+  !pikeFieldSeasonal.limitations.some((item) => item.includes('geen exact individueel voedingsmoment')) ||
+  !pikeFieldSeasonal.sourceReferences.some((source) => source.includes('10.3409/fb_73-3.10'))
+) {
+  throw new Error('Pike 2025 field-feeding evidence must preserve the abstract/results conflict and non-significant temperature correlation.');
+}
 const pikeFunctionalResponse = RESEARCH_REGISTRY.find((item) => item.id === 'northern-pike-functional-response-temperature-browning-2026');
 if (
   !pikeFunctionalResponse ||

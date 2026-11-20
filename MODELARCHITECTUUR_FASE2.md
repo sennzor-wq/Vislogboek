@@ -1028,3 +1028,10 @@ De formele blockers zijn nu concreet gescheiden: (1) geïntegreerde dagscore met
 Audit §144 controleert de volledige primaire tekst van Yazici et al. (2025). De studie omvat 200 meervallen uit één Anatolisch stuwmeer, met maandelijkse bemonstering en maagvullings-/vacuïteitsindices. Het wintergemiddelde FI was het hoogst (0,827), maar de wintergroep telde slechts n=7 tegenover voorjaar n=49, zomer n=98 en herfst n=46. Leeftijdsgroepen waren eveneens ongelijk (n=3–81).
 
 De studie ondersteunt beperkte veldcontext voor maagvulling en dieet, niet individuele dagelijkse opname, een temperatuurcurve of een diel-tijdvakrespons. Er is geen gerapporteerde watertemperatuurreeks per vangst; temperatuur wordt in de discussie als mogelijke verklaring genoemd, niet als gecontroleerde of onafhankelijk geanalyseerde respons. Geen winterbonus of numerieke runtimebijdrage; registrystatus blijft approvedForPrediction=false.
+
+
+## 119. Snoek: veldmaagvulling 2025 en statistische brononzekerheid
+
+Audit §145 controleert Yazıcıoğlu et al. (2025) op de volledige primaire PDF. De FI-waarden zijn numeriek hoger in zomer/herfst en lager in winter/voorjaar, maar de abstracttekst is statistisch tegenstrijdig: zij noemt de FI-seizoensverschillen niet significant en vermeldt tegelijk K-W p<0,05. De resultaten rapporteren p>0,05 expliciet voor VI, maar geven geen eenduidige aparte FI-teststatistiek. De registry houdt deze onzekerheid expliciet open.
+
+De gemeten maandelijkse oppervlaktetemperatuur correleerde slechts zwak met FI (r_s=0,117; p>0,05). Gillnetten stonden minimaal twaalf uur van schemering tot de volgende ochtend; geen individuele voedingsmomenten. Geen thermische curve of diel-tijdvakbonus afleiden; bron blijft limited en non-approved.
