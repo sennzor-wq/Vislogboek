@@ -1078,6 +1078,48 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'common-carp-in-situ-daily-consumption-gastric-evacuation-1985',
+    topic: 'veldgeschatte-dagelijkse-voedselopname-en-temperatuur',
+    measuredOutcomes: ['feeding_intensity'],
+    species: ['Karper'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Veldonderzoek schatte de dagelijkse voedselconsumptie van karper met tussenpozen van vier weken van april tot oktober 1979 via voedselopname en darm-/maaglediging. De geschatte dagelijkse consumptie liep uiteen van 3,87 mg g−1 visnatgewicht per dag (0,39% lichaamsgewicht) bij 14 °C in april tot 40,75 mg g−1 (4,08%) bij 26,5 °C in augustus. De ledigingssnelheid nam exponentieel toe met temperatuur. Een ogenschijnlijk ochtend-/avondverschil in voedselopname was niet statistisch significant.',
+    limitations: [
+      'De dagelijkse voedselconsumptie is een veldschatting op basis van gastro-intestinale lediging en geen rechtstreeks gewogen opname van ieder individueel voedselmoment.',
+      'De publiek toegankelijke samenvatting specificeert geen volledige steekproefomvang, lichaamsgrootteverdeling, exact waterlichaam of volledige modeldiagnostiek; deze details moeten uit de volledige methode worden geverifieerd.',
+      'De waarnemingen komen uit één veldonderzoek en één groeiseizoen (april–oktober 1979); populatie, voedseltype en seizoen begrenzen overdraagbaarheid naar Nederlandse wateren.',
+      'De gemelde ochtend-/avondverschillen waren niet statistisch significant en ondersteunen geen tijdvakbonus.',
+      'De geschatte voedselopnamecurve is niet gelijk aan de huidige thermische profielcurve en valideert de bestaande optimum-/breedteparameters niet.'
+    ],
+    sourceReferences: [
+      'Garcia, L.M. & Adelman, I.R. (1985). An in situ estimate of daily food consumption and alimentary canal evacuation rates of common carp, Cyprinus carpio L. Journal of Fish Biology, 27(4), 487–493. https://doi.org/10.1111/j.1095-8649.1985.tb03196.x'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
+    id: 'cyprinid-in-situ-daily-ration-lake-balaton-2002',
+    topic: 'soortspecifieke-veldschatting-dagelijkse-voedselopname',
+    measuredOutcomes: ['feeding_intensity'],
+    species: ['Karper', 'Brasem', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Een in-situ onderzoek in het ondiepe Balatonmeer schatte dagelijkse rantsoenen voor karper, brasem en blankvoorn (naast zilverbrasem en giebel) met de Eggers- en Elliott–Persson-modellen. De geschatte rantsoenen varieerden bij watertemperaturen van 8,7–25,8 °C; dagelijkse rantsoenen namen exponentieel toe met temperatuur voor karper en blankvoorn. Voor brasem was een significante relatie alleen aanwezig nadat één rantsoenwaarneming buiten beschouwing werd gelaten.',
+    limitations: [
+      'Dagelijkse voedselopname is afgeleid uit maag-/darminhoud met modellen voor lediging en rantsoen; het betreft geen rechtstreeks gemeten individuele voedselinname of lokale Nederlandse respons.',
+      'De studie betreft één groot, ondiep Hongaars meer (Balaton) en een beperkte historische periode; voedselweb, watertype, seizoen en populatie begrenzen overdraagbaarheid.',
+      'Voor brasem was de temperatuurrelatie afhankelijk van het weglaten van één rantsoenwaarneming; deze relatie mag niet als robuuste numerieke curve worden gebruikt.',
+      'De volledige primaire methoden, steekproefomvang per soort/temperatuur en onderliggende waarnemingen zijn nog niet gecontroleerd; de twee rantsoenmodellen zijn geen onafhankelijke biologische replicaties.',
+      'De uitkomst is dagelijkse voedingsintensiteit, geen fysiologische activiteit, tijdvakvoorkeur, habitatgebruik of hengelvangbaarheid.'
+    ],
+    sourceReferences: [
+      'Specziár, A. (2002). An in situ estimate of food consumption of five cyprinid species in Lake Balaton. Journal of Fish Biology, 60(5), 1237–1251. https://doi.org/10.1111/j.1095-8649.2002.tb01717.x'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'pike-juvenile-feeding-rhythm-first-year-1998', topic: 'levensfasegebonden-dagritme-en-voedselopname', measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'], species: ['Snoek'], application: 'biology', evidenceStrength: 'limited',
     summary: 'Onderzoek naar jonge snoek in het eerste levensjaar beschreef dagactieve jacht in de planktivore, insectivore en piscivore ontwikkelingsstadia. In de planktivore fase was het voedingsritme duidelijk bifasisch. Het patroon is expliciet levensfase- en dieetstadiumgebonden.',
     limitations: ['De studie betreft uitsluitend jonge snoek jonger dan één jaar; dit patroon mag niet als volwassen snoekprofiel worden toegepast.','De voedingsfasen hangen samen met de overgang van plankton naar insecten en vis; de app vraagt niet standaard om levensfase of dieetstadium.','De studie levert geen gevalideerde numerieke tijdvakgewichten voor Nederlandse hengelwateren.'],

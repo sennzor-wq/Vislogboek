@@ -911,3 +911,10 @@ Een nieuwe open publicatie-/datasetcombinatie is gecontroleerd en toegevoegd aan
 De bron is geclassificeerd als directe `feeding_intensity`, bewijssterkte limited en niet-goedgekeurd voor voorspelling. De jonge levensfase, laboratoriumsetting, kleine Zuid-Zweedse populatie en prooidichtheidsafhankelijkheid verhinderen overdracht naar volwassen snoek in Nederlandse wateren. De volwassen snoeken in de studie leverden uitsluitend lichaamstemperatuurdata, geen voedingslabels. Het Snoek-profiel verwijst nu ook naar deze bron en de registrytest bewaakt de scope en niet-goedkeurde status.
 
 Registry: 87 records, 0 goedgekeurd. Geen score-, parameter-, gewicht- of runtimewijziging.
+
+
+### Fase 2 — aanvullende veldrantsoenbronnen voor karper, brasem en blankvoorn getrieerd (20 november 2026)
+
+Twee oudere veldstudies zijn toegevoegd als beperkte, niet-goedgekeurde voedingsintensiteitsbronnen: Garcia & Adelman (1985) voor karper en Specziár (2002) voor karper, brasem en blankvoorn. Beide schatten dagelijkse rantsoenen via maag-/darminhoud en ledigingsmodellen. Garcia rapporteert geen statistisch significant ochtend-/avondverschil; Specziár rapporteert temperatuurrelaties voor karper/blankvoorn, terwijl de brasemrelatie gevoelig is voor één uitgesloten waarneming.
+
+De methoden en steekproefcontext zijn nog niet volledig geverifieerd. De bronnen zijn geen lokale onafhankelijke labels en valideren geen bestaande thermische profielcurve. Registry: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor, gewicht of tijdvakbonus geactiveerd.

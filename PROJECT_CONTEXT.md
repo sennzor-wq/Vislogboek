@@ -1897,3 +1897,10 @@ Het hervattingspunt is nu: expliciete eigenaarbesluiten over de beperkte optie-A
 Nilsson-Örtman et al. (2026) en de open Dryad-data zijn toegevoegd aan de research registry als directe maar beperkte `feeding_intensity`-bron voor Snoek. De studie bevat 192 temperatuur-/zichtproeven bij 5, 9 en 13 °C plus 80 aanvullende verbruiningproeven. De voedingssnelheid reageerde opvallend zwak op temperatuur en zichtconditie; de enige duidelijke koepelvormige respons trad op bij 5 °C in helder water.
 
 De bron betreft jonge 0+-snoek in laboratoriumarena's en is niet overdraagbaar als volwassen Nederlandse veldcurve. Volwassen snoeken in dezelfde publicatie leverden alleen lichaamstemperatuurdata, geen voedingslabels. Registry: 87 records, 0 numeriek goedgekeurd. De bron blijft `approvedForPrediction: false`; geen runtimefactor, parameter, gewicht of tijdvakbonus geactiveerd. Zie audit §135 en architectuur §108.
+
+
+### Fase 2 — aanvullende modelgeschatte veldrantsoenen geregistreerd (20 november 2026)
+
+Garcia & Adelman (1985) (karper) en Specziár (2002) (karper, brasem, blankvoorn) zijn toegevoegd aan de research registry als beperkte `feeding_intensity`-kandidaatbronnen. Beide schatten dagelijkse rantsoenen uit maag-/darminhoud en ledigingsmodellen. Garcia vond geen statistisch significant ochtend-/avondverschil; de brasemtemperatuurrelatie bij Specziár was gevoelig voor één uitgesloten waarneming.
+
+De bronnen blijven `approvedForPrediction: false`; primaire methoden en steekproefcontext moeten verder worden gecontroleerd. Registry: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor of gewicht geactiveerd. Zie audit §136 en architectuur §109.

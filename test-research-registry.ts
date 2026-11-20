@@ -64,6 +64,16 @@ console.log('Species biology evidence tests passed.');
 if (!SPECIES_PROFILES.Karper.scientificReferences.some((source) => source.includes('10.1016/S1006-8104(12)60039-7'))) {
   throw new Error('The carp profile must link its species-specific feeding-rhythm study.');
 }
+for (const [species, doi] of [
+  ['Karper', '10.1111/j.1095-8649.1985.tb03196.x'],
+  ['Karper', '10.1111/j.1095-8649.2002.tb01717.x'],
+  ['Brasem', '10.1111/j.1095-8649.2002.tb01717.x'],
+  ['Voorn', '10.1111/j.1095-8649.2002.tb01717.x'],
+] as const) {
+  if (!SPECIES_PROFILES[species].scientificReferences.some((source) => source.includes(doi))) {
+    throw new Error(`The ${species} profile must link field-ration evidence ${doi}.`);
+  }
+}
 if (!SPECIES_PROFILES.Brasem.scientificReferences.some((source) => source.includes('10.1111/jfb.15745'))) {
   throw new Error('The bream profile must link the Dutch lake growth study with its scope limitation.');
 }
@@ -131,6 +141,31 @@ if (
 const catfishFeeding = RESEARCH_REGISTRY.find((item) => item.id === 'wels-catfish-seasonal-diet-feeding-2025');
 if (!catfishFeeding?.sourceReferences.some((source) => source.includes('Aquaculture Nutrition'))) {
   throw new Error('The catfish feeding study must retain its verified journal metadata.');
+}
+
+const carpFieldRation = RESEARCH_REGISTRY.find((item) => item.id === 'common-carp-in-situ-daily-consumption-gastric-evacuation-1985');
+const cyprinidFieldRation = RESEARCH_REGISTRY.find((item) => item.id === 'cyprinid-in-situ-daily-ration-lake-balaton-2002');
+if (
+  !carpFieldRation ||
+  !carpFieldRation.species.includes('Karper') ||
+  !carpFieldRation.measuredOutcomes?.includes('feeding_intensity') ||
+  carpFieldRation.approvedForPrediction ||
+  !carpFieldRation.summary.includes('niet statistisch significant') ||
+  !carpFieldRation.limitations.some((item) => item.includes('lediging')) ||
+  !carpFieldRation.sourceReferences.some((source) => source.includes('10.1111/j.1095-8649.1985.tb03196.x'))
+) {
+  throw new Error('The 1985 carp field-ration estimate must remain scoped, method-qualified and non-approved.');
+}
+if (
+  !cyprinidFieldRation ||
+  !['Karper', 'Brasem', 'Voorn'].every((species) => cyprinidFieldRation.species.includes(species as any)) ||
+  !cyprinidFieldRation.measuredOutcomes?.includes('feeding_intensity') ||
+  cyprinidFieldRation.approvedForPrediction ||
+  !cyprinidFieldRation.summary.includes('één rantsoenwaarneming') ||
+  !cyprinidFieldRation.limitations.some((item) => item.includes('brasem')) ||
+  !cyprinidFieldRation.sourceReferences.some((source) => source.includes('10.1111/j.1095-8649.2002.tb01717.x'))
+) {
+  throw new Error('The Lake Balaton cyprinid ration estimates must retain their species scope, model limits and non-approved status.');
 }
 console.log('Direct feeding evidence coverage and non-activation tests passed.');
 const profileFeedingSourceChecks: Record<string, string> = {
