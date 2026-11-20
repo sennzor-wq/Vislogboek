@@ -1890,3 +1890,10 @@ De actuele 1–10-score wordt uitsluitend door de voorlopige thermische prior be
 **Reviewuitkomst:** kandidaatarchitectuur inhoudelijk beoordeeld, kandidaatmodel niet numeriek toegelaten. Optie A blijft een transparante voorlopige uitzondering, geen wetenschappelijke validatie. Geen runtime-, score-, parameter-, gewicht-, interactie- of gebruikersflowwijziging. Fase 2 blijft open en niet geaccepteerd; Fase 3 blijft geblokkeerd.
 
 Het hervattingspunt is nu: expliciete eigenaarbesluiten over de beperkte optie-A-uitzondering, voorvoergrammen bij lage invoerkwaliteit en vrije tekst versus optionele hengel-/methodepreset; daarnaast gericht zoeken naar bruikbare onafhankelijke directe biologische datasets. Daarna pas responsankers en chronologische baselinevergelijking. Geen extra verplichte invoer.
+
+
+### Fase 2 — nieuwe directe 0+-snoekvoedingsbron beoordeeld (20 november 2026)
+
+Nilsson-Örtman et al. (2026) en de open Dryad-data zijn toegevoegd aan de research registry als directe maar beperkte `feeding_intensity`-bron voor Snoek. De studie bevat 192 temperatuur-/zichtproeven bij 5, 9 en 13 °C plus 80 aanvullende verbruiningproeven. De voedingssnelheid reageerde opvallend zwak op temperatuur en zichtconditie; de enige duidelijke koepelvormige respons trad op bij 5 °C in helder water.
+
+De bron betreft jonge 0+-snoek in laboratoriumarena's en is niet overdraagbaar als volwassen Nederlandse veldcurve. Volwassen snoeken in dezelfde publicatie leverden alleen lichaamstemperatuurdata, geen voedingslabels. Registry: 87 records, 0 numeriek goedgekeurd. De bron blijft `approvedForPrediction: false`; geen runtimefactor, parameter, gewicht of tijdvakbonus geactiveerd. Zie audit §135 en architectuur §108.
