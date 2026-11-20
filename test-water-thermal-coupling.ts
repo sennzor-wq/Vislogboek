@@ -15,6 +15,7 @@ import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
+  WaterTemperatureMeasurement,
 } from './src/types';
 
 let passed = 0;
@@ -357,6 +358,36 @@ async function runTestSuite() {
     '4.6 De oude meting wordt correct als 48-uurs anker voor een modelschatting geregistreerd');
   assert(staleAnchorToday.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00.000Z').toISOString(),
     '4.7 De herkomsttijd van het lokale meetanker blijft controleerbaar');
+
+
+  const separateEventAnchor: WaterTemperatureMeasurement = {
+    id: 'thermal-event-anchor',
+    locationId: locLokkershoek.id,
+    temperatureC: 15.8,
+    measuredAt: '2026-10-22T10:00:00.000Z',
+    recordedAt: '2026-10-22T10:02:00.000Z',
+    measurementSource: 'manual',
+    measurementMethod: 'thermometer',
+    measurementDepthM: 0.5,
+  };
+  const eventAnchoredEstimate = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    waterTemperatureMeasurements: [separateEventAnchor],
+    currentDateRef: new Date('2026-10-20T12:00:00Z'),
+    targetTime: '2026-10-23T10:00:00.000Z',
+  });
+  assert(eventAnchoredEstimate.anchorMeasurementTimestamp === separateEventAnchor.measuredAt &&
+    eventAnchoredEstimate.waterTemperatureStatus === 'estimated_from_measurement' &&
+    eventAnchoredEstimate.hasMeasuredWaterTemp === false,
+    'Een afzonderlijk meetevent wordt als historisch thermisch anker gebruikt, niet als actuele meting');
+  const unknownMethodEvent = analyzeWaterThermalDevelopment('2026-10-23', coldSnapForecasts, {
+    location: locLokkershoek,
+    waterTemperatureMeasurements: [{ ...separateEventAnchor, measurementMethod: 'unknown' }],
+    currentDateRef: new Date('2026-10-20T12:00:00Z'),
+    targetTime: '2026-10-23T10:00:00.000Z',
+  });
+  assert(unknownMethodEvent.anchorMeasurementTimestamp === null,
+    'Een afzonderlijk meetevent met onbekende methode wordt niet als thermisch anker gebruikt');
 
   const staleAnchorWithoutCoverage = analyzeWaterThermalDevelopment('2026-10-23', [], {
     location: locLokkershoek,

@@ -1,4 +1,4 @@
-import { FishingLocation, FishingSession, PrognosisSnapshot } from '../types';
+import { FishingLocation, FishingSession, PrognosisSnapshot, WaterTemperatureMeasurement, WaterTemperatureWeatherContext } from '../types';
 import { getAmsterdamMonth, parseAppTimestamp } from '../utils/dateTime';
 
 /**
@@ -21,7 +21,8 @@ export interface HistoricalWaterTemperatureObservation {
   /** Wanneer het record is opgeslagen, los van het daadwerkelijke meetmoment. */
   recordedAt?: string;
   recordId?: string;
-  recordType?: 'session' | 'snapshot';
+  recordType?: 'session' | 'snapshot' | 'measurement';
+  weatherContext?: WaterTemperatureWeatherContext;
 }
 
 /**
@@ -31,7 +32,8 @@ export interface HistoricalWaterTemperatureObservation {
 export function collectHistoricalWaterTemperatureObservations(
   sessions: FishingSession[],
   snapshots: PrognosisSnapshot[],
-  locations: FishingLocation[]
+  locations: FishingLocation[],
+  measurements: WaterTemperatureMeasurement[] = []
 ): HistoricalWaterTemperatureObservation[] {
   const locationById = new Map(locations.map((location) => [location.id, location]));
   const benchmarkSessionIds = new Set(sessions.filter((session) => session.isBenchmark === true).map((session) => session.id));
@@ -80,6 +82,33 @@ export function collectHistoricalWaterTemperatureObservations(
       recordType: 'session',
       waterType: location?.waterType,
       waterDepth: session.waterDepth ?? location?.waterDepth,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      isBenchmark: false,
+    });
+  }
+
+
+  for (const measurement of measurements) {
+    if (!measurement.locationId || typeof measurement.temperatureC !== 'number' ||
+        !Number.isFinite(measurement.temperatureC) || measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+        !measurement.measuredAt || !parseAppTimestamp(measurement.measuredAt) ||
+        measurement.measurementSource === 'unknown' || measurement.measurementMethod === 'unknown') continue;
+    const location = locationById.get(measurement.locationId);
+    if (location?.isBenchmark) continue;
+    observations.push({
+      locationId: measurement.locationId,
+      temperatureC: measurement.temperatureC,
+      timestamp: measurement.measuredAt,
+      measurementSource: measurement.measurementSource,
+      measurementMethod: measurement.measurementMethod,
+      measurementDepthM: measurement.measurementDepthM,
+      recordedAt: measurement.recordedAt,
+      recordId: measurement.id,
+      recordType: 'measurement',
+      weatherContext: measurement.weatherContext,
+      waterType: location?.waterType,
+      waterDepth: location?.waterDepth,
       latitude: location?.latitude,
       longitude: location?.longitude,
       isBenchmark: false,

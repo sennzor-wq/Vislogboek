@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
-import { db, deleteSessionSafely, deletePrognosisSnapshotSafely } from './src/db/db';
+import { db, deleteSessionSafely, deletePrognosisSnapshotSafely, deleteLocationSafely } from './src/db/db';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { FishingSession, PrognosisSnapshot, CatchItem, SessionRod, PlannedFishingSession, CoachAdviceRecord } from './src/types';
 
@@ -188,6 +188,11 @@ async function runTestSuite() {
     coachVersion: 'test-v1',
   };
   await db.coachAdviceRecords.put(adviceRecord);
+  await db.waterTemperatureMeasurements.put({
+    id: 'measurement-for-deleted-session', sessionId: sess2.id, locationId: sess2.locationId!,
+    temperatureC: 8.4, measuredAt: '2026-11-01T12:00:00.000Z', recordedAt: '2026-11-01T12:01:00.000Z',
+    measurementSource: 'manual', measurementMethod: 'thermometer',
+  });
 
   // Verwijder de sessie
   const sessDeleted = await deleteSessionSafely(sess2.id);
@@ -206,6 +211,8 @@ async function runTestSuite() {
     '2.4 Gekoppelde momentopname (via session.snapshotId) is eveneens definitief verwijderd'
   );
   assert(await db.coachAdviceRecords.get(adviceRecord.id) === undefined, '2.4a Coachadviezen worden bij expliciete sessieverwijdering meegenomen');
+  assert(await db.waterTemperatureMeasurements.get('measurement-for-deleted-session') === undefined,
+    '2.4b Afzonderlijke watertemperatuurmeetmomenten worden bij expliciete sessieverwijdering meegenomen');
   const planAfterSessionDelete = await db.plannedSessions.get(plannedRecord.id);
   assert(
     planAfterSessionDelete !== undefined &&
@@ -436,6 +443,22 @@ async function runTestSuite() {
   );
   const benchSnapInDb = await db.prognosisSnapshots.get(benchmarkSnapshot.id);
   assert(benchSnapInDb !== undefined, '5.4 Benchmark snapshot bevindt zich nog veilig in de database');
+
+
+  const removableLocationId = 'spot-delete-with-measurement';
+  await db.locations.put({
+    id: removableLocationId, name: 'Stek voor verwijdertest', latitude: 52, longitude: 5,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  });
+  await db.waterTemperatureMeasurements.put({
+    id: 'measurement-for-deleted-location', locationId: removableLocationId,
+    temperatureC: 8.1, measuredAt: '2026-11-01T12:00:00.000Z',
+    recordedAt: '2026-11-01T12:01:00.000Z',
+    measurementSource: 'manual', measurementMethod: 'thermometer',
+  });
+  assert(await deleteLocationSafely(removableLocationId), 'Verwijderen van een gewone locatie slaagt');
+  assert(await db.waterTemperatureMeasurements.get('measurement-for-deleted-location') === undefined,
+    'Meetevents van een verwijderde locatie worden ook verwijderd zodat geen verweesde meetdata achterblijft');
 
   console.log('\n======================================================');
   console.log(`TESTRESULTAAT: ${passed} GESLAAGD, ${failed} MISLUKT`);

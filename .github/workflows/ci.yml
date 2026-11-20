@@ -113,6 +113,9 @@ jobs:
       - name: Clean-start database migration tests
         run: bun run test:clean-start-migration
 
+      - name: Water temperature measurement event migration tests
+        run: bun run tsx test-water-temperature-migration.ts
+
       - name: Backup import security validation tests
         run: bun run tsx test-security-backup-validation.ts
 

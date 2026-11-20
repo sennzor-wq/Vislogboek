@@ -1,6 +1,6 @@
-import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry } from '../types';
+import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry, WaterTemperatureWeatherContext } from '../types';
 import { db } from '../db/db';
-import { APP_TIME_ZONE, parseAppTimestamp, parseForecastTimestamp } from '../utils/dateTime';
+import { APP_TIME_ZONE, getAmsterdamDateKey, parseAppTimestamp, parseForecastTimestamp } from '../utils/dateTime';
 
 export function getWindDirectionText(deg: number): string {
   const normalized = (deg % 360 + 360) % 360;
@@ -327,6 +327,103 @@ export async function getCurrentWeatherSnapshot(
   }
 
   throw new Error('Geen actuele of gecachete weergegevens beschikbaar voor deze locatie.');
+}
+
+
+/**
+ * Koppelt automatisch de dichtstbijzijnde beschikbare uurlijkse weerscontext aan
+ * één fysiek watertemperatuurmeetmoment. De bronsoort en het werkelijke sampletijdstip
+ * blijven expliciet; ontbrekende waarden worden nooit met standaardwaarden ingevuld.
+ */
+export async function fetchWaterTemperatureWeatherContextAtTime(
+  lat: number,
+  lon: number,
+  measuredAt: string
+): Promise<WaterTemperatureWeatherContext | null> {
+  const target = parseAppTimestamp(measuredAt);
+  if (!target) return null;
+  const targetMs = target.getTime();
+  const nowMs = Date.now();
+  const dayKey = getAmsterdamDateKey(target);
+  const todayKey = getAmsterdamDateKey(new Date());
+  if (!dayKey || !todayKey) return null;
+
+  const dayDistance = Math.round((Date.parse(dayKey + 'T12:00:00Z') - Date.parse(todayKey + 'T12:00:00Z')) / 86400000);
+  const withinRecentWindow = dayDistance >= -3 && dayDistance <= 7;
+
+  const toContext = (
+    sample: WeatherHourlyForecast,
+    retrievedAt: string,
+    source: WaterTemperatureWeatherContext['source']
+  ): WaterTemperatureWeatherContext => ({
+    sampleTimestamp: sample.time,
+    retrievedAt,
+    source,
+    ...(Number.isFinite(sample.temperature) ? { airTemperatureC: sample.temperature } : {}),
+    ...(Number.isFinite(sample.relativeHumidity) ? { relativeHumidityPct: sample.relativeHumidity } : {}),
+    ...(Number.isFinite(sample.dewPoint) ? { dewPointC: sample.dewPoint } : {}),
+    ...(Number.isFinite(sample.shortwaveRadiation) ? { shortwaveRadiationWm2: sample.shortwaveRadiation } : {}),
+    ...(Number.isFinite(sample.pressure) ? { pressureHpa: sample.pressure } : {}),
+    ...(Number.isFinite(sample.windSpeed) ? { windSpeedKmh: sample.windSpeed } : {}),
+    ...(Number.isFinite(sample.windDirection) ? { windDirectionDeg: sample.windDirection } : {}),
+    ...(Number.isFinite(sample.cloudCover) ? { cloudCoverPct: sample.cloudCover } : {}),
+    ...(Number.isFinite(sample.precipitation) ? { precipitationMm: sample.precipitation } : {}),
+  });
+
+  if (withinRecentWindow) {
+    try {
+      const forecast = await getForecast(lat, lon, false);
+      const nearest = forecast.hourly
+        .map((sample) => ({ sample, time: parseAppTimestamp(sample.time)?.getTime() ?? Number.NaN }))
+        .filter((item) => Number.isFinite(item.time))
+        .sort((a, b) => Math.abs(a.time - targetMs) - Math.abs(b.time - targetMs))[0];
+      if (nearest && Math.abs(nearest.time - targetMs) <= 90 * 60 * 1000) {
+        const source: WaterTemperatureWeatherContext['source'] = targetMs > nowMs + 60 * 60 * 1000
+          ? 'open-meteo-forecast'
+          : forecast.isFromCache ? 'open-meteo-cache' : 'open-meteo-recent-model';
+        return toContext(nearest.sample, forecast.fetchedAt, source);
+      }
+    } catch {
+      // De fysieke temperatuurmeting mag niet afhankelijk zijn van netwerkbeschikbaarheid.
+    }
+  }
+
+  // Voor oudere meetmomenten: één lokale kalenderdag uit de Open-Meteo reanalyse.
+  if (targetMs <= nowMs && dayDistance < -3) {
+    try {
+      const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${dayKey}&end_date=${dayKey}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=UTC&timeformat=unixtime`;
+      const response = await fetch(archiveUrl, { signal: AbortSignal.timeout(6000) });
+      if (!response.ok) return null;
+      const data = await response.json();
+      const times: number[] = data.hourly?.time || [];
+      const nearestIndex = times.reduce((best, value, index) =>
+        Math.abs(Number(value) * 1000 - targetMs) < (best < 0 ? Infinity : Math.abs(Number(times[best]) * 1000 - targetMs))
+          ? index : best, -1);
+      if (nearestIndex < 0 || Math.abs(Number(times[nearestIndex]) * 1000 - targetMs) > 90 * 60 * 1000) return null;
+      const numeric = (key: string) => {
+        const value = data.hourly?.[key]?.[nearestIndex];
+        return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+      };
+      const retrievedAt = new Date().toISOString();
+      return {
+        sampleTimestamp: new Date(Number(times[nearestIndex]) * 1000).toISOString(),
+        retrievedAt,
+        source: 'open-meteo-reanalysis',
+        ...(numeric('temperature_2m') !== undefined ? { airTemperatureC: numeric('temperature_2m') } : {}),
+        ...(numeric('relative_humidity_2m') !== undefined ? { relativeHumidityPct: numeric('relative_humidity_2m') } : {}),
+        ...(numeric('dew_point_2m') !== undefined ? { dewPointC: numeric('dew_point_2m') } : {}),
+        ...(numeric('shortwave_radiation') !== undefined ? { shortwaveRadiationWm2: numeric('shortwave_radiation') } : {}),
+        ...(numeric('surface_pressure') !== undefined ? { pressureHpa: numeric('surface_pressure') } : {}),
+        ...(numeric('wind_speed_10m') !== undefined ? { windSpeedKmh: numeric('wind_speed_10m') } : {}),
+        ...(numeric('wind_direction_10m') !== undefined ? { windDirectionDeg: numeric('wind_direction_10m') } : {}),
+        ...(numeric('cloud_cover') !== undefined ? { cloudCoverPct: numeric('cloud_cover') } : {}),
+        ...(numeric('precipitation') !== undefined ? { precipitationMm: numeric('precipitation') } : {}),
+      };
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 /**

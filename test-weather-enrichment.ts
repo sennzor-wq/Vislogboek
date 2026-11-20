@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { getCurrentWeatherSnapshot, getForecast } from './src/services/weatherService';
+import { getCurrentWeatherSnapshot, getForecast, fetchWaterTemperatureWeatherContextAtTime } from './src/services/weatherService';
 
 async function run() {
   await db.delete();
@@ -38,6 +38,30 @@ async function run() {
     if (snapshot.relativeHumidity !== 76 || snapshot.dewPoint !== 6 || snapshot.shortwaveRadiation !== 125) {
       throw new Error('Current weather snapshot must preserve optional heat-flux context.');
     }
+
+    await db.weatherCache.clear();
+    const recentSampleMs = Math.floor(Date.now() / 3600000) * 3600000;
+    apiPayload.hourly.time = [recentSampleMs / 1000];
+    const recentContext = await fetchWaterTemperatureWeatherContextAtTime(
+      52, 5, new Date(recentSampleMs).toISOString()
+    );
+    if (!recentContext || recentContext.airTemperatureC !== 10 || recentContext.windSpeedKmh !== 9 ||
+        recentContext.sampleTimestamp !== new Date(recentSampleMs).toISOString() ||
+        recentContext.source !== 'open-meteo-recent-model') {
+      throw new Error('A water measurement must preserve the closest recent hourly weather sample, retrieval source and timestamp.');
+    }
+
+    const archiveDay = new Date(Date.now() - 10 * 86400000);
+    const archiveSampleMs = Date.UTC(archiveDay.getUTCFullYear(), archiveDay.getUTCMonth(), archiveDay.getUTCDate(), 12, 0, 0);
+    apiPayload.hourly.time = [archiveSampleMs / 1000];
+    const archiveContext = await fetchWaterTemperatureWeatherContextAtTime(
+      52, 5, new Date(archiveSampleMs).toISOString()
+    );
+    if (!archiveContext || archiveContext.source !== 'open-meteo-reanalysis' ||
+        archiveContext.sampleTimestamp !== new Date(archiveSampleMs).toISOString()) {
+      throw new Error('An older water measurement must use timestamped archive reanalysis when available.');
+    }
+
     console.log('Weather enrichment tests passed.');
   } finally {
     globalThis.fetch = originalFetch;

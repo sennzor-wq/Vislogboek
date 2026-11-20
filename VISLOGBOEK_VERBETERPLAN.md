@@ -1087,3 +1087,13 @@ Punt 3 is afgerond in [PR #207](https://github.com/sennzor-wq/Vislogboek/pull/20
 De bestaande totale waterdiepte blijft een aparte vergelijkingsfactor voor nabijgelegen stekken. Geen schema-, UI- of verplichte invoerwijziging. De Quality Gate is groen op PR-head en mergecommit.
 
 **Volgende stap: punt 4 — afzonderlijke sessiegebonden meetevents met meettijd en beschikbare weerscontext.** Zie audit §160. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+
+### Fase 2 — voortgang punt 4: meerdere meetevents per vissessie en weerscontext (20 november 2026)
+
+De implementatie staat in PR #210. Een aparte meeteventtabel bewaart meerdere fysieke watertemperatuurmetingen per sessie, met werkelijk meettijdstip, apart registratiemoment, bron/methode, optionele meetdiepte en optionele tijdgestempelde weerscontext. De gebruiker hoeft niet dagelijks te meten; de invoer is optioneel en alleen bedoeld voor metingen tijdens vissessies.
+
+Database v6 migreert legacy sessie-/snapshotmetingen zonder dubbele fysieke waarnemingen te tellen of ontbrekende weerscontext te verzinnen. Backup v6, oudere backupnormalisatie, restore/merge en veilige sessieverwijdering zijn meegenomen. De algemene prognose, VisCoach, live sessiestart en SessionCoach gebruiken de meetevents. De bestaande enkelvoudige sessievelden blijven voor compatibiliteit behouden. Geen wijziging aan de 1–10-scoreformule of gewichten.
+
+De regressies dekken migratie, eventankers, weersprovenance, backup-roundtrip en cascadeverwijdering. De exacte PR-head- en mergecommit-Quality-Gates moeten groen zijn voordat punt 4 als afgerond wordt afgevinkt. PROJECT_CONTEXT.md blijft ongewijzigd.

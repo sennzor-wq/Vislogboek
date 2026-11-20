@@ -2,6 +2,7 @@ import {
   WeatherHourlyForecast,
   FishingLocation,
   FishingSession,
+  WaterTemperatureMeasurement,
   WaterThermalAnalysis,
   ThermalTrend,
 } from '../types';
@@ -12,6 +13,7 @@ export interface ThermalAnalysisOptions {
   location?: FishingLocation;
   userMeasuredWaterTemp?: number | null;
   historicalSessions?: FishingSession[];
+  waterTemperatureMeasurements?: WaterTemperatureMeasurement[];
   /** Exact instant (ISO timestamp) at which the water state is estimated. */
   targetTime?: string;
   forecastAsOf?: string | null;
@@ -35,6 +37,7 @@ export function analyzeWaterThermalDevelopment(
   const location = options?.location;
   const userMeasured = options?.userMeasuredWaterTemp;
   const historicalSessions = options?.historicalSessions || [];
+  const waterTemperatureMeasurements = options?.waterTemperatureMeasurements || [];
   const currentDateRef = options?.currentDateRef;
   const historicalProfile = deriveHistoricalWaterTemperatureProfile(
     options?.historicalWaterTemperatures || [], location, targetDateStr, options?.measurementDepthM
@@ -59,7 +62,7 @@ export function analyzeWaterThermalDevelopment(
   const targetTimestamp = hasValidTargetTime ? new Date(parsedTargetTimeMs).toISOString() : null;
   const parsedForecastAsOf = options?.forecastAsOf ? parseAppTimestamp(options.forecastAsOf) : null;
   const forecastAsOf = parsedForecastAsOf?.toISOString() ?? null;
-  const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
+  const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' | 'measurement' }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
     measurementCandidates.push({ temperature: userMeasured, timestampMs: refMs, source: 'current' });
@@ -76,6 +79,20 @@ export function analyzeWaterThermalDevelopment(
       const timestampMs = parseAppTimestamp(session.waterTemperatureMeasuredAt)?.getTime() ?? Number.NaN;
       if (!Number.isFinite(timestampMs)) continue;
       measurementCandidates.push({ temperature: session.waterTemperature, timestampMs, source: 'session' });
+    }
+  }
+
+
+  for (const measurement of waterTemperatureMeasurements) {
+    if (measurement.locationId !== location?.id ||
+        typeof measurement.temperatureC !== 'number' || !Number.isFinite(measurement.temperatureC) ||
+        measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+        !measurement.measuredAt || !parseAppTimestamp(measurement.measuredAt) ||
+        !measurement.measurementSource || measurement.measurementSource === 'unknown' ||
+        !measurement.measurementMethod || measurement.measurementMethod === 'unknown') continue;
+    const timestampMs = parseAppTimestamp(measurement.measuredAt)?.getTime() ?? Number.NaN;
+    if (Number.isFinite(timestampMs)) {
+      measurementCandidates.push({ temperature: measurement.temperatureC, timestampMs, source: 'measurement' });
     }
   }
 

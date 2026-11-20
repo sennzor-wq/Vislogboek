@@ -238,17 +238,19 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
   }
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
-  const [weather, snapshots, locations] = await Promise.all([
+  const [weather, snapshots, locations, waterTemperatureMeasurements] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
     db.prognosisSnapshots.toArray(),
     db.locations.toArray(),
+    db.waterTemperatureMeasurements.toArray(),
   ]);
   if (!weather.hourly?.length) throw new Error('Er is geen weersverwachting beschikbaar voor deze stek.');
 
   const historicalWaterTemperatures = collectHistoricalWaterTemperatureObservations(
     input.sessions,
     snapshots,
-    locations
+    locations,
+    waterTemperatureMeasurements
   );
   const waterTemperatureCalibration = getWaterTemperatureCalibration(snapshots, input.location.id, date);
   const now = new Date();
@@ -271,6 +273,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
       location: input.location,
       catches: input.catches,
       historicalWaterTemperatures,
+      waterTemperatureMeasurements,
       waterTemperatureCalibration,
       prebaitOptions: {
         availableDaysBefore,

@@ -1,6 +1,6 @@
 import { collectHistoricalWaterTemperatureObservations, deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './src/services/waterTemperatureHistory';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { FishingLocation, FishingSession, PrognosisSnapshot, WeatherHourlyForecast } from './src/types';
+import { FishingLocation, FishingSession, PrognosisSnapshot, WeatherHourlyForecast, WaterTemperatureMeasurement } from './src/types';
 
 let passed = 0;
 let failed = 0;
@@ -84,6 +84,36 @@ assert(snapshotMeasurement?.recordType === 'snapshot' &&
   'Snapshotmeting bewaart eigen herkomst en meetdiepte');
 assert(sessionMeasurement?.timestamp === '2026-06-10T10:00:00+02:00',
   'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
+
+const separateMeasurement: WaterTemperatureMeasurement = {
+  id: 'measurement-session-a-evening',
+  sessionId: 'session-a',
+  locationId: target.id,
+  temperatureC: 13.8,
+  measuredAt: '2026-06-10T18:00:00+02:00',
+  recordedAt: '2026-06-10T18:01:00+02:00',
+  measurementSource: 'manual',
+  measurementMethod: 'thermometer',
+  measurementDepthM: 0.6,
+  weatherContext: {
+    sampleTimestamp: '2026-06-10T16:00:00.000Z',
+    retrievedAt: '2026-06-10T16:01:00.000Z',
+    source: 'open-meteo-recent-model',
+    airTemperatureC: 19,
+    windSpeedKmh: 4,
+    windDirectionDeg: 220,
+  },
+};
+const eventObservations = collectHistoricalWaterTemperatureObservations(
+  measuredSessions, [duplicateSnapshot], [target], [separateMeasurement]
+);
+const eventObservation = eventObservations.find((item) => item.recordId === separateMeasurement.id);
+assert(eventObservation?.recordType === 'measurement' &&
+  eventObservation.measurementDepthM === 0.6 &&
+  eventObservation.weatherContext?.airTemperatureC === 19 &&
+  eventObservation.weatherContext?.sampleTimestamp === '2026-06-10T16:00:00.000Z',
+  'Afzonderlijk meetevent behoudt meetdiepte en onveranderlijke weerscontext op het meetmoment');
+
 const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
 assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
   'Een sessie- en snapshotkopie van dezelfde meting telt door tijdzone-normalisatie slechts eenmaal');

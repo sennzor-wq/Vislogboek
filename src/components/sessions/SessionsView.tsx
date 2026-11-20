@@ -8,6 +8,7 @@ import {
   SessionRod,
   CoachAdviceRecord,
   CoachAdviceResponse,
+  WaterTemperatureMeasurement,
 } from '../../types';
 import { SessionModal } from './SessionModal';
 import { EndSessionModal } from './EndSessionModal';
@@ -77,7 +78,7 @@ interface SessionsViewProps {
   locations: FishingLocation[];
   onRefreshData: () => Promise<void>;
   onStartNewSession: () => void;
-  onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[]) => Promise<void>;
+  onSaveSession: (sessionData: Partial<FishingSession>, pendingSnapshot?: undefined, rods?: SessionRod[], waterMeasurements?: WaterTemperatureMeasurement[]) => Promise<void>;
   sessionRods: SessionRod[];
   onSaveCatch: (catchData: CatchItem) => Promise<void>;
   coachAdviceRecords: CoachAdviceRecord[];
@@ -1091,8 +1092,8 @@ export const SessionsView: React.FC<SessionsViewProps> = ({
           session={editingSession}
           locations={locations}
           initialRodDetails={sessionRods.filter((rod) => rod.sessionId === editingSession.id)}
-          onSave={async (updated, _pendingSnapshot, rods) => {
-            await onSaveSession(updated, undefined, rods);
+          onSave={async (updated, _pendingSnapshot, rods, waterMeasurements) => {
+            await onSaveSession(updated, undefined, rods, waterMeasurements);
             await onRefreshData();
           }}
           onClose={() => setEditingSession(null)}

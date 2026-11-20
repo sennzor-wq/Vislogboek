@@ -1,5 +1,5 @@
 import { db } from '../db/db';
-import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord } from '../types';
+import { FishingLocation, FishingSession, CatchItem, AppSettings, WeatherCacheEntry, PrognosisSnapshot, PresenceObservation, SessionRod, PlannedFishingSession, CoachAdviceRecord, WaterTemperatureMeasurement } from '../types';
 
 export interface BackupData {
   version: number;
@@ -20,6 +20,8 @@ export interface BackupData {
   /** Added in v5; optional for legacy v1-v4 imports. */
   plannedSessions?: PlannedFishingSession[];
   coachAdviceRecords?: CoachAdviceRecord[];
+  /** Added in v6; optional for legacy v1-v5 imports. */
+  waterTemperatureMeasurements?: WaterTemperatureMeasurement[];
 }
 
 export interface ImportPreview {
@@ -42,28 +44,80 @@ export interface ImportPreview {
   sessionRodsCount?: number;
   plannedSessionsCount?: number;
   coachAdviceRecordsCount?: number;
+  waterTemperatureMeasurementsCount?: number;
   error?: string;
+}
+
+
+/** Backfill legacy single-session/snapshot readings when importing a v1-v5 backup. */
+function deriveLegacyWaterTemperatureMeasurements(
+  sessions: FishingSession[],
+  snapshots: PrognosisSnapshot[] = []
+): WaterTemperatureMeasurement[] {
+  const seen = new Set<string>();
+  const result: WaterTemperatureMeasurement[] = [];
+  const add = (item: WaterTemperatureMeasurement) => {
+    if (!item.locationId || typeof item.temperatureC !== 'number' || !Number.isFinite(item.temperatureC) ||
+        item.temperatureC < 0 || item.temperatureC > 35 || !item.measuredAt || !Number.isFinite(Date.parse(item.measuredAt))) return;
+    const depth = typeof item.measurementDepthM === 'number' && Number.isFinite(item.measurementDepthM)
+      ? Math.round(item.measurementDepthM * 100) / 100 : null;
+    const key = [item.locationId, Date.parse(item.measuredAt), item.temperatureC, depth ?? 'unknown'].join('|');
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push(item);
+  };
+  for (const session of sessions) {
+    if (session.isBenchmark || !session.locationId || typeof session.waterTemperature !== 'number' || !session.waterTemperatureMeasuredAt) continue;
+    add({
+      id: `backup-legacy-session-${session.id}`,
+      sessionId: session.id,
+      locationId: session.locationId,
+      temperatureC: session.waterTemperature,
+      measuredAt: session.waterTemperatureMeasuredAt,
+      recordedAt: session.updatedAt || session.createdAt,
+      measurementSource: session.waterTemperatureMeasurementSource || 'unknown',
+      measurementMethod: session.waterTemperatureMeasurementMethod || 'unknown',
+      ...(typeof session.waterTemperatureMeasurementDepthM === 'number'
+        ? { measurementDepthM: session.waterTemperatureMeasurementDepthM } : {}),
+    });
+  }
+  for (const snapshot of snapshots) {
+    if (!snapshot.locationId || typeof snapshot.actualWaterTemperature !== 'number' || !snapshot.actualWaterTemperatureTimestamp) continue;
+    add({
+      id: `backup-legacy-snapshot-${snapshot.id}`,
+      sessionId: snapshot.linkedSessionId,
+      locationId: snapshot.locationId,
+      temperatureC: snapshot.actualWaterTemperature,
+      measuredAt: snapshot.actualWaterTemperatureTimestamp,
+      recordedAt: snapshot.createdAt,
+      measurementSource: snapshot.actualWaterTemperatureMeasurementSource || 'unknown',
+      measurementMethod: snapshot.actualWaterTemperatureMeasurementMethod || 'unknown',
+      ...(typeof snapshot.actualWaterTemperatureMeasurementDepthM === 'number'
+        ? { measurementDepthM: snapshot.actualWaterTemperatureMeasurementDepthM } : {}),
+    });
+  }
+  return result;
 }
 
 /** Bouwt een volledige, download-onafhankelijke momentopname van alle persistente tabellen. */
 export async function collectBackupData(): Promise<BackupData> {
-  const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords] =
+  const [locations, sessions, catches, settings, weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords, waterTemperatureMeasurements] =
     await db.transaction('r', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-      db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], () => Promise.all([
+      db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, db.waterTemperatureMeasurements], () => Promise.all([
         db.locations.toArray(), db.sessions.toArray(), db.catches.toArray(),
         db.settings.get('user_settings'), db.weatherCache.toArray(),
         db.prognosisSnapshots.toArray(), db.presenceObservations.toArray(), db.sessionRods.toArray(),
-        db.plannedSessions.toArray(), db.coachAdviceRecords.toArray(),
+        db.plannedSessions.toArray(), db.coachAdviceRecords.toArray(), db.waterTemperatureMeasurements.toArray(),
       ]));
 
   return {
-    version: 5,
+    version: 6,
     appName: 'Vislogboek',
     exportedAt: new Date().toISOString(),
     cleanStartVersion: 1,
     locations, sessions, catches,
     settings: settings || undefined,
-    weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords,
+    weatherCache, prognosisSnapshots, presenceObservations, sessionRods, plannedSessions, coachAdviceRecords, waterTemperatureMeasurements,
   };
 }
 
@@ -134,6 +188,8 @@ export function normalizeRawBackup(raw: any): BackupData {
       sessionRods: Array.isArray(raw.sessionRods) ? raw.sessionRods : [],
       plannedSessions: Array.isArray(raw.plannedSessions) ? raw.plannedSessions : [],
       coachAdviceRecords: Array.isArray(raw.coachAdviceRecords) ? raw.coachAdviceRecords : [],
+      waterTemperatureMeasurements: Array.isArray(raw.waterTemperatureMeasurements)
+        ? raw.waterTemperatureMeasurements : deriveLegacyWaterTemperatureMeasurements(raw.sessions, raw.prognosisSnapshots || []),
     } as BackupData;
   }
 
@@ -341,6 +397,8 @@ export function normalizeRawBackup(raw: any): BackupData {
     sessionRods: Array.isArray(raw.sessionRods) ? raw.sessionRods : [],
     plannedSessions: Array.isArray(raw.plannedSessions) ? raw.plannedSessions : [],
     coachAdviceRecords: Array.isArray(raw.coachAdviceRecords) ? raw.coachAdviceRecords : [],
+    waterTemperatureMeasurements: Array.isArray(raw.waterTemperatureMeasurements)
+      ? raw.waterTemperatureMeasurements : deriveLegacyWaterTemperatureMeasurements(sessions, raw.prognosisSnapshots || []),
   };
 }
 
@@ -360,6 +418,7 @@ const BACKUP_COLLECTION_LIMITS: Record<string, number> = {
   sessionRods: 100_000,
   plannedSessions: 25_000,
   coachAdviceRecords: 100_000,
+  waterTemperatureMeasurements: 100_000,
 };
 
 const MAX_BACKUP_TOTAL_RECORDS = 250_000;
@@ -380,6 +439,7 @@ export function validateBackupPayloadLimits(data: BackupData): string | null {
     ['sessionRods', data.sessionRods || []],
     ['plannedSessions', data.plannedSessions || []],
     ['coachAdviceRecords', data.coachAdviceRecords || []],
+    ['waterTemperatureMeasurements', data.waterTemperatureMeasurements || []],
   ];
 
   let totalRecords = 0;
@@ -488,7 +548,8 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
     if (!Array.isArray(data.sessions) || !Array.isArray(data.locations) || !Array.isArray(data.catches) ||
         !Array.isArray(data.weatherCache) || !Array.isArray(data.prognosisSnapshots) ||
         !Array.isArray(data.presenceObservations) || !Array.isArray(data.sessionRods) ||
-        !Array.isArray(data.plannedSessions) || !Array.isArray(data.coachAdviceRecords)) {
+        !Array.isArray(data.plannedSessions) || !Array.isArray(data.coachAdviceRecords) ||
+        !Array.isArray(data.waterTemperatureMeasurements)) {
       return {
         preview: {
           valid: false,
@@ -507,12 +568,13 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       };
     }
 
-    if (data.version > 5) throw new Error(`Back-upversie ${data.version} is nieuwer dan deze app ondersteunt.`);
+    if (data.version > 6) throw new Error(`Back-upversie ${data.version} is nieuwer dan deze app ondersteunt.`);
     const collections: Array<[string, any[]]> = [
       ['locaties', data.locations], ['sessies', data.sessions], ['vangsten', data.catches],
       ['weercache', data.weatherCache || []], ['prognoses', data.prognosisSnapshots || []],
       ['waarnemingen', data.presenceObservations || []], ['hengeldetails', data.sessionRods || []],
       ['geplande sessies', data.plannedSessions || []], ['coachadviezen', data.coachAdviceRecords || []],
+      ['watertemperatuurmetingen', data.waterTemperatureMeasurements || []],
     ];
     for (const [label, records] of collections) {
       const seenIds = new Set<string>();
@@ -568,6 +630,42 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
       }
     }
 
+    for (const measurement of data.waterTemperatureMeasurements || []) {
+      if (typeof measurement.locationId !== 'string' || !backupLocationIds.has(measurement.locationId)) {
+        throw new Error(`Watertemperatuurmeting ${measurement.id} verwijst naar een stek die niet in de back-up aanwezig is.`);
+      }
+      if (measurement.sessionId && !backupSessionIds.has(measurement.sessionId)) {
+        throw new Error(`Watertemperatuurmeting ${measurement.id} verwijst naar een sessie die niet in de back-up aanwezig is.`);
+      }
+      if (!['manual', 'imported', 'unknown'].includes(measurement.measurementSource) ||
+          !['thermometer', 'probe', 'other', 'unknown'].includes(measurement.measurementMethod) ||
+          (measurement.measurementDepthM !== undefined &&
+            (!Number.isFinite(measurement.measurementDepthM) || measurement.measurementDepthM < 0 || measurement.measurementDepthM > 100))) {
+        throw new Error(`Watertemperatuurmeting ${measurement.id} bevat een ongeldige bron, methode of meetdiepte.`);
+      }
+      if (measurement.weatherContext) {
+        const context = measurement.weatherContext;
+        if (!['open-meteo-forecast', 'open-meteo-recent-model', 'open-meteo-cache', 'open-meteo-reanalysis'].includes(context.source) ||
+            !Number.isFinite(Date.parse(context.sampleTimestamp)) || !Number.isFinite(Date.parse(context.retrievedAt))) {
+          throw new Error(`Watertemperatuurmeting ${measurement.id} bevat ongeldige weerscontext-herkomst.`);
+        }
+        const bounded = [
+          [context.airTemperatureC, -100, 80], [context.relativeHumidityPct, 0, 100],
+          [context.dewPointC, -100, 80], [context.shortwaveRadiationWm2, 0, 1600],
+          [context.pressureHpa, 300, 1200], [context.windSpeedKmh, 0, 300],
+          [context.windDirectionDeg, 0, 360], [context.cloudCoverPct, 0, 100],
+          [context.precipitationMm, 0, 500],
+        ] as const;
+        if (bounded.some(([value, min, max]) => value !== undefined &&
+          (!Number.isFinite(value) || value < min || value > max))) {
+          throw new Error(`Watertemperatuurmeting ${measurement.id} bevat ongeldige weerswaarden.`);
+        }
+      }
+      if (!Number.isFinite(measurement.temperatureC) || measurement.temperatureC < 0 || measurement.temperatureC > 35 ||
+          !Number.isFinite(Date.parse(measurement.measuredAt)) || !Number.isFinite(Date.parse(measurement.recordedAt))) {
+        throw new Error(`Watertemperatuurmeting ${measurement.id} bevat een ongeldige temperatuur of tijdstempel.`);
+      }
+    }
     for (const planned of data.plannedSessions || []) {
       if (!backupLocationIds.has(planned.locationId) || !Number.isFinite(new Date(planned.plannedStartTime).getTime()) ||
           !['planned', 'started', 'cancelled', 'overdue'].includes(planned.status)) {
@@ -642,6 +740,7 @@ export async function inspectImportFile(fileContent: string): Promise<{ preview:
         sessionRodsCount: data.sessionRods?.length || 0,
         plannedSessionsCount: data.plannedSessions?.length || 0,
         coachAdviceRecordsCount: data.coachAdviceRecords?.length || 0,
+      waterTemperatureMeasurementsCount: data.waterTemperatureMeasurements?.length || 0,
       },
       data,
     };
@@ -678,6 +777,7 @@ function applyCleanStartBackupPolicy(data: BackupData): BackupData {
     catches: [],
     sessionRods: [],
     coachAdviceRecords: [],
+    waterTemperatureMeasurements: (data.waterTemperatureMeasurements || []).filter((item) => !item.sessionId),
     presenceObservations: (data.presenceObservations || []).filter((item) => !item.sessionId),
     prognosisSnapshots: (data.prognosisSnapshots || []).map((snapshot) => ({
       ...snapshot,
@@ -700,17 +800,17 @@ function applyCleanStartBackupPolicy(data: BackupData): BackupData {
 export async function mergeImportData(data: BackupData): Promise<{
   addedSessions: number; addedCatches: number; addedLocations: number;
   addedWeatherCache: number; addedPrognosisSnapshots: number; addedPresenceObservations: number; addedSessionRods: number;
-  addedPlannedSessions: number; addedCoachAdviceRecords: number;
+  addedPlannedSessions: number; addedCoachAdviceRecords: number; addedWaterTemperatureMeasurements: number;
   settingsImported: boolean;
 }> {
   data = applyCleanStartBackupPolicy(data);
   let addedLocations = 0, addedSessions = 0, addedCatches = 0;
   let addedWeatherCache = 0, addedPrognosisSnapshots = 0, addedPresenceObservations = 0, addedSessionRods = 0;
-  let addedPlannedSessions = 0, addedCoachAdviceRecords = 0;
+  let addedPlannedSessions = 0, addedCoachAdviceRecords = 0, addedWaterTemperatureMeasurements = 0;
   let settingsImported = false;
 
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, db.waterTemperatureMeasurements], async () => {
     for (const loc of data.locations) {
       const existing = await db.locations.get(loc.id);
       if (!existing && !loc.isBenchmark) {
@@ -751,6 +851,14 @@ export async function mergeImportData(data: BackupData): Promise<{
     for (const item of data.coachAdviceRecords || []) {
       if (!(await db.coachAdviceRecords.get(item.id)) && await db.sessions.get(item.sessionId) && await db.prognosisSnapshots.get(item.prognosisSnapshotId)) { await db.coachAdviceRecords.put(item); addedCoachAdviceRecords++; }
     }
+    for (const item of data.waterTemperatureMeasurements || []) {
+      const hasLocation = await db.locations.get(item.locationId);
+      const hasSession = !item.sessionId || await db.sessions.get(item.sessionId);
+      if (!(await db.waterTemperatureMeasurements.get(item.id)) && hasLocation && hasSession) {
+        await db.waterTemperatureMeasurements.put(item);
+        addedWaterTemperatureMeasurements++;
+      }
+    }
     // The user explicitly selected import: backup settings are authoritative for this merge.
     if (data.settings) {
       const existingSettings = await db.settings.get(data.settings.id);
@@ -760,7 +868,7 @@ export async function mergeImportData(data: BackupData): Promise<{
   });
 
   return { addedSessions, addedCatches, addedLocations, addedWeatherCache,
-    addedPrognosisSnapshots, addedPresenceObservations, addedSessionRods, addedPlannedSessions, addedCoachAdviceRecords, settingsImported };
+    addedPrognosisSnapshots, addedPresenceObservations, addedSessionRods, addedPlannedSessions, addedCoachAdviceRecords, addedWaterTemperatureMeasurements, settingsImported };
 }
 
 /** Herstelt een gevalideerde backup atomair. Veiligheidsbackup/download wordt door de UI-flow geregeld. */
@@ -769,7 +877,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
   // Oudere back-ups zonder instellingen mogen de standaardinstellingen van het doelapparaat niet wissen.
   const fallbackSettings = data.settings ? undefined : await db.settings.get('user_settings');
   await db.transaction('rw', [db.locations, db.sessions, db.catches, db.settings, db.weatherCache,
-    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords], async () => {
+    db.prognosisSnapshots, db.presenceObservations, db.sessionRods, db.plannedSessions, db.coachAdviceRecords, db.waterTemperatureMeasurements], async () => {
       await db.locations.clear();
       await db.sessions.clear();
       await db.catches.clear();
@@ -780,6 +888,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       await db.sessionRods.clear();
       await db.plannedSessions.clear();
       await db.coachAdviceRecords.clear();
+      await db.waterTemperatureMeasurements.clear();
 
       await db.locations.bulkPut(data.locations);
       await db.sessions.bulkPut(data.sessions);
@@ -792,6 +901,7 @@ export async function restoreBackupData(data: BackupData): Promise<void> {
       if (data.sessionRods?.length) await db.sessionRods.bulkPut(data.sessionRods);
       if (data.plannedSessions?.length) await db.plannedSessions.bulkPut(data.plannedSessions);
       if (data.coachAdviceRecords?.length) await db.coachAdviceRecords.bulkPut(data.coachAdviceRecords);
+      if (data.waterTemperatureMeasurements?.length) await db.waterTemperatureMeasurements.bulkPut(data.waterTemperatureMeasurements);
 
     });
 }
