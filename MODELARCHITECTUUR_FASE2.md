@@ -1117,3 +1117,20 @@ De snelle prognose-invoer "Gemeten aan stek" wordt als actuele gebruikersmeting 
 De uurlijkse Open-Meteo-data zijn in Europe/Amsterdam-tijd aangevraagd en leveren lucht-/stralings-/windforceringen. De engine parseert uurstrings met `Date`; de tijdzone van de runtime moet daarom expliciet worden getest. Houd bij tijdstipgerichte berekeningen `forecastAsOf`, `calculatedAt` en `targetTime` afzonderlijk.
 
 Geen runtimewijziging. Volgende stap is specificeren van dieptelaagsemantiek, tijdzoneconversie en tests voordat de bestaande engine of profielselectie wordt aangepast.
+
+
+## 130. Contract voor tijdstipgerichte waterthermische toestand
+
+Audit §155 stelt de minimale richting vast voor een latere uitbreiding van de bestaande `waterThermalEngine`:
+
+- één expliciet tijdzonebewust `targetTime`;
+- afzonderlijk `forecastAsOf` en `calculatedAt`;
+- een tijdgestempeld meetanker met herkomst/methode en meetdiepte indien bekend;
+- locatie-waterdiepte/watertype apart van meetdiepte;
+- uitvoer op het gevraagde tijdstip met onzekerheid, dekking, ankerherkomst en gebruikte meetdiepte/status.
+
+De voorkeursberekening is één chronologische toestandsdoorloop vanaf het meetanker, met temperatuurtoestand op elk gevraagd tijdstip. De middagwaarde bouwt dus voort op de ochtendtoestand; het model voert niet vier losstaande dagberekeningen uit. Ontbrekende uren, onbekende diepte en onvoldoende forecastdekking worden niet met gemiddelden of standaardwaarden gevuld.
+
+Voorlopig wordt één referentietemperatuur gemodelleerd. Een gelaagd verticaal temperatuurprofiel vereist voldoende onafhankelijke meetdieptes en wordt niet afgeleid uit één onbekend gepositioneerde meting. De ongebruikte `targetHour` wordt niet als los uurgetal uitgebreid; een expliciet tijdstip is vereist.
+
+Geen runtimewijziging. Eerst testdekking voor meetdiepte, continuïteit, tijdzone/DST en forecast-as-of; daarna pas een implementatievoorstel.

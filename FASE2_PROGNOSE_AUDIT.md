@@ -4153,3 +4153,64 @@ De provider levert weersforceringen, geen watertemperatuur. Uurlijkse straling/w
 7. Pas runtime-/profielgedrag pas aan nadat de gewenste semantiek en regressietests zijn vastgesteld.
 
 Geen runtime-, database-, score-, gewicht-, UI- of gebruikersinvoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 155. Minimale tijdstipgerichte contractschets en testmatrix (20 november 2026)
+
+Op basis van de code- en testaudit (§152–154) is de volgende minimale uitbreiding van de bestaande `waterThermalEngine` de meest beheerste route. Dit is een ontwerpcontract, geen implementatiebesluit voor runtimecode.
+
+### 155.1 Eén bestaande engine, één expliciet doelmoment
+
+De huidige functie blijft de canonieke thermische engine. De ongebruikte `targetHour` wordt niet als losse uurparameter uitgebreid; het doel is een ondubbelzinnig tijdstip, niet alleen een uurgetal.
+
+Voorgestelde invoersemantiek:
+- `targetTime`: het exacte doelmoment als tijdzonebewust moment, afgeleid van lokale datum/tijd in `Europe/Amsterdam`. Geen naïeve datumstring die door de browser-/serverzone kan worden geïnterpreteerd.
+- `forecastAsOf`: het moment waarop de gebruikte weersverwachting is opgehaald/beschikbaar was.
+- `calculatedAt`: het moment waarop deze prognoseberekening is uitgevoerd.
+- `anchor`: bestaande fysieke meetwaarde plus werkelijk meettijdstip, bron/methode en meetdiepte indien bekend. Een ontbrekende meetdiepte blijft expliciet onbekend.
+- `location`: bestaande locatiegegevens, waaronder waterdiepte en watertype; deze zijn geen vervanging voor meetdiepte.
+- `forecasts`: de reeds beschikbare uurlijkse reeks, met geldige lokale uurmomenten en weersforceringen. De bron-/as-of-herkomst blijft behouden.
+
+De bestaande invoer voor een snelle handmatige "Gemeten aan stek"-waarde blijft ondersteund als aparte gebruikersgerapporteerde actuele invoer. Zij wordt intern niet stilzwijgend gelijkgesteld aan een volledig gekarakteriseerde fysieke meting.
+
+Voorgestelde uitvoer behoudt de bestaande analysevorm en voegt expliciete tijd/provenance toe:
+- temperatuurtoestand op `targetTime`;
+- onzekerheidsband en datakwaliteit;
+- status (gemeten, vanaf meting geëxtrapoleerd, historisch profiel, of onbekend);
+- meetanker en leeftijd;
+- gebruikte meetdiepte of expliciet onbekend;
+- weerdekking en `forecastAsOf`.
+
+### 155.2 Berekeningsstrategie
+
+Voor meerdere tijdvakken moet de engine niet viermaal onafhankelijk een afgeronde dagwaarde aanpassen. De voorkeur is één chronologische toestandsdoorloop vanaf het gekozen meetanker: verwerk de uurlijkse forcings in tijdsvolgorde en leg de toestand vast op elk gevraagd doelmoment. Zo blijft de middagtoestand voortkomen uit de ochtendtoestand en dezelfde voorafgaande warmtegeschiedenis.
+
+Een tijdstip na het laatst beschikbare weeruur krijgt geen verzonnen extrapolatie. Een ontbrekend uur wordt niet automatisch als gemiddeld weer ingevuld. Bij onvoldoende dekking, onbekende diepte of een te oud/onduidelijk meetanker blijft de uitkomst onzeker of onbekend volgens expliciete regels.
+
+De thermische toestand representeert voorlopig één duidelijk omschreven referentietemperatuur, niet een volledig verticaal temperatuurprofiel. Alleen wanneer onafhankelijke metingen op verschillende meetdieptes voldoende dekking geven, kan later een gelaagde toestand worden overwogen. Zonder zulke gegevens mag de engine geen bodem- of oppervlaktetemperatuur afleiden uit een bulkwaarde.
+
+### 155.3 Regressie- en validatietestmatrix
+
+| Testgroep | Verplichte scenario's | Verwachte eigenschap |
+|---|---|---|
+| Tijdcontinuïteit | Ochtend, middag, avond uit dezelfde meetankerreeks | Middag bouwt voort op ochtend; geen sprong door alleen hogere luchttemperatuur |
+| Thermische traagheid | Ondiep versus diep; korte versus langdurige warmte | Diepte beïnvloedt reactiesnelheid binnen aantoonbare grenzen |
+| Zon en menging | Straling hoog/laag, bewolking als terugval, wind sterk/zwak | Forcings veranderen de ontwikkeling geleidelijk; ontbreken blijft onbekend |
+| Meetdiepte | Oppervlak, middenlaag, dieper, onbekend | Onvergelijkbare lagen worden niet in één profiel samengevoegd |
+| Meetanker | Vers, oud, ontbrekend, toekomstige/ongeldige timestamp | Geen toekomstlek; oude meting wordt geen actuele meting |
+| Weerdekking | Complete reeks, ontbrekende uren, verouderde cache | Onzekerheid/status reageert op dekking; geen stilzwijgende invulling |
+| Tijdzone | Europe/Amsterdam, winter/zomertijd, beide DST-overgangen, runtime in andere zone | Identieke instanties en uurvolgorde ongeacht machinezone |
+| Forecast-as-of | Zelfde target met twee verschillende forecastAsOf-momenten | Alleen de weersreeks die op het gekozen voorspelmoment beschikbaar was telt |
+| Reproduceerbaarheid | Herberekening uit opgeslagen snapshot-input | Zelfde invoer en engineversie geeft dezelfde thermische uitvoer |
+
+### 155.4 Wat bestaande tests al en nog niet aantonen
+
+De huidige tests controleren al thermische demping, ondiep/middeldiep/diep als grove categorie, zon/bewolking, windproxy, meetankerherkomst, onbekende waterdiepte en opslag van meetdiepte. De synthetische validatietest controleert het gedrag tegen een synthetische referentie, niet tegen een onafhankelijke reeks echte uurlijkse watertemperatuurmetingen.
+
+Nog niet afgedekt zijn: profielselectie op meetdiepte, tijdspecifieke temperatuuruitvoer op meerdere doelmomenten, DST/runtime-tijdzone onafhankelijkheid, expliciete forecast-as-of selectie en continuïteit van één toestand door meerdere tijdvakken.
+
+### 155.5 Besluit en volgende stap
+
+Deze contractschets is de basis voor de resterende data-/acceptatietoets. Eerst moeten de tijdzonehelper en dieptelaagsemantiek worden gekozen en de testdata/fixtures worden vastgesteld. Pas daarna kan een kleine implementatie in de bestaande `waterThermalEngine` worden voorbereid, met regressietests en onafhankelijke meetvalidatie als aparte gates.
+
+Geen runtime-, database-, score-, gewicht-, UI- of gebruikersinvoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
