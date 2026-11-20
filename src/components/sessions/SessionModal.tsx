@@ -191,7 +191,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
       temperatureC: Math.round(temperatureC * 10) / 10,
       measuredAt: measuredAt.toISOString(),
       recordedAt,
-      measurementSource: 'manual',
+      measurementSource: 'manual' as const,
       measurementMethod: measurementDraftMethod,
       ...(measurementDepthM !== undefined ? { measurementDepthM } : {}),
     }].sort((a, b) =>
@@ -204,11 +204,6 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     setMeasurementDraftDepthM('');
     setMeasurementInputError(null);
   };
-
-  const latestWaterTemperatureMeasurement = [...waterTemperatureMeasurements].sort((a, b) =>
-    (parseAppTimestamp(a.measuredAt ?? a.recordedAt)?.getTime() ?? 0) -
-    (parseAppTimestamp(b.measuredAt ?? b.recordedAt)?.getTime() ?? 0)
-  ).slice(-1)[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -261,16 +256,27 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         missedCount: missedCount !== undefined ? Number(missedCount) : undefined,
         waterDepth: waterDepth !== undefined ? Number(waterDepth) : undefined,
         waterTemperatureMeasurements,
-        waterTemperature: latestWaterTemperatureMeasurement?.temperatureC,
-        waterTemperatureMeasuredAt: latestWaterTemperatureMeasurement?.measuredAt ?? undefined,
-        waterTemperatureMeasurementSource: latestWaterTemperatureMeasurement?.measurementSource,
-        waterTemperatureMeasurementMethod: latestWaterTemperatureMeasurement?.measurementMethod,
-        waterTemperatureMeasurementDepthM: latestWaterTemperatureMeasurement?.measurementDepthM,
         notes,
         weatherSnapshot,
         presenceObservations: selectedPresenceObs,
         updatedAt: new Date().toISOString(),
       };
+
+      // Iedere fysieke meting blijft een apart event. Koppel alleen echte uurwaarden
+      // die maximaal één uur van het fysieke meetmoment afliggen.
+      const enrichedMeasurements = await attachWaterTemperatureWeatherContext(waterTemperatureMeasurements, locations);
+      payload.waterTemperatureMeasurements = enrichedMeasurements;
+      const latestUsableMeasurement = [...enrichedMeasurements]
+        .filter((item) => item.measuredAt && parseAppTimestamp(item.measuredAt) &&
+          item.measurementSource !== 'unknown' && item.measurementMethod !== 'unknown')
+        .sort((a, b) =>
+          (parseAppTimestamp(a.measuredAt!)?.getTime() ?? 0) - (parseAppTimestamp(b.measuredAt!)?.getTime() ?? 0)
+        ).slice(-1)[0];
+      payload.waterTemperature = latestUsableMeasurement?.temperatureC;
+      payload.waterTemperatureMeasuredAt = latestUsableMeasurement?.measuredAt ?? undefined;
+      payload.waterTemperatureMeasurementSource = latestUsableMeasurement?.measurementSource;
+      payload.waterTemperatureMeasurementMethod = latestUsableMeasurement?.measurementMethod;
+      payload.waterTemperatureMeasurementDepthM = latestUsableMeasurement?.measurementDepthM;
 
       if (isEditing && session?.id) {
         payload.id = session.id;
@@ -297,7 +303,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
               snapshotDurationHours,
               technique,
               payload.weatherSnapshot,
-              payload.waterTemperature ?? null
+              latestUsableMeasurement?.measurementSource === 'manual' ? latestUsableMeasurement.temperatureC : null,
+              latestUsableMeasurement?.measurementSource === 'manual' ? latestUsableMeasurement : null
             ) ?? undefined;
           } catch (snapErr) {
             console.error('Fout bij voorbereiden pre-sessie snapshot:', snapErr);
@@ -324,20 +331,6 @@ export const SessionModal: React.FC<SessionModalProps> = ({
         payload.startTime = actualStart.toISOString();
         payload.updatedAt = payload.startTime;
       }
-
-      // Elke fysieke meting blijft een apart event. Alleen beschikbare uurwaarden
-      // binnen één uur van het meetmoment worden als weerscontext vastgelegd.
-      const enrichedMeasurements = await attachWaterTemperatureWeatherContext(waterTemperatureMeasurements, locations);
-      payload.waterTemperatureMeasurements = enrichedMeasurements;
-      const latestMeasurement = [...enrichedMeasurements].sort((a, b) =>
-        (parseAppTimestamp(a.measuredAt ?? a.recordedAt)?.getTime() ?? 0) -
-        (parseAppTimestamp(b.measuredAt ?? b.recordedAt)?.getTime() ?? 0)
-      ).slice(-1)[0];
-      payload.waterTemperature = latestMeasurement?.temperatureC;
-      payload.waterTemperatureMeasuredAt = latestMeasurement?.measuredAt ?? undefined;
-      payload.waterTemperatureMeasurementSource = latestMeasurement?.measurementSource;
-      payload.waterTemperatureMeasurementMethod = latestMeasurement?.measurementMethod;
-      payload.waterTemperatureMeasurementDepthM = latestMeasurement?.measurementDepthM;
 
       const normalizedRods = showRodDetails ? sessionRods.slice(0, parsedRods).map((rod) => ({
         ...rod,

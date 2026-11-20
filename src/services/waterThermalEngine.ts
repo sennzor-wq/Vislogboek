@@ -11,6 +11,8 @@ import { getAmsterdamDateKey, getAmsterdamHour, parseAppTimestamp } from '../uti
 export interface ThermalAnalysisOptions {
   location?: FishingLocation;
   userMeasuredWaterTemp?: number | null;
+  /** Physical instant of a manually supplied measurement; falls back to calculation time only when absent. */
+  userMeasuredWaterTempAt?: string | null;
   historicalSessions?: FishingSession[];
   /** Exact instant (ISO timestamp) at which the water state is estimated. */
   targetTime?: string;
@@ -62,7 +64,12 @@ export function analyzeWaterThermalDevelopment(
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
-    measurementCandidates.push({ temperature: userMeasured, timestampMs: refMs, source: 'current' });
+    const suppliedMeasurementMs = options?.userMeasuredWaterTempAt
+      ? parseAppTimestamp(options.userMeasuredWaterTempAt)?.getTime() ?? Number.NaN
+      : refMs;
+    if (Number.isFinite(suppliedMeasurementMs)) {
+      measurementCandidates.push({ temperature: userMeasured, timestampMs: suppliedMeasurementMs, source: 'current' });
+    }
   }
 
   if (location?.id) {

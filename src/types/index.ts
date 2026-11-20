@@ -554,6 +554,7 @@ export interface ManualWaterTemperatureInput {
   measurementSource: 'manual';
   measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown' | null;
   measurementDepthM: number | null;
+  weatherContext?: WaterTemperatureWeatherContext;
 }
 
 export interface PrognosisInputContext {
