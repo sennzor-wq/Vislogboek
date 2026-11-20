@@ -623,7 +623,8 @@ export interface PrognosisInputContext {
     measurementDepthM?: number;
     recordedAt?: string;
     recordId?: string;
-    recordType?: 'session' | 'snapshot';
+    recordType?: 'session' | 'snapshot' | 'measurement';
+    weatherContext?: WaterTemperatureWeatherContext;
   }>;
   historyFingerprint?: string;
   historySummary: {

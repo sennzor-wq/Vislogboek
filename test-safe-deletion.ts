@@ -189,7 +189,7 @@ async function runTestSuite() {
   };
   await db.coachAdviceRecords.put(adviceRecord);
   await db.waterTemperatureMeasurements.put({
-    id: 'measurement-for-deleted-session', sessionId: sess2.id, locationId: sess2.locationId,
+    id: 'measurement-for-deleted-session', sessionId: sess2.id, locationId: sess2.locationId!,
     temperatureC: 8.4, measuredAt: '2026-11-01T12:00:00.000Z', recordedAt: '2026-11-01T12:01:00.000Z',
     measurementSource: 'manual', measurementMethod: 'thermometer',
   });
