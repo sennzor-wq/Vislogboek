@@ -1966,4 +1966,4 @@ De volledige primaire PDF van Prejs (1978) is gecontroleerd. Deze geeft dieetgeb
 
 ### Fase 2 — Prejs (1978) toegevoegd als 93e bron (20 november 2026)
 
-PR #191 voegt Prejs (1978) toe na volledige primaire PDF-controle. Het betreft dieetgebonden veldbewijs voor macrophyten-etende blankvoorn en een passage-rate-schatting van dagelijkse planteninname; geen soortbrede, pellet- of thermische respons. Registry telt 93 records, 0 numeriek goedgekeurd. PR-head Quality Gate is geslaagd; mergecommit-gate loopt nog. Zie audit §§147–148.
+PR #191 voegt Prejs (1978) toe na volledige primaire PDF-controle. Het betreft dieetgebonden veldbewijs voor macrophyten-etende blankvoorn en een passage-rate-schatting van dagelijkse planteninname; geen soortbrede, pellet- of thermische respons. Registry telt 93 records, 0 numeriek goedgekeurd. Zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig geslaagd. Zie audit §§147–148.

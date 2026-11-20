@@ -982,4 +982,4 @@ Prejs (1978) is als primaire bron toegevoegd na volledige PDF-controle. Macrophy
 
 ### Fase 2 — broninventaris naar 93 records uitgebreid (20 november 2026)
 
-Prejs (1978) is als 93e bron toegevoegd met beperkte, dieet-/populatiegebonden blankvoorn-feeding-rhythm evidence. Geen overdracht naar method-feederpellets, thermische curve of soortbrede tijdvakbonus. PR #191 is gemerged; exacte PR-head Quality Gate geslaagd, mergecommit-gate nog in uitvoering. Fase 2 blijft open; Fase 3 geblokkeerd.
+Prejs (1978) is als 93e bron toegevoegd met beperkte, dieet-/populatiegebonden blankvoorn-feeding-rhythm evidence. Geen overdracht naar method-feederpellets, thermische curve of soortbrede tijdvakbonus. PR #191 is gemerged; exacte PR-head en mergecommit Quality Gates zijn volledig geslaagd. Fase 2 blijft open; Fase 3 geblokkeerd.

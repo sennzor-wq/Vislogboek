@@ -1055,4 +1055,4 @@ De bron is geen method-feeder-/pelletbewijs, heeft slechts een temperatuurcontex
 
 Prejs (1978) is in audit §147 als 93e registry-record toegevoegd. De bron geeft beperkt direct veldbewijs voor macrophyten-etende blankvoorn en toont dat het tijdvakpatroon sterk kan verschillen naar voedselgilde. De auteur waarschuwt tegen generalisatie naar de soort als geheel. Geen method-feeder-/pelletrespons, thermische curve of numerieke tijdvakbonus. Registry blijft non-approved.
 
-PR #191 is gemerged; de exacte PR-head Quality Gate is geslaagd. De mergecommit Quality Gate moet afzonderlijk slagen voordat deze wijzigingsreeks technisch volledig gevalideerd is.
+PR #191 is gemerged; de exacte PR-head Quality Gate is geslaagd. De mergecommit Quality Gate is eveneens volledig geslaagd; deze wijzigingsreeks is technisch gevalideerd.

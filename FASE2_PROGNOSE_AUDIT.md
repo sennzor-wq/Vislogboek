@@ -3845,7 +3845,7 @@ Er is slechts één thermische context rond 20 °C en geen temperatuurbehandelin
 
 ## 148. PR #191 afgerond: Prejs (1978) bron en registry-validatie (20 november 2026)
 
-PR #191 is squash-merged naar `main` als `eeaacfec1813bb1c223e098ef2762956b4323294`. De exacte PR-head `93efe34ba69b37c78ad23c0ef350d5d11008c180` doorliep typecheck, volledige tests en production build succesvol. De mergecommit Quality Gate draait nog bij het schrijven van deze sectie.
+PR #191 is squash-merged naar `main` als `eeaacfec1813bb1c223e098ef2762956b4323294`. De exacte PR-head `93efe34ba69b37c78ad23c0ef350d5d11008c180` doorliep typecheck, volledige tests en production build succesvol. De mergecommit Quality Gate is eveneens volledig geslaagd.
 
 Prejs (1978) is als 93e registry-record toegevoegd voor blankvoorn, met direct maar dieet-/populatiegebonden veldbewijs voor macrophytenvoeding en een passage-rate-schatting van dagelijkse inname. De bron is limited en approvedForPrediction=false. De auteur waarschuwt expliciet dat de nachtelijke pauze niet als soortbrede regel geldt. Er is geen vertaling naar method-feederpellets, temperatuurcurve, tijdvakbonus of vangstkans.
 
