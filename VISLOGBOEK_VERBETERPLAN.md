@@ -1038,3 +1038,12 @@ Audit §154 en modelarchitectuur §129 leggen vast:
 - forecast-as-of, berekeningstijd en gevraagd tijdstip moeten apart blijven.
 
 Volgende stap: ontwerp de minimale meet-/toestandsspecificatie en regressietests voor meetdieptes, onbekende meetdiepte, tijdzone/DST, forecast-as-of en tijdstipupdates. Bestaande `waterThermalEngine` blijft de enige engine. Geen runtime-, database-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — minimale tijdstipgerichte enginecontractschets (20 november 2026)
+
+Audit §155 en modelarchitectuur §130 leggen de gewenste contractrichting vast voor de bestaande `waterThermalEngine`: expliciet tijdzonebewust doelmoment, afzonderlijke forecast-as-of en berekeningstijd, meetanker met herkomst/meetdiepte, locatie-waterdiepte apart van meetdiepte, en onzekerheids-/provenance-uitvoer.
+
+De voorkeursstrategie is één chronologische toestandsdoorloop die de temperatuurtoestand op meerdere tijdstippen vastlegt. Middag bouwt voort op ochtend; geen vier onafhankelijke dagberekeningen of kunstmatige temperatuurinterpolatie. De huidige tests dekken thermische demping en grove diepteklassen, maar nog niet tijdspecifieke continuïteit, meetdiepteselectie, DST/runtimezone en forecast-as-of.
+
+Volgende stap: tijdzone-/meetdiepte-semantiek en reproduceerbare fixtures concretiseren. Daarna pas implementatievoorstel binnen de bestaande engine. Geen runtime-, database-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
