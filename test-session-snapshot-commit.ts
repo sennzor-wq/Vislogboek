@@ -68,7 +68,7 @@ async function run() {
   assert(storedSnapshot?.linkedSessionId === session.id,
     'De snapshot verwijst terug naar dezelfde sessie');
   assert(!!storedSnapshot?.engineVersions && Object.keys(storedSnapshot.engineVersions).length >= 8 &&
-    storedSnapshot.engineVersions.waterThermal === '1.0.0',
+    storedSnapshot.engineVersions.waterThermal === '1.1.0',
     'De startsnapshot bewaart afzonderlijke versies van de gebruikte prognose-engines');
   assert(storedSnapshot?.targetDate === pending.prognosis.date &&
     storedSnapshot?.targetSlot === pending.chosenSlot,
