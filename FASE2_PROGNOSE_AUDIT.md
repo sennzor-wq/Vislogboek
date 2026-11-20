@@ -3743,3 +3743,16 @@ De hogere waarden kwamen uit het exponentiële maagledigingsmodel. De auteurs vo
 **Beperkingen:** dit zijn larvale vissen, geen volwassen sportvispopulaties. De waarden zijn modelgebaseerde veldschattingen uit maagvulling, geen rechtstreeks gewogen individuele voedselopname. De volledige primaire tekst was niet toegankelijk via Wiley (HTTP 403); steekproefomvang, exacte locatie, temperatuurreeks, prooisamenstelling en volledige modeldiagnostiek zijn daarom niet onafhankelijk gecontroleerd.
 
 De bron is geregistreerd als feeding_intensity voor Baars en Snoekbaars, bewijssterkte **limited**, approvedForPrediction=false, en aan beide soortprofielen gekoppeld. De bron levert geen volwassen thermische curve, lokale Nederlandse referentielabels, hengelvangbaarheid of tijdvakbonus. Geen profielparameter, score, gewicht of runtimefactor gewijzigd.
+
+
+## 140. Volwassen baars en blankvoorn: jaarlijkse veldschatting dagelijkse consumptie (20 november 2026)
+
+Jamet (1994), *Feeding activity of adult roach, perch and ruffe in eutrophic Lake Aydat (France)*, Aquatic Sciences 56(4), 376–387, DOI 10.1007/BF00877183, is als beperkte aanvullende bron beoordeeld.
+
+De studie volgde de voedingsactiviteit van volwassen blankvoorn en baars in één eutroof Frans meer over een jaarlijkse cyclus. Er werd maandelijks bemonsterd van april 1987 tot juli 1988 (juni 1988 uitgezonderd), in littorale en pelagische zones met bodem- en drijvende kieuwnetten. Maaginhoud werd gewogen en de prooien werden geïdentificeerd. Dagelijkse voedselconsumptie werd berekend met het Eggers-model: gemiddelde maaginhoud over 24 uur vermenigvuldigd met een instantane maagledigingsrate die exponentieel afhankelijk is van watertemperatuur. De consumptie werd vervolgens gekoppeld aan de geschatte visstand per leeftijdsklasse.
+
+De studie beschrijft duidelijke seizoensveranderingen in dieet en consumptie. Blankvoorn gebruikte onder meer macro-invertebraten, sediment, macrophyten en fytoplankton; baars consumeerde vooral macro-invertebraten en visbroed. De bron is daarmee relevant voor seizoensgebonden voedingsintensiteit en dieetcontext bij volwassen vissen.
+
+**Beperkingen:** het betreft één eutroof Frans meer met eigen prooiaanbod, zuurstofstratificatie, habitat en visstand. De dagelijkse consumptie is een modelschatting uit maaginhoud en maaglediging, geen rechtstreeks gemeten individuele voedselinname. De temperatuurafhankelijke maaglediging maakt deel uit van de berekening. Maandelijkse bemonstering ondersteunt geen sessie- of uurgebonden tijdvakvoorkeur. Seizoensveranderingen vallen samen met prooiaanbod, voortplanting, zuurstof en habitatgebruik; zij mogen niet als zuivere temperatuurcausaliteit worden gebruikt.
+
+De bron is geregistreerd als feeding_intensity en diet_composition voor Baars en Voorn, bewijssterkte **limited**, approvedForPrediction=false, en gekoppeld aan beide soortprofielen. Zij levert geen lokale Nederlandse labels, volwassen thermische curve, hengelvangbaarheid of validatie van bestaande profielparameters. Geen score, gewicht, parameter of runtimefactor gewijzigd.

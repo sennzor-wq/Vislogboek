@@ -990,3 +990,10 @@ De dataset blijft limited en approvedForPrediction=false; geen volwassen veldcur
 Audit §139 registreert Worischka & Mehner (1998) als beperkte feeding_intensity-bron voor larvale baars en snoekbaars. De auteurs schatten dagelijkse rantsoenen uit uurlijkse maagvullingsmetingen gedurende 24 uur en lineaire/exponentiële maagledigingsfuncties. De gerapporteerde waarden zijn 0,21–0,27 g/g/dag bij larvale baars (13,1 mm) en 0,31–0,40 g/g/dag bij larvale snoekbaars (10,6 mm). Iedere derde uurmeting leverde slechts 41–72% van de rantsoenschatting met uurlijkse bemonstering.
 
 Dit is geen rechtstreeks gewogen individuele voedselopname. Levensfase, methodegevoeligheid en ontbrekende volledige primaire methodedetails beperken overdraagbaarheid; geen volwassen curve of runtimebijdrage. De bron blijft approvedForPrediction=false.
+
+
+## 113. Volwassen baars en blankvoorn: seizoensrantsoen als beperkte veldcontext (20 november 2026)
+
+Audit §140 registreert Jamet (1994) voor volwassen baars en blankvoorn. De studie gebruikte maandelijkse maaginhoudsbemonstering in één eutroof Frans meer gedurende april 1987–juli 1988 en schatte dagelijkse consumptie met het Eggers-model (24-uursgemiddelde maaginhoud × temperatuurafhankelijke maagledigingsrate).
+
+De bron ondersteunt uitsluitend context voor seizoensgebonden voedingsintensiteit en dieet. Het is een modelmatige schatting, geen direct gewogen individuele inname; maandelijkse bemonstering geeft geen tijdvakscore. Seizoen, prooiaanbod, zuurstof, habitat en voortplanting zijn verweven. Geen lokale validatie of runtimebijdrage; approvedForPrediction=false.

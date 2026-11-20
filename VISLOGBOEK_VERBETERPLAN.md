@@ -937,3 +937,8 @@ Er is ook een discrepantie vastgelegd: de paper noemt 24 0+-snoeken in experimen
 ### Fase 2 — larvale baars/snoekbaars veldrantsoen toegevoegd (20 november 2026)
 
 Worischka & Mehner (1998) is als beperkte veldgebaseerde feeding_intensity-bron toegevoegd voor larvale baars en snoekbaars. De dagelijkse rantsoenen zijn afgeleid uit uurlijkse maagvulling over 24 uur en lineaire/exponentiële maagledigingsfuncties; gerapporteerd is 0,21–0,27 g/g/dag voor larvale baars (13,1 mm) en 0,31–0,40 g/g/dag voor larvale snoekbaars (10,6 mm). Iedere derde uurmeting gaf slechts 41–72% van de schatting met uurlijkse bemonstering. De volledige primaire tekst was niet toegankelijk, zodat locatie, steekproef en temperatuurcontext nog niet zijn geverifieerd. Bron blijft limited en approvedForPrediction=false; geen runtimewijziging. Zie audit §139.
+
+
+### Fase 2 — volwassen baars/blankvoorn seizoensrantsoen toegevoegd (20 november 2026)
+
+Jamet (1994) is geregistreerd voor volwassen baars en blankvoorn als beperkte veldbron voor dagelijkse voedingsintensiteit en dieet. Maandelijkse maaginhoudsmonsters in één eutroof Frans meer (april 1987–juli 1988) zijn via het Eggers-model omgezet in dagelijkse consumptieschattingen met temperatuurafhankelijke maaglediging. De methode levert geen directe individuele inname of sessiegebonden tijdvaklabel; seizoen, prooiaanbod, zuurstof en habitat zijn verweven. Bron blijft limited en approvedForPrediction=false. Zie audit §140.

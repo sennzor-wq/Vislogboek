@@ -824,6 +824,27 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'adult-roach-perch-lake-aydat-daily-consumption-1994',
+    topic: 'volwassen-baars-en-blankvoorn-seizoensrantsoen',
+    measuredOutcomes: ['feeding_intensity', 'diet_composition'],
+    species: ['Baars', 'Voorn'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Jamet (1994) onderzocht de voedingsactiviteit van volwassen blankvoorn en baars gedurende een jaarcyclus in het eutrofe Franse Lac Aydat. Maaginhoud werd maandelijks bemonsterd van april 1987 tot juli 1988 (juni 1988 uitgezonderd) in littorale en pelagische zones met bodem- en drijvende kieuwnetten. Dagelijkse consumptie werd geschat met het Eggers-model uit gemiddelde maaginhoud over 24 uur en een exponentieel temperatuurafhankelijke maagledigingsrate; consumptie werd ook aan de geschatte visstand per leeftijdsklasse gerelateerd. De studie beschrijft seizoensgebonden verschillen in rantsoen en dieet.',
+    limitations: [
+      'De studie betreft één eutroof Frans meer en de lokale prooigemeenschap, zuurstofstratificatie, habitat en visstand; overdracht naar Nederlandse wateren is onzeker.',
+      'Dagelijkse consumptie is een modelmatige schatting uit maaginhoud en maaglediging, geen rechtstreeks gemeten individuele voedselinname. De temperatuurafhankelijke evacuatieparameter is onderdeel van de schatting.',
+      'Maandelijkse bemonstering ondersteunt geen afzonderlijke dagelijkse of uurgebonden tijdvakvoorkeur en geen korte-termijnvoorspelling voor een vissessie.',
+      'Seizoensverschillen vallen samen met veranderingen in prooiaanbod, voortplanting, zuurstof en habitatgebruik; ze mogen niet als zuivere temperatuurcausaliteit worden geïnterpreteerd.',
+      'De studie valideert geen lokale Nederlandse voedingslabels, hengelvangbaarheid, aasopname of de huidige thermische profielparameters.'
+    ],
+    sourceReferences: [
+      'Jamet, J.-L. (1994). Feeding activity of adult roach (Rutilus rutilus), perch (Perca fluviatilis) and ruffe (Gymnocephalus cernuus) in eutrophic Lake Aydat (France). Aquatic Sciences, 56(4), 376–387. https://doi.org/10.1007/BF00877183'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'adult-perch-loch-leven-daily-ration-1977',
     topic: 'volwassen-baars-veldvoedingsintensiteit-en-seizoen',
     measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
