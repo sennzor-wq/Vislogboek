@@ -4288,3 +4288,53 @@ Deze reeks kan later tijdconstanten, onzekerheidsbanden en seizoensprofielen hel
 **Besluit:** sessiegebonden watertemperatuurmetingen vormen de gewenste praktische basis voor lokale thermische kalibratie. Dagelijkse metingen zijn geen vereiste. Elke meting moet als afzonderlijke tijdgestempelde observatie met beschikbare weerscontext worden bewaard. De bestaande waterThermalEngine blijft de enige engine; de thermische traagheid wordt eerst met deze lokale reeks en onafhankelijke meetvalidatie getoetst voordat parameters of runtimegedrag veranderen.
 
 Geen runtime-, database-, score-, gewicht-, UI- of verplichte invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 157. Fase-2-closeoutcontrole: resterende technische en inhoudelijke poorten (20 november 2026)
+
+Deze controle volgt de roadmapvolgorde uit §149 en de contractuitwerking §§150–156. Zij scheidt documentatiegereedheid, runtimegedrag en empirische validatie. Read-only audit; geen runtime-, database-, score-, parameter-, gewicht- of UI-wijzigingen.
+
+| Criterium | Status | Gereed | Resterend |
+|---|---|---|---|
+| 1. Doelrespons en responslagen | Ontwerp grotendeels gereed; runtime niet samengesteld | Eén bestaande 1–10-dagscore als productdoel; thermiek, voeding/foerageren, beweging/habitat, vangbaarheid, persoonlijke vangstkans en onzekerheid zijn gescheiden (§§103,105,150). | Actieve score blijft de geaccepteerde voorlopige thermische prior (optie A), niet de uiteindelijke geïntegreerde activiteit-/voedingsrespons. Er is geen onafhankelijke gemeenschappelijke doelreferentie om de lagen veilig samen te voegen. |
+| 2. Bronkwaliteit en overdraagbaarheid | Inventaris gereed voor huidige scope; numerieke voedingslaag niet toelaatbaar | Soortresponskaarten en 94 registry-records zijn op eindpunt, levensfase en context geclassificeerd. Geen bron is numeriek goedgekeurd. Optie A is een productuitzondering, geen wetenschappelijke validatie. | Geen overdraagbare bronset valideert de exacte thermische priorparameters voor alle soorten of een numerieke method-feeder-/pelletrespons. Geen bronquota of geforceerde curves meer. |
+| 3. Water- en omgevingsdata | Contractontwerp gereed; tijdstipuitvoering en meetcontextregistratie open | Herkomst, meettijd, methode, meetdiepte, onzekerheid en weersforceringen zijn geïnventariseerd. Sessiegebonden meten zonder dagelijkse meetplicht staat in §156. | waterThermalEngine levert één dagbrede temperatuuruitkomst. FishingSession heeft één temperatuurveld; geen afzonderlijke meeteventreeks voor meerdere metingen binnen één sessie. Weerscontext op het fysieke meetmoment wordt niet als onveranderlijke context per meetrecord opgeslagen. Historische profielselectie gebruikt meetdiepte nog niet. |
+| 4. Tijdvak- en gedragslogica | Ontwerp gereed; runtime-/biologische rangschikking open | Vier tijdvakken en verbod op generieke schemerbonus zijn vastgelegd. | prognosisEngine deelt dezelfde dagbrede thermalAnalysis met alle tijdvakken. targetHour is geen tijdstip-API. Tijdzone/DST, forecastAsOf en één chronologische toestand per doeltijd moeten technisch worden geïmplementeerd en getest. Directe lokale voedingslabels ontbreken. |
+| 5. Evaluatieketen | Technische evaluatoren gereed voor bestaande eindpunten; biologische evaluatie niet mogelijk met huidige labels | Brier/BSS voor persoonlijke vangstkans en MAE/RMSE/bias voor watertemperatuur zijn aanwezig en gescheiden. Snapshots en chronologische evaluatiebasis bestaan. | Geen directe lokale labels voor fysiologische activiteit, voedselopname/foerageren of habitat-aanwezigheid. Vangsten, aanbeten, beweging en nulvangstsessies zijn geen vervangende voedingslabels. |
+| 6. Gebruiksvriendelijkheid/tactiek | Basisflow gereed; twee productgaten | Vangst opslaan blijft laagdrempelig; soort is kerninvoer en overige velden optioneel. | De gewenste optionele herbruikbare hengel-/methodepreset ontbreekt; huidige flow heeft vrije tekst. De algemene PrognosisView toont exacte voorvoergrammen ook bij lagere invoerkwaliteit, terwijl VisCoach strenger gate. Exacte grammen en temperatuurbanden zijn niet gevalideerd en vragen expliciet productbesluit. |
+| 7. Technische borging | Gereed voor huidige wijzigingsreeks | Exacte PR-head- en mergecommit-Quality-Gates zijn groen, inclusief PR #201. | Iedere volgende codewijziging vereist opnieuw diff-review, regressietests en groene gates op exacte PR-head en mergecommit. |
+
+### 157.1 Concrete codebevindingen in de waterketen
+
+1. waterThermalEngine.ts accepteert targetHour, maar gebruikt deze optie niet; de schatter retourneert één toestand voor de doeldag.
+2. prognosisEngine.ts roept de thermische schatter één keer aan en deelt dezelfde thermalAnalysis met Nacht, Ochtend, Middag en Avond. Uurlijkse weerdata leveren dus nog geen tijdspecifieke watertemperatuur.
+3. FishingSession bewaart één waterTemperature met waterTemperatureMeasuredAt, methode, bron en meetdiepte. Dit ondersteunt één meting per sessierecord, geen onbeperkte reeks meetevents binnen één sessie.
+4. De historische observatiestructuur bewaart meettijd, methode, bron en meetdiepte, maar niet de feitelijke lucht-/wind-/lichtcondities als onveranderlijke context op het fysieke meetmoment. weatherInput in een prognosesnapshot is de forecast voor die prognose, niet automatisch het werkelijk waargenomen weer bij de meting.
+5. deriveHistoricalWaterTemperatureProfile() gebruikt kalendermaand, locatie/watertype en locatiediepte, maar measurementDepthM is nog geen selectiedimensie. Verschillende verticale waterlagen mogen niet zonder meer één profielreeks vormen.
+6. Uurlijkse weerstrings worden op meerdere plaatsen via new Date(hour.time) verwerkt. Tijdzone-/DST-semantiek moet deterministisch worden getest, onafhankelijk van de runtimezone.
+7. forecastAsOf, calculatedAt en targetTime zijn in §155 onderscheiden, maar nog niet als volledig tijdstipgericht runtimecontract geïmplementeerd.
+
+### 157.2 Voorvoer en vangstregistratie
+
+**Voorvoer:** prebaitEngine.ts bevat actieve temperatuurbanden (<6, <10, <16, ≤22 en >22 °C), interne geschiktheidsscores, soortfactoren en concrete grammen voor campagne en sessie. De algemene PrognosisView toont moments.amountDisplay zonder dezelfde strikte confidence-gate die VisCoach toepast. De audit (§96) ondersteunt temperatuur als algemene context, maar niet de exacte grenzen, soortfactoren of hoeveelheden. Optie B (numerieke geschiktheid en exacte grammen uitzetten tot passende onderbouwing bestaat) is het kwaliteitsadvies; runtimewijziging vereist expliciete eigenaarsgoedkeuring.
+
+**Vangstregistratie:** afgesproken flow blijft soort kiezen en opslaan; tijd automatisch invullen maar aanpasbaar; gewicht en hengel/methode optioneel. De gewenste optionele vooraf ingestelde hengel-/methodeconfiguratie ontbreekt nog; vrije tekst is geen preset. De keuze mag nooit verplicht worden.
+
+### 157.3 Grenzen van afronding zonder nieuwe echte data
+
+Thermische software kan technisch worden verbeterd met sessiegebonden metingen, expliciete meetcontext en reproduceerbare tijdstipberekeningen. De gebruiker hoeft niet dagelijks te meten. Tijdconstanten kunnen pas empirisch worden beoordeeld met voldoende echte, vergelijkbare waarnemingen over maanden, weersverlopen en relevante dieptes.
+
+De biologische activiteit-/voedingslaag kan als conservatief ontwerp worden afgerond, maar niet eerlijk als empirisch gevalideerd worden afgevinkt zolang directe onafhankelijke labels ontbreken. Vangsten, aanbeten, beweging of aanwezigheidssignalen zijn geen vervangende voedingslabels. Voeg geen verplichte registratievelden toe om dit kunstmatig op te lossen.
+
+### 157.4 Uitvoeringsvolgorde voor resterende Fase 2
+
+1. Implementeer binnen de bestaande waterThermalEngine een tijdstipgericht contract: tijdzonebewust targetTime, afzonderlijke forecastAsOf/calculatedAt, geldig meetanker, één chronologische toestandsdoorloop en expliciete onzekerheid/provenance.
+2. Maak Europe/Amsterdam-uur-/DST-parsing deterministisch en test wintertijd, zomertijd, runtimes buiten Amsterdam, ontbrekende uren en forecast-as-of/future leakage.
+3. Maak meetdiepte onderdeel van historische profielselectie; bekende dieptes worden niet met onbekende of andere lagen samengevoegd.
+4. Maak meetregistratie geschikt om iedere fysieke meting afzonderlijk te bewaren, inclusief meetmoment en beschikbare weerscontext. Geen dagelijkse meetplicht en geen verplichte extra invoervelden; bestaande sessievelden en snapshots blijven compatibel.
+5. Herstel de consistentie van de voorvoerweergave nadat het productbesluit over numerieke grammen is bevestigd; behoud kwalitatieve method-feeder-/voeradviezen.
+6. Werk de finale respons-/feature-/evaluatiematrix en zevenpunts-crosswalk bij. Geen geïntegreerde score, nieuwe numerieke factor, gewicht of tijdvakbonus zonder passende onafhankelijke labels en chronologische validatie.
+
+### 157.5 Formele uitkomst
+
+**Fase 2 is nog niet formeel afgerond of geaccepteerd. Fase 3 blijft geblokkeerd.** De literatuur- en architectuurinventaris zijn voldoende ver gevorderd; verder breed literatuur verzamelen is niet de hoofdtaak. De resterende softwarewerkzaamheden zijn concreet afgebakend in §157.4. Onafhankelijke biologische validatie en lokale thermische kalibratie blijven afhankelijk van toekomstige echte meetgegevens en mogen niet door documentatie of synthetische tests worden geclaimd.

@@ -1047,3 +1047,16 @@ Audit §155 en modelarchitectuur §130 leggen de gewenste contractrichting vast 
 De voorkeursstrategie is één chronologische toestandsdoorloop die de temperatuurtoestand op meerdere tijdstippen vastlegt. Middag bouwt voort op ochtend; geen vier onafhankelijke dagberekeningen of kunstmatige temperatuurinterpolatie. De huidige tests dekken thermische demping en grove diepteklassen, maar nog niet tijdspecifieke continuïteit, meetdiepteselectie, DST/runtimezone en forecast-as-of.
 
 Volgende stap: tijdzone-/meetdiepte-semantiek en reproduceerbare fixtures concretiseren. Daarna pas implementatievoorstel binnen de bestaande engine. Geen runtime-, database-, score-, gewicht-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — closeoutcontrole en resterende uitvoeringspoorten (20 november 2026)
+
+PR #201 is gemerged; exacte PR-head en mergecommit Quality Gates zijn volledig geslaagd. De sessiegebonden meetstrategie en thermische traagheid staan in audit §156 en modelarchitectuur §131. PROJECT_CONTEXT.md is niet gewijzigd.
+
+De closeoutcontrole staat in audit §157 en modelarchitectuur §132. Zij scheidt architectuurontwerp, runtime-implementatie en empirische validatie. De factor-/responsarchitectuur is voldoende ontworpen; de registry telt 94 records en 0 numeriek goedgekeurde biologische bronnen. De thermische optie-A-prior blijft een voorlopige productuitzondering, geen wetenschappelijke validatie. Directe lokale labels voor fysiologische activiteit of voedselopname ontbreken; vangsten, aanbeten en beweging zijn geen vervangende voedingslabels.
+
+Resterend: tijdstipgerichte chronologische waterthermische API, deterministische Europe/Amsterdam-/DST- en forecast-as-of-verwerking, historische profielselectie op meetdiepte en afzonderlijke registratie van fysieke watertemperatuurmeetmomenten met beschikbare weerscontext. FishingSession heeft nu één watertemperatuurveld; meerdere meetevents binnen één sessie zijn nog niet afzonderlijk gemodelleerd.
+
+Twee tactische productpunten blijven gescheiden: (1) niet-gevalideerde exacte voorvoergrammen/temperatuurbanden en inconsistente confidence-gating; numerieke uitschakeling (optie B) is aanbevolen maar vraagt expliciete eigenaarstoestemming; (2) de gewenste optionele herbruikbare hengel-/methodepreset ontbreekt nog in de vangstflow. Geen van beide mag verplichte invoer worden.
+
+**Status:** Fase 2 niet formeel geaccepteerd; Fase 3 geblokkeerd. De hoofdtaak is gerichte technische uitvoering en toetsing, niet meer brede literatuuruitbreiding. Zie FASE2_PROGNOSE_AUDIT.md §157.
