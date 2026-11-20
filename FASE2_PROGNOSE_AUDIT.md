@@ -4451,3 +4451,20 @@ De Quality Gate heeft typecheck, Amsterdam-/DST-regressies, thermische en histor
 **Begrenzing:** de eventregistratie en technische koppeling zijn gevalideerd, maar dit valideert nog niet de fysieke thermische tijdconstanten. De weerscontext is Open-Meteo-modeldata en geen directe lokale weerwaarneming. Meetreeksen over verschillende seizoenen en omstandigheden moeten nog in de praktijk ontstaan.
 
 **Volgende stap: punt 5 — audit en besluit over de numerieke voorvoeradviezen en consistente confidence-gating.** De exacte gramadviezen en temperatuur-/soortgrenzen blijven voorlopig niet gevalideerd; runtimewijzigingen worden niet uitgevoerd zonder expliciete productgoedkeuring. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+## 163. Eigenaarbesluit punt 5 — behoud engine, confidence-gating in presentatie (20 november 2026)
+
+**Besluit: goedgekeurd.** De bestaande voorvoerengine blijft inhoudelijk intact. Er worden geen temperatuurbanden, geschiktheidswaarden/-scores, soortfactoren, berekende grammen, campagneplanning, persoonlijke vergelijkingen of overige engine-uitkomsten verwijderd of aangepast. De numerieke waarden blijven beschikbaar als interne modeluitvoer en voor latere evaluatie.
+
+De afgebakende runtimewijziging betreft uitsluitend de presentatie van exacte gramhoeveelheden in de algemene PrognosisView:
+- exacte hoeveelheden van voorbereidende voerbeurten worden alleen getoond wanneer de bestaande invoerkwaliteitsclassificatie `Redelijk` is;
+- bij `Matig` of `Laag` blijven eventuele geplande momenten en kwalitatieve uitleg zichtbaar, maar wordt de gramwaarde niet getoond;
+- ook de numerieke hoeveelheid tijdens de sessie wordt bij lagere invoerkwaliteit niet getoond; het kwalitatieve presentatie-/voeradvies blijft beschikbaar;
+- de bestaande temperatuurbanden en kwalitatieve geschiktheidsconclusie blijven ongewijzigd en worden als praktische heuristiek, niet als wetenschappelijk gevalideerde biologische norm, gepresenteerd.
+
+De confidence-level beschrijft uitsluitend de volledigheid/kwaliteit van de ingevoerde temperatuur- en stekgegevens. `Redelijk` is geen bewijs dat de gramhoeveelheid biologisch gevalideerd is; de bestaande waarschuwing daarover blijft staan. Er worden geen nieuwe verplichte velden toegevoegd.
+
+**Buiten scope:** alle andere prognosefactoren, de algemene biologische score, weersanalyse, VisCoach-intake, habitat-/wind-/positioneringsmodules, sessiegegevens en gebruikersdata. Geen temperatuurgrenzen of berekeningsfuncties wijzigen.
+
+**Validatiegrens:** bestaande engine-regressietests blijven de berekende waarden controleren. De UI-wijziging is een presentatielaag-gate; een volledige lokale typecheck/test/build is in deze werksessie niet uitgevoerd en mag niet als groen worden gerapporteerd.

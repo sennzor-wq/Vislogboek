@@ -1569,6 +1569,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             {/* ======================================================= */}
             {activeDayProg.prebaitPlan && (() => {
               const pp = activeDayProg.prebaitPlan;
+              // Keep the engine's numeric outputs intact; only expose gram values when input completeness is Redelijk.
+              const canShowExactAmounts = pp.confidenceLevel === 'Redelijk';
               return (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-800/40 space-y-3.5 shadow-lg">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
@@ -1650,7 +1652,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           <div key={idx} className="p-3 rounded-xl border space-y-1 bg-slate-800/80 border-slate-700/70">
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-white text-xs">{m.dayLabel} ({m.date})</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 font-bold">{m.amountDisplay}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 font-bold">{canShowExactAmounts ? m.amountDisplay : "Hoeveelheid niet weergegeven"}</span>
                             </div>
                             <div className="text-[11px] text-cyan-300 font-medium">Tijdstip: {m.suggestedTime}</div>
                             <p className="text-[10px] text-slate-400 leading-snug pt-1 border-t border-slate-700/40">{m.purpose}</p>
@@ -1676,7 +1678,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider block">Tijdens de vissessie</span>
                       <p className="text-white font-semibold text-[11px]">
                         {pp.sessionDayGuidance.feedDuringSession
-                          ? `Spaarzaam bijvoeren (~${pp.sessionDayGuidance.recommendedAmountGrams}g)`
+                          ? canShowExactAmounts
+                            ? `Spaarzaam bijvoeren (~${pp.sessionDayGuidance.recommendedAmountGrams}g)`
+                            : 'Spaarzaam bijvoeren; hoeveelheid niet gekwantificeerd'
                           : 'Geen extra bijvoeradvies; gericht instant vissen'}
                       </p>
                       <p className="text-slate-300 text-[11px] leading-relaxed">{pp.sessionDayGuidance.advice}</p>

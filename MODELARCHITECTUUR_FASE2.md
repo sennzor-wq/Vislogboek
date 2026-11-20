@@ -1207,3 +1207,12 @@ Ontbrekende weerwaarden blijven onbekend; alleen een Open-Meteo-uurwaarde binnen
 Dit valideert de registratieketen, niet de thermische tijdconstanten. Lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Zie audit §162.
 
 Volgende stap: punt 5 — voorvoeradviezen en confidence-gating auditen; numerieke runtimewijziging pas na expliciete productgoedkeuring.
+
+
+## 138. Punt 5 — voorvoeruitvoer behouden, numerieke presentatie begrenzen (20 november 2026)
+
+De eigenaar heeft bevestigd dat geen informatie verloren mag gaan. Daarom blijven alle bestaande temperatuurbanden, interne geschiktheidsscores, soortfactoren, hoeveelheden en persoonlijke voorvoervergelijkingen in `prebaitEngine` behouden. Er vindt geen herkalibratie of wijziging van de berekeningsregels plaats.
+
+De enige runtime-aanpassing is confidence-gating in de algemene PrognosisView: exacte gramhoeveelheden worden uitsluitend getoond bij de bestaande invoerkwaliteit `Redelijk`. Bij lagere kwaliteit blijven kwalitatieve aanbevelingen en eventuele timing zichtbaar, maar worden exacte grammen verborgen. Dit geldt zowel voor voorafgaande voerbeurten als de sessiehoeveelheid. De bestaande disclaimer blijft duidelijk maken dat `Redelijk` de volledigheid van invoer beschrijft en geen wetenschappelijke validatie van de hoeveelheid inhoudt.
+
+De wijziging raakt geen andere prognose-, weer-, habitat-, positionerings- of VisCoach-functie en voegt geen invoervelden toe. De temperatuurbanden blijven indicatieve tactische context.
