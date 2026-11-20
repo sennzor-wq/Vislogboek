@@ -942,3 +942,12 @@ De huidige conformiteitscontrole staat in FASE2_PROGNOSE_AUDIT.md §133. De basi
 De huidige hengel-/techniekregistratie is echter een vrij tekstveld, geen selectie uit een vooraf ingesteld herbruikbaar profiel. Een SessionRod is sessiegebonden en vervangt geen gebruikerspreset. Dit verschil is gedocumenteerd; er is nog geen runtimewijziging of datamigratie gekozen. Een toekomstige preset moet optioneel blijven en de snelle vangstflow niet blokkeren.
 
 **Architectuurstatus:** geen runtime-, score-, parameter-, gewicht- of gebruikersflowwijziging door deze documentatie. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 107. Finale kandidaatmodelreview en toelatingsbesluit (20 november 2026)
+
+De read-only kandidaatmodelreview en de exacte huidige codeketen staan in `FASE2_PROGNOSE_AUDIT.md` §134. De passende kandidaat blijft één versiebeheerste, modulaire prognoseketen met intern gescheiden fysiologische/thermische potentie, voedings-/foerageerrespons, omgevingsmodulatie, habitat/aanwezigheid, vangbaarheid/persoonlijke vangstkans en datadekking/onzekerheid. Er komt geen tweede totaalmodel en geen ongedifferentieerde optelsom.
+
+De huidige 1–10-score wordt op main uitsluitend door de voorlopige thermische prior bepaald: `1 + 9 × thermalEfficiency^0.85`. Dezelfde dagbrede thermische respons wordt momenteel voor de vier tijdvakken hergebruikt. De feedingEvidenceService heeft op basis van de huidige registry geen goedgekeurde numerieke voedingsbron. Habitat-/positioneringsengines, Brier/BSS en voorvoergrammen blijven afzonderlijke respons-/tactieklassen.
+
+**Reviewbesluit:** optie A blijft uitsluitend als transparante voorlopige baseline-uitzondering behouden. De kandidaat is niet numeriek toegelaten als gecombineerd activiteit-/voedingsmodel: directe lokale biologische labels ontbreken en de exacte thermische parameters/scoremapping zijn niet onafhankelijk gevalideerd. Geen nieuwe factor, gewicht, interactie, scoremapping of tijdvakbonus activeren. De onafhankelijke biologische evaluatiepoort blijft open; Fase 2 is niet geaccepteerd en Fase 3 blijft geblokkeerd. Productbesluiten over voorvoergrammen bij lage invoerkwaliteit en optionele hengel-/methodepresets blijven expliciet bij de eigenaar.

@@ -1879,3 +1879,14 @@ Belangrijke actuele grenzen:
 - De basisvangstflow blijft frictiearm. De huidige optionele hengel-/techniekregistratie is echter vrije tekst en nog geen selectie uit vooraf ingestelde herbruikbare hengelprofielen; dit is als afzonderlijk productbesluit vastgelegd.
 
 **Formele status:** Fase 2 is nog niet geaccepteerd en Fase 3 blijft geblokkeerd. Er zijn geen nieuwe biologische gewichten, factoren, interacties, tijdvakbonussen of runtime-scorewijzigingen geactiveerd. De volgende ontwerpstap is de finale kandidaatmodelreview, met expliciete behandeling van de voorlopige thermische uitzondering binnen criterium 2 en de nog open productkeuze rond hengelprofielen/voorvoergrammen.
+
+
+### Fase 2 — finale kandidaatmodelreview (20 november 2026)
+
+De read-only review van de actuele main-code en de kandidaatarchitectuur is vastgelegd in `FASE2_PROGNOSE_AUDIT.md` §134 en samengevat in `MODELARCHITECTUUR_FASE2.md` §107. De kandidaat blijft één versiebeheerste, modulaire prognoseketen met gescheiden biologische responsen en aparte habitat-, vangbaarheids- en onzekerheidslagen.
+
+De actuele 1–10-score wordt uitsluitend door de voorlopige thermische prior bepaald. Er zijn 0 goedgekeurde numerieke voedingsbronnen; dezelfde thermische dagrespons wordt voor de vier tijdvakken hergebruikt. De huidige lokale data bevatten geen directe labels om activiteit, voedselopname of een samengestelde biologische score onafhankelijk te valideren.
+
+**Reviewuitkomst:** kandidaatarchitectuur inhoudelijk beoordeeld, kandidaatmodel niet numeriek toegelaten. Optie A blijft een transparante voorlopige uitzondering, geen wetenschappelijke validatie. Geen runtime-, score-, parameter-, gewicht-, interactie- of gebruikersflowwijziging. Fase 2 blijft open en niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+Het hervattingspunt is nu: expliciete eigenaarbesluiten over de beperkte optie-A-uitzondering, voorvoergrammen bij lage invoerkwaliteit en vrije tekst versus optionele hengel-/methodepreset; daarnaast gericht zoeken naar bruikbare onafhankelijke directe biologische datasets. Daarna pas responsankers en chronologische baselinevergelijking. Geen extra verplichte invoer.
