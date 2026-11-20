@@ -4432,3 +4432,22 @@ VisCoach herkent een gewijzigde meeteventreeks als nieuwe observatie-invoer. Bac
 De registratie en koppeling van beschikbare weerscontext zijn nog geen empirische validatie van de thermische tijdconstanten. De weerscontext is modeldata en mag niet als gemeten weer worden gepresenteerd. Een event met onbekende meetmethode blijft zichtbaar en bewaard, maar telt volgens de bestaande datakwaliteitsregel niet mee voor profielkalibratie.
 
 **Afvinkcriterium:** PR #211 moet op de definitieve PR-head volledig groen zijn, inclusief typecheck, alle regressietests, backup round-trip en productiebuild. Daarna controle op de mergecommit op main. Bij groen is punt 4 technisch afgerond; lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Daarna volgt punt 5, niet fase 3.
+
+## 162. Acceptatie punt 4 — sessiegebonden meetevents (20 november 2026)
+
+**Status: technisch afgerond en gevalideerd.** PR [#211](https://github.com/sennzor-wq/Vislogboek/pull/211) is gemerged in commit 75032795bfcecd8e4a61b6fa16b4650ba26802dd. Zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig groen.
+
+Punt 4 is hiermee afgevinkt:
+- meerdere fysieke meetevents per vissessie worden afzonderlijk bewaard met meettijd, registratietijd, stek, temperatuur, bron/methode en optionele meetdiepte;
+- beschikbare uurlijkse Open-Meteo-context wordt uitsluitend gekoppeld binnen 60 minuten van het fysieke meetmoment, met bron, weeruur, ophaaltijd en offset;
+- ontbrekende context blijft expliciet onbekend; er worden geen waarden verzonnen;
+- de fysieke meettijd wordt als thermisch anker gebruikt, los van het latere opslaan of berekenen van de snapshot;
+- alle geldige events worden afzonderlijk aangeboden aan de historische profielketen; dubbele snapshotkopieën tellen in het profiel slechts eenmaal;
+- legacy scalar sessievelden en bestaande JSON-back-ups blijven compatibel; er is geen nieuwe IndexedDB-tabel of migratie nodig;
+- meetinvoer blijft optioneel en er bestaat geen dagelijkse meetplicht.
+
+De Quality Gate heeft typecheck, Amsterdam-/DST-regressies, thermische en historische profieltests, weerscontextmatching, VisCoach, backup round-trip en productiebuild succesvol uitgevoerd.
+
+**Begrenzing:** de eventregistratie en technische koppeling zijn gevalideerd, maar dit valideert nog niet de fysieke thermische tijdconstanten. De weerscontext is Open-Meteo-modeldata en geen directe lokale weerwaarneming. Meetreeksen over verschillende seizoenen en omstandigheden moeten nog in de praktijk ontstaan.
+
+**Volgende stap: punt 5 — audit en besluit over de numerieke voorvoeradviezen en consistente confidence-gating.** De exacte gramadviezen en temperatuur-/soortgrenzen blijven voorlopig niet gevalideerd; runtimewijzigingen worden niet uitgevoerd zonder expliciete productgoedkeuring. Fase 2 blijft open; fase 3 geblokkeerd.

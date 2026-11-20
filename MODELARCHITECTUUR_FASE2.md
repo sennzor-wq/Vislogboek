@@ -1197,3 +1197,13 @@ De sessie-editor laat meerdere metingen per sessie toevoegen/verwijderen. Meetmo
 De fysieke measuredAt wordt ook aan ManualWaterTemperatureInput en de waterthermische engine doorgegeven. Daarmee wordt vanaf het echte meetanker doorgerekend en niet vanaf het moment waarop het sessierecord of snapshot wordt opgeslagen. Events met onbekende methode/herkomst of zonder exact meetmoment blijven bewaard maar voldoen niet aan de bestaande profielkwaliteitsregel.
 
 Punt 4 geldt pas als afgerond na groene Quality Gate op de definitieve PR-head én de mergecommit. De technische registratie valideert nog niet de thermische tijdconstanten; daarvoor blijven echte lokale meetreeksen nodig. Zie audit §161.
+
+## 137. Acceptatie punt 4 — sessiegebonden meetevents
+
+Punt 4 is technisch afgerond in PR #211 en de exacte PR-head- en mergecommit-Quality-Gates zijn groen. Meerdere fysieke watertemperatuurmetingen per sessie worden als aparte geneste events bewaard, inclusief fysiek meettijdstip, apart registratiemoment, oorspronkelijke stek, bron/methode, optionele meetdiepte en beschikbare uurlijkse weerscontext. De fysieke meettijd wordt doorgegeven aan de waterthermische engine en de immutable startsnapshot.
+
+Ontbrekende weerwaarden blijven onbekend; alleen een Open-Meteo-uurwaarde binnen 60 minuten wordt gekoppeld en als modelcontext met provenance bewaard. Er is geen dagelijkse meetplicht, geen verplicht extra invoerveld en geen nieuw IndexedDB-schema. Legacy sessievelden en back-ups blijven compatibel. Historische profielberekening gebruikt elk geldig meetevent en dedupliceert snapshotkopieën van dezelfde fysieke meting.
+
+Dit valideert de registratieketen, niet de thermische tijdconstanten. Lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Zie audit §162.
+
+Volgende stap: punt 5 — voorvoeradviezen en confidence-gating auditen; numerieke runtimewijziging pas na expliciete productgoedkeuring.

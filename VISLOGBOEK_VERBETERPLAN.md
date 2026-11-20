@@ -1098,3 +1098,11 @@ De events zijn als array in het bestaande sessierecord opgeslagen; daardoor is g
 Weerscontext wordt alleen gekoppeld wanneer een uurlijkse Open-Meteo-waarde maximaal 60 minuten van het fysieke meetmoment afligt. Bron, weeruur, ophaaltijd en offset worden vastgelegd. Ontbrekende context blijft onbekend. De fysieke meettijd wordt ook als anker aan de waterthermische engine doorgegeven. Historische profielen kunnen elk geldig meetevent afzonderlijk gebruiken; dubbele snapshotkopieën tellen niet dubbel mee. Events met onbekende methode/herkomst blijven opgeslagen maar worden niet als gevalideerde profielmetingen gebruikt.
 
 **Status:** implementatie en regressietests staan in PR #211; formele afvinking volgt uitsluitend na groene Quality Gate op de definitieve PR-head en mergecommit. Zie audit §161. Fase 2 blijft open; fase 3 geblokkeerd.
+
+### Fase 2 — punt 4 afgerond; punt 5 startklaar (20 november 2026)
+
+Punt 4 is afgerond in [PR #211](https://github.com/sennzor-wq/Vislogboek/pull/211). De PR-head én mergecommit Quality Gates zijn volledig groen. De sessie-editor ondersteunt afzonderlijke meetevents met fysiek meettijdstip, apart registratiemoment, optionele meetmethode/-diepte en beschikbare weerscontext. Het meettijdstip wordt ook als thermisch anker doorgegeven. Ontbrekende context blijft onbekend; er is geen dagelijkse meetplicht, verplichte invoer, nieuwe IndexedDB-tabel of migratie.
+
+De back-upcompatibiliteit, historische profielketen, VisCoach-trigger en weerscontextmatching zijn getest. De registratieketen is technisch gevalideerd; fysieke thermische tijdconstanten nog niet. Zie audit §162.
+
+**Volgende stap: punt 5 — voorvoeradviezen en confidence-gating auditen.** De exacte gramadviezen/temperatuurgrenzen zijn niet gevalideerd. We voeren geen runtimewijziging uit voordat het productbesluit expliciet is goedgekeurd. Fase 2 blijft open; fase 3 geblokkeerd.
