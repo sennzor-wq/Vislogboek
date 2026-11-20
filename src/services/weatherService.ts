@@ -1,4 +1,4 @@
-import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry } from '../types';
+import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry, WaterTemperatureMeasurementWeatherContext } from '../types';
 import { db } from '../db/db';
 import { APP_TIME_ZONE, parseAppTimestamp, parseForecastTimestamp } from '../utils/dateTime';
 
@@ -468,4 +468,113 @@ export async function fetchHistoricalWeatherSnapshot(
       success: false,
     };
   }
+}
+
+
+/**
+ * Koppelt per fysieke watertemperatuurmeting het dichtstbijzijnde beschikbare
+ * uurlijkse historische weerrecord. Ontbrekende of te ver verwijderde data blijft null.
+ */
+export async function fetchHistoricalWeatherContextsForMeasurements(
+  latitude: number | undefined,
+  longitude: number | undefined,
+  measurements: Array<{ id: string; measuredAt: string }>
+): Promise<Record<string, WaterTemperatureMeasurementWeatherContext | null>> {
+  const result: Record<string, WaterTemperatureMeasurementWeatherContext | null> = {};
+  for (const measurement of measurements) result[measurement.id] = null;
+  if (typeof latitude !== 'number' || !Number.isFinite(latitude) ||
+      typeof longitude !== 'number' || !Number.isFinite(longitude) || measurements.length === 0) return result;
+
+  const validMeasurements = measurements.flatMap((measurement) => {
+    const parsed = parseAppTimestamp(measurement.measuredAt);
+    return parsed ? [{ ...measurement, timestampMs: parsed.getTime() }] : [];
+  }).filter((measurement) => measurement.timestampMs <= Date.now());
+  if (validMeasurements.length === 0) return result;
+
+  const startDate = formatAmsterdamDate(new Date(Math.min(...validMeasurements.map((item) => item.timestampMs))));
+  const endDate = formatAmsterdamDate(new Date(Math.max(...validMeasurements.map((item) => item.timestampMs))));
+  const hourlyVariables = [
+    'temperature_2m', 'relative_humidity_2m', 'dew_point_2m', 'shortwave_radiation',
+    'precipitation', 'surface_pressure', 'cloud_cover', 'wind_speed_10m',
+    'wind_direction_10m', 'weather_code',
+  ].join(',');
+  let hourly: any = null;
+  let source: WaterTemperatureMeasurementWeatherContext['source'] = 'open-meteo-archive';
+
+  try {
+    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${startDate}&end_date=${endDate}&hourly=${hourlyVariables}&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
+    const archiveResponse = await fetch(archiveUrl, { signal: AbortSignal.timeout(6000) });
+    if (archiveResponse.ok) {
+      const archiveData = await archiveResponse.json();
+      if (Array.isArray(archiveData.hourly?.time) && archiveData.hourly.time.length > 0) {
+        hourly = archiveData.hourly;
+      }
+    }
+
+    if (!hourly) {
+      source = 'open-meteo-recent-past';
+      const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=${hourlyVariables}&timezone=Europe%2FAmsterdam&timeformat=unixtime&past_days=7&forecast_days=1`;
+      const recentResponse = await fetch(recentUrl, { signal: AbortSignal.timeout(6000) });
+      if (!recentResponse.ok) return result;
+      const recentData = await recentResponse.json();
+      hourly = recentData.hourly;
+    }
+  } catch {
+    return result;
+  }
+
+  const times: number[] = Array.isArray(hourly?.time) ? hourly.time.map((value: unknown) => Number(value)) : [];
+  if (times.length === 0) return result;
+  const retrievedAt = new Date().toISOString();
+  const numericAt = (values: unknown, index: number, min: number, max: number): number | undefined => {
+    if (!Array.isArray(values)) return undefined;
+    const value = values[index];
+    return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max ? value : undefined;
+  };
+
+  for (const measurement of validMeasurements) {
+    let closestIndex = -1;
+    let closestDifferenceMs = Number.POSITIVE_INFINITY;
+    for (let index = 0; index < times.length; index += 1) {
+      const timestampMs = times[index] * 1000;
+      if (!Number.isFinite(timestampMs)) continue;
+      const differenceMs = Math.abs(timestampMs - measurement.timestampMs);
+      if (differenceMs < closestDifferenceMs) {
+        closestDifferenceMs = differenceMs;
+        closestIndex = index;
+      }
+    }
+    if (closestIndex < 0 || closestDifferenceMs > 90 * 60 * 1000) continue;
+
+    const matchedAt = new Date(times[closestIndex] * 1000).toISOString();
+    const context: WaterTemperatureMeasurementWeatherContext = {
+      source,
+      retrievedAt,
+      matchedAt,
+      timeDifferenceMinutes: Math.round((closestDifferenceMs / 60000) * 10) / 10,
+      ...(numericAt(hourly.temperature_2m, closestIndex, -50, 60) !== undefined
+        ? { airTemperatureC: numericAt(hourly.temperature_2m, closestIndex, -50, 60) } : {}),
+      ...(numericAt(hourly.relative_humidity_2m, closestIndex, 0, 100) !== undefined
+        ? { relativeHumidityPct: numericAt(hourly.relative_humidity_2m, closestIndex, 0, 100) } : {}),
+      ...(numericAt(hourly.dew_point_2m, closestIndex, -50, 50) !== undefined
+        ? { dewPointC: numericAt(hourly.dew_point_2m, closestIndex, -50, 50) } : {}),
+      ...(numericAt(hourly.shortwave_radiation, closestIndex, 0, 1600) !== undefined
+        ? { shortwaveRadiationWm2: numericAt(hourly.shortwave_radiation, closestIndex, 0, 1600) } : {}),
+      ...(numericAt(hourly.precipitation, closestIndex, 0, 1000) !== undefined
+        ? { precipitationMm: numericAt(hourly.precipitation, closestIndex, 0, 1000) } : {}),
+      ...(numericAt(hourly.surface_pressure, closestIndex, 800, 1100) !== undefined
+        ? { pressureHpa: numericAt(hourly.surface_pressure, closestIndex, 800, 1100) } : {}),
+      ...(numericAt(hourly.cloud_cover, closestIndex, 0, 100) !== undefined
+        ? { cloudCoverPct: numericAt(hourly.cloud_cover, closestIndex, 0, 100) } : {}),
+      ...(numericAt(hourly.wind_speed_10m, closestIndex, 0, 200) !== undefined
+        ? { windSpeedKmh: numericAt(hourly.wind_speed_10m, closestIndex, 0, 200) } : {}),
+      ...(numericAt(hourly.wind_direction_10m, closestIndex, 0, 360) !== undefined
+        ? { windDirectionDegrees: numericAt(hourly.wind_direction_10m, closestIndex, 0, 360) } : {}),
+      ...(numericAt(hourly.weather_code, closestIndex, 0, 1000) !== undefined
+        ? { weatherCode: numericAt(hourly.weather_code, closestIndex, 0, 1000) } : {}),
+    };
+    if (Object.keys(context).length > 4) result[measurement.id] = context;
+  }
+
+  return result;
 }

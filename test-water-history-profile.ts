@@ -1,6 +1,7 @@
 import { collectHistoricalWaterTemperatureObservations, deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './src/services/waterTemperatureHistory';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
 import { FishingLocation, FishingSession, PrognosisSnapshot, WeatherHourlyForecast } from './src/types';
+import { createPrognosisHistoryFeatureSnapshot } from './src/services/prognosisEngine';
 
 let passed = 0;
 let failed = 0;
@@ -84,6 +85,55 @@ assert(snapshotMeasurement?.recordType === 'snapshot' &&
   'Snapshotmeting bewaart eigen herkomst en meetdiepte');
 assert(sessionMeasurement?.timestamp === '2026-06-10T10:00:00+02:00',
   'Een sessiemeting gebruikt het expliciete meettijdstip en niet de sessiestart');
+
+const sessionWithMeasurementEvents = {
+  ...measuredSessions[0],
+  id: 'session-with-events',
+  waterTemperatureMeasurements: [
+    {
+      id: 'measurement-event-1',
+      measuredAt: '2026-06-10T09:00:00Z',
+      recordedAt: '2026-06-10T09:05:00Z',
+      temperatureC: 17.5,
+      measurementSource: 'manual' as const,
+      measurementMethod: 'thermometer' as const,
+      measurementDepthM: 0.4,
+      weatherContext: {
+        source: 'open-meteo-archive' as const,
+        retrievedAt: '2026-06-10T09:06:00Z',
+        matchedAt: '2026-06-10T09:00:00Z',
+        timeDifferenceMinutes: 0,
+        airTemperatureC: 19,
+        windSpeedKmh: 7,
+      },
+    },
+    {
+      id: 'measurement-event-2',
+      measuredAt: '2026-06-10T11:00:00Z',
+      recordedAt: '2026-06-10T11:02:00Z',
+      temperatureC: 18,
+      measurementSource: 'manual' as const,
+      measurementMethod: 'probe' as const,
+      measurementDepthM: 0.8,
+      weatherContext: null,
+    },
+  ],
+} as FishingSession;
+const eventObservations = collectHistoricalWaterTemperatureObservations([sessionWithMeasurementEvents], [], [target]);
+assert(eventObservations.length === 2 &&
+  eventObservations.every((item) => item.recordType === 'session_measurement'),
+  'Een sessie met meerdere fysieke metingen levert ieder meetevent afzonderlijk op en telt legacy-hoofdveld niet dubbel');
+assert(eventObservations[0].measurementDepthM === 0.4 &&
+  eventObservations[0].weatherContext?.airTemperatureC === 19 &&
+  eventObservations[1].measurementDepthM === 0.8 &&
+  eventObservations[1].weatherContext === null,
+  'Meetdiepte en beschikbare weerscontext blijven per afzonderlijk meetevent behouden');
+const eventHistoryFeatures = createPrognosisHistoryFeatureSnapshot([sessionWithMeasurementEvents], []);
+const eventFeatureSession = eventHistoryFeatures.historicalSessionFeatures?.[0];
+assert(eventHistoryFeatures.historyFeatureSchemaVersion === 3 &&
+  eventFeatureSession?.waterTemperatureMeasurements?.length === 2 &&
+  eventFeatureSession?.waterTemperatureMeasurements?.[0].weatherContext?.airTemperatureC === 19,
+  'Immutable prognosehistorie bewaart alle meetevents en hun weerscontext onder schema versie 3');
 const deduplicatedProfile = deriveHistoricalWaterTemperatureProfile(collectedMeasurements, target, '2026-07-04');
 assert(deduplicatedProfile?.sampleCount === 3 && deduplicatedProfile.baselineC === 15,
   'Een sessie- en snapshotkopie van dezelfde meting telt door tijdzone-normalisatie slechts eenmaal');

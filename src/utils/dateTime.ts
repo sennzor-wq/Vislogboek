@@ -163,3 +163,20 @@ export function formatDateTimeLocalInput(value: Date | string): string {
   const pad = (part: number) => String(part).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+/** Formats a datetime-local value in the app's fixed Europe/Amsterdam timezone. */
+export function formatAppDateTimeLocalInput(value: Date | string): string {
+  const date = value instanceof Date ? value : parseAppTimestamp(value);
+  if (!date || !Number.isFinite(date.getTime())) return '';
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: APP_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? '';
+  return `${part('year')}-${part('month')}-${part('day')}T${part('hour')}:${part('minute')}`;
+}

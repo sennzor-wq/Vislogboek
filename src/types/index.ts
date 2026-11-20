@@ -139,6 +139,36 @@ export interface CatchItem {
   createdAt: string;
 }
 
+export interface WaterTemperatureMeasurementWeatherContext {
+  source: 'open-meteo-archive' | 'open-meteo-recent-past';
+  retrievedAt: string;
+  matchedAt: string;
+  timeDifferenceMinutes: number;
+  airTemperatureC?: number;
+  relativeHumidityPct?: number;
+  dewPointC?: number;
+  shortwaveRadiationWm2?: number;
+  precipitationMm?: number;
+  pressureHpa?: number;
+  cloudCoverPct?: number;
+  windSpeedKmh?: number;
+  windDirectionDegrees?: number;
+  weatherCode?: number;
+}
+
+export interface WaterTemperatureMeasurement {
+  id: string;
+  /** Exact physical measurement time, separate from record creation time. */
+  measuredAt: string;
+  recordedAt: string;
+  temperatureC: number;
+  measurementSource: 'manual' | 'imported' | 'unknown';
+  measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown';
+  measurementDepthM?: number;
+  /** Actual/reanalysis weather context nearest to the physical measurement time; absent stays unknown. */
+  weatherContext?: WaterTemperatureMeasurementWeatherContext | null;
+}
+
 export interface FishingSession {
   prebaited?: boolean;
   prebaitDays?: number;
@@ -168,6 +198,8 @@ export interface FishingSession {
   waterTemperatureMeasurementSource?: 'manual' | 'imported' | 'unknown';
   waterTemperatureMeasurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
   waterTemperatureMeasurementDepthM?: number;
+  /** Separate physical measurement events within this session; legacy single fields remain for compatibility. */
+  waterTemperatureMeasurements?: WaterTemperatureMeasurement[];
   baitDirection?: CompassDirection | null; // Richting van aasaanbieding (optioneel, nooit verplicht)
   notes?: string;
   weatherSnapshot?: WeatherSnapshot;
@@ -520,7 +552,7 @@ export interface ManualWaterTemperatureInput {
   recordedAt: string;
   /** null betekent dat de gebruiker geen exact meetmoment heeft opgegeven. */
   measurementTimestamp: string | null;
-  measurementSource: 'manual';
+  measurementSource: 'manual' | 'imported' | 'unknown';
   measurementMethod: 'thermometer' | 'probe' | 'other' | 'unknown' | null;
   measurementDepthM: number | null;
 }
@@ -559,7 +591,7 @@ export interface PrognosisInputContext {
     | 'technique' | 'baitDirection' | 'prebaited' | 'baitAndFeed' | 'waterDepth'
     | 'waterTemperature' | 'waterTemperatureMeasuredAt'
     | 'waterTemperatureMeasurementSource' | 'waterTemperatureMeasurementMethod'
-    | 'waterTemperatureMeasurementDepthM'
+    | 'waterTemperatureMeasurementDepthM' | 'waterTemperatureMeasurements'
   >>;
   historicalCatchFeatures?: Array<Pick<CatchItem,
     | 'id' | 'sessionId' | 'locationId' | 'species' | 'count' | 'weightKg'
@@ -568,7 +600,7 @@ export interface PrognosisInputContext {
   historicalObservationFeatures?: Array<Pick<PresenceObservation,
     'id' | 'locationId' | 'sessionId' | 'observationType' | 'timestamp'
   >>;
-  historyFeatureSchemaVersion?: 1 | 2;
+  historyFeatureSchemaVersion?: 1 | 2 | 3;
   /** Exacte lokale biascorrectie die bij deze prognoserun is gebruikt. */
   waterTemperatureCalibration?: {
     appliedCorrectionC: number;
@@ -590,7 +622,8 @@ export interface PrognosisInputContext {
     measurementDepthM?: number;
     recordedAt?: string;
     recordId?: string;
-    recordType?: 'session' | 'snapshot';
+    recordType?: 'session' | 'session_measurement' | 'snapshot';
+    weatherContext?: WaterTemperatureMeasurementWeatherContext | null;
   }>;
   historyFingerprint?: string;
   historySummary: {

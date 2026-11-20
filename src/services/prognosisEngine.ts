@@ -42,18 +42,28 @@ import { APP_TIME_ZONE, addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, 
  */
 export function createManualWaterTemperatureInput(
   temperatureC: number | null | undefined,
-  recordedAt: string
-): ManualWaterTemperatureInput | null {
-  if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !parseAppTimestamp(recordedAt)) {
-    return null;
+  recordedAt: string,
+  measurement?: {
+    measurementTimestamp?: string | null;
+    measurementSource?: 'manual' | 'imported' | 'unknown';
+    measurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown' | null;
+    measurementDepthM?: number | null;
   }
+): ManualWaterTemperatureInput | null {
+  if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !parseAppTimestamp(recordedAt)) return null;
+  const measuredAt = measurement?.measurementTimestamp
+    ? parseAppTimestamp(measurement.measurementTimestamp)?.toISOString() ?? null
+    : null;
   return {
     temperatureC,
     recordedAt,
-    measurementTimestamp: null,
-    measurementSource: 'manual',
-    measurementMethod: null,
-    measurementDepthM: null,
+    measurementTimestamp: measuredAt,
+    measurementSource: measurement?.measurementSource ?? 'manual',
+    measurementMethod: measurement?.measurementMethod ?? null,
+    measurementDepthM: typeof measurement?.measurementDepthM === 'number' &&
+      Number.isFinite(measurement.measurementDepthM) && measurement.measurementDepthM >= 0
+      ? measurement.measurementDepthM
+      : null,
   };
 }
 
@@ -106,6 +116,10 @@ export function createPrognosisHistoryFeatureSnapshot(
       waterTemperatureMeasurementSource: session.waterTemperatureMeasurementSource,
       waterTemperatureMeasurementMethod: session.waterTemperatureMeasurementMethod,
       waterTemperatureMeasurementDepthM: session.waterTemperatureMeasurementDepthM,
+      waterTemperatureMeasurements: session.waterTemperatureMeasurements?.map((measurement) => ({
+        ...measurement,
+        weatherContext: measurement.weatherContext ? { ...measurement.weatherContext } : measurement.weatherContext,
+      })),
     })).sort((a, b) => a.id.localeCompare(b.id));
 
   const historicalCatchFeatures: NonNullable<PrognosisInputContext['historicalCatchFeatures']> =
@@ -137,7 +151,7 @@ export function createPrognosisHistoryFeatureSnapshot(
     historicalSessionFeatures,
     historicalCatchFeatures,
     historicalObservationFeatures,
-    historyFeatureSchemaVersion: 2,
+    historyFeatureSchemaVersion: 3,
   };
 }
 
@@ -653,6 +667,7 @@ export interface PrognosisOptions {
   catches?: CatchItem[];
   waterTemperatureCalibration?: { appliedCorrectionC: number; sampleCount: number; season: 'winter' | 'lente' | 'zomer' | 'herfst' };
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  measurementDepthM?: number | null;
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
@@ -722,6 +737,7 @@ export function calculateDayPrognosis(
     historicalSessions,
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
+    measurementDepthM: options?.measurementDepthM,
     forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
   });
 
@@ -790,6 +806,7 @@ export function calculateDayPrognosis(
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
+    measurementDepthM: options?.measurementDepthM,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
@@ -1520,7 +1537,13 @@ export async function createLiveSnapshotForSessionStart(
   durationHours?: number,
   technique?: string,
   weatherSnap?: WeatherSnapshot,
-  userWaterTemp?: number | null
+  userWaterTemp?: number | null,
+  userWaterTempMeasurement?: {
+    measuredAt?: string | null;
+    measurementSource?: 'manual' | 'imported' | 'unknown';
+    measurementMethod?: 'thermometer' | 'probe' | 'other' | 'unknown';
+    measurementDepthM?: number | null;
+  }
 ): Promise<PendingPrognosisSnapshot | null> {
   try {
     const lat = location.latitude ?? 51.961;
@@ -1551,7 +1574,12 @@ export async function createLiveSnapshotForSessionStart(
       targetSpecies: species,
       sessionDurationHours: durationHours ?? null,
       technique: technique ?? null,
-      manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp),
+      manualWaterTemperatureInput: createManualWaterTemperatureInput(userWaterTemp, forecastTimestamp, {
+        measurementTimestamp: userWaterTempMeasurement?.measuredAt,
+        measurementSource: userWaterTempMeasurement?.measurementSource,
+        measurementMethod: userWaterTempMeasurement?.measurementMethod,
+        measurementDepthM: userWaterTempMeasurement?.measurementDepthM,
+      }),
       waterTemperatureCalibration,
       location: {
         id: location.id,
@@ -1593,6 +1621,7 @@ export async function createLiveSnapshotForSessionStart(
         location,
         catches: allCatches,
         historicalWaterTemperatures,
+        measurementDepthM: userWaterTempMeasurement?.measurementDepthM,
         waterTemperatureCalibration,
       }
     );

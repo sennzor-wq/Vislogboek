@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { getCurrentWeatherSnapshot, getForecast } from './src/services/weatherService';
+import { fetchHistoricalWeatherContextsForMeasurements, getCurrentWeatherSnapshot, getForecast } from './src/services/weatherService';
 
 async function run() {
   await db.delete();
@@ -37,6 +37,18 @@ async function run() {
     const snapshot = await getCurrentWeatherSnapshot(52, 5);
     if (snapshot.relativeHumidity !== 76 || snapshot.dewPoint !== 6 || snapshot.shortwaveRadiation !== 125) {
       throw new Error('Current weather snapshot must preserve optional heat-flux context.');
+    }
+    const measurementContexts = await fetchHistoricalWeatherContextsForMeasurements(52, 5, [
+      { id: 'near-measurement', measuredAt: '2026-11-02T12:20:00+01:00' },
+      { id: 'far-measurement', measuredAt: '2026-11-02T14:00:00+01:00' },
+    ]);
+    const nearContext = measurementContexts['near-measurement'];
+    if (nearContext?.airTemperatureC !== 10 || nearContext.windSpeedKmh !== 9 ||
+        nearContext.timeDifferenceMinutes !== 20 || nearContext.source !== 'open-meteo-archive') {
+      throw new Error('Measurement weather context must preserve nearest hourly archive values and the actual time offset.');
+    }
+    if (measurementContexts['far-measurement'] !== null) {
+      throw new Error('Weather context more than 90 minutes from the physical measurement must remain unknown.');
     }
     console.log('Weather enrichment tests passed.');
   } finally {
