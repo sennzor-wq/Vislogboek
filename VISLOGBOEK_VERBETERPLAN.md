@@ -1069,3 +1069,12 @@ Punt 1 is afgerond in [PR #203](https://github.com/sennzor-wq/Vislogboek/pull/20
 Geen wijziging aan de zichtbare 1–10-score, scoreformule, database, UI of gebruikersinvoer. Dit is technische implementatie, geen empirische validatie van de thermische tijdconstanten.
 
 **Volgende stap: punt 2 — deterministische tijdzone-/DST-verwerking en expliciete forecast-as-of.** Zie audit §158. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+### Fase 2 — voortgang punt 2: Amsterdamse tijd en forecast-as-of (20 november 2026)
+
+Punt 2 is afgerond in [PR #205](https://github.com/sennzor-wq/Vislogboek/pull/205). Open-Meteo forecast- en archiefdata gebruiken Unix-tijdstempels die naar absolute UTC-ISO-tijden worden omgezet. Lokale datum-/uurselectie gebruikt Europe/Amsterdam; dubbele herfst-02:00 en niet-bestaande lente-02:00 zijn getest. Oude caches blijven leesbaar en worden bij gebruik genormaliseerd.
+
+De ophaaltijd van de forecast (`weatherFetchedAt`) is onderscheiden van het berekeningstijdstip. Forecastdata met een latere of ongeldige as-of worden niet gebruikt. Daily zonsopkomst/-ondergang blijft compatibel met de bestaande schemerberekening. PR-head- en mergecommit-Quality-Gates zijn groen.
+
+**Volgende stap: punt 3 — historische temperatuurprofielen selecteren op meetdiepte.** Zie audit §159. Fase 2 blijft open; fase 3 geblokkeerd.
