@@ -1197,3 +1197,10 @@ De sessie-editor laat meerdere metingen per sessie toevoegen/verwijderen. Meetmo
 De fysieke measuredAt wordt ook aan ManualWaterTemperatureInput en de waterthermische engine doorgegeven. Daarmee wordt vanaf het echte meetanker doorgerekend en niet vanaf het moment waarop het sessierecord of snapshot wordt opgeslagen. Events met onbekende methode/herkomst of zonder exact meetmoment blijven bewaard maar voldoen niet aan de bestaande profielkwaliteitsregel.
 
 Punt 4 geldt pas als afgerond na groene Quality Gate op de definitieve PR-head én de mergecommit. De technische registratie valideert nog niet de thermische tijdconstanten; daarvoor blijven echte lokale meetreeksen nodig. Zie audit §161.
+
+
+## 137. Uitvoering punt 4 — acceptatiebevestiging
+
+Punt 4 is technisch afgerond in PR #211. De definitieve PR-head a20cba0935f07a20d6763353b09fd99f6460af1c en mergecommit 75032795bfcecd8e4a61b6fa16b4650ba26802dd hebben beide een groene Quality Gate. De eventregistratie, beschikbare weerscontext, historische profielverwerking, tijdstipdoorgifte, legacycompatibiliteit en back-up-roundtrip zijn daarmee door de bestaande regressies en productiebuild gecontroleerd.
+
+Dit valideert de registratie-/provenanceketen, niet de fysieke thermische tijdconstanten. Daarvoor blijven echte lokale meetreeksen nodig. Volgende uitvoeringspunt: voorvoerweergave en het expliciete productbesluit over niet-gevalideerde numerieke hoeveelheden. Zie audit §162.

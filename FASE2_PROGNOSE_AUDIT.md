@@ -4397,7 +4397,7 @@ Regressietests controleren meerdere meetlagen op één stek, expliciete dieptese
 
 ## 161. Uitvoering punt 4 — afzonderlijke sessiemetingen en weerscontext (20 november 2026)
 
-**Status: implementatie in PR #211; formele afvinking wacht op de exacte PR-head Quality Gate.** Dit onderdeel verbetert registratie en provenance. Het verandert geen score, thermische tijdconstanten, factorweging of verplichte gebruikersinvoer.
+**Status: technisch afgerond en gevalideerd.** PR #211 is gemerged. De Quality Gate is geslaagd op de definitieve PR-head a20cba0935f07a20d6763353b09fd99f6460af1c én op de mergecommit 75032795bfcecd8e4a61b6fa16b4650ba26802dd. Dit onderdeel verbetert registratie en provenance. Het verandert geen score, thermische tijdconstanten, factorweging of verplichte gebruikersinvoer.
 
 ### Datamodel en compatibiliteit
 
@@ -4431,4 +4431,18 @@ VisCoach herkent een gewijzigde meeteventreeks als nieuwe observatie-invoer. Bac
 
 De registratie en koppeling van beschikbare weerscontext zijn nog geen empirische validatie van de thermische tijdconstanten. De weerscontext is modeldata en mag niet als gemeten weer worden gepresenteerd. Een event met onbekende meetmethode blijft zichtbaar en bewaard, maar telt volgens de bestaande datakwaliteitsregel niet mee voor profielkalibratie.
 
-**Afvinkcriterium:** PR #211 moet op de definitieve PR-head volledig groen zijn, inclusief typecheck, alle regressietests, backup round-trip en productiebuild. Daarna controle op de mergecommit op main. Bij groen is punt 4 technisch afgerond; lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Daarna volgt punt 5, niet fase 3.
+**Afgevinkt:** definitieve PR-head en mergecommit hebben beide een volledig groene Quality Gate (Typecheck, tests and production build). De tests dekken eventverzameling, meetdiepte, deduplicatie, weerscontextmatch en -afwezigheid, Europe/Amsterdam-tijd en backup-roundtrip. Punt 4 is technisch afgerond. Lokale thermische kalibratie blijft afhankelijk van toekomstige echte meetreeksen. Daarna volgt punt 5, niet fase 3.
+
+
+## 162. Fase-2-voortgang na uitvoering punt 4 (20 november 2026)
+
+Punten 1 t/m 4 van de uitvoeringsvolgorde in §157.4 zijn technisch geïmplementeerd en gevalideerd:
+
+- Punt 1: tijdstipgerichte thermische toestand — PR #203.
+- Punt 2: tijdzone-/DST-/forecast-as-of-verwerking — PR #205.
+- Punt 3: meetdieptebewuste historische profielen — PR #207.
+- Punt 4: afzonderlijke sessiemeetevents en beschikbare weerscontext — PR #211.
+
+Voor punt 4 zijn zowel de definitieve PR-head a20cba0935f07a20d6763353b09fd99f6460af1c als mergecommit 75032795bfcecd8e4a61b6fa16b4650ba26802dd gecontroleerd; beide Quality Gates zijn volledig groen. De mergecommit staat op main.
+
+**Volgende is punt 5:** consistentie van de voorvoerweergave. De bestaande exacte grammen en temperatuur-/soortdrempels zijn niet voldoende onderbouwd. Het advies om numerieke hoeveelheden/geschiktheid tijdelijk niet als modeluitkomst te presenteren (optie B) blijft een productbesluit waarvoor expliciete eigenaarstoestemming nodig is. Tot die beslissing is genomen, blijft de runtime ongewijzigd. Punt 6 (finale matrix/crosswalk) volgt daarna. Fase 2 is nog niet formeel geaccepteerd; fase 3 blijft geblokkeerd.
