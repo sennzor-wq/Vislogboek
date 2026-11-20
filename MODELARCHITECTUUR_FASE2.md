@@ -1134,3 +1134,13 @@ De voorkeursberekening is één chronologische toestandsdoorloop vanaf het meeta
 Voorlopig wordt één referentietemperatuur gemodelleerd. Een gelaagd verticaal temperatuurprofiel vereist voldoende onafhankelijke meetdieptes en wordt niet afgeleid uit één onbekend gepositioneerde meting. De ongebruikte `targetHour` wordt niet als los uurgetal uitgebreid; een expliciet tijdstip is vereist.
 
 Geen runtimewijziging. Eerst testdekking voor meetdiepte, continuïteit, tijdzone/DST en forecast-as-of; daarna pas een implementatievoorstel.
+
+
+
+## 131. Sessiegebonden watertemperatuurmetingen en lokale thermische traagheid
+
+Audit §156 legt vast dat de gebruiker watertemperatuur tijdens vissessies wil meten, niet dagelijks of op vaste dagdelen. Iedere fysieke meting moet als afzonderlijke observatie worden bewaard, met werkelijk meettijdstip, temperatuur, stek/watertype, bron/methode, meetdiepte indien bekend en beschikbare weerscontext rond dat moment. Luchttemperatuur, windrichting/-snelheid en waar beschikbaar bewolking/straling worden aan het meetmoment gekoppeld; maand/seizoen/tijdvak zijn uit het tijdstip afleidbaar. Ontbrekende context blijft onbekend. De weerscontext bij de meting en de weersforcering ná de meting zijn afzonderlijke gegevensrollen.
+
+De gemeten watertemperatuur is het startanker van de thermische toestand. Dezelfde toestand wordt chronologisch verder ontwikkeld; een stabiele luchttemperatuur en weinig wind rechtvaardigen geen abrupte daling van bijvoorbeeld 8 °C in de middag naar 5 °C 's avonds of 3–4 °C de volgende ochtend. Dit voorbeeld is een regressiescenario, geen vaste regel. De mate van verandering moet volgen uit de duur en sterkte van de weersforcering, watermassa/diepte, menging en expliciete onzekerheid.
+
+De bestaande waterThermalEngine bevat al een heuristische uur-voor-uur demping. Lokale sessiemetingen kunnen deze respons en de seizoensprofielen later toetsen; zij valideren de huidige tijdconstanten niet automatisch. Geen dagelijkse meetplicht, geen fictieve tussenmetingen en geen runtime-/parameterwijziging voordat voldoende lokale waarnemingen en onafhankelijke validatie beschikbaar zijn. Zie audit §156.
