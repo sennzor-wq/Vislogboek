@@ -1093,3 +1093,12 @@ Audit §152 stelt vast dat waterThermalEngine momenteel één geschatte watertem
 Een echte tijdvaktemperatuur vereist een tijdstipgerichte uitbreiding van de bestaande canonieke waterThermalEngine, met uitsluitend op het prognosemoment beschikbare invoer, waterthermische toestandsontwikkeling, provenance en onzekerheid. Luchttemperatuur mag niet rechtstreeks als watertemperatuur worden gebruikt. Een tijdspecifieke thermische schatting valideert bovendien nog geen tijdvakvoedingsvoorkeur; daarvoor blijven directe voedingslabels nodig.
 
 Geen runtimewijziging. Eerst een minimale API-/datadekkingstoets; daarna pas beslissen over implementatie. Fase 2 blijft open.
+
+
+## 128. Bestaande waterthermische toestandsupdate behouden en verfijnen
+
+Audit §153 verduidelijkt dat `waterThermalEngine` al een eenvoudige uur-voor-uur toestandsupdate bevat wanneer een echt meetanker en voldoende weerdekking beschikbaar zijn. De huidige code gebruikt een gemeten starttemperatuur, uurlijkse luchttemperatuur, 24-/72-uursgemiddelden, kortgolvige straling of bewolking, wind en vaste diepte-afhankelijke tijdconstanten. De uitkomst wordt echter samengevat tot één dagwaarde; de parameters zijn heuristisch en er is geen expliciet meerlaags temperatuurprofiel.
+
+**Ontwerpbesluit:** geen nieuwe engine. Verbeter de bestaande canonieke `waterThermalEngine` en maak de toestand tijdstipgericht reproduceerbaar. Houd de echte watertemperatuur als toestand en lucht/zon/wind als warmte-uitwisselingsinvloeden. Een oppervlaktetemperatuur, bulktemperatuur en temperatuur op meetdiepte zijn niet onderling uitwisselbaar. Onbekende meetdiepte of waterdiepte blijft onbekend en verhoogt de onzekerheid.
+
+De eerstvolgende stap is een dataflow-/coverage-audit van waterdiepte, meetdiepte, meettijd, tijdzone, weersvelden en forecast-as-of. Daarna volgt pas een minimale API-specificatie en tests; nog geen runtimewijziging. Een tijdspecifieke watertemperatuur blijft bovendien een thermische invoer, geen bewijs voor een tijdvakvoedingsvoorkeur.

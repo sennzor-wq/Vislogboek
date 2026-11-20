@@ -4044,3 +4044,53 @@ Een toekomstig tijdvakmodel mag niet simpelweg de uurlijkse luchttemperatuur doo
 **Volgende stap:** specificeer een minimale, reproduceerbare tijdstipgerichte API voor de bestaande waterThermalEngine en toets eerst of de huidige weer-/waterankers genoeg informatie bieden om een tijdvakschatting te maken. Pas daarna kan worden besloten of code-uitbreiding zinvol is. Directe tijdvakvoedingslabels blijven een afzonderlijke biologische voorwaarde.
 
 Geen runtimewijziging, geen nieuw modelgewicht, geen tijdvakbonus en geen gebruikersinvoer toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 153. Thermische toestandsontwikkeling: bestaande functionaliteit en gerichte verbetergrenzen (20 november 2026)
+
+Deze aanvullende read-only code-audit verfijnt §152 na inspectie van de volledige berekening in `src/services/waterThermalEngine.ts`. Het ontwerpbesluit is om de bestaande engine te verbeteren en geen parallelle temperatuurengine te bouwen.
+
+### 153.1 Wat al aanwezig is
+
+De bestaande engine bevat al een eenvoudige thermische toestandsupdate wanneer een bruikbaar echt meetanker en voldoende uurlijkse weersdekking beschikbaar zijn:
+
+- Een echte lokale watertemperatuurmeting kan als starttoestand dienen; de engine werkt die met de beschikbare weersreeks stap voor stap bij.
+- De update gebruikt uurlijkse luchttemperatuur, voorafgaande 24-/72-uursgemiddelden, kortgolvige zonnestraling (of bewolking als terugval), wind en een tijdconstante.
+- Bij bekende waterdiepte worden momenteel vaste tijdconstanten van 54, 96 of 150 uur gebruikt voor respectievelijk ondiep, middeldiep en dieper water; watertype kan deze waarden verder aanpassen.
+- Wind beïnvloedt de bestaande tijdconstante via een eenvoudige mengingsfactor. Zonnestraling beïnvloedt de evenwichtstemperatuur via een beperkte correctie.
+- De engine houdt meetankerleeftijd, weersdekking, bronstatus en een onzekerheidsband bij.
+- Zonder bruikbaar meetanker kan de bestaande code onder voorwaarden een dagbrede indicatieve schatting maken uit weershistorie, dieptecategorie en/of een historisch waterprofiel. Dat is niet hetzelfde als een lokaal gemeten actuele watertemperatuur.
+
+### 153.2 Wat nog grof of onvoldoende tijdspecifiek is
+
+- De uurlijkse update is nu een interne tussenstap om één doeldagwaarde te produceren. Er wordt geen expliciete temperatuurtoestand voor elk gevraagd tijdstip aan de aanroeper teruggegeven.
+- De diepte wordt als één locatiekenmerk gebruikt. De engine modelleert geen afzonderlijke temperatuurprofielen voor oppervlak, middenwater en bodem.
+- De huidige tijdconstanten en correcties zijn vaste heuristische waarden; ze zijn niet per waterlichaam of dieptelaag gekalibreerd.
+- De zoncorrectie is een vereenvoudigde benadering. Beschikbare straling is niet automatisch de hoeveelheid warmte die de relevante waterlaag opneemt; waterhelderheid, beschaduwing, seizoen, invalshoek en menging kunnen de overdracht beïnvloeden.
+- De windfactor is een globale proxy voor menging. Werkelijke menging hangt ook af van fetch, oeveroriëntatie, wateroppervlak, vorm en stratificatie.
+- Historische meetrecords kunnen `measurementDepthM` bevatten, maar de huidige thermische update gebruikt dit nog niet als volwaardige dieptelaag-/toestandsdimensie.
+- Een onbekende diepte blijft in delen van de bestaande code terecht onbekend; er mag geen standaarddiepte worden verzonnen om een uurcurve te forceren.
+
+### 153.3 Vastgelegd ontwerpbesluit
+
+De thermische berekening wordt voortgezet binnen de bestaande canonieke `waterThermalEngine`. De gewenste richting is een reproduceerbare toestandsfunctie: begin met een tijdgestempelde watermeting of een expliciet als onzeker gemarkeerde historische referentie, verwerk alleen weergegevens die op het prognosemoment beschikbaar zijn en bereken de toestand op een expliciet gevraagd lokaal tijdstip.
+
+De engine moet waar mogelijk onderscheid kunnen maken tussen:
+1. gemeten temperatuur, met meettijd, methode en meetdiepte;
+2. geschatte bulk-/gemiddelde watertemperatuur;
+3. geschatte temperatuur van een specifieke laag, alleen als dieptegegevens en modelbasis dit ondersteunen.
+
+Een oppervlaktetemperatuurmeting mag niet stilzwijgend als bulk- of bodemtemperatuur worden behandeld. Als de meetdiepte onbekend is, blijft dat gegeven expliciet onbekend en hoort de onzekerheid groter te zijn.
+
+De toestandsupdate mag geen luchttemperatuur als watertemperatuur presenteren. Lucht, straling en wind zijn forcings voor de verandering van de watertoestand, niet de toestand zelf. De respons moet geleidelijk en fysisch begrensd blijven; een korte warme middag mag niet zonder onderbouwing een grote sprong in de volledige watermassa veroorzaken.
+
+### 153.4 Volgende technische onderzoekstappen
+
+1. Volg exact hoe `FishingLocation.waterDepth`, meetdiepte, meettijd en waterType vanuit invoer/sessie/snapshot bij de engine aankomen.
+2. Controleer de volledigheid en tijdzone van `WeatherHourlyForecast`, in het bijzonder straling, wind, bewolking en forecast-fetchedAt/as-of.
+3. Scheid in de bestaande engine de toestand (watertemperatuur) van de forcings (lucht, straling, wind) en leg vast welke huidige parameters heuristisch zijn.
+4. Definieer een minimale tijdstipgerichte uitvoer die dezelfde canonieke toestand bijwerkt en provenance, onzekerheid en gebruikte meetdiepte behoudt.
+5. Maak tests voor meetanker + tijdsverloop, ondiep versus diep water, zonnig versus bewolkt, wind/menging, ontbrekende uren, onbekende diepte, meetdiepte onbekend en voorspelling zonder toekomstlek.
+6. Vergelijk de bestaande daguitvoer met de voorgestelde tijdstipuitvoer voordat runtimegedrag wordt gewijzigd. Evalueer uitsluitend tegen echte tijdgestempelde watertemperatuurmetingen, apart van de biologische visrespons.
+
+Geen runtimecode, tijdconstanten, score, gewichten, UI of gebruikersinvoer gewijzigd. De huidige dagwaarde blijft de enige thermische uitvoer totdat een tijdspecifieke uitbreiding afzonderlijk is ontworpen en getoetst. Fase 2 blijft open; Fase 3 geblokkeerd.
