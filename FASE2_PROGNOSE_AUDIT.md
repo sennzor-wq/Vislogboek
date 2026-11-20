@@ -4592,3 +4592,21 @@ De repository bevat `test-session-coach.ts`, met bestaande regressiegevallen voo
 De package-scripts bieden `lint` (TypeScript `tsc --noEmit`) en een beperkte set benoemde tests; `test-session-coach.ts` is niet als npm-script geregistreerd. In deze werksessie is geen repository-runtime of lokale package-installatie beschikbaar waarmee de tests, typecheck en build daadwerkelijk kunnen worden uitgevoerd. Er wordt daarom geen geslaagde test- of buildstatus geclaimd.
 
 **Vervolg:** de statische audit van punt 5 is inhoudelijk vrijwel rond. Voor een betrouwbare afsluiting resteert een uitvoerbare technische validatie van ten minste de bestaande VisCoach-regressietest, TypeScript typecheck en productiebuild, plus bij voorkeur een gerichte test voor de planneruitvoer als die in de projectruntime kan worden toegevoegd zonder brede testinfrastructuur. Tot die tijd blijft punt 5 open en blijft Fase 3 geblokkeerd.
+
+
+## 167. Technische validatiepoging punt 5 — uitvoer geblokkeerd (20 november 2026)
+
+De actuele `main` staat op `77f1c5ce5b9c1a84cd0f2921ba05e62c74f6cdc6`. De gevraagde technische validatie is voorbereid aan de hand van de actuele `package.json` en `.github/workflows/ci.yml`. De relevante checks zijn:
+
+- `bun run tsx test-session-coach.ts` — bestaande VisCoach-regressietest voor de confidence-gating;
+- `bun run lint` — TypeScript typecheck (`tsc --noEmit`);
+- `bun run build` — productiebuild;
+- aanvullend de in de Quality Gate opgenomen prognose-/thermische test `bun run tsx test-thermal-and-prognosis.ts`.
+
+Geen van deze commando's is in deze werksessie uitgevoerd. De beschikbare lokale runtime heeft Node.js en npm, maar geen Bun-installatie; bovendien kon de repository niet via Git worden opgehaald omdat de container geen DNS-/netwerktoegang tot GitHub heeft. Er is dus geen geïnstalleerde projectdependencyset waarop een betrouwbare lokale test of build kan draaien. Statische broninspectie is geen vervanging voor deze uitvoering.
+
+De meest recente zichtbare succesvolle Quality Gate-run (#1027, commit `c4f906d09c695c55d9818cea3d1744e5bf85b754`) is **niet** bewijs voor de huidige `main`: de huidige HEAD ligt vier commits verder. De vier latere commits wijzigen onder meer `PrognosisView.tsx`, `FASE2_PROGNOSE_AUDIT.md` en `MODELARCHITECTUUR_FASE2.md`. Voor de huidige HEAD `77f1c5c` zijn geen commit-statuschecks geregistreerd. De oudere groene run wordt daarom niet als validatie van de huidige wijziging aangemerkt.
+
+Er is geen GitHub Actions-run gestart. De repository-instructie vereist dat `[skip ci]` alleen wordt weggelaten wanneer de eigenaar expliciet vraagt om GitHub Actions te laten draaien; de opdracht om technische validatie uit te voeren is hier niet als expliciet verzoek om een Actions-run geïnterpreteerd.
+
+**Uitkomst:** technische validatie blijft open en is geblokkeerd door ontbrekende uitvoeromgeving. Er is geen test-, typecheck- of buildresultaat om als geslaagd te registreren. Punt 5 blijft open; Fase 2 is niet formeel afgerond en Fase 3 blijft geblokkeerd. Vervolg: voer de genoemde checks uit in de projectomgeving met Bun en een frozen lockfile, of geef expliciet toestemming om de GitHub Actions Quality Gate op de actuele `main` te starten.
