@@ -33,7 +33,7 @@ import { calculatePrebaitPlan, supportsPrebaitPlanning } from './prebaitEngine';
 import { PrebaitProgramOptions, PresenceObservation } from '../types';
 import { createDataQualityReport } from './dataQualityEngine';
 import { PROGNOSIS_ENGINE_VERSIONS, PROGNOSIS_MODEL_VERSION } from './modelVersions';
-import { addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth } from '../utils/dateTime';
+import { APP_TIME_ZONE, addCalendarDays, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, parseAppTimestamp } from '../utils/dateTime';
 
 /**
  * Legt een handmatige watertemperatuur vast zonder het invoermoment te verwarren
@@ -44,7 +44,7 @@ export function createManualWaterTemperatureInput(
   temperatureC: number | null | undefined,
   recordedAt: string
 ): ManualWaterTemperatureInput | null {
-  if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !Number.isFinite(Date.parse(recordedAt))) {
+  if (typeof temperatureC !== 'number' || !Number.isFinite(temperatureC) || !parseAppTimestamp(recordedAt)) {
     return null;
   }
   return {
@@ -316,7 +316,7 @@ export function findPressureTrend(
   targetTimeIso: string,
   allForecasts: WeatherHourlyForecast[]
 ): { deltaHpa: number | null; trendDescription: string; known: boolean } {
-  const targetDateMs = new Date(targetTimeIso).getTime();
+  const targetDateMs = parseAppTimestamp(targetTimeIso)?.getTime() ?? Number.NaN;
   const validPressureForecasts = getValidPressureForecasts(allForecasts);
   if (isNaN(targetDateMs) || validPressureForecasts.length === 0) {
     return { deltaHpa: null, trendDescription: 'Druktrend onbekend (onvoldoende uurdata)', known: false };
@@ -324,7 +324,10 @@ export function findPressureTrend(
 
   // Zoek uurmeting dichtst bij target
   const currentEntry = validPressureForecasts.find(
-    (h) => Math.abs(new Date(h.time).getTime() - targetDateMs) < 1800000
+    (h) => {
+      const timestampMs = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
+      return Number.isFinite(timestampMs) && Math.abs(timestampMs - targetDateMs) < 1800000;
+    }
   );
   if (!currentEntry) {
     return { deltaHpa: null, trendDescription: 'Druktrend onbekend', known: false };
@@ -336,7 +339,7 @@ export function findPressureTrend(
   let minDiff = Infinity;
 
   for (const h of validPressureForecasts) {
-    const hMs = new Date(h.time).getTime();
+    const hMs = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
     const diff = Math.abs(hMs - targetPastMs);
     if (diff < minDiff && diff <= 3 * 3600000) {
       minDiff = diff;
@@ -669,7 +672,9 @@ export function getSessionDurationHours(session: FishingSession): number | null 
   if (session.legacyImportQuality?.startTimeKnown === false ||
       session.legacyImportQuality?.endTimeKnown === false) return null;
   if (session.startTime && session.endTime) {
-    const diffMs = new Date(session.endTime).getTime() - new Date(session.startTime).getTime();
+    const startMs = parseAppTimestamp(session.startTime)?.getTime() ?? Number.NaN;
+    const endMs = parseAppTimestamp(session.endTime)?.getTime() ?? Number.NaN;
+    const diffMs = endMs - startMs;
     const diffMins = diffMs / 60000;
     if (Number.isFinite(diffMins) && diffMins > 0 && diffMins < 10080) {
       return diffMins / 60;
@@ -703,7 +708,11 @@ export function calculateDayPrognosis(
   const location = options?.location;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
 
-  const slotReferenceDate = currentDateRef ?? new Date(`${dateStr}T12:00:00.000Z`);
+  const slotReferenceDate = currentDateRef ?? parseAppTimestamp(`${dateStr}T12:00:00`) ?? new Date(`${dateStr}T12:00:00.000Z`);
+  const parsedForecastAsOf = weatherUpdatedAt ? parseAppTimestamp(weatherUpdatedAt) : null;
+  const calculationTimeMs = currentDateRef?.getTime() ?? Date.now();
+  const invalidForecastAsOf = Boolean(weatherUpdatedAt && (!parsedForecastAsOf || parsedForecastAsOf.getTime() > calculationTimeMs));
+  if (invalidForecastAsOf) forecasts = [];
 
   // Thermische analyse van het viswater (waterdiepte per stek en actuele meting doorgeven)
   // Als currentDateRef optioneel is weggelaten, geldt targetDateStr zelf als de referentie.
@@ -713,10 +722,13 @@ export function calculateDayPrognosis(
     historicalSessions,
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
+    forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
   });
 
   // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
   // Een echte actuele meting wordt nooit gecorrigeerd.
+  if (invalidForecastAsOf) thermalAnalysis.prognosisImpactNote += ' Weerdata is niet gebruikt omdat het vastgelegde ophaaltijdstip ná het prognoseberekeningstijdstip ligt of ongeldig is.';
+
   const temperatureCalibration = options?.waterTemperatureCalibration;
   if (
     temperatureCalibration &&
@@ -736,12 +748,12 @@ export function calculateDayPrognosis(
     thermalAnalysis.prognosisImpactNote += ` Lokale seizoenskalibratie toegepast: ${correction > 0 ? '-' : '+'}${Math.abs(correction).toFixed(1)} °C op basis van ${temperatureCalibration.sampleCount} eerdere metingen.`;
   }
 
-  const date = new Date(`${dateStr}T12:00:00.000Z`);
+  const date = parseAppTimestamp(`${dateStr}T12:00:00`) ?? new Date(`${dateStr}T12:00:00.000Z`);
   const actualSpecies = species === 'Algemeen' ? 'Overig' : species;
   const profile = SPECIES_PROFILES[actualSpecies];
 
   // Filter forecasts voor deze datum (YYYY-MM-DD)
-  const dayForecasts = forecasts.filter((h) => h.time.startsWith(dateStr));
+  const dayForecasts = forecasts.filter((h) => getAmsterdamDateKey(h.time) === dateStr);
 
   // Verdeel over 4 tijdvakken
   const slots: TimeSlot[] = ['Nacht', 'Ochtend', 'Middag', 'Avond'];
@@ -750,15 +762,15 @@ export function calculateDayPrognosis(
   for (const slot of slots) {
     const hoursConfig = TIME_SLOT_HOURS[slot];
     const slotForecasts = dayForecasts.filter((h) => {
-      const hour = parseInt(h.time.slice(11, 13), 10);
-      return hour >= hoursConfig.start && hour < hoursConfig.end;
+      const hour = getAmsterdamHour(h.time);
+      return hour !== null && hour >= hoursConfig.start && hour < hoursConfig.end;
     });
 
     // Bepaal voor ieder tijdvak een eigen thermische toestand op het representatieve
     // forecastmoment. De engine rekent steeds vanaf hetzelfde laatst geldige meetanker
     // door tot dit tijdstip; dit zijn geen vier onafhankelijke temperatuurmodellen.
     const orderedSlotForecasts = [...slotForecasts].sort(
-      (a, b) => Date.parse(a.time) - Date.parse(b.time)
+      (a, b) => (parseAppTimestamp(a.time)?.getTime() ?? Number.POSITIVE_INFINITY) - (parseAppTimestamp(b.time)?.getTime() ?? Number.POSITIVE_INFINITY)
     );
     let slotThermalAnalysis = thermalAnalysis;
     const slotTargetTime = orderedSlotForecasts.length > 0
@@ -766,7 +778,7 @@ export function calculateDayPrognosis(
       : null;
     const slotTargetIsFutureOrCurrent = Boolean(
       slotTargetTime &&
-      (!currentDateRef || Date.parse(slotTargetTime) >= currentDateRef.getTime())
+      (!currentDateRef || (parseAppTimestamp(slotTargetTime)?.getTime() ?? Number.NEGATIVE_INFINITY) >= currentDateRef.getTime())
     );
     // Verstreken tijdvakken blijven bij de actuele/dagbrede analyse; een meting
     // van later vandaag mag nooit achteraf worden gebruikt om het verleden te herschrijven.
@@ -779,6 +791,7 @@ export function calculateDayPrognosis(
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
         targetTime,
+        forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
 
       // Houd de bestaande gevalideerde lokale biascorrectie identiek voor elk tijdstip.
@@ -1067,9 +1080,9 @@ export function calculateDayPrognosis(
   const tacticalTargetSlot = explicitTargetTimeSlot ?? defaultTacticalSlot;
   const tacticalForecasts = explicitTargetTimeSlot
     ? dayForecasts.filter((forecast) => {
-        const hour = parseInt(forecast.time.slice(11, 13), 10);
+        const hour = getAmsterdamHour(forecast.time);
         const range = TIME_SLOT_HOURS[explicitTargetTimeSlot];
-        return hour >= range.start && hour < range.end;
+        return hour !== null && hour >= range.start && hour < range.end;
       })
     : dayForecasts;
   const tacticalForecastCoverageNote = explicitTargetTimeSlot && tacticalForecasts.length > 0 && tacticalForecasts.length < 6
@@ -1532,7 +1545,7 @@ export async function createLiveSnapshotForSessionStart(
     const forecastTimestamp = now.toISOString();
     const inputContext: PrognosisInputContext = {
       calculatedAt: forecastTimestamp,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
+      timezone: APP_TIME_ZONE,
       targetDate: todayStr,
       targetTimeSlot: targetTimeSlot ?? null,
       targetSpecies: species,

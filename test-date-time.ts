@@ -1,4 +1,4 @@
-import { addCalendarDays, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, getAmsterdamTimeSlot } from './src/utils/dateTime';
+import { addCalendarDays, formatDateTimeLocalInput, getAmsterdamDateKey, getAmsterdamHour, getAmsterdamMonth, getAmsterdamTimeSlot, parseAppTimestamp, parseForecastTimestamp } from './src/utils/dateTime';
 
 // datetime-local follows the device timezone; the production audience uses Dutch local time.
 process.env.TZ = 'Europe/Amsterdam';
@@ -38,6 +38,13 @@ assert(getAmsterdamHour('2026-03-29T02:30:00') === null,
   'A nonexistent local time during spring DST is rejected instead of shifted');
 assert(getAmsterdamHour('2026-10-25T02:30:00') === 2,
   'An ambiguous local time during autumn DST is resolved deterministically');
+const firstAutumnHour = parseForecastTimestamp('2026-10-25T02:00:00');
+const secondAutumnHour = parseForecastTimestamp('2026-10-25T02:00:00', firstAutumnHour?.getTime() ?? Number.NEGATIVE_INFINITY);
+assert(firstAutumnHour?.toISOString() === '2026-10-25T00:00:00.000Z' &&
+  secondAutumnHour?.toISOString() === '2026-10-25T01:00:00.000Z',
+  'Repeated autumn 02:00 forecast values normalize to two distinct absolute instants');
+assert(parseAppTimestamp('2026-03-29T02:30:00') === null,
+  'App timestamp parser rejects nonexistent Amsterdam spring-forward wall time');
 assert(getAmsterdamDateKey(new Date('2026-11-05T23:30:00.000Z')) === '2026-11-06',
   'Date objects use the same Amsterdam date interpretation as ISO timestamps');
 

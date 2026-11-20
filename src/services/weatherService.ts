@@ -1,5 +1,6 @@
 import { WeatherHourlyForecast, WeatherSnapshot, WeatherCacheEntry } from '../types';
 import { db } from '../db/db';
+import { APP_TIME_ZONE, parseAppTimestamp, parseForecastTimestamp } from '../utils/dateTime';
 
 export function getWindDirectionText(deg: number): string {
   const normalized = (deg % 360 + 360) % 360;
@@ -40,6 +41,25 @@ export function formatAmsterdamDate(date: Date): string {
     month: '2-digit',
     day: '2-digit',
   }).format(date);
+}
+
+function normalizeCachedHourlyForecasts(hourly: WeatherHourlyForecast[]): WeatherHourlyForecast[] {
+  let previousTimestampMs = Number.NEGATIVE_INFINITY;
+  return hourly.flatMap((sample) => {
+    const parsed = parseForecastTimestamp(sample.time, previousTimestampMs);
+    if (!parsed) return [];
+    previousTimestampMs = parsed.getTime();
+    return [{ ...sample, time: parsed.toISOString() }];
+  });
+}
+
+function formatAmsterdamClockTime(unixSeconds: number): string | null {
+  if (!Number.isFinite(unixSeconds)) return null;
+  const instant = new Date(unixSeconds * 1000);
+  const clock = new Intl.DateTimeFormat('en-GB', {
+    timeZone: APP_TIME_ZONE, hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).format(instant);
+  return `${formatAmsterdamDate(instant)}T${clock}`;
 }
 
 export interface ForecastResponse {
@@ -136,7 +156,7 @@ export async function getForecast(
   // Gebruik cache indien jonger dan 30 minuten en niet geforceerd vernieuwd
   if (cached && cacheAgeMinutes < 30 && !forceRefresh) {
     return {
-      hourly: cached.hourly,
+      hourly: normalizeCachedHourlyForecasts(cached.hourly),
       dailySummaries: cached.dailySummary || [],
       isFromCache: true,
       fetchedAt: cached.fetchedAt,
@@ -146,7 +166,7 @@ export async function getForecast(
 
   // 2. Probeer Open-Meteo op te halen
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,precipitation_probability,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&past_days=3&forecast_days=8`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,precipitation_probability,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&daily=sunrise,sunset,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&timeformat=unixtime&past_days=3&forecast_days=8`;
 
     const response = await fetch(url, { signal: AbortSignal.timeout(6000) });
     if (!response.ok) {
@@ -154,7 +174,7 @@ export async function getForecast(
     }
 
     const data = await response.json();
-    const hourlyTimes: string[] = data.hourly?.time || [];
+    const hourlyTimes: number[] = data.hourly?.time || [];
     const temps: number[] = data.hourly?.temperature_2m || [];
     const humidities: number[] = data.hourly?.relative_humidity_2m || [];
     const dewPoints: number[] = data.hourly?.dew_point_2m || [];
@@ -169,11 +189,12 @@ export async function getForecast(
 
     // Ontbrekende API-velden worden niet met verzonnen gemiddelden ingevuld.
     const hourlyForecasts: WeatherHourlyForecast[] = hourlyTimes.flatMap((time, idx) => {
-      const values = [temps[idx], pressures[idx], windSpeeds[idx], windDirs[idx], precips[idx], precipProbs[idx], clouds[idx], codes[idx]];
+      const timestampMs = Number(time) * 1000;
+      const values = [timestampMs, temps[idx], pressures[idx], windSpeeds[idx], windDirs[idx], precips[idx], precipProbs[idx], clouds[idx], codes[idx]];
       if (!values.every((value) => typeof value === 'number' && Number.isFinite(value))) return [];
       const windDirection = windDirs[idx];
       return [{
-        time,
+        time: new Date(timestampMs).toISOString(),
         temperature: temps[idx],
         ...(Number.isFinite(humidities[idx]) && humidities[idx] >= 0 && humidities[idx] <= 100 ? { relativeHumidity: humidities[idx] } : {}),
         ...(Number.isFinite(dewPoints[idx]) && dewPoints[idx] >= -50 && dewPoints[idx] <= 50 ? { dewPoint: dewPoints[idx] } : {}),
@@ -193,13 +214,24 @@ export async function getForecast(
       throw new Error('Open-Meteo leverde geen complete uurlijkse weergegevens.');
     }
 
-    const dailySummaries = (data.daily?.time || []).flatMap((dateStr: string, idx: number) => {
+    const utcOffsetSeconds = Number.isFinite(data.utc_offset_seconds) ? data.utc_offset_seconds : 0;
+    const dailySummaries = (data.daily?.time || []).flatMap((rawDate: number | string, idx: number) => {
       const tempMax = data.daily?.temperature_2m_max?.[idx];
       const tempMin = data.daily?.temperature_2m_min?.[idx];
-      const sunrise = data.daily?.sunrise?.[idx];
-      const sunset = data.daily?.sunset?.[idx];
-      if (![tempMax, tempMin].every((value) => typeof value === 'number' && Number.isFinite(value)) || !sunrise || !sunset) return [];
-      return [{ date: dateStr, tempMax, tempMin, sunrise, sunset }];
+      const sunriseRaw = data.daily?.sunrise?.[idx];
+      const sunsetRaw = data.daily?.sunset?.[idx];
+      const dateTimestamp = Number(rawDate);
+      const sunriseTimestamp = Number(sunriseRaw);
+      const date = Number.isFinite(sunriseTimestamp)
+        ? formatAmsterdamDate(new Date(sunriseTimestamp * 1000))
+        : Number.isFinite(dateTimestamp)
+          ? new Date((dateTimestamp + utcOffsetSeconds) * 1000).toISOString().slice(0, 10)
+          : String(rawDate);
+      const sunrise = typeof sunriseRaw === 'number' ? formatAmsterdamClockTime(sunriseRaw) : sunriseRaw;
+      const sunset = typeof sunsetRaw === 'number' ? formatAmsterdamClockTime(sunsetRaw) : sunsetRaw;
+      if (![tempMax, tempMin].every((value) => typeof value === 'number' && Number.isFinite(value)) ||
+          typeof sunrise !== 'string' || typeof sunset !== 'string') return [];
+      return [{ date, tempMax, tempMin, sunrise, sunset }];
     });
 
     const cacheEntry: WeatherCacheEntry = {
@@ -227,7 +259,7 @@ export async function getForecast(
     // Als er oude cache is, gebruik die
     if (cached) {
       return {
-        hourly: cached.hourly,
+        hourly: normalizeCachedHourlyForecasts(cached.hourly),
         dailySummaries: cached.dailySummary || [],
         isFromCache: true,
         fetchedAt: cached.fetchedAt,
@@ -263,7 +295,8 @@ export async function getCurrentWeatherSnapshot(
     const nowTime = new Date().getTime();
 
     for (const h of forecast.hourly) {
-      const diff = Math.abs(new Date(h.time).getTime() - nowTime);
+      const parsedTime = parseAppTimestamp(h.time);
+      const diff = parsedTime ? Math.abs(parsedTime.getTime() - nowTime) : Infinity;
       if (diff < minDiff) {
         minDiff = diff;
         closest = h;
@@ -315,8 +348,8 @@ export async function fetchHistoricalWeatherSnapshot(
   sessionEndTimeIso?: string | null
 ): Promise<{ snapshot: WeatherSnapshot | null; message: string; success: boolean }> {
   try {
-    const startMs = new Date(sessionStartTimeIso).getTime();
-    const endMsForDate = sessionEndTimeIso ? new Date(sessionEndTimeIso).getTime() : startMs;
+    const startMs = parseAppTimestamp(sessionStartTimeIso)?.getTime() ?? Number.NaN;
+    const endMsForDate = sessionEndTimeIso ? parseAppTimestamp(sessionEndTimeIso)?.getTime() ?? Number.NaN : startMs;
     const startDate = Number.isFinite(startMs) ? formatAmsterdamDate(new Date(startMs)) : '';
     const endDate = Number.isFinite(endMsForDate) ? formatAmsterdamDate(new Date(endMsForDate)) : startDate;
 
@@ -329,7 +362,7 @@ export async function fetchHistoricalWeatherSnapshot(
     }
 
     // 1. Probeer Open-Meteo Archive API
-    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam`;
+    const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${startDate}&end_date=${endDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
 
     let data: any = null;
     try {
@@ -344,7 +377,7 @@ export async function fetchHistoricalWeatherSnapshot(
     // 2. Fallback voor recente dagen (laatste 1-7 dagen) via past_days op forecast API
     if (!data?.hourly?.time || data.hourly.time.length === 0) {
       try {
-        const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&past_days=7&forecast_days=1&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam`;
+        const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&past_days=7&forecast_days=1&hourly=temperature_2m,relative_humidity_2m,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
         const recentResp = await fetch(recentUrl, { signal: AbortSignal.timeout(6000) });
         if (recentResp.ok) {
           data = await recentResp.json();
@@ -362,7 +395,7 @@ export async function fetchHistoricalWeatherSnapshot(
       };
     }
 
-    const hourlyTimes: string[] = data.hourly.time;
+    const hourlyTimes: number[] = data.hourly.time;
     const temps: number[] = data.hourly.temperature_2m || [];
     const humidities: number[] = data.hourly.relative_humidity_2m || [];
     const dewPoints: number[] = data.hourly.dew_point_2m || [];
@@ -375,13 +408,13 @@ export async function fetchHistoricalWeatherSnapshot(
     const codes: number[] = data.hourly.weather_code || [];
 
     // Zoek het uur dichtst bij starttijd of halverwege sessie
-    const endMs = sessionEndTimeIso ? new Date(sessionEndTimeIso).getTime() : startMs;
+    const endMs = sessionEndTimeIso ? parseAppTimestamp(sessionEndTimeIso)?.getTime() ?? Number.NaN : startMs;
     const targetMs = (startMs + endMs) / 2;
 
     let closestIdx = 0;
     let minDiff = Infinity;
     for (let i = 0; i < hourlyTimes.length; i++) {
-      const tMs = new Date(hourlyTimes[i]).getTime();
+      const tMs = Number(hourlyTimes[i]) * 1000;
       const diff = Math.abs(tMs - targetMs);
       if (diff < minDiff) {
         minDiff = diff;

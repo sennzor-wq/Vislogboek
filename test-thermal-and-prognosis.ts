@@ -342,7 +342,7 @@ async function run14Scenarios() {
 
   // 8.3 Tijdstipgerichte thermische toestand vanaf één echt meetanker.
   console.log('\n--- SCENARIO 8.3: Chronologische thermische toestand per tijdstip ---');
-  const thermalReferenceTime = new Date('2026-10-23T12:00:00');
+  const thermalReferenceTime = new Date('2026-10-23T10:00:00.000Z');
   const stableWaterForecasts = makeHourlySeries('2026-10-23', 2, () => 8, () => 100, 0);
   const waterAfternoon = analyzeWaterThermalDevelopment('2026-10-23', stableWaterForecasts, {
     location: locLokkershoek,
@@ -363,9 +363,9 @@ async function run14Scenarios() {
     targetTime: '2026-10-24T08:00:00',
   });
   assert(
-    waterAfternoon.targetTimestamp === '2026-10-23T15:00:00.000Z' &&
-      waterEvening.targetTimestamp === '2026-10-23T21:00:00.000Z' &&
-      waterNextMorning.targetTimestamp === '2026-10-24T08:00:00.000Z',
+    waterAfternoon.targetTimestamp === '2026-10-23T13:00:00.000Z' &&
+      waterEvening.targetTimestamp === '2026-10-23T19:00:00.000Z' &&
+      waterNextMorning.targetTimestamp === '2026-10-24T06:00:00.000Z',
     '8.3.1 Iedere tijdvakberekening bewaart het expliciete doeltijdstip'
   );
   assert(
@@ -383,6 +383,22 @@ async function run14Scenarios() {
       waterNextMorning.hasMeasuredWaterTemp === false &&
       waterEvening.anchorMeasurementTimestamp === waterAfternoon.anchorMeasurementTimestamp,
     '8.3.3 Een toekomstige toestand gebruikt dezelfde echte meting als historisch anker, niet als nieuwe actuele meting'
+  );
+
+  const futureAsOfPrognosis = calculateDayPrognosis(
+    '2026-10-23',
+    stableWaterForecasts,
+    'Karper',
+    [],
+    '2026-10-23T15:00:00.000Z',
+    null,
+    thermalReferenceTime,
+    { location: locLokkershoek }
+  );
+  assert(
+    futureAsOfPrognosis.thermalAnalysis?.estimatedWaterTemp === null &&
+      futureAsOfPrognosis.thermalAnalysis?.prognosisImpactNote.includes('ná het prognoseberekeningstijdstip'),
+    '8.3.4 Forecastdata opgehaald ná het berekeningstijdstip wordt niet in de prognose gebruikt'
   );
 
   // 9. Ontbrekende of onvolledige historische weergegevens

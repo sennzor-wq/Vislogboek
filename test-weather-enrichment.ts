@@ -8,7 +8,7 @@ async function run() {
   const originalFetch = globalThis.fetch;
   const apiPayload = {
     hourly: {
-      time: ['2026-11-02T12:00'],
+      time: [Date.parse('2026-11-02T11:00:00.000Z') / 1000],
       temperature_2m: [10],
       relative_humidity_2m: [76],
       dew_point_2m: [6],

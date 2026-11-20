@@ -449,6 +449,7 @@ export interface WaterThermalAnalysis {
   waterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
   /** Exact instant for which this thermal state was calculated; null for a day-wide legacy call. */
   targetTimestamp?: string | null;
+  forecastAsOf?: string | null;
   anchorMeasurementTimestamp?: string | null;
   anchorAgeHours?: number | null;
   weatherCoverageRatio?: number;
@@ -656,7 +657,7 @@ export interface PrognosisSnapshot {
 }
 
 export interface WeatherHourlyForecast {
-  time: string;                   // ISO
+  time: string;                   // Absolute ISO timestamp (UTC); legacy Amsterdam wall times are normalized on cache read
   temperature: number;            // °C luchttemperatuur
   relativeHumidity?: number;      // % relatieve luchtvochtigheid (forecast)
   dewPoint?: number;              // °C dauwpunt (forecast)

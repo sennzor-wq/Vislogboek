@@ -339,7 +339,7 @@ async function runTestSuite() {
     startTime: '2026-10-21T12:00:00',
     outcome: 'unknown',
     waterTemperature: 15.0,
-    waterTemperatureMeasuredAt: '2026-10-21T12:00:00',
+    waterTemperatureMeasuredAt: '2026-10-21T12:00:00.000Z',
     waterTemperatureMeasurementSource: 'manual',
     waterTemperatureMeasurementMethod: 'thermometer',
     createdAt: '2026-10-21T12:00:00',
@@ -355,7 +355,7 @@ async function runTestSuite() {
   assert(staleAnchorToday.waterTemperatureStatus === 'estimated_from_measurement' &&
     staleAnchorToday.anchorAgeHours === 48,
     '4.6 De oude meting wordt correct als 48-uurs anker voor een modelschatting geregistreerd');
-  assert(staleAnchorToday.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString(),
+  assert(staleAnchorToday.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00.000Z').toISOString(),
     '4.7 De herkomsttijd van het lokale meetanker blijft controleerbaar');
 
   const staleAnchorWithoutCoverage = analyzeWaterThermalDevelopment('2026-10-23', [], {
@@ -367,7 +367,7 @@ async function runTestSuite() {
     staleAnchorWithoutCoverage.estimatedWaterTemp === null,
     '4.7a Een oud meetanker zonder weersdekking levert geen actuele temperatuurschatting op');
   assert(staleAnchorWithoutCoverage.anchorAgeHours === 48 &&
-    staleAnchorWithoutCoverage.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00').toISOString() &&
+    staleAnchorWithoutCoverage.anchorMeasurementTimestamp === new Date('2026-10-21T12:00:00.000Z').toISOString() &&
     staleAnchorWithoutCoverage.weatherCoverageRatio === 0,
     '4.7b Herkomst, ouderdom en ontbrekende weersdekking blijven zichtbaar wanneer extrapolatie niet verantwoord is');
 
