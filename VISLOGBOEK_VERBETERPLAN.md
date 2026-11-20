@@ -973,3 +973,8 @@ De volledige primaire PDF van Yazıcıoğlu et al. (2025) is gecontroleerd. De F
 PR #189 is gemerged en zowel de exacte PR-head als mergecommit Quality Gate zijn groen. De broncontroles staan in audit §§141–145; de afgeronde gate en documentatiestatus in §146; de actuele zevenpunts-crosswalk in §89. Registry: 92 records, 0 numeriek goedgekeurd.
 
 Optie A is als eigenaarbesluit gesloten. De thermische curve blijft een voorlopige prior, niet een gevalideerde voedingscurve. Fase 2 blijft open wegens de nog niet gerealiseerde geïntegreerde biologische score, ontbrekende directe lokale biologische labels, ontbrekende gevalideerde tijdvakrespons en open productbesluiten over voorvoerhoeveelheden/gating en optionele hengel-/methodepreset. Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — dieetgebonden blankvoornritme verder afgebakend (20 november 2026)
+
+Prejs (1978) is als primaire bron toegevoegd na volledige PDF-controle. Macrophyten-etende blankvoorn vertoonde in één specifieke veldcontext vrijwel geen plantenopname tijdens volledige duisternis; de auteur stelt expliciet dat dit niet als soortbrede regel geldt. De geschatte dagelijkse plantenrantsoenen komen uit een passage-rate-methode en zijn geen individuele directe veldmetingen. Geen method-feeder-/pelletvertaling of tijdvakbonus. Registry: 93 records, 0 numeriek goedgekeurd. Zie audit §147.

@@ -824,6 +824,29 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'roach-macrophyte-diel-feeding-and-daily-intake-prejs-1978',
+    topic: 'dieetgebonden-dagritme-en-dagelijkse-macrophyteninname',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm', 'diet_composition'],
+    species: ['Voorn'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Primaire veld-/labstudie rond 20 °C in drie eutrofe Poolse meren. Bij macrophyten-etende blankvoorn bleef darmvulling overdag redelijk gelijk en viel plantenopname in volledige duisternis volgens de auteur vrijwel stil. De geschatte natuurlijke dagelijkse macrophytenrantsoenen varieerden afhankelijk van passage-rate-aannames van circa 9,5–4,8% tot 15,5–7,7% vers lichaamsgewicht voor 11–24 cm vis.',
+    limitations: [
+      'Het tijdvakpatroon geldt voor een specifieke macrophyten-etende voedselgilde en mag volgens de auteur niet naar de blankvoornsoort als geheel worden gegeneraliseerd.',
+      'De dagritmeanalyse omvatte 38 blankvoorns van 18,5–21 cm; de concrete nachtobservatie omvatte slechts tien vissen gevangen tussen 01:00 en 02:00 uur.',
+      'De dagelijkse natuurlijke rantsoenen zijn geschat met een passage-rate-methode op basis van darminhoud, passage en aannames over assimilatie; geen rechtstreekse individuele veldmeting van dagelijkse voedselopname.',
+      'De vier blankvoorns in de laboratoriumgroep zijn onvoldoende om de directe rudd-labrantsoenen als blankvoornparameter over te nemen.',
+      'Het betreft macrophyten, geen method-feederpellets, boilies of aangeboden visvoer; geen overdraagbare aas-/vangstrespons.',
+      'Alle veld- en labwerk vond plaats rond 20 °C; geen temperatuurbehandeling of thermische voedingscurve.',
+      'Drie eutrofe meren in het Mazurisch Merengebied; populatie, habitat, voedselgilde en predatiedruk beperken overdracht naar Nederlandse wateren.'
+    ],
+    sourceReferences: [
+      'Prejs, A. (1978). Lake macrophytes as the food of roach (Rutilus rutilus L.) and rudd (Scardinius erythrophthalmus L.). II. Daily intake of macrophyte food in relation to body size of fish. Ekologia Polska, 26(4), 537–553. https://rcin.org.pl/Content/75218/WA058_86972_P2840-T26_Eko-Pol-A-Nr-4.pdf'
+    ],
+    reviewedAt: '2026-11-20',
+    approvedForPrediction: false,
+  },
+  {
     id: 'adult-roach-perch-lake-aydat-daily-consumption-1994',
     topic: 'volwassen-baars-en-blankvoorn-seizoensrantsoen',
     measuredOutcomes: ['feeding_intensity', 'diet_composition'],

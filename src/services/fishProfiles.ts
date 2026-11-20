@@ -141,6 +141,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     assumptions: [
       'Een boreale meerstudie vond in de herfst een verschuiving van dagvoeding naar schemering bij afkoeling. Dit is habitat- en seizoensgebonden en geen universele Nederlandse winterregel.',
       'Onderzoek aan subadulte/volwassen vis en aan juveniele pelagische vis laat verschillende dag-nachtpatronen zien. Levensfase en voedseltype moeten daarom gescheiden blijven.',
+      'Prejs (1978) vond bij macrophyten-etende blankvoorn vrijwel geen plantenopname tijdens volledige duisternis; dit is een specifieke voedselgilde/populatie en geen soortbrede regel of pellet-/method-feederrespons.',
       'Metabolisme is over meerdere temperaturen onderzocht en is lichaamsgrootte-afhankelijk. De thermische optimum- en breedtewaarden in dit profiel zijn voorlopige prioren.',
       'Een vaste voorkeur voor westenwind of een soortspecifieke stormdrempel is niet voldoende onderbouwd; wind levert geen numerieke activiteitbonus.',
     ],
@@ -150,6 +151,7 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
       'Goldspink, C.R. (1979). The population density, growth rate and production of roach Rutilus rutilus (L.) in Tjeukemeer, The Netherlands. Journal of Fish Biology, 15(4), 473–498. https://doi.org/10.1111/j.1095-8649.1979.tb03632.x (populatie, groei en productie; geen dagdeelvoedingsmeting)',
       'Kubecka, J. (1993) Succession of fish communities in reservoirs of Central and Eastern Europe.',
       'Hautala, A. (2008). Autumnal shift from diurnal to nocturnal peaking feeding activity of Rutilus rutilus in boreal lake littoral zones. Journal of Fish Biology, 73(6), 1407–1418. https://doi.org/10.1111/j.1095-8649.2008.02020.x (boreaal meer; herfst en lichtcontext)',
+      'Prejs, A. (1978). Lake macrophytes as the food of roach and rudd. II. Daily intake of macrophyte food in relation to body size of fish. Ekologia Polska, 26(4), 537–553. (macrophyten-etende voedselgilde; dag-/nachtcontext en passage-rate-schatting, geen soortbrede of pelletrespons)',
       'Bohl, E. (1979). Diel pattern of pelagic distribution and feeding in planktivorous fish. Oecologia, 44(3), 368–375. https://doi.org/10.1007/BF00545241 (juveniele blankvoorn en brasem; nachtelijke pelagische voeding in Beierse meren)',
           'Hölker, F. (2003). The metabolic rate of roach in relation to body size and temperature. Journal of Fish Biology, 62(3), 565–579. https://doi.org/10.1046/j.1095-8649.2003.00048.x (SMR/RMR 5–23 °C; lichaamsgrootte-afhankelijk)',
       'Hölker, F. (2006). Effects of body size and temperature on metabolism of bream compared to sympatric roach. Animal Biology, 56(1), 23–37. https://doi.org/10.1163/157075606775904713 (vergelijkende laboratoriumstudie met brasem)',
