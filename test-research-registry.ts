@@ -47,6 +47,23 @@ if (
 ) {
   throw new Error('Wild-river carp feeding evidence must retain its measured outcome, source scope and non-approved status.');
 }
+
+const adultPerchRation = RESEARCH_REGISTRY.find((item) => item.id === 'adult-perch-loch-leven-daily-ration-1977');
+if (
+  !adultPerchRation ||
+  !adultPerchRation.species.includes('Baars') ||
+  !adultPerchRation.measuredOutcomes?.includes('feeding_intensity') ||
+  !adultPerchRation.measuredOutcomes?.includes('feeding_rhythm') ||
+  adultPerchRation.approvedForPrediction ||
+  !adultPerchRation.summary.includes('volwassen baars') ||
+  !adultPerchRation.limitations.some((item) => item.includes('minimale schattingen')) ||
+  !adultPerchRation.sourceReferences.some((source) => source.includes('10.1111/j.1095-8649.1977.tb04098.x'))
+) {
+  throw new Error('Adult perch field-ration evidence must retain its adult scope, minimum-estimate caveat and non-approved status.');
+}
+if (!SPECIES_PROFILES.Baars.scientificReferences.some((source) => source.includes('10.1111/j.1095-8649.1977.tb04098.x'))) {
+  throw new Error('The perch profile must link the adult field-ration source.');
+}
 const breamEvidence = getResearchBySpecies('Brasem');
 const growthStudy = breamEvidence.find((item) => item.id === 'freshwater-fish-temperature-growth-four-species-tien-2024');
 if (!growthStudy || growthStudy.approvedForPrediction) {
@@ -195,6 +212,7 @@ const outcomeExpectations: Array<[string, string, string]> = [
   ['Snoek', 'northern-pike-field-seasonal-feeding-diet-2025', 'diet_composition'],
   ['Snoek', 'northern-pike-functional-response-temperature-browning-2026', 'feeding_intensity'],
   ['Baars', 'perch-field-diel-feeding-seasonal-diet-1986', 'feeding_rhythm'],
+  ['Baars', 'adult-perch-loch-leven-daily-ration-1977', 'feeding_intensity'],
   ['Voorn', 'roach-autumnal-diel-feeding-shift-2008', 'feeding_rhythm'],
   ['Zeelt', 'tench-field-diel-seasonal-feeding-2018', 'feeding_intensity'],
   ['Snoekbaars', 'pikeperch-winter-spring-feeding-temperature-2020', 'feeding_physiology'],

@@ -1904,3 +1904,8 @@ De bron betreft jonge 0+-snoek in laboratoriumarena's en is niet overdraagbaar a
 Garcia & Adelman (1985) (karper) en Specziár (2002) (karper, brasem, blankvoorn) zijn toegevoegd aan de research registry als beperkte `feeding_intensity`-kandidaatbronnen. Beide schatten dagelijkse rantsoenen uit maag-/darminhoud en ledigingsmodellen. Garcia vond geen statistisch significant ochtend-/avondverschil; de brasemtemperatuurrelatie bij Specziár was gevoelig voor één uitgesloten waarneming.
 
 De bronnen blijven `approvedForPrediction: false`; primaire methoden en steekproefcontext moeten verder worden gecontroleerd. Registry: 89 records, 0 numeriek goedgekeurd. Geen runtimefactor of gewicht geactiveerd. Zie audit §136 en architectuur §109.
+
+
+### Fase 2 — volwassen baars veldrantsoen toegevoegd (20 november 2026)
+
+Thorpe (1977) is als beperkte volwassen-baarsbron opgenomen: dagelijkse rantsoenen via maaginhoud/lediging, afnemend van circa 6,5% lichaamsgewicht/dag in juni tot 3,2% in september. De auteurs beschouwen de schattingen als minima wegens tragere lediging bij kooivissen; een watertemperatuurreeks ontbreekt. De bron blijft approvedForPrediction=false. Registry: 90 records, 0 numeriek goedgekeurd. Zie audit §137 en architectuur §110.
