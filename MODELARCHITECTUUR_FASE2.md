@@ -1067,3 +1067,13 @@ De P0-enginewerkzaamheden zijn: (1) één heldere doelrespons voor de bestaande 
 Beweging, habitat en extra soortgedrag blijven afzonderlijke context-/coachlagen en zijn geen reden om de engine-afronding uit te stellen. Ze worden later alleen verdiept wanneer ze een concreet advies aantoonbaar verbeteren. Voorvoergrammen en optionele hengel-/methodepresets blijven aparte tactiek-/productbesluiten, niet blockers voor het biologische engine-ontwerp.
 
 Stopcriterium voor literatuur: geen nieuwe bron verzamelen tenzij de uitkomst een responsclassificatie, parameter-/vormkeuze, overdraagbaarheidsgrens, featuretoelating, tijdvaklogica of evaluatielabel kan veranderen. Geen bronquota, geen geforceerde soortcurves en geen willekeurige gewichten. Ontbrekend bewijs blijft expliciet onbekend. Geen runtime- of scorewijziging vóór formele afronding en toetsing van Fase 2; Fase 3 blijft geblokkeerd.
+
+## 125. Enginecontract: responslagen en tijdvaklogica (20 november 2026)
+
+Audit §150 vertaalt de kandidaatarchitectuur naar een concrete verwerkingsketen. De engine moet eerst context en provenance valideren, daarna de voorlopige thermische prior en directe voedings-/foerageerrespons afzonderlijk behandelen, tijd-/omgevingsmodulatie alleen bij passend bewijs toepassen, en habitat/aanwezigheid, vangbaarheid en onzekerheid als afzonderlijke lagen houden.
+
+Belangrijk ontwerpbesluit: thermische efficiëntie, voedselopname en tijdvakvoorkeur zijn verschillende responsen en mogen niet worden opgeteld voordat één gemeenschappelijke, onafhankelijk meetbare doelrespons en vaste scoreankers zijn gedefinieerd. De huidige code realiseert het productdoel nog niet als samengestelde respons; de bestaande 1–10-uitvoer is uitsluitend de voorlopige thermische prior.
+
+De vier vensters blijven nacht 00–06, ochtend 06–12, middag 12–18 en avond 18–24. De huidige code gebruikt dezelfde dagbrede thermalAnalysis voor alle vier vensters; de weer-/zondata leveren vooral context en geen gevalideerde biologische tijdvakrangorde. Een toekomstige tijdvakrespons vereist tijdspecifieke watertemperatuur/provenance en directe soort-/contextpassende voedingslabels. Geen generieke schemerbonus.
+
+De volledige factorresponsmatrix, invoerflow, tijdvakvoorwaarden en vervolgstappen staan in audit §150. Geen runtimewijziging; Fase 2 blijft open.

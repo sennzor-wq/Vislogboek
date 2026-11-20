@@ -997,3 +997,11 @@ De verdere Fase-2-uitvoering richt zich primair op de prognose-engine, niet op h
 Bestaande water-, habitat-, wind- en positioneringsengines worden hergebruikt. Extra soortkennis over beweging en habitat blijft optimalisatie voor later, tenzij zij een concrete enginebeslissing verandert. Nieuwe bronnen worden alleen uitgewerkt als zij een responsclassificatie, parameter-/vormkeuze, overdraagbaarheidsgrens, tijdvaklogica of evaluatieontwerp kunnen veranderen. Geen bronquota of geforceerde soortcurves.
 
 Voorvoergrammen en optionele hengel-/methodepresets blijven afzonderlijke tactiek-/productbesluiten en blokkeren het biologische engine-ontwerp niet. Geen runtimefactor, gewicht, scoremapping of extra verplichte invoer is door deze herprioritering gewijzigd. Lokale labels blijven noodzakelijk voor latere lokale kalibratie en prestatieclaims, maar worden niet als voorwaarde gebruikt om het ontwerp zelf te documenteren. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+### Fase 2 — enginecontract en tijdvaklogica (20 november 2026)
+
+Audit §150 en modelarchitectuur §125 leggen de volgende inhoudelijke ontwerpstap vast: de engine krijgt een expliciete verwerkingsketen van context/provenance, thermische prior, directe voedings-/foerageerrespons, alleen onderbouwde tijd-/omgevingsmodulatie, aparte habitat-/vangbaarheidslagen, scorecompositie, onzekerheid en onafhankelijke evaluatie.
+
+De vier bestaande tijdvakken zijn 00–06, 06–12, 12–18 en 18–24. De huidige implementatie hergebruikt dezelfde dagbrede thermische analyse voor elk tijdvak; er bestaat dus nog geen afzonderlijk gevalideerde biologische tijdvakrangorde. Tijdvakvoorspelling vereist tijdspecifieke waterinformatie en directe voedings-/foerageerlabels. Geen generieke schemerbonus.
+
+Thermische efficiëntie, voedselopname en tijdvakvoorkeur worden niet opgeteld voordat een gemeenschappelijke onafhankelijke referentie en vaste scoreankers bestaan. Geen runtime-, score-, UI- of invoerwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
