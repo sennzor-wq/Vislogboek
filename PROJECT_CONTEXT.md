@@ -1909,3 +1909,8 @@ De bronnen blijven `approvedForPrediction: false`; primaire methoden en steekpro
 ### Fase 2 — volwassen baars veldrantsoen toegevoegd (20 november 2026)
 
 Thorpe (1977) is als beperkte volwassen-baarsbron opgenomen: dagelijkse rantsoenen via maaginhoud/lediging, afnemend van circa 6,5% lichaamsgewicht/dag in juni tot 3,2% in september. De auteurs beschouwen de schattingen als minima wegens tragere lediging bij kooivissen; een watertemperatuurreeks ontbreekt. De bron blijft approvedForPrediction=false. Registry: 90 records, 0 numeriek goedgekeurd. Zie audit §137 en architectuur §110.
+
+
+### Fase 2 — snoekdataset 2026: broncontext gecorrigeerd (20 november 2026)
+
+De volwassen snoek-biosensorreeks van Nilsson-Örtman et al. (2026) is gemeten in drie experimentele vijvers, niet in een representatieve natuurlijke veldpopulatie; de data bevatten alleen lichaamstemperatuur, geen voedingslabels. De primaire paper rapporteert 24 0+-dieren in experiment 1 en drie uitgesloten proefwaarnemingen, terwijl de Dryad-README n=23 en drie individuen noemt. Experiment 2 had daarnaast twee uitsluitingen wegens schimmelinfectie. Ruwe bestanden waren via Dryad niet downloadbaar (HTTP 403), dus er is geen onafhankelijke heruitvoering geclaimd. De bron blijft beperkt en niet-goedgekeurd. Zie audit §138.

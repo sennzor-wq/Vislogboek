@@ -3636,7 +3636,7 @@ De studie meet direct hoeveel prooivissen jonge 0+-snoek daadwerkelijk consumeer
 - Experiment 1: 192 gecontroleerde proeven; 5, 9 en 13 °C; helder versus matig bruin water; vier prooidichtheden (2, 5, 10, 20); gemiddeld circa 23,5 uur per proef.
 - Experiment 2: 80 proeven bij 9 °C; twee prooidichtheden en vijf gradaties van verbruining.
 - De eerste proef gebruikte 24 snoeken van gemiddeld 51,8 g (range 34,5–79,2 g; circa 165–220 mm), uitsluitend 0+-dieren uit één Zuid-Zweedse meerpopulatie. Blankvoorn vormde meer dan 95% van de prooien.
-- De aanvullende volwassen-snoekdata zijn lichaamstemperatuurregistraties van zes vrijlevende dieren; er zijn geen gelijktijdige voedingslabels voor deze volwassen dieren.
+- De aanvullende volwassen-snoekdata zijn lichaamstemperatuurregistraties van zes dieren in drie grote experimentele vijvers; er zijn geen gelijktijdige voedingslabels. De primaire methodesectie beschrijft experimentele vijvers, hoewel de Dryad-paginabeschrijving de dieren vrijlevend noemt.
 
 ### 135.2 Wat deze bron wel en niet toevoegt
 
@@ -3693,3 +3693,38 @@ Volwassen baarzen werden tijdens 24-uurscycli om de drie uur bemonsterd in juni�
 **Belangrijke beperkingen:** maaglediging bij gekooide vissen was langzamer dan bij vrijlevende vissen; de auteurs beschouwen de rantsoenschattingen daarom als minimale waarden. De studie betreft één Schots meer en zomerperioden. De publiek beschikbare samenvatting bevat geen watertemperatuurreeks, zodat dit geen temperatuur-responscurve oplevert. Het is een voedingsintensiteits-/seizoensbron, geen lokale Nederlandse labelset, geen vangstkansmeting en geen validatie van de thermische profielcurve.
 
 De bron is geregistreerd als `feeding_intensity` en `feeding_rhythm`, bewijssterkte **limited**, `approvedForPrediction: false`, en gekoppeld aan het Baars-profiel. Registrytelling: 90 records, 0 numeriek goedgekeurd. Geen tijdvakbonus of runtimefactor geactiveerd.
+
+
+## 138. Primaire-methodesectie versus Dryad-metadata: snoekdataset 2026 nader geverifieerd (20 november 2026)
+
+De volledige open-access publicatie van Nilsson-Örtman et al. (2026) is naast de Dryad-datasetbeschrijving gelegd. Deze controle corrigeert twee onnauwkeurigheden en maakt een bronmetadata-conflict expliciet.
+
+### 138.1 Volwassen snoeken: experimentele vijvers, geen natuurlijke veldpopulatie
+
+De primaire methodesectie §2.4 meldt dat zes volwassen snoeken met biosensoren gedurende twaalf maanden zijn gevolgd in **drie grote experimentele vijvers** (70 × 30 m, 1,5 m diep). De dieren werden elektrisch gevangen, naar de vijvers vervoerd, in kooien geacclimatiseerd, op 23 november 2021 met sensoren vrijgelaten in de vijvers en begin oktober 2022 teruggevangen. De meting is lichaamstemperatuur om de 30 minuten.
+
+De Dryad-paginabeschrijving noemt deze dieren "free-ranging adult pike". Dat is zonder de habitatcontext misleidend: de primaire methodesectie specificeert experimentele vijvers. Deze zes dieren leveren uitsluitend thermische validatiegegevens voor de klimaatsimulatie; er zijn geen gekoppelde voedings- of vangstlabels. Ze mogen dus niet worden beschreven als een volwassen natuurlijke veldvoedingsdataset of als bewijs voor volwassen snoek-activiteit.
+
+### 138.2 Experimentele 0+-voedingsdata: steekproef- en uitsluitingsverschil
+
+De primaire publicatie §2.1 rapporteert 24 jonge 0+-snoeken (gemiddeld 51,8 ± 12,8 g; 34,5–79,2 g) voor experiment 1. De Dryad-README vermeldt bij dezelfde beschrijving n=23, terwijl de paper n=24 aangeeft. De paper meldt daarnaast dat drie **proefwaarnemingen** met negatieve gecorrigeerde voedingssnelheid uit de analyse zijn verwijderd omdat de betrokken snoeken nog niet begonnen waren met eten in het laboratorium. De README beschrijft het Outlier-veld daarentegen als drie **individuen**. Deze formuleringen zijn niet equivalent en mogen niet stilzwijgend als hetzelfde uitsluitingsniveau worden geïnterpreteerd.
+
+Voor experiment 2 vermeldt de primaire paper afzonderlijk dat twee dieren wegens schimmelinfectie tijdens de vastenperiode werden uitgesloten; de uiteindelijke steekproef was 22 dieren. Deze uitsluitingen mogen niet worden samengevoegd met de drie negatieve proefwaarnemingen uit experiment 1.
+
+### 138.3 Inhoudelijke interpretatie blijft begrensd
+
+De primaire paper bevestigt de directe meting van gegeten prooien in 0+-snoek, maar ook de nauwe context: winterproeven in laboratoriumarena's, herhaald gebruik van individuele dieren, vier dagen gestandaardiseerd vasten tussen opeenvolgende proeven en vooral jonge cyprinide prooien. De 23,5-uursvensters integreren een volledige dag-nachtcyclus; er zijn geen individuele consumptietijdstippen waarmee een ochtend-/avondscore kan worden afgeleid.
+
+De resultaten blijven relevant als directe functionele voedingsrespons onder gecontroleerde condities. De paper rapporteert opvallend zwakke temperatuur-/verbruiningseffecten en een Type-IV-vorm alleen bij 5 °C in helder water; voor de meeste overige behandelingen was de exacte responsvorm niet overtuigend te onderscheiden. Dit is geen algemene thermische voedselopnamecurve voor volwassen snoek en geen validatie van de huidige profielparameters.
+
+### 138.4 Registry- en toelatingsbesluit
+
+De registrybeperking is aangescherpt: de volwassen lichaamstemperatuurreeks wordt expliciet omschreven als zes volwassen snoeken in experimentele vijvers, zonder voedingslabels. De primaire paper is leidend boven de verkorte habitatomschrijving in de Dryad-metadata. De regressietest bewaakt deze beperking.
+
+De ruwe CSV en Analysis.R zijn via de Dryad-downloadlinks in deze controleomgeving niet rechtstreeks opgehaald (HTTP 403); daarom claimen we geen zelfstandige heruitvoering van de R-analyse of rij-voor-rij-audit van de CSV. De controle berust op de volledige primaire publicatie, de zichtbare Dryad-bestandsbeschrijvingen en de gepubliceerde README. Dat is voldoende voor de hierboven beschreven scopecorrectie, maar niet voor een onafhankelijke reproductie van de modelpassing.
+
+**Besluit:** behoud de bron als directe maar beperkte feeding_intensity-kandidaat voor 0+-snoek, approvedForPrediction=false. De volwassen vijvertemperatuurreeks blijft uitsluitend thermische context, geen voedingslabel. Geen score, factor, gewicht, parameter, tijdvakbonus of runtimegedrag gewijzigd.
+
+Bronnen:
+- Nilsson-Örtman, V., Nilsson, E. & Brönmark, C. (2026). Effects of temperature and browning on the functional response of a freshwater top predator. Journal of Animal Ecology, 95(5), 824–836. https://doi.org/10.1111/1365-2656.70233
+- Dataset en README: https://doi.org/10.5061/dryad.kkwh70sjc
