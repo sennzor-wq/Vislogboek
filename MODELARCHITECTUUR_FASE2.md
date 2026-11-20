@@ -1155,3 +1155,12 @@ De resterende technische volgorde is: (1) tijdstipgerichte, tijdzonebewuste chro
 De voorvoerengine bevat nog niet-gevalideerde exacte grammen en temperatuur-/soortdrempels; uitschakelen vereist expliciete productgoedkeuring. De vangstflow heeft vrije tekst, maar nog geen optionele herbruikbare hengel-/methodepreset. Deze productpunten blijven gescheiden van de biologische score.
 
 Fase 2 kan niet eerlijk formeel worden geaccepteerd zolang technische tijdstip-/meetregistratiepunten openstaan en onafhankelijke biologische labels ontbreken. Geen synthetische labels, geforceerde literatuurquota, runtimegewichten of tijdvakbonussen. Fase 3 blijft geblokkeerd. Zie audit §157.
+
+
+## 133. Uitvoering punt 1 — tijdstipgerichte waterthermische toestand (20 november 2026)
+
+Punt 1 is geïmplementeerd in PR #203 en de PR-head- en mergecommit-Quality-Gates zijn groen. De bestaande waterThermalEngine accepteert nu `targetTime`; prognosisEngine berekent per tijdvak de toestand op het representatieve forecastmoment. Elk moment wordt chronologisch vanaf hetzelfde laatst geldige meetanker berekend. Metingen ná het doeltijdstip worden uitgesloten als anker; een huidige meting wordt voor toekomstige momenten een historisch startanker. Verstreken tijdvakken worden niet achteraf herschreven. De bestaande lokale biascorrectie blijft consistent.
+
+De zichtbare 1–10-score, scoreformule, database, gebruikersinvoer en UI zijn niet gewijzigd. Regressietests dekken expliciete doeltijden en stabiliteit van 8 °C bij stabiele lucht en weinig wind. Dit is technische tijdstipfunctionaliteit, geen empirische validatie van de bestaande tijdconstanten.
+
+Punt 2 blijft open: deterministische Europe/Amsterdam-/DST-parsing, expliciete forecast-as-of en voorkomen van forecast future leakage. Zie audit §158.
