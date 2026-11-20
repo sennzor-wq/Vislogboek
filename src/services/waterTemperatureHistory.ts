@@ -131,6 +131,7 @@ export function collectHistoricalWaterTemperatureObservations(
     if (!existing || (observation.measurementId && !existing.measurementId)) unique.set(key, observation);
   }
   return [...unique.values()];
+}
 
 export interface HistoricalWaterTemperatureProfile {
   baselineC: number;
