@@ -1175,3 +1175,12 @@ Punt 2 is geïmplementeerd in PR #205; PR-head- en mergecommit-Quality-Gates zij
 De Open-Meteo daily sunrise/sunset wordt naar lokale datum/tijd omgezet voor de bestaande schemerlogica. Regressies, volledige Quality Gate en productiebuild zijn groen. Zie audit §159.
 
 Volgende stap: punt 3 — historische profielselectie op fysieke meetdiepte.
+
+
+## 135. Uitvoering punt 3 — meetdieptebewuste historische temperatuurprofielen (20 november 2026)
+
+Punt 3 is geïmplementeerd in PR #207; PR-head- en mergecommit-Quality-Gates zijn groen. Historische profielen worden niet meer samengesteld uit verschillende bekende meetdieptes of uit een mix van bekende en onbekende meetdieptes. Een expliciete doelmeetdiepte selecteert uitsluitend dezelfde diepte; zonder doelmeetdiepte is alleen een eenduidige historische laag toegestaan. Meerdere bekende lagen zonder bekend doelmeetniveau leveren geen profiel op.
+
+De selectie blijft de totale waterdiepte apart gebruiken voor de nabijgelegen-stekkenfallback. De gekozen verticale meetdiepte wordt als provenance in WaterThermalAnalysis opgenomen. Geen databasewijziging, verplicht invoerveld of UI-wijziging. Zie audit §160.
+
+Volgende stap: punt 4 — meerdere afzonderlijke fysieke meetmomenten per sessie met beschikbare weerscontext.
