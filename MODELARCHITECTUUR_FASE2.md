@@ -1084,3 +1084,12 @@ De volledige factorresponsmatrix, invoerflow, tijdvakvoorwaarden en vervolgstapp
 Audit §151 documenteert een gerichte controle van drie openbaar beschikbare datasets. Norin et al. (2024) meet bij juveniele marine Cunner metabolisme, beweging en dagelijkse pelletopname afzonderlijk; thermische plasticiteit van metabolisme en beweging viel niet samen, terwijl de voedselopname slechts als dagtotaal is vastgelegd. Monk & Arlinghaus (2018) biedt wilde karper-/zeelttelemetrie, aaslocatiebezoek en hengelinzet, maar geen gemeten voedselconsumptie. Rieble et al. (2026) biedt dagelijkse beweging van karper en baars, maar geen directe voedingslabels en heeft een catch-and-release-herstelcontext.
 
 Deze datasets zijn daarom niet numeriek toegelaten voor de biologische dagscore of tijdvakvoeding. Ze bevestigen wel dat thermische fysiologie, beweging, voedselopname en hengelvangbaarheid gescheiden responsen moeten blijven. Hergebruik voor een eigen bewegings-/habitat- of vangbaarheidslaag kan later worden onderzocht. Geen runtimewijziging; Fase 2 blijft open.
+
+
+## 127. Tijdresolutie van de waterthermische keten
+
+Audit §152 stelt vast dat waterThermalEngine momenteel één geschatte watertemperatuur en -range per doeldag retourneert. De optionele targetHour in ThermalAnalysisOptions wordt niet gebruikt. prognosisEngine roept de thermische analyse eenmaal per dag aan en geeft hetzelfde resultaat door aan nacht, ochtend, middag en avond. De per-tijdvak uurlijkse weerssamples leveren momenteel context, geen tijdspecifieke thermische score.
+
+Een echte tijdvaktemperatuur vereist een tijdstipgerichte uitbreiding van de bestaande canonieke waterThermalEngine, met uitsluitend op het prognosemoment beschikbare invoer, waterthermische toestandsontwikkeling, provenance en onzekerheid. Luchttemperatuur mag niet rechtstreeks als watertemperatuur worden gebruikt. Een tijdspecifieke thermische schatting valideert bovendien nog geen tijdvakvoedingsvoorkeur; daarvoor blijven directe voedingslabels nodig.
+
+Geen runtimewijziging. Eerst een minimale API-/datadekkingstoets; daarna pas beslissen over implementatie. Fase 2 blijft open.

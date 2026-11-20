@@ -1012,3 +1012,10 @@ Thermische efficiëntie, voedselopname en tijdvakvoorkeur worden niet opgeteld v
 Audit §151 registreert drie concrete openbare datasets. De controle vond geen overdraagbare onafhankelijke veldlabels die de samengestelde biologische dagscore of tijdvakvoeding nu kunnen valideren. De bronnen zijn wel nuttig voor responsafbakening: Norin et al. scheidt thermische fysiologie, beweging en dagtotaal voedselopname; Monk & Arlinghaus levert karper-/zeelttelemetrie en aasontmoeting/hengelvangbaarheid, geen werkelijk geconsumeerde hoeveelheid; Rieble et al. levert dagelijkse beweging van karper/baars, geen voedingslabels.
 
 Besluit: geen van deze datasets wordt numeriek toegelaten voor de biologische score. Ze kunnen later uitsluitend voor hun eigen bewegings-/habitat-/vangbaarheidsrespons worden hergebruikt. De registry is bijgewerkt met één contextuele Cunner-bron (94 records, 0 numeriek goedgekeurd). Geen runtime-, score- of UI-wijziging; Fase 2 blijft open.
+
+
+### Fase 2 — tijdresolutie van de waterthermische engine (20 november 2026)
+
+Audit §152 documenteert een concrete codebevinding: de waterthermische engine retourneert één watertemperatuurschatting per doeldag; de gedeclareerde targetHour-optie wordt niet gebruikt en prognosisEngine deelt dezelfde thermalAnalysis met de vier tijdvakken. Uurlijkse weersdata is dus nog geen tijdspecifieke watertemperatuur.
+
+De volgende ontwerpstap is een minimale tijdstipgerichte API voor de bestaande waterThermalEngine, inclusief tijdzone, voorspelmoment, waterthermische toestand, provenance en onzekerheid. Geen interpolatie of directe omzetting van luchttemperatuur naar watertemperatuur. Ook na zo'n technische uitbreiding zijn directe voedingslabels nog nodig om een biologische tijdvakvoorkeur te onderbouwen. Geen runtimewijziging; Fase 2 blijft open.
