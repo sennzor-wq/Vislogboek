@@ -182,3 +182,66 @@ De code-inspectie bevestigt dat de bestaande architectuur al één centrale prog
 **Volgende werkstap:** voltooi de deterministische datakwaliteits- en uitsluitingsaudit end-to-end: uurdekking per tijdvak, geldigheid/provenance van thermische invoer, behandeling van ontbrekende factoren, historische sessie-/vangstfilters en de exacte beschikbaarheidsstatus die bij dag-, tijdvak- en persoonlijke vangstuitvoer hoort. Daarna kan de Fase 2-crosswalk per factor/respons worden omgezet naar concrete implementeerbare onderdelen en tests.
 
 Geen runtimecode, schema, database, gebruikersdata, invoervelden, scores, gewichten, temperatuurcurves of UI gewijzigd. Dit werkonderdeel is code-/UI-inspectie; er zijn hiervoor geen tests of build uitgevoerd en geen biologische validatie geclaimd.
+## Werkonderdeel 3 — deterministische datakwaliteit en uitsluitingsregels
+
+**Roadmapbasis:** Fase 2 acceptatie-eis voor zichtbare ontbrekende/onbetrouwbare invoer; audit §§172–175 en §179.  
+**Type werk:** read-only controle van datakwaliteits-, temperatuurhistorie-, thermische en sessieselectiecode plus bestaande gerichte tests.  
+**Gecontroleerde basis:** main op afd1b967d267aec6259a218c0087ddf05a3629d5.  
+**Status:** belangrijkste filters en beperkingen in kaart gebracht; nog geen test/build uitgevoerd.
+
+### 3.1 Centrale datakwaliteitsbeoordeling
+
+- dataQualityEngine beoordeelt per invoer of een waarde aanwezig is en op basis van status of deze bruikbaar is. Nul is expliciet een geldige waarde.
+- Ontbrekende waarden en status unknown zijn niet bruikbaar. Measured wordt als hoog, forecast als middel, modelled als laag maar bruikbaar en userReported als middel beoordeeld.
+- De code waarschuwt terecht dat een als measured aangeleverde waarde nog geen onafhankelijke controle van meetmethode of meetkwaliteit betekent.
+- De huidige prognose bouwt deze centrale kwaliteitsrapportage voor drie groepen: watertemperatuur, weersverwachting en vergelijkbare sessiehistorie. Dit is geen volledige kwaliteitsbeoordeling van iedere biologische factor.
+- De persoonlijke vangstkans wordt aanvullend verborgen wanneer de thermische invoer niet bruikbaar is of de totale weersdekking niet als Volledig is geclassificeerd. De thermische activiteitsscore zelf wordt niet door dezelfde volledige weersdekkingseis geblokkeerd; de eigen beschikbaarheidsregel is of er een gemeten of geschatte watertemperatuur beschikbaar is.
+
+### 3.2 Uurdekking en thermische invoer
+
+- De dagbrede weerkwaliteitscontrole telt per kernveld het aantal geldige uurwaarden voor luchttemperatuur, luchtdruk, wind, neerslag en bewolking. De laagste telling wordt gebruikt als validHours. Volledig vereist minimaal 18 geldige uren en geen kernveld onder 12; Gedeeltelijk vereist minimaal 6; anders Onvoldoende.
+- Dit is een dagbrede dekkingstoets. De vier tijdvakken krijgen daarnaast eigen veldcontroles. Voor elk tijdvak is minimaal de helft van de urenconfiguratie aan geldige waarden vereist voor de betreffende contextvelden.
+- Voor de thermische schatting zijn minimaal zes geldige luchttemperatuur-uurwaarden op de doeldag nodig. Bij onvoldoende dekking kan een recent lokaal meetanker tot 24 uur oud of een historisch temperatuurprofiel als beperktere terugval worden gebruikt.
+- Weer-gestuurde extrapolatie vanaf een ouder lokaal meetanker vereist bekende diepte, maximaal 96 uur ouderdom, minimaal 65% dekking van de periode en voldoende uurwaarden. Bij een recente meting van maximaal 24 uur kan bij ontbrekende dekking een brede ±1,0 °C-stabiliteitsmarge worden getoond.
+- Zonder lokaal meetanker kan een modelschatting worden gemaakt wanneer minimaal 72 uur voorafgaande weerhistorie beschikbaar is. Zonder lokaal of historisch waterreferentiepunt kan die schatting een numerieke puntwaarde hebben maar geen numerieke onzekerheidsrange; de code noemt dit expliciet indicatief met hoge, niet-gekwantificeerde onzekerheid.
+- Belangrijk aandachtspunt voor de latere score: analyzeTimeSlot beschouwt een eindige geschatte watertemperatuur als voldoende om een thermische score te berekenen, ook wanneer de schatting alleen weerafgeleid is en geen numerieke onzekerheidsrange heeft. De onzekerheidsnotitie blijft beschikbaar, maar de scorebeschikbaarheid zelf maakt dit onderscheid niet zichtbaar. Dit vraagt een expliciete model-/productbeslissing voordat we een volgende scorearchitectuur vastleggen; geen automatische blokkade of correctie toegevoegd.
+- Wanneer een tijdvak geen eigen representatief uur uit de forecast heeft, kan de tijdvakberekening terugvallen op de dagbrede thermische analyse. Daardoor is een afzonderlijke tijdvakscore niet in alle situaties gebaseerd op een zelfstandige tijdvaktemperatuurprojectie.
+
+### 3.3 Historische watertemperatuur: bron, deduplicatie en uitsluiting
+
+- De gedeelde collector leest geldige fysieke events uit waterTemperatureMeasurements[] en ondersteunt oudere scalaire sessiemetingen wanneer er geen eventarray met items aanwezig is.
+- Sessie-events vereisen een numerieke temperatuur tussen 0 en 35 °C, een parsebaar meettijdstip en bekende bron én methode. Benchmarksessies en sessies zonder locatie worden uitgesloten.
+- Snapshotmetingen vereisen een locatie, numerieke meetwaarde, meettijdstip en bekende bron/methode. Benchmarkgekoppelde snapshots worden uitgesloten wanneer de gekoppelde benchmarksessie in de aangeleverde sessielijst aanwezig is.
+- Bij een sessie met een niet-lege eventarray wordt de scalaire legacy-terugval niet gebruikt, ook niet wanneer alle events in die array vervolgens door validatiefilters worden uitgesloten. Dit is een compatibiliteits-/datakwaliteitspunt om bij eventuele migratie of import te testen; er is geen bewijs dat huidige gebruikersdata hierdoor verloren gaan en er is niets aangepast.
+- Voor een historisch profiel tellen alleen metingen vóór de doeldag, uit dezelfde of een aangrenzende Amsterdamse kalendermaand, met geldige temperatuur en zonder benchmarkstatus. Identieke fysieke metingen worden gededupliceerd op stek, meettijd, temperatuur en meetdiepte.
+- Voorkeur is minimaal drie geldige metingen op dezelfde stek. Terugval vereist hetzelfde bekende watertype, maximaal 50 km afstand, vergelijkbare totale waterdiepte en minimaal vijf metingen van minimaal twee stekken. Verschillende bekende meetdieptelagen worden niet samengevoegd; ambiguïteit leidt tot geen profiel.
+
+### 3.4 Persoonlijke sessie- en vangstfilters
+
+- Tijdvakervaring gebruikt afgeronde sessies met outcome catch of skunk_confirmed, sluit benchmarks en sessies met onbekende starttijd uit, vereist een overeenkomende doelsoort en deelt de sessie in op de starttijd.
+- Voor een catch-sessie moet ten minste één vangstrecord van de doelsoort met bekende soortherkomst bestaan. Deze tijdvakervaring filtert niet op stek; zij is dus een bredere persoonlijke tijdvakreferentie.
+- De persoonlijke vangstkans gebruikt alleen afgeronde, niet-benchmark sessies die bij de doelsoort passen en, wanneer opgegeven, op de gekozen stek plaatsvonden. Een catch-uitkomst telt alleen als doelsoortsucces wanneer een bijbehorend vangstrecord met bekende soortherkomst bestaat.
+- Voor het Poisson-vangsttempo tellen alleen sessies met bekende positieve werkelijke duur en bruikbare doelsoortvangstaantallen of een bevestigde nulvangst. Onbekende duur wordt niet ingevuld; de gewenste sessieduur wordt alleen gebruikt om de kans voor de toekomstige sessie te berekenen.
+- De softwareminimums (onder meer vijf vergelijkbare sessies en vijf bruikbare blootstellingssessies) zijn bestaande beschikbaarheidsfilters, geen bewijs van voldoende wetenschappelijke steekproefomvang.
+
+### 3.5 Bestaande testdekking — alleen inspectie, niet uitgevoerd in dit werkonderdeel
+
+De repository bevat gerichte tests in onder meer test-thermal-and-prognosis.ts, test-water-temperature-learning.ts, test-water-temperature-synthetic-validation.ts en test-water-thermal-coupling.ts. De geïnspecteerde tests dekken onder andere:
+- toekomstig weerdata-as-of en future leakage;
+- ontbrekende meetmetadata en uitsluiting van ongeldige temperatuurvalidatieparen;
+- uitsluiting van toekomstige metingen en benchmarkmetingen;
+- temperatuurprofiel-/thermische ankergevallen en beperkte dekking;
+- herkomst van automatische versus door gebruiker aangepaste vangsttijdstippen.
+
+In de geïnspecteerde testbestanden is geen dedicated suite voor dataQualityEngine aangetroffen. Ook is nog geen gerichte regressietest gevonden voor de volledige combinatie van tijdvak-forecastdekking, een ontbrekende tijdvaktemperatuurschatting, weer-only puntinschatting zonder onzekerheidsrange en de uiteindelijke zichtbare scorebeschikbaarheid. Dit zijn testkandidaten, geen aangetoonde runtimefouten.
+
+### 3.6 Vervolg
+
+De datakwaliteitsregels zijn grotendeels expliciet en voorzichtig, maar de volgende integrale punten moeten nog worden vastgesteld voordat de scorearchitectuur kan worden omgezet:
+1. Per tijdvak vastleggen welke thermische bronstatus de score mag voeden en hoe weer-only schattingen met niet-gekwantificeerde onzekerheid worden weergegeven.
+2. Vaststellen wanneer een tijdvakscore echt tijdspecifiek is en wanneer deze op dagbrede thermische context terugvalt.
+3. De zichtbare scorebeschikbaarheid scheiden van de aanwezigheid van een interne puntwaarde; onbekend mag niet ongemerkt een neutrale of schijnnauwkeurige score worden.
+4. De bestaande sessie-/vangstfilters met gerichte regressietests vastzetten, inclusief locatieverschil tussen tijdvakervaring en persoonlijke vangkans.
+5. Daarna pas de factor-/respons-crosswalk vertalen naar toegestane scorebijdragen en tijdvensteraggregatie.
+
+Geen runtimecode, schema, database, gebruikersdata, invoervelden, scores, gewichten of temperatuurcurves gewijzigd. Dit onderdeel is code-/testinspectie; de tests zijn niet uitgevoerd en biologische validatie is niet geclaimd.
