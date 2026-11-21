@@ -5025,3 +5025,36 @@ Deze routes zijn alternatieven, geen combinatie die nu stilzwijgend wordt ingevo
 Vervolg: vergelijk route A en B op minimale wijzigingsomvang, behoud van immutable snapshots, historische compatibiliteit, forecast-as-of en toetsbaarheid. Leg de afweging voor aan de eigenaar voordat runtimecode of opslagcontract wordt aangepast.
 
 Geen code, schema, IndexedDB, gebruikersdata, snapshots, prognose-uitkomsten, temperatuurcurves, scores, parameters of gewichten gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 177. Eigenaarbesluit route A — één concreet meetmoment per vissessie als normale werkwijze (21 november 2026)
+
+**Besluit:** de eigenaar kiest route A: een thermische voorspelling voor één concreet meetdoelmoment. De praktische standaard is één optionele fysieke watertemperatuurmeting per vissessie. Meerdere metingen worden niet gevraagd of als normale werkwijze aanbevolen.
+
+### 177.1 Praktische productgrens
+
+- Eén meting per sessie is de normale, voldoende praktische invoer om gedurende langere tijd lokale temperatuurhistorie op te bouwen.
+- De meting blijft optioneel; geen dagelijkse meetplicht en geen extra verplichte gebruikershandeling.
+- Dit is een normale werkwijze, geen reden om bestaande meerdere meetevents te verwijderen, historische data te reduceren of de bestaande opslagstructuur hard op één event te begrenzen. Compatibiliteit en informatiebehoud blijven leidend.
+- De bestaande meeteventreeks blijft de bron voor fysieke metingen. De scalaire sessievelden blijven uitsluitend compatibiliteitssamenvatting; dezelfde fysieke meting mag nooit ook als afzonderlijke scalaire waarneming worden meegeteld.
+
+### 177.2 Gekozen voorspellingsroute
+
+Voor ieder meetevent dat voor temperatuurvalidatie wordt gebruikt, moet één immutable voorspelling bestaan die vóór de fysieke meting is vastgelegd en op één expliciet doelmoment is berekend. De voorspelling bevat ten minste de bestaande predictedWaterTemperature, forecastTimestamp/forecastAsOf, expliciet targetTimestamp, locatie- en sessierelatie en modelprovenance. Het meetevent en de voorspelling worden één-op-één aan elkaar gekoppeld; een bestaande sessiestartsnapshot zonder gegarandeerd targetTimestamp is niet automatisch geschikt.
+
+De voorspelling moet worden vastgelegd vóórdat de fysieke watertemperatuur wordt gemeten. Het later invoeren van een al gemeten temperatuur mag niet leiden tot een achteraf berekende voorspelling die als voorafgaand wordt behandeld. forecastTimestamp moet strikt vóór measuredAt liggen. De voorspelde waarde blijft immutable en mag niet worden overschreven door de fysieke meting.
+
+De technische koppeling moet waar mogelijk verwijzen naar de bestaande immutable snapshot; kopieer de voorspelde temperatuur niet onnodig naar meerdere velden of tabellen. Eén meetevent gebruikt maximaal één snapshot en één snapshot maximaal één meetevent. Bij ontbrekende of ambigue koppeling wordt het paar uitgesloten met reden; er wordt niet gegokt.
+
+### 177.3 Nog niet vastgelegde technische parameters
+
+- De exacte workflow waarmee de voorspelling vóór het fysieke meetmoment wordt vastgelegd, moet worden gecontroleerd tegen de bestaande sessiestart- en meetinvoerflow. Er mag geen voorspelling worden gegenereerd op basis van de al ingevoerde gemeten temperatuur.
+- De toegestane afstand tussen targetTimestamp en measuredAt blijft onbeslist. Er wordt geen willekeurige minutenmarge ingevoerd. De gekozen workflow moet een doelmoment opleveren dat in de praktijk bij het ene meetmoment past; als exacte tijdgelijkheid niet realistisch is, is een afzonderlijk onderbouwd tolerantiebesluit nodig.
+- Een event zonder expliciete, vooraf vastgelegde voorspelling en passend doelmoment blijft bruikbare fysieke historie voor de bestaande temperatuurprofielen, maar telt niet mee als forecast-evaluatiepaar.
+- Bestaande legacy scalaire evaluatie blijft compatibel en wordt niet dubbel geteld naast een eventpaar.
+
+### 177.4 Afbakening en status
+
+Route B (vier opgeslagen tijdvakvoorspellingen) wordt niet verder uitgewerkt of gecombineerd met route A. Er worden geen extra meetmomenten, verplichte invoervelden, nieuwe dagelijkse metingen of tweede temperatuur-engine toegevoegd.
+
+Dit hoofdstuk legt het eigenaarbesluit en het minimale kwaliteitscontract vast. Het is nog geen runtime-implementatie: geen code, databasemigratie, gebruikersdata, bestaande snapshots, temperatuurcurves, scores, parameters of gewichten gewijzigd. Volgende stap: controleer de concrete meet-/sessiestartworkflow en werk de kleinste compatibele implementatie plus gerichte regressietests uit. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

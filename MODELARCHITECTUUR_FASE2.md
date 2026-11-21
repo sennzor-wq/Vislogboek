@@ -1274,3 +1274,14 @@ Eventniveau-MAE/RMSE/bias blijft aanvankelijk gescheiden van lokale biascalibrat
 Audit §176 toont dat waterThermalEngine.targetTimestamp alleen wordt gevuld bij een expliciete targetTime. De algemene thermische analyse voor sessiestart en sessie-update krijgt die parameter niet en bewaart daarom doorgaans null. De interne tijdvakberekening gebruikt wel een representatief slotTargetTime, maar TimeSlotAnalysis bewaart de bijbehorende thermische analyse niet. targetWindowStart/End en forecastTimestamp zijn andere tijdsbegrippen en mogen dit doelmoment niet vervangen.
 
 Daarom kunnen bestaande sessiemeetevents niet betrouwbaar aan predictedWaterTemperature worden gekoppeld met alleen de huidige persistente snapshotvelden. §175 blijft het gewenste kwaliteitscontract, maar is nog niet direct implementeerbaar. Vergelijk eerst twee expliciete ontwerpvarianten: voorspelling voor een concreet meetdoelmoment versus vooraf vastgelegde tijdvakvoorspellingen. Geen implementatie zonder eigenaarbesluit; geen runtime- of schemawijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 146. Gekozen route A — één meetmoment als praktische standaard (21 november 2026)
+
+De eigenaar heeft route A gekozen. De normale gebruikerswerkwijze is één optionele fysieke watertemperatuurmeting per vissessie; er komt geen dagelijkse meetplicht of verplicht extra meetmoment. Dit is een praktische standaard en geen hard opslagmaximum: bestaande eventarrays, meerdere historische metingen en back-upcompatibiliteit blijven behouden.
+
+Voor temperatuurvalidatie hoort ieder gebruikt meetevent bij precies één immutable voorspelling die vóór de fysieke meting is vastgelegd, met expliciet thermisch targetTimestamp en forecastTimestamp/forecastAsOf strikt vóór measuredAt. Het event verwijst naar de bestaande snapshot in plaats van dezelfde voorspelde waarde onnodig op meerdere plaatsen te dupliceren. Eén snapshot kan maximaal één event valideren; een ontbrekende of ambigue koppeling wordt uitgesloten. De scalaire sessiesamenvatting wordt niet naast het event als tweede meting geteld.
+
+Een oude sessiestartsnapshot zonder gegarandeerd targetTimestamp is niet automatisch geschikt. Een event zonder vooraf vastgelegde voorspelling blijft bruikbaar voor temperatuurprofielen, maar niet voor forecast-evaluatie. De exacte meetworkflow en een eventuele tijdtolerantie tussen targetTimestamp en measuredAt zijn nog niet vastgesteld; geen willekeurige marge invoeren. Route B en vier tijdvakvoorspellingen vallen buiten de gekozen scope. Zie audit §177.
+
+Dit is een goedgekeurd ontwerpbesluit, nog geen runtime-implementatie of biologische validatie. Geen score, gewicht, curve, verplicht invoerveld of extra meetactie toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.

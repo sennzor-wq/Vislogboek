@@ -2015,3 +2015,12 @@ De tijdtolerantie tussen thermisch doelmoment en fysieke meettijd is nog niet on
 Read-only controle in audit §176 bevestigt dat waterThermalEngine.targetTimestamp alleen wordt opgeslagen wanneer expliciet targetTime is doorgegeven. De algemene thermische analyse in sessiestart- en sessie-updateprognoses krijgt die parameter niet. Interne tijdvakberekeningen gebruiken wel een representatief doelmoment, maar slaan de bijbehorende thermische analyse niet op in TimeSlotAnalysis. targetWindowStart/End en forecastTimestamp zijn geen vervanging.
 
 Daarom zijn de huidige opgeslagen sessiesnapshots onvoldoende om meerdere meetevents betrouwbaar aan predictedWaterTemperature te koppelen. Hervattingspunt: vergelijk twee ontwerpvarianten — voorspelling voor een concreet meetdoelmoment of vooraf vastgelegde tijdvakvoorspellingen — en leg de keuze voor vóór implementatie. Geen code, schema, IndexedDB, gebruikersdata, snapshots, prognose-uitkomsten, temperatuurcurves, scores of gewichten gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — eigenaar kiest route A voor temperatuurmeetvalidatie (21 november 2026)
+
+De eigenaar heeft route A gekozen: één concreet thermisch meetdoelmoment, met één optionele watertemperatuurmeting per vissessie als normale praktische werkwijze. Er komt geen dagelijkse meetplicht of verplicht tweede meetmoment. Dit is geen hard maximum op de bestaande eventopslag; historische gegevens en compatibiliteit blijven behouden.
+
+Een meetevent telt alleen als forecast-evaluatiepaar wanneer het aan één immutable, vóór de fysieke meting vastgelegde voorspelling met expliciet targetTimestamp en correcte forecast-as-of kan worden gekoppeld. De koppeling verwijst bij voorkeur naar de bestaande snapshot, zodat voorspelde waarden niet onnodig dubbel worden opgeslagen. Legacy events zonder zo'n vooraf vastgelegde voorspelling blijven bruikbaar voor temperatuurprofielen, maar niet voor deze forecast-evaluatie. Route B (vier tijdvakvoorspellingen) is afgevallen.
+
+De concrete meet-/sessiestartworkflow en eventuele tijdtolerantie tussen doelmoment en meetmoment moeten nog technisch worden uitgewerkt; er wordt geen marge verzonnen. Dit besluit wijzigt nog geen runtimecode, schema, IndexedDB of gebruikersdata. Hervattingspunt: controleer de bestaande meetinvoer- en sessiestartflow en werk de minimale compatibele implementatie met regressietests uit. Fase 2 blijft open; Fase 3 geblokkeerd.
