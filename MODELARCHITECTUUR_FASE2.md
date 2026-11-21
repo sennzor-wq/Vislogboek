@@ -1340,3 +1340,13 @@ De huidige prognose-engine gebruikt dit interval echter niet als scoringsvenster
 De minimale architectuurrichting is daarom geen nieuw losstaand planobject, maar het uitbreiden van het bestaande prognose-/snapshotcontract zodat het geplande interval expliciet onderdeel is van de reproduceerbare prognose-invoer en de engine per relevant segment tijdspecifieke factorinputs, datadekking en onzekerheid kan evalueren. De technische referentie `timeSlotExposureEngine` segmenteert geregistreerde hengelintervallen over Amsterdamse tijdvakken en DST, maar haar hengeluren zijn uitsluitend beschrijvende blootstellingsdata en mogen niet als voorspelde biologische respons worden gebruikt.
 
 Ook moet de resolver voor een enkel tijdvak niet worden aangezien voor een intervalmodel: bij tijdvakoverschrijding geeft hij geen tijdvak terug; bij datumoverschrijding ondersteunt hij alleen een eindtijd exact op middernacht en voert hij nog steeds geen segmentgewijze prognose uit.
+
+
+
+## 151. Uitvoerfactoren versus actieve scorecomponenten
+
+`FactorBreakdown` bevat reeds `score`, `impact` en `dataAvailable` voor temperatuur, luchtdruk, wind, seizoen, tijd/licht en bewolking/neerslag. De runtime vult momenteel alleen de thermische factor met een niet-nulscore; de overige velden hebben score 0 en neutrale impact. Deze velden zijn op dit moment beschrijvende factoruitvoer, geen geïntegreerde gewogen score.
+
+`dataAvailable` betekent uitsluitend dat invoer aanwezig/bruikbaar is, niet dat de biologische relatie gevalideerd is. Score 0/neutraal betekent uitsluitend dat geen numerieke correctie wordt toegepast, niet dat het werkelijke effect nul is.
+
+De overige `DayPrognosis`-modules (persoonlijke vangstkans, aanwezigheid, thermische analyse, bank-wind, habitat/beweging, positionering en voorvoeradvies) hebben verschillende doelresponsen en mogen niet automatisch als gelijksoortige bijdragen bij elkaar worden opgeteld. De factor-/respons-crosswalk is daarom een noodzakelijke tussenstap vóór een geïntegreerde scorearchitectuur wordt goedgekeurd.
