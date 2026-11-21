@@ -5277,3 +5277,34 @@ De huidige tijdvak-engine gebruikt vier vaste dagdelen en berekent de dagscore a
 De juiste conclusie is niet dat VisCoach geen sessie-interval kent. De juiste conclusie is: **VisCoach kent en bewaart het geplande interval, maar de huidige numerieke prognose beoordeelt dat interval nog niet als interval.** De duur beïnvloedt de persoonlijke vangstbaseline; het starttijdvak stuurt tactische context; de thermische score blijft dag-/tijdvakgericht. Een intervalscore en vergelijking met alternatieve tijden ontbreken nog.
 
 Deze correctie verandert geen code, bestaande scores, gewichten of gebruikersdata. Werkonderdeel 8 blijft een contract- en architectuuronderzoek.
+
+
+
+## 185. FactorBreakdown-contract: zichtbare factorscores zijn nog geen actieve scorebijdragen (21 november 2026)
+
+De runtimecontrole van `analyzeTimeSlot` laat zien dat de `FactorBreakdown`-velden in `TimeSlotAnalysis` al een `score`, `impact` en `dataAvailable` bevatten. Dit is een presentatiedetail/uitvoercontract en mag niet worden verward met daadwerkelijke deelname aan de numerieke `activityScore`.
+
+| FactorBreakdown | Huidige ingevulde score/impact | Huidige betekenis |
+|---|---|---|
+| Thermische watertemperatuur | Afgeleide thermische deelscore; impact uit thermische curve | Enige factor die de numerieke `activityScore` voedt |
+| Luchtdruk & trend | Score 0; impact neutraal | Gemeten/afgeleide weerscontext, expliciet geen bonus/aftrek |
+| Wind & oppervlak | Score 0; impact neutraal | Weer- en stekcontext, geen biologische scorecorrectie |
+| Seizoensritme | Score 0; impact neutraal | Kalendercontext, geen zelfstandige seizoenscorrectie |
+| Tijdstip & licht | Score 0; impact neutraal | Diel-/zoncontext; huidige bronstatus niet goedgekeurd voor score |
+| Bewolking & neerslag | Score 0; impact neutraal | Lokale weerscontext, geen biologische bonus/aftrek |
+
+`dataAvailable` beschrijft of de factorinvoer beschikbaar is; het geeft geen indicatie dat het effect biologisch gevalideerd is. Een score 0/neutraal betekent in deze huidige implementatie dus niet dat de natuurkundige of biologische invloed bewezen nul is. Het betekent dat er geen numerieke bijdrage wordt toegepast.
+
+### 185.1 Scheiding van prognosedomeinen
+
+Naast de zes zichtbare factorvelden bevat `DayPrognosis` aanvullende modules: persoonlijke vangstkans/verwachte vangsten, aanwezigheid, thermische analyse, oeverwindanalyse, habitat-/bewegingsanalyse, hengelpositionering en voorvoerplan. Deze uitkomsten hebben verschillende doelresponsen en tijdschalen. Ze zijn niet automatisch onderling optelbare scorefactoren.
+
+De verdere factor-/respons-crosswalk moet daarom per module expliciet classificeren:
+- beoogde respons (bijvoorbeeld thermische activiteitspotentie, foerageergedrag, aanwezigheid/beweging, kans op een vangst met deze visser/methode);
+- huidige datavelden en tijdsresolutie;
+- bestaande bronnen in de research registry en hun goedkeuringsstatus;
+- eventuele afhankelijkheden/interacties met andere factoren;
+- mogelijke rol in geïntegreerde prognose: numeriek, conditioneel/interactie, context in afwachting van bewijs, of afzonderlijke advieslaag;
+- ontbrekende lokale labels en validatievoorwaarden.
+
+Geen numerieke nulscore wordt geïnterpreteerd als biologisch nul-effect. Geen bestaande gespecialiseerde module wordt zonder apart bewijscontract rechtstreeks in de totaalscore opgenomen.
