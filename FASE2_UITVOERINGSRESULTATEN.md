@@ -285,3 +285,22 @@ Quality Gate #1049 is volledig geslaagd op exact commit `affef1e5cab0c9bb879a457
 De eerste validatiepoging #1047 faalde op een TypeScript optional-property guard in de nieuwe test; #1048 faalde op een bestaande regressieassertion die nog de oude, onjuiste bronomschrijving verwachtte. Beide zijn gericht hersteld; de definitieve run #1049 is groen.
 
 Geen wijziging aan scoreformule, factorweging, temperatuurcurve, thermische puntwaarde, gebruikersdata, database, gebruikersinvoer of VisCoach-advieslogica. Dit is een nauwkeurigheidsverbetering van uitleg/provenance, geen biologische validatie.
+
+
+## Werkonderdeel 6 — onzekerheidslabel zichtbaar gemaakt in compacte Prognosepagina
+
+**Roadmapbasis:** eigenaarseis van 21 november 2026 dat de Prognosepagina altijd de juiste bron- en onzekerheidsinformatie toont; audit §182.  
+**Type werk:** kleine UI-presentatieverbetering met bestaande bronstatus; geen nieuwe scorelogica.  
+**Gecontroleerde basis:** main op 970964ab5892fd241e051d62462a41c0113d2042.  
+**Status:** geïmplementeerd; volledige Quality Gate geslaagd.
+
+Wanneer een score steunt op een weer-only watertemperatuurpuntwaarde zonder lokale waterreferentie en zonder kwantificeerbare onzekerheidsband, wordt nu ook in de compacte weergave een zichtbare indicatie getoond:
+- dagselectie: `Indicatief`;
+- hoofdscore: `Indicatieve temperatuurbron`;
+- compacte temperatuurregel: `Indicatieve schatting — hoge, niet-gekwantificeerde onzekerheid`.
+
+De classificatie gebruikt de bestaande `waterTemperatureStatus` en `estimatedRange`; zij introduceert geen nieuwe parameter of schatting. Metingen, lokale meetanker-schattingen en historische profielschattingen krijgen deze specifieke waarschuwing niet.
+
+Quality Gate #1051 is volledig geslaagd op exact `970964ab5892fd241e051d62462a41c0113d2042` (43 succesvolle stappen, 0 gefaald), inclusief typecheck, regressietests en productiebuild. Er is geen geïsoleerde React-componenttestinrichting in de repository; daarom is de UI-voorwaarde statisch gecontroleerd en door de volledige typecheck/build geborgd.
+
+Geen wijziging aan numerieke score, modelcurve, gewichten, database, gebruikersinvoer of VisCoach-scorelogica. Dit verbetert de presentatie van onzekerheid, niet de biologische voorspelvaliditeit.

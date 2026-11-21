@@ -5199,3 +5199,19 @@ De bestaande regressie in `test-water-thermal-coupling.ts` is aangepast om de co
 Quality Gate [#1049](https://github.com/sennzor-wq/Vislogboek/actions/runs/44947264497) is volledig geslaagd op exact `affef1e5cab0c9bb879a457d91e6e54cdbbcaaf3`: typecheck, kernprognose-/thermische tests, waterthermische koppeling, overige regressies, productiebuild en private-artifactcontrole. De twee eerdere tussenruns #1047 en #1048 faalden respectievelijk op een ontbrekende optional-chain in de nieuwe test en op een bestaande testassertion die nog de oude tekst verwachtte; beide testproblemen zijn gecorrigeerd vóór de groene #1049-run.
 
 **Begrenzing:** dit herstelt de waarheid van de bron-/onzekerheidstekst, niet de wetenschappelijke onzekerheid zelf. Een weer-only puntwaarde kan nog steeds de bestaande thermische score voeden; de UI maakt nu expliciet dat de absolute temperatuur hoge, niet-gekwantificeerde onzekerheid heeft. Of en wanneer zo'n score als alleen indicatief moet worden gelabeld of niet beschikbaar moet zijn, blijft een afzonderlijke model-/productbeslissing. Geen biologische validatie geclaimd.
+
+
+## 182. Compacte Prognosepagina toont onzekerheid bij weer-only temperatuur (21 november 2026)
+
+**Status: geïmplementeerd en technisch gevalideerd op main.** Dit vervolgt §181 en maakt de reeds berekende bron-/onzekerheidsstatus zichtbaar zonder dat de gebruiker geavanceerde details hoeft open te klappen.
+
+Wanneer `waterTemperatureStatus === 'estimated_from_weather'` en er geen `estimatedRange` bestaat, toont de Prognosepagina nu een korte indicatie:
+- onder de dagscore in de dagselectie: **Indicatief**;
+- bij de hoofdscore: **Indicatieve temperatuurbron**;
+- in de compacte watertemperatuurregel: **Indicatieve schatting — hoge, niet-gekwantificeerde onzekerheid**.
+
+De voorwaarde is bewust beperkt tot een weer-only puntwaarde zonder lokale waterreferentie en zonder kwantificeerbare onzekerheidsband. Gemeten temperatuur, schattingen vanaf een lokale meting en historische profielschattingen worden niet onterecht als deze hoge-onzekerheidscategorie gelabeld. De uitgebreide weergave behoudt de bestaande detailuitleg.
+
+Quality Gate [#1051](https://github.com/sennzor-wq/Vislogboek/actions/runs/44947434389) is volledig geslaagd op exact `970964ab5892fd241e051d62462a41c0113d2042`: 43 succesvolle stappen, waaronder TypeScript typecheck, volledige regressies en productiebuild. Er is geen afzonderlijke React-componenttestrunner in de bestaande repository-inrichting; de nieuwe UI-voorwaarde is statisch gecontroleerd en de volledige typecheck/build is groen.
+
+Geen scoreformule, scorewaarde, factorweging, temperatuurcurve, gebruikersdata, database of VisCoach-berekening gewijzigd. Dit is een verbetering van zichtbare onzekerheidscommunicatie; geen biologische validatie.
