@@ -114,3 +114,71 @@ De huidige code bevat daardoor een bruikbare basis voor persoonlijke historie, m
 ## Hervattingspunt
 
 Vervolg met de volledige call-chain van `PrognosisView` en VisCoach, daarna de datakwaliteits-/uitsluitingsaudit. Houd de historische leerroute gescheiden van de aparte temperatuur-forecast-evaluatie. Werk afgeronde resultaten hier bij; wijzig de roadmap/audit alleen wanneer een formele status of besluit daadwerkelijk verandert.
+## Werkonderdeel 2 — Prognosepagina- en VisCoach-aanroepketen; tijdvakscore versus gebruikersplanning
+
+**Roadmapbasis:** Fase 2 geïntegreerde soortspecifieke prognose en tijdvakrespons; FASE2_PROGNOSE_AUDIT.md §§171–179; eigenaarverduidelijking van 21 november 2026.  
+**Type werk:** read-only runtime-/UI-trace.  
+**Gecontroleerde basis:** main op f57c9c7de5d2f7860fae92ced834397a84c99ab2.  
+**Status:** call-chain gecontroleerd; productmatige lacunes en vervolgaudit vastgelegd. Geen runtimewijziging.
+
+### 2.1 Prognosepagina → centrale engine → dag- en tijdvakuitvoer
+
+- PrognosisView haalt de uurverwachting op voor de geselecteerde stek en roept calculateDayPrognosis aan voor vandaag plus zeven dagen.
+- De gekozen doelsoort, stek, sessieduur, optionele gemeten watertemperatuur, historische sessies/vangsten, historische watertemperatuurmetingen, lokale temperatuurkalibratie en zonnegegevens gaan als invoer mee.
+- De engine verdeelt iedere dag in vier tijdvakken: Nacht 00:00–06:00, Ochtend 06:00–12:00, Middag 12:00–18:00 en Avond 18:00–24:00.
+- Per tijdvak wordt, waar mogelijk, de thermische toestand opnieuw doorgerekend naar een representatief uur uit dat tijdvak. Dit zijn vier tijdspecifieke projecties vanaf hetzelfde geldige meetanker, niet vier onafhankelijke temperatuurmodellen.
+- De tijdvakscore wordt op dit moment uitsluitend bepaald door de voorlopige soortspecifieke thermische efficiëntie: 1 + 9 × efficiency^0.85, afgerond op één decimaal en begrensd op 1–10.
+- Luchtdruk, wind, seizoen, tijd/licht, bewolking en neerslag worden per tijdvak als context uitgewerkt. Hun FactorBreakdown.score is in de huidige code 0; ze wijzigen de biologische activiteitsscore niet.
+- De dagscore is het rekenkundig gemiddelde van de vier tijdvakactiviteitsscores. Als niet alle vier tijdvakken een bruikbare thermische score hebben, wordt activityScoreAvailable=false; de interne numerieke fallback 5.0 wordt in de Prognosepagina als N/B getoond en niet als echte score gepresenteerd.
+- De rangschikking van het beste tijdvak kijkt alleen naar toekomstige/actieve tijdvakken. Het bestaande onderscheid 'geen betekenisvol verschil' gebruikt momenteel een technisch verschil van minimaal 0,1 punt. Dit is een bestaande codegrens, geen door de eigenaar goedgekeurde toekomstige adviesgrens.
+- De dagscore zelf middelt alle vier tijdvakken; bij vandaag kunnen daar dus ook al verstreken tijdvakken in zitten. Dit is iets anders dan de rangschikking van alleen toekomstige tijdvakken.
+
+### 2.2 Historische vangstkans is een afzonderlijke uitkomst
+
+De centrale engine berekent naast de thermische activiteitsscore een persoonlijke historische vangstkans. Die gebruikt geldige vergelijkbare sessies, bevestigde doelsoortvangsten/nulvangsten, werkelijke sessieduur en bruikbare vangstaantallen. Bij voldoende data wordt een Poisson-vangsttempo omgerekend naar een kans voor de opgegeven sessieduur. De engine documenteert expliciet dat deze kans nog niet numeriek wordt gecorrigeerd met thermische activiteit, voeding of habitat, omdat die koppeling niet empirisch is gevalideerd.
+
+De persoonlijke vangstkans is dus geen tweede biologische activiteitsscore en mag niet ongemerkt met de thermische score worden samengevoegd.
+
+### 2.3 VisCoach → dezelfde centrale prognose-engine → adviestekst
+
+- VisCoachView vraagt doelsoort, stek, gewenste starttijd en optioneel gewenste eindtijd.
+- buildVisCoachPlan valideert de tijden/duur, haalt de weersverwachting op en roept eveneens calculateDayPrognosis aan. Er is geen tweede biologische score-engine in VisCoach.
+- De gekozen starttijd wordt als targetTimeSlot aan de engine meegegeven voor tijdspecifieke tactische weerscontext. Die parameter verandert de dagbrede activiteitsscore of tijdvakscore niet.
+- De service bewaart de geplande start/eindtijd en de sessieduur in het plan en de snapshot. Als de eindtijd ontbreekt, blijft de duur onbekend; de coach verzint die niet.
+- resolveSelectedTimeSlot geeft alleen een tijdvak terug als het opgegeven interval binnen één tijdvak valt (met een beperkte middernachtbehandeling). Een sessie die meerdere tijdvakken bestrijkt, krijgt geen afzonderlijk geselecteerd tijdvak.
+- buildVisCoachAdviceText benoemt bij één geselecteerd tijdvak de bestaande tijdvakconclusie. Bij meerdere tijdvakken zegt de tekst dat de sessie meerdere tijdvakken bestrijkt. De tekst vergelijkt de numerieke kwaliteit van het volledige gevraagde interval niet met alternatieve starttijden.
+- De huidige VisCoach-kaart toont plan.prognosis.activityScore: dat is de dagbrede gemiddelde score, niet een score voor het door de gebruiker gekozen sessievenster. De dagbrede beste tijdvakvoorkeur wordt daarnaast getoond.
+- De huidige coach maakt dus nog geen kwantitatieve afweging 'jouw gekozen start/eindtijd versus het duidelijk betere alternatief' en adviseert nog niet automatisch om de sessie te verschuiven.
+
+### 2.4 Productdoel verduidelijkt door de eigenaar (leidend voor verdere Fase 2-uitwerking)
+
+De eigenaar bevestigt het volgende gewenste eindgedrag:
+
+1. Houd de gebruikerservaring numeriek en eenvoudig: een score per doelsoort en dag, plus een score per relevant tijdvak/sessieperiode.
+2. Alle relevante prognose-elementen moeten uiteindelijk een onderbouwde bijdrage kunnen leveren. Factoren mogen niet worden geactiveerd met willekeurige gewichten, onjuiste causaliteit of dubbeltelling.
+3. De prognose rangschikt gunstige dagen en tijdvakken voor de gekozen vissoort.
+4. VisCoach beoordeelt de daadwerkelijk opgegeven starttijd én duur als één sessievenster. Als de kwaliteit vergelijkbaar is, respecteert de coach de planning van de visser.
+5. Alleen wanneer een alternatief aantoonbaar en betekenisvol gunstiger is, adviseert VisCoach een andere starttijd of sessieduur en legt kort uit waarom.
+6. De Prognosepagina blijft de gezaghebbende bron voor de prognose en toont de feitelijke scores, context, datakwaliteit en onzekerheid. VisCoach brengt dezelfde uitkomsten samen tot één praktisch advies en mag geen eigen concurrerende score of prognose maken.
+
+Er is met deze verduidelijking geen numerieke verschilgrens, factorgewicht, scoremapping of adviesdrempel goedgekeurd. De huidige 0,1-puntgrens is daarom niet automatisch de toekomstige VisCoach-beslisgrens.
+
+### 2.5 Concrete lacunes voor Fase 2
+
+| Onderwerp | Huidige situatie | Benodigd vervolg |
+|---|---|---|
+| Biologische score per soort | Voorlopige thermische prior is de enige numerieke activiteitsscore | Per factor/respons bewijs, beschikbaarheid, soort-/levensfasebereik en toegestane rol vastleggen; pas daarna scorebijdrage |
+| Score per tijdvak | Alleen thermische projectie; overige factorbijdragen zijn nul | Responsen op de passende tijdschaal beoordelen; onzekerheid en ontbrekende data per tijdvak behouden |
+| Dagscore | Gemiddelde van vier tijdvakscorewaarden; N/B als niet alle tijdvakken beschikbaar zijn | Vaststellen of dagscore de hele kalenderdag of alleen resterende/toekomstige periode moet representeren; geen stilzwijgende wijziging |
+| Gebruikersvenster | Coach kan één tijdvak herkennen, maar geen vensterscore over meerdere tijdvakken berekenen | Een sessievenster op basis van starttijd en duur kunnen beoordelen met dezelfde tijdvakuitvoer, inclusief gedeeltelijke overlap |
+| Alternatief advies | Geen numerieke vergelijking van gebruikersvenster met alternatieven | Beslisregel voor 'vergelijkbaar' versus 'wezenlijk beter' onderbouwen en door eigenaar laten goedkeuren |
+| Persoonlijke vangsthistorie | Aparte vangstkans, sessiestarttijdvak en Poisson-blootstellingsroute | Alleen als afzonderlijke persoonlijke uitkomst gebruiken; niet verwarren met biologische activiteit of voedingsintensiteit |
+| Onzekerheid/kwaliteit | Er zijn bestaande temperatuur- en weerkwaliteitsvelden; per score is niet elk ontbrekend element een afzonderlijke onzekerheidsbijdrage | End-to-end controleren welke ontbrekende velden de berekening blokkeren, welke N/B opleveren en welke alleen context missen |
+
+### 2.6 Belangrijke grens en vervolg
+
+De code-inspectie bevestigt dat de bestaande architectuur al één centrale prognose-engine deelt tussen Prognosepagina en VisCoach. De ontbrekende functie is niet een tweede coach-engine, maar een voldoende onderbouwde, tijdvensterbewuste score-/advieslaag die dezelfde centrale prognose-uitvoer gebruikt.
+
+**Volgende werkstap:** voltooi de deterministische datakwaliteits- en uitsluitingsaudit end-to-end: uurdekking per tijdvak, geldigheid/provenance van thermische invoer, behandeling van ontbrekende factoren, historische sessie-/vangstfilters en de exacte beschikbaarheidsstatus die bij dag-, tijdvak- en persoonlijke vangstuitvoer hoort. Daarna kan de Fase 2-crosswalk per factor/respons worden omgezet naar concrete implementeerbare onderdelen en tests.
+
+Geen runtimecode, schema, database, gebruikersdata, invoervelden, scores, gewichten, temperatuurcurves of UI gewijzigd. Dit werkonderdeel is code-/UI-inspectie; er zijn hiervoor geen tests of build uitgevoerd en geen biologische validatie geclaimd.
