@@ -1994,3 +1994,10 @@ Audit §173 en architectuur §142 leggen per responsfamilie de bestaande labelbr
 Er zijn geen actuele lokale aantallen of coveragepercentages geclaimd: persoonlijke IndexedDB-data zijn niet beschikbaar via GitHub en de nieuwe meetreeks start volgens afspraak vanaf nul. De bestaande softwareminimums voor Brier/BSS zijn geen wetenschappelijke steekproefcriteria. Geen code, database, gebruikersdata, verplichte invoer, score of gewicht gewijzigd.
 
 Hervattingspunt: inspecteer read-only of bestaande fysieke temperatuurmeetevents en immutable prognosesnapshots via de huidige opslag-/evaluatieketen chronologisch en zonder future leakage te koppelen zijn. Daarna kan alleen de uitvoerbare temperatuur- en persoonlijke-vangkansvalidatie worden voorbereid; biologische activiteit/voedingsvalidatie blijft afhankelijk van directe labels. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — begrenzing temperatuurvalidatiekoppeling vastgesteld (21 november 2026)
+
+Read-only controle in audit §174 laat zien dat alle geldige sessiegebonden temperatuurmeetevents de historische temperatuurprofielcollector kunnen voeden, maar de huidige forecast-evaluatie slechts één scalaire sessiemeting per gekoppelde sessiestartsnapshot gebruikt. De bestaande pair-filter controleert forecast vóór meettijd en dezelfde lokale datum, niet exacte overeenkomst van het voorspelde thermische doelmoment met het fysieke meetmoment. MAE/RMSE/bias worden vanaf vijf paren getoond; lokale biaskalibratie vraagt acht paren op dezelfde stek en in hetzelfde seizoen. Dit zijn softwaredrempels, geen wetenschappelijke acceptatie.
+
+Hervattingspunt: ontwerp read-only een veilige koppeling van afzonderlijke meetevents aan uitsluitend passende, vooraf vastgelegde voorspellingen, inclusief doelmomentmatching, deduplicatie en legacycompatibiliteit. Geen runtimecode, schema, historische data, scores, temperatuurbanden of gebruikersinvoer gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.

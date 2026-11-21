@@ -1253,3 +1253,10 @@ Audit §173 koppelt iedere responsfamilie aan de werkelijk beschikbare labels, k
 Fysiologische activiteit, kwantitatieve voedselopname en biologisch voedingsritme zijn met de huidige lokale sessievelden niet onafhankelijk valideerbaar. Er worden geen vangsten, aanbeten of aasbellen tot biologische labels hernoemd. De lokale IndexedDB is niet via GitHub beschikbaar; actuele aantallen en coverage zijn daarom niet geclaimd. Bestaande softwaredrempels van vijf waarnemingen zijn geen wetenschappelijke acceptatiecriteria.
 
 Deze stap is documentatie en code-contractanalyse, geen runtime-implementatie of biologische validatie. Geen verplichte invoer, opslagwijziging, score of gewicht toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 143. Begrenzing huidige temperatuurvalidatiekoppeling (21 november 2026)
+
+Audit §174 bevestigt dat meerdere fysieke temperatuurmeetevents per sessie in de historische profielcollector worden verwerkt, maar dat de huidige onafhankelijke forecast-evaluatie nog één scalaire sessiemeting aan één gekoppelde sessiestartsnapshot gebruikt. De bestaande validatiefilter vereist forecast vóór meting en dezelfde lokale datum, maar controleert geen exacte gelijkheid tussen voorspeld thermisch doelmoment en fysiek meetmoment. De evaluatie-engine berekent MAE/RMSE/bias vanaf vijf paren; lokale biaskalibratie vereist acht paren op dezelfde stek en in hetzelfde seizoen. Deze softwaredrempels zijn geen wetenschappelijke acceptatiecriteria.
+
+Daarom is de huidige evaluatie geen volledige validatie van alle afzonderlijke sessiemeetevents en nog geen bewijs van tijdstipnauwkeurigheid. Vervolg is eerst een read-only ontwerp voor doelmomentmatching, eventkoppeling en deduplicatie, met behoud van legacy scalaire data. Geen runtime- of datamodelwijziging. Fase 2 blijft open; Fase 3 geblokkeerd.
