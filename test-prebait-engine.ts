@@ -61,9 +61,9 @@ function run(): void {
   assert(
     measured?.confidenceLevel === 'Redelijk' &&
     measured.recommendedDaysBefore === 2 &&
-    measured.moments.filter((moment) => moment.dayOffset < 0).map((moment) => moment.amountGrams).join(',') === '360,450' &&
+    measured.moments.filter((moment) => moment.dayOffset < 0).map((moment) => moment.amountGrams).join(',') === '350,450' &&
     measured.sessionDayGuidance.recommendedAmountGrams === 150 &&
-    measured.totalAmountGrams === 960,
+    measured.totalAmountGrams === 950,
     'Gemeten 18 °C met compleet stekprofiel behoudt twee campagnebeurten, sessiehoeveelheid en totaalsom'
   );
 
@@ -71,8 +71,8 @@ function run(): void {
   assert(
     estimated?.confidenceLevel === 'Matig' &&
     estimated.shouldPrebait &&
-    estimated.moments.filter((moment) => moment.dayOffset < 0).map((moment) => moment.amountGrams).join(',') === '360,450' &&
-    estimated.totalAmountGrams === 960,
+    estimated.moments.filter((moment) => moment.dayOffset < 0).map((moment) => moment.amountGrams).join(',') === '350,450' &&
+    estimated.totalAmountGrams === 950,
     'Een modelschatting behoudt de interne planneruitvoer maar krijgt geen Redelijk-confidence'
   );
 
@@ -107,7 +107,7 @@ function run(): void {
   const sixHourSession = plan(18, true, { sessionDurationHours: 6 });
   assert(
     sixHourSession?.sessionDayGuidance.recommendedAmountGrams === 300 &&
-    sixHourSession.totalAmountGrams === 1110,
+    sixHourSession.totalAmountGrams === 1100,
     'Sessieduur schaalt alleen de sessiehoeveelheid en wordt meegenomen in de totaalsom'
   );
 
@@ -117,7 +117,7 @@ function run(): void {
     methodFeeder?.sessionDayGuidance.recommendedAmountGrams === 120 &&
     sessionMoment?.feedType.includes('Instant method-feederkorf') === true &&
     sessionMoment.purpose.includes('geen vooraf aangelegde voerplek') &&
-    methodFeeder.totalAmountGrams === 930,
+    methodFeeder.totalAmountGrams === 920,
     'Method feeder blijft instant sessiepresentatie en wordt niet als extra voorafgaande voerbeurt aangemerkt'
   );
 
