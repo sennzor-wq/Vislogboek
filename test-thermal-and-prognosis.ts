@@ -427,8 +427,8 @@ async function run14Scenarios() {
     '8.4b Thermische factor benoemt de werkelijke bron en hoge onzekerheid van een weer-only schatting'
   );
   assert(
-    weatherOnlyPrognosis.waterTemperatureInfo.note.includes('geen kwantificeerbare onzekerheidsmarge') &&
-      !weatherOnlyPrognosis.waterTemperatureInfo.note.includes('undefined'),
+    weatherOnlyPrognosis.waterTemperatureInfo?.note.includes('geen kwantificeerbare onzekerheidsmarge') === true &&
+      !weatherOnlyPrognosis.waterTemperatureInfo?.note.includes('undefined'),
     '8.4c Zichtbare temperatuurtoelichting toont geen fictieve [undefined–undefined]-band'
   );
 
