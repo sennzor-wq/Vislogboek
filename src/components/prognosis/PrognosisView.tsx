@@ -62,6 +62,11 @@ interface PrognosisViewProps {
   showAdvancedDetails: boolean;
 }
 
+const hasUnanchoredWeatherOnlyEstimate = (prognosis: DayPrognosis): boolean =>
+  prognosis.activityScoreAvailable !== false &&
+  prognosis.thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather' &&
+  !prognosis.thermalAnalysis.estimatedRange;
+
 export const PrognosisView: React.FC<PrognosisViewProps> = ({
   locations,
   sessions,
@@ -518,6 +523,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 >
                   {day.activityScoreAvailable === false ? 'N/B' : day.activityScore.toFixed(1)}
                 </div>
+                {hasUnanchoredWeatherOnlyEstimate(day) && (
+                  <span
+                    className="text-[9px] font-semibold text-amber-300 mt-0.5"
+                    title="Indicatieve weerafgeleide watertemperatuur zonder lokale waterreferentie; hoge, niet-gekwantificeerde onzekerheid."
+                  >
+                    Indicatief
+                  </span>
+                )}
                 <span className="text-[10px] text-slate-400 mt-1 truncate max-w-full">
                   {day.bestTimeSlot === 'Geen toekomstig tijdvak meer vandaag' ? 'Verstreken' : day.bestTimeSlot}
                 </span>
@@ -609,6 +622,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   >
                     {activeDayProg.activityScoreAvailable === false ? 'Onvoldoende gegevens' : `${activeDayProg.advice} biologisch perspectief`}
                   </span>
+                  {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
+                    <span
+                      className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30"
+                      title="Indicatieve weerafgeleide watertemperatuur zonder lokale waterreferentie; hoge, niet-gekwantificeerde onzekerheid."
+                    >
+                      Indicatieve temperatuurbron
+                    </span>
+                  )}
 
                   {activeDayProg.presenceInfo && (
                     <div className="mt-2.5 p-2 rounded-xl bg-cyan-950/40 border border-cyan-800/40 text-[11px] text-cyan-200 flex items-start gap-1.5">
@@ -846,6 +867,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <span className="font-semibold text-white">Watertemperatuur</span>
                   <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
+                {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
+                  <span
+                    className="text-amber-300 font-medium"
+                    title="Geen lokale waterreferentie; de absolute watertemperatuur heeft hoge, niet-gekwantificeerde onzekerheid."
+                  >
+                    Indicatieve schatting — hoge, niet-gekwantificeerde onzekerheid
+                  </span>
+                )}
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
                 {showAdvancedDetails && (
                   <span
