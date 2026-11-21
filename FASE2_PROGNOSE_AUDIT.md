@@ -5168,3 +5168,34 @@ De bron blijft kandidaatbewijs voor een afzonderlijke juveniele-karper-foerageer
 Een directe telling van de actuele `src/services/researchRegistry.ts` op deze `main`-basis geeft 94 unieke IDs, 94 records met `approvedForPrediction: false`, 0 met `true`, en geen dubbele IDs. De vermelding van 93 in §171.1–171.2 was verouderd na de latere toevoeging van het Cunner-record in §151; die actuele status is hierboven gecorrigeerd. Oudere aantallen in historische checkpoints blijven staan als momentopname op hun toenmalige datum.
 
 **Vervolg:** brononderzoek blijft vraaggestuurd; geen brede herhaling van de gesloten factorinventaris. Volgende modelstap is de score-/datakwaliteitsstatus van thermische tijdvakuitvoer en de kandidaatgrens tussen de voorlopige thermische prior en nog niet toegelaten biologische responsen concreet te toetsen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 181. Correcte bron- en onzekerheidsweergave bij thermische tijdvakscore (21 november 2026)
+
+**Status: geïmplementeerd en technisch gevalideerd op main.** Dit is een presentatie-/uitlegbaarheidsreparatie; de bestaande thermische score blijft ongewijzigd.
+
+### 181.1 Vastgestelde afwijkingen
+
+De tijdvakfactoromschrijving noemde iedere geschatte watertemperatuur voorheen "via thermische traagheid". De runtime kent echter meerdere bronstatussen: `estimated_from_measurement`, `estimated_from_history` en `estimated_from_weather`. Bij een weerafgeleide schatting zonder lokale waterreferentie is die oude tekst feitelijk onjuist.
+
+Daarnaast bouwde `waterTemperatureInfo.note` altijd een bereikstring uit `estimatedRange?.[0]` en `estimatedRange?.[1]`. Bij een geldige indicatieve weer-only puntwaarde zonder numerieke onzekerheidsrange kon daardoor de tekst `undefined–undefined` ontstaan.
+
+### 181.2 Reparatie
+
+- De thermische factor benoemt nu de werkelijke bronstatus: recente lokale meting als anker, historisch temperatuurprofiel of indicatieve weerafgeleide schatting.
+- Bij `estimated_from_weather` zonder lokale waterreferentie meldt de factor expliciet dat de absolute temperatuur hoge, niet-gekwantificeerde onzekerheid heeft.
+- De temperatuurtoelichting toont alleen een numerieke geschatte band als `estimatedRange` daadwerkelijk bestaat. Anders wordt expliciet gemeld dat geen kwantificeerbare onzekerheidsmarge beschikbaar is.
+- De bestaande puntwaarde en score blijven behouden. Er is geen automatische scoreblokkade, neutralisering, nieuwe weging of wijziging van de temperatuurcurve toegevoegd. Dit bewaart de bestaande optie-A-werking en maakt de onzekerheid eerlijker zichtbaar.
+
+### 181.3 Regressietests en Quality Gate
+
+Nieuwe assertions in `test-thermal-and-prognosis.ts` controleren:
+1. een weer-only schatting zonder lokale waterreferentie blijft herkenbaar als `estimated_from_weather`, met een puntwaarde maar zonder verzonnen interval;
+2. de tijdvakfactor noemt de weer-only herkomst en niet-gekwantificeerde onzekerheid, en noemt dit niet ten onrechte thermische traagheid;
+3. de gebruikersgerichte temperatuurtoelichting bevat geen `undefined`-band en vermeldt dat geen kwantificeerbare onzekerheidsmarge beschikbaar is.
+
+De bestaande regressie in `test-water-thermal-coupling.ts` is aangepast om de correcte weer-only provenance te toetsen in plaats van de oude onjuiste formulering te eisen.
+
+Quality Gate [#1049](https://github.com/sennzor-wq/Vislogboek/actions/runs/44947264497) is volledig geslaagd op exact `affef1e5cab0c9bb879a457d91e6e54cdbbcaaf3`: typecheck, kernprognose-/thermische tests, waterthermische koppeling, overige regressies, productiebuild en private-artifactcontrole. De twee eerdere tussenruns #1047 en #1048 faalden respectievelijk op een ontbrekende optional-chain in de nieuwe test en op een bestaande testassertion die nog de oude tekst verwachtte; beide testproblemen zijn gecorrigeerd vóór de groene #1049-run.
+
+**Begrenzing:** dit herstelt de waarheid van de bron-/onzekerheidstekst, niet de wetenschappelijke onzekerheid zelf. Een weer-only puntwaarde kan nog steeds de bestaande thermische score voeden; de UI maakt nu expliciet dat de absolute temperatuur hoge, niet-gekwantificeerde onzekerheid heeft. Of en wanneer zo'n score als alleen indicatief moet worden gelabeld of niet beschikbaar moet zijn, blijft een afzonderlijke model-/productbeslissing. Geen biologische validatie geclaimd.

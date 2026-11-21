@@ -261,3 +261,27 @@ Geen runtimecode, schema, database, gebruikersdata, invoervelden, scores, gewich
 - Geen runtimecode, tests, score, gewicht, curveparameter, UI, database of gebruikersdata gewijzigd. Dit onderdeel is bron-/documentatiecontrole; geen biologische veldvalidatie of modelprestatie geclaimd.
 
 **Volgende stap:** gerichte controle van de scorebeschikbaarheid en onzekerheidsdoorgifte per thermisch tijdvak, gevolgd door een kleine regressietest voor het gevonden randgeval indien de actuele code bevestigt dat het reproduceerbaar is.
+
+
+## Werkonderdeel 5 — thermische bronprovenance en ontbrekende onzekerheidsband correct weergegeven
+
+**Roadmapbasis:** Fase 2 audit §§171, 181; producteis dat de Prognosepagina altijd de feitelijke bron en onzekerheid toont.  
+**Type werk:** kleine runtimepresentatiereparatie met gerichte regressietests.  
+**Gecontroleerde basis:** main op affef1e5cab0c9bb879a457d91e6e54cdbbcaaf3.  
+**Status:** geïmplementeerd; volledige Quality Gate geslaagd.
+
+### Uitgevoerde wijziging
+
+- `src/services/prognosisEngine.ts`: de thermische factoromschrijving gebruikt nu `waterTemperatureStatus` en onderscheidt een schatting vanaf een recente lokale meting, een historisch profiel en een indicatieve weer-only schatting.
+- Bij een weer-only schatting zonder lokale waterreferentie wordt de hoge, niet-gekwantificeerde onzekerheid expliciet in de factoromschrijving vermeld.
+- `waterTemperatureInfo.note` toont alleen een numerieke onzekerheidsband wanneer die bestaat; anders meldt de tekst expliciet dat geen kwantificeerbare marge beschikbaar is. De eerdere mogelijke `undefined–undefined`-tekst is daarmee voorkomen.
+- `test-thermal-and-prognosis.ts`: drie nieuwe assertions voor bronstatus, onzekerheidstekst en afwezigheid van een fictieve band.
+- `test-water-thermal-coupling.ts`: bestaande assertion aangepast zodat deze de feitelijke weer-only herkomst controleert in plaats van de oude onjuiste claim "via thermische traagheid".
+
+### Validatie en scope
+
+Quality Gate #1049 is volledig geslaagd op exact commit `affef1e5cab0c9bb879a457d91e6e54cdbbcaaf3` (43 succesvolle stappen, 0 gefaalde stappen), inclusief typecheck, kernprognose-/thermische tests, waterthermische koppeling, volledige overige tests en productiebuild.
+
+De eerste validatiepoging #1047 faalde op een TypeScript optional-property guard in de nieuwe test; #1048 faalde op een bestaande regressieassertion die nog de oude, onjuiste bronomschrijving verwachtte. Beide zijn gericht hersteld; de definitieve run #1049 is groen.
+
+Geen wijziging aan scoreformule, factorweging, temperatuurcurve, thermische puntwaarde, gebruikersdata, database, gebruikersinvoer of VisCoach-advieslogica. Dit is een nauwkeurigheidsverbetering van uitleg/provenance, geen biologische validatie.
