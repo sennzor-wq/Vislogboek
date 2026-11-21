@@ -1323,3 +1323,20 @@ De gewenste eindarchitectuur is een uitlegbare, geïntegreerde prognosescore waa
 6. Persoonlijke vangsthistorie en tactische modules blijven beschikbaar als eigen informatielagen. Zij worden alleen onderdeel van de geïntegreerde numerieke score wanneer daarvoor een apart, toetsbaar en onafhankelijk gevalideerd modelcontract bestaat.
 
 **Huidige grens:** de code-inspectie toont dat alleen de voorlopige thermische efficiëntiecurve de numerieke `activityScore` voedt. De overige getoonde factoren zijn context. Deze architectuurbeschrijving is een vastlegging van het door de eigenaar gewenste einddoel, niet een goedkeuring van nieuwe factorgewichten of een besluit om alle factoren zonder bewijs geforceerd in de score te stoppen. Fase 2 moet per factor aantonen hoe deze verantwoord kan worden geactiveerd, of waarom activering nog geblokkeerd is.
+
+
+
+## 150. Bestaand VisCoach-interval versus ontbrekende intervalscore (21 november 2026)
+
+VisCoach heeft al een gepland sessie-intervalcontract: `desiredStartTime` en optionele `desiredEndTime` komen uit de gebruikersinterface; `buildVisCoachPlan` berekent hieruit de duur en bewaart de intervalgrenzen in `PendingPrognosisSnapshot.targetWindowStart/targetWindowEnd` en de inputfingerprint. Dit bestaande contract moet worden hergebruikt; een tweede parallel intervalmodel is niet gewenst.
+
+De huidige prognose-engine gebruikt dit interval echter niet als scoringsvenster:
+- de duur wordt doorgegeven voor de afzonderlijke persoonlijke Poisson-vangstbaseline;
+- het starttijdvak wordt doorgegeven voor tactische context;
+- de numerieke thermische activiteitsscore blijft gebaseerd op de vier dagtijdvakken;
+- de dagprognose wordt berekend voor de kalenderdatum van de starttijd;
+- het volledige interval wordt niet over tijdvak-/datumgrenzen gesegmenteerd en naar overlapduur beoordeeld.
+
+De minimale architectuurrichting is daarom geen nieuw losstaand planobject, maar het uitbreiden van het bestaande prognose-/snapshotcontract zodat het geplande interval expliciet onderdeel is van de reproduceerbare prognose-invoer en de engine per relevant segment tijdspecifieke factorinputs, datadekking en onzekerheid kan evalueren. De technische referentie `timeSlotExposureEngine` segmenteert geregistreerde hengelintervallen over Amsterdamse tijdvakken en DST, maar haar hengeluren zijn uitsluitend beschrijvende blootstellingsdata en mogen niet als voorspelde biologische respons worden gebruikt.
+
+Ook moet de resolver voor een enkel tijdvak niet worden aangezien voor een intervalmodel: bij tijdvakoverschrijding geeft hij geen tijdvak terug; bij datumoverschrijding ondersteunt hij alleen een eindtijd exact op middernacht en voert hij nog steeds geen segmentgewijze prognose uit.
