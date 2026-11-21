@@ -1244,3 +1244,12 @@ Audit §172 volgt de daadwerkelijke datatypen en invoerflow. De app bewaart fysi
 Deze bronnen meten verschillende responsen. Watertemperatuur is predictor-/schattervalidatie; vangst en bevestigde nulvangst voeden uitsluitend persoonlijke vangstkans; hengelintervallen leveren exposure voor beschrijvende vangbaarheid. `aasbellen_voedselactiviteit` is een subjectief, sessiebreed visueel signaal zonder eigen tijdstip, duur of intensiteit en is geen kwantitatieve voedselopname. Automatisch voorgestelde vangsttijdstippen worden terecht niet als betrouwbare tijdvaklabels gebruikt; user-adjusted tijden blijven zelfgerapporteerd.
 
 Conclusie: de huidige lokale dataset bevat geen directe onafhankelijke labels voor fysiologische activiteit, hoeveelheid voedselopname of biologische tijdvakvoorkeur. Meer vangsten lossen die labelkloof niet op. Er worden geen verplichte velden of nieuwe UI voorgesteld; toekomstige directe observaties vragen een afzonderlijk productbesluit. Geen runtimewijziging of datamigratie. Zie audit §172.
+
+
+## 142. Respons- en evaluatiematrix op bestaande labels (21 november 2026)
+
+Audit §173 koppelt iedere responsfamilie aan de werkelijk beschikbare labels, kwaliteitsfilters en passende evaluatiemethode. Watertemperatuur wordt uitsluitend tegen latere fysieke meetevents getoetst (MAE/RMSE/bias, met forecast-as-of en meetdiepte/provenance). Persoonlijke vangstkans blijft een afzonderlijke kansrespons met Brier/kalibratie en BSS uitsluitend via de bestaande chronologische rolling baseline. Vangst per tijdvak blijft een exposure-aware beschrijving van persoonlijke vangbaarheid, niet van biologische activiteit. Sessiebrede aanwezigheidssignalen blijven kwalitatieve context.
+
+Fysiologische activiteit, kwantitatieve voedselopname en biologisch voedingsritme zijn met de huidige lokale sessievelden niet onafhankelijk valideerbaar. Er worden geen vangsten, aanbeten of aasbellen tot biologische labels hernoemd. De lokale IndexedDB is niet via GitHub beschikbaar; actuele aantallen en coverage zijn daarom niet geclaimd. Bestaande softwaredrempels van vijf waarnemingen zijn geen wetenschappelijke acceptatiecriteria.
+
+Deze stap is documentatie en code-contractanalyse, geen runtime-implementatie of biologische validatie. Geen verplichte invoer, opslagwijziging, score of gewicht toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.

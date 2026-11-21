@@ -1985,3 +1985,12 @@ De read-only audit in FASE2_PROGNOSE_AUDIT.md §172 heeft de bestaande sessie-, 
 Aasbellen/bodemwoeling is alleen een subjectieve sessiebrede observatie zonder eigen tijdstip of intensiteit; vangsttijden zijn automatisch voorgesteld of door de gebruiker aangepast en blijven vangbaarheids-/uitkomstdata, geen directe voedingslabels. Er zijn geen velden, verplichte invoer, runtimecode of historische data gewijzigd.
 
 Hervattingspunt: maak een respons- en evaluatiematrix met per respons de beschikbare labelbron, kwaliteitsfilters, evaluatiemetric, haalbaarheid nu en afhankelijkheid van toekomstige optionele observaties. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — respons- en evaluatiematrix vastgelegd (21 november 2026)
+
+Audit §173 en architectuur §142 leggen per responsfamilie de bestaande labelbron, kwaliteitsfilters, evaluatiemetric en haalbaarheid vast. Watertemperatuur kan tegen latere fysieke meetevents worden gevalideerd met MAE/RMSE/bias en strikte forecast-as-of/provenance-controle. Persoonlijke vangstkans blijft apart en gebruikt de bestaande Brier-/kalibratie- en chronologische BSS-regels. Tijdvakvangsten zijn uitsluitend exposure-aware vangbaarheidscontext. Aanwezigheidssignalen blijven kwalitatief. Directe fysiologische activiteit, kwantitatieve voedselopname en biologisch voedingsritme zijn niet onafhankelijk toetsbaar met de huidige lokale labels.
+
+Er zijn geen actuele lokale aantallen of coveragepercentages geclaimd: persoonlijke IndexedDB-data zijn niet beschikbaar via GitHub en de nieuwe meetreeks start volgens afspraak vanaf nul. De bestaande softwareminimums voor Brier/BSS zijn geen wetenschappelijke steekproefcriteria. Geen code, database, gebruikersdata, verplichte invoer, score of gewicht gewijzigd.
+
+Hervattingspunt: inspecteer read-only of bestaande fysieke temperatuurmeetevents en immutable prognosesnapshots via de huidige opslag-/evaluatieketen chronologisch en zonder future leakage te koppelen zijn. Daarna kan alleen de uitvoerbare temperatuur- en persoonlijke-vangkansvalidatie worden voorbereid; biologische activiteit/voedingsvalidatie blijft afhankelijk van directe labels. Fase 2 blijft open; Fase 3 geblokkeerd.
