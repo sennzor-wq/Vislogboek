@@ -4641,3 +4641,19 @@ Workflow-run: [#1028](https://github.com/sennzor-wq/Vislogboek/actions/runs/4490
 Dit is de eerste vastgelegde volledige Quality Gate op de commit die de nieuwe CI-afspraak documenteert. §167 blijft behouden als historisch verslag van de eerdere, geblokkeerde validatiepoging; de uitkomst daarvan is inmiddels ingehaald door deze geslaagde run.
 
 **Resterende testdekkingsgrens voor punt 5:** de workflow voert de bestaande VisCoach-regressietest uit, maar bevat nog geen afzonderlijke gerichte test voor de numerieke uitvoer van `calculatePrebaitPlan`/`totalAmountGrams` en geen geïsoleerde componenttest voor de algemene `PrognosisView`-presentatiegate. Typecheck en productiebuild slagen, maar vervangen die specifieke regressieassertions niet. Daarom is de algemene technische Quality Gate groen, terwijl punt 5 nog niet formeel wordt afgesloten. Eerst moet worden bepaald of een kleine, gerichte planner-/presentatietest binnen de bestaande testinrichting haalbaar is; daarna kan de resterende Fase-2-closeout worden afgerond. Fase 3 blijft tot die formele afsluiting geblokkeerd.
+
+## 170. Punt 5 afgerond — plannerregressie en confidence-gating gevalideerd (21 november 2026)
+
+**Status: punt 5 technisch afgerond.** De gerichte plannerregressietest is toegevoegd als `test-prebait-engine.ts` en opgenomen in `.github/workflows/ci.yml`. De test bevat negen assertions voor soortondersteuning, gemeten versus geschatte temperatuur, ontbrekend watertype/diepte, onbekende temperatuur, sessieduur, method-feedersemantiek, totaalsom en de bestaande temperatuurband-/voorbereidingsgrenzen.
+
+Quality Gate-run [#1031](https://github.com/sennzor-wq/Vislogboek/actions/runs/44907219860) is volledig geslaagd op exact `main`-commit `585d15299f95861312d64021949d0ffb6f95218e`. De nieuwe plannerregressietest rapporteerde **9 geslaagd, 0 gefaald**. De bestaande VisCoach-sessieadviestest rapporteerde **75 geslaagd, 0 gefaald**. Ook typecheck, alle overige Quality Gate-tests, productiebuild en de controle op private productieartefacten zijn geslaagd.
+
+### 170.1 Algemene PrognosisView — resterende zichtbare routes
+
+De actuele `PrognosisView.tsx` is opnieuw volledig op numerieke voorvoeruitvoer gecontroleerd. De confidence-gate staat bij regel 1573 (`confidenceLevel === 'Redelijk'`) en beschermt zowel de hoeveelheid per voorafgaande voerbeurt (regel 1655) als de sessiehoeveelheid (regel 1681). `totalAmountGrams` wordt in deze weergave niet als alternatieve numerieke totaalsom getoond. Er is in de repository geen bestaande geïsoleerde React-componenttestinrichting aangetroffen; er is daarom geen brede testinfrastructuur toegevoegd voor deze eenvoudige presentatielogica. De statische routecontrole is gecombineerd met de geslaagde typecheck, bestaande VisCoach-regressietest en productiebuild.
+
+### 170.2 Afsluiting en begrenzing
+
+Punt 5 is afgesloten voor de afgesproken scope: bestaande engine-uitvoer blijft behouden, exacte grammen worden in de algemene PrognosisView alleen bij `Redelijk` getoond, en de relevante planner-/VisCoach-regressies zijn uitvoerbaar en groen. Dit is **geen biologische validatie** van temperatuurbanden, soortfactoren of gramhoeveelheden. `Redelijk` blijft uitsluitend een invoercompleetheidsclassificatie. Er zijn geen numerieke engineparameters of gebruikersgegevens gewijzigd.
+
+De afsluiting van punt 5 betekent niet dat Fase 2 als geheel is afgerond. De resterende biologische audit-, normalisatie-, coverage- en onafhankelijke validatiepunten blijven open. Fase 3 blijft geblokkeerd tot de volledige Fase-2-acceptatiecriteria zijn gehaald.

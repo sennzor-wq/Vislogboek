@@ -1216,3 +1216,11 @@ De eigenaar heeft bevestigd dat geen informatie verloren mag gaan. Daarom blijve
 De enige runtime-aanpassing is confidence-gating in de algemene PrognosisView: exacte gramhoeveelheden worden uitsluitend getoond bij de bestaande invoerkwaliteit `Redelijk`. Bij lagere kwaliteit blijven kwalitatieve aanbevelingen en eventuele timing zichtbaar, maar worden exacte grammen verborgen. Dit geldt zowel voor voorafgaande voerbeurten als de sessiehoeveelheid. De bestaande disclaimer blijft duidelijk maken dat `Redelijk` de volledigheid van invoer beschrijft en geen wetenschappelijke validatie van de hoeveelheid inhoudt.
 
 De wijziging raakt geen andere prognose-, weer-, habitat-, positionerings- of VisCoach-functie en voegt geen invoervelden toe. De temperatuurbanden blijven indicatieve tactische context.
+
+## 139. Punt 5 technisch afgerond — voorvoerplanner en confidence-gating (21 november 2026)
+
+De afgesproken scope van punt 5 is technisch afgerond. De bestaande `prebaitEngine`-berekeningen en interne uitkomsten zijn behouden. Een gerichte regressietest (`test-prebait-engine.ts`) is aan de Quality Gate toegevoegd en rapporteert negen geslaagde assertions. De bestaande VisCoach-sessieadviestest rapporteert 75 geslaagde assertions. Quality Gate-run [#1031](https://github.com/sennzor-wq/Vislogboek/actions/runs/44907219860) is volledig groen op `585d15299f95861312d64021949d0ffb6f95218e`, inclusief typecheck, overige regressietests, productiebuild en private-artifactcontrole.
+
+De algemene PrognosisView is statisch gecontroleerd: één `Redelijk`-gate beschermt de gramweergave van zowel voorafgaande voerbeurten als de sessiehoeveelheid; de interne totaalsom wordt niet apart getoond. Er is geen bestaande React-componenttestinrichting, dus er is geen brede testinfrastructuur toegevoegd. Dit is voldoende technische controle voor deze afgebakende presentatielogica, geen biologische validatie.
+
+De numerieke temperatuurbanden, soortfactoren en hoeveelheden blijven heuristische startindicaties. `Redelijk` betekent alleen dat de temperatuur- en stekgegevens voldoende compleet zijn; het bewijst niet dat de grammen biologisch juist zijn. Punt 5 is hiermee gesloten binnen de afgesproken scope. De overige Fase-2-acceptatiecriteria blijven open; Fase 2 is niet formeel geaccepteerd en Fase 3 blijft geblokkeerd.
