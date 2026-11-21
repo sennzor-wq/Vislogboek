@@ -414,3 +414,28 @@ Dit betekent niet dat iedere factor ongeacht bewijs automatisch een gewicht krij
 Geen runtimecode, type, scoreformule, factorgewicht, temperatuurcurve, drempel, database, snapshot, gebruikersinvoer of gebruikersdata gewijzigd. Geen tests uitgevoerd; geen biologische validatie geclaimd.
 
 **Vervolg binnen werkonderdeel 8:** de precieze type-definities en volledige VisCoach-call chain nog lokaliseren en inspecteren; daarna de minimale intervalcontractopties formuleren. Parallel hieraan wordt de factor-/respons-crosswalk gebruikt om de bestaande factoren te koppelen aan het geïntegreerde scoredoel. Er wordt geen formule geïmplementeerd voordat de eigenaar de voorgestelde architectuur en bewijsgrenzen heeft goedgekeurd.
+
+
+
+### 8.6 Correctie na volledige VisCoach-call-chain-inspectie (21 november 2026)
+
+De eerdere formulering in §8.1 dat er geen expliciet gepland interval in VisCoach bestaat, was te breed en wordt hierbij gecorrigeerd. De algemene Prognosepagina heeft geen vrij gekozen start-/eindtijd; de afzonderlijke VisCoach-planflow heeft deze functionaliteit wél.
+
+Gecontroleerde bestanden:
+- `src/components/viscoach/VisCoachView.tsx`: gewenste starttijd en optionele eindtijd.
+- `src/services/viscoachService.ts`: `VisCoachPlanInput`, `buildVisCoachPlan`, `resolveSelectedTimeSlot`, snapshot-opbouw.
+- `src/types/index.ts`: `PlannedFishingSession`, `PrognosisSnapshot`, `PrognosisInputContext`, `TimeSlotAnalysis`, `DayPrognosis`.
+- `src/services/timeSlotExposureEngine.ts`: bestaande segmentatie van hengelintervallen.
+
+Vastgesteld:
+1. VisCoach berekent duur uit het gekozen start-/eindmoment (maximaal 24 uur), geeft de duur door aan de prognose-engine en bewaart intervalstart/-einde in pending snapshot en inputfingerprint.
+2. De persoonlijke Poisson-vangstbaseline gebruikt de duur; de thermische activiteitsscore niet.
+3. Alleen het starttijdvak wordt als `targetTimeSlot` aan de engine doorgegeven voor tactische context.
+4. De prognose-engine berekent de dagprognose voor de startdatum. De intervalgrenzen worden niet gebruikt om de thermische tijdvakscore op segmentniveau te berekenen.
+5. `resolveSelectedTimeSlot` kan alleen een tijdvak teruggeven als het gekozen interval geheel in één tijdvak past. Tijdvakoverschrijdende sessies hebben geen geselecteerd tijdvak; datumoverschrijding wordt niet algemeen ondersteund.
+6. De snapshot bewaart de intervalgrenzen, maar `PrognosisInputContext` bewaart deze niet als expliciete start-/eindtijd. Het interval is dus niet volledig als modelinvoercontext gereproduceerd, ondanks opslag in snapshot/fingerprint.
+7. `timeSlotExposureEngine` biedt een bestaande technische referentie voor intervalsegmentatie over Amsterdamse tijdvakken en DST, maar berekent hengelblootstelling, niet biologische activiteitspotentie.
+
+De eerdere conclusie is dus aangescherpt: het geplande interval bestaat al in VisCoach; een echte prognosescore over dat interval ontbreekt. Geen parallel intervalobject nodig. Volgende stap is vaststellen hoe de bestaande intervalgrenzen als reproduceerbare modelinput kunnen worden verbonden aan segmentgewijze tijdvak-/weers-/temperatuurgegevens, inclusief ontbrekende dekking en meerdere kalenderdagen.
+
+Geen runtimecode gewijzigd, geen scoreformule of gewichten gewijzigd, geen tests uitgevoerd en geen biologische validatie geclaimd.
