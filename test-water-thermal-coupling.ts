@@ -122,7 +122,7 @@ async function runTestSuite() {
   assert(
     (progColdSnap.thermalAnalysis?.estimatedWaterTemp ?? 0) > 10.0 &&
       (progColdSnap.thermalAnalysis?.estimatedWaterTemp ?? 0) < 16.0,
-    `1.2 Geschatte watertemperatuur (${progColdSnap.thermalAnalysis?.estimatedWaterTemp} °C) dempt de koude lucht (4 °C) via thermische traagheid`
+    `1.2 Indicatieve weerafgeleide watertemperatuur (${progColdSnap.thermalAnalysis?.estimatedWaterTemp} °C) blijft een schatting, geen lokale meting`
   );
   const estimatedThermalDetail = progColdSnap.timeSlots['Ochtend'].temperatureFactor.detail;
   assert(
@@ -474,8 +474,9 @@ async function runTestSuite() {
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
     slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
-      slotMorning.temperatureFactor.detail.includes('via thermische traagheid'),
-    '5.2 Tijdvakfactoren vermelden geschatte watertemperatuur via thermische traagheid'
+      slotMorning.temperatureFactor.detail.includes('Indicatieve weerafgeleide watertemperatuurschatting') &&
+      slotMorning.temperatureFactor.detail.includes('niet-gekwantificeerde onzekerheid'),
+    '5.2 Tijdvakfactoren benoemen weerafgeleide schatting en niet-gekwantificeerde onzekerheid correct'
   );
 
   const carpAssumptions = SPECIES_PROFILES['Karper'].assumptions;
