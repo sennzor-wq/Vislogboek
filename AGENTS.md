@@ -5,8 +5,8 @@ Deze instructies gelden voor iedere AI-agent, ontwikkelaar en geautomatiseerde w
 ## Verplichte commitregel
 
 1. Bundel alle wijzigingen die bij één opdracht/werkeenheid horen altijd in **één enkele commit**. Maak geen losse commits per bestand.
-2. Voeg standaard **`[skip ci]`** toe aan de commit-message.
-3. Laat `[skip ci]` alleen weg als de gebruiker expliciet vraagt om de GitHub Action(s) te laten draaien.
+2. Laat `[skip ci]` standaard **weg** uit commit-messages, zodat de GitHub Actions-workflows op relevante commits automatisch kunnen draaien.
+3. Gebruik `[skip ci]` alleen bij een expliciete, uitzonderlijke reden om CI over te slaan; leg die reden vast en vraag vooraf toestemming aan de eigenaar. De oude standaard om `[skip ci]` toe te voegen gold voor de periode waarin de repository privé was en is niet meer van toepassing nu de repository publiek is.
 4. Gebruik voor meerdere bestanden één atomische Git-operatie: maak één tree met alle gewijzigde/toegevoegde/verwijderde bestanden, maak daar één commit van en werk de branchref één keer bij. Gebruik niet meerdere afzonderlijke GitHub Contents API create/update-acties, omdat die elk een eigen commit opleveren.
 5. Controleer vóór committen de actuele branch-HEAD, de volledige diff, de lijst gewijzigde bestanden en eventuele onverwachte wijzigingen.
 6. Controleer na committen dat alle wijzigingen in exact één commit zitten. Rapporteer SHA, bestanden en CI-keuze.

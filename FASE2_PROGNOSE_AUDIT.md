@@ -4610,3 +4610,11 @@ De meest recente zichtbare succesvolle Quality Gate-run (#1027, commit `c4f906d0
 Er is geen GitHub Actions-run gestart. De repository-instructie vereist dat `[skip ci]` alleen wordt weggelaten wanneer de eigenaar expliciet vraagt om GitHub Actions te laten draaien; de opdracht om technische validatie uit te voeren is hier niet als expliciet verzoek om een Actions-run geïnterpreteerd.
 
 **Uitkomst:** technische validatie blijft open en is geblokkeerd door ontbrekende uitvoeromgeving. Er is geen test-, typecheck- of buildresultaat om als geslaagd te registreren. Punt 5 blijft open; Fase 2 is niet formeel afgerond en Fase 3 blijft geblokkeerd. Vervolg: voer de genoemde checks uit in de projectomgeving met Bun en een frozen lockfile, of geef expliciet toestemming om de GitHub Actions Quality Gate op de actuele `main` te starten.
+
+## 168. Correctie CI-beleid repository — [skip ci] (21 november 2026)
+
+De eerdere repository-instructie om standaard [skip ci] aan commit-messages toe te voegen, stamde uit de periode waarin de repository privé stond. De eigenaar heeft verduidelijkt dat deze afspraak niet bedoeld was voor de publieke repository. De oude regel is daarom vervallen.
+
+**Actueel beleid:** GitHub Actions mag standaard automatisch draaien op relevante commits. Commit-messages bevatten dus geen [skip ci] tenzij er een expliciete, uitzonderlijke reden is om CI over te slaan en dit vooraf met de eigenaar is afgestemd. De historische beschrijving in §167 dat geen Actions-run is gestart vanwege de toenmalige instructie blijft een feitelijke registratie van die werksessie; die instructie is inmiddels achterhaald en mag niet als huidig beleid worden toegepast.
+
+Deze wijziging is uitsluitend documentatie/werkwijze. Er zijn geen applicatiecode, prognoseberekeningen, sessiegegevens of gebruikersdata gewijzigd. De eerstvolgende relevante commit zonder [skip ci] hoort de Quality Gate automatisch te activeren; de uitkomst moet op de exacte commit worden gecontroleerd.
