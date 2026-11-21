@@ -1235,3 +1235,12 @@ De inputstatussen zijn onderscheiden als gemeten, geschat, proxy/context, onbeke
 Normalisatie gebruikt vaste referentieankers en een responsindex die geen kanspercentage is. Dagelijkse min-max-normalisatie, dubbele telling van dezelfde oorzaak, onbewezen interacties en generieke tijdvakbonussen zijn uitgesloten. Chronologische rolling-origin-validatie vergelijkt kandidaat en bevroren thermische baseline op dezelfde ongeziene waarnemingen, met factorablaties, responsgebonden metrics, segmentatie en expliciete rapportage van ontbrekende labels en negatieve resultaten.
 
 De 93 registry-records bevatten 0 numeriek goedgekeurde bronnen. Directe lokale biologische labels ontbreken; daarom is dit uitsluitend een ontwerpcontract. Er zijn geen code, datamodel, score, gewichten, parameters of gebruikersinvoer gewijzigd. Fase 2 blijft open en Fase 3 geblokkeerd. Zie audit §171.
+
+
+## 141. Read-only audit lokale biologische labels en evaluatiehaalbaarheid (21 november 2026)
+
+Audit §172 volgt de daadwerkelijke datatypen en invoerflow. De app bewaart fysieke watertemperatuurmeetevents, sessiebrede kwalitatieve aanwezigheidscategorieën, sessietotalen voor aanbeten/gemiste vissen, vangstrecords met timestamp-provenance, optionele hengelgebeurtenissen en expliciete hengelactieve intervallen.
+
+Deze bronnen meten verschillende responsen. Watertemperatuur is predictor-/schattervalidatie; vangst en bevestigde nulvangst voeden uitsluitend persoonlijke vangstkans; hengelintervallen leveren exposure voor beschrijvende vangbaarheid. `aasbellen_voedselactiviteit` is een subjectief, sessiebreed visueel signaal zonder eigen tijdstip, duur of intensiteit en is geen kwantitatieve voedselopname. Automatisch voorgestelde vangsttijdstippen worden terecht niet als betrouwbare tijdvaklabels gebruikt; user-adjusted tijden blijven zelfgerapporteerd.
+
+Conclusie: de huidige lokale dataset bevat geen directe onafhankelijke labels voor fysiologische activiteit, hoeveelheid voedselopname of biologische tijdvakvoorkeur. Meer vangsten lossen die labelkloof niet op. Er worden geen verplichte velden of nieuwe UI voorgesteld; toekomstige directe observaties vragen een afzonderlijk productbesluit. Geen runtimewijziging of datamigratie. Zie audit §172.

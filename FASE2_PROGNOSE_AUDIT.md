@@ -4778,3 +4778,58 @@ Voor iedere toekomstige kandidaat geldt vóór runtime-toelating:
 5. Het optionele hengel-/methodepresetbesluit blijft een aparte UX/productkeuze en mag geen verplichte registratie worden.
 
 Geen applicatiecode, score, gebruikersdata, database, temperatuurcurve, parameter, gewicht of gebruikersflow gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 172. Audit bestaande lokale labels — wat kan werkelijk biologische respons meten? (21 november 2026)
+
+**Doel:** de in §171 vereiste labelbeschikbaarheid concreet toetsen aan het huidige typeschema en de daadwerkelijke invoerflow. Dit is een read-only code-audit; er zijn geen data, UI of runtimeberekeningen gewijzigd.
+
+### 172.1 Bevindingen per bestaande gegevensbron
+
+| Bestaand veld / event | Wat wordt daadwerkelijk vastgelegd? | Wat mag het onderbouwen? | Wat mag het niet onderbouwen? |
+|---|---|---|---|
+| `WaterTemperatureMeasurement[]` | Afzonderlijke fysieke watertemperatuurmetingen met meettijd, registratietijd, methode, optionele meetdiepte en beschikbare weerscontext | Lokale temperatuurinput en latere validatie van de watertemperatuurschatter | Visactiviteit, voedselopname of vangstmoment |
+| `FishingSession.presenceObservations` | Een sessiebrede lijst met categorieën zoals springen/rollen, aasbellen/bodemwoeling, recente vangst op stek en geen waarnemingen | Kwalitatieve, sessiebrede aanwezigheid-/activiteitscontext | Kwantitatieve voedselopname, exacte tijdvakrespons of bewezen afwezigheid |
+| `FishingSession.bitesCount` / `missedCount` | Geaggregeerde sessietotalen zonder tijdstip per gebeurtenis | Algemene sessie-/vangbaarheidscontext, indien volledig en vergelijkbaar | Verdeling over dagdelen of directe voedselopname |
+| `CatchItem` | Soort, aantal, sessie, optioneel gewicht/lengte en tijdstip; tijdstipherkomst kan automatic of user_adjusted zijn | Vangstuitkomst en, onder strikte kwaliteitsfilters, beschrijvende vangsttijd-/vangbaarheidsanalyse | Directe voedingsactiviteit of een gegarandeerd exact biologisch gebeurtenismoment |
+| `SessionRodEvent` | Hengelgebonden aanbeet/gemist/vangst/overig met tijdstempel en optionele timestampEntryMode | Tijdgebonden hengelinteractie en vangbaarheid, wanneer expliciet en betrouwbaar geregistreerd | Voedselopname of biologische activiteit onafhankelijk van presentatie en hengelinzet |
+| `RodActiveInterval[]` | Expliciete actieve inzet per hengel | Blootstellingsduur en exposure-aware vangst-/aanbeetfrequentie | Biologische activiteit zonder hengelinteractie |
+| `FishingSession.outcome` | Catch, bevestigde nulvangst, actief of onbekend | Persoonlijke vangstkans bij vergelijkbare, geldige sessies | Biologische inactiviteit of niet eten bij een nulvangst |
+
+### 172.2 Kritische details uit de invoerflow
+
+**Aanwezigheidsobservaties:** `SessionModal` bewaart de selectie als `PresenceObservationType[]` op sessieniveau. De invoerflow registreert geen afzonderlijk tijdstip, duur, frequentie, intensiteit, waarnemer of verificatiemethode per observatie. De categorie `aasbellen_voedselactiviteit` is een kwalitatief visueel signaal (aasbellen/bodemwoeling), niet een directe meting van geconsumeerd voedsel. De categorie `geen_waarnemingen` betekent alleen dat de gebruiker niets heeft waargenomen; zij bewijst geen afwezigheid of inactiviteit.
+
+**Vangsttijdstippen:** `CatchModal` vult het tijdstip bij openen automatisch in. De provenance-helper markeert dit als automatisch tenzij de gebruiker het tijdstip aanpast. `timeSlotCatchEvidenceAudit` sluit automatische, legacy-onbekende, ongeclassificeerde en buiten-sessie tijdstippen uit van tijdvakpositieven. Een handmatig aangepast tijdstip is nog steeds een door de gebruiker gerapporteerd vangstmoment, geen onafhankelijke sensorverificatie. Groepsvangsten kunnen bovendien meerdere vissen in één registratie bundelen.
+
+**Hengelgebeurtenissen en blootstelling:** `SessionRodEvent` en `RodActiveInterval` zijn optioneel. De bestaande effort-engine telt alleen expliciet geregistreerde, geldige actieve intervallen; een ontbrekend interval is onbekende inzet en geen nul uur. Tijdvakvangst-audit gebruikt deze blootstelling beschrijvend en zet ontbrekende vangsten in een tijdvak niet om naar een nulrespons. Dit is correct voor vangbaarheid, maar levert geen biologische voedingslabels op.
+
+**Watertemperatuur:** de nieuwe meetevents verbeteren de lokale predictor- en schattervalidatie. Zij leveren geen responslabel voor visactiviteit of voedselopname. De gekoppelde Open-Meteo-context blijft modeldata en geen directe lokale weerwaarneming.
+
+### 172.3 Wat de huidige dataset retrospectief wel en niet kan evalueren
+
+**Wel, onder de bestaande kwaliteitsfilters:**
+- watertemperatuurschatting tegenover latere fysieke meetevents, met aandacht voor meetdiepte, meetmethode, bron, meettijd en forecast-as-of;
+- persoonlijke vangstkans tegenover afgeronde, vergelijkbare sessie-uitkomsten;
+- beschrijvende hengelvangbaarheid per tijdvak wanneer expliciete hengeluren en betrouwbare, user-adjusted vangst-/hengelgebeurtenissen aanwezig zijn;
+- kwalitatieve aanwezigheidssignalen als afzonderlijke context, zonder numerieke responsclaim.
+
+**Niet met de huidige velden:**
+- fysiologische activiteit als directe respons;
+- hoeveelheid/snelheid van voedselopname;
+- een gevalideerde soortspecifieke tijdvakverdeling van voedselopname;
+- habitat-aanwezigheid als onafhankelijk gelabelde uitkomst op voldoende schaal;
+- causale effecten van aas, voer, techniek of hengelconfiguratie.
+
+De belangrijkste datagrens is daarmee niet het aantal sessies op zich, maar het ontbreken van passende responslabels. Meer vangstregistraties verhogen de waarde van de persoonlijke vangstkans- en vangbaarheidslaag, maar lossen het ontbreken van directe voedingslabels niet automatisch op.
+
+### 172.4 Labelhaalbaarheid en veilige vervolgstap
+
+Er zijn drie gescheiden routes:
+1. **Bestaande data benutten zonder nieuwe invoer:** bouw de chronologische evaluatie van temperatuurvoorspelling en persoonlijke vangstkans verder uit; gebruik tijdvakvangst uitsluitend als vangbaarheidsanalyse met expliciete blootstelling.
+2. **Bestaande kwalitatieve observaties begrensd gebruiken:** `aasbellen_voedselactiviteit` kan als sessiebrede, subjectieve observatie worden onderzocht in een aparte kwalitatieve analyse. Zonder tijdstip, intensiteit en verificatie is het geen numeriek label en geen tijdvaklabel. `vis_springen_rollen` blijft beweging; `recente_vangst_stek` blijft historische aanwezigheid; `geen_waarnemingen` blijft geen waargenomen signaal.
+3. **Toekomstige directe biologische labels:** een optionele, expliciet tijdgebonden waarneming van daadwerkelijk voedings-/foerageergedrag zou de labeldekking kunnen verbeteren. Dit vraagt een afzonderlijk productbesluit over definitie, minimale invoer, betrouwbaarheid en gebruikersfrictie. Er wordt nu geen veld, verplichting of nieuwe UI voorgesteld of toegevoegd.
+
+**Conclusie:** met de huidige lokale velden kan de biologische 1–10-doelrespons niet onafhankelijk worden gevalideerd. De bestaande data zijn wel bruikbaar voor temperatuurvoorspelling, persoonlijke vangstkans, kwalitatieve context en exposure-aware vangbaarheid, mits die responsen gescheiden blijven. Er is geen reden om vangsten, aanbeten of aasbellen achteraf als kwantitatieve voedselopname te herlabelen.
+
+Geen applicatiecode, database, historische gebruikersdata, score, gewicht of gebruikersflow gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Volgende stap: maak per respons een concrete evaluatie-/labelmatrix met beschikbare aantallen en kwaliteitsfilters, en scheid daarin wat nu uitvoerbaar is van wat pas na toekomstige optionele waarnemingen kan worden gevalideerd.

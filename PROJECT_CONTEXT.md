@@ -1976,3 +1976,12 @@ Audit §171 en architectuur §140 leggen de normalisatievolgorde, respons-/facto
 De actuele Research Registry telt 93 unieke records, waarvan 0 numeriek goedgekeurd voor directe voorspelling. De thermische optie A blijft de enige bestaande numerieke baseline-uitzondering. Directe lokale labels voor biologische activiteit en voedselopname ontbreken; vangsten en aanbeten vervangen die labels niet. Punt 5 (voorvoer-confidence-gating) is technisch gesloten in audit §170. De optionele hengel-/methodepreset blijft een afzonderlijke UX-keuze. Fase 2 is niet geaccepteerd; Fase 3 blijft geblokkeerd.
 
 Hervattingspunt: maak de labelbeschikbaarheid en evaluatievensters per responsfamilie concreet op basis van de bestaande sessie-/snapshotdata en de registry. Bepaal expliciet welke biologische responsen met huidige of realistisch verkrijgbare data toetsbaar zijn en welke alleen als context/onbekend kunnen blijven. Geen extra verplichte registratievelden en geen runtimegewichten.
+
+
+### Fase 2 — lokale labelhaalbaarheid gecontroleerd (21 november 2026)
+
+De read-only audit in FASE2_PROGNOSE_AUDIT.md §172 heeft de bestaande sessie-, vangst-, aanwezigheid-, hengel- en temperatuurvelden tegen hun werkelijke betekenis gecontroleerd. De huidige dataset ondersteunt temperatuurvoorspellingsvalidatie, persoonlijke vangstkans en beperkte kwalitatieve/exposure-aware context, maar geen directe onafhankelijke labels voor fysiologische activiteit, voedselopname of biologische tijdvakvoorkeur.
+
+Aasbellen/bodemwoeling is alleen een subjectieve sessiebrede observatie zonder eigen tijdstip of intensiteit; vangsttijden zijn automatisch voorgesteld of door de gebruiker aangepast en blijven vangbaarheids-/uitkomstdata, geen directe voedingslabels. Er zijn geen velden, verplichte invoer, runtimecode of historische data gewijzigd.
+
+Hervattingspunt: maak een respons- en evaluatiematrix met per respons de beschikbare labelbron, kwaliteitsfilters, evaluatiemetric, haalbaarheid nu en afhankelijkheid van toekomstige optionele observaties. Fase 2 blijft open; Fase 3 geblokkeerd.
