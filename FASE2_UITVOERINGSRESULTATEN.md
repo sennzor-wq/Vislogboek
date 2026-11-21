@@ -358,3 +358,59 @@ Volgorde:
 **Geen nieuwe gewichten, drempels, biologische correcties of scoreformules invoeren voordat de bestaande contracten volledig zijn gecontroleerd en eventuele productkeuzes aan de eigenaar zijn voorgelegd.** Hergebruik de bestaande biologische bronregistratie; nieuw literatuuronderzoek is alleen toegestaan wanneer een concreet, nog onbeantwoord bewijsprobleem wordt aangetoond.
 
 Fase 2 blijft open en Fase 3 blijft geblokkeerd.
+
+
+
+## Werkonderdeel 8 — contractcontrole tijdsinterval en vastlegging geïntegreerde score-eis (21 november 2026)
+
+**Roadmapbasis:** Fase 2; vervolg op werkonderdeel 7, audit §183 en architectuur §149.  
+**Type werk:** read-only contract-/runtime-inspectie en documentatie van de expliciete producteis. Geen runtimewijziging, geen nieuwe biologische bronnenzoektocht.  
+**Gecontroleerde basis:** main op `6103f43190d6764d2501a929e4b7faf548f683ec`.  
+**Status:** gedeeltelijke contractcontrole uitgevoerd; belangrijke beperkingen vastgesteld; verdere type-/call-chain-inspectie blijft open.
+
+### 8.1 Bestaande interval- en tijdvakcontracten
+
+- `PrognosisOptions` bevat `sessionDurationHours` en `targetTimeSlot`, maar geen expliciete `sessionStartAt`, `sessionEndAt` of algemeen sessie-interval.
+- `targetTimeSlot` is een categorische tijdvakkeuze voor tactische context. De codecomment vermeldt expliciet dat deze keuze de dagbrede beste-tijdvakscore niet wijzigt.
+- De algemene Prognosepagina berekent acht kalenderdagen en geeft de gekozen sessieduur mee, maar geen door de gebruiker gekozen starttijd. De sessiestartknop start direct op het actuele moment en bepaalt het tijdvak uit de actuele Amsterdamse tijd.
+- `createLiveSnapshotForSessionStart` gebruikt `now` als startmoment en geeft het actuele tijdvak en de duur door. Dit ondersteunt een live-startsnapshot, niet een vrij gepland toekomstig interval.
+- Historische `FishingSession`-records bevatten start-/eindtijd en/of duur. `getSessionDurationHours` gebruikt een geldige expliciete duur, of leidt deze af uit bekende start- en eindtijd; ongeldige/onbekende duur blijft onbekend. Dit historische sessiecontract is geen toekomstig prognose-intervalcontract.
+- De vier bestaande tijdvakken zijn Nacht, Ochtend, Middag en Avond. Per tijdvak worden weerssamples geaggregeerd en waar mogelijk wordt een thermische toestand op een representatief forecastmoment berekend. Bij ontbrekende tijdvakforecast kan de analyse terugvallen op de dagbrede thermische analyse.
+- De huidige dagscore is het gemiddelde van de vier tijdvak-thermische scores en wordt niet beschikbaar verklaard als een tijdvakscore ontbreekt. De toekomstselectie vergelijkt alleen niet-verstreken/actieve tijdvakken. Dit is geen duurgewogen beoordeling van een geplande vissessie.
+
+### 8.2 Factorstatus volgens de actuele code
+
+| Onderdeel | Huidige rol in numerieke `activityScore` | Beschikbare contract-/context |
+|---|---|---|
+| Watertemperatuur | Enige actieve numerieke bijdrage via voorlopige soortcurve | Gemeten of geschat; bronstatus en onzekerheid bestaan |
+| Luchtdruk en trend | Geen numerieke bijdrage | Tijdvakgemiddelde en 12-uurs trendbeschrijving |
+| Wind en richting | Geen numerieke bijdrage | Tijdvakgemiddelde; praktische oever-/presentatiecontext via gespecialiseerde modules |
+| Seizoen | Geen numerieke bijdrage | Kalenderclassificatie |
+| Tijdstip/licht | Geen numerieke bijdrage | Tijdvak, soortspecifieke diel-context en schemer/zonsituatie |
+| Bewolking/neerslag | Geen numerieke bijdrage | Tijdvakgemiddelden/totaal; huidige code toont context |
+| Persoonlijke sessiehistorie | Geen correctie op thermische score | Tijdvakervaring op startsessie; aparte vangstbaseline/Poisson-uitkomst |
+| Waarnemingen/habitat/tactiek | Geen numerieke correctie op thermische score | Gespecialiseerde context-/coachmodules; eigen bewijs- en onzekerheidsregels |
+
+### 8.3 Gevolgen voor een echte sessie-intervalscore
+
+Een intervalscore kan niet correct worden afgeleid door de bestaande vier tijdvakscoregetallen simpelweg op te tellen of ongewogen te middelen. Een sessie kan een deel van een tijdvak, meerdere tijdvakken of middernacht overlappen; de huidige contracten leggen geen expliciete intervaldekking of duurweging vast. Bovendien zijn tijdvakwaarden deels gebaseerd op representatieve uurpunten en kan thermische context terugvallen op een dagbrede analyse.
+
+Voor een latere contractuitbreiding moeten minimaal expliciet worden bepaald:
+- starttijd en eindtijd als tijdstempels met Amsterdamse tijdzone/offset en eenduidige datumgrens;
+- hoe intervallen over tijdvakken en middernacht worden gesegmenteerd;
+- welke forecast-/thermische gegevens werkelijk beschikbaar zijn binnen ieder segment en hoe dekking wordt berekend;
+- hoe overlap, ontbrekende segmenten en onzekerheid worden weergegeven zonder ontbrekende perioden als neutraal effect te tellen;
+- hoe de door de gebruiker gekozen sessie naast een alternatief wordt vergeleken, met behoud van de gebruikersplanning bij marginale verschillen;
+- hoe persoonlijke vangstbaseline apart wordt getoond en niet ongevalideerd wordt opgeteld bij biologische activiteitspotentie.
+
+### 8.4 Vastgelegde producteis voor de volledige prognose
+
+De eigenaar heeft expliciet bevestigd dat alle prognoseonderdelen volledig moeten worden uitgewerkt, zodat relevante onderdelen niet alleen context blijven maar daadwerkelijk bijdragen aan een geïntegreerde score. Dit einddoel is nu vastgelegd in audit §183 en architectuur §149.
+
+Dit betekent niet dat iedere factor ongeacht bewijs automatisch een gewicht krijgt. Per factor moet de Fase 2-audit vaststellen welke respons wordt voorspeld, welk bestaand bewijs daarvoor bruikbaar is, welke data/tijdsresolutie beschikbaar zijn, hoe onzekerheid en interacties worden behandeld en welke onafhankelijke validatie nodig is. De bestaande bronregistry/factorinventaris wordt hergebruikt; geen dubbel onderzoek of dubbele registratie.
+
+### 8.5 Wat niet is gewijzigd en wat nog openstaat
+
+Geen runtimecode, type, scoreformule, factorgewicht, temperatuurcurve, drempel, database, snapshot, gebruikersinvoer of gebruikersdata gewijzigd. Geen tests uitgevoerd; geen biologische validatie geclaimd.
+
+**Vervolg binnen werkonderdeel 8:** de precieze type-definities en volledige VisCoach-call chain nog lokaliseren en inspecteren; daarna de minimale intervalcontractopties formuleren. Parallel hieraan wordt de factor-/respons-crosswalk gebruikt om de bestaande factoren te koppelen aan het geïntegreerde scoredoel. Er wordt geen formule geïmplementeerd voordat de eigenaar de voorgestelde architectuur en bewijsgrenzen heeft goedgekeurd.
