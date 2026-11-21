@@ -1224,3 +1224,14 @@ De afgesproken scope van punt 5 is technisch afgerond. De bestaande `prebaitEngi
 De algemene PrognosisView is statisch gecontroleerd: één `Redelijk`-gate beschermt de gramweergave van zowel voorafgaande voerbeurten als de sessiehoeveelheid; de interne totaalsom wordt niet apart getoond. Er is geen bestaande React-componenttestinrichting, dus er is geen brede testinfrastructuur toegevoegd. Dit is voldoende technische controle voor deze afgebakende presentatielogica, geen biologische validatie.
 
 De numerieke temperatuurbanden, soortfactoren en hoeveelheden blijven heuristische startindicaties. `Redelijk` betekent alleen dat de temperatuur- en stekgegevens voldoende compleet zijn; het bewijst niet dat de grammen biologisch juist zijn. Punt 5 is hiermee gesloten binnen de afgesproken scope. De overige Fase-2-acceptatiecriteria blijven open; Fase 2 is niet formeel geaccepteerd en Fase 3 blijft geblokkeerd.
+
+
+## 140. Normalisatie- en coveragecontract v1 (21 november 2026)
+
+Audit §171 concretiseert de normalisatie- en missing-data-architectuur zonder runtime-activatie. Elke factoruitkomst moet een expliciete responsfamilie, soort-/levensfasescope, ruwe waarde/eenheid, optionele vaste responsindex, inputstatus, provenance, geldigheidsvenster, onzekerheid, toelatingsstatus, overlapgroep en modelversie behouden.
+
+De inputstatussen zijn onderscheiden als gemeten, geschat, proxy/context, onbekend, ongeldig, tegenstrijdig en niet van toepassing. Ontbrekend is geen neutrale waarde; gewichten worden niet stilzwijgend herverdeeld en er wordt geen algemeen coveragepercentage berekend zolang geen goedgekeurde weging en relevante-factornoemer bestaan. De bestaande optie-A-thermische prior blijft de baseline-uitzondering. Een gedeeltelijke gecombineerde kandidaat wordt pas toegelaten voor precies die coveragepatronen die onafhankelijk zijn gevalideerd.
+
+Normalisatie gebruikt vaste referentieankers en een responsindex die geen kanspercentage is. Dagelijkse min-max-normalisatie, dubbele telling van dezelfde oorzaak, onbewezen interacties en generieke tijdvakbonussen zijn uitgesloten. Chronologische rolling-origin-validatie vergelijkt kandidaat en bevroren thermische baseline op dezelfde ongeziene waarnemingen, met factorablaties, responsgebonden metrics, segmentatie en expliciete rapportage van ontbrekende labels en negatieve resultaten.
+
+De 93 registry-records bevatten 0 numeriek goedgekeurde bronnen. Directe lokale biologische labels ontbreken; daarom is dit uitsluitend een ontwerpcontract. Er zijn geen code, datamodel, score, gewichten, parameters of gebruikersinvoer gewijzigd. Fase 2 blijft open en Fase 3 geblokkeerd. Zie audit §171.

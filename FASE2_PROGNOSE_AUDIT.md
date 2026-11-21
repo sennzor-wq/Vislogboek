@@ -4657,3 +4657,124 @@ De actuele `PrognosisView.tsx` is opnieuw volledig op numerieke voorvoeruitvoer 
 Punt 5 is afgesloten voor de afgesproken scope: bestaande engine-uitvoer blijft behouden, exacte grammen worden in de algemene PrognosisView alleen bij `Redelijk` getoond, en de relevante planner-/VisCoach-regressies zijn uitvoerbaar en groen. Dit is **geen biologische validatie** van temperatuurbanden, soortfactoren of gramhoeveelheden. `Redelijk` blijft uitsluitend een invoercompleetheidsclassificatie. Er zijn geen numerieke engineparameters of gebruikersgegevens gewijzigd.
 
 De afsluiting van punt 5 betekent niet dat Fase 2 als geheel is afgerond. De resterende biologische audit-, normalisatie-, coverage- en onafhankelijke validatiepunten blijven open. Fase 3 blijft geblokkeerd tot de volledige Fase-2-acceptatiecriteria zijn gehaald.
+
+
+## 171. Normalisatie- en coveragecontract v1 — kandidaatmodel zonder runtime-activatie (21 november 2026)
+
+**Doel van deze werkeenheid:** de ontwerpstap uit §105.7 en §106 concreter en toetsbaar maken. Dit contract definieert hoe factoruitkomsten, ontbrekende gegevens, bronkwaliteit en onzekerheid in een later kandidaatmodel moeten worden behandeld. Het kent geen numerieke gewichten toe, activeert geen factor en wijzigt geen bestaande berekening.
+
+### 171.1 Actuele crosswalk na afronding van punt 5
+
+De zevenpunts-crosswalk uit §89 blijft als historische momentopname behouden. De status hieronder actualiseert uitsluitend wat sindsdien aantoonbaar is veranderd. De registry telt op de huidige `main` 93 unieke records; 0 zijn numeriek goedgekeurd voor directe voorspelling.
+
+| Criterium | Actuele status per 21-11-2026 | Nog vereist |
+|---|---|---|
+| 1. Eén doelrespons en gescheiden biologische responsen | Productdoel en responsgrenzen vastgelegd (§103, §§105–107, §134); geïntegreerde score bestaat nog niet | Kandidaatmodel voor thermische activiteit plus uitsluitend passende directe voedings-/foerageerrespons; geen vermenging met habitat, vangbaarheid of persoonlijke vangstkans |
+| 2. Bronkwaliteit, levensfase en overdraagbaarheid | 93 bronnen geïnventariseerd; 0 numeriek goedgekeurd. Optie A is als voorlopige thermische prior expliciet geaccepteerd | Per factor aantonen dat soort, levensfase, respons, voedseltype, watertype, meetmethode en geografische context passen; nieuwe factoren blijven geblokkeerd zonder onafhankelijke onderbouwing |
+| 3. Water- en omgevingsdata | Temperatuurprovenance en sessiegebonden meetevents technisch geborgd; lokale zuurstof-, troebelheids-, stromings- en prooidata ontbreken | Ontbrekende lokale invoer expliciet blijven markeren; geen afleiding uit niet-gerelateerde weerdata; toekomstige lokale kalibratie |
+| 4. Tijdvak- en soortgedrag | Broninventaris aanwezig; technische thermische tijdvakberekening gereed, maar biologische tijdvakrespons niet gevalideerd | Tijdvakgebonden directe voedings-/foerageerlabels en passende soort-/seizoensdekking; geen universele schemerbonus |
+| 5. Lokale leer- en evaluatieketen | Evaluatiearchitectuur ontworpen; directe lokale labels voor biologische activiteit en voedselopname ontbreken | Onafhankelijke labels en metrics per respons; chronologische evaluatie tegen vaste baseline |
+| 6. Gebruiksvriendelijkheid en VisCoach | Basisflow behouden; voorvoer-confidence-gating technisch afgerond in §170 | Optionele herbruikbare hengel-/methodepreset is nog een afzonderlijk productbesluit; dit mag de biologische score niet blokkeren of verplichte invoer veroorzaken |
+| 7. Technische borging | Huidige wijzigingsreeks heeft groene Quality Gates; punt 5 heeft gerichte plannerregressies | Iedere toekomstige codewijziging opnieuw exact-head- en mergecommit-validatie, diff-review en documentatiesynchronisatie |
+
+De eerder als open genoemde factorinventaris is dus niet opnieuw een uitvoertaak: die inventaris is gesloten in §102. De eerdere eigenaarbesluiten over optie A en voorvoer-confidence-gating zijn eveneens gesloten. Het optionele hengel-/methodepresetbesluit blijft apart open.
+
+### 171.2 Responscontract — geen vermenging van labels
+
+Elke kandidaatuitkomst moet expliciet één responsfamilie benoemen:
+- `thermal_activity`: voorlopige thermische activiteitspotentie; optie A blijft de enige bestaande numerieke prior.
+- `feeding_intensity`: hoeveelheid/snelheid van voedselopname.
+- `feeding_rhythm`: timing van voeding/foerageren binnen de dag.
+- `foraging_activity`: voedselzoek-/foerageergedrag, alleen waar het werkelijk gemeten is.
+- `habitat_presence` / `movement`: ruimtelijke aanwezigheid of beweging, buiten de biologische dagscore tenzij een afzonderlijk productbesluit en passend bewijs bestaan.
+- `catchability` / `capture_probability`: hengelvangbaarheid en persoonlijke vangstkans, uitsluitend in de aparte tactiek-/vangstlaag.
+- `coverage_uncertainty`: volledigheid en betrouwbaarheid van de onderbouwing; nooit een biologische scorefactor.
+
+Een bron mag alleen bijdragen aan dezelfde respons die de methode daadwerkelijk meet. Maagvulling, maagledigingsmodellen, groei, metabolisme, aerobe scope, beweging, vangst en voedselopname blijven onderscheiden. De 93 registry-records zijn bewijsinventaris, geen 93 onafhankelijke effectschattingen; 0 records zijn numeriek toegelaten.
+
+### 171.3 Factoruitkomstcontract
+
+Een toekomstige factoruitkomst moet minimaal de volgende conceptuele metadata bij zich houden:
+
+| Veld | Betekenis |
+|---|---|
+| `factorId` en `responseType` | Stabiele factoridentiteit en expliciete doelrespons |
+| `speciesScope` / `lifeStageScope` | Soort en levensfase waarop het bewijs van toepassing is |
+| `value` / `unit` | Gevalideerde ruwe invoer of responsuitkomst; nooit een ongemarkeerde proxy |
+| `normalizedResponse` | Optionele responsindex op vaste referentieschaal; geen kanspercentage |
+| `inputStatus` | `measured`, `estimated`, `proxy`, `context_only`, `unknown`, `invalid`, `conflicting` of `not_applicable` |
+| `sourceRefs` / `provenance` | Bron, meetmethode, tijdstip, locatie/diepte, ophaalmoment en herkomst |
+| `validityWindow` | Geldigheidsduur en temporele/ruimtelijke toepasbaarheid |
+| `uncertainty` | Bekende onzekerheid, bandbreedte of expliciete reden waarom die onbekend is |
+| `admissionStatus` | `baseline_exception`, `candidate`, `context_only`, `excluded` of `not_yet_evaluable` |
+| `overlapGroup` | Factoren die dezelfde onderliggende oorzaak/invoer kunnen dubbeltellen |
+| `modelVersion` | Reproduceerbare versie van responsfunctie en referentieankers |
+
+Dit is een architectuurcontract, geen voorstel om nu al velden aan de database of gebruikersinvoer toe te voegen. De bestaande sessie- en snapshotdata blijven behouden; implementatie vereist een afzonderlijk goedgekeurd technisch ontwerp.
+
+### 171.4 Normalisatie en vaste referentieankers
+
+1. Valideer eerst eenheid, fysiek bereik, tijdstip, bron, ruimtelijke dekking, meetmethode en geldigheid.
+2. Selecteer daarna uitsluitend een responsfunctie waarvan soort, levensfase, voedseltype, watertype en onderzoekscontext voldoende aansluiten. Niet-passende context wordt niet door een algemene soortcurve ingevuld.
+3. Leg vóór evaluatie vaste referentiecondities en de richting van de respons vast. Gebruik geen dagelijkse min-max-normalisatie, rangschikking binnen de actuele voorspelling of referentie die verschuift met de andere dagen in de dataset.
+4. Een genormaliseerde index mag conceptueel begrensd zijn op 0–1, maar is nadrukkelijk geen kans, percentage, vangstkans of universele biologische eenheid.
+5. Bewaar naast de index de referentieconditie, ruwe invoer, bron, onzekerheid en afwijking ten opzichte van de referentie. Een index zonder provenance is niet toelatingswaardig.
+6. De bestaande thermische curve blijft als `baseline_exception` actief volgens optie A. Dit behoudt de bestaande werking, maar verleent geen goedkeuring aan haar exacte biologische parameters.
+7. Iedere nieuwe numerieke factor blijft `candidate` totdat onafhankelijke responslabels, toepassingsgebied en chronologische verbetering zijn aangetoond. De huidige registry bevat daarvoor 0 numeriek goedgekeurde records.
+
+Er worden in deze fase geen numerieke ankers, curves, effectgroottes, gewichten of scoremapping gekozen. Die zouden zonder passende labels schijnprecisie opleveren.
+
+### 171.5 Coverage- en ontbrekende-data-contract
+
+Ontbrekende data worden per factor geclassificeerd, niet samengevoegd tot één ondoorzichtige confidence-score:
+- **Gemeten:** bruikbare directe waarneming met tijdstip en herkomst.
+- **Geschat:** modeluitkomst met zichtbare bron, methode en onzekerheid.
+- **Proxy/context:** relevante context, maar geen directe meting van de doelrespons; telt niet numeriek mee.
+- **Onbekend:** geen bruikbare invoer; geen nul of neutrale respons invullen.
+- **Ongeldig:** buiten fysiek bereik, onjuiste eenheid, toekomstig meetmoment of onbruikbare herkomst; uitsluiten en reden bewaren.
+- **Tegenstrijdig:** meerdere plausibele bronnen/metingen die niet zonder onderbouwde regel kunnen worden samengevoegd; conflict zichtbaar houden.
+- **Niet van toepassing:** factor is voor deze soort/context aantoonbaar niet van toepassing; onderscheiden van onbekend.
+
+**Geen verborgen herweging:** een ontbrekende factor krijgt geen fictieve neutrale waarde en de gewichten van aanwezige factoren worden niet automatisch opgehoogd. Een algemeen coveragepercentage wordt evenmin berekend zolang geen goedgekeurde factorweging en relevante-factornoemer bestaan.
+
+**Gedeeltelijke prognose:** de bestaande thermische baseline mag blijven functioneren volgens optie A wanneer de thermische invoer bruikbaar is. Een toekomstige gecombineerde kandidaat mag met gedeeltelijke invoer alleen worden vergeleken wanneer precies dat missingness-/coveragepatroon vooraf is vastgelegd en onafhankelijk gevalideerd. Tot die tijd wordt geen gecombineerde score gefingeerd: de baseline blijft herkenbaar als baseline en de ontbrekende responsdekking wordt afzonderlijk gemeld. Dit voorkomt zowel onnodig blokkeren als het stilzwijgend presenteren van een onvolledige combinatie als volledig model.
+
+Voorbeelden:
+- Gemeten watertemperatuur + ontbrekende zuurstof: thermische baseline beschikbaar; zuurstof blijft onbekend en levert geen neutrale of negatieve bonus.
+- Geschatte watertemperatuur + uitsluitend weerscontext: schatting blijft als geschat gemarkeerd; luchttemperatuur wordt niet als gemeten watertemperatuur gepresenteerd.
+- Directe voedingsbron voor juveniele snoek maar volwassen doelvis: bron blijft contextueel/niet-toepasselijk voor die levensfase; geen overdracht.
+- Blankvoorn-dagritme uit één dieetgroep: alleen die context kan worden beschreven; geen soortbrede tijdvakbonus.
+- Wind-/druktelemetrie die beweging meet: movement-context, niet automatisch feeding-intensity.
+
+### 171.6 Overlap, interacties en tijdsresolutie
+
+- Een inputvariabele mag niet twee keer als onafhankelijke bijdrage worden geteld. Luchttemperatuur die al in de waterthermische schatting zit, wordt niet nogmaals als zelfstandige biologische bonus gebruikt zonder bewijs van een afzonderlijk effect.
+- Interacties (bijvoorbeeld temperatuur × zuurstof, licht × leeftijd of seizoen × voedseltype) worden alleen kandidaat wanneer de bron die interactie rechtstreeks ondersteunt en de benodigde invoer beschikbaar is.
+- Dagbrede en tijdvakgebonden responsen blijven onderscheiden. Een dagbrede factor wordt niet vier keer als onafhankelijke factor geteld.
+- Een tijdvakrespons vereist tijdgebonden biologische labels en passende tijdsresolutie. Het hergebruik van dezelfde dagthermische waarde voor vier tijdvakken is alleen de bestaande baseline, geen bewijs voor een beste tijdvak.
+- Als tijdvakverschillen niet met voldoende bewijs zijn vast te stellen, wordt geen kunstmatige winnaar gekozen.
+
+### 171.7 Onafhankelijke evaluatie en baselineprotocol
+
+Voor iedere toekomstige kandidaat geldt vóór runtime-toelating:
+1. Leg vooraf de respons, labels, uitsluitingsregels, contextsegmenten en metric vast.
+2. Bevries de huidige optie-A-thermische baseline en de modelversie; vergelijk baseline en kandidaat op exact dezelfde ongeziene waarnemingen.
+3. Gebruik chronologische rolling-origin evaluatie: uitsluitend gegevens die op het voorspeltijdstip beschikbaar waren mogen input zijn. Geen toekomstige meting, latere correctie of achteraf verrijkte forecast mag teruglekken.
+4. Rapporteer prestaties per soort en waar de data het toelaten per levensfase, seizoen, watertype, meetstatus en tijdvak. Kleine of scheve segmenten blijven beschrijvend en krijgen geen modelgewicht.
+5. Voer factorablaties uit om te zien of een factor aantoonbaar extra informatie levert boven de baseline en bestaande inputs.
+6. Rapporteer onzekerheid, dekking, aantallen, ontbrekende labels en negatieve resultaten naast gemiddelde metrics.
+7. Gebruik responsgebonden metrics: MAE/RMSE/bias voor watertemperatuur; passende fout-/kalibratiematen voor directe activiteit of voedselopname; tijdvakrangschikking alleen met directe tijdvaklabels. Brier/BSS blijft uitsluitend voor persoonlijke vangstkans.
+8. Geen automatische parameter- of gewichtsaanpassing. Een resultaat is eerst een evaluatierapport en vereist expliciete review voordat een factor wordt toegelaten.
+
+### 171.8 Wat deze stap afrondt en wat nog openstaat
+
+**Afgerond in deze werkeenheid:** de normalisatievolgorde, het factoruitkomstcontract, de expliciete inputstatussen, het ontbreken-van-data-contract, overlapregels en de minimale onafhankelijke baselinevergelijking zijn concreet vastgelegd. Dit is een ontwerp-/documentatiestap, geen code-implementatie of biologische validatie.
+
+**Nog open voor Fase 2:**
+1. De relevante primaire bronnen en parametergrenzen per soort/levensfase blijven beoordelen; geen bron is momenteel numeriek goedgekeurd.
+2. Vaststellen welke directe biologische labels realistisch beschikbaar kunnen komen en welke responsen niet lokaal observeerbaar zijn. De huidige sessiedata zijn geen directe voedingslabels.
+3. Het evaluatieprotocol concretiseren met beschikbare dataset-/labelinventaris en vooraf vastgelegde evaluatievensters; zonder directe labels kan de biologische kandidaat niet onafhankelijk worden gevalideerd.
+4. Een afzonderlijke tijdvakrespons ontwerpen zodra passende tijdgebonden voedings-/activiteitslabels beschikbaar zijn.
+5. Het optionele hengel-/methodepresetbesluit blijft een aparte UX/productkeuze en mag geen verplichte registratie worden.
+
+Geen applicatiecode, score, gebruikersdata, database, temperatuurcurve, parameter, gewicht of gebruikersflow gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.

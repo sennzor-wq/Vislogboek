@@ -1967,3 +1967,12 @@ De volledige primaire PDF van Prejs (1978) is gecontroleerd. Deze geeft dieetgeb
 ### Fase 2 — Prejs (1978) toegevoegd als 93e bron (20 november 2026)
 
 PR #191 voegt Prejs (1978) toe na volledige primaire PDF-controle. Het betreft dieetgebonden veldbewijs voor macrophyten-etende blankvoorn en een passage-rate-schatting van dagelijkse planteninname; geen soortbrede, pellet- of thermische respons. Registry telt 93 records, 0 numeriek goedgekeurd. Zowel de exacte PR-head als de mergecommit Quality Gate zijn volledig geslaagd. Zie audit §§147–148.
+
+
+### Fase 2 — normalisatie- en coveragecontract vastgelegd (21 november 2026)
+
+Audit §171 en architectuur §140 leggen de normalisatievolgorde, respons-/factoruitkomstmetadata, expliciete inputstatussen, ontbrekende-data-regels, overlappreventie en chronologische baseline-evaluatie vast. Dit is ontwerpdocumentatie, geen runtime-activatie: geen gewichten, scoremapping, biologische factor of tijdvakbonus gewijzigd.
+
+De actuele Research Registry telt 93 unieke records, waarvan 0 numeriek goedgekeurd voor directe voorspelling. De thermische optie A blijft de enige bestaande numerieke baseline-uitzondering. Directe lokale labels voor biologische activiteit en voedselopname ontbreken; vangsten en aanbeten vervangen die labels niet. Punt 5 (voorvoer-confidence-gating) is technisch gesloten in audit §170. De optionele hengel-/methodepreset blijft een afzonderlijke UX-keuze. Fase 2 is niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+Hervattingspunt: maak de labelbeschikbaarheid en evaluatievensters per responsfamilie concreet op basis van de bestaande sessie-/snapshotdata en de registry. Bepaal expliciet welke biologische responsen met huidige of realistisch verkrijgbare data toetsbaar zijn en welke alleen als context/onbekend kunnen blijven. Geen extra verplichte registratievelden en geen runtimegewichten.
