@@ -4908,3 +4908,83 @@ Voor dat voorstel geldt:
 - eerst een read-only test-/datacontractontwerp en review, daarna pas eventuele implementatie.
 
 Geen runtimecode, database, lokale gebruikersdata, meetevents of bestaande prognose-uitkomsten gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 175. Ontwerp veilige event-naar-snapshot-evaluatiekoppeling (21 november 2026)
+
+**Status: ontwerpvoorstel, read-only.** Dit hoofdstuk legt vast hoe meerdere fysieke temperatuurmeetevents in beginsel geëvalueerd kunnen worden zonder bestaande snapshots te overschrijven, zonder toekomstinformatie en zonder één sessie kunstmatig als meerdere onafhankelijke vissessies te tellen. Het is geen goedkeuring of opdracht tot implementatie.
+
+### 175.1 Bestaande gegevens waarop het ontwerp aansluit
+
+- Een meetevent heeft een eigen WaterTemperatureMeasurement.id, measuredAt, recordedAt, locatie (optioneel, anders sessielocatie), temperatuur, meetbron, methode en optionele meetdiepte.
+- Een snapshot bewaart de onveranderlijke prognose, forecastTimestamp, locationId, linkedSessionId, predictedWaterTemperature en de volledige prognosisData. Daarin staat de thermische analyse met targetTimestamp en forecastAsOf.
+- De huidige sessie-evaluatie gebruikt de sessiebrede scalaire samenvatting (waterTemperature en bijbehorende velden) en schrijft die ene uitkomst naar de snapshot. Zij loopt niet door de afzonderlijke event-array.
+- De historische temperatuurprofielcollector verwerkt wel alle geldige eventrecords. Als de event-array niet leeg is, gebruikt hij de legacy scalaire sessiemeting niet nogmaals.
+
+### 175.2 Voorgestelde evaluatie-eenheid
+
+Gebruik voor de uitgebreide evaluatie een afgeleid, read-only paar; sla dit paar niet terug in de bestaande PrognosisSnapshot:
+
+- sessionId
+- measurementId (unieke event-ID)
+- snapshotId
+- locationId
+- measuredAt en recordedAt
+- predictedAt (forecastTimestamp)
+- targetTimestamp uit de bevroren prognosisData.thermalAnalysis
+- voorspelde en gemeten temperatuur
+- meetbron, meetmethode, meetdiepte
+- model-/engineversies en eventuele uitsluitreden
+
+Hiermee blijft de oorspronkelijke voorspelling onveranderd en is ieder evaluatieresultaat herleidbaar tot de twee oorspronkelijke records.
+
+### 175.3 Harde toelatingsregels voor een paar
+
+Een event mag alleen kandidaat zijn wanneer:
+1. de event-ID aanwezig en uniek is binnen de sessie;
+2. de temperatuur numeriek, eindig en binnen de bestaande plausibiliteitsgrens 0–35 °C ligt;
+3. measuredAt parseerbaar is en niet later ligt dan recordedAt of het huidige evaluatiemoment;
+4. bron en methode bekend en toegelaten zijn volgens de bestaande validatiefilters (manual/imported en thermometer/probe/other);
+5. het event een geldige eigen locatie heeft of aantoonbaar de sessielocatie erft;
+6. de sessie niet als benchmark is gemarkeerd.
+
+Een snapshot mag alleen kandidaat zijn wanneer:
+1. de snapshot expliciet aan dezelfde sessie is gekoppeld (linkedSessionId gelijk aan session.id) en dezelfde locatiecontext heeft;
+2. predictedWaterTemperature een eindige modelschatting is; snapshots met gemeten/ontbrekende temperatuur als voorspelling tellen niet mee;
+3. forecastTimestamp parseerbaar is en strikt vóór measuredAt ligt;
+4. forecastAsOf uit de opgeslagen thermische analyse niet ná het prognoseberekeningstijdstip ligt;
+5. targetTimestamp expliciet aanwezig en parseerbaar is. Een ontbrekend doelmoment mag niet worden vervangen door alleen dezelfde kalenderdag of door het sessiestartmoment.
+
+**Doelmomentmatching blijft een open parameterbesluit.** De code bewaart targetTimestamp, maar er is geen door de bestaande roadmap of broncode onderbouwde toegestane tijdsafstand tussen targetTimestamp en measuredAt vastgesteld. Daarom wordt hier geen willekeurige tolerantie (bijvoorbeeld 30, 60 of 120 minuten) gekozen. Zonder vooraf goedgekeurde tolerantie is alleen een exact tijdstipmatch ondubbelzinnig; als dat voor de echte invoerpraktijk te streng blijkt, moet de eigenaar eerst een onderbouwde maximale tijdsafstand vaststellen. Geen match op alleen dezelfde datum.
+
+### 175.4 Eén-op-één-toewijzing en dubbeltelling
+
+- Eén fysiek event (measurementId) mag maximaal één keer in de evaluatie voorkomen.
+- Eén voorspelling (snapshotId) mag maximaal één event valideren. Een snapshot is één voorspelling op één doelmoment en mag niet worden hergebruikt voor meerdere meetmomenten.
+- Als meerdere kandidaten overblijven, kies niet stilzwijgend de eerste of dichtstbijzijnde. Markeer het event als ambigu en sluit het uit totdat een deterministische, vooraf goedgekeurde tie-breakregel bestaat.
+- Als waterTemperatureMeasurements één of meer events bevat, wordt de scalaire sessiesamenvatting niet daarnaast als tweede meting geteld. De collector past dit principe al toe.
+- Als de event-array ontbreekt of leeg is, blijft de bestaande legacy scalaire route afzonderlijk herkenbaar en ongewijzigd; legacywaarden worden niet kunstmatig omgezet naar event-ID's.
+- Meerdere meetevents uit één sessie zijn meerdere meetmomenten, maar geen meerdere onafhankelijke sessies. Rapporteer daarom zowel het aantal eventparen als het aantal unieke sessies; gebruik sessieclusters bij onzekerheidsanalyse en laat één sessie niet automatisch zwaarder wegen in modelacceptatie.
+
+### 175.5 Scheiding tussen evaluatie en kalibratie
+
+De eerste implementatie, als die later wordt goedgekeurd, moet eventniveau-MAE/RMSE/bias als aparte evaluatie-uitkomst rapporteren. Gebruik deze nieuwe eventparen niet automatisch voor de bestaande lokale biascorrectie. De bestaande kalibratie is opgezet op snapshotparen en minimaal acht paren per stek/seizoen; meerdere meetmomenten uit één sessie kunnen die telling kunstmatig verhogen en zijn onderling afhankelijk. Een eventuele uitbreiding van kalibratie vereist een aparte analyse op onafhankelijke sessies, met vooraf vastgelegde weging en rolling-origin-validatie. Bestaande correcties, curves en gewichten blijven onaangeroerd.
+
+### 175.6 Testgevallen die vóór implementatie nodig zijn
+
+1. Eén sessie met drie geldige events en drie verschillende passende voorspellingen: drie unieke paren.
+2. Eén event met twee even passende snapshots: ambigu, geen paar.
+3. Eén snapshot die voor twee events kandidaat is: maximaal één toewijzing; tweede event blijft ongekoppeld.
+4. Snapshot berekend ná het fysieke meetmoment: uitgesloten (future leakage).
+5. targetTimestamp ontbreekt of valt buiten de later goedgekeurde tijdstolerantie: uitgesloten.
+6. Event-ID dubbel binnen één sessie: beide verdachte records uitsluiten of conflict expliciet rapporteren; nooit stilzwijgend dedupliceren op temperatuurwaarde.
+7. Event-array gevuld plus legacy scalaire samenvatting: alleen eventrecords tellen.
+8. Event-array leeg met een geldige legacy scalaire meting: bestaande legacyroute blijft werken.
+9. Andere locatie, benchmark, onbekende meetbron/methode, ongeldige datum of onmogelijke temperatuur: uitgesloten met reden.
+10. Twee events uit dezelfde sessie: rapportage toont twee eventparen maar één unieke sessie.
+
+### 175.7 Besluit en vervolgstap
+
+De architectuur biedt voldoende bestaande metadata om een read-only koppelingsontwerp te maken, maar niet genoeg om zonder aanvullende keuze de toegestane afstand tussen voorspeld doelmoment en fysiek meetmoment vast te leggen. Dit is de enige open product-/methodologische parameter in dit ontwerp. Ik kies die niet namens de eigenaar en voer geen implementatie uit.
+
+Vervolg: controleer de precieze herkomst en semantiek van prognosisData.thermalAnalysis.targetTimestamp voor de sessiestart- en sessie-updateprognoses en leg daarna een voorstel voor de tijdtolerantie voor. Pas na expliciete goedkeuring kan de implementatie worden voorbereid. Geen runtimecode, schema, IndexedDB, gebruikersdata, snapshots, temperatuurcurves, scores, parameters of gewichten gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
