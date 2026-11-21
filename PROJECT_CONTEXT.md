@@ -2008,3 +2008,10 @@ Hervattingspunt: ontwerp read-only een veilige koppeling van afzonderlijke meete
 Audit §175 en architectuur §144 beschrijven een read-only ontwerp om afzonderlijke fysieke temperatuurmeetevents aan vooraf vastgelegde prognoses te koppelen. Het ontwerp vereist dezelfde sessie/locatie, forecast vóór meetmoment, expliciet thermisch doelmoment, unieke event-/snapshottoewijzing en uitsluiting bij ambiguïteit. Events en legacy scalaire sessiesamenvatting worden niet dubbel geteld. Meerdere events uit één sessie gelden niet als onafhankelijke sessies; eventniveau-evaluatie wordt aanvankelijk gescheiden gehouden van biascalibratie.
 
 De tijdtolerantie tussen thermisch doelmoment en fysieke meettijd is nog niet onderbouwd en wordt niet door mij ingevuld. Hervattingspunt: controleer read-only de semantiek van thermalAnalysis.targetTimestamp bij sessiestart- en sessie-updateprognoses; leg daarna een onderbouwde keuze ter goedkeuring voor. Geen runtimecode, schema, IndexedDB, gebruikersdata, snapshots, temperatuurcurves, scores of gewichten gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — ontbreken expliciet thermisch doelmoment bevestigd (21 november 2026)
+
+Read-only controle in audit §176 bevestigt dat waterThermalEngine.targetTimestamp alleen wordt opgeslagen wanneer expliciet targetTime is doorgegeven. De algemene thermische analyse in sessiestart- en sessie-updateprognoses krijgt die parameter niet. Interne tijdvakberekeningen gebruiken wel een representatief doelmoment, maar slaan de bijbehorende thermische analyse niet op in TimeSlotAnalysis. targetWindowStart/End en forecastTimestamp zijn geen vervanging.
+
+Daarom zijn de huidige opgeslagen sessiesnapshots onvoldoende om meerdere meetevents betrouwbaar aan predictedWaterTemperature te koppelen. Hervattingspunt: vergelijk twee ontwerpvarianten — voorspelling voor een concreet meetdoelmoment of vooraf vastgelegde tijdvakvoorspellingen — en leg de keuze voor vóór implementatie. Geen code, schema, IndexedDB, gebruikersdata, snapshots, prognose-uitkomsten, temperatuurcurves, scores of gewichten gewijzigd. Fase 2 blijft open; Fase 3 geblokkeerd.

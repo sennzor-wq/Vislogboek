@@ -4917,7 +4917,7 @@ Geen runtimecode, database, lokale gebruikersdata, meetevents of bestaande progn
 ### 175.1 Bestaande gegevens waarop het ontwerp aansluit
 
 - Een meetevent heeft een eigen WaterTemperatureMeasurement.id, measuredAt, recordedAt, locatie (optioneel, anders sessielocatie), temperatuur, meetbron, methode en optionele meetdiepte.
-- Een snapshot bewaart de onveranderlijke prognose, forecastTimestamp, locationId, linkedSessionId, predictedWaterTemperature en de volledige prognosisData. Daarin staat de thermische analyse met targetTimestamp en forecastAsOf.
+- Een snapshot bewaart de onveranderlijke prognose, forecastTimestamp, locationId, linkedSessionId, predictedWaterTemperature en de volledige prognosisData. De thermische analyse bevat velden targetTimestamp en forecastAsOf, maar targetTimestamp is optioneel en is bij de huidige sessiestart-/sessie-updateberekening doorgaans null; de aanwezigheid van het veld in het type garandeert dus geen bruikbaar doelmoment.
 - De huidige sessie-evaluatie gebruikt de sessiebrede scalaire samenvatting (waterTemperature en bijbehorende velden) en schrijft die ene uitkomst naar de snapshot. Zij loopt niet door de afzonderlijke event-array.
 - De historische temperatuurprofielcollector verwerkt wel alle geldige eventrecords. Als de event-array niet leeg is, gebruikt hij de legacy scalaire sessiemeting niet nogmaals.
 
@@ -4985,6 +4985,43 @@ De eerste implementatie, als die later wordt goedgekeurd, moet eventniveau-MAE/R
 
 ### 175.7 Besluit en vervolgstap
 
-De architectuur biedt voldoende bestaande metadata om een read-only koppelingsontwerp te maken, maar niet genoeg om zonder aanvullende keuze de toegestane afstand tussen voorspeld doelmoment en fysiek meetmoment vast te leggen. Dit is de enige open product-/methodologische parameter in dit ontwerp. Ik kies die niet namens de eigenaar en voer geen implementatie uit.
+De architectuur biedt genoeg metadata om de risico's en gewenste koppelregels te ontwerpen, maar de huidige opgeslagen sessiesnapshots bevatten niet consequent een bruikbaar doelmoment. Naast de open tijdtolerantie ontbreekt dus een expliciet opgeslagen voorspelling voor het meetmoment. Zie §176. Dit is geen detail dat met een ruimere matchingtolerantie kan worden opgelost. Ik kies die niet namens de eigenaar en voer geen implementatie uit.
 
 Vervolg: controleer de precieze herkomst en semantiek van prognosisData.thermalAnalysis.targetTimestamp voor de sessiestart- en sessie-updateprognoses en leg daarna een voorstel voor de tijdtolerantie voor. Pas na expliciete goedkeuring kan de implementatie worden voorbereid. Geen runtimecode, schema, IndexedDB, gebruikersdata, snapshots, temperatuurcurves, scores, parameters of gewichten gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 176. Semantiek en persistente beschikbaarheid van thermisch doelmoment (21 november 2026)
+
+**Status: read-only codecontrole.** Dit hoofdstuk controleert of de in §175 vereiste doelmomentinformatie daadwerkelijk wordt opgeslagen voor sessiestart- en sessie-updateprognoses.
+
+### 176.1 Vastgestelde engine-semantiek
+
+- In waterThermalEngine wordt targetTimestamp alleen gevuld wanneer de caller expliciet een geldige targetTime doorgeeft. Zonder expliciet targetTime blijft targetTimestamp null, ook wanneer de engine intern voor de berekening een referentietijd gebruikt (bijvoorbeeld currentDateRef voor vandaag).
+- De algemene thermalAnalysis in calculateDayPrognosis wordt aangeroepen zonder targetTime. De sessiestartflow geeft wel currentDateRef en forecastAsOf door, maar geen expliciete targetTime voor deze algemene thermische analyse.
+- De sessie-updateflow gebruikt dezelfde algemene prognose-engine. De snapshot bewaart de resulterende prognosisData.thermalAnalysis, waarvan targetTimestamp daardoor niet als exact sessiedoelmoment kan worden beschouwd.
+- De engine berekent daarnaast binnen de vier tijdvakanalyses een representatief slotTargetTime (mediaan van de beschikbare uurlijkse weersvoorspellingen in dat tijdvak) en voert daarmee een afzonderlijke thermische analyse uit. Die thermische analyse wordt gebruikt tijdens de tijdvakberekening, maar TimeSlotAnalysis bewaart geen eigen WaterThermalAnalysis-object of targetTimestamp. De exacte tijdvaktemperatuurschatting is dus niet terug te halen uit het opgeslagen TimeSlotAnalysis-contract.
+- PrognosisSnapshot bewaart wel targetWindowStart/targetWindowEnd en targetSlot, maar deze beschrijven het sessie-/adviesvenster en zijn geen vervanging voor het exacte thermische target waarop predictedWaterTemperature is berekend.
+
+### 176.2 Gevolg
+
+De huidige snapshot bevat een voorspelde watertemperatuur, maar bij sessiestart en sessie-update geen gegarandeerd expliciet doelmoment dat die voorspelde waarde aan een fysiek meetmoment koppelt. forecastTimestamp en targetWindowStart mogen niet als targetTimestamp worden hernoemd: het zijn andere tijdsbegrippen.
+
+Daarom kan een event uit waterTemperatureMeasurements[] op dit moment niet betrouwbaar aan de bestaande predictedWaterTemperature worden gekoppeld op basis van uitsluitend de huidige persistente snapshotvelden. Exacte matching of een tijdtolerantie zou schijnprecisie geven zolang de voorspelling zelf geen expliciet vastgelegd doelmoment heeft.
+
+### 176.3 Benodigde ontwerpkeuze vóór implementatie
+
+Een eventuele implementatie moet eerst één van deze expliciete routes kiezen en testen:
+
+A. **Voorspelling op concreet meetdoelmoment:** de sessieprognose berekent en bewaart een thermische schatting voor een expliciet doelmoment dat al vóór de meting bekend is. De voorspelde waarde en het doelmoment worden samen immutable opgeslagen. Alleen een fysieke meting die binnen een later goedgekeurde meettolerantie bij dat doelmoment hoort, kan evalueren.
+
+B. **Vooraf vastgelegde tijdvakvoorspellingen:** de prognose bewaart per relevant tijdvak de reeds berekende thermische schatting plus het exacte slotTargetTime. Een meetevent kan alleen tegen de voorspelling van het bijbehorende tijdvak worden geëvalueerd, met expliciete controle op forecastTimestamp, targetTimestamp en meetdiepte. De huidige TimeSlotAnalysis bewaart deze thermische detailuitkomst nog niet.
+
+Deze routes zijn alternatieven, geen combinatie die nu stilzwijgend wordt ingevoerd. De keuze beïnvloedt opslagcontract, evaluatie-eenheid en teststrategie en vraagt daarom expliciete eigenaarbeoordeling. Er wordt geen nieuwe verplichte meetinvoer voorgesteld; de bestaande optionele metingen blijven optioneel.
+
+### 176.4 Correctie op §175 en vervolg
+
+§175 blijft geldig als gewenste kwaliteits- en dubbeltelregels, maar is nog geen direct implementeerbaar koppelcontract. De eerdere formulering dat de huidige snapshotmetadata een opgeslagen thermisch doelmoment bevat, moet worden gelezen als conditioneel: het veld bestaat, maar is voor de huidige sessiestart-/sessie-updateflow niet gegarandeerd gevuld.
+
+Vervolg: vergelijk route A en B op minimale wijzigingsomvang, behoud van immutable snapshots, historische compatibiliteit, forecast-as-of en toetsbaarheid. Leg de afweging voor aan de eigenaar voordat runtimecode of opslagcontract wordt aangepast.
+
+Geen code, schema, IndexedDB, gebruikersdata, snapshots, prognose-uitkomsten, temperatuurcurves, scores, parameters of gewichten gewijzigd. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
