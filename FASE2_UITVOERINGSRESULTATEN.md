@@ -245,3 +245,19 @@ De datakwaliteitsregels zijn grotendeels expliciet en voorzichtig, maar de volge
 5. Daarna pas de factor-/respons-crosswalk vertalen naar toegestane scorebijdragen en tijdvensteraggregatie.
 
 Geen runtimecode, schema, database, gebruikersdata, invoervelden, scores, gewichten of temperatuurcurves gewijzigd. Dit onderdeel is code-/testinspectie; de tests zijn niet uitgevoerd en biologische validatie is niet geclaimd.
+
+
+## Werkonderdeel 4 — primaire-broncontrole karper en actuele registry-integriteit
+
+**Roadmapbasis:** Fase 2 audit §171.8 (primaire bronnen/overdraagbaarheid) en §150 (responsen gescheiden houden).  
+**Type werk:** gerichte volledige-tekstcontrole van één reeds geregistreerde primaire studie; read-only bron-/registrycontrole.  
+**Gecontroleerde basis:** main op 23929eaa7268b596721fc08fdf12ea7baaf9ad76.  
+**Status:** bron gecontroleerd; bestaande registratie bevestigd; geen modelactivatie.
+
+- De volledige publicatie van Oyugi et al. (2012) is gecontroleerd. Het betreft juveniele karper (90–105 mm, circa 21,5 g) in gecontroleerde aquaria bij 16/20/24/28 °C, met 2-mm pellets en maden. De gemeten respons is consumptiesnelheid van aangeboden voedselitems, niet totale dagelijkse voedselopname, volwassen veldgedrag of hengelvangbaarheid.
+- De voersnelheid steeg significant van 16 naar 24 °C; tussen 24 en 28 °C was geen significante verdere stijging van deze gemeten snelheid. Voedseltype en voedseldichtheid beïnvloedden de respons. Groei was een afzonderlijke uitkomst.
+- De bestaande registry-entry `common-carp-juvenile-foraging-temperature-2012` classificeert `foraging_behavior` en `growth` apart, beschrijft de juveniele gecontroleerde context en blijft `approvedForPrediction: false`. De volledige-tekstcontrole geeft geen reden om deze bron te activeren of de bestaande volwassen-karpercurve aan te passen.
+- De actuele registry is geteld: 94 unieke IDs, 94 niet-goedgekeurd, 0 numeriek goedgekeurd, geen dubbele IDs. De verouderde actuele telling 93 in audit §171 is gecorrigeerd; historische tellingen blijven als historische momentopname behouden.
+- Geen runtimecode, tests, score, gewicht, curveparameter, UI, database of gebruikersdata gewijzigd. Dit onderdeel is bron-/documentatiecontrole; geen biologische veldvalidatie of modelprestatie geclaimd.
+
+**Volgende stap:** gerichte controle van de scorebeschikbaarheid en onzekerheidsdoorgifte per thermisch tijdvak, gevolgd door een kleine regressietest voor het gevonden randgeval indien de actuele code bevestigt dat het reproduceerbaar is.

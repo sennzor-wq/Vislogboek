@@ -4665,12 +4665,12 @@ De afsluiting van punt 5 betekent niet dat Fase 2 als geheel is afgerond. De res
 
 ### 171.1 Actuele crosswalk na afronding van punt 5
 
-De zevenpunts-crosswalk uit §89 blijft als historische momentopname behouden. De status hieronder actualiseert uitsluitend wat sindsdien aantoonbaar is veranderd. De registry telt op de huidige `main` 93 unieke records; 0 zijn numeriek goedgekeurd voor directe voorspelling.
+De zevenpunts-crosswalk uit §89 blijft als historische momentopname behouden. De status hieronder actualiseert uitsluitend wat sindsdien aantoonbaar is veranderd. De registry telt op de huidige `main` 94 unieke records; 0 zijn numeriek goedgekeurd voor directe voorspelling.
 
 | Criterium | Actuele status per 21-11-2026 | Nog vereist |
 |---|---|---|
 | 1. Eén doelrespons en gescheiden biologische responsen | Productdoel en responsgrenzen vastgelegd (§103, §§105–107, §134); geïntegreerde score bestaat nog niet | Kandidaatmodel voor thermische activiteit plus uitsluitend passende directe voedings-/foerageerrespons; geen vermenging met habitat, vangbaarheid of persoonlijke vangstkans |
-| 2. Bronkwaliteit, levensfase en overdraagbaarheid | 93 bronnen geïnventariseerd; 0 numeriek goedgekeurd. Optie A is als voorlopige thermische prior expliciet geaccepteerd | Per factor aantonen dat soort, levensfase, respons, voedseltype, watertype, meetmethode en geografische context passen; nieuwe factoren blijven geblokkeerd zonder onafhankelijke onderbouwing |
+| 2. Bronkwaliteit, levensfase en overdraagbaarheid | 94 bronnen geïnventariseerd; 0 numeriek goedgekeurd. Optie A is als voorlopige thermische prior expliciet geaccepteerd | Per factor aantonen dat soort, levensfase, respons, voedseltype, watertype, meetmethode en geografische context passen; nieuwe factoren blijven geblokkeerd zonder onafhankelijke onderbouwing |
 | 3. Water- en omgevingsdata | Temperatuurprovenance en sessiegebonden meetevents technisch geborgd; lokale zuurstof-, troebelheids-, stromings- en prooidata ontbreken | Ontbrekende lokale invoer expliciet blijven markeren; geen afleiding uit niet-gerelateerde weerdata; toekomstige lokale kalibratie |
 | 4. Tijdvak- en soortgedrag | Broninventaris aanwezig; technische thermische tijdvakberekening gereed, maar biologische tijdvakrespons niet gevalideerd | Tijdvakgebonden directe voedings-/foerageerlabels en passende soort-/seizoensdekking; geen universele schemerbonus |
 | 5. Lokale leer- en evaluatieketen | Evaluatiearchitectuur ontworpen; directe lokale labels voor biologische activiteit en voedselopname ontbreken | Onafhankelijke labels en metrics per respons; chronologische evaluatie tegen vaste baseline |
@@ -4690,7 +4690,7 @@ Elke kandidaatuitkomst moet expliciet één responsfamilie benoemen:
 - `catchability` / `capture_probability`: hengelvangbaarheid en persoonlijke vangstkans, uitsluitend in de aparte tactiek-/vangstlaag.
 - `coverage_uncertainty`: volledigheid en betrouwbaarheid van de onderbouwing; nooit een biologische scorefactor.
 
-Een bron mag alleen bijdragen aan dezelfde respons die de methode daadwerkelijk meet. Maagvulling, maagledigingsmodellen, groei, metabolisme, aerobe scope, beweging, vangst en voedselopname blijven onderscheiden. De 93 registry-records zijn bewijsinventaris, geen 93 onafhankelijke effectschattingen; 0 records zijn numeriek toegelaten.
+Een bron mag alleen bijdragen aan dezelfde respons die de methode daadwerkelijk meet. Maagvulling, maagledigingsmodellen, groei, metabolisme, aerobe scope, beweging, vangst en voedselopname blijven onderscheiden. De 94 registry-records zijn bewijsinventaris, geen 94 onafhankelijke effectschattingen; 0 records zijn numeriek toegelaten.
 
 ### 171.3 Factoruitkomstcontract
 
@@ -5128,3 +5128,43 @@ De eerdere route-A-beslissing uit §177 blijft alleen van toepassing op de apart
 Geen runtimecode, schema, IndexedDB, bestaande meetevents, snapshots, temperatuurcurves, scores, gewichten of gebruikersinvoer gewijzigd. Er wordt geen informatie verwijderd of samengevoegd buiten de bestaande deduplicatie van dezelfde fysieke meting. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
 
 **Hervattingspunt:** voer de runtime-mapping van historische sessievelden uit en leg per veld vast of het al prognose-input is, alleen context is of een onderbouwde kandidaat voor later onderzoek is. Geen extra meetlast voor de visser.
+
+
+## 180. Primaire-broncontrole karper — Oyugi et al. (2012) en grenzen van thermische foerageerrespons (21 november 2026)
+
+**Vraag:** ondersteunt de bestaande bron voor jonge karper een concrete numerieke foerageer-/activiteitsbijdrage of een aanpassing van de bestaande volwassen-karpercurve?
+
+**Broncontrole:** de volledige zes pagina's tellende primaire publicatie van Oyugi, Cucherousset, Baker & Britton (2012), *Effects of temperature on the foraging and growth rate of juvenile common carp, Cyprinus carpio*, Journal of Thermal Biology 37, 89–94, DOI 10.1016/j.jtherbio.2011.11.005, is gecontroleerd (niet alleen het abstract).
+
+### 180.1 Wat daadwerkelijk is gemeten
+
+- Onderzochte vissen waren juveniele gewone karpers, circa 90–105 mm, gemiddeld ongeveer 21,5 g en circa één jaar oud; afkomstig van een aquacultuurbedrijf.
+- De experimenten gebruikten gecontroleerde aquaria en vier temperatuurbehandelingen: 16, 20, 24 en 28 °C. De vissen werden vooraf bij 16 °C geacclimatiseerd; bij de hogere behandelingen werd de temperatuur geleidelijk verhoogd en volgde een korte acclimatisatie.
+- Er werden drie vissen per tank gebruikt omdat individueel gehouden vissen in de voorproeven niet op het aangeboden voedsel reageerden. De lichtcyclus was vast 14 uur licht / 10 uur donker.
+- De directe gedragsrespons was de tijd die een vis nodig had om het vijfde aangeboden voedselitem te consumeren, omgerekend naar items per seconde. De onderzoekers testten zowel maden als 2-mm vismeelpellets en varieerden de voedseldichtheid.
+- De gemeten foerageersnelheid nam significant toe van 16 naar 24 °C; tussen 24 en 28 °C werd geen significante verdere toename in de gemeten voersnelheid gevonden. De pellet- en made-respons verschilden. De functionele respons hing mede af van voedseltype en voedseldichtheid.
+- Groei werd over langere experimentele perioden apart gemeten. De auteurs rapporteren zelf dat de temperatuurrelatie voor foerageersnelheid niet identiek is aan die voor groei.
+
+### 180.2 Wat deze bron wel en niet ondersteunt
+
+**Wel:** een directe, experimenteel gemeten temperatuurafhankelijkheid van foerageersnelheid bij juveniele karper binnen het onderzochte bereik en onder de beschreven gecontroleerde voer-/tankcondities. Dit is sterker en specifieker dan alleen groei- of metabolismebewijs.
+
+**Niet:**
+- geen veldcurve voor volwassen wilde karper in Nederlandse wateren;
+- geen universeel thermisch optimum of volledige koude-/warmtetolerantiecurve;
+- geen meting van totale dagelijkse voedselopname of natuurlijke foerageertijd over alle dagdelen;
+- geen bewijs voor een vaste ochtend-, avond- of nachtbonus;
+- geen directe vertaling naar method-feeder-vangbaarheid, haakaasacceptatie of vangstkans;
+- geen rechtvaardiging om de bestaande thermische profielparameters of de huidige 1–10-score aan te passen.
+
+### 180.3 Modelbesluit
+
+De bestaande registry-registratie `common-carp-juvenile-foraging-temperature-2012` classificeert de bron al als `foraging_behavior` en `growth`, met beperkte overdraagbaarheid en `approvedForPrediction: false`. De volledige-tekstcontrole bevestigt dat deze begrenzing passend is; de registry hoeft hiervoor niet dubbel te worden uitgebreid.
+
+De bron blijft kandidaatbewijs voor een afzonderlijke juveniele-karper-foerageerrespons, niet voor de algemene volwassen-karperdagscore. Zij levert geen directe Nederlandse veldlabels om een numerieke factor onafhankelijk te valideren. Geen factoractivatie, gewicht, score, curveparameter of tijdvakrangschikking gewijzigd.
+
+### 180.4 Registry-aantallen gecontroleerd
+
+Een directe telling van de actuele `src/services/researchRegistry.ts` op deze `main`-basis geeft 94 unieke IDs, 94 records met `approvedForPrediction: false`, 0 met `true`, en geen dubbele IDs. De vermelding van 93 in §171.1–171.2 was verouderd na de latere toevoeging van het Cunner-record in §151; die actuele status is hierboven gecorrigeerd. Oudere aantallen in historische checkpoints blijven staan als momentopname op hun toenmalige datum.
+
+**Vervolg:** brononderzoek blijft vraaggestuurd; geen brede herhaling van de gesloten factorinventaris. Volgende modelstap is de score-/datakwaliteitsstatus van thermische tijdvakuitvoer en de kandidaatgrens tussen de voorlopige thermische prior en nog niet toegelaten biologische responsen concreet te toetsen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
