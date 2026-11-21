@@ -4618,3 +4618,26 @@ De eerdere repository-instructie om standaard [skip ci] aan commit-messages toe 
 **Actueel beleid:** GitHub Actions mag standaard automatisch draaien op relevante commits. Commit-messages bevatten dus geen [skip ci] tenzij er een expliciete, uitzonderlijke reden is om CI over te slaan en dit vooraf met de eigenaar is afgestemd. De historische beschrijving in §167 dat geen Actions-run is gestart vanwege de toenmalige instructie blijft een feitelijke registratie van die werksessie; die instructie is inmiddels achterhaald en mag niet als huidig beleid worden toegepast.
 
 Deze wijziging is uitsluitend documentatie/werkwijze. Er zijn geen applicatiecode, prognoseberekeningen, sessiegegevens of gebruikersdata gewijzigd. De eerstvolgende relevante commit zonder [skip ci] hoort de Quality Gate automatisch te activeren; de uitkomst moet op de exacte commit worden gecontroleerd.
+
+## 169. GitHub Quality Gate #1028 — technische validatie uitgevoerd (21 november 2026)
+
+**Status: volledig geslaagd op de actuele commit ten tijde van uitvoering.** Na correctie van het CI-beleid is de Quality Gate automatisch gestart op `main` en uitgevoerd voor commit `ae476dff6ceb7a73e39ed5b856fd650c34b898fb`.
+
+Workflow-run: [#1028](https://github.com/sennzor-wq/Vislogboek/actions/runs/44906882345). De job `Typecheck, tests and production build` eindigde met conclusie `success`. De volgende controles zijn daadwerkelijk uitgevoerd en geslaagd:
+
+- `bun install --frozen-lockfile`;
+- productie- en volledige dependency-audit (met de reeds gedocumenteerde, tijdelijke uitzondering voor GHSA-fc5q-39xc-vjpf);
+- TypeScript typecheck via `bun run lint`;
+- Amsterdam-/DST-regressietests;
+- kernprognose- en thermische tests;
+- solar-time-, Brier-, forward-validation- en advanced-prognosis-tests;
+- biologische evidence-registry- en soortcontexttests;
+- rod-positioning-, water-thermal-, water-temperature-learning- en historische waterprofieltests;
+- backup-, restore-, migratie-, verwijderings- en data-integriteitstests;
+- VisCoach-sessieadvies (`test-session-coach.ts`), live-herbeoordeling/integratie en welkomstgroettests;
+- deterministische weather-enrichmenttests;
+- productiebuild en controle dat private artefacten niet in de productie-output terechtkomen.
+
+Dit is de eerste vastgelegde volledige Quality Gate op de commit die de nieuwe CI-afspraak documenteert. §167 blijft behouden als historisch verslag van de eerdere, geblokkeerde validatiepoging; de uitkomst daarvan is inmiddels ingehaald door deze geslaagde run.
+
+**Resterende testdekkingsgrens voor punt 5:** de workflow voert de bestaande VisCoach-regressietest uit, maar bevat nog geen afzonderlijke gerichte test voor de numerieke uitvoer van `calculatePrebaitPlan`/`totalAmountGrams` en geen geïsoleerde componenttest voor de algemene `PrognosisView`-presentatiegate. Typecheck en productiebuild slagen, maar vervangen die specifieke regressieassertions niet. Daarom is de algemene technische Quality Gate groen, terwijl punt 5 nog niet formeel wordt afgesloten. Eerst moet worden bepaald of een kleine, gerichte planner-/presentatietest binnen de bestaande testinrichting haalbaar is; daarna kan de resterende Fase-2-closeout worden afgerond. Fase 3 blijft tot die formele afsluiting geblokkeerd.
