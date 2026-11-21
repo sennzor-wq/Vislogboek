@@ -5242,3 +5242,38 @@ Voor iedere geactiveerde bijdrage moeten minimaal doelrespons, richting/vorm van
 De code-inspectie in werkonderdeel 7 bevestigt dat de huidige `activityScore` uitsluitend de voorlopige thermische watertemperatuurcurve gebruikt. Luchtdruk, wind, seizoen, tijd/licht, bewolking en neerslag leveren momenteel context en geen numerieke scorebijdrage. De huidige score is daarom een beperkte thermische prior, niet het gewenste geïntegreerde prognose-eindproduct.
 
 Dit productdoel wijzigt op zichzelf geen bestaande formule, curve, gewicht, drempel, biologische bronstatus of gebruikersdata. De verdere uitwerking moet eerst de factor-/respons-crosswalk, tijdsresolutie, gegevensdekking en validatievoorwaarden verbinden. De gebruiker heeft nadrukkelijk aangegeven dat alle prognoseonderdelen volledig moeten worden uitgewerkt zodat zij niet uitsluitend context blijven, maar daadwerkelijk kunnen bijdragen aan de score waar dat verantwoord kan.
+
+
+
+## 184. Correctie en verdieping: VisCoach beschikt al over een gepland sessie-interval (21 november 2026)
+
+Deze paragraaf corrigeert een te brede conclusie in audit §183 / werkonderdeel 8.1. De algemene Prognosepagina heeft geen vrij ingevoerd sessiestart-/eindtijdinterval, maar **de aparte VisCoach-planflow heeft dat wél**. Dit is bij de vervolginspectie aangetroffen en moet als bestaande functionaliteit worden hergebruikt.
+
+### 184.1 Bestaande VisCoach-contracten
+
+- `VisCoachView` vraagt een gewenste starttijd en optionele gewenste eindtijd via `datetime-local`.
+- `VisCoachPlanInput` bevat `desiredStartTime` en `desiredEndTime`; `buildVisCoachPlan` valideert de volgorde en een bekende duur van maximaal 24 uur.
+- De duur wordt uit start/eindtijd berekend en aan `calculateDayPrognosis` doorgegeven als `sessionDurationHours`. Dit beïnvloedt de aparte persoonlijke Poisson-vangstbaseline, niet de thermische `activityScore`.
+- De VisCoach kiest `targetTimeSlot` op basis van de geplande starttijd. Dit wordt gebruikt voor tactische context, niet voor een score over de volledige geplande periode.
+- Het volledige interval wordt opgenomen in `PendingPrognosisSnapshot.targetWindowStart/targetWindowEnd` en in de inputfingerprint. De `PrognosisInputContext` bewaart echter alleen targetDate, targetTimeSlot en sessieduur; geen expliciete start-/eindtijd.
+- De weersnapshot `conditions` wordt opgebouwd uit het dichtstbijzijnde uurlijkse forecastpunt bij de starttijd. De volledige uurlijkse reeks wordt apart als `weatherInput` opgeslagen.
+- `calculateDayPrognosis` wordt aangeroepen voor alleen de Amsterdamse kalenderdatum van de starttijd. De vier dagtijdvakken worden dus niet op de feitelijke sessie-intervalgrenzen gesneden.
+
+### 184.2 Bestaande beperking van tijdvaktoewijzing
+
+`resolveSelectedTimeSlot(start, end)` geeft alleen een tijdvak terug wanneer het interval geheel binnen één bestaand tijdvak past. Bij een sessie die over een tijdvakgrens heen loopt, wordt geen enkelvoudig geselecteerd tijdvak teruggegeven. Een sessie die een kalenderdatumgrens overschrijdt wordt eveneens niet ondersteund, behalve wanneer de eindtijd exact middernacht van de volgende dag is. Zelfs in dat laatste geval wordt het interval niet als twee segmenten in de prognose-engine doorgerekend.
+
+De huidige tijdvak-engine gebruikt vier vaste dagdelen en berekent de dagscore als gemiddelde van de vier tijdvakscore-uitkomsten. Er is geen bestaande sessie-intervalscore die de relevante tijdvakken proportioneel naar overlapduur weegt. De dagprognose wordt op de startdatum berekend; de weersverwachting van een volgende kalenderdag maakt dus geen deel uit van een doorlopende overnight-sessieanalyse.
+
+### 184.3 Herbruikbare bestaande technische bouwstenen
+
+- Start-/eindtijd en duur bestaan al in VisCoach-planinput en pending snapshot.
+- Historische sessies bewaren ISO-starttijd, eindtijd en/of duur; geplande sessies bewaren geplande start- en eindtijd.
+- `timeSlotExposureEngine` kan expliciet vastgelegde hengel-actieve intervallen splitsen over Amsterdamse tijdvakken, inclusief datumgrenzen/DST. Deze output is nadrukkelijk beschrijvende hengelblootstelling en geen prognose-/modelinput. De segmentatiecode kan als technische referentie dienen, maar de exposure-uitkomst mag niet als biologische scorefactor worden hergebruikt.
+- De bestaande uurlijkse weerinvoer en tijdvakanalyses kunnen als brondata worden hergebruikt, mits de intervalberekening expliciet dekking, ontbrekende uren en forecastgrenzen respecteert.
+
+### 184.4 Gecorrigeerde conclusie
+
+De juiste conclusie is niet dat VisCoach geen sessie-interval kent. De juiste conclusie is: **VisCoach kent en bewaart het geplande interval, maar de huidige numerieke prognose beoordeelt dat interval nog niet als interval.** De duur beïnvloedt de persoonlijke vangstbaseline; het starttijdvak stuurt tactische context; de thermische score blijft dag-/tijdvakgericht. Een intervalscore en vergelijking met alternatieve tijden ontbreken nog.
+
+Deze correctie verandert geen code, bestaande scores, gewichten of gebruikersdata. Werkonderdeel 8 blijft een contract- en architectuuronderzoek.
