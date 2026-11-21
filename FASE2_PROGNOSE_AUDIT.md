@@ -5215,3 +5215,30 @@ De voorwaarde is bewust beperkt tot een weer-only puntwaarde zonder lokale water
 Quality Gate [#1051](https://github.com/sennzor-wq/Vislogboek/actions/runs/44947434389) is volledig geslaagd op exact `970964ab5892fd241e051d62462a41c0113d2042`: 43 succesvolle stappen, waaronder TypeScript typecheck, volledige regressies en productiebuild. Er is geen afzonderlijke React-componenttestrunner in de bestaande repository-inrichting; de nieuwe UI-voorwaarde is statisch gecontroleerd en de volledige typecheck/build is groen.
 
 Geen scoreformule, scorewaarde, factorweging, temperatuurcurve, gebruikersdata, database of VisCoach-berekening gewijzigd. Dit is een verbetering van zichtbare onzekerheidscommunicatie; geen biologische validatie.
+
+
+
+## 183. Productdoel: geïntegreerde prognosescore over alle relevante prognoseonderdelen (21 november 2026)
+
+**Eigenaarseis:** de prognose moet uiteindelijk niet bestaan uit één numerieke factor met daarnaast meerdere uitsluitend beschrijvende factoren. Alle relevante prognoseonderdelen moeten inhoudelijk worden uitgewerkt en, zodra hun bijdrage voldoende onderbouwd en technisch betrouwbaar is, daadwerkelijk deelnemen aan een geïntegreerde prognosescore.
+
+### 183.1 Gewenst eindbeeld
+
+- De bestaande prognosefactoren blijven herkenbaar en uitlegbaar; zij worden niet stilzwijgend samengevoegd tot een ondoorzichtige totaalscore.
+- Relevante factoren zoals watertemperatuur, luchtdruk/-trend, wind, seizoen, tijdstip/licht, bewolking en neerslag moeten elk een expliciet vastgelegde rol in de scorearchitectuur krijgen. Dat kan een numerieke bijdrage, een conditionele bijdrage, een interactie met andere factoren of een gemotiveerde uitsluiting zijn. Alleen context blijven is niet het gewenste eindbeeld wanneer een factor aantoonbaar prognostische waarde kan leveren.
+- De factorbijdrage moet passen bij het gemeten biologische eindpunt. Voedselopname, foerageergedrag, aanwezigheid, activiteitspotentie en daadwerkelijke hengelvangst zijn verschillende responsen en mogen niet als onderling uitwisselbare labels worden behandeld.
+- Persoonlijke sessiehistorie, waarnemingen, habitat-/bewegingsanalyse, tactiek en vangstkans moeten op hun eigen betekenis worden gebruikt. Een historische vangstkans mag niet zonder validatie als biologische correctie op de activiteitsscore worden geplakt.
+- De score moet per relevante periode kunnen worden berekend op basis van de beschikbare tijdspecifieke invoer. Een volledige geplande sessie moet als interval worden beoordeeld; het simpelweg kiezen van één tijdvak op basis van een representatief middelpunt is daarvoor onvoldoende.
+- Ontbrekende invoer, lage dekking, onzekerheid, bronkwaliteit en niet-gevalideerde aannames moeten zichtbaar blijven. Ontbrekende gegevens mogen niet ongemerkt een neutrale bonus, aftrek of schijnzekere totaalscore opleveren.
+
+### 183.2 Randvoorwaarden voor activering van scorebijdragen
+
+Een factor wordt pas numeriek geactiveerd wanneer de relevante relatie voldoende is onderbouwd voor de bedoelde soort/levensfase, respons, watertype en tijdschaal, én de invoerkwaliteit en evaluatiemethode zijn vastgelegd. Waar bewijs nog ontbreekt, blijft de factor zichtbaar als context of als expliciet niet-geactiveerde kandidaat. De bestaande bronregistry en eerdere factorinventaris blijven leidend; deze eis is geen opdracht om bronnen dubbel te registreren of ongefundeerde gewichten te kiezen.
+
+Voor iedere geactiveerde bijdrage moeten minimaal doelrespons, richting/vorm van het effect, toepassingsgebied, tijdsresolutie, interacties, onzekerheid, bronherkomst, ontbrekende-dataregel, versie en onafhankelijke validatiecriteria traceerbaar zijn. Gewichten, drempels en niet-lineaire effecten worden niet op basis van intuïtie ingevuld.
+
+### 183.3 Relatie met huidige implementatie
+
+De code-inspectie in werkonderdeel 7 bevestigt dat de huidige `activityScore` uitsluitend de voorlopige thermische watertemperatuurcurve gebruikt. Luchtdruk, wind, seizoen, tijd/licht, bewolking en neerslag leveren momenteel context en geen numerieke scorebijdrage. De huidige score is daarom een beperkte thermische prior, niet het gewenste geïntegreerde prognose-eindproduct.
+
+Dit productdoel wijzigt op zichzelf geen bestaande formule, curve, gewicht, drempel, biologische bronstatus of gebruikersdata. De verdere uitwerking moet eerst de factor-/respons-crosswalk, tijdsresolutie, gegevensdekking en validatievoorwaarden verbinden. De gebruiker heeft nadrukkelijk aangegeven dat alle prognoseonderdelen volledig moeten worden uitgewerkt zodat zij niet uitsluitend context blijven, maar daadwerkelijk kunnen bijdragen aan de score waar dat verantwoord kan.
