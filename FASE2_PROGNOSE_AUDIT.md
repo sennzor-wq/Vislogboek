@@ -5088,3 +5088,43 @@ Als een gebruiker de temperatuur al heeft gemeten vóórdat de startsnapshot wor
 De normale productwerkwijze blijft één optionele meting per sessie. De bestaande event-array en historische meerdere events blijven compatibel; er wordt geen harde één-event-databeperking ingevoerd. Er zijn geen code, schema, UI, gebruikersdata, snapshots, scores of temperatuurparameters gewijzigd.
 
 Volgende technische stap: controleer de precieze `autoSyncSessionOutcomeToSnapshot`- en sessie-updateflow, bepaal hoe de bestaande startsnapshot een expliciet toekomstig meetdoelmoment kan bewaren zonder de forecast-as-of-regel te schenden, en voeg gerichte tests toe voor meting vóór/na snapshot, targetTimestamp, één-op-één-koppeling en legacygedrag. De tijdtolerantie blijft een afzonderlijk open besluit; geen marge verzinnen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 179. Eigenaarcorrectie: historische sessie-informatie is het leerdoel; meten blijft optioneel (21 november 2026)
+
+**Status: productdoel verduidelijkt na read-only codecontrole.** De primaire bedoeling is dat de prognose vóór een toekomstige vissessie steeds beter gebruikmaakt van alle bruikbare informatie die al beschikbaar is uit eerdere sessies. De visser moet kunnen vissen. Een fysieke watertemperatuurmeting op de stek mag tijdens de sessie worden toegevoegd, maar is optioneel. Eén meting per sessie is een praktische normale mogelijkheid, geen verplichting of technische voorwaarde. Er komt geen dagelijkse meetplicht of meetprotocol.
+
+### 179.1 Twee verschillende doelen die niet mogen worden vermengd
+
+1. **Historische leer-/prognose-input:** eerdere sessies, hun geregistreerde omstandigheden en uitkomsten, plus geldige fysieke temperatuurmeetevents leveren informatie voor latere prognoses. Voor deze route hoeft een meting niet aan een vooraf opgeslagen prognosesnapshot of exact thermisch doelmoment gekoppeld te zijn. Een meting die tijdens een sessie wordt ingevoerd, blijft bruikbaar voor latere prognoses.
+2. **Temperatuurvoorspellings-evaluatie:** om de fout van een eerdere temperatuurinschatting te berekenen en eventueel een lokale correctie toe te passen, is een betrouwbare voorafgaande schatting met een latere fysieke meting nodig. De strikte forecast-as-of-, snapshot- en doelmomentregels uit §§175–178 zijn uitsluitend kwaliteitsregels voor deze aparte evaluatieroute. Ze mogen het verzamelen of gebruiken van historische meetinformatie niet blokkeren.
+
+Een meting die al bekend is bij het berekenen van dezelfde prognose mag uiteraard als actuele meetinput worden gebruikt. Die specifieke prognose is dan geen onafhankelijke schatting om met diezelfde meting te toetsen. De meting blijft wel geldige historie voor volgende prognoses.
+
+### 179.2 Wat de huidige code aantoonbaar doet
+
+- `collectHistoricalWaterTemperatureObservations` verzamelt geldige afzonderlijke meetevents uit `waterTemperatureMeasurements[]` en ondersteunt oudere scalaire sessiemetingen. Ook geldige snapshotmetingen worden opgenomen.
+- `deriveHistoricalWaterTemperatureProfile` dedupliceert dezelfde fysieke meting, sluit metingen na de doeldag uit en gebruikt een lokale seizoens-/maandselectie. Het huidige profiel vraagt minimaal drie metingen op dezelfde stek; de terugval naar vergelijkbare stekken vraagt minimaal vijf metingen van ten minste twee stekken.
+- `SessionModal` bewaart iedere fysieke meting als afzonderlijk event en spiegelt de meest recente bruikbare eventmeting naar de scalaire compatibiliteitsvelden. De thermische engine gebruikt die scalaire velden als recent meetanker; de historische profielroute gebruikt de afzonderlijke events.
+- De temperatuurkalibratie gebruikt een afzonderlijke subset van geldige vooraf voorspelde snapshotparen. Deze route is niet hetzelfde als de historische temperatuurprofielroute.
+- De persoonlijke vangstanalyse gebruikt bevestigde sessies en doelsoort-/locatiefilters. Voor het Poisson-vangsttempo zijn daarnaast bekende sessieduur en bruikbare vangstaantallen nodig. Tijdvakervaring gebruikt doelsoort, starttijdvak en bevestigde uitkomst.
+
+### 179.3 Wat nog niet automatisch wordt geleerd
+
+Niet elk veld dat tijdens een sessie wordt geregistreerd, beïnvloedt momenteel de prognose. De huidige persoonlijke vangstberekening gebruikt bijvoorbeeld geen gevalideerde correctie op basis van techniek, aas/voer of combinaties van weers- en stekomstandigheden. Dat zulke velden in sessies of reproduceerbare snapshotfeatures zijn opgeslagen, betekent niet dat ze al als voorspellende factor worden gebruikt.
+
+De volgende inhoudelijke audit richt zich daarom op een expliciete runtime-mapping:
+- daadwerkelijk gebruikte historische velden en hun precieze filters;
+- geregistreerde velden die nu alleen worden bewaard of als context dienen;
+- kandidaatvelden die met voldoende vergelijkbare sessies onderzocht kunnen worden;
+- datakwaliteit, ontbrekende waarden, vergelijkbaarheid en risico op confounding/dubbele telling.
+
+Pas daarna kan per kandidaat worden bepaald of deze verantwoord in de prognose kan worden benut. Geen automatische gewichten, causale claims of nieuwe verplichte invoer toevoegen.
+
+### 179.4 Besluit en afbakening
+
+De eerdere route-A-beslissing uit §177 blijft alleen van toepassing op de aparte temperatuurvoorspellings-evaluatie. De workflowformulering uit §178 mag niet worden gelezen als eis dat de visser eerst een sessie start en daarna pas mag meten, noch als eis om elke sessiemeting aan een exact forecastdoelmoment te koppelen voor historisch gebruik.
+
+Geen runtimecode, schema, IndexedDB, bestaande meetevents, snapshots, temperatuurcurves, scores, gewichten of gebruikersinvoer gewijzigd. Er wordt geen informatie verwijderd of samengevoegd buiten de bestaande deduplicatie van dezelfde fysieke meting. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+**Hervattingspunt:** voer de runtime-mapping van historische sessievelden uit en leg per veld vast of het al prognose-input is, alleen context is of een onderbouwde kandidaat voor later onderzoek is. Geen extra meetlast voor de visser.

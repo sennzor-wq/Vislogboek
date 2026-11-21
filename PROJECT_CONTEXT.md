@@ -2033,3 +2033,18 @@ Read-only codecontrole in audit §178 toont dat de huidige sessiestartflow een r
 Voor route A moet de sessiestartsnapshot zonder de fysieke meetwaarde van de te toetsen sessie worden berekend. Daarna wordt één optionele meting als event geregistreerd en aan de bestaande snapshotrelatie gekoppeld; de voorspelde waarde wordt niet dubbel opgeslagen. Bestaande meerdere eventrecords en legacygegevens blijven behouden. Er is geen runtimecode, UI, schema of gebruikersdata gewijzigd.
 
 Hervattingspunt: controleer de exacte snapshot-synchronisatie en sessie-updateflow, werk het expliciete thermische doelmoment en de meetvolgorde uit en voeg gerichte regressietests toe. De tijdtolerantie blijft open; geen willekeurige marge invoeren. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — correctie productdoel historische sessie-informatie (21 november 2026)
+
+De eigenaar verduidelijkt het primaire doel: de prognose vóór een nieuwe vissessie gebruikt de vooraf beschikbare omstandigheden én de opgebouwde informatie uit eerdere sessies om steeds bruikbaarder te worden. De visser moet kunnen vissen; sessieregistratie blijft praktisch en een fysieke watertemperatuurmeting is optioneel. Eén meting per sessie is een praktische mogelijkheid, geen verplichting, meetprotocol of voorwaarde voor prognose/leren. Meten tijdens een lopende sessie is volledig passend.
+
+Er moeten twee afzonderlijke datastromen worden onderscheiden:
+- Historische leer-/prognose-input: geldige sessiegegevens, vangstuitkomsten en fysieke temperatuurmeetevents mogen toekomstige prognoses voeden zodra ze zijn opgeslagen. Een temperatuurmeting hoeft hiervoor niet één-op-één aan een voorafgaande snapshot of exact doelmoment gekoppeld te zijn.
+- Temperatuurvoorspellings-evaluatie: alleen voor het berekenen van forecastfout en eventuele temperatuurkalibratie is een betrouwbare vergelijking tussen een vooraf opgeslagen schatting en een latere fysieke meting nodig. De eisen uit audit §§177–178 gelden uitsluitend voor deze evaluatieroute en mogen de historische leerroute, sessieregistratie of gebruikersworkflow niet blokkeren.
+
+Codecontrole bevestigt dat de historische temperatuurprofielcollector afzonderlijke meetevents verwerkt en dat de sessiemodal de meest recente bruikbare eventmeting tevens in de bestaande scalaire compatibiliteitsvelden spiegelt. De temperatuurprofielroute en de aparte snapshot-evaluatie hebben dus verschillende doelen. De persoonlijke vangstanalyse gebruikt bevestigde sessie-uitkomsten, doelsoort/locatie, bekende duur en geregistreerde vangstaantallen volgens afzonderlijke filters.
+
+Niet alle geregistreerde sessievelden beïnvloeden de prognose momenteel. Techniek, aas/voer en diverse omstandigheden worden deels bewaard voor context/reproduceerbaarheid, maar zijn niet automatisch gevalideerde voorspellende factoren. Vervolgwerk moet daarom expliciet inventariseren welke opgeslagen velden daadwerkelijk in de runtimeberekening worden gebruikt, welke alleen context zijn en welke pas na voldoende vergelijkbare sessies en passende validatie als kandidaat kunnen worden ingezet. Geen ongefundeerde gewichten of causale effecten toevoegen.
+
+Geen meetplicht, extra meetmoment, verplicht invoerveld, runtimecode, datamodel of historische gebruikersdata gewijzigd. De bestaande temperatuurbanden, voorlopige thermische prior en eerder vastgelegde informatie blijven behouden. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

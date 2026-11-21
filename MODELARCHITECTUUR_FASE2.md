@@ -1294,3 +1294,16 @@ De read-only controle van `SessionModal`, `createLiveSnapshotForSessionStart`, `
 Route A vereist daarom dat de startsnapshot voor de te toetsen meting zonder diezelfde fysieke meetwaarde wordt berekend. De meting wordt daarna als event opgeslagen en aan de bestaande sessiestartsnapshot gekoppeld; bij de normale werkwijze is er één optionele meting per sessie. De bestaande eventreeks en historische records blijven behouden; geen harde opslaglimiet van één event en geen dubbele opslag van voorspelde waarden.
 
 De startsnapshot moet bovendien een expliciet thermisch targetTimestamp bevatten dat vóór de fysieke meting is vastgelegd. De exacte manier waarop dit doelmoment aansluit op de sessiestart en de toegestane afstand tot measuredAt moeten nog worden uitgewerkt. Geen tijdmarge aannemen. Zie audit §178. Geen runtimewijziging of biologische validatie; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 148. Productgrens: leren van sessies versus temperatuurvalidatie (21 november 2026)
+
+De eigenaar verduidelijkt dat de prognose vóór een volgende sessie de vooraf beschikbare omstandigheden en opgebouwde historie uit eerdere sessies moet benutten. De gebruiker moet kunnen vissen; een temperatuurmeting op de stek is optioneel en kan tijdens de sessie worden toegevoegd. Eén meting per sessie is een praktische mogelijkheid, geen vereiste voor prognoseberekening of historisch leren.
+
+Architecturaal zijn twee routes gescheiden:
+- **Historische prognose-input:** sessie-uitkomsten, bruikbare sessievelden en afzonderlijke fysieke temperatuurmeetevents kunnen toekomstige prognoses voeden zonder event-to-snapshot-koppeling of exact thermisch doelmoment.
+- **Temperatuurfout-evaluatie/kalibratie:** alleen deze diagnostische route vereist een passende vooraf vastgelegde schatting en een latere fysieke meting. De regels uit §146–147 zijn daartoe beperkt en vormen geen gebruikersworkflow-eis.
+
+De huidige temperatuurprofielcollector verwerkt alle geldige meetevents; de thermische engine gebruikt daarnaast de meest recente bruikbare scalaire sessiemeting als meetanker. De persoonlijke vangstprognose gebruikt bevestigde sessies, doelsoort/locatie, duur en vangstaantallen. Andere vastgelegde velden zoals techniek en aas/voer worden niet automatisch als gevalideerde voorspellende correcties toegepast.
+
+Vervolg: maak een runtime-mapping van alle opgeslagen sessievelden naar daadwerkelijk gebruikte prognose-input, context-only of kandidaat voor later onderzoek. Nieuwe factoren worden pas geactiveerd na passende validatie; geen nieuwe verplichte velden, meetlast, ongefundeerde gewichten of causale aannames. Geen runtimewijziging. Fase 2 blijft open en Fase 3 geblokkeerd. Zie audit §179.
