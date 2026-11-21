@@ -439,3 +439,16 @@ Vastgesteld:
 De eerdere conclusie is dus aangescherpt: het geplande interval bestaat al in VisCoach; een echte prognosescore over dat interval ontbreekt. Geen parallel intervalobject nodig. Volgende stap is vaststellen hoe de bestaande intervalgrenzen als reproduceerbare modelinput kunnen worden verbonden aan segmentgewijze tijdvak-/weers-/temperatuurgegevens, inclusief ontbrekende dekking en meerdere kalenderdagen.
 
 Geen runtimecode gewijzigd, geen scoreformule of gewichten gewijzigd, geen tests uitgevoerd en geen biologische validatie geclaimd.
+
+
+
+### 8.7 FactorBreakdown-uitvoer versus werkelijke scorebijdrage
+
+Inspectie van `analyzeTimeSlot` en `src/types/index.ts` bevestigt dat ieder zichtbaar factorveld al een `FactorBreakdown` heeft met `score`, `impact`, `title`, `detail` en `dataAvailable`. De daadwerkelijke invulling is echter:
+- Thermische watertemperatuur: berekende deelscore op basis van thermische efficiëntie; dit is de enige actieve numerieke input voor `activityScore`.
+- Luchtdruk, wind, seizoen, tijd/licht en bewolking/neerslag: score 0 en impact neutraal; uitsluitend context in de huidige implementatie.
+- `dataAvailable` betekent alleen dat invoer aanwezig/bruikbaar is, niet dat de relatie biologisch gevalideerd is.
+
+Daarnaast bevat `DayPrognosis` aparte modules voor persoonlijke vangstkans/verwachte vangsten, aanwezigheid, thermische ontwikkeling, oeverwind, habitat/beweging, positionering en voorvoer. Deze meten verschillende responsen en zijn niet zonder meer onderling optelbaar.
+
+**Vervolgstap:** bouw de bestaande factorinventaris en research registry om tot een factor-/respons-crosswalk. Geen nieuwe bronnen verzamelen zolang de bestaande registry geen concrete bewijsleemte aantoont. Per factor/module de doelrespons, tijdsresolutie, lokale invoer, bewijsstatus, mogelijke interactie, scoregeschiktheid en validatievoorwaarde vastleggen.
