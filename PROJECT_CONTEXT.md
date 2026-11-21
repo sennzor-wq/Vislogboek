@@ -2024,3 +2024,12 @@ De eigenaar heeft route A gekozen: één concreet thermisch meetdoelmoment, met 
 Een meetevent telt alleen als forecast-evaluatiepaar wanneer het aan één immutable, vóór de fysieke meting vastgelegde voorspelling met expliciet targetTimestamp en correcte forecast-as-of kan worden gekoppeld. De koppeling verwijst bij voorkeur naar de bestaande snapshot, zodat voorspelde waarden niet onnodig dubbel worden opgeslagen. Legacy events zonder zo'n vooraf vastgelegde voorspelling blijven bruikbaar voor temperatuurprofielen, maar niet voor deze forecast-evaluatie. Route B (vier tijdvakvoorspellingen) is afgevallen.
 
 De concrete meet-/sessiestartworkflow en eventuele tijdtolerantie tussen doelmoment en meetmoment moeten nog technisch worden uitgewerkt; er wordt geen marge verzonnen. Dit besluit wijzigt nog geen runtimecode, schema, IndexedDB of gebruikersdata. Hervattingspunt: controleer de bestaande meetinvoer- en sessiestartflow en werk de minimale compatibele implementatie met regressietests uit. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+### Fase 2 — meetinvoerflow voor route A technisch afgebakend (21 november 2026)
+
+Read-only codecontrole in audit §178 toont dat de huidige sessiestartflow een reeds ingevoerde watertemperatuur meegeeft aan de thermische prognose. De engine gebruikt die waarde als meetanker; de opgeslagen startsnapshot zet `predictedWaterTemperature` in dat geval bewust op null. De huidige guard voorkomt daarmee een vals onafhankelijk evaluatiepaar, maar de snapshot is dan niet bruikbaar om diezelfde meting te toetsen.
+
+Voor route A moet de sessiestartsnapshot zonder de fysieke meetwaarde van de te toetsen sessie worden berekend. Daarna wordt één optionele meting als event geregistreerd en aan de bestaande snapshotrelatie gekoppeld; de voorspelde waarde wordt niet dubbel opgeslagen. Bestaande meerdere eventrecords en legacygegevens blijven behouden. Er is geen runtimecode, UI, schema of gebruikersdata gewijzigd.
+
+Hervattingspunt: controleer de exacte snapshot-synchronisatie en sessie-updateflow, werk het expliciete thermische doelmoment en de meetvolgorde uit en voeg gerichte regressietests toe. De tijdtolerantie blijft open; geen willekeurige marge invoeren. Fase 2 blijft open; Fase 3 geblokkeerd.

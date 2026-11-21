@@ -5058,3 +5058,33 @@ De technische koppeling moet waar mogelijk verwijzen naar de bestaande immutable
 Route B (vier opgeslagen tijdvakvoorspellingen) wordt niet verder uitgewerkt of gecombineerd met route A. Er worden geen extra meetmomenten, verplichte invoervelden, nieuwe dagelijkse metingen of tweede temperatuur-engine toegevoegd.
 
 Dit hoofdstuk legt het eigenaarbesluit en het minimale kwaliteitscontract vast. Het is nog geen runtime-implementatie: geen code, databasemigratie, gebruikersdata, bestaande snapshots, temperatuurcurves, scores, parameters of gewichten gewijzigd. Volgende stap: controleer de concrete meet-/sessiestartworkflow en werk de kleinste compatibele implementatie plus gerichte regressietests uit. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## 178. Concrete meetinvoerflow en onafhankelijkheid van de startsnapshot (21 november 2026)
+
+**Status: read-only controle van de bestaande invoer- en opslagketen.** Dit hoofdstuk verfijnt route A op basis van de daadwerkelijke code.
+
+### 178.1 Wat de huidige code doet
+
+- `SessionModal` laat fysieke temperatuurmeetevents invoeren in hetzelfde formulier waarmee een nieuwe sessie wordt gestart.
+- Bij het opslaan wordt de meest recente bruikbare meting doorgegeven aan `createLiveSnapshotForSessionStart` als `userWaterTemp` en `manualWaterTemperatureMeasurement`.
+- `createLiveSnapshotForSessionStart` gebruikt deze waarde in `createManualWaterTemperatureInput` én als actuele meting voor `calculateDayPrognosis`. De thermische engine kan deze meting dus als huidig meetanker gebruiken.
+- `savePrognosisSnapshot` slaat `predictedWaterTemperature` alleen op wanneer de prognose geen actuele gemeten watertemperatuur gebruikt. Bij een startsnapshot die met de zojuist ingevoerde fysieke meting is berekend, wordt `predictedWaterTemperature` daarom `null`; die snapshot vormt geen onafhankelijk temperatuurvoorspellingspaar.
+- De sessie-startsnapshot wordt vóór de daadwerkelijke sessiestart berekend en aan de sessie gekoppeld via `session.snapshotId`. De bestaande sessie-uitkomstsynchronisatie gebruikt de scalaire sessietemperatuurvelden om de daadwerkelijke meting aan die snapshot toe te voegen. Bij één meting per sessie is deze bestaande relatie een mogelijke minimale koppeling; de eventreeks blijft de bronregistratie.
+
+### 178.2 Consequentie voor route A
+
+De meting die een forecast moet toetsen, mag niet vooraf in de startsnapshot worden ingevoerd. Voor een valide paar moet de volgorde zijn:
+1. Bereken en bewaar de sessievoorspelling zonder de fysieke meetwaarde van diezelfde sessie.
+2. Leg in die immutable snapshot een expliciet thermisch targetTimestamp vast dat bij het beoogde meetmoment hoort.
+3. Start de sessie en voer de fysieke meting daarna in als afzonderlijk event.
+4. Koppel de ene sessiemeting aan de bestaande startsnapshot; sla de voorspelling niet nogmaals op in het meetevent.
+5. Laat evaluatie alleen toe als forecastTimestamp strikt vóór measuredAt ligt, targetTimestamp expliciet geldig is, locatie/sessie overeenkomen en het meetmoment binnen een later goedgekeurde tolerantie valt.
+
+Als een gebruiker de temperatuur al heeft gemeten vóórdat de startsnapshot wordt berekend, mag die meting als fysieke historie worden bewaard, maar zij kan niet achteraf als onafhankelijke toets van die startsnapshot worden gebruikt. De bestaande guard die bij een actuele meetinput `predictedWaterTemperature=null` opslaat, voorkomt dat dit ten onrechte als geldig paar wordt geteld.
+
+### 178.3 Afbakening en vervolg
+
+De normale productwerkwijze blijft één optionele meting per sessie. De bestaande event-array en historische meerdere events blijven compatibel; er wordt geen harde één-event-databeperking ingevoerd. Er zijn geen code, schema, UI, gebruikersdata, snapshots, scores of temperatuurparameters gewijzigd.
+
+Volgende technische stap: controleer de precieze `autoSyncSessionOutcomeToSnapshot`- en sessie-updateflow, bepaal hoe de bestaande startsnapshot een expliciet toekomstig meetdoelmoment kan bewaren zonder de forecast-as-of-regel te schenden, en voeg gerichte tests toe voor meting vóór/na snapshot, targetTimestamp, één-op-één-koppeling en legacygedrag. De tijdtolerantie blijft een afzonderlijk open besluit; geen marge verzinnen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

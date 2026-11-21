@@ -1285,3 +1285,12 @@ Voor temperatuurvalidatie hoort ieder gebruikt meetevent bij precies één immut
 Een oude sessiestartsnapshot zonder gegarandeerd targetTimestamp is niet automatisch geschikt. Een event zonder vooraf vastgelegde voorspelling blijft bruikbaar voor temperatuurprofielen, maar niet voor forecast-evaluatie. De exacte meetworkflow en een eventuele tijdtolerantie tussen targetTimestamp en measuredAt zijn nog niet vastgesteld; geen willekeurige marge invoeren. Route B en vier tijdvakvoorspellingen vallen buiten de gekozen scope. Zie audit §177.
 
 Dit is een goedgekeurd ontwerpbesluit, nog geen runtime-implementatie of biologische validatie. Geen score, gewicht, curve, verplicht invoerveld of extra meetactie toegevoegd. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## 147. Route A: feitelijke meetinvoerflow en no-leakage (21 november 2026)
+
+De read-only controle van `SessionModal`, `createLiveSnapshotForSessionStart`, `calculateDayPrognosis` en `savePrognosisSnapshot` laat zien dat een temperatuurmeting die al in het startsessieformulier is ingevoerd, momenteel als actuele meetinput aan de startsnapshotberekening wordt doorgegeven. De thermische engine gebruikt die meting als anker. De snapshot slaat in dat geval `predictedWaterTemperature=null` op omdat de uitkomst geen onafhankelijke modelschatting is. De huidige guard voorkomt dus een vals evaluatiepaar, maar de snapshot kan met die input de gewenste voorspelling niet leveren.
+
+Route A vereist daarom dat de startsnapshot voor de te toetsen meting zonder diezelfde fysieke meetwaarde wordt berekend. De meting wordt daarna als event opgeslagen en aan de bestaande sessiestartsnapshot gekoppeld; bij de normale werkwijze is er één optionele meting per sessie. De bestaande eventreeks en historische records blijven behouden; geen harde opslaglimiet van één event en geen dubbele opslag van voorspelde waarden.
+
+De startsnapshot moet bovendien een expliciet thermisch targetTimestamp bevatten dat vóór de fysieke meting is vastgelegd. De exacte manier waarop dit doelmoment aansluit op de sessiestart en de toegestane afstand tot measuredAt moeten nog worden uitgewerkt. Geen tijdmarge aannemen. Zie audit §178. Geen runtimewijziging of biologische validatie; Fase 2 blijft open en Fase 3 geblokkeerd.
