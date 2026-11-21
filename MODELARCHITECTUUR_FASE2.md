@@ -1307,3 +1307,19 @@ Architecturaal zijn twee routes gescheiden:
 De huidige temperatuurprofielcollector verwerkt alle geldige meetevents; de thermische engine gebruikt daarnaast de meest recente bruikbare scalaire sessiemeting als meetanker. De persoonlijke vangstprognose gebruikt bevestigde sessies, doelsoort/locatie, duur en vangstaantallen. Andere vastgelegde velden zoals techniek en aas/voer worden niet automatisch als gevalideerde voorspellende correcties toegepast.
 
 Vervolg: maak een runtime-mapping van alle opgeslagen sessievelden naar daadwerkelijk gebruikte prognose-input, context-only of kandidaat voor later onderzoek. Nieuwe factoren worden pas geactiveerd na passende validatie; geen nieuwe verplichte velden, meetlast, ongefundeerde gewichten of causale aannames. Geen runtimewijziging. Fase 2 blijft open en Fase 3 geblokkeerd. Zie audit §179.
+
+
+
+## 149. Gewenste geïntegreerde prognosescore — productcontract (21 november 2026)
+
+De gewenste eindarchitectuur is een uitlegbare, geïntegreerde prognosescore waarin alle relevante prognoseonderdelen een expliciet bepaalde rol hebben. Het huidige thermische scoregetal is nadrukkelijk een tussenstap/voorlopige thermische prior en mag niet worden gepresenteerd alsof het al de volledige prognose vertegenwoordigt.
+
+**Architectuurprincipes**
+1. Iedere relevante factor krijgt een expliciete status: actieve numerieke bijdrage, conditionele/interactieve bijdrage, alleen context in afwachting van bewijs, of gemotiveerd uitgesloten. Context-only is dus een tijdelijke status wanneer een factor nog niet verantwoord kan worden geactiveerd, niet automatisch het gewenste eindstation.
+2. Een factor mag alleen bijdragen aan het eindgetal wanneer het bewijs aansluit op de beoogde respons, soort/levensfase, watertype en tijdschaal. Een effect op groei of juveniele voedselconsumptie wordt niet zonder meer een effect op volwassen veldvangst.
+3. Houd thermische activiteitspotentie, voedings-/foerageerrespons, aanwezigheid/beweging, persoonlijke sessie-uitkomsten en vangstkans als afzonderlijke respons-/bewijsdomeinen herkenbaar. Integratie in één prognose vereist een expliciet gevalideerd contract; geen directe vermenging of ongevalideerde vangstkanscorrectie.
+4. Tijdafhankelijke factoren worden op hun beschikbare tijdsresolutie beoordeeld. Een geplande sessie is een tijdsinterval, mogelijk over meerdere dagdelen of middernacht heen; tijdvakgemiddelden mogen niet dubbel worden geteld en mogen niet doen alsof er fijnmaziger biologische informatie bestaat dan de invoer levert.
+5. Toon scorebijdragen, bronstatus, dekking en onzekerheid zodanig dat een gebruiker kan begrijpen waarom de prognose verandert. Ontbrekende data worden niet als neutraal biologisch effect geïnterpreteerd.
+6. Persoonlijke vangsthistorie en tactische modules blijven beschikbaar als eigen informatielagen. Zij worden alleen onderdeel van de geïntegreerde numerieke score wanneer daarvoor een apart, toetsbaar en onafhankelijk gevalideerd modelcontract bestaat.
+
+**Huidige grens:** de code-inspectie toont dat alleen de voorlopige thermische efficiëntiecurve de numerieke `activityScore` voedt. De overige getoonde factoren zijn context. Deze architectuurbeschrijving is een vastlegging van het door de eigenaar gewenste einddoel, niet een goedkeuring van nieuwe factorgewichten of een besluit om alle factoren zonder bewijs geforceerd in de score te stoppen. Fase 2 moet per factor aantonen hoe deze verantwoord kan worden geactiveerd, of waarom activering nog geblokkeerd is.
