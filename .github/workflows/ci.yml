@@ -130,6 +130,8 @@ jobs:
 
       - name: VisCoach session advice tests
         run: bun run tsx test-session-coach.ts
+      - name: Prebait planner regression tests
+        run: bun run tsx test-prebait-engine.ts
       - name: VisCoach live reassessment integration tests
         run: bun run tsx test-session-coach-integration.ts
 
