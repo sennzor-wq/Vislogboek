@@ -304,3 +304,57 @@ De classificatie gebruikt de bestaande `waterTemperatureStatus` en `estimatedRan
 Quality Gate #1051 is volledig geslaagd op exact `970964ab5892fd241e051d62462a41c0113d2042` (43 succesvolle stappen, 0 gefaald), inclusief typecheck, regressietests en productiebuild. Er is geen geïsoleerde React-componenttestinrichting in de repository; daarom is de UI-voorwaarde statisch gecontroleerd en door de volledige typecheck/build geborgd.
 
 Geen wijziging aan numerieke score, modelcurve, gewichten, database, gebruikersinvoer of VisCoach-scorelogica. Dit verbetert de presentatie van onzekerheid, niet de biologische voorspelvaliditeit.
+
+
+## Werkonderdeel 7 — read-only runtimecontrole score-, tijdvak- en sessieduurkoppeling (21 november 2026)
+
+**Roadmapbasis:** Fase 2; vervolg op audit §182, architectuur §148 en werkonderdeel 6.  
+**Type werk:** read-only codecontrole van de bestaande Prognose-engine en Prognosepagina. Geen nieuw biologisch bronnenonderzoek en geen runtimewijziging.  
+**Gecontroleerde basis:** main op `225fce27f3f2ae0077ce4d0fa3feeebc74c8f97b`.  
+**Status:** controle uitgevoerd; bevindingen vastgelegd; vervolgonderzoek afgebakend.
+
+### 7.1 Wat de huidige numerieke score daadwerkelijk meet
+
+In `src/services/prognosisEngine.ts`, functie `analyzeTimeSlot`:
+
+- De huidige numerieke `activityScore` wordt uitsluitend berekend uit de voorlopige soortspecifieke thermische efficiëntiecurve voor watertemperatuur: `1 + 9 × thermalEff^0.85`, begrensd op 1–10 en afgerond op één decimaal.
+- De overige zichtbare factoren — luchtdruk, wind, seizoen, tijdstip/licht, bewolking en neerslag — leveren momenteel context en krijgen geen numerieke bonus of aftrek.
+- Bij ontbrekende watertemperatuur wordt intern een neutrale placeholder gebruikt om de berekening technisch af te ronden, maar `activityScoreAvailable=false` voorkomt dat die placeholder als geldige score wordt gepresenteerd.
+- Een geschatte watertemperatuur kan de score wel voeden. Voor weer-only schattingen zonder lokale referentie is de hoge, niet-gekwantificeerde onzekerheid inmiddels zichtbaar gemaakt in audit §181–182.
+
+Dit is dus geen samengestelde score van alle prognosefactoren en geen gevalideerde voedings-, aanwezigheids- of vangstkansscore.
+
+### 7.2 Hoe de dag- en tijdvakscore nu worden bepaald
+
+- De engine berekent vier afzonderlijke tijdvakuitkomsten: Nacht, Ochtend, Middag en Avond.
+- Voor ieder tijdvak wordt, waar mogelijk, een thermische toestand berekend op het representatieve midden van de beschikbare uurlijkse forecastwaarden. Dit zijn vier tijdstipgerichte berekeningen vanaf dezelfde beschikbare meet-/historische basis, geen vier onafhankelijke biologische modellen.
+- De dagscore is het rekenkundig gemiddelde van de vier tijdvak-activiteitsscores. De dagscore wordt als niet beschikbaar gemarkeerd zodra één van de vier tijdvakken geen bruikbare thermische score heeft.
+- Het thermisch gunstigste tijdvak wordt gezocht binnen de nog niet verstreken of actieve tijdvakken. Een verschil van ten minste 0,1 punt tussen beschikbare scores wordt momenteel als betekenisvol behandeld; anders wordt geen winnaar aangewezen.
+- De score is daarmee een thermische rangschikking van tijdvakken, niet een beoordeling van de volledige geplande vissessie.
+
+### 7.3 Wat sessieduur en gekozen starttijd nu wel en niet doen
+
+- `sessionDurationHours` wordt begrensd en gebruikt in de persoonlijke Poisson-vangkans en de verwachte vangstopbrengst. Deze duur verandert de thermische `activityScore` of de rangschikking van de vier tijdvakken niet.
+- De persoonlijke vangstkans blijft een afzonderlijke historische baseline op basis van vergelijkbare sessies, bekende visduur en doelsoortvangsten. Thermische activiteit wordt niet als numerieke correctie op die vangkans toegepast.
+- `targetTimeSlot` kan aan de engine worden meegegeven voor tijdgevoelige tactische weerscontext. De code documenteert expliciet dat dit de dagbrede beste-tijdvakscore niet verandert.
+- De Prognosepagina rekent de dagprognose opnieuw wanneer de gekozen sessieduur verandert, maar de thermische tijdvakscore blijft inhoudelijk onafhankelijk van die duur.
+- De huidige code berekent dus nog niet de thermische score over het volledige door de gebruiker gekozen interval (starttijd plus duur), en vergelijkt dat interval nog niet rechtstreeks met een alternatief interval.
+
+### 7.4 Wat bewust niet is aangepast
+
+Geen scoreformule, thermische curve, gewicht, grenswaarde, biologische bronstatus, persoonlijke vangstkans, tijdvakindeling, database, snapshot, gebruikersdata of gebruikersinvoer gewijzigd. Er is geen nieuwe biologische informatie gezocht of dubbel geregistreerd. Dit werkonderdeel is uitsluitend code-inspectie; geen implementatie, testuitvoering of biologische validatie geclaimd.
+
+### 7.5 Eerstvolgende uitvoering
+
+**Werkonderdeel 8 — ontwerp- en contractcontrole voor een sessie-intervalscore en vergelijking met alternatief.**
+
+Volgorde:
+1. Breng de bestaande typen en gegevenscontracten voor `DayPrognosis`, `TimeSlotAnalysis`, sessie-starttijd, sessieduur en VisCoach-input volledig in kaart.
+2. Controleer hoe een gekozen interval dat meerdere bestaande tijdvakken overlapt, zonder dubbele telling of verzonnen tijdresolutie kan worden beschreven.
+3. Leg vast welke bestaande gegevens werkelijk tijdspecifiek beschikbaar zijn en welke alleen als context gelden.
+4. Onderzoek hoe de bestaande persoonlijke vangstbaseline naast — en nadrukkelijk niet vermengd met — thermische activiteitspotentie kan worden getoond.
+5. Formuleer pas daarna een voorstel voor de vergelijking tussen het gekozen interval en een alternatief, inclusief de reeds door de eigenaar gewenste regel: bij marginale verschillen de gebruikersplanning respecteren; alleen bij een aantoonbaar betekenisvol verschil een verschuiving adviseren.
+
+**Geen nieuwe gewichten, drempels, biologische correcties of scoreformules invoeren voordat de bestaande contracten volledig zijn gecontroleerd en eventuele productkeuzes aan de eigenaar zijn voorgelegd.** Hergebruik de bestaande biologische bronregistratie; nieuw literatuuronderzoek is alleen toegestaan wanneer een concreet, nog onbeantwoord bewijsprobleem wordt aangetoond.
+
+Fase 2 blijft open en Fase 3 blijft geblokkeerd.
