@@ -401,6 +401,37 @@ async function run14Scenarios() {
     '8.3.4 Forecastdata opgehaald ná het berekeningstijdstip wordt niet in de prognose gebruikt'
   );
 
+  // 8.4 Weer-only water estimate without a local water reference must retain its uncertainty in every visible factor summary.
+  const weatherOnlyForecasts = makeHourlySeries('2026-10-20', 5, () => 14, () => 50, 5);
+  const weatherOnlyPrognosis = calculateDayPrognosis(
+    '2026-10-23',
+    weatherOnlyForecasts,
+    'Karper',
+    [],
+    '2026-10-23T09:00:00.000Z',
+    null,
+    thermalReferenceTime,
+    { location: locLokkershoek }
+  );
+  const weatherOnlyMorning = weatherOnlyPrognosis.timeSlots.Ochtend;
+  assert(
+    weatherOnlyPrognosis.thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather' &&
+      weatherOnlyPrognosis.thermalAnalysis.estimatedWaterTemp !== null &&
+      weatherOnlyPrognosis.thermalAnalysis.estimatedRange === null,
+    '8.4a Weer-only watertemperatuurschatting blijft herkenbaar zonder gefingeerde onzekerheidsmarge'
+  );
+  assert(
+    weatherOnlyMorning.temperatureFactor.detail.includes('Indicatieve weerafgeleide watertemperatuurschatting') &&
+      weatherOnlyMorning.temperatureFactor.detail.includes('niet-gekwantificeerde onzekerheid') &&
+      !weatherOnlyMorning.temperatureFactor.detail.includes('via thermische traagheid'),
+    '8.4b Thermische factor benoemt de werkelijke bron en hoge onzekerheid van een weer-only schatting'
+  );
+  assert(
+    weatherOnlyPrognosis.waterTemperatureInfo.note.includes('geen kwantificeerbare onzekerheidsmarge') &&
+      !weatherOnlyPrognosis.waterTemperatureInfo.note.includes('undefined'),
+    '8.4c Zichtbare temperatuurtoelichting toont geen fictieve [undefined–undefined]-band'
+  );
+
   // 9. Ontbrekende of onvolledige historische weergegevens
   console.log('\n--- SCENARIO 9: Ontbrekende of onvolledige weerdata ---');
   const s9 = analyzeWaterThermalDevelopment('2026-10-23', [], { location: locLokkershoek });

@@ -468,11 +468,19 @@ function analyzeTimeSlot(
       thermalScoreBandDetail = ` Indicatieve thermische scoreband op basis van de geschatte watertemperatuurband (${rangeMin.toFixed(1)}–${rangeMax.toFixed(1)} °C): ${scoreMin.toFixed(1)}–${scoreMax.toFixed(1)}/10. Dit is alleen de doorwerking van watertemperatuuronzekerheid, geen statistisch betrouwbaarheidsinterval; onzekerheid in de voorlopige soortcurve is niet inbegrepen.`;
     }
   }
+  const estimatedTemperatureBasis =
+    thermalAnalysis?.waterTemperatureStatus === 'estimated_from_measurement'
+      ? 'Gebaseerd op een recente lokale watertemperatuurmeting en de beschikbare weersontwikkeling.'
+      : thermalAnalysis?.waterTemperatureStatus === 'estimated_from_history'
+        ? 'Gebaseerd op een historisch watertemperatuurprofiel en de beschikbare weersontwikkeling.'
+        : thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather'
+          ? 'Indicatieve weerafgeleide watertemperatuurschatting zonder lokale waterreferentie; de absolute temperatuur heeft hoge, niet-gekwantificeerde onzekerheid.'
+          : 'Gebaseerd op een modelschatting waarvan de bronstatus niet nader is vastgelegd.';
   const tempDetailText = (!hasKnownWaterTemp
     ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'
     : tempSource === 'gemeten'
       ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).'
-      : thermalResult!.description + ' (Gebaseerd op geschatte watertemperatuur via thermische traagheid).') + ` ${thermalScoreBandDetail} ${thermalEvidenceDetail}`;
+      : thermalResult!.description + ` (${estimatedTemperatureBasis})`) + ` ${thermalScoreBandDetail} ${thermalEvidenceDetail}`;
   const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Thermische activiteitspotentie', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
@@ -1325,7 +1333,9 @@ export function calculateDayPrognosis(
         thermalAnalysis.hasMeasuredWaterTemp && thermalAnalysis.measuredWaterTemp !== null
           ? `Gemeten watertemperatuur: ${thermalAnalysis.measuredWaterTemp} °C (directe stekmeting voor actuele situatie).`
           : thermalAnalysis.estimatedWaterTemp !== null
-          ? `Watertemperatuur niet gemeten; modelschatting is ~${thermalAnalysis.estimatedWaterTemp} °C (bereik [${thermalAnalysis.estimatedRange?.[0]}–${thermalAnalysis.estimatedRange?.[1]} °C], trend: ${thermalAnalysis.trend.toLowerCase()}).`
+          ? `Watertemperatuur niet gemeten; modelschatting is ~${thermalAnalysis.estimatedWaterTemp} °C${thermalAnalysis.estimatedRange
+            ? ` (geschatte band: ${thermalAnalysis.estimatedRange[0]}–${thermalAnalysis.estimatedRange[1]} °C)`
+            : ' (geen kwantificeerbare onzekerheidsmarge beschikbaar)'}; trend: ${thermalAnalysis.trend.toLowerCase()}.`
           : 'Geen watertemperatuur gemeten of verantwoord geschat; luchttemperatuur wordt niet als vervanging gebruikt.',
     },
     pressureTrendInfo: {
