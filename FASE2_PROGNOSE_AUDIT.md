@@ -5873,3 +5873,17 @@ De testmutatie verandert na targetTime luchttemperatuur, bewolking, wind, zonnes
 **Conclusie:** de intervalgrenzen bestaan al in snapshot- en evaluatiecontracten; de minimale volgende wijziging is ze ook expliciet op te nemen in `PrognosisInputContext`, met dezelfde canonieke ISO-waarden en optionele backward-compatible velden. Eerst test-first valideren; nog geen segmentatiehelper of intervalscore implementeren.
 
 Geen runtimecode, types, database, snapshots, fingerprintdata of gebruikersdata gewijzigd. De targetTime-as-of-poort uit §§195–196 is groen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### 197.5 Minimale contextimplementatie en teststatus
+
+De contractuitbreiding is nu minimaal geïmplementeerd op de auditbranch:
+- `PrognosisInputContext` heeft optionele `targetWindowStart` en `targetWindowEnd`-velden gekregen; bestaande snapshots blijven daarmee structureel compatibel.
+- `buildVisCoachPlan` normaliseert start/einde één keer naar `targetWindowStart`/`targetWindowEnd` en gebruikt exact dezelfde waarden voor context, fingerprintinput, pending snapshot en geretourneerd plan.
+- De bestaande top-level snapshotvelden en de bestaande evaluatiefallback zijn niet gewijzigd.
+- `historyFingerprint`, databaseschema, migraties, scoreberekening en intervalsegmentatie zijn niet gewijzigd.
+
+In `test-session-snapshot-commit.ts` is een regressietest toegevoegd die de echte VisCoach-planbuilder met een lokale weerscache uitvoert. De test controleert context/top-level gelijkheid, bekende duur, exacte fingerprintpayload, fingerprintwijziging bij een ander eindmoment en het behoud van een onbekende eindtijd als `null`/onbekende duur. De bestaande legacy snapshotfixtures blijven zonder deze optionele velden bestaan.
+
+**Validatiestatus:** code en tests zijn vastgelegd; de Quality Gate voor de actuele commit is nog niet bevestigd. Geen succesclaim totdat typecheck en volledige Quality Gate op de exacte PR-head groen zijn.
