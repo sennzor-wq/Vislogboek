@@ -1476,3 +1476,13 @@ De regressietest in `test-session-snapshot-commit.ts` controleert de echte planb
 Audit §198 legt het bestaande invoer- en rekengedrag vast. De `datetime-local`-velden worden als runtime-/apparaatlokale wall time geparseerd; de runtimezone wordt in `PrognosisInputContext.timezone` bewaard. Daarna worden de grenzen naar absolute ISO UTC-instanties genormaliseerd. De prognosekalender, daggrenzen, tijdvakken en segmentlabels gebruiken expliciet `Europe/Amsterdam`.
 
 De segmentatiehelper gebruikt daarom uitsluitend absolute instanties voor duur en overlap, en expliciete Amsterdamse conversie voor kalender-/tijdvakgrenzen. DST verandert de elapsed duur; die absolute duur is leidend. Het bestaande invoergedrag op apparaten buiten Amsterdam wordt niet gewijzigd zonder apart UX-/productbesluit. Zie audit §198.
+
+
+
+## 164. Pure tijdsegmentatie voor geplande prognose-intervallen
+
+Audit §199 introduceert `segmentPrognosisInterval` in `prognosisIntervalEngine.ts`. De helper splitst een bekend interval op absolute uurgrenzen, behoudt gedeeltelijke overlapduur, labelt segmenten met Amsterdamse kalenderdatum en bestaand tijdvak en koppelt alleen een forecastsample voor het absolute uur waarin het segment valt.
+
+Ontbrekende uurstappen worden expliciet onbekend; samples worden niet geïnterpoleerd of over gaten doorgetrokken. Dubbele absolute uurstempels worden ambigu/ontbrekend behandeld. Een onbekende eindtijd levert geen segmenten of gefabriceerde duur; een interval langer dan 24 verstreken uren wordt geweigerd.
+
+De dekkingratio is alleen tijdsdekking van forecastrecords, niet de beschikbaarheid van iedere factor. De helper berekent geen factorbijdrage, biologische score of advies. De testmatrix omvat gedeeltelijke uren, tijdvak-/middernachtgrenzen, ontbrekende stappen, DST, dubbele samples en ongeldige/overlange intervallen. Laatste testuitbreiding wacht nog op Quality Gate; zie audit §199.
