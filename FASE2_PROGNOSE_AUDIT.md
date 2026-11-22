@@ -5677,3 +5677,68 @@ De consistentie-review in §191.2 noemde voorvoergrammen en confidence-gating no
 De regel in VISLOGBOEK_VERBETERPLAN.md dat punt 5 nog startklaar is, is verouderd. Punt 5 is al afgesloten in §170. De volgende nieuwe technische poort uit deze audit is de strikte targetTime-as-of-invariant in §192.2, vóór intervalscoring. De bestaande normalisatie-/coverage-architectuur in §171 en label-/evaluatiematrix in §§172–173 blijven leidend; deze worden niet opnieuw ontworpen.
 
 Geen engineparameters, gramwaarden, confidence-regels, UI, gebruikersdata of code gewijzigd. Geen nieuwe tests uitgevoerd. Deze correctie heropent punt 5 niet; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 194. Gerichte as-of-audit van thermische targetTime en regressietestvoorstel (22 november 2026)
+
+**Scope:** read-only code- en testinspectie van waterThermalEngine.ts en test-thermal-and-prognosis.ts. Geen code- of testwijziging.
+
+### 194.1 Wat al correct tijdgebonden is
+
+- Een meetanker ná het gevraagde doelmoment wordt uitgesloten.
+- De ankergestuurde reeks weatherSinceAnchor bevat uitsluitend geldige weeruren ná het meetanker en tot en met estimationTargetMs, gesorteerd op absolute tijd.
+- Bij een bekend meetanker, bekende waterdiepte en voldoende weersdekking wordt de uiteindelijke thermische toestand stap voor stap met die chronologische reeks bijgewerkt.
+- Forecastdata waarvan de payload-as-of aantoonbaar later is dan het berekeningstijdstip wordt door de bestaande prognoseketen geweigerd.
+
+Dit zijn bestaande waarborgen en moeten bij een correctie behouden blijven.
+
+### 194.2 Gevonden targetTime-afwijking in fallback- en contextpaden
+
+Na de chronologische weatherSinceAnchor-selectie bouwt de engine ook dagbrede kenmerken op:
+- dayAvg, dayMin en dayMax gebruiken alle geldige temperatuururen van de volledige doeldag;
+- dayAvgWind gebruikt alle geldige winduren van de doeldag;
+- zonnestraling, bewolking, dauwpunt en verdampingspotentieel gebruiken dagbrede of volledige 08:00–18:00-vensters;
+- de 24-/72-uursgemiddelden worden berekend rond 12:00 lokale doeldag, niet rond het expliciete targetTime.
+
+Deze dagbrede kenmerken worden gebruikt voor trend-/contextuitvoer en in de fallbackschatting zonder passend ankergestuurd pad. Daardoor is de temperatuuruitvoer niet voor alle invoercombinaties strikt invariant voor weersuren ná targetTime. Bij een vroeg doelmoment kunnen latere uren van dezelfde dag in dayAvg en de noon-gecentreerde vensters terechtkomen; bij een doelmoment na 12:00 zijn de rolling windows niet exact de 24/72 uur vóór dat doelmoment.
+
+**Reikwijdte:** dit bewijst niet dat elke bestaande tijdvaktemperatuur fout is. De normale ankergestuurde route met bekende diepte en voldoende dekking verwerkt de temperatuur chronologisch tot het doelmoment. De concrete zwakke plekken zijn de weather-only/historisch-profiel-fallbacks, de route met onbekende diepte en onvoldoende ankerdekking, en dagbrede context die als tijdstipcontext kan worden gelezen.
+
+### 194.3 Wat de huidige test wel en niet bewijst
+
+In test-thermal-and-prognosis.ts scenario 8.3 wordt één stabiele forecastreeks met een echt meetanker gebruikt voor middag, avond en volgende ochtend. Dit test gedeeld meetanker, chronologische ankergestuurde verwerking en het ontbreken van een abrupte temperatuurval. Scenario 8.3.4 test dat een forecastpayload die na calculatedAt is opgehaald niet wordt gebruikt.
+
+Scenario 8.4 test een weather-only schatting met constante temperatuur, wind en bewolking. Deze tests wijzigen geen forecasturen ná targetTime terwijl de uren tot targetTime identiek blijven. Zij bewijzen daarom niet dat een vroegere doeltemperatuur onafhankelijk is van latere forecasturen.
+
+### 194.4 Vereiste metamorfische regressietest
+
+Maak voor hetzelfde targetDate, targetTime, calculatedAt, forecastAsOf, locatie en overige invoer twee forecastreeksen:
+- reeks A: de volledige basisreeks;
+- reeks B: identiek tot en met targetTime, maar met sterk afwijkende temperatuur, wind, bewolking en straling uitsluitend ná targetTime.
+
+De volgende tijdspecifieke uitkomsten moeten in beide runs gelijk blijven: estimatedWaterTemp, estimatedRange, waterTemperatureStatus, anchorMeasurementTimestamp en de thermische factor-/activityScore op dat doelmoment. Een afzonderlijke dagbrede samenvatting mag veranderen, maar moet als dagcontext herkenbaar blijven en mag de eerdere thermische toestand niet beïnvloeden.
+
+Voer deze invariant uit voor minimaal:
+1. vers meetanker + bekende waterdiepte + volledige dekking;
+2. oud meetanker + bekende diepte + voldoende dekking;
+3. geen meetanker + historisch temperatuurprofiel;
+4. geen meetanker + weer-only fallback met voldoende voorafgaande historie;
+5. meetanker + onbekende diepte;
+6. meetanker + bekende diepte maar onvoldoende dekking, inclusief de fallback die daarna wordt gekozen;
+7. targetTime vóór 12:00, exact 12:00 en na 12:00;
+8. ontbrekende uren en beide DST-overgangen met absolute tijdstempels;
+9. forecastAsOf vóór/na calculatedAt, los van de targetTime-cutoff.
+
+Aanvullende rolling-windowassertions moeten bewijzen dat 24/72 uur eindigt op het exacte targetTime, niet op 12:00. Uren na targetTime mogen niet in die historische vensters worden opgenomen.
+
+### 194.5 Minimaal correctieprincipe
+
+- Houd de bestaande canonieke waterThermalEngine en de correcte ankergestuurde chronologische route intact.
+- Scheid dagbrede beschrijvende statistiek van tijdstipgebonden toestandsberekening.
+- Laat alle tijdstipgebonden forcings en rolling windows eindigen op het gevraagde doelmoment.
+- Wanneer een fallback onvoldoende voorafgaande dekking heeft, gebruik geen latere uren om de eerdere toestand te reconstrueren; behoud de bestaande onbekend-/historisch-profiel-/ruime-onzekerheidsstatus volgens expliciete regels.
+- Pas geen nieuwe tijdconstanten, diepteklassen, temperatuurcorrecties of biologische gewichten toe.
+
+**Vervolg:** de testgevallen zijn nu inhoudelijk afgebakend. De eerstvolgende codehandeling zou een gerichte test-first wijziging in de bestaande engine zijn, gevolgd door de minimale correctie die nodig is om de invarianten te laten slagen. Daarvoor is een normale codewijzigingsworkflow nodig; deze read-only audit heeft geen branch, code of tests aangepast.
+
+Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
