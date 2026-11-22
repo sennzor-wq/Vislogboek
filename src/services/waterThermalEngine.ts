@@ -195,7 +195,7 @@ export function analyzeWaterThermalDevelopment(
   const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
 
   // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
-  const targetTimeMs = estimationTargetMs;
+  const targetTimeMs = hasValidTargetTime ? estimationTargetMs : targetDateMs;
 
   // Forecasts in vensters vóór de doeldag
   const past24hForecasts = forecasts.filter((h) => {
