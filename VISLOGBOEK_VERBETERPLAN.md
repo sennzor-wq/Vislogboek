@@ -1156,4 +1156,4 @@ De eerste testvariant bracht twee bestaande tests over gelijke tijdvaksscores aa
 
 Scenario 8.6 is test-first uitgebreid met onbekende diepte, historische metingen die ná het doelmoment plaatsvinden, onvoldoende weerdekking, expliciete doelmomenten 08:00/12:00/15:00, een ontbrekend uur en de Amsterdamse lente- en herfst-DST-overgang. De uitbreiding staat in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. Alleen `test-thermal-and-prognosis.ts` is in deze stap aangepast; productiecode is ongemoeid gelaten.
 
-**Status:** aanvullende Quality Gate nog niet bevestigd. Geen testresultaat wordt vooraf als geslaagd vastgelegd. Bij eventuele failures eerst de semantiek en het testfixture onderzoeken; pas daarna minimale correcties overwegen. Zie audit §196. Fase 2 blijft open en Fase 3 geblokkeerd.
+**Status:** GitHub Actions Quality Gate run 1107 is volledig groen. Scenario 8.5/8.6 slagen; kernprognose-/thermische tests: 80 geslaagd, 0 mislukt. De expliciet geplande as-of-randgevallenmatrix is daarmee gevalideerd. Dit is geen formele afronding van Fase 2: overige auditpunten en formele acceptatie blijven vereist. Fase 3 blijft geblokkeerd. Zie audit §196.
