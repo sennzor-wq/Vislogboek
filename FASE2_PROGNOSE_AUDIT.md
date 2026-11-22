@@ -5371,3 +5371,50 @@ De eerste crosswalk bevestigt dat het geïntegreerde einddoel niet bereikt wordt
 De volgende auditstap is een gerichte contractcontrole van de kandidaat voedings-/foerageerlaag: per soort vaststellen welke directe responsrecords de service teruggeeft, welke contextfilters al bestaan, welke tijdvak-/seizoensresolutie werkelijk beschikbaar is en welke ontbrekende invoer een numerieke uitspraak verhindert. Daarna volgt een vergelijkbare contractcontrole van persoonlijke vangstkans en lokale aanwezigheid/habitat. Geen nieuwe literatuurzoektocht tenzij deze controles een concreet ontbrekend bewijsprobleem aanwijzen.
 
 **Niet gewijzigd:** geen runtimecode, types, scoreformule, gewichten, drempels, temperatuurcurve, bronstatus, database, snapshots, UI, VisCoach-advies of gebruikersdata. Geen tests uitgevoerd en geen biologische validatie geclaimd. Werkonderdeel 8 blijft open; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## 187. Contractcontrole voedings-/foerageerevidence-service (22 november 2026)
+
+**Scope:** read-only controle van `feedingEvidenceService.ts`, `dielBehaviorEvidenceService.ts`, registry-query-/approvalfuncties en soorttypen. Geen literatuuronderzoek of runtime-aanpassing.
+
+### 187.1 Feitelijke werking
+
+- `getSpeciesFeedingEvidenceContext(species)` groepeert vijf afzonderlijke gemeten responsen: `feeding_intensity`, `feeding_rhythm`, `foraging_behavior`, `diet_composition` en `prey_selection`.
+- De onderliggende `getResearchByOutcome` accepteert zowel soortspecifieke records als generieke records met een lege `species`-array.
+- De service filtert niet automatisch op levensfase, watertype, seizoen, habitat, onderzoeksopzet, voerregime of lokale toepasbaarheid. De individuele bronbeperkingen moeten dus vóór eventuele modeltoepassing worden beoordeeld.
+- `scope` classificeert alleen de literatuurdekking (direct-feeding, foraging-only, diet-only of none); het is geen voorspelling dat vis op de gekozen dag eet.
+- `approvedFeedingEvidence` bevat alleen expliciet goedgekeurde records met bewijssterkte strong/moderate. De huidige registry heeft 0 goedgekeurde records, dus deze lijst is leeg.
+- `getSpeciesDielBehaviorEvidenceContext` neemt uitsluitend expliciet soortgebonden records mee en houdt `feeding_rhythm`, `locomotor_activity` en `habitat_use` gescheiden. Ook wanneer tijdgebonden voedingsbronnen bestaan, blijft de huidige tijdvakscore neutraal zolang numerieke goedkeuring ontbreekt.
+
+### 187.2 Registry-dekking per soort
+
+Onderstaande aantallen zijn aantallen registry-records per gemeten respons, op basis van de bestaande query (inclusief generieke records waar de feeding-service die accepteert). Het zijn geen onafhankelijke replicaties, effectgroottes of bewijs van overdraagbaarheid.
+
+| Soort | Voedselopname | Voedingsritme | Foerageergedrag | Beperking |
+|---|---:|---:|---:|---|
+| Karper | 8 | 7 | 7 | Mix van juveniel labbewijs, volwassen bait-site-veldwerk, habitats en voerregimes |
+| Brasem | 4 | 3 | 2 | Prooigebonden bronnen; beweging/habitat blijft aparte respons |
+| Snoek | 4 | 1 | 0 | Voedselopname en beweging zijn niet hetzelfde; levensfase/prooiconditie relevant |
+| Baars | 6 | 4 | 0 | Veld- en labresponsen; grootte- en seizoensafhankelijkheid |
+| Voorn | 8 | 6 | 1 | Voedings-/dieetcontext; habitat en beweging apart houden |
+| Zeelt | 3 | 2 | 1 | Beperkter en contextgebonden bronbestand |
+| Snoekbaars | 4 | 1 | 0 | Voedingsintensiteit en diel-beweging zijn verschillende responsen |
+| Meerval | 3 | 3 | 1 | Verschillende voeropstellingen, levensfasen en habitats |
+| Roofblei | 0 | 0 | 0 | Vooral dieet/prooikeuze en beweging; geen directe voedingsintensiteits-/ritmebron |
+| Overig | 0 | 0 | 0 | Geen soortspecifieke evidence of fallbackbonus |
+
+### 187.3 Ontwerpconsequentie
+
+De service is geschikt als bewijsindex/contextlaag, niet als score-engine. Een toekomstige voedingsrespons vereist:
+1. bronselectie op werkelijk gemeten respons en passende soort/levensfase/habitat/seizoen;
+2. gescheiden behandeling van voedselopname, voedingsritme, foerageersnelheid, dieet/prooikeuze en beweging;
+3. passende tijdsresolutie en forecastdekking; geen kloktijdbonus afleiden uit een afwijkende tank-/lichtcyclus;
+4. expliciete regels voor conflicterende studies, ontbrekend bewijs en ontbrekende lokale invoer;
+5. vooraf verzamelde, tijdgestempelde lokale responslabels en chronologische validatie;
+6. pas daarna een versiebeheerste responsfunctie met onzekerheid en vergelijking met een eenvoudige baseline.
+
+Vangsten en huidige sessieobservaties zijn geen zuivere voedingslabels. Een vangst bewijst niet dat de hele sessie voedingsactiviteit had; nulvangst bewijst niet dat vis afwezig was of niet at. Het observatiecontract vraagt daarom een aparte controle op fysiek waarnemingstijdstip en herhaalbare gebeurtenissen.
+
+**Conclusie:** er is geen reden om nu nieuwe literatuur te zoeken of de bestaande service te herschrijven. Eerst moet de gebruikersweergave gecontroleerd worden op het onderscheid tussen directe voeding, foerageren, dieet/prooikeuze en beweging. Daarna volgen persoonlijke vangstkans en aanwezigheid-/habitatlabels.
+
+Geen runtimecode, types, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies, snapshots of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd. Werkonderdeel 8 en Fase 2 blijven open; Fase 3 blijft geblokkeerd.
