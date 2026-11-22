@@ -5963,6 +5963,8 @@ De dekkingratio is uitsluitend temporele aanwezigheid van een forecastsample. Di
 
 ### 199.3 Teststatus
 
-`test-session-snapshot-commit.ts` is uitgebreid met tests voor gedeeltelijke uren, lokale tijdvak-/middernachtgrenzen, ontbrekende uren, herfst- en lente-DST, onbekende eindtijd, ongeldige intervallen, dubbele uurstempels en de maximale 24-uursduur. De eerste Quality Gate na de helper slaagde voor typecheck en alle bestaande tests; de nieuwe twee laatste assertions zijn daarna toegevoegd en moeten nog op de actuele commit worden gevalideerd.
+`test-session-snapshot-commit.ts` is uitgebreid met tests voor gedeeltelijke uren, lokale tijdvak-/middernachtgrenzen, ontbrekende uren, herfst- en lente-DST, onbekende eindtijd, ongeldige intervallen, dubbele uurstempels, maximale 24-uursduur en het niet aanvullen van gaten met forecasturen ná het interval.
 
-**Status:** segmentatiehelper geïmplementeerd; nog geen volledige Quality Gate-claim voor de laatste testuitbreiding. Er is geen score- of biologische code aangesloten op de helper.
+De eerste volledige testpoging (Quality Gate 1131) vond één onjuiste testverwachting: een interval van 60 minuten bevatte 30 minuten dekking en 30 minuten ontbrekende dekking, niet 60 minuten ontbrekende dekking. De implementatie was correct; de testverwachting is gecorrigeerd. Quality Gate **1132** is daarna volledig groen: typecheck, alle suites, productiebuild, private-artifactcontrole en dependency-audits geslaagd. `test-session-snapshot-commit.ts`: **30 geslaagd, 0 mislukt**.
+
+**Status:** pure segmentatiehelper en beschreven randgevallenmatrix technisch groen. Er is geen score- of biologische code aangesloten op de helper.
