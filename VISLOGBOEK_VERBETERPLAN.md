@@ -1167,3 +1167,13 @@ De thermische targetTime-as-of-poort is gevalideerd in Quality Gate 1107. De vol
 De minimale richting is twee optionele contextvelden (`targetWindowStart`, `targetWindowEnd`) die vanuit exact hetzelfde genormaliseerde ISO-paar worden gevuld als de bestaande top-level snapshotvelden. Oude snapshots blijven geldig; top-level velden blijven bestaan voor evaluatie/backward compatibility; onbekende eindtijd blijft null en geen verzonnen duur. De inputfingerprint neemt de intervalgrenzen al op, maar moet na de contextuitbreiding expliciet op consistentie worden getest. `historyFingerprint` blijft ongewijzigd.
 
 **Volgende stap:** test-first dekking voor oude snapshots, context/top-level gelijkheid, onbekende eindtijd, fingerprintwijziging en legacy evaluatiefallback. Eerst het datetime-local/runtimezonecontract bevestigen; nog geen segmentatiehelper, intervalscore, scoregewichten of biologische aannames wijzigen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §197.
+
+
+
+### Fase 2 — implementatie intervalvelden in PrognosisInputContext (22 november 2026)
+
+Op basis van audit §197 zijn twee optionele velden toegevoegd aan `PrognosisInputContext`: `targetWindowStart` en `targetWindowEnd`. De VisCoach-planbuilder normaliseert de geplande grenzen één keer naar ISO en hergebruikt exact die waarden voor inputcontext, fingerprintpayload en snapshot. De bestaande top-level snapshotgrenzen, evaluatiecode, legacygedrag en `historyFingerprint` blijven ongewijzigd.
+
+De nieuwe regressietest voert de echte planbuilder uit met een lokale weerscache en controleert bekende/ onbekende eindtijd, context-/snapshotgelijkheid en fingerprintwijziging bij een ander interval. Er is geen database-migratie, segmentatiehelper, intervalscore, scoregewicht of biologische wijziging toegevoegd.
+
+**Status:** implementatie en testcode staan op de auditbranch; volledige Quality Gate nog niet bevestigd. Eerst de testuitkomst beoordelen en eventuele regressies oplossen. Zie audit §197.5.
