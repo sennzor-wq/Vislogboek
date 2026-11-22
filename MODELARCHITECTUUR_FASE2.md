@@ -1468,3 +1468,11 @@ De bestaande VisCoach-fingerprint bevat de grenzen al als afzonderlijke waarden 
 De optionele intervalvelden zijn toegevoegd aan `PrognosisInputContext`. `buildVisCoachPlan` maakt één genormaliseerd ISO-start/eindpaar en hergebruikt dit voor context, fingerprintpayload en pending snapshot. De bestaande top-level snapshotgrenzen blijven behouden voor evaluatie en legacygedrag. Onbekende eindtijd blijft null; er is geen nieuwe duurstandaard of intervalscore toegevoegd.
 
 De regressietest in `test-session-snapshot-commit.ts` controleert de echte planbuilder met een lokale weer-cache, context-/snapshotgelijkheid, fingerprintgevoeligheid en onbekende eindtijd. Quality Gate run 1117 is groen; de snapshotcontracttests eindigden op 19/0. De daaropvolgende branchwijzigingen zijn uitsluitend documentatie; zie audit §197.5.
+
+
+
+## 163. Tijdzonecontract voor intervalsegmentatie
+
+Audit §198 legt het bestaande invoer- en rekengedrag vast. De `datetime-local`-velden worden als runtime-/apparaatlokale wall time geparseerd; de runtimezone wordt in `PrognosisInputContext.timezone` bewaard. Daarna worden de grenzen naar absolute ISO UTC-instanties genormaliseerd. De prognosekalender, daggrenzen, tijdvakken en segmentlabels gebruiken expliciet `Europe/Amsterdam`.
+
+De segmentatiehelper gebruikt daarom uitsluitend absolute instanties voor duur en overlap, en expliciete Amsterdamse conversie voor kalender-/tijdvakgrenzen. DST verandert de elapsed duur; die absolute duur is leidend. Het bestaande invoergedrag op apparaten buiten Amsterdam wordt niet gewijzigd zonder apart UX-/productbesluit. Zie audit §198.
