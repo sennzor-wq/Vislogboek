@@ -1428,3 +1428,15 @@ Audit §194 preciseert de resterende tijdstipgrens. De ankergestuurde route met 
 Voor intervalscoring geldt daarom een metamorfische invariant: wanneer alle invoer tot en met targetTime gelijk blijft en uitsluitend latere forecasturen worden gewijzigd, mag de thermische toestand en de thermische factorscore op targetTime niet veranderen. De 24-/72-uursvensters moeten eindigen op het exacte targetTime. Dagbrede samenvattingen mogen afzonderlijk blijven bestaan, maar mogen geen eerdere toestand beïnvloeden.
 
 De bestaande engine en ankergestuurde route blijven behouden. Geen nieuwe tijdconstanten of biologische correcties. Eerst test-first valideren voor meetanker, historisch profiel, weather-only en onvoldoende-dekkingfallbacks; daarna pas de minimale enginecorrectie. Zie audit §194.
+
+
+
+## 160. Uitvoering van de strikte thermische targetTime-grens (22 november 2026)
+
+De minimale correctie uit audit §195 is uitgevoerd in de bestaande `waterThermalEngine`. Bij expliciet `targetTime` zijn de tijdstipgebonden doeldagkenmerken nu beperkt tot forecasturen tot en met dat moment; de 24-/72-uursvensters eindigen op dat exacte tijdstip. De bestaande ankergestuurde chronologische extrapolatie blijft intact.
+
+Zonder expliciet `targetTime` blijft de bestaande dagbrede modus inclusief de oorspronkelijke lokale-dagreferentie en rolling-windowgrenzen behouden. Bij een vroeg doelmoment kan voldoende voorafgaande 72-uursdekking worden gebruikt wanneer nog geen zes doeldaguren beschikbaar zijn; ontbrekende dekking wordt niet met toekomstige uren aangevuld.
+
+De vier regressieassertions voor weather-only en meetanker zijn groen; de volledige Quality Gate 1096 is groen. Dit bewijst de minimale invariant voor de geteste routes, niet alle randgevallen uit audit §194.4. Historisch profiel, onbekende diepte, onvoldoende-dekkingfallbacks, doelmomenten rond 12:00, ontbrekende uren en thermische DST-grensgevallen blijven afzonderlijke validatiepunten.
+
+Er zijn geen nieuwe biologische parameters, scoregewichten of extra meetverplichtingen geïntroduceerd. De prognose-engine blijft de enige berekeningsbron; VisCoach blijft de verhalende en tactische consument van die prognose. De intervalscore mag pas volgen nadat de resterende as-of-validatiematrix en formele Fase 2-poort zijn afgerond.
