@@ -570,3 +570,16 @@ Audit §192 legt vast:
 - prognose-engine berekent, VisCoach vertaalt; persoonlijke vangstkans blijft apart.
 
 **Werkonderdeel 8 is hiermee afgerond als read-only audit en contractvoorstel.** Er is geen runtimecode, type, scoreformule, gewicht, drempel of gebruikersdata gewijzigd. De strict-as-of-correctie, intervalscore, geïntegreerde score en testimplementatie zijn vervolgwerk en blijven open. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
+
+
+## Werkonderdeel 8 — correctie 8.14: status punt 5 en voorvoer-confidence-gating (22 november 2026)
+
+Read-only hercontrole van prebaitEngine, PrognosisView, VisCoachView en sessionCoachService, naast de bestaande formele audit §§163–170.
+
+- Punt 5 is al formeel afgerond in §170; de confidence-gate is geen open taak. De algemene PrognosisView verbergt exacte campagne- en sessiegrammen bij Matig/Laag. VisCoach verbergt campagnegrammen bij Matig/Laag en sessiegrammen bovendien wanneer sessieduur onbekend is.
+- De confidence-status Redelijk vereist een gemeten watertemperatuur, bruikbaar watertype en positieve stekdiepte. Dit is invoercompleetheid, geen biologische validatie van de gramhoeveelheid.
+- De bestaande engine-uitvoer/temperatuurbanden/grameffecten zijn door eigenaarbesluit §163 behouden; ze zijn praktische tactiekheuristieken, niet goedgekeurde biologische normen.
+- De VisCoach-intake vraagt geen techniek; de optionele hengel-/methodepreset blijft een apart productbesluit.
+- De algemene Prognosepagina heeft een zichtbare sessieduurselector met standaard 3 uur. VisCoach laat de eindtijd optioneel en toont geen sessiegrammen zonder expliciet bekende duur, ook al gebruikt de engine intern een technische standaard voor een verborgen sessiehoeveelheid.
+
+**Status:** punt 5 niet heropend; geen code of parameters gewijzigd en geen tests opnieuw uitgevoerd. De actuele volgende technische poort is de strikte targetTime-as-of-invariant uit audit §192.2.
