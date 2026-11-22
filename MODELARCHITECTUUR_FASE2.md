@@ -1371,3 +1371,10 @@ De eerste kandidaat voor verdere contractcontrole is de bestaande soortspecifiek
 Audit §187 bevestigt dat de service vijf responsen afzonderlijk bundelt, maar geen automatische filtering uitvoert op levensfase, watertype, seizoen, habitat of onderzoeksopzet. De generieke registry-query kan soortneutrale bronnen meenemen; de diel-service sluit generieke bronnen juist uit en vereist een expliciete soortkoppeling. De approval-poort blijft leidend; op de gecontroleerde registry-basis is de goedgekeurde voedingsbronlijst leeg.
 
 Een aanwezig direct-feeding-record betekent uitsluitend dat literatuur over die respons is geregistreerd, niet dat actuele voedselopname wordt voorspeld. Een toekomstige voedingslaag moet bronselectie, responsvariabele, toepassingsgebied, tijdsresolutie, ontbrekende-dataregel en lokale validatielabels expliciet vastleggen. Vangsten of generieke sessieobservaties zijn geen vervangende directe voedingslabels. Geen runtimewijziging of scoreactivatie.
+
+
+## 154. Consumentenweergave van voedingsbewijs blijft gescheiden van prognose-uitkomst (22 november 2026)
+
+De controle van `PrognosisView` in audit §188 bevestigt dat gepubliceerde voedings-/foerageerstudies als onderzoekscontext worden getoond, met responsgroep, bronbeperkingen, referenties en bewijsstatus. De UI zegt expliciet dat deze context geen actuele voedingsvoorspelling is en de thermische score, tijdvakrangschikking of persoonlijke vangstkans niet wijzigt. Dieet/prooikeuze blijft buiten de twee zichtbare groepen en mag niet als voedingsintensiteit worden geïnterpreteerd.
+
+De huidige generieke registry-records leveren geen generieke feeding-outcomes aan de soortquery. Er is daarom geen aangetoonde onbedoelde vermenging in de huidige weergave. Geen UI-wijziging nodig op basis van deze inspectie.
