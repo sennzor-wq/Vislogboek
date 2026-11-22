@@ -526,3 +526,25 @@ Read-only controle van `PrognosisView.tsx` en registry-querysemantiek:
 Controleer de historische sessie-/vangstfeatures (techniek, aas/voer, hengeltype, aasrichting, voorvoer, aanbeten en vangsttijd) op feitelijke runtimeconsumptie en snapshotprovenance. Daarna kan de eerste factor-/respons-crosswalk worden afgesloten.
 
 Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd. Werkonderdeel 8 en Fase 2 blijven open; Fase 3 blijft geblokkeerd.
+
+
+## Werkonderdeel 8 — voortgang 8.12: runtime-mapping historische sessiefeatures (22 november 2026)
+
+**Type werk:** read-only controle van `createPrognosisHistoryFeatureSnapshot`, `prognosisEngine`, `rodPositioningEngine` en `prebaitEngine`.
+
+### Actieve historische consumptie
+- Thermische meetgeschiedenis voedt de thermische engine/profielroute.
+- Sessie-uitkomst, doelsoort, optionele stek, bekende duur en vangstsoort/-aantal voeden de persoonlijke vangstbaseline.
+- Starttijdvak voedt afzonderlijke persoonlijke tijdvakervaring; deze is niet stekspecifiek.
+- Aasrichting voedt een persoonlijke positioneringsnuance op dezelfde stek/doelsoort (minimaal 11 sessies, minimaal 6 met richting).
+- Voorvoerstatus voedt een beschrijvende vergelijking op dezelfde stek/doelsoort (minimaal 5 geclassificeerde sessies, minimaal 2 per groep).
+
+### Alleen opgeslagen/kandidaat, geen huidige voorspellende correctie
+Hengeltype, sessietotalen aanbeten/gemiste vissen, historische aas-/techniekcombinaties, vangsttijd als fijnmazig label, sessiewaterdiepte en exacte voorvoerdagen/-hoeveelheden worden niet als huidige correctie op de geïntegreerde activiteitsscore of persoonlijke Poisson-kans gebruikt. Snapshotopslag is geen runtimeconsumptie.
+
+De bestaande legacyfallback van vrije voeromschrijving bij ontbrekende `prebaited` kan “geen voorvoer” onbedoeld classificeren; deze bekende beperking blijft staan en er is geen dataherclassificatie uitgevoerd.
+
+### Vervolg
+De eerste crosswalk is nu op hoofdlijnen compleet. Volgende stap is een volledigheids-/consistentiecontrole van audit §186–190 tegen de eerder gesloten auditbesluiten en de roadmap, gevolgd door een geordende lijst van resterende Fase 2-poorten. Geen nieuwe brede literatuurzoektocht en geen score-/runtimewijziging.
+
+Geen code, tests, types, database, snapshots, UI, score, gewichten, bronstatus of gebruikersdata gewijzigd. Werkonderdeel 8 blijft open tot de crosswalk-review is afgerond.
