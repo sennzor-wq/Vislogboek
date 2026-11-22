@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto';
 import { db, syncSessionPresenceObservations } from './src/db/db';
 import { saveSessionWithPrognosisSnapshot, PendingPrognosisSnapshot, createPrognosisInputFingerprint } from './src/services/prognosisEngine';
 import { buildVisCoachPlan } from './src/services/viscoachService';
+import { segmentPrognosisInterval } from './src/services/prognosisIntervalEngine';
 import { FishingSession } from './src/types';
 
 let passed = 0;
@@ -228,6 +229,128 @@ async function run() {
       unknownEndPlan.pendingSnapshot.durationHours === 0 &&
       unknownEndPlan.durationHours === null,
     'Onbekende eindtijd blijft onbekend en wordt niet omgezet in een standaardduur'
+  );
+
+  const intervalForecasts = [
+    '2026-11-23T08:00:00.000Z',
+    '2026-11-23T09:00:00.000Z',
+    '2026-11-23T10:00:00.000Z',
+    '2026-11-23T11:00:00.000Z',
+    '2026-11-23T12:00:00.000Z',
+  ].map((time) => ({
+    time,
+    temperature: 12,
+    pressure: 1016,
+    windSpeed: 8,
+    windDirection: 225,
+    windDirectionText: 'ZW',
+    precipitation: 0,
+    precipitationProbability: 10,
+    cloudCover: 40,
+    weatherCode: 1,
+  }));
+  const partialHourSegments = segmentPrognosisInterval(
+    '2026-11-23T09:30:00+01:00',
+    '2026-11-23T12:15:00+01:00',
+    intervalForecasts
+  );
+  assert(
+    partialHourSegments.status === 'complete' &&
+      partialHourSegments.totalDurationMinutes === 165 &&
+      partialHourSegments.segments.length === 4 &&
+      partialHourSegments.segments[0].durationMinutes === 30 &&
+      partialHourSegments.segments[3].timeSlot === 'Middag',
+    'Segmentatie knipt gedeeltelijke uren op absolute uurgrenzen en lokale tijdvakgrenzen'
+  );
+  assert(
+    partialHourSegments.segments.every((segment) => segment.targetDate === '2026-11-23') &&
+      partialHourSegments.coverageRatio === 1,
+    'Volledig gedekte segmenten bewaren Amsterdamse datum en volledige dekking'
+  );
+
+  const missingForecastHour = intervalForecasts.filter((hour) => hour.time !== '2026-11-23T09:00:00.000Z');
+  const partialCoverage = segmentPrognosisInterval(
+    '2026-11-23T09:30:00+01:00',
+    '2026-11-23T12:15:00+01:00',
+    missingForecastHour
+  );
+  assert(
+    partialCoverage.status === 'partial' &&
+      partialCoverage.uncoveredDurationMinutes === 60 &&
+      partialCoverage.coverageRatio === 105 / 165 &&
+      partialCoverage.segments.some((segment) => !segment.weatherAvailable && segment.durationMinutes === 60),
+    'Ontbrekend forecastuur blijft een expliciet onbekend segment zonder interpolatie'
+  );
+
+  const midnightSegments = segmentPrognosisInterval(
+    '2026-11-23T23:30:00+01:00',
+    '2026-11-24T01:15:00+01:00',
+    [
+      '2026-11-23T22:00:00.000Z',
+      '2026-11-23T23:00:00.000Z',
+      '2026-11-24T00:00:00.000Z',
+    ].map((time) => ({ ...intervalForecasts[0], time }))
+  );
+  assert(
+    midnightSegments.segments.length === 3 &&
+      midnightSegments.segments[0].targetDate === '2026-11-23' &&
+      midnightSegments.segments[0].timeSlot === 'Avond' &&
+      midnightSegments.segments[1].targetDate === '2026-11-24' &&
+      midnightSegments.segments[1].timeSlot === 'Nacht',
+    'Segmentatie splitst exact op Amsterdamse middernacht en tijdvakgrens'
+  );
+
+  const autumnDstSegments = segmentPrognosisInterval(
+    '2026-10-25T01:30:00+02:00',
+    '2026-10-25T02:30:00+01:00',
+    [
+      '2026-10-24T23:00:00.000Z',
+      '2026-10-25T00:00:00.000Z',
+      '2026-10-25T01:00:00.000Z',
+    ].map((time) => ({ ...intervalForecasts[0], time }))
+  );
+  assert(
+    autumnDstSegments.totalDurationMinutes === 120 &&
+      autumnDstSegments.segments.length === 3 &&
+      autumnDstSegments.segments.every((segment) => segment.targetDate === '2026-10-25' && segment.timeSlot === 'Nacht'),
+    'Herfst-DST telt beide absolute 02:00-uren en behoudt twee uur werkelijke duur'
+  );
+
+  const springDstSegments = segmentPrognosisInterval(
+    '2026-03-29T01:30:00+01:00',
+    '2026-03-29T03:30:00+02:00',
+    [
+      '2026-03-29T00:00:00.000Z',
+      '2026-03-29T01:00:00.000Z',
+    ].map((time) => ({ ...intervalForecasts[0], time }))
+  );
+  assert(
+    springDstSegments.totalDurationMinutes === 60 &&
+      springDstSegments.segments.length === 2 &&
+      springDstSegments.segments.every((segment) => segment.targetDate === '2026-03-29'),
+    'Lente-DST volgt elapsed tijd en slaat het niet-bestaande lokale 02:00 over'
+  );
+
+  const unknownInterval = segmentPrognosisInterval(
+    '2026-11-23T09:30:00+01:00',
+    null,
+    intervalForecasts
+  );
+  assert(
+    unknownInterval.status === 'unknown_end' &&
+      unknownInterval.segments.length === 0 &&
+      unknownInterval.totalDurationMinutes === null &&
+      unknownInterval.coverageRatio === null,
+    'Onbekende eindtijd levert geen segmenten, duur of gefabriceerde dekking op'
+  );
+  const invalidInterval = segmentPrognosisInterval(
+    '2026-11-23T12:00:00+01:00',
+    '2026-11-23T11:00:00+01:00',
+    intervalForecasts
+  );
+  assert(
+    invalidInterval.status === 'invalid_interval' && invalidInterval.segments.length === 0,
+    'Ongeldig interval wordt veilig geweigerd zonder segmenten'
   );
 
   await db.delete();
