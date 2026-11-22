@@ -1106,3 +1106,18 @@ Punt 4 is afgerond in [PR #211](https://github.com/sennzor-wq/Vislogboek/pull/21
 De back-upcompatibiliteit, historische profielketen, VisCoach-trigger en weerscontextmatching zijn getest. De registratieketen is technisch gevalideerd; fysieke thermische tijdconstanten nog niet. Zie audit §162.
 
 **Volgende stap: punt 5 — voorvoeradviezen en confidence-gating auditen.** De exacte gramadviezen/temperatuurgrenzen zijn niet gevalideerd. We voeren geen runtimewijziging uit voordat het productbesluit expliciet is goedgekeurd. Fase 2 blijft open; fase 3 geblokkeerd.
+
+
+### Fase 2 — werkonderdeel 8 afgerond: factor-/respons-crosswalk en sessie-intervalcontract (22 november 2026)
+
+Werkonderdeel 8 is afgerond als read-only audit en contractvoorstel. De actuele factor-/respons-crosswalk en runtime-mapping staan in FASE2_PROGNOSE_AUDIT.md §§186–191; de intervalcontractuitwerking staat in §192 en MODELARCHITECTUUR_FASE2.md §§152–157.
+
+De audit heeft de zes zichtbare prognosefactoren, aanvullende biologische responsen, persoonlijke vangstkans, aanwezigheid/habitat, positionering, voorvoer en historische sessiefeatures gekoppeld aan hun werkelijke invoer, runtimeconsumptie, bestaande registry-bewijs en validatiegrenzen. De registry telt 94 records, 0 numeriek goedgekeurd. De bestaande 1–10-score blijft bedoeld voor biologische activiteit-/voedings-/foerageerpotentie; persoonlijke vangstkans, habitat-aanwezigheid, vangbaarheid en tactiek blijven afzonderlijke respons-/advieslagen. VisCoach gebruikt de Prognose en vertaalt die naar een samenhangend plan; er komt geen tweede VisCoach-prognose.
+
+VisCoach heeft al een gepland start-/eindinterval en bewaart dit in de snapshot/fingerprint, maar de prognose beoordeelt het volledige interval nog niet. Het contractvoorstel kiest als voorkeursrichting een hybride segmentatie op uurlijkse forecaststappen en tijdvak-/datumgrenzen, met voedingsbewijs uitsluitend op de resolutie van de bron. Een sessie zonder eindtijd krijgt geen verzonnen duur- of intervalscore. De persoonlijke Poisson-vangkans blijft apart.
+
+**Nieuwe technische voorwaarde:** vóór intervalscoring moet de tijdstipgerichte waterThermalEngine een strikte as-of-invariant aantonen. De ankergestuurde update gebruikt weer tot targetTime, maar fallback-/contextpaden kunnen volledige doeldagstatistiek en noon-gecentreerde 24-/72-uursvensters gebruiken. Een metamorfische regressietest moet aantonen dat wijziging van weeruren ná het doelmoment de eerdere thermische toestand niet wijzigt. Zie audit §192.2.
+
+Geen runtimecode, types, scoreformule, gewichten, drempels, UI, database, snapshots of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
+
+**Volgende stap volgens de bestaande Fase-2-uitvoeringsvolgorde: punt 5 — read-only audit van voorvoeradviezen en confidence-gating in de algemene Prognosepagina versus VisCoach.** Exacte gramadviezen/temperatuurgrenzen of gating worden niet gewijzigd zonder expliciet productbesluit. Daarna wordt de resterende score-/intervalarchitectuur verder uitgewerkt; de strikte thermische as-of-poort blijft verplicht vóór intervalimplementatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
