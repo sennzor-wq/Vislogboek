@@ -127,9 +127,10 @@ export function segmentPrognosisInterval(
     cursor = segmentEndMs;
   }
 
+  const uncoveredDurationMs = durationMs - coveredDurationMs;
   const totalDurationMinutes = durationMs / 60000;
   const coveredDurationMinutes = coveredDurationMs / 60000;
-  const uncoveredDurationMinutes = (durationMs - coveredDurationMs) / 60000;
+  const uncoveredDurationMinutes = uncoveredDurationMs / 60000;
   return {
     status: uncoveredDurationMs === 0 ? 'complete' : 'partial',
     intervalStart: normalizedStart,
