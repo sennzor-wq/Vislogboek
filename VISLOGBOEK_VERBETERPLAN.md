@@ -1121,3 +1121,10 @@ VisCoach heeft al een gepland start-/eindinterval en bewaart dit in de snapshot/
 Geen runtimecode, types, scoreformule, gewichten, drempels, UI, database, snapshots of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
 
 **Volgende stap volgens de bestaande Fase-2-uitvoeringsvolgorde: punt 5 — read-only audit van voorvoeradviezen en confidence-gating in de algemene Prognosepagina versus VisCoach.** Exacte gramadviezen/temperatuurgrenzen of gating worden niet gewijzigd zonder expliciet productbesluit. Daarna wordt de resterende score-/intervalarchitectuur verder uitgewerkt; de strikte thermische as-of-poort blijft verplicht vóór intervalimplementatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+### Fase 2 — correctie status punt 5 en actuele volgende poort (22 november 2026)
+
+Correctie op de vorige uitvoeringsnotitie: **punt 5 (voorvoerengine behouden en confidence-gating) is al afgerond**, niet startklaar. Het eigenaarbesluit staat in audit §163 en de technische afronding/Quality Gate in §170. De actuele code bevestigt dat PrognosisView exacte grammen alleen bij Redelijk toont; VisCoach toont sessiegrammen bovendien alleen bij een expliciet bekende sessieduur. Redelijk betekent invoercompleetheid, niet biologische validatie van grammen of temperatuurgrenzen. De engine-uitvoer is op eigenaarbesluit behouden; geen parameterwijziging nodig. Het optionele hengel-/methodepresetbesluit blijft apart open. Zie audit §193.
+
+**Volgende technische poort:** voer een gerichte audit/testvoorbereiding uit voor de strikte targetTime-as-of-invariant in de bestaande waterThermalEngine, zoals vastgelegd in audit §192.2. De ankergestuurde route gebruikt chronologische weeruren tot het doelmoment, maar fallback-/contextpaden gebruiken nog volledige doeldagstatistiek en noon-gecentreerde 24-/72-uursvensters. Wijzig geen enginegedrag voordat de exacte testgevallen en verwachte uitkomsten zijn vastgesteld. Daarna kan de bestaande intervalcontractvoorkeur worden voorbereid voor implementatie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
