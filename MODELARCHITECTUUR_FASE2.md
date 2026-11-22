@@ -1467,4 +1467,4 @@ De bestaande VisCoach-fingerprint bevat de grenzen al als afzonderlijke waarden 
 
 De optionele intervalvelden zijn toegevoegd aan `PrognosisInputContext`. `buildVisCoachPlan` maakt één genormaliseerd ISO-start/eindpaar en hergebruikt dit voor context, fingerprintpayload en pending snapshot. De bestaande top-level snapshotgrenzen blijven behouden voor evaluatie en legacygedrag. Onbekende eindtijd blijft null; er is geen nieuwe duurstandaard of intervalscore toegevoegd.
 
-De regressietest in `test-session-snapshot-commit.ts` controleert de echte planbuilder met een lokale weer-cache, context-/snapshotgelijkheid, fingerprintgevoeligheid en onbekende eindtijd. Quality Gate-validatie op de actuele PR-head is nog in behandeling; zie audit §197.5.
+De regressietest in `test-session-snapshot-commit.ts` controleert de echte planbuilder met een lokale weer-cache, context-/snapshotgelijkheid, fingerprintgevoeligheid en onbekende eindtijd. Quality Gate run 1117 is groen; de snapshotcontracttests eindigden op 19/0. De daaropvolgende branchwijzigingen zijn uitsluitend documentatie; zie audit §197.5.
