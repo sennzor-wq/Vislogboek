@@ -200,11 +200,17 @@ export function analyzeWaterThermalDevelopment(
   // Forecasts in vensters vóór de doeldag
   const past24hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t <= targetTimeMs && t > targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    const inWindow = hasValidTargetTime
+      ? t <= targetTimeMs && t > targetTimeMs - 24 * 3600000
+      : t < targetTimeMs && t >= targetTimeMs - 24 * 3600000;
+    return inWindow && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
   const past72hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t <= targetTimeMs && t > targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    const inWindow = hasValidTargetTime
+      ? t <= targetTimeMs && t > targetTimeMs - 72 * 3600000
+      : t < targetTimeMs && t >= targetTimeMs - 72 * 3600000;
+    return inWindow && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
 
   const hasPast24h = past24hForecasts.length >= 12;
