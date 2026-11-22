@@ -5742,3 +5742,46 @@ Aanvullende rolling-windowassertions moeten bewijzen dat 24/72 uur eindigt op he
 **Vervolg:** de testgevallen zijn nu inhoudelijk afgebakend. De eerstvolgende codehandeling zou een gerichte test-first wijziging in de bestaande engine zijn, gevolgd door de minimale correctie die nodig is om de invarianten te laten slagen. Daarvoor is een normale codewijzigingsworkflow nodig; deze read-only audit heeft geen branch, code of tests aangepast.
 
 Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+## 195. Implementatie en CI-validatie van de targetTime-as-of-correctie (22 november 2026)
+
+**Scope:** minimale correctie in de bestaande `waterThermalEngine` op de afzonderlijke auditbranch. Geen scoreformule, gewichten, thermische tijdconstanten, diepteklassen, gebruikersdata of UI gewijzigd.
+
+### 195.1 Uitgevoerde correctie
+
+- Bij een expliciet `targetTime` worden de doeldagkenmerken voor temperatuur, wind, bewolking, zonnestraling, luchtvochtigheid en dauwpunt uitsluitend opgebouwd uit forecasturen tot en met dat doelmoment.
+- De tijdstipgebonden 24-/72-uursvensters eindigen nu op het exacte `targetTime`; uren ná het doelmoment kunnen niet meer in de tijdstiptrend of weather-only fallback terechtkomen.
+- De bestaande dagbrede verwerking blijft behouden wanneer geen expliciet `targetTime` is opgegeven. Ook de oude intervalgrenzen voor die dagbrede modus blijven behouden.
+- Voor een vroeg doelmoment met minder dan zes uren op de doeldag wordt voldoende voorafgaande 72-uursdekking benut. Zonder die dekking blijft de bestaande veilige fallback voor onvoldoende gegevens gelden.
+- De ankergestuurde chronologische extrapolatie, bestaande temperatuurcorrecties en numerieke scoregewichten zijn niet gewijzigd.
+
+### 195.2 Regressiebewijs
+
+Scenario 8.5 in `test-thermal-and-prognosis.ts` vergelijkt twee identieke forecastreeksen tot en met 23 oktober 2026 15:00 lokale tijd. Alleen latere uren worden extreem gewijzigd. Alle vier assertions slagen:
+1. weather-only watertemperatuurschatting blijft gelijk;
+2. thermische trend en trendbetrouwbaarheid blijven gelijk;
+3. extrapolatie vanaf een echt meetanker blijft gelijk;
+4. trend en trendbetrouwbaarheid met een echt meetanker blijven gelijk.
+
+De bestaande gelijke-tijdvaktest gebruikt nu een werkelijk stabiele meerdaagse weerreeks. Daardoor toetst zij gelijke omstandigheden in plaats van een doeldag met een echte temperatuurontwikkeling te behandelen alsof elk tijdvak dezelfde toestand moet hebben.
+
+### 195.3 Quality Gate
+
+GitHub Actions Quality Gate run **1096** op branch `audit/thermal-asof-regression`, commit `b23340b33d9288af16d2c3d27296601032bdc53c`:
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressietests: geslaagd.
+- Kernprognose- en thermische tests: **71 geslaagd, 0 mislukt**.
+- Overige prognose-, biologische evidence-, waterthermische, historie-, backup-, sessie-, VisCoach- en voorvoertests: alle geslaagd.
+- Productiebuild: geslaagd.
+- Controle dat private artefacten ontbreken in de productiebuild: geslaagd.
+- Dependency-audits: geslaagd.
+
+### 195.4 Afbakening en resterend bewijs
+
+Deze correctie sluit de aangetoonde future-weather leakage voor de geteste weather-only en meetankerroute. Zij is geen bewijs dat alle combinaties uit §194.4 al afzonderlijk zijn getest. Nog gericht te valideren vóór de intervalscore als volledig afgedekt wordt beschouwd: historisch temperatuurprofiel, onbekende diepte, onvoldoende dekking/fallback, targetmomenten vóór en exact op 12:00, ontbrekende uren en thermische DST-grensgevallen. De bestaande Amsterdamse timezone/DST-suite is groen, maar vervangt deze gerichte thermische combinatietests niet.
+
+PR #214 blijft draft en is niet gemerged. De branch staat zeven commits vóór en nul commits achter de vastgelegde main-basis; `main` is niet gewijzigd. Geen gebruikersdata of database-inhoud gewijzigd.
+
+**Status:** de minimale as-of-correctie en bijbehorende CI-poort zijn groen. De bredere randgevallenmatrix uit §194.4 blijft open; intervalscoring en Fase 3 blijven geblokkeerd totdat de resterende validatie en formele Fase 2-acceptatie zijn afgerond.
