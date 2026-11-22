@@ -5800,7 +5800,7 @@ Toegevoegde assertions:
 - Ontbrekend uur vóór het doelmoment: een datagat mag geen toekomstige weersinformatie laten doorlekken.
 - DST-herfstovergang (25 oktober 2026, tweede 02:30 met expliciete +01:00-offset) en lenteovergang (29 maart 2026, 03:30 met expliciete +02:00-offset): de as-of-invariant wordt gecontroleerd met absolute tijdstempels.
 
-**Validatiestatus:** deze aanvullende assertions zijn toegevoegd in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. De Quality Gate-uitvoering voor deze nieuwe commit is nog niet bevestigd. Er wordt dus nog geen geslaagd resultaat geclaimd. Eventuele testfouten moeten eerst inhoudelijk worden onderzocht; pas daarna kan de matrix worden gesloten.
+**Validatiestatus:** alle aanvullende assertions zijn uitgevoerd in GitHub Actions Quality Gate run **1107** (22 november 2026), branch `audit/thermal-asof-regression`, run-id `45074092372`. Scenario 8.5 en 8.6 zijn volledig groen; de kernprognose-/thermische suite eindigde op **80 geslaagd, 0 mislukt**. De volledige Quality Gate is groen. De matrix dekt nu de hierboven genoemde routes, maar sluit niet automatisch alle denkbare combinaties of alle forecastproviders af.
 
 Geen runtimecode, scoreformule, biologische parameters, gewichten, gebruikersdata, database, snapshots of UI gewijzigd in deze testuitbreiding. PR #214 blijft draft en niet gemerged; `main` blijft ongemoeid. Fase 2 en de as-of-randgevallenpoort blijven open.
 
