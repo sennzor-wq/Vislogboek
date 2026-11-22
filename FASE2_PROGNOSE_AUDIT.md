@@ -5811,3 +5811,23 @@ Geen runtimecode, scoreformule, biologische parameters, gewichten, gebruikersdat
 De testmutatie is verder aangescherpt: voor uren ná het doelmoment worden niet alleen luchttemperatuur, bewolking en wind gewijzigd, maar ook zonnestraling, relatieve luchtvochtigheid en dauwpunt. Daarmee worden alle weercontextvelden geraakt die de thermische engine in de doeldagcontext kan gebruiken.
 
 De actuele branch-head na deze verfijning is `1bc478dff195a5dd20cbcef511da020e1233b083`. Voor deze head is op dit moment geen bijbehorende GitHub Actions-run of commitstatus beschikbaar via de repositorystatuscontrole. De aanvullende matrix blijft daarom **onbevestigd / niet groen** totdat de tests daadwerkelijk op deze commit zijn uitgevoerd. De eerder groene Quality Gate 1096 geldt uitsluitend voor de eerdere testset en mag niet als validatie van scenario 8.6 worden gepresenteerd.
+
+
+
+### 196.2 Quality Gate 1107 — aanvullende matrix volledig groen
+
+Na de registratie in §196.1 is Quality Gate run **1107** gestart en succesvol afgerond op commit `cbc7140da786e70f8d8aa40e1ed31f93ff22c850` (run-id `45074092372`).
+
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressietests: geslaagd.
+- Kernprognose- en thermische suite: **80 geslaagd, 0 mislukt**.
+- Scenario 8.5: alle vier bestaande as-of-assertions geslaagd.
+- Scenario 8.6: alle negen aanvullende assertions geslaagd, inclusief onbekende diepte, historisch profiel, onvoldoende dekking, 08:00/12:00/15:00, ontbrekend uur en lente-/herfstovergang.
+- Alle overige biologische, thermische, historie-, Brier-, sessie-, VisCoach-, backup-, veiligheid- en voorvoertests: geslaagd.
+- Productiebuild: geslaagd.
+- Controle op uitsluiting van private artefacten uit productiebuild: geslaagd.
+- Dependency-audits: geslaagd.
+
+De testmutatie verandert na targetTime luchttemperatuur, bewolking, wind, zonnestraling, relatieve luchtvochtigheid en dauwpunt. De tests bevestigen dat de thermische uitkomst op het doelmoment gelijk blijft wanneer alleen deze latere invoer verandert.
+
+**Conclusie:** de expliciet geplande targetTime-as-of-randgevallenmatrix uit §196 is technisch gevalideerd. Dit sluit uitsluitend deze auditpoort; het is geen formele afronding van Fase 2 en geen toestemming om de PR te mergen. PR #214 blijft draft; `main` is niet gewijzigd.
