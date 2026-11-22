@@ -1412,3 +1412,10 @@ De voorkeursrichting is een hybride intervalverwerking: uurlijkse thermische/wee
 **Voorwaarde vóór intervalimplementatie:** de bestaande tijdstipgerichte waterThermalEngine moet een strikte as-of-invariant garanderen. De huidige ankergestuurde route gebruikt weer tot targetTime, maar de fallback-/contextpaden kunnen volledige doeldagstatistiek en noon-gecentreerde 24-/72-uursvensters gebruiken. Een metamorfische test moet bewijzen dat wijziging van weeruren na een eerder doelmoment de thermische toestand op dat doelmoment niet wijzigt.
 
 De prognose-engine levert de biologische intervaluitkomst; VisCoach vertaalt deze naar een samenhangend verhaal en tactiek. De persoonlijke Poisson-vangkans blijft een aparte respons. Geen parallelle VisCoach-prognose-engine, scoregewichten of implementatiebesluit.
+
+
+## 158. Correcte status voorvoeradvies en confidence-gating (22 november 2026)
+
+Audit §193 corrigeert de actuele status: de eigenaarbeslissing voor het behouden van de bestaande voorvoerengine en het afschermen van exacte grammen bij confidence lager dan Redelijk staat in §163; de technische uitvoering en regressievalidatie zijn afgerond in §170. Dit punt is gesloten en mag niet opnieuw als open taak worden ingepland.
+
+De confidence-classificatie beschrijft invoercompleetheid (gemeten watertemperatuur, watertype en positieve stekdiepte), niet de wetenschappelijke validiteit van gramhoeveelheden of temperatuurgrenzen. De bestaande numerieke voerplanner blijft een afzonderlijke tactieklaag buiten de biologische 1–10-score. Het optionele hengel-/methodepresetbesluit blijft apart open; de huidige VisCoach-intake vraagt geen techniek.
