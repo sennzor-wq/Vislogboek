@@ -5968,3 +5968,47 @@ De dekkingratio is uitsluitend temporele aanwezigheid van een forecastsample. Di
 De eerste volledige testpoging (Quality Gate 1131) vond één onjuiste testverwachting: een interval van 60 minuten bevatte 30 minuten dekking en 30 minuten ontbrekende dekking, niet 60 minuten ontbrekende dekking. De implementatie was correct; de testverwachting is gecorrigeerd. Quality Gate **1132** is daarna volledig groen: typecheck, alle suites, productiebuild, private-artifactcontrole en dependency-audits geslaagd. `test-session-snapshot-commit.ts`: **30 geslaagd, 0 mislukt**.
 
 **Status:** pure segmentatiehelper en beschreven randgevallenmatrix technisch groen. Er is geen score- of biologische code aangesloten op de helper.
+
+
+
+## 200. Factorresolutie en datadekking vóór intervalintegratie
+
+**Scope:** read-only audit van de bestaande `analyzeTimeSlot`- en tactische contextpaden in `prognosisEngine.ts`. Doel is bepalen welke bestaande informatie per segment kan worden opgehaald, zonder scores of gewichten te veranderen.
+
+### 200.1 Huidige resolutie per factor/module
+
+| Factor/module | Huidige tijdresolutie | Huidige beschikbaarheidsregel | Huidige score-/rolstatus |
+|---|---|---|---|
+| Watertemperatuur / thermische activiteitspotentie | Per bestaand 6-uurs tijdvak; thermische analyse voor een tijdvak gebruikt het middelste beschikbare forecastmoment als `targetTime` | Eigen waterThermalEngine-anker-, historie- en weersdekkingregels | Enige factor die de huidige activiteitsscore numeriek bepaalt |
+| Luchtdruk | Per 6-uurs tijdvakgemiddelde; trend rond één representatief tijdstip | Minimaal 3 geldige drukmetingen in het 6-uurs tijdvak; trend zoekt een huidige meting binnen 30 min en een eerdere meting rond 12 uur ervoor (tolerantie 3 uur) | Context; score 0 |
+| Wind | Per 6-uurs tijdvakgemiddelde en dominante richting | Minimaal 3 geldige records met snelheid, richting en richtingslabel | Context; score 0 |
+| Bewolking | Per 6-uurs tijdvakgemiddelde | Minimaal 3 geldige records | Context; score 0 |
+| Neerslag | Per 6-uurs tijdvaksom | Minimaal 3 geldige records | Context; score 0 |
+| Seizoen | Kalendermaand/-seizoen voor de prognosedatum | Deterministisch uit datum | Altijd context beschikbaar; score 0 |
+| Tijdstip/licht | Tijdvak plus soortspecifieke diel-context en optionele civiele schemering | Tijdvak/datum; schemering via locatiecoördinaten en dagelijkse zondata | Context; score 0 |
+| Persoonlijke ervaring per tijdvak | Historische sessies gegroepeerd op starttijdvak | Alleen vergelijkbare, afgeronde sessies; percentage pas bij minimaal 5 relevante sessies | Afzonderlijke ervaringstekst, geen thermische score |
+| Persoonlijke vangkans | Geplande sessieduur plus historische sessies/vangsten | Alleen geldige sessies met bekende duur en bruikbare uitkomst; anders null/onvoldoende data | Eigen Poisson-kans, niet optellen bij activiteitsscore |
+| Aanwezigheidswaarneming | Door gebruiker vastgelegd moment/waarneming | Alleen expliciete waarneming | Kwalitatieve context, geen numerieke bonus |
+| Windkant/oeverrelatie | Huidig tactisch starttijdvak | Winddekking, temperatuurcontext, locatie-/watertype en oeveroriëntatie | Tactisch advies, geen activiteitsscore |
+| Habitat-/visbeweging | Huidig tactisch starttijdvak plus waarnemingen/historie | Afhankelijk van wind, thermische context, wolken, druktrend, locatie en waarnemingen | Tactische hypothese/advies, geen activiteitsscore |
+| Hengelpositionering | Datum, volledige forecastreeks en gekozen tactisch tijdvak | Afhankelijk van locatie, thermische context, wind en historie | Tactisch advies, geen activiteitsscore |
+| Voorvoerplan | Doeldatum, beschikbare dagen vooraf, soort en optionele sessieduur | Soortondersteuning en planinvoer | Afzonderlijke tactiek, geen activiteitsscore |
+| Hengelblootstelling | Werkelijk geregistreerde hengelactieve intervallen | Alleen expliciete rod-active intervals | Achteraf beschrijvend; geen prognose-input |
+
+### 200.2 Belangrijke scheiding: dagslots versus geplande sessie
+
+De huidige `calculateDayPrognosis` maakt vier vaste tijdvakken. De factorbreakdown gebruikt per tijdvak de beschikbare weersrecords en vaste drempels. Een expliciet VisCoach-starttijdvak beperkt de tactische weercontext tot dat starttijdvak; het geplande eindmoment wordt nog niet gebruikt om wind-, druk-, wolken-, habitat- of positioneringscontext over de volledige sessie te middelen.
+
+De nieuwe segmentatiehelper uit §199 levert daarom nog geen factorwaarden. Hij levert alleen de tijdssegmenten, de Amsterdamse labels en de aanwezigheid/afwezigheid van een forecastrecord per uur. De huidige factorbeschikbaarheid kan niet zonder meer op de segmenten worden gekopieerd: sommige factoren vragen meerdere samples of een voorafgaande 12-uursmeting; andere gebruiken locatie/historie of een andere tijdsresolutie.
+
+### 200.3 Regels voor volgende factorresolutie
+
+1. Behoud bestaande factorsemantiek en drempels; verander ze niet door de segmentatie alleen.
+2. Leg per factor vast welke velden vereist zijn, welke geldige waarden tellen, welke historische lookback nodig is en welke minimale dekking geldt.
+3. Scheid `weatherAvailable` van `factorAvailable`; één aanwezig forecastrecord betekent niet dat druktrend, windrichting of alle andere velden bruikbaar zijn.
+4. Factoren met een context-/adviesrol blijven niet-numeriek zolang er geen onderbouwde biologische scorefunctie bestaat.
+5. Thermische activiteitspotentie, persoonlijke vangkans, aanwezigheid, habitatbeweging, hengelpositionering en voorvoeradvies blijven afzonderlijke uitkomsten; niet optellen tot één ongedefinieerde totaalscore.
+6. Het bestaande 3-uit-6 tijdvakminimum is een huidige datakwaliteitsregel, geen automatisch minimum voor een kortere geplande sessie. Voor een intervalregel moet de betekenis per factor apart worden vastgesteld.
+7. Geen factor krijgt een intervalbonus, -malus of gewicht in deze stap.
+
+**Conclusie:** de segmentatiehelper is een tijds-/dekkingslaag. De volgende technische audit moet per factor de invoervelden, lookback, tijdresolutie en beschikbaarheidsregel mappen naar de segmenten. Pas daarna kan worden bepaald welke bestaande context zinvol per interval kan worden samengevat. De score blijft ongewijzigd.
