@@ -5418,3 +5418,21 @@ Vangsten en huidige sessieobservaties zijn geen zuivere voedingslabels. Een vang
 **Conclusie:** er is geen reden om nu nieuwe literatuur te zoeken of de bestaande service te herschrijven. Eerst moet de gebruikersweergave gecontroleerd worden op het onderscheid tussen directe voeding, foerageren, dieet/prooikeuze en beweging. Daarna volgen persoonlijke vangstkans en aanwezigheid-/habitatlabels.
 
 Geen runtimecode, types, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies, snapshots of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd. Werkonderdeel 8 en Fase 2 blijven open; Fase 3 blijft geblokkeerd.
+
+
+## 188. Consumentencontract voedingsliteratuur op de Prognosepagina gecontroleerd (22 november 2026)
+
+**Scope:** read-only inspectie van `src/components/prognosis/PrognosisView.tsx` en verificatie van de registry-querysemantiek. Geen UI-wijziging.
+
+### Vastgesteld
+- De sectie **“Wat zegt onderzoek over voeding bij [soort]?”** wordt alleen voor een gekozen doelsoort getoond. Bij keuze Algemeen wordt geen soortspecifieke broncontext verzonnen; de gebruiker wordt gevraagd een soort te kiezen.
+- De sectie noemt de inhoud expliciet biologische achtergrond uit gepubliceerde studies, geen actuele voedingsvoorspelling voor stek of datum, en benoemt dat onderzochte populaties/wateren/omstandigheden kunnen afwijken.
+- De UI toont twee onderscheiden groepen: **gemeten voedselopname en voedingsritme** en **foerageergedrag**. Per record zijn samenvatting, beperkingen, bronverwijzingen en bewijsstatus/openstelling voor voorspellingsgebruik zichtbaar.
+- De UI vermeldt expliciet dat deze literatuurcontext de thermische activiteitspotentie, het thermisch gunstigste tijdvak en de persoonlijke vangstkans niet verandert.
+- Dieetcompositie en prooiselectie zitten wel in het servicecontract, maar worden niet in deze twee UI-groepen getoond. Dit is inhoudelijk verdedigbaar zolang dieet/prooikeuze niet wordt gepresenteerd als actuele voedingsintensiteit of tijdvakvoorkeur.
+- De generieke queryfunctie kán structureel generieke records accepteren, maar controle van de huidige negen registry-records met een lege soortenlijst laat zien dat geen daarvan een `measuredOutcomes`-label heeft dat door de vijf feeding-outcome queries wordt opgevraagd. Er worden op dit moment dus geen generieke records ongemerkt als soortspecifieke voedingsstudie in deze sectie ingevoegd.
+
+### Beoordeling
+De huidige consumentenweergave bewaakt het onderscheid tussen onderzoek en actuele prognose goed. De eerdere servicecontrole blijft wel relevant: de evidence-service is geen score-engine en bronbeperkingen moeten vóór modeltoepassing worden gematcht. Er is op basis van deze controle geen reden voor een UI-fix of wijziging van de bestaande evidence-service.
+
+**Vervolg:** de audit verschuift nu naar de persoonlijke vangstkans en naar het tijdstip/labelcontract van aanwezigheid- en habitatwaarnemingen. Geen runtimecode, UI, scoreformule, gewichten, bronstatus, snapshots of gebruikersdata gewijzigd; geen tests of biologische validatie geclaimd.
