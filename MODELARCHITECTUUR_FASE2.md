@@ -1419,3 +1419,12 @@ De prognose-engine levert de biologische intervaluitkomst; VisCoach vertaalt dez
 Audit §193 corrigeert de actuele status: de eigenaarbeslissing voor het behouden van de bestaande voorvoerengine en het afschermen van exacte grammen bij confidence lager dan Redelijk staat in §163; de technische uitvoering en regressievalidatie zijn afgerond in §170. Dit punt is gesloten en mag niet opnieuw als open taak worden ingepland.
 
 De confidence-classificatie beschrijft invoercompleetheid (gemeten watertemperatuur, watertype en positieve stekdiepte), niet de wetenschappelijke validiteit van gramhoeveelheden of temperatuurgrenzen. De bestaande numerieke voerplanner blijft een afzonderlijke tactieklaag buiten de biologische 1–10-score. Het optionele hengel-/methodepresetbesluit blijft apart open; de huidige VisCoach-intake vraagt geen techniek.
+
+
+## 159. Strikte targetTime-as-of-invariant voor de waterthermische toestand (22 november 2026)
+
+Audit §194 preciseert de resterende tijdstipgrens. De ankergestuurde route met bekend meetanker, bekende diepte en voldoende dekking verwerkt weeruren chronologisch tot targetTime. Dagbrede samenvattingen en noon-gecentreerde 24-/72-uursvensters blijven echter actief in trend-/context- en fallbackroutes.
+
+Voor intervalscoring geldt daarom een metamorfische invariant: wanneer alle invoer tot en met targetTime gelijk blijft en uitsluitend latere forecasturen worden gewijzigd, mag de thermische toestand en de thermische factorscore op targetTime niet veranderen. De 24-/72-uursvensters moeten eindigen op het exacte targetTime. Dagbrede samenvattingen mogen afzonderlijk blijven bestaan, maar mogen geen eerdere toestand beïnvloeden.
+
+De bestaande engine en ankergestuurde route blijven behouden. Geen nieuwe tijdconstanten of biologische correcties. Eerst test-first valideren voor meetanker, historisch profiel, weather-only en onvoldoende-dekkingfallbacks; daarna pas de minimale enginecorrectie. Zie audit §194.
