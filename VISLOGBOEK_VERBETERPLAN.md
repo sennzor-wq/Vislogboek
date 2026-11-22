@@ -1137,3 +1137,15 @@ Audit §194 heeft een gerichte beperking in de bestaande waterThermalEngine vast
 **Volgende stap:** test-first wijziging van de bestaande waterThermalEngine om te garanderen dat latere forecasturen de temperatuur op een eerder targetTime niet veranderen, en dat rolling 24-/72-uursvensters exact op targetTime eindigen. Test meetanker, historisch profiel, weather-only, onbekende diepte, onvoldoende dekking, vroege/middag/late doelmomenten, ontbrekende uren en DST. Behoud de bestaande ankergestuurde route en gebruik geen nieuwe tijdconstanten of biologische correcties. Zie audit §194 en architectuur §159.
 
 Dit is een technische voorwaarde vóór de intervalscore. Geen runtimewijziging uitgevoerd in de read-only audit. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### Fase 2 — uitvoering minimale targetTime-as-of-correctie (22 november 2026)
+
+De gerichte regressietest uit audit §194 is uitgevoerd. De eerste run bevestigde future-weather leakage in de weather-only schatting en thermische trend. Daarna is de bestaande `waterThermalEngine` minimaal aangepast: bij expliciet `targetTime` gebruiken de tijdstipgebonden doeldagkenmerken uitsluitend forecasturen tot en met dat tijdstip en eindigen de 24-/72-uursvensters op het exacte doelmoment. De bestaande dagbrede modus zonder expliciet doelmoment en de ankergestuurde chronologische extrapolatie zijn behouden. Voldoende voorafgaande 72-uursdekking kan een vroeg doelmoment met minder dan zes doeldaguren ondersteunen; toekomstige uren vullen die dekking niet aan.
+
+Scenario 8.5 slaagt nu voor alle vier assertions (weather-only temperatuur en trend; meetanker-temperatuur en trend). GitHub Actions Quality Gate run 1096 is volledig groen: typecheck, timezone/DST-suite, kernprognose/thermische tests (71/0), overige tests, productiebuild en private-artifactcontrole.
+
+De eerste testvariant bracht twee bestaande tests over gelijke tijdvaksscores aan het licht die nog een variabele doeldag gebruikten. De testfixture is aangepast naar een werkelijk stabiele meerdaagse reeks; de tijdspecifieke prognose wordt niet teruggezet naar dagbrede toekomstige informatie om oude gelijke-scores te forceren.
+
+**Status:** minimale correctie technisch groen, PR #214 blijft draft en niet gemerged. De volledige randgevallenmatrix uit audit §194.4 is nog niet afgedekt. Volgende stap: gerichte test-first validatie van historisch profiel, onbekende diepte, onvoldoende-dekkingfallback, doelmomenten vóór/exact op/na 12:00, ontbrekende uren en thermische DST-overgangen. Pas daarna kan de as-of-poort als volledig gesloten worden beschouwd en de intervalscore verder worden voorbereid. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
