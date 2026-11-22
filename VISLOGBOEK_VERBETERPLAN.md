@@ -1176,4 +1176,4 @@ Op basis van audit §197 zijn twee optionele velden toegevoegd aan `PrognosisInp
 
 De nieuwe regressietest voert de echte planbuilder uit met een lokale weerscache en controleert bekende/ onbekende eindtijd, context-/snapshotgelijkheid en fingerprintwijziging bij een ander interval. Er is geen database-migratie, segmentatiehelper, intervalscore, scoregewicht of biologische wijziging toegevoegd.
 
-**Status:** implementatie en testcode staan op de auditbranch; volledige Quality Gate nog niet bevestigd. Eerst de testuitkomst beoordelen en eventuele regressies oplossen. Zie audit §197.5.
+**Status:** GitHub Actions Quality Gate run 1117 is volledig groen. De snapshotcontracttests eindigden op 19 geslaagd, 0 mislukt; typecheck, overige suites, productiebuild en audits zijn eveneens groen. De daaropvolgende branchwijzigingen zijn uitsluitend documentatie. Zie audit §197.5.
