@@ -432,6 +432,66 @@ async function run14Scenarios() {
     '8.4c Zichtbare temperatuurtoelichting toont geen fictieve [undefined–undefined]-band'
   );
 
+  // 8.5 As-of invariant: weather samples strictly after targetTime may not alter
+  // any thermal estimate or trend that is presented as known at that target instant.
+  console.log('\\n--- SCENARIO 8.5: Geen invloed van weersdata ná het doelmoment ---');
+  const asOfTarget = '2026-10-23T15:00:00';
+  const asOfReference = new Date('2026-10-20T12:00:00.000Z');
+  const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8);
+  const asOfChangedFutureForecasts = asOfBaseForecasts.map((hour) => {
+    const timestamp = new Date(hour.time).getTime();
+    const target = new Date('2026-10-23T15:00:00+02:00').getTime();
+    return timestamp > target
+      ? { ...hour, temperature: 32, cloudCover: 0, windSpeed: 35 }
+      : hour;
+  });
+  const asOfWeatherOnlyBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  const asOfWeatherOnlyChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfChangedFutureForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  assert(
+    asOfWeatherOnlyBase.estimatedWaterTemp === asOfWeatherOnlyChanged.estimatedWaterTemp,
+    '8.5.1 Weer-only waterestimate is invariant voor gewijzigde weersuren ná targetTime',
+    `base=${asOfWeatherOnlyBase.estimatedWaterTemp}, changed=${asOfWeatherOnlyChanged.estimatedWaterTemp}`
+  );
+  assert(
+    asOfWeatherOnlyBase.trend === asOfWeatherOnlyChanged.trend &&
+      asOfWeatherOnlyBase.trendConfidence === asOfWeatherOnlyChanged.trendConfidence,
+    '8.5.2 Thermische trend en betrouwbaarheid zijn invariant voor weersuren ná targetTime',
+    `base=${asOfWeatherOnlyBase.trend}/${asOfWeatherOnlyBase.trendConfidence}, changed=${asOfWeatherOnlyChanged.trend}/${asOfWeatherOnlyChanged.trendConfidence}`
+  );
+
+  const asOfMeasuredBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 12,
+    userMeasuredWaterTempAt: '2026-10-23T06:00:00.000Z',
+    currentDateRef: new Date('2026-10-23T07:00:00.000Z'),
+    targetTime: asOfTarget,
+  });
+  const asOfMeasuredChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfChangedFutureForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 12,
+    userMeasuredWaterTempAt: '2026-10-23T06:00:00.000Z',
+    currentDateRef: new Date('2026-10-23T07:00:00.000Z'),
+    targetTime: asOfTarget,
+  });
+  assert(
+    asOfMeasuredBase.estimatedWaterTemp === asOfMeasuredChanged.estimatedWaterTemp,
+    '8.5.3 Extrapolatie vanaf een echt meetanker negeert weersuren ná targetTime'
+  );
+  assert(
+    asOfMeasuredBase.trend === asOfMeasuredChanged.trend &&
+      asOfMeasuredBase.trendConfidence === asOfMeasuredChanged.trendConfidence,
+    '8.5.4 Ook de trend bij een echt meetanker negeert weersuren ná targetTime',
+    `base=${asOfMeasuredBase.trend}/${asOfMeasuredBase.trendConfidence}, changed=${asOfMeasuredChanged.trend}/${asOfMeasuredChanged.trendConfidence}`
+  );
+
   // 9. Ontbrekende of onvolledige historische weergegevens
   console.log('\n--- SCENARIO 9: Ontbrekende of onvolledige weerdata ---');
   const s9 = analyzeWaterThermalDevelopment('2026-10-23', [], { location: locLokkershoek });
