@@ -1350,3 +1350,17 @@ Ook moet de resolver voor een enkel tijdvak niet worden aangezien voor een inter
 `dataAvailable` betekent uitsluitend dat invoer aanwezig/bruikbaar is, niet dat de biologische relatie gevalideerd is. Score 0/neutraal betekent uitsluitend dat geen numerieke correctie wordt toegepast, niet dat het werkelijke effect nul is.
 
 De overige `DayPrognosis`-modules (persoonlijke vangstkans, aanwezigheid, thermische analyse, bank-wind, habitat/beweging, positionering en voorvoeradvies) hebben verschillende doelresponsen en mogen niet automatisch als gelijksoortige bijdragen bij elkaar worden opgeteld. De factor-/respons-crosswalk is daarom een noodzakelijke tussenstap vóór een geïntegreerde scorearchitectuur wordt goedgekeurd.
+
+
+
+## 152. Factor-/respons-crosswalk en gescheiden scorelagen (22 november 2026)
+
+Audit §186 koppelt de zichtbare factoren en aanvullende prognosemodules aan hun feitelijke respons, invoer, registry-bewijs en mogelijke rol. Architectuurregel:
+
+- De thermische activiteitspotentie, directe voedings-/foerageerrespons, aanwezigheid/habitatbeweging en persoonlijke vangstkans blijven afzonderlijke responslagen totdat een expliciet integratiemodel de relatie tussen die uitkomsten reproduceerbaar en chronologisch valideert.
+- Weerfactoren zijn niet automatisch biologische effecten. Een weersvariabele mag pas bijdragen wanneer de gemeten respons, relevante soort/levensfase, watertype, tijdschaal en interacties passend zijn.
+- Seizoen, temperatuur, licht en bewolking kunnen gecorreleerde signalen bevatten; wind kan zowel thermische menging als ruimtelijke drift beïnvloeden. De modelarchitectuur moet dubbeltelling voorkomen.
+- Voeradvies, hengelpositionering en oeverwindvertaling zijn advies-/tactiekuitkomsten. Zij worden niet als extra biologische score opgeteld. De VisCoach gebruikt de bestaande Prognose-uitkomsten en context om deze lagen samenhangend uit te leggen; er bestaat geen tweede VisCoach-prognose-engine.
+- De registry bevat 94 records en 0 numeriek goedgekeurde biologische bronnen. Dit blokkeert ongefundeerde bronactivatie, niet het verdere ontwerp of de technische voorbereiding van afzonderlijke responslagen.
+
+De eerste kandidaat voor verdere contractcontrole is de bestaande soortspecifieke voedings-/foerageerevidence-service, gevolgd door de persoonlijke vangstkans- en aanwezigheid/habitatcontracten. Zie audit §186.6. Geen runtimewijziging of numerieke modelkeuze volgt automatisch uit deze crosswalk.
