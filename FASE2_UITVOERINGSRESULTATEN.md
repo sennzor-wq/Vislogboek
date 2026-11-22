@@ -452,3 +452,29 @@ Inspectie van `analyzeTimeSlot` en `src/types/index.ts` bevestigt dat ieder zich
 Daarnaast bevat `DayPrognosis` aparte modules voor persoonlijke vangstkans/verwachte vangsten, aanwezigheid, thermische ontwikkeling, oeverwind, habitat/beweging, positionering en voorvoer. Deze meten verschillende responsen en zijn niet zonder meer onderling optelbaar.
 
 **Vervolgstap:** bouw de bestaande factorinventaris en research registry om tot een factor-/respons-crosswalk. Geen nieuwe bronnen verzamelen zolang de bestaande registry geen concrete bewijsleemte aantoont. Per factor/module de doelrespons, tijdsresolutie, lokale invoer, bewijsstatus, mogelijke interactie, scoregeschiktheid en validatievoorwaarde vastleggen.
+
+
+
+## Werkonderdeel 8 — voortgang 8.8: eerste factor-/respons-crosswalk (22 november 2026)
+
+**Type werk:** read-only inspectie van de bestaande prognosefactoren, aanvullende engines, types en de volledige research registry; documentatie van de eerste crosswalk. Geen nieuwe literatuurzoektocht en geen runtimewijziging.
+
+### Uitgevoerd
+- De volledige actuele `researchRegistry.ts` is geteld en op unieke IDs gecontroleerd: 94 records, 0 numeriek goedgekeurd, geen dubbele IDs.
+- De zes zichtbare `FactorBreakdown`-factoren zijn gekoppeld aan hun huidige inputs en de feitelijke `analyzeTimeSlot`-implementatie.
+- De aparte modules voor voedingsbewijs, aanwezigheid/waarnemingen, habitat/beweging, persoonlijke vangstkans, oeverwind, hengelpositionering en voorvoer zijn gekoppeld aan hun eigen respons-/adviesdoel.
+- Bestaande bronrecords zijn als voorbeelden gekoppeld; er zijn geen bronnen dubbel geregistreerd.
+- Interacties en mogelijke dubbeltelling tussen temperatuur, seizoen, licht, bewolking, wind, habitat, aanwezigheid, voeding en vangbaarheid zijn expliciet vastgelegd.
+
+### Belangrijkste bevindingen
+1. De bestaande thermische curve blijft de enige actieve numerieke bijdrage aan `activityScore`, maar is een voorlopige thermische prior.
+2. Tijdgebonden directe voedingsrespons is de meest kansrijke afzonderlijke kandidaat voor verdere scorecontractcontrole; bestaande studies zijn contextgebonden en geen bron is numeriek goedgekeurd.
+3. Drukbewijs is beperkt en soort-/responsgebonden; er is geen registrybasis voor een universele drukbonus. Voor wind, wolken en regen ontbreekt een passende directe algemene scorebasis.
+4. Seizoen moet worden ontleed in temperatuur, fotoperiode, levenscyclus en habitat om dubbeltelling te voorkomen.
+5. Persoonlijke vangstkans, aanwezigheid/habitat en tactiek meten verschillende uitkomsten. Positionering en voorvoer zijn advieslagen, geen extra activiteitsscores.
+6. VisCoach blijft de advies- en tactieklaag die de bestaande Prognose-informatie gebruikt; er wordt geen aparte VisCoach-prognose geïntroduceerd.
+
+### Status en vervolg
+De eerste crosswalk staat in audit §186 en de architectuurregels in §152. **Werkonderdeel 8 is nog niet gesloten**: de kandidaat voedings-/foerageerlaag en daarna persoonlijke vangstkans en aanwezigheid/habitat moeten nog op hun volledige invoer-, tijdsresolutie-, bewijs- en validatiecontract worden gecontroleerd. De volgende stap is die gerichte code-/typecontrole van de bestaande `feedingEvidenceService` en de bijbehorende tijdvak-/soortcontext, zonder scoreactivatie.
+
+Geen code, tests, scoreformule, gewichten, drempels, bronstatus, gebruikersdata, snapshots of UI gewijzigd. Geen biologische validatie geclaimd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
