@@ -1201,3 +1201,11 @@ De testmatrix dekt partial hours, middernacht/tijdvak, ontbrekende uurdata, fore
 De pure segmentatiehelper is groen gevalideerd in Quality Gate 1132. Daarna is read-only in audit §200 vastgelegd hoe de bestaande factoren en modules hun gegevens nu ophalen: thermische respons per 6-uurs slot/representatief forecastmoment; druk, wind, bewolking en neerslag met eigen samplevalidatie; persoonlijke ervaring per sessiestarttijdvak; vangkans uit historische sessieduur en vangsten; tactische wind/habitat/positionering rond het gekozen starttijdvak; aanwezigheid als gebruikerswaarneming; voorvoer als planningscontext; hengelblootstelling als achteraf geregistreerde intervallen.
 
 **Volgende stap:** per factor de exacte benodigde velden, lookback, tijdresolutie en minimale dekking mappen naar de nieuwe segmenten. De generieke segmentdekking mag niet als factorbeschikbaarheid worden gelezen. De bestaande thermische score blijft de enige numerieke activiteitsscore; andere factoren blijven context of aparte uitkomsten totdat bewijs een andere rol rechtvaardigt. Geen gewichten of biologische bonus/malus invoeren. Zie audit §200.
+
+
+
+### Fase 2 — factorvelden, validatie en lookback uitgewerkt (22 november 2026)
+
+Audit §201 legt de bestaande geldigheidsranges en tijdsvensters per weerfactor vast. Belangrijk: de huidige 3-uit-6 minimumdekking hoort bij vaste 6-uurs tijdvakken en mag niet automatisch naar korte geplande sessies worden vertaald. Wind vereist snelheid én richting; druktrend vereist een aparte voorafgaande meting; thermische waterontwikkeling heeft eigen 24-/72-uurs- en ankerregels; optionele zonnestraling/vochtigheid/dauwpunt mogen niet als nul worden behandeld.
+
+**Volgende stap:** formele factorresolutie kiezen voor intervalsegmenten (uursegment, tijdvak, kalenderdag of sessiebreed) en per factor een dekkingstatus definiëren. Eerst technisch/semantisch onderbouwen; nog geen minimumpercentage, scoregewicht of biologische bonus/malus verzinnen. Zie audit §§200–201.
