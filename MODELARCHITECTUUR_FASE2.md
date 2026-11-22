@@ -1447,4 +1447,4 @@ Er zijn geen nieuwe biologische parameters, scoregewichten of extra meetverplich
 
 Audit §196 voegt test-first dekking toe voor onbekende stekdiepte, historische profielselectie, onvoldoende dekking, doelmomenten 08:00/12:00/15:00, ontbrekende uren en beide Amsterdamse DST-overgangen. De tests wijzigen alleen de invoer ná het expliciete doelmoment en vergelijken de thermische toestand die op dat moment bekend mag zijn.
 
-De tests zijn toegevoegd maar nog niet door een Quality Gate gevalideerd. Zij zijn daarom geen bewijs van een gesloten randgevallenpoort. De productie-engine en modelparameters zijn in deze uitbreidingsstap niet gewijzigd. Zie audit §196 voor de exacte assertions en validatiestatus.
+De tests zijn uitgevoerd in Quality Gate run 1107 en alle scenario 8.5/8.6-assertions slagen; de kernprognose-/thermische suite is 80/0 en de volledige Quality Gate is groen. Dit sluit de expliciet beschreven randgevallenmatrix voor de huidige enginepaden, niet alle mogelijke combinaties of forecastproviderproblemen. De productie-engine en modelparameters zijn in deze testuitbreiding niet gewijzigd. Zie audit §196.
