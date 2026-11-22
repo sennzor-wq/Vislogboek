@@ -548,3 +548,25 @@ De bestaande legacyfallback van vrije voeromschrijving bij ontbrekende `prebaite
 De eerste crosswalk is nu op hoofdlijnen compleet. Volgende stap is een volledigheids-/consistentiecontrole van audit §186–190 tegen de eerder gesloten auditbesluiten en de roadmap, gevolgd door een geordende lijst van resterende Fase 2-poorten. Geen nieuwe brede literatuurzoektocht en geen score-/runtimewijziging.
 
 Geen code, tests, types, database, snapshots, UI, score, gewichten, bronstatus of gebruikersdata gewijzigd. Werkonderdeel 8 blijft open tot de crosswalk-review is afgerond.
+
+
+## Werkonderdeel 8 — voortgang 8.13: crosswalk-review en intervalcontractvoorstel (22 november 2026)
+
+### Consistentie-review
+De crosswalk §§186–190 is vergeleken met de bestaande formele acceptatiecrosswalk (§89), factorinventaris (§102), scoredoel (§103), evaluatiekader (§131), toelatingsmatrix (§132), engine-roadmap en VisCoach-roadmap. Geen tegenstrijdig productdoel of tweede prognosemodel gevonden. De bestaande 1–10-score blijft biologische activiteit-/voedings-/foerageerpotentie; persoonlijke vangstkans, habitat-aanwezigheid, vangbaarheid, tactiek en betrouwbaarheid blijven afzonderlijke responsen/lagen.
+
+### Nieuw gevonden technische voorwaarde voor intervalscoring
+De waterThermalEngine beperkt de ankergestuurde weatherSinceAnchor-update tot het expliciete doelmoment. De volledige daggemiddelden/-extremen en noon-gecentreerde 24-/72-uursvensters blijven echter in trend- en fallbackroutes actief. De bestaande tijdstiptest controleert niet dat wijziging van forecasturen ná targetTime de eerdere doeltemperatuur onveranderd laat. Deze strikte as-of-invariant moet worden getest en waar nodig hersteld vóór de tijdpuntuitvoer als intervalscore-input wordt hergebruikt.
+
+### Intervalcontract
+Audit §192 legt vast:
+- hergebruik van bestaande targetWindowStart/targetWindowEnd, met expliciete opname in PrognosisInputContext;
+- geen intervalscore wanneer de eindtijd onbekend is;
+- segmentatie over uurlijkse forecaststappen, zesuurs-tijdvakken, middernacht en DST;
+- doorlopende thermische toestand vanaf hetzelfde meetanker;
+- factorresolutie mag niet fijner worden gemaakt dan de bron;
+- duurgewogen segmentbeoordeling met expliciete coverage/uncertainty; geen ontbrekende data als neutraal;
+- alternatieven vergelijken bij gelijke duur, soort, stek en forecast-as-of;
+- prognose-engine berekent, VisCoach vertaalt; persoonlijke vangstkans blijft apart.
+
+**Werkonderdeel 8 is hiermee afgerond als read-only audit en contractvoorstel.** Er is geen runtimecode, type, scoreformule, gewicht, drempel of gebruikersdata gewijzigd. De strict-as-of-correctie, intervalscore, geïntegreerde score en testimplementatie zijn vervolgwerk en blijven open. Fase 2 blijft niet geaccepteerd; Fase 3 blijft geblokkeerd.
