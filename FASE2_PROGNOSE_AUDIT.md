@@ -5436,3 +5436,71 @@ Geen runtimecode, types, scoreformule, gewichten, drempels, bronstatus, UI, VisC
 De huidige consumentenweergave bewaakt het onderscheid tussen onderzoek en actuele prognose goed. De eerdere servicecontrole blijft wel relevant: de evidence-service is geen score-engine en bronbeperkingen moeten vóór modeltoepassing worden gematcht. Er is op basis van deze controle geen reden voor een UI-fix of wijziging van de bestaande evidence-service.
 
 **Vervolg:** de audit verschuift nu naar de persoonlijke vangstkans en naar het tijdstip/labelcontract van aanwezigheid- en habitatwaarnemingen. Geen runtimecode, UI, scoreformule, gewichten, bronstatus, snapshots of gebruikersdata gewijzigd; geen tests of biologische validatie geclaimd.
+
+
+## 189. Contractcontrole persoonlijke vangstkans en aanwezigheid-/habitatlabels (22 november 2026)
+
+**Scope:** read-only inspectie van `prognosisEngine.ts`, `evaluationEngine.ts`, `habitatMovementEngine.ts`, de relevante types, database-synchronisatie en de Prognose-/VisCoach-callers. Geen code- of datamutatie.
+
+### 189.1 Persoonlijke vangstkans: wat wordt nu werkelijk voorspeld?
+
+De engine houdt drie uitkomsten uit elkaar:
+1. Historisch sessiesucces: geldige sessies met ten minste één doelsoortvangst gedeeld door alle geldige sessies.
+2. Vangsttempo `lambda`: geregistreerde doelsoortvangsten gedeeld door de totale bekende visduur, waarbij bevestigde nulvangstsessies meetellen in de blootstellingsduur.
+3. Persoonlijke kans op minimaal één doelsoortvangst tijdens de geplande duur: `1 - exp(-lambda × duur)`, met de bestaande bovengrens van 95%.
+
+De vergelijkbare sessies voor deze vangstkans worden gefilterd op:
+- afgeronde uitkomst `catch` of `skunk_confirmed`;
+- geen benchmark;
+- geselecteerde doelsoort (behalve bij Algemeen);
+- gekozen stek wanneer een `locationId` is meegegeven;
+- bij een sessie met uitkomst catch moet een bekend vangstrecord van de doelsoort bestaan.
+
+De Poisson-blootstellingsset vereist daarnaast een bekende werkelijke duur en bruikbare doelsoortvangstaantallen (bevestigde nulvangsten tellen mee als nulvangst/blootstelling). Er zijn minimaal vijf vergelijkbare sessies nodig voor het historische sessiesucces en minimaal vijf bruikbare duur-/vangstsessies voor het Poisson-vangsttempo. Bij onvoldoende aantallen blijft de kans onbekend.
+
+**Belangrijke scopebeperking:** de huidige persoonlijke Poisson-vangkans filtert niet op techniek, aas/voer, hengeltype of gekozen starttijdvak. De historische sessies worden op soort en optioneel stek samengenomen; duur wordt meegenomen als blootstelling. Dit is dus een persoonlijke soort-/stekbaseline, geen methode-specifieke of tijdvak-specifieke kans. De geselecteerde techniek wordt wel in de prognosecontext opgeslagen, maar is geen filter of correctie in deze berekening.
+
+De aparte `personalExperience` binnen ieder tijdvak gebruikt een andere selectie: doelsoort en starttijdvak, maar geen stekfilter. Dit tijdvakpercentage is dus ervaring over alle opgenomen stekken voor die soort/starttijd, en niet de lokale stekhistorie. Het is bovendien geen tijdvakgebonden Poisson-kans.
+
+### 189.2 Validatie van de persoonlijke vangstkans
+
+De bestaande `evaluationEngine` toetst de opgeslagen voorafgaande vangstkans aan de definitieve uitkomst van een gekoppelde, afgeronde sessie:
+- alleen de actuele modelversie;
+- voorspelling moet vóór de werkelijke sessiestart zijn opgeslagen;
+- per sessie/doelsoort telt de vroegste geldige voorspelling;
+- gepland en werkelijk tijdvenster moeten overeenkomen wanneer exacte intervalgrenzen bestaan; anders wordt het oudere targetSlot-contract gebruikt;
+- geplande en werkelijke sessieduur moeten op minuutprecisie overeenkomen; afwijkende of onbekende duur wordt uitgesloten;
+- Brier-score wordt pas getoond vanaf vijf onafhankelijke sessies; de rolling Brier-skill-baseline vereist minimaal vijf eerdere uitkomsten van dezelfde doelsoort die vóór het prognosemoment aantoonbaar zijn afgerond.
+
+Dit is een passende afzonderlijke evaluatieroute voor de catch-probability-uitkomst, maar de softwareminimums bewijzen geen statistische power. De evaluatie van de huidige Poisson-baseline valideert niet automatisch thermische activiteit, voeding of habitat.
+
+### 189.3 Aanwezigheidswaarnemingen: tijd- en labelkwaliteit
+
+Het type `PresenceObservationType` bevat onder meer springen/rollen, aasbellen/voedselactiviteit, de verouderde waarde aanbeten, recente vangst op de stek, geen waarnemingen en onbekend. De engine presenteert deze als context en kent er geen numerieke aanwezigheidsbonus aan toe. De code merkt expliciet op dat geen waarnemingen geen bewijs van afwezigheid is.
+
+Er bestaat een afzonderlijke `PresenceObservation`-tabel met een timestamp. De synchronisatie vanuit de sessiesamenvatting maakt voor een nieuw waarnemingsrecord echter `session.updatedAt` tot timestamp. Dat is het registratiemoment van de sessiewijziging, niet aantoonbaar het fysieke waarnemingstijdstip. Bestaande eventtimestamps worden behouden. Het huidige type bevat ook geen afzonderlijk veld voor waarnemingsduur of herhaalde aantallen van hetzelfde type binnen één sessie.
+
+De twee gecontroleerde hoofd-aanroeppaden zijn bovendien beperkt:
+- Prognosepagina geeft de geselecteerde enkelvoudige `presenceObservation` door.
+- VisCoach-planbuilder geeft `presenceObservation: 'onbekend'` door.
+- De optionele array `options.observations` wordt wel door de engine naar de habitatmodule doorgegeven, maar wordt in deze twee gecontroleerde aanroeppaden niet gevuld.
+- In de Prognosepagina-snapshot worden `observationIds` en `observationCount` op dit pad leeg/0 vastgelegd. De sessiesamenvatting wordt wel via de aparte synchronisatiehelper naar de waarnemingstabel gesynchroniseerd.
+
+**Conclusie:** de huidige waarnemingslabels zijn bruikbaar als kwalitatieve sessiecontext, maar nog geen betrouwbare tijdgebonden trainingslabels voor een numerieke aanwezigheid- of voedingsrespons. Het fysieke waarnemingstijdstip moet worden onderscheiden van het moment waarop de sessie is bijgewerkt. De legacywaarde `aanbeten` moet niet als nieuw eventtype worden gebruikt; nieuwe aanbeten horen volgens het typecontract bij `bitesCount`.
+
+### 189.4 Habitat-/bewegingsmodule
+
+`habitatMovementEngine` levert primaire/alternatieve zones en beweging-/omgevingshypothesen, met confidence en expliciete ontbrekende informatie. Invoer omvat watertype, geregistreerde stekdiepte, habitatkenmerken/notities, thermische analyse, gekozen tijdvak, wind, druktrend, bewolking en waarnemingen. De engine waarschuwt zelf dat geen sonar of gedetailleerde bathymetrische bodemkaart beschikbaar is en dat het lokale bodemverloop ter plaatse moet worden vastgesteld.
+
+De module is regel-/hypothesegebaseerd, niet een gekalibreerd kansmodel voor visaanwezigheid. Er bestaan vaste heuristische schakels zoals koud water onder 8 °C, voorjaarsopwarming vanaf 11 °C en warm water vanaf 18 °C. Deze zijn codevertakkingen/zoekhypothesen, geen gevalideerde biologische grenswaarden of numerieke habitatkans.
+
+### 189.5 Rol in het geïntegreerde prognoseontwerp
+
+- Persoonlijke vangstkans is een bestaande aparte numerieke uitkomst met eigen respons (vangst ≥1 per sessie), eigen invoerselectie en eigen Brier-validatie. Zij mag niet rechtstreeks worden opgeteld bij thermische activiteitspotentie.
+- De persoonlijke kans is op dit moment niet methode-/aas-/tijdvakgespecificeerd. Dat is een inhoudelijke modelgrens die vóór toekomstige integratie expliciet moet worden beoordeeld; er wordt nu geen extra filter of correctie geïntroduceerd.
+- Aanwezigheid en habitatbeweging zijn aparte responsen. De huidige labels en heuristische zone-uitvoer zijn nog onvoldoende tijdspecifiek en gekalibreerd voor een numerieke aanwezigheidsbijdrage.
+- Een toekomstige lokale aanwezigheid-/bewegingslaag vereist betrouwbare eventtijdstempels, herhaalbare waarnemingen, expliciete niet-waargenomen/geen-detectie-status en validatie op latere waarnemingen. Geen-waarneming mag niet als afwezigheid worden gecodeerd.
+
+**Vervolg:** controleer nu de resterende sessie-/vangstfeatures (techniek, aas/voer, hengeltype, aasrichting, voorvoer, aanbeten en vangsttijd) op feitelijke runtime-consumptie en snapshotprovenance. Daarna kan de eerste crosswalk worden afgesloten met een expliciete lijst van bestaande inputs die werkelijk actief zijn, alleen context blijven of pas na nieuwe lokale labels kandidaat zijn.
+
+Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
