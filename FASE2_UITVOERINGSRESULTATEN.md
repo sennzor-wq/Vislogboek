@@ -508,3 +508,21 @@ Read-only controle van `PrognosisView.tsx` en registry-querysemantiek:
 - Generieke registry-records hebben momenteel geen passende `measuredOutcomes` voor deze query; er is geen generieke bron die ongemerkt als soortspecifieke voedingsstudie wordt getoond.
 
 **Beoordeling:** consumentencontract is op dit punt inhoudelijk gescheiden; geen UI-fix nodig. Volgende stap: persoonlijke vangstkans en aanwezigheid-/habitatwaarnemingen controleren. Geen code, UI, score, tests of gebruikersdata gewijzigd.
+
+
+## Werkonderdeel 8 — voortgang 8.11: persoonlijke vangstkans en aanwezigheid/habitat gecontroleerd (22 november 2026)
+
+**Type werk:** read-only controle van prognose-engine, evaluatie-engine, habitatengine, types, database-synchronisatie en hoofd-aanroeppaden.
+
+### Vastgesteld
+- De persoonlijke Poisson-vangkans is een aparte soort-/optionele stekbaseline per geplande duur. Techniek, aas/voer, hengeltype en starttijdvak filteren of corrigeren de kans momenteel niet.
+- De tijdvakgebonden persoonlijke ervaring telt sessies per doelsoort en starttijdvak, maar is niet stekspecifiek.
+- Brier-validatie toetst de vooraf vastgelegde vangstkans tegen afgeronde sessie-uitkomsten met modelversie-, exacte tijdvenster- en duurmatching; dit is geen validatie van thermische activiteit, voeding of habitat.
+- Aanwezigheidslabels blijven kwalitatieve context. Nieuwe sessiesamenvattingsrecords krijgen bij synchronisatie `session.updatedAt` als registratietijd, niet aantoonbaar het fysieke waarnemingstijdstip.
+- De Prognosepagina geeft een geselecteerde enkelvoudige waarneming door; VisCoach geeft momenteel onbekend door. De optionele waarnemingenarray wordt in deze gecontroleerde hoofd-aanroeppaden niet gevuld.
+- Habitat-/bewegingsuitvoer is een regelgebaseerde zoekhypothese en geen gekalibreerde aanwezigheidskans. De code bevat heuristische temperatuur-/seizoenschakels die niet als gevalideerde grenzen mogen worden gelezen.
+
+### Vervolg
+Controleer de historische sessie-/vangstfeatures (techniek, aas/voer, hengeltype, aasrichting, voorvoer, aanbeten en vangsttijd) op feitelijke runtimeconsumptie en snapshotprovenance. Daarna kan de eerste factor-/respons-crosswalk worden afgesloten.
+
+Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd. Werkonderdeel 8 en Fase 2 blijven open; Fase 3 blijft geblokkeerd.
