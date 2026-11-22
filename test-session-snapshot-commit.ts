@@ -373,6 +373,20 @@ async function run() {
     'Segmentatie accepteert geen sessie langer dan 24 verstreken uren'
   );
 
+  const postIntervalForecast = segmentPrognosisInterval(
+    '2026-11-23T10:30:00+01:00',
+    '2026-11-23T11:30:00+01:00',
+    [
+      { ...intervalForecasts[0], time: '2026-11-23T09:00:00.000Z' },
+      { ...intervalForecasts[0], time: '2026-11-23T11:00:00.000Z' },
+    ]
+  );
+  assert(
+    postIntervalForecast.status === 'partial' &&
+      postIntervalForecast.uncoveredDurationMinutes === 60,
+    'Forecasturen na het geplande interval vullen ontbrekende segmenten niet aan'
+  );
+
   await db.delete();
   console.log(`Session snapshot commit tests: ${passed} geslaagd, ${failed} gefaald`);
   if (failed > 0) process.exit(1);
