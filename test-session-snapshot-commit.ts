@@ -353,6 +353,26 @@ async function run() {
     'Ongeldig interval wordt veilig geweigerd zonder segmenten'
   );
 
+  const duplicateForecastHour = segmentPrognosisInterval(
+    '2026-11-23T09:30:00+01:00',
+    '2026-11-23T12:15:00+01:00',
+    [...intervalForecasts, { ...intervalForecasts[1] }]
+  );
+  assert(
+    duplicateForecastHour.status === 'partial' &&
+      duplicateForecastHour.segments.some((segment) => !segment.weatherAvailable),
+    'Dubbele forecasttijdstempels worden ambigu behandeld als ontbrekende data'
+  );
+  const overlongInterval = segmentPrognosisInterval(
+    '2026-11-23T09:30:00+01:00',
+    '2026-11-24T09:31:00+01:00',
+    intervalForecasts
+  );
+  assert(
+    overlongInterval.status === 'invalid_interval' && overlongInterval.segments.length === 0,
+    'Segmentatie accepteert geen sessie langer dan 24 verstreken uren'
+  );
+
   await db.delete();
   console.log(`Session snapshot commit tests: ${passed} geslaagd, ${failed} gefaald`);
   if (failed > 0) process.exit(1);
