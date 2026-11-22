@@ -1157,3 +1157,13 @@ De eerste testvariant bracht twee bestaande tests over gelijke tijdvaksscores aa
 Scenario 8.6 is test-first uitgebreid met onbekende diepte, historische metingen die ná het doelmoment plaatsvinden, onvoldoende weerdekking, expliciete doelmomenten 08:00/12:00/15:00, een ontbrekend uur en de Amsterdamse lente- en herfst-DST-overgang. De uitbreiding staat in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. Alleen `test-thermal-and-prognosis.ts` is in deze stap aangepast; productiecode is ongemoeid gelaten.
 
 **Status:** GitHub Actions Quality Gate run 1107 is volledig groen. Scenario 8.5/8.6 slagen; kernprognose-/thermische tests: 80 geslaagd, 0 mislukt. De expliciet geplande as-of-randgevallenmatrix is daarmee gevalideerd. Dit is geen formele afronding van Fase 2: overige auditpunten en formele acceptatie blijven vereist. Fase 3 blijft geblokkeerd. Zie audit §196.
+
+
+
+### Fase 2 — contractaudit intervalgrenzen en PrognosisInputContext (22 november 2026)
+
+De thermische targetTime-as-of-poort is gevalideerd in Quality Gate 1107. De volgende stap uit het bestaande intervalcontract (§192.5 stap 2) is read-only gecontroleerd in audit §197: geplande start/eindtijden worden al als absolute ISO-grenzen op de pending- en opgeslagen snapshot bewaard en door de evaluatie gebruikt, maar ontbreken nog in `PrognosisInputContext`.
+
+De minimale richting is twee optionele contextvelden (`targetWindowStart`, `targetWindowEnd`) die vanuit exact hetzelfde genormaliseerde ISO-paar worden gevuld als de bestaande top-level snapshotvelden. Oude snapshots blijven geldig; top-level velden blijven bestaan voor evaluatie/backward compatibility; onbekende eindtijd blijft null en geen verzonnen duur. De inputfingerprint neemt de intervalgrenzen al op, maar moet na de contextuitbreiding expliciet op consistentie worden getest. `historyFingerprint` blijft ongewijzigd.
+
+**Volgende stap:** test-first dekking voor oude snapshots, context/top-level gelijkheid, onbekende eindtijd, fingerprintwijziging en legacy evaluatiefallback. Eerst het datetime-local/runtimezonecontract bevestigen; nog geen segmentatiehelper, intervalscore, scoregewichten of biologische aannames wijzigen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §197.
