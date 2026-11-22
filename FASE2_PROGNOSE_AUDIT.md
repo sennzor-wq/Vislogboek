@@ -5559,3 +5559,93 @@ De historische feature-snapshot is breder dan de actieve voorspellende runtime. 
 Daarmee is de eerste factor-/respons-crosswalk op hoofdlijnen compleet: alle zichtbare factoren, aanvullende responsmodules, persoonlijke gegevenslagen en tactiekmodules hebben een expliciete huidige rol en grens. Dit betekent niet dat de geïntegreerde score al ontworpen, geïmplementeerd of gevalideerd is. De volgende stap is de crosswalk als geheel technisch nalopen op volledigheid en tegenstrijdigheden met de bestaande gesloten auditbesluiten, en daarna de resterende ontwerpbesluiten/uitvoeringspoorten rangschikken. Geen nieuwe brede literatuurzoektocht.
 
 Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
+
+
+## 191. Consistentie-review factor-/respons-crosswalk tegen bestaande acceptatiecriteria (22 november 2026)
+
+De nieuwe crosswalk §§186–190 is vergeleken met de bestaande factorinventaris §§89, 102 en 132, het scoredoel §103, de evaluatiegrenzen §131, de formele zevenpuntsacceptatie en de VisCoach-productroadmap.
+
+### 191.1 Consistentie-uitkomst
+
+Er is geen tegenstrijdig nieuw productdoel of tweede prognosemodel geïntroduceerd. De nieuwe crosswalk vult de bestaande inventaris aan met de actuele codeconsumptie en de concrete contracten van de huidige services.
+
+| Bestaand criterium | Nieuwe dekking | Reviewuitkomst |
+|---|---|---|
+| 1. Eén doelrespons en gescheiden responsen | §§186.1–186.4, 189.5, 190 | Consistent met §103: de bestaande 1–10-score blijft biologische activiteit- en voedings-/foerageerpotentie. Persoonlijke vangstkans, habitat-aanwezigheid, vangbaarheid en datakwaliteit worden niet stilzwijgend in die respons gemengd. |
+| 2. Bronkwaliteit en overdraagbaarheid | §§186.1–186.2, 187 | Consistent met §132: registry is bewijsadministratie; 94 records, 0 numeriek goedgekeurd. De thermische curve blijft uitsluitend de eerder geaccepteerde voorlopige prior. |
+| 3. Water- en omgevingsdata | §§186.2, 186.4–186.5, 190 | Consistent met §§153–156: temperatuurprovenance en tijdstipgerichte thermische verwerking blijven eigen technische poort; wind/druk/regen/bewolking zijn geen automatische biologische effecten. Ontbrekende lokale zuurstof, stroming, troebelheid en prooigegevens blijven onbekend. |
+| 4. Tijdvak- en soortgedrag | §§186.2, 187–188, 192 | Direct voedingsritme blijft onderscheiden van foerageren, locomotie en habitat. Er bestaat nog geen gevalideerde biologische tijdvakrangschikking. |
+| 5. Lokale leer- en evaluatieketen | §§189–190 | Brier/BSS blijft uitsluitend voor persoonlijke vangstkans; temperatuurfoutmaten uitsluitend voor de thermische schatter. Directe lokale activiteit-/voedings-/habitatlabels ontbreken. |
+| 6. Gebruiksvriendelijkheid en VisCoach | §§188, 190, 192 | Consistent met de VisCoach-roadmap: Prognose blijft de bron van prognostische uitkomsten; VisCoach vertaalt deze naar één samenhangend advies- en tactiekplan. Geen tweede VisCoach-prognose. Voorvoerhoeveelheden/gating en optionele hengel-/methodepreset blijven aparte productbesluiten. |
+| 7. Technische borging | Alle nieuwe controles zijn read-only | Geen codewijziging of Quality Gate geclaimd. Eventuele toekomstige codewijzigingen vereisen diff-review, regressietests en groene gates op exacte PR-head en mergecommit. |
+
+### 191.2 Nog open formele Fase 2-poorten
+
+1. De ene bestaande 1–10-score is nog niet samengesteld uit de uiteindelijke evidence-backed responsbijdragen; alleen de voorlopige thermische prior is actief.
+2. Geen numerieke voedings-/foerageerbron is goedgekeurd; soort-/levensfase-/watertypeoverdracht blijft per respons begrensd.
+3. Er ontbreken directe lokale biologische labels voor thermische activiteit, voedselopname/foerageren, habitat-aanwezigheid en tijdvakvoorkeur. Deze ontbreken blokkeren numerieke validatie, niet het documenteren van het ontwerp.
+4. De tijdvakscore is nog geen volledig gevalideerde tijdvakrespons en de geplande sessie wordt nog niet als interval gescoord.
+5. De voorvoergrammen en confidence-gating en de optionele herbruikbare hengel-/methodepreset blijven afzonderlijke eigenaar-/productbesluiten. Ze worden niet in de biologische totaalscore verwerkt.
+6. De bestaande waterthermische tijdstipuitvoer vraagt nog een gerichte as-of-/fallbackcontrole voordat zij als tijdspecifieke input voor een intervalscore wordt hergebruikt (zie §192).
+
+**Reviewbesluit:** de eerste factor-/respons-crosswalk is inhoudelijk volledig op hoofdlijnen en consistent met de bestaande product- en acceptatiebesluiten. De crosswalk vervangt §§89/102/132 niet; zij actualiseert de code-/runtime-contractlaag. Werkonderdeel 8 kan als read-only audit- en contractonderzoek worden gesloten zodra het intervalcontractvoorstel in §192 is vastgelegd. Fase 2 zelf blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 192. Minimaal contractvoorstel voor prognose over het geplande VisCoach-sessie-interval (22 november 2026)
+
+**Status:** ontwerpvoorstel op basis van bestaande contracten; geen runtimebesluit of implementatie. De Prognosepagina blijft de algemene dag-/tijdvakprognose. VisCoach blijft de advieslaag die de prognose-uitkomsten gebruikt. De intervalscore hoort bij de bestaande prognoseketen en vormt geen afzonderlijke VisCoach-prognose.
+
+### 192.1 Bestaande contracten die moeten worden hergebruikt
+
+- De VisCoach-interface heeft al gewenste starttijd en optionele gewenste eindtijd; de maximale bekende sessieduur is 24 uur.
+- De planbuilder geeft de berekende duur door aan de persoonlijke vangstkans en bewaart start/einde in PendingPrognosisSnapshot.targetWindowStart/targetWindowEnd en de inputfingerprint.
+- PrognosisInputContext bewaart de exacte intervalgrenzen nog niet als expliciete velden. De intervalgrenzen staan dus wel in de snapshot en fingerprint, maar niet volledig in de modelinvoercontext.
+- targetTimeSlot wordt uit de starttijd bepaald en is alleen tactische startcontext. Het is geen sessie-intervalscore.
+- calculateDayPrognosis berekent één Amsterdamse kalenderdatum; de tijdvakscore gebruikt representatieve tijdpunten. De geplande intervalgrenzen worden niet gebruikt om de thermische of biologische score over de volledige sessie te segmenteren.
+- De volledige uurlijkse weersreeks wordt in de snapshot als weatherInput bewaard. De provider levert maximaal acht forecastdagen; het sessie-interval is maximaal 24 uur.
+- resolveSelectedTimeSlot kan alleen één tijdvak teruggeven wanneer de hele sessie daarin past. Bij tijdvakoverschrijding geeft het geen tijdvak terug; bij datumoverschrijding ondersteunt het geen algemene segmentberekening.
+- timeSlotExposureEngine segmenteert geregistreerde hengeluren over tijdvakken, datumgrenzen en DST. Dit is een technische referentie voor intervalsegmentatie, maar de uitkomst is hengelblootstelling en mag niet als biologische score worden gebruikt.
+
+### 192.2 Eerst te bewaken thermische tijdstipbeperking
+
+De huidige waterThermalEngine accepteert targetTime en beperkt de chronologische weatherSinceAnchor-reeks tot en met dat doelmoment. Dat is echter nog geen volledige garantie dat iedere thermische uitvoer strikt as-of dat tijdstip is:
+- De dagelijkse dayAvg, dayMin, dayMax, gemiddelde wind, bewolking en straling worden uit de volledige forecast van de doeldag berekend, ook wanneer deze waarden ná targetTime liggen.
+- De 24-/72-uursvensters voor de fallback-/trendberekening zijn aan 12:00 lokale doeldag gekoppeld, niet aan het expliciete targetTime.
+- Bij een bruikbaar meetanker, bekende waterdiepte en voldoende weersdekking gebruikt de uiteindelijke ankergestuurde temperatuurupdate wel de chronologische uren tot targetTime. Andere paden (onder meer zonder passend anker of met onvoldoende dekking) kunnen de volledige daggemiddelden en noon-gecentreerde vensters gebruiken voor de geschatte temperatuur. Trend-/contextmetadata gebruiken eveneens dagbrede waarden.
+- De bestaande regressietest controleert een stabiele reeks vanaf een meetanker en dat een forecast opgehaald ná het prognoseberekeningstijdstip wordt geweigerd. Zij controleert niet dat het wijzigen van weeruren ná een vroeg targetTime de temperatuur op dat eerdere tijdstip onveranderd laat.
+
+**Vereiste vóór intervalhergebruik:** maak de doelmomentberekening strikt tijdgebonden: alle forcings en rolling 24-/72-uursvensters die de toestand op targetTime beïnvloeden, moeten eindigen op dat doelmoment. Dagbrede samenvattingen mogen als afzonderlijke dagcontext behouden blijven, maar mogen geen toekomstige uren gebruiken om een eerdere thermische toestand te berekenen. Voeg een metamorfische regressietest toe: wijzig alleen weersuren ná het doelmoment en controleer dat de thermische toestand op het eerdere doelmoment niet verandert. Test dit voor meetanker, historisch profiel en weer-only/fallbackroutes, plus ontbrekende uren en forecast-as-of.
+
+Dit is een concrete aanvullende auditbevinding, geen claim dat iedere bestaande temperatuuruitkomst fout is. De ankergestuurde route met voldoende dekking heeft al een chronologische update; de fallbackroutes en dagbrede metadata moeten expliciet worden begrensd.
+
+### 192.3 Voorgesteld minimaal intervalcontract
+
+1. **Eén bron van waarheid voor het interval:** hergebruik targetWindowStart en targetWindowEnd. Neem dezelfde waarden ook expliciet op in PrognosisInputContext zodat de snapshot de gebruikte modelinvoer volledig kan reproduceren. Maak geen parallel VisCoachPrognosis- of tweede intervalobject.
+2. **Tijdsemantiek:** bewaar absolute ISO-instanties met ondubbelzinnige Amsterdamse lokale interpretatie; segmentatie gebruikt absolute tijd en Europe/Amsterdam-grenzen. DST, middernacht en datumovergangen worden expliciet getest.
+3. **Onbekende eindtijd:** wanneer de gebruiker geen eindtijd invult, blijft de sessieduur onbekend. Er wordt geen standaardduur aangenomen en geen volledige intervalscore of alternatieve-duurvergelijking verzonnen. De prognose kan de gekozen starttijd en beschikbare dag-/tijdvakcontext tonen; VisCoach kan dit vertalen naar een eerste plan.
+4. **Bekend interval:** wanneer start en einde bestaan, segmenteer het volledige interval op de grenzen van beschikbare uurlijkse forecaststappen, bestaande zesuurs-tijdvakken en lokale kalenderdatums. Elk segment krijgt een exacte begin-/eindtijd en werkelijke duur; gedeeltelijke eerste/laatste uren tellen alleen voor hun overlapduur.
+5. **Doorlopende thermische toestand:** bereken thermische toestand chronologisch vanaf hetzelfde laatst geldige meetanker door de sessie heen. Start niet elk segment opnieuw vanaf de oorspronkelijke meting. Gebruik alleen weerforcings tot het betreffende doelmoment; pas §192.2 eerst toe.
+6. **Responsresolutie respecteren:** thermische/weather-input mag de beschikbare uurlijkse resolutie gebruiken. Direct voedings-/foerageerbewijs mag alleen op de tijdsresolutie van de bron worden toegepast (bijvoorbeeld dagdeel of dag); een coarse bron wordt niet kunstmatig tot een uurpiek geïnterpoleerd.
+7. **Scorecompositie:** de uiteindelijke biologische activiteit-/voedingspotentie wordt per segment uit dezelfde toegelaten factorarchitectuur opgebouwd. Een sessie-uitkomst wordt over de feitelijke segmentduur beoordeeld; een factor met dagresolutie wordt niet viermaal als onafhankelijke bonus geteld. De precieze normalisatie, responsfuncties en gewichten blijven onderdeel van de aparte scoremodelreview en worden hier niet ingevuld.
+8. **Dekking en ontbrekende gegevens:** leg per factor/segment vast welke data beschikbaar zijn, welke duur wordt gedekt en welke onzekerheid geldt. Ontbrekende segmenten zijn onbekend, niet neutraal. Een totaalscore wordt alleen getoond wanneer de later vast te stellen coverage-/kwaliteitsregel dit toestaat; er wordt nu geen willekeurige minimumdekking gekozen.
+9. **Alternatief vergelijken:** vergelijk alleen intervallen met dezelfde duur, soort, stek en vergelijkbare forecast-as-of. Bij marginale verschillen of overlappende onzekerheid blijft de oorspronkelijke gebruikersplanning leidend. Een numerieke verschilgrens wordt pas na scorekalibratie en eigenaarbesluit vastgesteld.
+10. **Verantwoordelijkheden:** de prognose-engine levert de intervalgebonden biologische uitkomst, factorbijdragen, dekking en onzekerheid. VisCoach vertaalt dit naar het samenhangende verhaal, timingadvies en tactiek. Persoonlijke Poisson-vangkans blijft een aparte uitkomst en wordt niet bij de biologische score opgeteld.
+
+### 192.4 Technische uitvoeringsvarianten
+
+| Variant | Werking | Beoordeling |
+|---|---|---|
+| A. Alleen bestaande zesuurs-tijdvakken naar overlapduur middelen | De sessie wordt geknipt op Nacht/Ochtend/Middag/Avond; ieder segment gebruikt de bestaande representatieve tijdvakuitkomst. | Kleinste eerste wijziging, maar grof: een sessie van één uur kan dezelfde factorwaarde krijgen als een heel dagdeel en de representatieve tijdpuntscore is niet automatisch een intervalrespons. Alleen bruikbaar als expliciet tijdelijke coarse fallback met zichtbare resolutiebeperking. |
+| B. Hybride tijdsegmenten op uurlijkse forecaststappen plus tijdvak-/datumgrenzen | De thermische toestand en weersinput volgen uurlijkse stappen; biologische voedings-/foerageerbronnen behouden hun eigen grovere bronresolutie. Segmentbijdragen worden naar werkelijke overlapduur samengebracht. | **Voorkeursrichting voor het uiteindelijke contract.** Sluit aan op beschikbare forecastresolutie, voorkomt een geforceerde enkelvoudige winnaar en laat per factor de echte bewijsresolutie zien. Vereist eerst de strikte as-of-fix/test uit §192.2 en een goedgekeurde score-/coveragearchitectuur. |
+
+### 192.5 Volgorde vóór implementatie
+
+1. Sluit de strict-as-of-test voor alle thermische tijdstiproutes.
+2. Leg intervalgrenzen vast in PrognosisInputContext en bevestig replay-/fingerprintcompatibiliteit; geen tweede intervalbron.
+3. Ontwerp de pure segmentatiehelper met Amsterdamse tijd, DST, middernacht, gedeeltelijke uren en ontbrekende forecaststappen.
+4. Definieer per factor welke resolutie zij werkelijk ondersteunt en hoe segmentdekking/ontbrekende data worden gerapporteerd.
+5. Pas daarna een kandidaat intervalscore toe binnen de bestaande prognose-engine en toets deze tegen de bestaande dag-/thermische baseline. Geen scoreformule, gewichten of drempels zonder afzonderlijke goedkeuring en validatie.
+
+**Status werkonderdeel 8:** de read-only factor-/respons-crosswalk en het intervalcontractvoorstel zijn uitgewerkt. Werkonderdeel 8 kan als audit-/ontwerponderdeel worden afgesloten; de genoemde thermische as-of-correctie, intervalscore, geïntegreerde score en tests zijn afzonderlijke vervolgwerkzaamheden en zijn niet uitgevoerd.
+
+Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests uitgevoerd; geen biologische validatie geclaimd. Fase 2 blijft open en Fase 3 blijft geblokkeerd.
