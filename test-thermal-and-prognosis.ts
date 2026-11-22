@@ -434,7 +434,7 @@ async function run14Scenarios() {
 
   // 8.5 As-of invariant: weather samples strictly after targetTime may not alter
   // any thermal estimate or trend that is presented as known at that target instant.
-  console.log('\\n--- SCENARIO 8.5: Geen invloed van weersdata ná het doelmoment ---');
+  console.log('\n--- SCENARIO 8.5: Geen invloed van weersdata ná het doelmoment ---');
   const asOfTarget = '2026-10-23T15:00:00';
   const asOfReference = new Date('2026-10-20T12:00:00.000Z');
   const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8);
