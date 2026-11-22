@@ -583,3 +583,21 @@ Read-only hercontrole van prebaitEngine, PrognosisView, VisCoachView en sessionC
 - De algemene Prognosepagina heeft een zichtbare sessieduurselector met standaard 3 uur. VisCoach laat de eindtijd optioneel en toont geen sessiegrammen zonder expliciet bekende duur, ook al gebruikt de engine intern een technische standaard voor een verborgen sessiehoeveelheid.
 
 **Status:** punt 5 niet heropend; geen code of parameters gewijzigd en geen tests opnieuw uitgevoerd. De actuele volgende technische poort is de strikte targetTime-as-of-invariant uit audit §192.2.
+
+
+## Werkonderdeel 9 — voortgang 9.1: strikte targetTime-as-of-audit (22 november 2026)
+
+**Type werk:** read-only inspectie van waterThermalEngine.ts en bestaande thermische regressietests.
+
+### Correcte bestaande waarborgen
+- Meetankers ná targetTime worden uitgesloten.
+- De ankergestuurde weatherSinceAnchor-reeks eindigt op targetTime.
+- Bij bekende diepte en voldoende dekking wordt de watertemperatuur chronologisch vanaf hetzelfde meetanker bijgewerkt.
+- Forecastpayloads met een as-of na calculatedAt worden geweigerd.
+
+### Resterende afwijking
+Dagbrede temperatuur-, wind-, cloud- en stralingsstatistieken worden uit de volledige doeldag berekend; 24-/72-uursvensters zijn aan lokale 12:00 gekoppeld. Deze waarden worden gebruikt in trend-/context en fallbackroutes. Daardoor is de tijdstipuitvoer niet voor alle paden strikt onafhankelijk van weeruren na targetTime.
+
+De bestaande tests controleren een stabiele ankergestuurde reeks en forecast-as-of, maar veranderen geen latere uren terwijl de eerdere uren gelijk blijven. De benodigde metamorfische testmatrix staat in audit §194.4 en omvat meetanker, historisch profiel, weather-only, onbekende diepte, onvoldoende dekking, verschillende doeluren, ontbrekende uren en DST.
+
+**Status:** alleen audit/testontwerp. Geen code of tests gewijzigd of uitgevoerd. Volgende technische stap is test-first implementatie binnen de bestaande waterThermalEngine; daarvoor is een normale codewijzigingsworkflow nodig. Fase 2 blijft open; Fase 3 geblokkeerd.
