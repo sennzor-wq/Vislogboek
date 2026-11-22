@@ -437,10 +437,15 @@ async function run14Scenarios() {
   console.log('\n--- SCENARIO 8.5: Geen invloed van weersdata ná het doelmoment ---');
   const asOfTarget = '2026-10-23T15:00:00';
   const asOfReference = new Date('2026-10-20T12:00:00.000Z');
-  const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8);
+  const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8).map((hour) => ({
+    ...hour,
+    shortwaveRadiation: 400,
+    relativeHumidity: 60,
+    dewPoint: 8,
+  }));
   const asOfChangedFutureForecasts = asOfBaseForecasts.map((hour) => {
     return hour.time > '2026-10-23T15:00'
-      ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 }
+      ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
       : hour;
   });
   const asOfWeatherOnlyBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
