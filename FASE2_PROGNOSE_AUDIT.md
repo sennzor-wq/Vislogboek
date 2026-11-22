@@ -5887,3 +5887,20 @@ De contractuitbreiding is nu minimaal geïmplementeerd op de auditbranch:
 In `test-session-snapshot-commit.ts` is een regressietest toegevoegd die de echte VisCoach-planbuilder met een lokale weerscache uitvoert. De test controleert context/top-level gelijkheid, bekende duur, exacte fingerprintpayload, fingerprintwijziging bij een ander eindmoment en het behoud van een onbekende eindtijd als `null`/onbekende duur. De bestaande legacy snapshotfixtures blijven zonder deze optionele velden bestaan.
 
 **Validatiestatus:** GitHub Actions Quality Gate run **1117** is volledig groen (run-id `45074683749`). Typecheck, alle bestaande tests, de nieuwe `test-session-snapshot-commit.ts`-checks (19 geslaagd, 0 mislukt), productiebuild, private-artifactcontrole en dependency-audits zijn geslaagd. De run valideerde de code/testcommit `95753d5bdaf921ee613ca3b90b34dd48871293b5`; de daaropvolgende wijzigingen zijn uitsluitend documentatie.
+
+
+
+### 197.6 Quality Gate 1117 — intervalcontext volledig groen
+
+GitHub Actions Quality Gate run **1117** (run-id `45074683749`) is succesvol afgerond op commit `95753d5bdaf921ee613ca3b90b34dd48871293b5`.
+
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressies: geslaagd.
+- Alle bestaande prognose-, biologische evidence-, thermische, historie-, Brier-, VisCoach-, backup- en veiligheidstests: geslaagd.
+- `test-session-snapshot-commit.ts`: **19 geslaagd, 0 mislukt**. Alle nieuwe planbuilder-, intervalcontext-, fingerprint- en onbekende-eindtijdassertions slagen.
+- Productiebuild en private-artifactcontrole: geslaagd.
+- Dependency-audits: geslaagd.
+
+De Quality Gate valideerde de code- en testwijzigingen. De daaropvolgende commits op de auditbranch wijzigen uitsluitend documentatie. PR #214 blijft draft en niet gemerged; `main` is ongemoeid.
+
+**Status werkonderdeel 2 van §192.5:** de canonieke intervalgrenzen staan nu ook expliciet in `PrognosisInputContext`, met backward-compatible optionele velden en een groene regressiepoort. De volgende stap is de pure segmentatiehelper uit §192.5 stap 3, maar pas nadat het Amsterdamse tijdzonecontract voor datetime-local-invoer als ontwerpregel is vastgelegd. De intervalscore en Fase 3 blijven geblokkeerd.
