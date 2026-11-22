@@ -606,6 +606,43 @@ async function run14Scenarios() {
     '8.6.5 Een ontbrekend uur vóór targetTime veroorzaakt geen toekomstige-weersdata-lek'
   );
 
+  const dstTargets = [
+    { date: '2026-10-25', target: '2026-10-25T02:30:00+01:00', label: 'herfstovergang met dubbel 02:00' },
+    { date: '2026-03-29', target: '2026-03-29T03:30:00+02:00', label: 'lenteovergang na overgeslagen 02:00' },
+  ];
+  for (const dstCase of dstTargets) {
+    const targetMs = Date.parse(dstCase.target);
+    const dstBaseForecasts = Array.from({ length: 120 }, (_, index) => ({
+      ...asOfBaseForecasts[0],
+      time: new Date(targetMs - 96 * 3600000 + index * 3600000).toISOString(),
+      temperature: 12,
+      cloudCover: 40,
+      windSpeed: 8,
+    }));
+    const dstFutureChanged = dstBaseForecasts.map((hour) =>
+      Date.parse(hour.time) > targetMs
+        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 }
+        : hour
+    );
+    const dstReference = new Date(targetMs - 72 * 3600000);
+    const dstBase = analyzeWaterThermalDevelopment(dstCase.date, dstBaseForecasts, {
+      location: locUnknownDepth,
+      currentDateRef: dstReference,
+      targetTime: dstCase.target,
+    });
+    const dstChanged = analyzeWaterThermalDevelopment(dstCase.date, dstFutureChanged, {
+      location: locUnknownDepth,
+      currentDateRef: dstReference,
+      targetTime: dstCase.target,
+    });
+    assert(
+      dstBase.estimatedWaterTemp === dstChanged.estimatedWaterTemp &&
+        dstBase.trend === dstChanged.trend &&
+        dstBase.trendConfidence === dstChanged.trendConfidence,
+      `8.6.6 DST-as-of invariant blijft gelden bij ${dstCase.label}`
+    );
+  }
+
   // 9. Ontbrekende of onvolledige historische weergegevens
   console.log('\n--- SCENARIO 9: Ontbrekende of onvolledige weerdata ---');
   const s9 = analyzeWaterThermalDevelopment('2026-10-23', [], { location: locLokkershoek });
