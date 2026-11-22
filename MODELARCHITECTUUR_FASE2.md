@@ -1486,3 +1486,13 @@ Audit §199 introduceert `segmentPrognosisInterval` in `prognosisIntervalEngine.
 Ontbrekende uurstappen worden expliciet onbekend; samples worden niet geïnterpoleerd of over gaten doorgetrokken. Dubbele absolute uurstempels worden ambigu/ontbrekend behandeld. Een onbekende eindtijd levert geen segmenten of gefabriceerde duur; een interval langer dan 24 verstreken uren wordt geweigerd.
 
 De dekkingratio is alleen tijdsdekking van forecastrecords, niet de beschikbaarheid van iedere factor. De helper berekent geen factorbijdrage, biologische score of advies. De testmatrix omvat gedeeltelijke uren, tijdvak-/middernachtgrenzen, ontbrekende stappen, forecasturen buiten het interval, DST, dubbele samples en ongeldige/overlange intervallen. Quality Gate 1132 is volledig groen; de segmentatiecontracttests eindigden op 30/0. Zie audit §199.
+
+
+
+## 165. Factorresolutie is niet gelijk aan segmentdekking
+
+Audit §200 mapt de bestaande resolutie: thermische respons per 6-uurs slot op een representatief forecastmoment; druk/wind/bewolking/neerslag met eigen geldige-sample-drempels; persoonlijke ervaring op sessiestarttijdvak; persoonlijke vangkans op historische sessieduur en vangsten; aanwezigheid als expliciete waarneming; tactische wind-/habitat-/positioneringsmodules op de gekozen startperiode; voorvoer op doeldatum en planningscontext; hengelblootstelling op expliciet geregistreerde actieve intervallen.
+
+De generieke `weatherAvailable` van de segmentatiehelper is geen vervanging voor factor-specifieke `factorAvailable`. Iedere factor behoudt zijn eigen vereiste velden, validatie, lookback en minimale dekking. Een kort gepland interval mag de bestaande 3-uit-6 slotregel niet automatisch overnemen of verlagen. Context-/adviesfactoren blijven niet-numeriek; alleen de bestaande thermische factor voedt de huidige activiteitsscore. Vangkans, aanwezigheid en tactische adviezen blijven aparte uitkomsten.
+
+Volgende stap is de factor-specifieke dekking en resolutie per segment verder uitwerken; geen scoreweging of nieuwe biologische bonus introduceren. Zie audit §200.
