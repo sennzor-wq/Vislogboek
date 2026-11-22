@@ -496,3 +496,15 @@ Geen code, tests, scoreformule, gewichten, drempels, bronstatus, gebruikersdata,
 Controleer de Prognosepagina-weergave om te verifiëren dat directe voeding, foerageren, dieet/prooikeuze en beweging niet als één voorspelde voedingsuitkomst worden gepresenteerd. Daarna volgen de persoonlijke vangstkans en de kwaliteit van aanwezigheid-/habitatlabels.
 
 Geen code, tests, scoreformule, gewichten, drempels, bronstatus, UI of gebruikersdata gewijzigd. Werkonderdeel 8 blijft open; Fase 2 blijft open en Fase 3 geblokkeerd.
+
+
+## Werkonderdeel 8 — voortgang 8.10: gebruikersweergave voedingsbewijs gecontroleerd (22 november 2026)
+
+Read-only controle van `PrognosisView.tsx` en registry-querysemantiek:
+- De Prognosepagina toont brongebonden onderzoekscontext alleen bij een geselecteerde soort.
+- Voedselopname/-ritme en foerageergedrag worden afzonderlijk weergegeven, met samenvatting, beperkingen, referenties en bewijsstatus.
+- De UI zegt expliciet dat dit geen actuele voedingsvoorspelling is en geen invloed heeft op thermische activiteitspotentie, beste tijdvak of persoonlijke vangstkans.
+- Dieet/prooikeuze wordt niet als voedingsintensiteit gepresenteerd.
+- Generieke registry-records hebben momenteel geen passende `measuredOutcomes` voor deze query; er is geen generieke bron die ongemerkt als soortspecifieke voedingsstudie wordt getoond.
+
+**Beoordeling:** consumentencontract is op dit punt inhoudelijk gescheiden; geen UI-fix nodig. Volgende stap: persoonlijke vangstkans en aanwezigheid-/habitatwaarnemingen controleren. Geen code, UI, score, tests of gebruikersdata gewijzigd.
