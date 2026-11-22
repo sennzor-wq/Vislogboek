@@ -237,6 +237,9 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   if (durationHours !== null && (durationHours <= 0 || durationHours > 24)) {
     throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
   }
+  // Eén genormaliseerd intervalpaar voedt context, fingerprint en snapshot.
+  const targetWindowStart = start.toISOString();
+  const targetWindowEnd = end?.toISOString() ?? null;
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
   const [weather, snapshots, locations] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
@@ -307,6 +310,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     calculatedAt: new Date().toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
     targetDate: date,
+    targetWindowStart,
+    targetWindowEnd,
     targetTimeSlot: tacticalStartSlot ?? null,
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
@@ -341,8 +346,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   const inputFingerprint = createPrognosisInputFingerprint({
     inputContext,
     date,
-    desiredStartTime: start.toISOString(),
-    desiredEndTime: end?.toISOString() ?? null,
+    desiredStartTime: targetWindowStart,
+    desiredEndTime: targetWindowEnd,
     species: input.targetSpecies,
     locationId: input.location.id,
     weather: weather.hourly,
@@ -355,8 +360,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     durationKnown: durationHours !== null,
     locationName: input.location.name,
     chosenSlot: tacticalStartSlot,
-    targetWindowStart: start.toISOString(),
-    targetWindowEnd: end?.toISOString() ?? null,
+    targetWindowStart,
+    targetWindowEnd,
     conditions,
     weatherInput: weather.hourly,
     inputContext,
@@ -367,8 +372,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   return {
     prognosis,
     pendingSnapshot,
-    desiredStartTime: start.toISOString(),
-    desiredEndTime: end?.toISOString() ?? null,
+    desiredStartTime: targetWindowStart,
+    desiredEndTime: targetWindowEnd,
     durationHours,
     selectedTimeSlot,
   };
