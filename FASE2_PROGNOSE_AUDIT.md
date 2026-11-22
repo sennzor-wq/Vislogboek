@@ -5785,3 +5785,21 @@ Deze correctie sluit de aangetoonde future-weather leakage voor de geteste weath
 PR #214 blijft draft en is niet gemerged. De auditbranch blijft afgescheiden van `main`; er is niets naar `main` gemerged. Geen gebruikersdata of database-inhoud gewijzigd.
 
 **Status:** de minimale as-of-correctie en bijbehorende CI-poort zijn groen. De bredere randgevallenmatrix uit §194.4 blijft open; intervalscoring en Fase 3 blijven geblokkeerd totdat de resterende validatie en formele Fase 2-acceptatie zijn afgerond.
+
+
+
+## 196. Uitbreiding targetTime-randgevallenmatrix — test-first (22 november 2026)
+
+Na de minimale correctie uit §195 is de regressiematrix uitgebreid in `test-thermal-and-prognosis.ts` (scenario 8.6). Dit is uitsluitend testcode; de thermische productie-engine is in deze stap niet gewijzigd.
+
+Toegevoegde assertions:
+- Onbekende stekdiepte: weer-only temperatuur, trend en trendbetrouwbaarheid blijven invariant bij wijziging van forecasturen ná het doelmoment.
+- Historisch seizoensprofiel: een echte meting die pas na het doelmoment/de doeldag plaatsvindt, mag niet in het historische profiel terechtkomen.
+- Onvoldoende weersdekking: minder dan zes doeldaguren en onvoldoende voorafgaande 72-uursdekking blijven leiden tot de bestaande veilige status 'Onvoldoende gegevens'; latere uren vullen die dekking niet aan.
+- Expliciete doelmomenten 08:00, 12:00 en 15:00: wijziging van uitsluitend latere forecasturen mag temperatuur, trend en trendbetrouwbaarheid niet wijzigen.
+- Ontbrekend uur vóór het doelmoment: een datagat mag geen toekomstige weersinformatie laten doorlekken.
+- DST-herfstovergang (25 oktober 2026, tweede 02:30 met expliciete +01:00-offset) en lenteovergang (29 maart 2026, 03:30 met expliciete +02:00-offset): de as-of-invariant wordt gecontroleerd met absolute tijdstempels.
+
+**Validatiestatus:** deze aanvullende assertions zijn toegevoegd in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. De Quality Gate-uitvoering voor deze nieuwe commit is nog niet bevestigd. Er wordt dus nog geen geslaagd resultaat geclaimd. Eventuele testfouten moeten eerst inhoudelijk worden onderzocht; pas daarna kan de matrix worden gesloten.
+
+Geen runtimecode, scoreformule, biologische parameters, gewichten, gebruikersdata, database, snapshots of UI gewijzigd in deze testuitbreiding. PR #214 blijft draft en niet gemerged; `main` blijft ongemoeid. Fase 2 en de as-of-randgevallenpoort blijven open.
