@@ -1364,3 +1364,10 @@ Audit §186 koppelt de zichtbare factoren en aanvullende prognosemodules aan hun
 - De registry bevat 94 records en 0 numeriek goedgekeurde biologische bronnen. Dit blokkeert ongefundeerde bronactivatie, niet het verdere ontwerp of de technische voorbereiding van afzonderlijke responslagen.
 
 De eerste kandidaat voor verdere contractcontrole is de bestaande soortspecifieke voedings-/foerageerevidence-service, gevolgd door de persoonlijke vangstkans- en aanwezigheid/habitatcontracten. Zie audit §186.6. Geen runtimewijziging of numerieke modelkeuze volgt automatisch uit deze crosswalk.
+
+
+## 153. Voedings-/foerageerevidence-service is bewijsindex, geen score-engine (22 november 2026)
+
+Audit §187 bevestigt dat de service vijf responsen afzonderlijk bundelt, maar geen automatische filtering uitvoert op levensfase, watertype, seizoen, habitat of onderzoeksopzet. De generieke registry-query kan soortneutrale bronnen meenemen; de diel-service sluit generieke bronnen juist uit en vereist een expliciete soortkoppeling. De approval-poort blijft leidend; op de gecontroleerde registry-basis is de goedgekeurde voedingsbronlijst leeg.
+
+Een aanwezig direct-feeding-record betekent uitsluitend dat literatuur over die respons is geregistreerd, niet dat actuele voedselopname wordt voorspeld. Een toekomstige voedingslaag moet bronselectie, responsvariabele, toepassingsgebied, tijdsresolutie, ontbrekende-dataregel en lokale validatielabels expliciet vastleggen. Vangsten of generieke sessieobservaties zijn geen vervangende directe voedingslabels. Geen runtimewijziging of scoreactivatie.
