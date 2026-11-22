@@ -439,9 +439,7 @@ async function run14Scenarios() {
   const asOfReference = new Date('2026-10-20T12:00:00.000Z');
   const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8);
   const asOfChangedFutureForecasts = asOfBaseForecasts.map((hour) => {
-    const timestamp = new Date(hour.time).getTime();
-    const target = new Date('2026-10-23T15:00:00+02:00').getTime();
-    return timestamp > target
+    return hour.time > '2026-10-23T15:00'
       ? { ...hour, temperature: 32, cloudCover: 0, windSpeed: 35 }
       : hour;
   });
