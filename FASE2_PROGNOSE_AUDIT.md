@@ -5886,4 +5886,4 @@ De contractuitbreiding is nu minimaal geïmplementeerd op de auditbranch:
 
 In `test-session-snapshot-commit.ts` is een regressietest toegevoegd die de echte VisCoach-planbuilder met een lokale weerscache uitvoert. De test controleert context/top-level gelijkheid, bekende duur, exacte fingerprintpayload, fingerprintwijziging bij een ander eindmoment en het behoud van een onbekende eindtijd als `null`/onbekende duur. De bestaande legacy snapshotfixtures blijven zonder deze optionele velden bestaan.
 
-**Validatiestatus:** code en tests zijn vastgelegd; de Quality Gate voor de actuele commit is nog niet bevestigd. Geen succesclaim totdat typecheck en volledige Quality Gate op de exacte PR-head groen zijn.
+**Validatiestatus:** GitHub Actions Quality Gate run **1117** is volledig groen (run-id `45074683749`). Typecheck, alle bestaande tests, de nieuwe `test-session-snapshot-commit.ts`-checks (19 geslaagd, 0 mislukt), productiebuild, private-artifactcontrole en dependency-audits zijn geslaagd. De run valideerde de code/testcommit `95753d5bdaf921ee613ca3b90b34dd48871293b5`; de daaropvolgende wijzigingen zijn uitsluitend documentatie.
