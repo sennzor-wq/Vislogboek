@@ -5504,3 +5504,58 @@ De module is regel-/hypothesegebaseerd, niet een gekalibreerd kansmodel voor vis
 **Vervolg:** controleer nu de resterende sessie-/vangstfeatures (techniek, aas/voer, hengeltype, aasrichting, voorvoer, aanbeten en vangsttijd) op feitelijke runtime-consumptie en snapshotprovenance. Daarna kan de eerste crosswalk worden afgesloten met een expliciete lijst van bestaande inputs die werkelijk actief zijn, alleen context blijven of pas na nieuwe lokale labels kandidaat zijn.
 
 Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
+
+
+## 190. Runtime-mapping historische sessie- en vangstfeatures (22 november 2026)
+
+**Scope:** read-only controle van de historische feature-snapshot, prognose-engine, rod-positioning-engine en prebait-engine. Dit vervolgt audit §179 en §189. De vraag is niet welke velden opgeslagen zijn, maar welke velden de huidige berekeningen daadwerkelijk consumeren.
+
+### 190.1 Actief gebruikt in de huidige prognoseberekening
+
+| Veld/bron | Feitelijk gebruik | Scope en beperking |
+|---|---|---|
+| Sessie-uitkomst, doelsoort, stek-ID | Selectie van afgeronde vergelijkbare sessies voor persoonlijke vangstkans | Soort + optionele exacte stek; benchmarks uitgesloten; vangstsessie vereist een vangstrecord van de doelsoort |
+| Sessie-starttijd | Toewijzing aan één van vier tijdvakken voor `personalExperience` | Doelsoort + starttijdvak; geen stekfilter; geen vangstkans over het volledige sessie-interval |
+| Werkelijke sessieduur / start- en eindtijd | Blootstellingsduur voor Poisson-vangsttempo en duurvalidatie | Alleen bekende, geldige duur telt; onbekend wordt niet als standaardduur ingevuld |
+| Vangstsoort en aantal | Doelsoortsucces en totaal aantal vissen voor het vangsttempo | Bekende soort en bruikbaar aantal vereist; vangsttijd, aas en techniek veranderen de huidige Poisson-rate niet |
+| Watertemperatuurmetingen | Recent lokaal meetanker en historische temperatuurprofielen/kalibratie | Eigen thermische gegevensstroom; bron, meetmoment en meetdiepte blijven relevant |
+| Stek-waterdiepte, watertype, oeverrichting en habitatkenmerken | Thermische toestand, oeverwind, habitat- en positioneringshypothesen | Huidige stekconfiguratie; niet automatisch afgeleid uit historische sessievelden |
+| Aasrichting (`baitDirection`) | Persoonlijke rod-positioning-nuance op dezelfde stek en doelsoort | Minimaal 11 voltooide relevante sessies, waarvan minimaal 6 met geldige richting; een richting moet minimaal 2 sessies hebben om in de vergelijking mee te doen |
+| Voorvoerstatus (`prebaited`) en voeromschrijving als legacyfallback | Beschrijvende vergelijking van vangstsessies met/zonder voorvoeren in de prebaitmodule | Zelfde stek en doelsoort; minimaal 5 geclassificeerde sessies, met minimaal 2 per groep. De code noemt dit expliciet beschrijvend en niet-causaal. |
+| Huidige techniek | Huidige prebait-/tactiekkeuze, onder meer method-feeder-vertakking | Geen historische techniekfilter of gevalideerde correctie op de persoonlijke vangstkans |
+
+### 190.2 Wel opgeslagen in de reproduceerbare snapshot, maar niet als huidige voorspellende correctie gebruikt
+
+De whitelisted `historicalSessionFeatures` bewaart onder meer techniek, aasrichting, voorvoerstatus, voeromschrijving, sessiewaterdiepte en temperatuurmeetmetadata. `historicalCatchFeatures` bewaart onder meer vangsttijd, aas, techniek, aantal, lengte/gewicht en kwaliteitsvlaggen. Dit is nuttige provenance en voorkomt informatieverlies; het betekent niet dat ieder veld al in de runtimeberekening wordt gebruikt.
+
+In de gecontroleerde prognose-/tactiekengines is geen actieve correctie aangetroffen op basis van:
+- hengeltype/rodTypes;
+- sessietotalen `bitesCount` en `missedCount`;
+- historische aas- of techniekcombinaties per vangst;
+- vangsttijd als fijnmazig tijdvaklabel;
+- historische sessiewaterdiepte als aparte habitatfeature;
+- voorvoerdagen of exacte historische voorvoerhoeveelheden.
+
+Deze velden mogen dus niet worden omschreven als reeds lerende of voorspellende factoren. Zij zijn hoogstens opgeslagen kandidaatdata voor later onderzoek, of worden buiten de prognose gebruikt in andere appfuncties.
+
+### 190.3 Twee bestaande persoonlijke tactiekvergelijkingen
+
+**Hengelpositionering:** de rod-positioning-engine vergelijkt op dezelfde stek en doelsoort de geregistreerde aasaanbiedingsrichting. De drempels zijn minimaal 11 relevante voltooide sessies en minimaal 6 met een geldige richting; per richting zijn minimaal 2 sessies nodig. Dit levert een persoonlijke nuance voor positioneringsadvies, niet een biologische activiteitsscore of vangstkanscorrectie.
+
+**Voorvoeren:** de prebait-engine vergelijkt op dezelfde stek en doelsoort sessies met en zonder voorvoeren. De uitkomst wordt expliciet als beschrijvend en niet-causaal gepresenteerd. Wanneer de expliciete `prebaited`-boolean ontbreekt, gebruikt de code de tekst `baitAndFeed` als fallback door te zoeken naar het woorddeel “voorvoer”. De bestaande auditnotitie over het risico dat “geen voorvoer” hiermee onbedoeld als voorvoer wordt herkend blijft open; er is geen automatische herclassificatie uitgevoerd en geen gebruikersdata aangepast.
+
+### 190.4 Datakwaliteits- en modelgevolg
+
+1. Het huidige persoonlijke vangstmodel is een soort-/stek-/duur-baseline; niet een methode-, hengel-, aas- of tijdvakgestratificeerd model.
+2. Aasrichting en voorvoerstatus worden al in beperkte, aparte tactiekmodules benut. Die beschrijvende vergelijkingen mogen niet zonder onafhankelijke toetsing als causale vangstbonus worden toegepast.
+3. Techniek, hengeltype, aas/voer, aanbeten, gemiste vissen en vangsttijd zijn waardevolle toekomstige kandidaatfeatures, maar de huidige snapshotregistratie alleen maakt ze niet voorspellend.
+4. Voor een toekomstige persoonlijke vangstlaag moeten sessie-inspanning, doelsoort, stek, duur, methode, materiaal, aas/voer, aanbeten en vangsten op vergelijkbare wijze worden vastgelegd. Selectieve invoer en confounding moeten expliciet worden onderzocht; geen extra verplichte velden toevoegen zonder productbesluit.
+5. Vangsttijd en aanbeten kunnen een vangbaarheids-/tijdlabel ondersteunen, maar zijn geen directe meting van voedselopname of algemene visactiviteit.
+
+### 190.5 Tussenconclusie van de runtime-mapping
+
+De historische feature-snapshot is breder dan de actieve voorspellende runtime. De huidige actieve historische bijdragen zijn concreet: thermische meetgeschiedenis, persoonlijke soort-/stekvangstbaseline, starttijdvakervaring, aasrichting voor positionering en voorvoerhistorie voor een beschrijvende tactiekvergelijking. Een reeks andere opgeslagen velden wordt nog niet als voorspellende correctie benut.
+
+Daarmee is de eerste factor-/respons-crosswalk op hoofdlijnen compleet: alle zichtbare factoren, aanvullende responsmodules, persoonlijke gegevenslagen en tactiekmodules hebben een expliciete huidige rol en grens. Dit betekent niet dat de geïntegreerde score al ontworpen, geïmplementeerd of gevalideerd is. De volgende stap is de crosswalk als geheel technisch nalopen op volledigheid en tegenstrijdigheden met de bestaande gesloten auditbesluiten, en daarna de resterende ontwerpbesluiten/uitvoeringspoorten rangschikken. Geen nieuwe brede literatuurzoektocht.
+
+Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, bronstatus, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests of biologische validatie geclaimd.
