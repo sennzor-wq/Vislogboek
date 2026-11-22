@@ -1390,3 +1390,14 @@ Audit §189 legt vast:
 - Habitat-/bewegingsuitvoer is een regelgebaseerde zoekhypothese met confidence en ontbrekende informatie, geen gekalibreerde kans op aanwezigheid.
 
 Deze uitkomsten mogen niet als één biologische score worden opgeteld. Eerst moeten de opgeslagen sessie-/vangstfeatures en hun werkelijke runtimeconsumptie worden gecontroleerd. Geen codewijziging of nieuwe invoerlast volgt uit deze audit.
+
+
+## 156. Runtimeconsumptie van historische sessiefeatures (22 november 2026)
+
+Audit §190 maakt onderscheid tussen whitelisted snapshotprovenance en actieve runtime-input. De huidige persoonlijke vangstkans gebruikt sessie-uitkomst, doelsoort, optionele stek, bekende duur en doelsoortvangstaantallen; zij gebruikt geen techniek-, hengeltype-, aas-/voer- of vangsttijdcorrectie. De tijdvakervaring is op starttijdvak gebaseerd en niet stekspecifiek.
+
+Twee aparte tactiekmodules benutten beperkte historie:
+- rod-positioning gebruikt aasrichting op dezelfde stek/doelsoort na minimaal 11 sessies en minimaal 6 geldige richtingsregistraties;
+- prebait vergelijkt op dezelfde stek/doelsoort sessies met en zonder voorvoeren vanaf minimaal 5 geclassificeerde sessies, minimaal 2 per groep, en presenteert dit als beschrijvend, niet causaal.
+
+Andere velden in de feature-snapshot (zoals hengeltype, aanbeten/gemiste vissen, aas-/techniekdetails per vangst en vangsttijd) zijn niet automatisch actieve voorspellende correcties. Snapshotopslag is provenance, geen bewijs van runtimeconsumptie. Toekomstige persoonlijke vangstfeatures vereisen een eigen datakwaliteits-, confounding- en chronologisch validatiecontract. Geen scorewijziging of extra invoerlast.
