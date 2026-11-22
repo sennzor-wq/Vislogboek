@@ -1185,3 +1185,11 @@ De nieuwe regressietest voert de echte planbuilder uit met een lokale weerscache
 Audit §198 heeft de bestaande `datetime-local`-semantiek read-only vastgesteld: invoer wordt in de runtime-/apparaatzone geparseerd, de gebruikte zone wordt bewaard, en daarna worden absolute ISO UTC-grenzen opgeslagen. Kalenderdatum, tijdvak en segmentlabels blijven expliciet `Europe/Amsterdam`. De segmenthelper gebruikt absolute tijd voor duur/overlap en Amsterdamse tijd voor lokale grenzen; DST beïnvloedt dus de elapsed duur. Geen UI- of tijdzonecode gewijzigd.
 
 **Volgende stap:** test-first bouw van de pure intervalsegmentatiehelper uit audit §192.5 stap 3, met gedeeltelijke uren, uurstappen, tijdvak-/middernachtgrenzen, ontbrekende forecasturen en DST. De helper levert alleen segmenten en dekking, geen biologische score. Zie audit §198.
+
+
+
+### Fase 2 — pure segmentatiehelper voor geplande sessie-intervallen (22 november 2026)
+
+De eerste pure helper `segmentPrognosisInterval` is toegevoegd in `src/services/prognosisIntervalEngine.ts`. Hij gebruikt de canonieke ISO-grenzen, splitst op absolute uurgrenzen, bewaart gedeeltelijke uren, labelt met Amsterdamse datum/tijdvak en maakt ontbrekende of dubbele forecasturen expliciet onbekend. Onbekende eindtijd levert geen segmenten/duur; intervallen boven 24 verstreken uren worden geweigerd. Er wordt geen score of biologische factor berekend.
+
+De testmatrix dekt partial hours, middernacht/tijdvak, ontbrekende uurdata, DST en ongeldige grenzen. Twee extra assertions voor dubbele samples en >24 uur zijn toegevoegd na de eerste groene lint/teststappen; de volledige Quality Gate voor de actuele testhead moet nog worden bevestigd. Volgende stap na groen: factorresolutie en factor-specifieke datadekking per segment vastleggen, zonder scoregewichten te kiezen. Zie audit §199.
