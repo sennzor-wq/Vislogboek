@@ -440,7 +440,7 @@ async function run14Scenarios() {
   const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8);
   const asOfChangedFutureForecasts = asOfBaseForecasts.map((hour) => {
     return hour.time > '2026-10-23T15:00'
-      ? { ...hour, temperature: 32, cloudCover: 0, windSpeed: 35 }
+      ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 }
       : hour;
   });
   const asOfWeatherOnlyBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
