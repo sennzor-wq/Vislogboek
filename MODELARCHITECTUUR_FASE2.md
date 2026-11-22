@@ -1496,3 +1496,11 @@ Audit §200 mapt de bestaande resolutie: thermische respons per 6-uurs slot op e
 De generieke `weatherAvailable` van de segmentatiehelper is geen vervanging voor factor-specifieke `factorAvailable`. Iedere factor behoudt zijn eigen vereiste velden, validatie, lookback en minimale dekking. Een kort gepland interval mag de bestaande 3-uit-6 slotregel niet automatisch overnemen of verlagen. Context-/adviesfactoren blijven niet-numeriek; alleen de bestaande thermische factor voedt de huidige activiteitsscore. Vangkans, aanwezigheid en tactische adviezen blijven aparte uitkomsten.
 
 Volgende stap is de factor-specifieke dekking en resolutie per segment verder uitwerken; geen scoreweging of nieuwe biologische bonus introduceren. Zie audit §200.
+
+
+
+## 166. Factor-specifieke veldvalidatie en lookback
+
+Audit §201 legt de bestaande ranges en dekking vast: temperatuur -30..55 °C; druk 850..1100 hPa; wind 0..200 km/u plus richting/label; neerslag 0..300; bewolking 0..100%; relatieve vochtigheid 0..100%; dauwpunt -50..50 °C; zonnestraling 0..1600 W/m². De huidige 3-uit-6 drempel geldt voor vaste 6-uursfactoren, niet automatisch voor kortere geplande intervallen. Druktrend vereist een actuele meting binnen 30 minuten en een voorafgaande meting rond 12 uur (±3 uur). Thermische waterontwikkeling behoudt haar eigen 24-/72-uurs- en ankerlogica.
+
+De segmentatiehelper rapporteert alleen uurrecorddekking. Factorbeschikbaarheid blijft apart: wind vereist ook richting, optionele thermische velden mogen niet als nul worden ingevuld en druk/thermiek kunnen historische lookback nodig hebben. Er is nog geen intervalminimumpercentage of nieuwe factorweging gekozen. Zie audit §201.
