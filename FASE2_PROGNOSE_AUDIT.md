@@ -5649,3 +5649,31 @@ Dit is een concrete aanvullende auditbevinding, geen claim dat iedere bestaande 
 **Status werkonderdeel 8:** de read-only factor-/respons-crosswalk en het intervalcontractvoorstel zijn uitgewerkt. Werkonderdeel 8 kan als audit-/ontwerponderdeel worden afgesloten; de genoemde thermische as-of-correctie, intervalscore, geïntegreerde score en tests zijn afzonderlijke vervolgwerkzaamheden en zijn niet uitgevoerd.
 
 Geen runtimecode, types, database, snapshots, scoreformule, gewichten, drempels, UI, VisCoach-advies of gebruikersdata gewijzigd. Geen tests uitgevoerd; geen biologische validatie geclaimd. Fase 2 blijft open en Fase 3 blijft geblokkeerd.
+
+
+## 193. Correctie actuele status voorvoer-confidence-gating en punt 5 (22 november 2026)
+
+De consistentie-review in §191.2 noemde voorvoergrammen en confidence-gating nog als afzonderlijke open eigenaar-/productbesluiten. Dat is te breed en wordt hierbij gecorrigeerd op basis van de reeds bestaande formele besluiten en technische validatie in §§163–170.
+
+### 193.1 Wat al is besloten en afgerond
+
+- In §163 heeft de eigenaar expliciet besloten de bestaande prebait-engine en alle huidige temperatuurbanden, suitabilitywaarden, soortfactoren, berekende grammen, campagneplanning en persoonlijke vergelijkingen te behouden.
+- De eigenaar heeft uitsluitend een presentatielaag-gate goedgekeurd: exacte grammen in PrognosisView alleen bij confidenceLevel Redelijk; bij Matig/Laag blijven timing en kwalitatieve uitleg zichtbaar, maar niet de exacte hoeveelheden.
+- §170 bevestigt dat punt 5 technisch is afgerond. De plannerregressietest had 9 geslaagde assertions; de VisCoach-sessieadviestest had 75 geslaagde assertions; typecheck, overige Quality Gate-tests, productiebuild en private-artifactcontrole waren groen op de vastgelegde main-commit.
+- De huidige code is opnieuw gecontroleerd: PrognosisView verbergt campagne- en sessiegrammen bij Matig/Laag. VisCoach toont campagnegrammen alleen bij Redelijk en sessiegrammen alleen bij Redelijk én een expliciet bekende positieve sessieduur.
+- Redelijk betekent uitsluitend dat een meting watertemperatuur, watertype en positieve stekdiepte beschikbaar zijn. Het is geen biologische validatie van de temperatuurgrenzen, soortfactoren of gramhoeveelheden.
+- Bij ontbrekende sessieduur gebruikt de prebait-engine intern nog een technische standaard van 3 uur voor een niet-zichtbare sessiehoeveelheid. VisCoach toont die hoeveelheid niet zonder expliciete duur. De algemene Prognosepagina heeft een zichtbare duurselector met standaard 3 uur. Deze bestaande semantiek staat al beschreven in §164.3 en wordt niet gewijzigd.
+
+### 193.2 Wat nog open is — en wat niet
+
+**Niet meer open:** de eigenaarbeslissing over confidence-gating en de technische implementatie daarvan. Punt 5 mag niet opnieuw als open werk worden ingepland.
+
+**Wel blijvend begrensd:** de bestaande numerieke voorvoerheuristiek is geen gevalideerde biologische norm. De eigenaar heeft besloten de engine-uitvoer te behouden; dit verleent geen wetenschappelijke goedkeuring aan de exacte hoeveelheden. De heuristiek blijft een afzonderlijke tactiek-/advieslaag buiten de biologische 1–10-score.
+
+**Nog apart open:** de optionele herbruikbare hengel-/methodepreset. De algemene Prognosepagina kan een techniek kiezen; de huidige VisCoach-intake vraagt geen techniek en geeft daardoor geen gekozen method-feedertechniek aan de prebait-engine door. Dit is een afzonderlijk UX-/productbesluit, geen reden om een verplichte invoer toe te voegen of de biologische score te blokkeren.
+
+### 193.3 Correctie op de uitvoeringsvolgorde
+
+De regel in VISLOGBOEK_VERBETERPLAN.md dat punt 5 nog startklaar is, is verouderd. Punt 5 is al afgesloten in §170. De volgende nieuwe technische poort uit deze audit is de strikte targetTime-as-of-invariant in §192.2, vóór intervalscoring. De bestaande normalisatie-/coverage-architectuur in §171 en label-/evaluatiematrix in §§172–173 blijven leidend; deze worden niet opnieuw ontworpen.
+
+Geen engineparameters, gramwaarden, confidence-regels, UI, gebruikersdata of code gewijzigd. Geen nieuwe tests uitgevoerd. Deze correctie heropent punt 5 niet; Fase 2 blijft open en Fase 3 geblokkeerd.
