@@ -1460,3 +1460,11 @@ De minimale volgende type-/contextuitbreiding is optioneel en backward-compatibl
 De bestaande VisCoach-fingerprint bevat de grenzen al als afzonderlijke waarden naast `inputContext`. Na opname in de context moet regressie aantonen dat context en snapshot identieke grenzen bewaren, dat een gewijzigde grens de fingerprint wijzigt en dat oude snapshots zonder contextvelden geldig blijven. `historyFingerprint` verandert niet, omdat het interval geen historische sessie-uitkomst of meetgeschiedenis is.
 
 **Open controle vóór segmentatie:** de UI levert lokale datetime-inputs en de service parseert die met `new Date`, terwijl de context de runtime-/apparaatzone registreert. Dit timezonecontract moet expliciet worden bevestigd voordat Amsterdamse segmentatie wordt gebouwd. Nog geen code-, type-, migratie- of scorewijziging; zie audit §197.
+
+
+
+### 162.1 Minimale implementatie — validatie in behandeling
+
+De optionele intervalvelden zijn toegevoegd aan `PrognosisInputContext`. `buildVisCoachPlan` maakt één genormaliseerd ISO-start/eindpaar en hergebruikt dit voor context, fingerprintpayload en pending snapshot. De bestaande top-level snapshotgrenzen blijven behouden voor evaluatie en legacygedrag. Onbekende eindtijd blijft null; er is geen nieuwe duurstandaard of intervalscore toegevoegd.
+
+De regressietest in `test-session-snapshot-commit.ts` controleert de echte planbuilder met een lokale weer-cache, context-/snapshotgelijkheid, fingerprintgevoeligheid en onbekende eindtijd. Quality Gate-validatie op de actuele PR-head is nog in behandeling; zie audit §197.5.
