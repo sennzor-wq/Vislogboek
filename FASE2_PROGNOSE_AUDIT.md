@@ -5831,3 +5831,45 @@ Na de registratie in §196.1 is Quality Gate run **1107** gestart en succesvol a
 De testmutatie verandert na targetTime luchttemperatuur, bewolking, wind, zonnestraling, relatieve luchtvochtigheid en dauwpunt. De tests bevestigen dat de thermische uitkomst op het doelmoment gelijk blijft wanneer alleen deze latere invoer verandert.
 
 **Conclusie:** de expliciet geplande targetTime-as-of-randgevallenmatrix uit §196 is technisch gevalideerd. Dit sluit uitsluitend deze auditpoort; het is geen formele afronding van Fase 2 en geen toestemming om de PR te mergen. PR #214 blijft draft; `main` is niet gewijzigd.
+
+
+
+## 197. Contractaudit geplande sessiegrenzen in PrognosisInputContext (22 november 2026)
+
+**Scope:** read-only controle van `PrognosisInputContext`, `buildVisCoachPlan`, snapshotopslag en de evaluatievergelijking. Geen runtimecode of types gewijzigd.
+
+### 197.1 Wat al bestaat
+
+- `VisCoachPlanInput` ontvangt `desiredStartTime` en optioneel `desiredEndTime`.
+- `buildVisCoachPlan` valideert de volgorde en maximale duur van 24 uur en normaliseert de waarden naar absolute ISO-instanties met `start.toISOString()` en `end?.toISOString() ?? null`.
+- `PendingPrognosisSnapshot` en `PrognosisSnapshot` bewaren `targetWindowStart` en `targetWindowEnd` op snapshotniveau.
+- `saveVisCoachPlan` geeft dezelfde velden door aan `savePrognosisSnapshot`; de sessiestartopslag geeft ze eveneens door vanuit de pending snapshot.
+- `evaluationEngine.getTimeWindowComparison` gebruikt deze snapshotvelden voor vergelijking van geplande en werkelijke start-/eindtijd. Oude snapshots zonder intervalgrenzen vallen terug op het bestaande tijdvakcontract.
+- De inputfingerprint van VisCoach neemt momenteel zowel `inputContext` als de genormaliseerde `desiredStartTime`/`desiredEndTime` op. De exacte grenzen worden dus al in de fingerprint vastgelegd, maar buiten `PrognosisInputContext`.
+
+### 197.2 Vastgestelde lacune
+
+`PrognosisInputContext` bevat op dit moment geen `targetWindowStart` of `targetWindowEnd`. Daardoor bewaart de snapshot de intervalgrenzen wel als evaluatiemetadata en fingerprintinput, maar niet als expliciet onderdeel van de gestructureerde modelinvoercontext. Dit is precies de contractlacune uit §192.1.
+
+### 197.3 Minimaal compatibel contract
+
+- Voeg optionele `targetWindowStart?: string` en `targetWindowEnd?: string | null` toe aan `PrognosisInputContext`. Optioneel houdt oude snapshots zonder deze velden geldig; er is geen database-migratie nodig voor deze type-uitbreiding.
+- Gebruik bij een nieuwe VisCoach-run één paar genormaliseerde ISO-waarden als bron: `targetWindowStart = start.toISOString()` en `targetWindowEnd = end?.toISOString() ?? null`. Vul daarmee zowel de context als de bestaande top-level snapshotvelden.
+- Een onbekende eindtijd blijft expliciet `null`; `sessionDurationHours` blijft `null` en de bestaande opslag-sentinel `durationHours: 0` blijft alleen opslagsemantiek, geen voorspelde duur.
+- Behoud top-level `PrognosisSnapshot.targetWindowStart/End` voor bestaande evaluatiecode en legacy snapshots. Dit zijn compatibele projecties van hetzelfde canonieke interval, geen tweede intervalbron.
+- `targetTimeSlot` blijft uitsluitend tactische startcontext en wordt niet hergebruikt als intervalgrens.
+- `historyFingerprint` blijft ongewijzigd: intervalgrenzen zijn run-/planningsinvoer, geen historische vangst- of meetgeschiedenis.
+- De bestaande fingerprint bevat de grenzen al buiten `inputContext`. Na toevoeging aan de context moet de test bewijzen dat dezelfde genormaliseerde waarden in beide representaties staan en dat een gewijzigd interval een andere fingerprint oplevert. Er is geen noodzaak om bestaande opgeslagen fingerprints te herschrijven.
+
+### 197.4 Nog te toetsen vóór implementatie
+
+1. Oude snapshots zonder contextvelden blijven deserialiseren en evalueren via de top-level velden/legacy tijdvakfallback.
+2. Nieuwe snapshots bevatten identieke ISO-grenzen in `inputContext` en top-level snapshotvelden.
+3. Zonder eindtijd worden `targetWindowEnd: null`, `sessionDurationHours: null`, `durationKnown: false` en `durationHours: 0` consistent bewaard.
+4. Verschillende start- of eindtijden veranderen de inputfingerprint; dezelfde genormaliseerde tijden leveren dezelfde fingerprint op.
+5. De bestaande evaluatie blijft uitsluitend de top-level snapshotgrenzen gebruiken en behoudt de legacy fallback voor oude snapshots.
+6. Tijdzonegedrag van de huidige `new Date(datetime-local)`-invoer en `inputContext.timezone` moet expliciet worden vastgelegd. De UI levert lokale datum/tijdstrings, terwijl de service de runtime-/apparaatzone rapporteert; dit moet vóór verdere Amsterdamse segmentatie worden beoordeeld. Geen stille timezone-aanname introduceren.
+
+**Conclusie:** de intervalgrenzen bestaan al in snapshot- en evaluatiecontracten; de minimale volgende wijziging is ze ook expliciet op te nemen in `PrognosisInputContext`, met dezelfde canonieke ISO-waarden en optionele backward-compatible velden. Eerst test-first valideren; nog geen segmentatiehelper of intervalscore implementeren.
+
+Geen runtimecode, types, database, snapshots, fingerprintdata of gebruikersdata gewijzigd. De targetTime-as-of-poort uit §§195–196 is groen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
