@@ -1149,3 +1149,11 @@ Scenario 8.5 slaagt nu voor alle vier assertions (weather-only temperatuur en tr
 De eerste testvariant bracht twee bestaande tests over gelijke tijdvaksscores aan het licht die nog een variabele doeldag gebruikten. De testfixture is aangepast naar een werkelijk stabiele meerdaagse reeks; de tijdspecifieke prognose wordt niet teruggezet naar dagbrede toekomstige informatie om oude gelijke-scores te forceren.
 
 **Status:** minimale correctie technisch groen, PR #214 blijft draft en niet gemerged. De volledige randgevallenmatrix uit audit §194.4 is nog niet afgedekt. Volgende stap: gerichte test-first validatie van historisch profiel, onbekende diepte, onvoldoende-dekkingfallback, doelmomenten vóór/exact op/na 12:00, ontbrekende uren en thermische DST-overgangen. Pas daarna kan de as-of-poort als volledig gesloten worden beschouwd en de intervalscore verder worden voorbereid. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### Fase 2 — aanvullende targetTime-randgevallenmatrix (22 november 2026)
+
+Scenario 8.6 is test-first uitgebreid met onbekende diepte, historische metingen die ná het doelmoment plaatsvinden, onvoldoende weerdekking, expliciete doelmomenten 08:00/12:00/15:00, een ontbrekend uur en de Amsterdamse lente- en herfst-DST-overgang. De uitbreiding staat in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. Alleen `test-thermal-and-prognosis.ts` is in deze stap aangepast; productiecode is ongemoeid gelaten.
+
+**Status:** aanvullende Quality Gate nog niet bevestigd. Geen testresultaat wordt vooraf als geslaagd vastgelegd. Bij eventuele failures eerst de semantiek en het testfixture onderzoeken; pas daarna minimale correcties overwegen. Zie audit §196. Fase 2 blijft open en Fase 3 geblokkeerd.
