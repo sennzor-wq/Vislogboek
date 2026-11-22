@@ -5933,3 +5933,36 @@ Voor de bestaande VisCoach-invoer behouden we het huidige invoergedrag; deze aud
 **Begrenzing:** op apparaten buiten `Europe/Amsterdam` wordt een `datetime-local`-waarde momenteel als apparaattijd ingevoerd, terwijl de prognosekalender Amsterdam gebruikt. Dat is bestaand gedrag en wordt hier niet stilzwijgend gewijzigd. Een eventuele wijziging naar vaste Amsterdamse invoer vraagt een afzonderlijk UX-/productbesluit.
 
 **Conclusie:** het huidige contract is voldoende eenduidig voor een pure segmentatiehelper zolang deze uitsluitend absolute intervalgrenzen gebruikt en expliciet `Europe/Amsterdam` voor lokale segmentlabels toepast. De volgende stap is test-first implementatie van die helper; geen score of biologische factor wordt in deze helper berekend.
+
+
+
+## 199. Pure intervalsegmentatiehelper — implementatie en validatievoorstel (22 november 2026)
+
+**Scope:** pure technische helper voor de reeds bestaande geplande intervalgrenzen. Geen prognosescore, factorweging, UI, database of biologische responsberekening.
+
+### 199.1 Implementatie
+
+Nieuw bestand: `src/services/prognosisIntervalEngine.ts`.
+
+De helper `segmentPrognosisInterval`:
+- accepteert de canonieke absolute ISO-start-/eindtijd uit §197 en de bestaande uurlijkse forecastreeks;
+- weigert ongeldige intervallen en intervallen langer dan 24 verstreken uren;
+- geeft bij een onbekende eindtijd expliciet `unknown_end` terug met nul segmenten en null-duur/dekking;
+- knipt het interval op absolute uurgrenzen, waardoor gedeeltelijke eerste en laatste uren hun werkelijke overlapduur behouden;
+- labelt elk segment met de Amsterdamse kalenderdatum en het bestaande tijdvak (Nacht/Ochtend/Middag/Avond);
+- koppelt alleen de forecastsample die het absolute uur vanaf zijn timestamp vertegenwoordigt;
+- maakt ontbrekende forecasturen expliciet onbekend; een sample wordt nooit over een ontbrekend uur heen doorgetrokken of geïnterpoleerd;
+- behandelt dubbele samples voor hetzelfde absolute uur als ambigu/ontbrekend in plaats van willekeurig één sample te kiezen;
+- rapporteert totale, gedekte en ongedekte minuten plus een ruwe tijdsdekkingratio.
+
+De Amsterdamse datum-/tijdvakgrenzen vallen op absolute uurgrenzen; de uurlijkse segmentatie splitst daardoor ook correct op lokale middernacht en de zesuursgrenzen, inclusief 23-/25-uurs DST-dagen. De helper gebruikt absolute ISO-instanties voor duur en overlap en `Europe/Amsterdam` uitsluitend voor lokale labels.
+
+### 199.2 Afbakening
+
+De dekkingratio is uitsluitend temporele aanwezigheid van een forecastsample. Dit is nog geen factor-specifieke dekking: bijvoorbeeld zonnestraling of dauwpunt kan per sample ontbreken en moet later per factor worden beoordeeld. De helper levert geen neutrale factorwaarde, geen biologische score en geen sessieadvies. De bestaande Prognose-engine blijft de enige scorebron; VisCoach blijft de consument/vertaler.
+
+### 199.3 Teststatus
+
+`test-session-snapshot-commit.ts` is uitgebreid met tests voor gedeeltelijke uren, lokale tijdvak-/middernachtgrenzen, ontbrekende uren, herfst- en lente-DST, onbekende eindtijd, ongeldige intervallen, dubbele uurstempels en de maximale 24-uursduur. De eerste Quality Gate na de helper slaagde voor typecheck en alle bestaande tests; de nieuwe twee laatste assertions zijn daarna toegevoegd en moeten nog op de actuele commit worden gevalideerd.
+
+**Status:** segmentatiehelper geïmplementeerd; nog geen volledige Quality Gate-claim voor de laatste testuitbreiding. Er is geen score- of biologische code aangesloten op de helper.
