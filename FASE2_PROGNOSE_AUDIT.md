@@ -6012,3 +6012,45 @@ De nieuwe segmentatiehelper uit §199 levert daarom nog geen factorwaarden. Hij 
 7. Geen factor krijgt een intervalbonus, -malus of gewicht in deze stap.
 
 **Conclusie:** de segmentatiehelper is een tijds-/dekkingslaag. De volgende technische audit moet per factor de invoervelden, lookback, tijdresolutie en beschikbaarheidsregel mappen naar de segmenten. Pas daarna kan worden bepaald welke bestaande context zinvol per interval kan worden samengevat. De score blijft ongewijzigd.
+
+
+
+## 201. Factor-specifieke invoervelden en lookback-contracten
+
+**Scope:** nadere read-only uitwerking van de bestaande validatie en lookback in `prognosisEngine` en `waterThermalEngine`. Geen drempels aangepast.
+
+### 201.1 Weervelden en huidige validatie
+
+| Veld | Huidige geldigheidsrange | Huidige rol |
+|---|---:|---|
+| Luchttemperatuur | -30 tot 55 °C | Input voor thermische waterontwikkeling; geen vervanging voor watertemperatuur |
+| Luchtdruk | 850 tot 1100 hPa | Tijdvakgemiddelde en aparte druktrend |
+| Windsnelheid | 0 tot 200 km/u | Tijdvakgemiddelde en tactische windcontext |
+| Windrichting | 0 tot 360° plus niet-lege richtingslabel | Vereist voor windrichting-/oevercontext |
+| Neerslag | 0 tot 300 mm per uurrecord | Tijdvaksom/context |
+| Bewolking | 0 tot 100% | Tijdvakgemiddelde en lichtcontext |
+| Relatieve luchtvochtigheid | 0 tot 100% | Thermische weerschatting/context, indien aanwezig |
+| Dauwpunt | -50 tot 50 °C | Thermische weerschatting/context, indien aanwezig |
+| Zonnestraling | 0 tot 1600 W/m² | Thermische weerschatting/context, indien aanwezig |
+
+### 201.2 Lookback en beschikbaarheid
+
+- De bestaande tijdvakfactoren druk, wind, neerslag en bewolking tellen geldige records binnen het volledige vaste 6-uurs tijdvak. De huidige minimumdrempel is `ceil(6/2) = 3` records.
+- Wind vereist in dezelfde records zowel een geldige snelheid als geldige richting en een niet-leeg richtingslabel. Alleen een snelheidsmeting is niet voldoende voor de bestaande windfactor.
+- De expliciete VisCoach-starttijdvakcontext gebruikt een eigen regel: als er minder dan zes forecastrecords bestaan, moet ieder beschikbaar record voor de betreffende wind-/bewolkingscontext geldig zijn; de UI-/analysecontext vermeldt dat het tijdvak onvolledig is. Dit is geen algemene regel voor een willekeurig kort interval.
+- Druktrend is geen simpele tijdvakgemiddelde: er moet een actuele drukmeting binnen 30 minuten van het representatieve doelmoment bestaan en een eerdere drukmeting binnen 3 uur van het richtpunt 12 uur daarvoor.
+- De thermische wateranalyse gebruikt een eigen chronologische 24-/72-uursdekking en wateranker-/diepte-/historiepad. De tijdvakprognose kiest nu één representatief forecastmoment (middelste beschikbare uur) als `targetTime`; dit is niet hetzelfde als ieder intervalsegment afzonderlijk doorrekenen.
+- Zonnestraling, luchtvochtigheid en dauwpunt zijn optionele velden. Hun afwezigheid mag niet worden geïnterpreteerd als een gemeten nulwaarde; de thermische engine gebruikt alleen geldige aanwezige waarden.
+- Persoonlijke ervaring gebruikt sessies die op het betreffende tijdvak zijn gestart; de 5-sessiedrempel geldt voor het tonen van een catch-rate percentage, niet als universele minimumdekking voor alle factoren.
+
+### 201.3 Intervalmapping zonder nieuwe aannames
+
+Voor een toekomstig interval moeten we de bestaande veldvalidatie behouden, maar de dekkingsnoemer aanpassen aan de werkelijke segmentduur. Dat betekent niet dat de huidige 3-uit-6 drempel automatisch 50% van een korte sessie wordt. Per factor moet expliciet worden gekozen of:
+- een geldig sample voor een uursegment voldoende is voor uitsluitend beschrijvende context;
+- meerdere samples/lookback nodig blijven (zoals druktrend en thermische waterontwikkeling);
+- de factor op een ander niveau blijft (per tijdvak, per kalenderdag of sessiebreed);
+- ontbrekende optionele velden alleen die factor onbekend maken, zonder andere factoren te blokkeren.
+
+Er is nog geen minimumpercentage voor intervaldekking gekozen en er is geen biologische drempel of weging afgeleid. Die keuzes blijven open totdat de factoren afzonderlijk zijn gemapt en gevalideerd.
+
+**Conclusie:** de generieke segmentdekking kan niet rechtstreeks als factorbeschikbaarheid worden gebruikt. De volgende stap is per factor een formele resolutie-/dekkingregel vastleggen en pas daarna testen welke samenvattingen voor een sessie-interval technisch en inhoudelijk verantwoord zijn.
