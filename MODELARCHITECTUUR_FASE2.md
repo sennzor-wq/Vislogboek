@@ -1440,3 +1440,11 @@ Zonder expliciet `targetTime` blijft de bestaande dagbrede modus inclusief de oo
 De vier regressieassertions voor weather-only en meetanker zijn groen; de volledige Quality Gate 1096 is groen. Dit bewijst de minimale invariant voor de geteste routes, niet alle randgevallen uit audit §194.4. Historisch profiel, onbekende diepte, onvoldoende-dekkingfallbacks, doelmomenten rond 12:00, ontbrekende uren en thermische DST-grensgevallen blijven afzonderlijke validatiepunten.
 
 Er zijn geen nieuwe biologische parameters, scoregewichten of extra meetverplichtingen geïntroduceerd. De prognose-engine blijft de enige berekeningsbron; VisCoach blijft de verhalende en tactische consument van die prognose. De intervalscore mag pas volgen nadat de resterende as-of-validatiematrix en formele Fase 2-poort zijn afgerond.
+
+
+
+## 161. Uitbreiding van de thermische as-of-regressiematrix
+
+Audit §196 voegt test-first dekking toe voor onbekende stekdiepte, historische profielselectie, onvoldoende dekking, doelmomenten 08:00/12:00/15:00, ontbrekende uren en beide Amsterdamse DST-overgangen. De tests wijzigen alleen de invoer ná het expliciete doelmoment en vergelijken de thermische toestand die op dat moment bekend mag zijn.
+
+De tests zijn toegevoegd maar nog niet door een Quality Gate gevalideerd. Zij zijn daarom geen bewijs van een gesloten randgevallenpoort. De productie-engine en modelparameters zijn in deze uitbreidingsstap niet gewijzigd. Zie audit §196 voor de exacte assertions en validatiestatus.
