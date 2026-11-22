@@ -1448,3 +1448,15 @@ Er zijn geen nieuwe biologische parameters, scoregewichten of extra meetverplich
 Audit §196 voegt test-first dekking toe voor onbekende stekdiepte, historische profielselectie, onvoldoende dekking, doelmomenten 08:00/12:00/15:00, ontbrekende uren en beide Amsterdamse DST-overgangen. De tests wijzigen alleen de invoer ná het expliciete doelmoment en vergelijken de thermische toestand die op dat moment bekend mag zijn.
 
 De tests zijn uitgevoerd in Quality Gate run 1107 en alle scenario 8.5/8.6-assertions slagen; de kernprognose-/thermische suite is 80/0 en de volledige Quality Gate is groen. Dit sluit de expliciet beschreven randgevallenmatrix voor de huidige enginepaden, niet alle mogelijke combinaties of forecastproviderproblemen. De productie-engine en modelparameters zijn in deze testuitbreiding niet gewijzigd. Zie audit §196.
+
+
+
+## 162. Canonieke sessiegrenzen in PrognosisInputContext — contractaudit
+
+Audit §197 bevestigt dat geplande sessiegrenzen al als absolute ISO-instanties op `PendingPrognosisSnapshot` en `PrognosisSnapshot` staan en door de evaluatie-engine worden gebruikt. Dezelfde grenzen ontbreken nog als expliciete velden in `PrognosisInputContext`.
+
+De minimale volgende type-/contextuitbreiding is optioneel en backward-compatible: `targetWindowStart?: string` en `targetWindowEnd?: string | null`. Nieuwe VisCoach-runs vullen context en bestaande top-level snapshotvelden vanuit exact hetzelfde genormaliseerde ISO-paar. Top-level velden blijven behouden voor bestaande evaluatie en legacy snapshots; zij vormen geen tweede intervalbron. Een ontbrekende eindtijd blijft null/unknown en mag geen sessieduur of intervalscore fabriceren.
+
+De bestaande VisCoach-fingerprint bevat de grenzen al als afzonderlijke waarden naast `inputContext`. Na opname in de context moet regressie aantonen dat context en snapshot identieke grenzen bewaren, dat een gewijzigde grens de fingerprint wijzigt en dat oude snapshots zonder contextvelden geldig blijven. `historyFingerprint` verandert niet, omdat het interval geen historische sessie-uitkomst of meetgeschiedenis is.
+
+**Open controle vóór segmentatie:** de UI levert lokale datetime-inputs en de service parseert die met `new Date`, terwijl de context de runtime-/apparaatzone registreert. Dit timezonecontract moet expliciet worden bevestigd voordat Amsterdamse segmentatie wordt gebouwd. Nog geen code-, type-, migratie- of scorewijziging; zie audit §197.
