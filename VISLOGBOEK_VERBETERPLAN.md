@@ -1193,3 +1193,11 @@ Audit §198 heeft de bestaande `datetime-local`-semantiek read-only vastgesteld:
 De eerste pure helper `segmentPrognosisInterval` is toegevoegd in `src/services/prognosisIntervalEngine.ts`. Hij gebruikt de canonieke ISO-grenzen, splitst op absolute uurgrenzen, bewaart gedeeltelijke uren, labelt met Amsterdamse datum/tijdvak en maakt ontbrekende of dubbele forecasturen expliciet onbekend. Onbekende eindtijd levert geen segmenten/duur; intervallen boven 24 verstreken uren worden geweigerd. Er wordt geen score of biologische factor berekend.
 
 De testmatrix dekt partial hours, middernacht/tijdvak, ontbrekende uurdata, forecasturen buiten het interval, DST, dubbele samples en ongeldige/>24-uursgrenzen. Quality Gate 1132 is volledig groen; `test-session-snapshot-commit.ts` eindigde op 30 geslaagd, 0 mislukt. Volgende stap: factorresolutie en factor-specifieke datadekking per segment vastleggen, zonder scoregewichten te kiezen. Zie audit §199.
+
+
+
+### Fase 2 — factorresolutie en datadekking voor intervalintegratie (22 november 2026)
+
+De pure segmentatiehelper is groen gevalideerd in Quality Gate 1132. Daarna is read-only in audit §200 vastgelegd hoe de bestaande factoren en modules hun gegevens nu ophalen: thermische respons per 6-uurs slot/representatief forecastmoment; druk, wind, bewolking en neerslag met eigen samplevalidatie; persoonlijke ervaring per sessiestarttijdvak; vangkans uit historische sessieduur en vangsten; tactische wind/habitat/positionering rond het gekozen starttijdvak; aanwezigheid als gebruikerswaarneming; voorvoer als planningscontext; hengelblootstelling als achteraf geregistreerde intervallen.
+
+**Volgende stap:** per factor de exacte benodigde velden, lookback, tijdresolutie en minimale dekking mappen naar de nieuwe segmenten. De generieke segmentdekking mag niet als factorbeschikbaarheid worden gelezen. De bestaande thermische score blijft de enige numerieke activiteitsscore; andere factoren blijven context of aparte uitkomsten totdat bewijs een andere rol rechtvaardigt. Geen gewichten of biologische bonus/malus invoeren. Zie audit §200.
