@@ -1378,3 +1378,15 @@ Een aanwezig direct-feeding-record betekent uitsluitend dat literatuur over die 
 De controle van `PrognosisView` in audit §188 bevestigt dat gepubliceerde voedings-/foerageerstudies als onderzoekscontext worden getoond, met responsgroep, bronbeperkingen, referenties en bewijsstatus. De UI zegt expliciet dat deze context geen actuele voedingsvoorspelling is en de thermische score, tijdvakrangschikking of persoonlijke vangstkans niet wijzigt. Dieet/prooikeuze blijft buiten de twee zichtbare groepen en mag niet als voedingsintensiteit worden geïnterpreteerd.
 
 De huidige generieke registry-records leveren geen generieke feeding-outcomes aan de soortquery. Er is daarom geen aangetoonde onbedoelde vermenging in de huidige weergave. Geen UI-wijziging nodig op basis van deze inspectie.
+
+
+## 155. Persoonlijke vangstkans en aanwezigheid/habitat zijn aparte responscontracten (22 november 2026)
+
+Audit §189 legt vast:
+- De persoonlijke Poisson-kans voorspelt minimaal één doelsoortvangst tijdens de geplande duur op basis van historische vangsten per uur. De huidige selectie is soort + optionele stek + bekende sessieduur; techniek, aas/voer, hengeltype en target time slot zijn geen correctiefilters.
+- De tijdvak-`personalExperience` is een afzonderlijke starttijdslotverzameling over de geselecteerde soort en is niet automatisch stekspecifiek.
+- De Brier-evaluatie is een afzonderlijke chronologische toets van vooraf vastgelegde vangstkans tegen afgeronde sessie-uitkomst, met modelversie-, venster- en duurmatching. Dit valideert alleen de catch-probability-uitkomst.
+- Aanwezigheidswaarnemingen zijn context; de sessiesynchronisatie gebruikt voor nieuwe records het sessie-updatetijdstip als registratiemoment, niet noodzakelijk het fysieke waarnemingstijdstip.
+- Habitat-/bewegingsuitvoer is een regelgebaseerde zoekhypothese met confidence en ontbrekende informatie, geen gekalibreerde kans op aanwezigheid.
+
+Deze uitkomsten mogen niet als één biologische score worden opgeteld. Eerst moeten de opgeslagen sessie-/vangstfeatures en hun werkelijke runtimeconsumptie worden gecontroleerd. Geen codewijziging of nieuwe invoerlast volgt uit deze audit.
