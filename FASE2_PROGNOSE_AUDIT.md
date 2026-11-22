@@ -5782,6 +5782,6 @@ GitHub Actions Quality Gate run **1096** op branch `audit/thermal-asof-regressio
 
 Deze correctie sluit de aangetoonde future-weather leakage voor de geteste weather-only en meetankerroute. Zij is geen bewijs dat alle combinaties uit §194.4 al afzonderlijk zijn getest. Nog gericht te valideren vóór de intervalscore als volledig afgedekt wordt beschouwd: historisch temperatuurprofiel, onbekende diepte, onvoldoende dekking/fallback, targetmomenten vóór en exact op 12:00, ontbrekende uren en thermische DST-grensgevallen. De bestaande Amsterdamse timezone/DST-suite is groen, maar vervangt deze gerichte thermische combinatietests niet.
 
-PR #214 blijft draft en is niet gemerged. De branch staat zeven commits vóór en nul commits achter de vastgelegde main-basis; `main` is niet gewijzigd. Geen gebruikersdata of database-inhoud gewijzigd.
+PR #214 blijft draft en is niet gemerged. De auditbranch blijft afgescheiden van `main`; er is niets naar `main` gemerged. Geen gebruikersdata of database-inhoud gewijzigd.
 
 **Status:** de minimale as-of-correctie en bijbehorende CI-poort zijn groen. De bredere randgevallenmatrix uit §194.4 blijft open; intervalscoring en Fase 3 blijven geblokkeerd totdat de resterende validatie en formele Fase 2-acceptatie zijn afgerond.
