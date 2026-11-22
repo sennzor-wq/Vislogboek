@@ -121,9 +121,17 @@ export function analyzeWaterThermalDevelopment(
   const hasMeasured = isActualSituation;
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
-  // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
-  const dayForecasts = forecasts.filter((h) => getAmsterdamDateKey(h.time) === targetDateStr);
-  const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
+  // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren.
+  // Bij een expliciet doelmoment mogen uitsluitend uren tot en met dat moment
+  // bijdragen aan de tijdstipgebonden thermische toestand. Zonder expliciet
+  // doelmoment blijft de bestaande dagbrede prognoseweergave behouden.
+  const targetDayForecasts = forecasts.filter((h) => {
+    if (getAmsterdamDateKey(h.time) !== targetDateStr) return false;
+    if (!hasValidTargetTime) return true;
+    const timestampMs = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
+    return Number.isFinite(timestampMs) && timestampMs <= estimationTargetMs;
+  });
+  const dayTemperatureForecasts = targetDayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
   const expectedAnchorHours = anchorAgeHours === null ? 0 : Math.max(0, Math.floor(anchorAgeHours));
   let weatherCoverageRatio = expectedAnchorHours > 0
     ? Math.min(1, weatherSinceAnchor.length / expectedAnchorHours)
@@ -182,23 +190,21 @@ export function analyzeWaterThermalDevelopment(
   const dayMin = Math.min(...dayTemps);
   const dayMax = Math.max(...dayTemps);
   const dayAvg = dayTemps.reduce((a, b) => a + b, 0) / dayTemps.length;
-  const validDayWind = dayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
-  const validDayCloud = dayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
+  const validDayWind = targetDayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
+  const validDayCloud = targetDayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
   const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
 
   // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
-  const targetTimeMs = parseAppTimestamp(`${targetDateStr}T12:00:00`)?.getTime() ?? Date.UTC(
-    Number(targetDateStr.slice(0, 4)), Number(targetDateStr.slice(5, 7)) - 1, Number(targetDateStr.slice(8, 10)), 11
-  );
+  const targetTimeMs = estimationTargetMs;
 
   // Forecasts in vensters vóór de doeldag
   const past24hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t < targetTimeMs && t >= targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    return t <= targetTimeMs && t > targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
   const past72hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t < targetTimeMs && t >= targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    return t <= targetTimeMs && t > targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
 
   const hasPast24h = past24hForecasts.length >= 12;
@@ -233,12 +239,12 @@ export function analyzeWaterThermalDevelopment(
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18;
   });
-  const daytimeCloudSamples = dayForecasts.filter((h) => {
+  const daytimeCloudSamples = targetDayForecasts.filter((h) => {
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
   });
   const daytimeCloudAvg = daytimeCloudSamples.length > 0 ? daytimeCloudSamples.reduce((s,h)=>s+h.cloudCover,0)/daytimeCloudSamples.length : null;
-  const daytimeRadiationSamples = dayForecasts.filter((h) => {
+  const daytimeRadiationSamples = targetDayForecasts.filter((h) => {
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.shortwaveRadiation) && (h.shortwaveRadiation as number) >= 0 && (h.shortwaveRadiation as number) <= 1600;
   });
@@ -255,9 +261,9 @@ export function analyzeWaterThermalDevelopment(
   else if (daytimeCloudAvg <= 70) solarIndication = 'Matig (half bewolkt)';
   else solarIndication = 'Gering (zwaarbewolkt/mist)';
 
-  const humiditySamples = dayForecasts.filter((h) => Number.isFinite(h.relativeHumidity) && (h.relativeHumidity as number) >= 0 && (h.relativeHumidity as number) <= 100);
-  const dewPointSamples = dayForecasts.filter((h) => Number.isFinite(h.dewPoint) && (h.dewPoint as number) >= -50 && (h.dewPoint as number) <= 50);
-  const evaporationSamples = dayForecasts.filter((h) =>
+  const humiditySamples = targetDayForecasts.filter((h) => Number.isFinite(h.relativeHumidity) && (h.relativeHumidity as number) >= 0 && (h.relativeHumidity as number) <= 100);
+  const dewPointSamples = targetDayForecasts.filter((h) => Number.isFinite(h.dewPoint) && (h.dewPoint as number) >= -50 && (h.dewPoint as number) <= 50);
+  const evaporationSamples = targetDayForecasts.filter((h) =>
     Number.isFinite(h.dewPoint) && Number.isFinite(h.temperature) &&
     (h.temperature - (h.dewPoint as number)) >= 0 && (h.temperature - (h.dewPoint as number)) <= 40
   );
