@@ -383,7 +383,7 @@ async function run() {
   );
   assert(
     postIntervalForecast.status === 'partial' &&
-      postIntervalForecast.uncoveredDurationMinutes === 60,
+      postIntervalForecast.uncoveredDurationMinutes === 30,
     'Forecasturen na het geplande interval vullen ontbrekende segmenten niet aan'
   );
 
