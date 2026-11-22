@@ -546,7 +546,7 @@ async function run14Scenarios() {
 
   const sparseEarlyForecasts = makeHourlySeries('2026-10-23', 1, () => 12).filter((hour) => hour.time <= '2026-10-23T03:00');
   const sparseFutureChanged = makeHourlySeries('2026-10-23', 1, () => 12).map((hour) =>
-    hour.time > '2026-10-23T03:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 } : hour
+    hour.time > '2026-10-23T03:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 } : hour
   );
   const sparseBase = analyzeWaterThermalDevelopment('2026-10-23', sparseEarlyForecasts, {
     location: locLokkershoek,
@@ -569,7 +569,7 @@ async function run14Scenarios() {
   for (const target of ['2026-10-23T08:00:00', '2026-10-23T12:00:00', '2026-10-23T15:00:00']) {
     const changedAfterTarget = asOfBaseForecasts.map((hour) =>
       hour.time > target.slice(0, 16)
-        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 }
+        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
         : hour
     );
     const beforeMutation = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
@@ -592,7 +592,7 @@ async function run14Scenarios() {
 
   const missingEarlierHour = asOfBaseForecasts.filter((hour) => hour.time !== '2026-10-23T10:00');
   const missingHourChangedFuture = missingEarlierHour.map((hour) =>
-    hour.time > '2026-10-23T15:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 } : hour
+    hour.time > '2026-10-23T15:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 } : hour
   );
   const missingHourBase = analyzeWaterThermalDevelopment('2026-10-23', missingEarlierHour, {
     location: locUnknownDepth,
@@ -626,7 +626,7 @@ async function run14Scenarios() {
     }));
     const dstFutureChanged = dstBaseForecasts.map((hour) =>
       Date.parse(hour.time) > targetMs
-        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35 }
+        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
         : hour
     );
     const dstReference = new Date(targetMs - 72 * 3600000);
