@@ -5904,3 +5904,32 @@ GitHub Actions Quality Gate run **1117** (run-id `45074683749`) is succesvol afg
 De Quality Gate valideerde de code- en testwijzigingen. De daaropvolgende commits op de auditbranch wijzigen uitsluitend documentatie. PR #214 blijft draft en niet gemerged; `main` is ongemoeid.
 
 **Status werkonderdeel 2 van §192.5:** de canonieke intervalgrenzen staan nu ook expliciet in `PrognosisInputContext`, met backward-compatible optionele velden en een groene regressiepoort. De volgende stap is de pure segmentatiehelper uit §192.5 stap 3, maar pas nadat het Amsterdamse tijdzonecontract voor datetime-local-invoer als ontwerpregel is vastgelegd. De intervalscore en Fase 3 blijven geblokkeerd.
+
+
+
+## 198. Tijdzonecontract voor geplande VisCoach-intervallen (22 november 2026)
+
+**Scope:** read-only controle van de VisCoach-`datetime-local`-invoer, normalisatie en bestaande Amsterdamse tijdhelpers. Geen UI- of tijdzonecode gewijzigd.
+
+### 198.1 Feitelijk bestaand gedrag
+
+- `VisCoachView` vult de invoervelden met lokale apparaattijd en gebruikt HTML `datetime-local`; de ruwe waarde bevat geen offset.
+- `buildVisCoachPlan` parseert deze invoer met `new Date(...)`. Daarmee wordt de wall-clock invoer geïnterpreteerd in de runtime-/apparaatzone.
+- De service normaliseert de resulterende absolute momenten naar ISO UTC (`toISOString()`) en bewaart de gebruikte runtimezone in `PrognosisInputContext.timezone`.
+- De doelkalenderdatum en de tijdvakindeling worden afzonderlijk in `Europe/Amsterdam` bepaald. Ook de weerprovider levert tijden voor `Europe/Amsterdam`.
+- De centrale `parseAppTimestamp` interpreteert legacy tijdzone-loze timestamps als Amsterdamse wall time; de nieuwe geplande intervalgrenzen zijn echter ISO UTC met expliciete `Z` en worden dus als absolute instanties gelezen.
+
+### 198.2 Vastgelegd contract voor segmentatie
+
+Voor de bestaande VisCoach-invoer behouden we het huidige invoergedrag; deze audit verandert geen scherm of gebruikersverwachting.
+
+1. De wall-clock waarde uit `datetime-local` wordt volgens de runtime-/apparaatzone geïnterpreteerd. De daadwerkelijk gebruikte zone staat in `inputContext.timezone`.
+2. Direct na parsing worden start en einde absolute ISO-instanties. Dit paar is canoniek voor duur, volgorde, snapshot, fingerprint en replay.
+3. Alle intervalrekenkunde gebruikt absolute milliseconden/ISO-instanties; een ISO-UTC-waarde wordt nooit opnieuw als lokale wall time geïnterpreteerd.
+4. Kalenderdatum, Nacht/Ochtend/Middag/Avond en segmentgrenzen op Amsterdamse dag-/tijdvakovergangen worden berekend in `Europe/Amsterdam`, passend bij de weerprovider en de bestaande prognosekalender.
+5. Bij DST kan de elapsed duur verschillen van het verschil tussen lokale kloklabels. De werkelijke absolute duur is leidend; de bestaande maximumduur van 24 elapsed uren blijft gelden.
+6. De runtimezone blijft provenance van de invoer, niet een tweede modeltijdzone. De segmenthelper gebruikt expliciet de Amsterdamse tijdzone voor kalender-/tijdvaklabels.
+
+**Begrenzing:** op apparaten buiten `Europe/Amsterdam` wordt een `datetime-local`-waarde momenteel als apparaattijd ingevoerd, terwijl de prognosekalender Amsterdam gebruikt. Dat is bestaand gedrag en wordt hier niet stilzwijgend gewijzigd. Een eventuele wijziging naar vaste Amsterdamse invoer vraagt een afzonderlijk UX-/productbesluit.
+
+**Conclusie:** het huidige contract is voldoende eenduidig voor een pure segmentatiehelper zolang deze uitsluitend absolute intervalgrenzen gebruikt en expliciet `Europe/Amsterdam` voor lokale segmentlabels toepast. De volgende stap is test-first implementatie van die helper; geen score of biologische factor wordt in deze helper berekend.
