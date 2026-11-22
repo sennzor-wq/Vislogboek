@@ -478,3 +478,21 @@ Daarnaast bevat `DayPrognosis` aparte modules voor persoonlijke vangstkans/verwa
 De eerste crosswalk staat in audit §186 en de architectuurregels in §152. **Werkonderdeel 8 is nog niet gesloten**: de kandidaat voedings-/foerageerlaag en daarna persoonlijke vangstkans en aanwezigheid/habitat moeten nog op hun volledige invoer-, tijdsresolutie-, bewijs- en validatiecontract worden gecontroleerd. De volgende stap is die gerichte code-/typecontrole van de bestaande `feedingEvidenceService` en de bijbehorende tijdvak-/soortcontext, zonder scoreactivatie.
 
 Geen code, tests, scoreformule, gewichten, drempels, bronstatus, gebruikersdata, snapshots of UI gewijzigd. Geen biologische validatie geclaimd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## Werkonderdeel 8 — voortgang 8.9: voedings-/foerageerevidence-contract gecontroleerd (22 november 2026)
+
+**Type werk:** read-only inspectie van bestaande services, registry-queryfuncties en soorttypen. Geen nieuwe literatuurzoektocht en geen runtimewijziging.
+
+### Vastgesteld
+- `feedingEvidenceService` groepeert voedselopname, voedingsritme, foerageergedrag, dieet en prooikeuze.
+- De generieke registry-query neemt soortspecifieke én soortneutrale records mee. De service filtert niet op levensfase, watertype, seizoen, habitat of onderzoeksopzet.
+- `dielBehaviorEvidenceService` sluit generieke bronnen uit en houdt voedingsritme, locomotorische activiteit en habitatgebruik apart.
+- Geen bron is numeriek goedgekeurd; de approval-lijst blijft leeg. De service is bewijsindex/context, geen voedingsscore.
+- Registry-recordaantallen per soort zijn dekking, geen effectgroottes of onafhankelijke steekproefomvang.
+- Roofblei en Overig hebben in de huidige query geen directe voedingsintensiteits-/ritmebronnen; dieet of beweging mag dit gat niet opvullen.
+
+### Vervolg
+Controleer de Prognosepagina-weergave om te verifiëren dat directe voeding, foerageren, dieet/prooikeuze en beweging niet als één voorspelde voedingsuitkomst worden gepresenteerd. Daarna volgen de persoonlijke vangstkans en de kwaliteit van aanwezigheid-/habitatlabels.
+
+Geen code, tests, scoreformule, gewichten, drempels, bronstatus, UI of gebruikersdata gewijzigd. Werkonderdeel 8 blijft open; Fase 2 blijft open en Fase 3 geblokkeerd.
