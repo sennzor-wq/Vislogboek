@@ -567,8 +567,9 @@ async function run14Scenarios() {
   const forecastQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Weersverwachting');
   assert(temperatureQuality?.status === 'modelled' && forecastQuality?.status === 'forecast',
     '12.2a Centrale datakwaliteitscontrole onderscheidt thermische modelschatting van weersverwachting');
+  const equalSlotForecasts = makeHourlySeries('2026-10-20', 5, () => 14, () => 40, 8);
   const equalSlotPrognosis = calculateDayPrognosis(
-    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
+    '2026-10-23', equalSlotForecasts, 'Karper', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
   );
   const genericTimeContext = calculateDayPrognosis(
