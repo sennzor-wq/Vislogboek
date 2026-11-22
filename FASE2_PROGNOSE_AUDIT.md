@@ -5803,3 +5803,11 @@ Toegevoegde assertions:
 **Validatiestatus:** deze aanvullende assertions zijn toegevoegd in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. De Quality Gate-uitvoering voor deze nieuwe commit is nog niet bevestigd. Er wordt dus nog geen geslaagd resultaat geclaimd. Eventuele testfouten moeten eerst inhoudelijk worden onderzocht; pas daarna kan de matrix worden gesloten.
 
 Geen runtimecode, scoreformule, biologische parameters, gewichten, gebruikersdata, database, snapshots of UI gewijzigd in deze testuitbreiding. PR #214 blijft draft en niet gemerged; `main` blijft ongemoeid. Fase 2 en de as-of-randgevallenpoort blijven open.
+
+
+
+### 196.1 Verfijning van de metamorfische mutatie en actuele branchstatus
+
+De testmutatie is verder aangescherpt: voor uren ná het doelmoment worden niet alleen luchttemperatuur, bewolking en wind gewijzigd, maar ook zonnestraling, relatieve luchtvochtigheid en dauwpunt. Daarmee worden alle weercontextvelden geraakt die de thermische engine in de doeldagcontext kan gebruiken.
+
+De actuele branch-head na deze verfijning is `1bc478dff195a5dd20cbcef511da020e1233b083`. Voor deze head is op dit moment geen bijbehorende GitHub Actions-run of commitstatus beschikbaar via de repositorystatuscontrole. De aanvullende matrix blijft daarom **onbevestigd / niet groen** totdat de tests daadwerkelijk op deze commit zijn uitgevoerd. De eerder groene Quality Gate 1096 geldt uitsluitend voor de eerdere testset en mag niet als validatie van scenario 8.6 worden gepresenteerd.
