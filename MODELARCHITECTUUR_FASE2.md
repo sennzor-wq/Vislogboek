@@ -1401,3 +1401,14 @@ Twee aparte tactiekmodules benutten beperkte historie:
 - prebait vergelijkt op dezelfde stek/doelsoort sessies met en zonder voorvoeren vanaf minimaal 5 geclassificeerde sessies, minimaal 2 per groep, en presenteert dit als beschrijvend, niet causaal.
 
 Andere velden in de feature-snapshot (zoals hengeltype, aanbeten/gemiste vissen, aas-/techniekdetails per vangst en vangsttijd) zijn niet automatisch actieve voorspellende correcties. Snapshotopslag is provenance, geen bewijs van runtimeconsumptie. Toekomstige persoonlijke vangstfeatures vereisen een eigen datakwaliteits-, confounding- en chronologisch validatiecontract. Geen scorewijziging of extra invoerlast.
+
+
+## 157. Minimaal intervalcontract voor VisCoach-planning binnen de bestaande prognose-engine (22 november 2026)
+
+Audit §192 definieert het ontwerpvoorstel voor een echte biologische score over het reeds bestaande VisCoach-sessie-interval. De intervalgrenzen targetWindowStart/targetWindowEnd blijven de ene bron van waarheid en worden ook expliciet in PrognosisInputContext opgenomen voor reproduceerbaarheid. targetTimeSlot blijft alleen starttijd-/tactische context.
+
+De voorkeursrichting is een hybride intervalverwerking: uurlijkse thermische/weersstappen, gesplitst op uur-, zesuurs-tijdvak- en lokale datumgrenzen, met voedings-/foerageerbewijs op uitsluitend de resolutie die de bron daadwerkelijk ondersteunt. Segmenten worden naar werkelijke overlapduur beoordeeld; ontbrekende dekking blijft expliciet onbekend. Een sessie zonder eindtijd heeft geen volledige duur-/intervalscore en krijgt geen verzonnen standaardduur.
+
+**Voorwaarde vóór intervalimplementatie:** de bestaande tijdstipgerichte waterThermalEngine moet een strikte as-of-invariant garanderen. De huidige ankergestuurde route gebruikt weer tot targetTime, maar de fallback-/contextpaden kunnen volledige doeldagstatistiek en noon-gecentreerde 24-/72-uursvensters gebruiken. Een metamorfische test moet bewijzen dat wijziging van weeruren na een eerder doelmoment de thermische toestand op dat doelmoment niet wijzigt.
+
+De prognose-engine levert de biologische intervaluitkomst; VisCoach vertaalt deze naar een samenhangend verhaal en tactiek. De persoonlijke Poisson-vangkans blijft een aparte respons. Geen parallelle VisCoach-prognose-engine, scoregewichten of implementatiebesluit.
