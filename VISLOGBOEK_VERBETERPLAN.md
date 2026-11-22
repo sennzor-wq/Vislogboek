@@ -1177,3 +1177,11 @@ Op basis van audit §197 zijn twee optionele velden toegevoegd aan `PrognosisInp
 De nieuwe regressietest voert de echte planbuilder uit met een lokale weerscache en controleert bekende/ onbekende eindtijd, context-/snapshotgelijkheid en fingerprintwijziging bij een ander interval. Er is geen database-migratie, segmentatiehelper, intervalscore, scoregewicht of biologische wijziging toegevoegd.
 
 **Status:** GitHub Actions Quality Gate run 1117 is volledig groen. De snapshotcontracttests eindigden op 19 geslaagd, 0 mislukt; typecheck, overige suites, productiebuild en audits zijn eveneens groen. De daaropvolgende branchwijzigingen zijn uitsluitend documentatie. Zie audit §197.5.
+
+
+
+### Fase 2 — tijdzonecontract voor intervalsegmentatie vastgelegd (22 november 2026)
+
+Audit §198 heeft de bestaande `datetime-local`-semantiek read-only vastgesteld: invoer wordt in de runtime-/apparaatzone geparseerd, de gebruikte zone wordt bewaard, en daarna worden absolute ISO UTC-grenzen opgeslagen. Kalenderdatum, tijdvak en segmentlabels blijven expliciet `Europe/Amsterdam`. De segmenthelper gebruikt absolute tijd voor duur/overlap en Amsterdamse tijd voor lokale grenzen; DST beïnvloedt dus de elapsed duur. Geen UI- of tijdzonecode gewijzigd.
+
+**Volgende stap:** test-first bouw van de pure intervalsegmentatiehelper uit audit §192.5 stap 3, met gedeeltelijke uren, uurstappen, tijdvak-/middernachtgrenzen, ontbrekende forecasturen en DST. De helper levert alleen segmenten en dekking, geen biologische score. Zie audit §198.
