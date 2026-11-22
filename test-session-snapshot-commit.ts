@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { db, syncSessionPresenceObservations } from './src/db/db';
-import { saveSessionWithPrognosisSnapshot, PendingPrognosisSnapshot } from './src/services/prognosisEngine';
+import { saveSessionWithPrognosisSnapshot, PendingPrognosisSnapshot, createPrognosisInputFingerprint } from './src/services/prognosisEngine';
+import { buildVisCoachPlan } from './src/services/viscoachService';
 import { FishingSession } from './src/types';
 
 let passed = 0;
@@ -36,6 +37,18 @@ async function run() {
     chosenSlot: 'Avond',
     targetWindowStart: '2026-11-01T17:00:00.000Z',
     targetWindowEnd: '2026-11-01T20:00:00.000Z',
+    inputContext: {
+      calculatedAt: '2026-11-01T16:59:00.000Z',
+      timezone: 'Europe/Amsterdam',
+      targetDate: '2026-11-01',
+      targetWindowStart: '2026-11-01T17:00:00.000Z',
+      targetWindowEnd: '2026-11-01T20:00:00.000Z',
+      targetSpecies: 'Karper',
+      sessionDurationHours: 3,
+      location: { id: 'spot-bomedikke' },
+      historicalWaterTemperatureSamples: [],
+      historySummary: { sessionCount: 0, catchRecordCount: 0, observationCount: 0, historicalWaterTemperatureSampleCount: 0 },
+    } as any,
   };
 
   // Annuleren betekent dat de submit-/commitfunctie niet wordt aangeroepen.
@@ -76,6 +89,9 @@ async function run() {
   assert(storedSnapshot?.targetWindowStart === pending.targetWindowStart &&
     storedSnapshot?.targetWindowEnd === pending.targetWindowEnd,
     'Het geplande VisCoach-start- en eindvenster blijven behouden in de sessiesnapshot');
+  assert(storedSnapshot?.inputContext?.targetWindowStart === storedSnapshot?.targetWindowStart &&
+    storedSnapshot?.inputContext?.targetWindowEnd === storedSnapshot?.targetWindowEnd,
+    'De intervalgrenzen in PrognosisInputContext zijn identiek aan de bestaande snapshotgrenzen');
 
   const storedObservations = await db.presenceObservations.where('sessionId').equals(session.id).toArray();
   assert(storedObservations.length === 2,
@@ -101,6 +117,118 @@ async function run() {
   assert(rejected, 'Ongeldige sessie wordt geweigerd');
   assert((await db.prognosisSnapshots.count()) === 1,
     'Een ongeldige sessie laat geen extra losse snapshot achter');
+
+  // Test de echte VisCoach-planbuilder tegen een lokale weerscache; geen netwerkverzoek.
+  const planLocation = {
+    id: 'spot-plan-contract',
+    name: 'Contract testwater',
+    latitude: 52,
+    longitude: 5,
+    waterDepth: 2.5,
+    waterType: 'Plas/Zandafgraving',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  await db.locations.put(planLocation as any);
+  const plannedStart = new Date();
+  plannedStart.setMinutes(0, 0, 0);
+  plannedStart.setHours(plannedStart.getHours() + 3);
+  const weatherHourly = Array.from({ length: 240 }, (_, index) => ({
+    time: new Date(plannedStart.getTime() - 96 * 3600000 + index * 3600000).toISOString(),
+    temperature: 12,
+    pressure: 1016,
+    windSpeed: 8,
+    windDirection: 225,
+    windDirectionText: 'ZW',
+    precipitation: 0,
+    precipitationProbability: 10,
+    cloudCover: 40,
+    weatherCode: 1,
+    relativeHumidity: 65,
+    dewPoint: 8,
+    shortwaveRadiation: 300,
+  }));
+  await db.weatherCache.put({
+    id: '52.00_5.00',
+    latitude: 52,
+    longitude: 5,
+    fetchedAt: new Date().toISOString(),
+    hourly: weatherHourly,
+  });
+  const plannedEnd = new Date(plannedStart.getTime() + 3 * 3600000);
+  const visCoachPlan = await buildVisCoachPlan({
+    location: planLocation as any,
+    targetSpecies: 'Karper',
+    desiredStartTime: plannedStart.toISOString(),
+    desiredEndTime: plannedEnd.toISOString(),
+    sessions: [],
+    catches: [],
+  });
+  assert(
+    visCoachPlan.pendingSnapshot.inputContext?.targetWindowStart === plannedStart.toISOString() &&
+      visCoachPlan.pendingSnapshot.inputContext?.targetWindowEnd === plannedEnd.toISOString() &&
+      visCoachPlan.pendingSnapshot.targetWindowStart === plannedStart.toISOString() &&
+      visCoachPlan.pendingSnapshot.targetWindowEnd === plannedEnd.toISOString(),
+    'VisCoach-planbuilder gebruikt hetzelfde genormaliseerde ISO-interval in context en snapshot'
+  );
+  assert(
+    visCoachPlan.pendingSnapshot.inputContext?.sessionDurationHours === 3 &&
+      visCoachPlan.pendingSnapshot.durationHours === 3 &&
+      visCoachPlan.pendingSnapshot.durationKnown === true,
+    'Bekend interval bewaart dezelfde sessieduur in context en snapshot'
+  );
+  const expectedPlanFingerprint = createPrognosisInputFingerprint({
+    inputContext: visCoachPlan.pendingSnapshot.inputContext,
+    date: visCoachPlan.prognosis.date,
+    desiredStartTime: plannedStart.toISOString(),
+    desiredEndTime: plannedEnd.toISOString(),
+    species: 'Karper',
+    locationId: planLocation.id,
+    weather: visCoachPlan.pendingSnapshot.weatherInput,
+  });
+  assert(
+    visCoachPlan.pendingSnapshot.inputFingerprint === expectedPlanFingerprint,
+    'VisCoach-inputfingerprint bevat de volledige intervalcontext en dezelfde ISO-grenzen'
+  );
+  const changedIntervalFingerprint = createPrognosisInputFingerprint({
+    inputContext: {
+      ...visCoachPlan.pendingSnapshot.inputContext!,
+      targetWindowEnd: new Date(plannedEnd.getTime() + 3600000).toISOString(),
+    },
+    date: visCoachPlan.prognosis.date,
+    desiredStartTime: plannedStart.toISOString(),
+    desiredEndTime: plannedEnd.toISOString(),
+    species: 'Karper',
+    locationId: planLocation.id,
+    weather: visCoachPlan.pendingSnapshot.weatherInput,
+  });
+  assert(
+    changedIntervalFingerprint !== visCoachPlan.pendingSnapshot.inputFingerprint,
+    'Een gewijzigd eindmoment verandert de inputfingerprint'
+  );
+
+  const unknownEndStart = new Date(plannedStart.getTime() + 6 * 3600000);
+  const unknownEndPlan = await buildVisCoachPlan({
+    location: planLocation as any,
+    targetSpecies: 'Karper',
+    desiredStartTime: unknownEndStart.toISOString(),
+    desiredEndTime: null,
+    sessions: [],
+    catches: [],
+  });
+  assert(
+    unknownEndPlan.pendingSnapshot.inputContext?.targetWindowStart === unknownEndStart.toISOString() &&
+      unknownEndPlan.pendingSnapshot.inputContext?.targetWindowEnd === null &&
+      unknownEndPlan.pendingSnapshot.targetWindowEnd === null,
+    'Onbekende eindtijd blijft expliciet null in PrognosisInputContext en snapshot'
+  );
+  assert(
+    unknownEndPlan.pendingSnapshot.inputContext?.sessionDurationHours === null &&
+      unknownEndPlan.pendingSnapshot.durationKnown === false &&
+      unknownEndPlan.pendingSnapshot.durationHours === 0 &&
+      unknownEndPlan.durationHours === null,
+    'Onbekende eindtijd blijft onbekend en wordt niet omgezet in een standaardduur'
+  );
 
   await db.delete();
   console.log(`Session snapshot commit tests: ${passed} geslaagd, ${failed} gefaald`);
