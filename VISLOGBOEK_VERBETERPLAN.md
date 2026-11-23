@@ -1218,3 +1218,10 @@ Audit §202 heeft per factor de huidige code-resolutie, vereiste velden/lookback
 **Status:** read-only audit afgerond en gedocumenteerd. Geen runtimecode, score, drempel, weging of gebruikersdata gewijzigd. Er is geen intervalminimumpercentage gekozen. De generieke uursegmentatie geldt niet als factorbeschikbaarheid.
 
 **Volgende stap:** een beperkt interval-outputcontract vastleggen en test-first valideren: welke factorcontext per segment kan worden getoond, welke uitkomsten sessiebreed blijven en welke gegevens bij onvoldoende dekking onbekend blijven. Geen scorewijziging of tweede prognose-engine. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §202 en architectuur §167.
+
+
+### Fase 2 — scope van de bestaande Prognose-uitvoer en VisCoach-vertaling (23 november 2026)
+
+Audit §203 controleert de huidige keten: VisCoach gebruikt dezelfde `calculateDayPrognosis`, de geselecteerde startperiode stuurt de tactische conclusie en de persoonlijke Poisson-vangkans is sessiebreed op basis van geplande duur. De huidige kaart toont echter een combinatie van dagbrede score/beoordeling, starttijdvakgerichte tactiek en sessieduurgebonden vangkans. De dagscore is geen intervalscore; het huidige UI-label “Visactiviteit” is te ruim voor de voorlopige thermische activiteitspotentie. Dit is alleen vastgelegd, niet aangepast.
+
+**Volgende stap:** de kleinste backward-compatible interval-outputstructuur specificeren zonder bestaande `DayPrognosis`-velden anders te interpreteren. Eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Geen tweede engine of gecombineerde intervalscores. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §203 en architectuur §168.
