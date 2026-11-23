@@ -1233,11 +1233,11 @@ Audit §204 en architectuur §169 leggen de contractgrens vast. Een pure adapter
 
 De adapter markeert expliciet dat thermische activiteit niet per segment wordt herberekend, drukfactoren hun bestaande tijdvak-/lookbackcontract houden en wind/neerslag/bewolking uitsluitend beschrijvende context zijn. VisCoach hoort de segmenten chronologisch tot één advies samen te voegen, zonder eigen scores of tweede prognosemodel.
 
-**Status:** adapter, eerste contracttests en CI-teststap toegevoegd op branch `feature/prognosis-interval-output-contract`. CI/typecheck nog niet bevestigd; VisCoach-UI-consumptie is nog niet aangesloten. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+**Status:** dit was de tussenstand bij het vastleggen van het contract; de adapter en VisCoach-koppeling zijn inmiddels uitgevoerd. Zie de vervolgregel hieronder en audit §205.
 
 
 ### Fase 2 — intervaluitvoer aangesloten op VisCoach (23 november 2026)
 
 Audit §205 en architectuur §170 documenteren de eerste end-to-end koppeling. De bestaande VisCoach-planbuilder hergebruikt de ene bestaande dagprognose en bouwt daarnaast het interval-outputobject met de al opgehaalde uurforecast. De bestaande adviesfunctie ontvangt dit object optioneel en maakt één chronologisch sessieverhaal: aangrenzende segmenten met gelijke weerscontext worden samengevoegd; ontbrekende waarden worden niet ingevuld; dagscore, starttactiek en sessiebrede vangkans blijven gescheiden. Oude sessieadvies-/reassessment-paden blijven ongewijzigd wanneer zij geen intervalobject aanbieden.
 
-**Status:** nieuwe-planroute en UI zijn aangesloten; extra contracttests toegevoegd. Quality Gate run 45155087915 is volledig groen, inclusief typecheck, intervalcontract-/VisCoach-tests en productiebuild. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.
+**Status:** nieuwe-planroute en UI zijn aangesloten; Quality Gate run 45155304598 was volledig groen, inclusief typecheck, intervalcontract-/VisCoach-tests en productiebuild. Review heeft de tekst over forecastdekking aangescherpt: aanwezigheid van een uurrecord betekent niet dat alle velden bruikbaar zijn. Nieuwe regressietest toegevoegd; validatie van deze kleine correctie volgt nog. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.

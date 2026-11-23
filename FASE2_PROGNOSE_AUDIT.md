@@ -6233,7 +6233,7 @@ De adapter berekent geen habitatbeweging, oeverrelatie, positionering, persoonli
 ### 204.5 VisCoach-consumptieregels
 
 VisCoach leest het outputobject en maakt één samenhangend advies:
-1. Begin met het werkelijke geplande interval en benoem of de weersdekking volledig of gedeeltelijk is.
+1. Begin met het werkelijke geplande interval en benoem de dekking van uurforecastrecords; maak expliciet dat een aanwezig record niet garandeert dat alle afzonderlijke waarden geldig/beschikbaar zijn.
 2. Beschrijf opeenvolgende segmenten chronologisch; groepeer aangrenzende segmenten alleen wanneer hun beschikbare context gelijksoortig is.
 3. Benoem uitsluitend beschikbare factorcontext. Noem ontbrekende gegevens alleen wanneer die de praktische conclusie begrenzen.
 4. Gebruik dagscore en dagbeoordeling uitsluitend als herkenbare dagcontext; gebruik het geselecteerde starttijdvak alleen voor de bestaande starttactiek.
@@ -6244,7 +6244,7 @@ VisCoach leest het outputobject en maakt één samenhangend advies:
 
 `test-prognosis-interval-output.ts` controleert bekende en onbekende eindtijd, gedeeltelijke dekking, ontbrekend uur, afzonderlijk ongeldige factorvelden, windvalidatie, behoud van dag-/start-/sessiescope en null bij onbekende duur of niet-beschikbare dagscore. De adapter is een backward-compatible presentatie-/contractlaag: de bestaande `calculateDayPrognosis` en alle bestaande scores, drempels en gewichten blijven ongewijzigd.
 
-**Status:** contract en pure adapter zijn toegevoegd op branch `feature/prognosis-interval-output-contract`. De CI-teststap is toegevoegd; uitvoering en typecheck moeten nog door GitHub Actions worden bevestigd. VisCoach consumeert de adapter nog niet in de UI. Dit is dus geen afgeronde end-to-end integratie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+**Status:** historische contractdefinitie; de adapter en VisCoach-koppeling zijn inmiddels uitgevoerd en gevalideerd, zie §205. De aanvullende nuance rond uurrecorddekking versus individuele veldvaliditeit is in §205 en de formattertests verwerkt.
 
 
 ## 205. VisCoach-consumptie van intervaluitvoer
@@ -6261,4 +6261,4 @@ De bestaande VisCoach-adviesfunctie accepteert de intervaluitvoer optioneel. Bij
 
 Bestaande opgeslagen sessieadviezen en reassessment-paden roepen de functie nog steeds zonder intervalobject aan en behouden daarmee hun huidige gedrag. Contracttests controleren de gecombineerde dag-/sessiesemantiek en de chronologische VisCoach-vertaling.
 
-**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. Quality Gate run 45155087915 op commit `6c287b00af5d3fb7a118b24a0ef7b382d025dad6` is volledig groen: typecheck, alle regressies, intervalcontract-/VisCoach-tests, productiebuild en private-artifactcontrole. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.
+**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. Quality Gate run 45155304598 op commit `10842dac03238a3ff654cc75771425081571cbde` was volledig groen. Review vond één tekstuele nuance: uurrecorddekking is niet hetzelfde als geldigheid van alle velden. De formatter benoemt dit nu expliciet en een regressietest dekt het af. De aanvullende wijziging wacht op een nieuwe Quality Gate. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.

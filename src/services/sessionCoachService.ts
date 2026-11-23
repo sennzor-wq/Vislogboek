@@ -335,8 +335,8 @@ function formatIntervalTimeline(
     }
   }
   const coverage = interval.status === 'complete'
-    ? 'De weersverwachting dekt de volledige geplande sessie.'
-    : `De weersverwachting dekt ongeveer ${Math.round((interval.temporalCoverageRatio ?? 0) * 100)}% van de geplande sessieduur; voor ontbrekende uren doe ik geen aannames.`;
+    ? 'Er zijn uurforecastrecords aanwezig voor de volledige geplande sessie; afzonderlijke waarden kunnen alsnog ontbreken of ongeldig zijn.'
+    : `Uurforecastrecords zijn aanwezig voor ongeveer ${Math.round((interval.temporalCoverageRatio ?? 0) * 100)}% van de geplande sessieduur; voor ontbrekende uren doe ik geen aannames. Ook binnen aanwezige records kunnen afzonderlijke waarden ontbreken of ongeldig zijn.`;
   const timeline = groups.map(group =>
     `${formatTime(group.start)}–${formatTime(group.end)}: ${group.description}`
   ).join('; ');
