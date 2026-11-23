@@ -6566,3 +6566,33 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 **Test:** `test-feeding-evidence.ts` controleert dat Roofblei voedingsincidentie als eigen gemeten uitkomst terugkrijgt, terwijl `feedingIntensity` en `feedingRhythm` leeg blijven. De bestaande volledige Quality Gate [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) op commit `634697faa57521ec6a47e04ae93a6cd694fc1117` is volledig groen.
 
 **Status:** technisch afgerond; PR #220 blijft draft en ongemerged voor eigenaarreview. Geen biologische scoring geactiveerd.
+
+
+## 214. WP24 — integratiegrenzen soortspecifieke evidence in prognose en habitatmodel (23 november 2026)
+
+**Scope:** read-only code-audit van service-imports en functiegebruik in `prognosisEngine.ts`, `feedingEvidenceService.ts`, `dielBehaviorEvidenceService.ts`, `thermalEvidenceService.ts` en `habitatMovementEngine.ts`. Geen code, UI, score of adviesuitvoer gewijzigd.
+
+### 214.1 Huidige integratie
+
+| Onderdeel | Huidig gebruik | Gevolg |
+|---|---|---|
+| Thermische evidence-service | Wordt door de prognosis engine aangeroepen | De uitleg kan de soortspecifieke status van thermisch fysiologiebewijs meenemen; geen niet-goedgekeurde bron wordt automatisch een factor. |
+| Diel-behavior evidence-service | Wordt door de prognosis engine aangeroepen | Tijdgebonden voedings-/bewegingsbronnen worden naar gemeten respons gescheiden; niet-goedgekeurde tijdvakvoorkeur blijft neutraal. |
+| Feeding evidence-service | Geen aanroep vanuit prognosis engine of VisCoach aangetroffen | De per-soort voedingsregistry is als service beschikbaar, maar de context wordt momenteel niet door de gebruikersprognose/VisCoach verbruikt. |
+| Habitat movement engine | Geen research-registry lookup | De soortparameter wordt alleen gebruikt in één algemene koude-water-uitlegzin. Zonekeuze volgt algemene temperatuurgrenzen, watertype, lokale structuur, tijdvak en directe waarnemingen; er is geen soortspecifieke habitatrespons. |
+
+### 214.2 Interpretatie
+
+1. Het bestaan van een evidence-service betekent niet dat de informatie al in het gebruikersadvies zit.
+2. Het huidige habitatmodel is een generieke lokale zoek-/zonehypothese, geen soortspecifiek gevalideerd verspreidingsmodel.
+3. De tijdgebonden evidence-service is wel geïntegreerd, maar toont context en neutraliteit; zij activeert geen niet-goedgekeurde numerieke tijdvakbonus.
+4. De voedingsservice kan kwalitatieve context leveren, maar is nog niet aangesloten. Het toevoegen van tekst aan VisCoach vraagt een bewuste productkeuze over waar, wanneer en hoe bronbeperkingen worden getoond.
+5. Een soortspecifieke habitatlaag vereist eerst een passende bronset per soort, responsmaat en watertype. Geen aannames uit verwante soorten of generieke profielen toevoegen.
+
+### 214.3 Besluit / volgende eigenaargrens
+
+- Geen automatische score- of advieswijziging op basis van deze audit.
+- Eventuele kwalitatieve voedingscontext in de prognose/VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke keuzes; zij worden niet stilzwijgend in deze technische audit doorgevoerd.
+- Fase 2 blijft open. WP19 blijft voor empirische validatie afhankelijk van echte snapshots/sessies; WP24 legt de huidige integratiegrenzen vast.
+
+**Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.

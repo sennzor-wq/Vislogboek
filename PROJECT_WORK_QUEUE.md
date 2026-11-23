@@ -111,6 +111,17 @@ De read-only WP22-audit vond dat het register voor Roofblei een directe voedings
 
 **Validatie:** volledige Quality Gate groen op commit `634697faa57521ec6a47e04ae93a6cd694fc1117`, run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427). De bestaande test controleert dat de Roofblei-bron zichtbaar blijft als incidentie, zonder goedkeuring of numerieke scoring.
 
+### F2-WP24 — integratiegrenzen soortspecifieke evidence in prognose en habitatmodel
+**Status:** afgerond — read-only architectuur-/gebruiksaudit.
+
+De huidige codekoppelingen zijn nagegaan:
+- Thermische evidence-context en tijdgebonden voedings-/bewegingscontext worden in de bestaande prognosis engine aangeroepen.
+- De aparte feeding-evidence-service wordt momenteel nergens vanuit prognosis/VisCoach aangeroepen; de registrydata is dus beschikbaar als service, maar nog niet onderdeel van het gebruikersadvies.
+- Het habitatbewegingsmodel gebruikt de soortnaam alleen in een koude-water-uitlegzin. Zonekeuze wordt verder bepaald door algemene thermische drempels, watertype, lokale structuur, tijdvak en directe waarnemingen; er is geen soortspecifieke evidence lookup.
+- Geen van deze bevindingen rechtvaardigt automatische numerieke voedings- of habitatfactoren.
+
+**Besluit:** huidige grenzen expliciet vastgelegd in audit §214. Een eventuele kwalitatieve voedingscontext in VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke product-/modelkeuzes. Geen UI, advieslogica, score of code gewijzigd.
+
 ## Openstaande eigenaarbeslissingen
 
 - PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
@@ -127,6 +138,7 @@ De read-only WP22-audit vond dat het register voor Roofblei een directe voedings
 | 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
 | 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220; commit `634697faa57521ec6a47e04ae93a6cd694fc1117`; run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) groen; draft/niet gemerged. |
+| 2026-11-23 | F2-WP24 | Codekoppelingen van thermische, diel-, voedings- en habitat-evidence read-only gecontroleerd; ontbrekende integratie en generieke habitatlogica vastgelegd. | Fase-2-audit §214; geen runtimewijziging. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 
