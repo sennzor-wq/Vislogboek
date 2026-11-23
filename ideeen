@@ -1,0 +1,28 @@
+Iedeeen voor features die we erin kunnen zetten.
+
+Visuele optimalisatie + handelingen lichter maken:
+Op dit moment is het heel omslaachtig en moet ik 3x drukken op knoppen om uiteindelijk een sessie te starten. Ik kom op de viscoach pagina, daar staat nu informatie
+en moet ik drukken op 'maak mijn visplan'. Vervolgens kom ik in een nieuw overzicht waarbij ik doelvis,stek en start tijd moet opgeven met gewenst eindtijd (optioneel).
+Vervolgens moet ik drukken op "maak mijn visplan" en dan komt er informatie over het visplan zelf de aanpak met advies en tactiek. Vervolgens de optie 'start vissen' en 'sessie plannen'
+Druk ik op 'start vissen' dan heb ik weer een pop up met allemaal informatie die ik eerder heb in gevuld en additionele informatie zoals vis waarneming etc.
+Dan moet ik helemaal naar beneden scrollen om vervolgens weer te drukken op 'start sessie' waarbij de sessie dus echt van start gaat.  
+
+DIT MOET EN KAN SLIMMER.
+
+De bestaande VisCoach pagina bij ontvangst VisCoach:
+    -  De welkomst tekst (bestaand)
+    -  Doel vis optie (default op 'kies doelvis')
+    -  Stek keuze (bestaandl en wordt standaard gevuld, maar moet een keuze worden)
+    -  Het weer op dit moment (bestaat al en mag zo statisch blijven)
+
+Vervolgens na het kiezen en drukken van 'maak mijn visplan' moet er informatie komen van het visplan (bestaand). Op dit moment zie ik bovenaan ook nog
+de optie om de doelvis, stek en gewenste starttijd aan te passen maar dit moet eerder een 'button' worden om de dit te kunnen wijzigen en je het dan gewoon kan wijzigen hoe het nu ook gebouwd is.
+Het hoeft niet in eerste instantie zichtbaar te zijn. Vervolgens moet je direct een sessie kunnen starten. 
+Bij het daadwerkelijk starten van de sessie moeten de parameters standaard al ingevuld zijn
+- gekoppeld weer
+- doevis
+- stek
+- starttijd
+- eindtijd (optioneel)
+
+Alle andere opties zoals lokale meting, viswaarneming, aantal hengels, richting worp, water diepte, aanbeten mogen prima tijdens de sessie aangepast kunnen worden zoals het nu ook al is, dat hoeft allemaal niet vooraf aan een sessie'
