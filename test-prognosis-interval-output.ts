@@ -44,7 +44,8 @@ const badFieldForecasts = [{ ...forecasts[0], windDirectionText: '', precipitati
 const badFields = createPrognosisIntervalOutput('2026-11-23T10:00:00+01:00', '2026-11-23T11:00:00+01:00', badFieldForecasts, day, 'Ochtend');
 assert(badFields.segments[0].weatherContext.wind.status === 'unknown', 'Wind zonder geldig richtingslabel wordt onbekend');
 assert(badFields.segments[0].weatherContext.precipitationMm.status === 'unknown', 'Ongeldige factorwaarde wordt afzonderlijk onbekend');
-const invalidRecordAdvice = buildVisCoachAdviceText(day, null, null, null, 1, badFields);
+const allInvalidFields = createPrognosisIntervalOutput('2026-11-23T10:00:00+01:00', '2026-11-23T11:00:00+01:00', [{ ...forecasts[0], temperature: 100, pressure: 1200, windSpeed: -1, windDirectionText: '', precipitation: -1, cloudCover: 101 }], day, 'Ochtend');
+const invalidRecordAdvice = buildVisCoachAdviceText(day, null, null, null, 1, allInvalidFields);
 assert(invalidRecordAdvice.advice.includes('uurforecastrecords aanwezig') && invalidRecordAdvice.advice.includes('geen bruikbare weersgegevens'), 'Aanwezig uurrecord wordt niet verward met bruikbare waarden voor alle factoren');
 
 const unknownEnd = createPrognosisIntervalOutput('2026-11-23T10:15:00+01:00', null, forecasts, { ...day, plannedDurationHours: null, personalCatchChance: null } as DayPrognosis, 'Ochtend');
