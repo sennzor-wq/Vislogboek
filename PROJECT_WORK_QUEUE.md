@@ -100,9 +100,16 @@ Een gerichte cross-check van primaire studies is uitgevoerd voor soorten waarbij
 
 De bestaande research registry is per concrete doelsoort geïnventariseerd op directe uitkomsttypen voor voedingsintensiteit, voedingsincidentie/-ritme, foerageergedrag, dieet en prooikeuze. De dekking en interpretatiebeperkingen staan in audit §212.
 
-**Uitkomst:** alle negen concrete soorten hebben geregistreerde voedings-/gedragsbronnen, maar niet dezelfde uitkomstmaten. Roofblei heeft in de huidige set vooral voedingsincidentie/dieet/prooikeuze, terwijl andere soorten ook voedingsintensiteit of -ritme hebben. Alle geïnventariseerde entries blijven niet-goedgekeurd voor numerieke voorspelling.
+**Uitkomst:** alle negen concrete soorten hebben geregistreerde voedings-/gedragsbronnen, maar niet dezelfde uitkomstmaten. Roofblei heeft vooral voedingsincidentie/dieet/prooikeuze, terwijl andere soorten ook voedingsintensiteit of -ritme hebben. De service liet voedingsincidentie aanvankelijk weg; dat is apart gecorrigeerd in draft PR #220. Alle geïnventariseerde entries blijven niet-goedgekeurd voor numerieke voorspelling.
 
 **Besluit:** geen numerieke voedingsfactor, dagdeelbonus of temperatuurinteractie activeren. Gedrag, maagvulling, dieet, prooikeuze en directe voedselopname blijven gescheiden. Geen code of score gewijzigd.
+
+### F2-WP23 — voedingsincidentie als afzonderlijke evidence-uitkomst beschikbaar maken
+**Status:** technisch afgerond in draft PR #220; niet gemerged.
+
+De read-only WP22-audit vond dat het register voor Roofblei een directe voedingsincidentie-/vacuïteitsproxy bevatte, maar dat de service alleen voedingsintensiteit, voedingsritme, foerageren en dieet terugleverde. Daardoor verdween die afzonderlijke uitkomst uit de servicecontext. In PR #220 is een aparte property `feedingIncidence` toegevoegd en wordt Roofblei geclassificeerd als `feeding-incidence-and-diet`; het wordt nadrukkelijk niet als voedingsintensiteit of voedingsritme behandeld.
+
+**Validatie:** volledige Quality Gate groen op commit `634697faa57521ec6a47e04ae93a6cd694fc1117`, run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427). De bestaande test controleert dat de Roofblei-bron zichtbaar blijft als incidentie, zonder goedkeuring of numerieke scoring.
 
 ## Openstaande eigenaarbeslissingen
 
@@ -119,6 +126,7 @@ De bestaande research registry is per concrete doelsoort geïnventariseerd op di
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
 | 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
+| 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220; commit `634697faa57521ec6a47e04ae93a6cd694fc1117`; run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) groen; draft/niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 

@@ -6530,7 +6530,7 @@ Bron: https://doi.org/10.1111/j.1095-8649.2012.03436.x
 - **Foerageergedrag / habitatgebruik:** zoeken, bewegen, voerlocaties bezoeken of prooi benaderen; dit bewijst niet dat voedsel daadwerkelijk is opgenomen.
 - **Dieet / prooikeuze:** wat wordt gegeten; dit geeft niet op zichzelf de intensiteit of het tijdstip van eten aan.
 
-Alle geïnventariseerde entries hebben approvedForPrediction=false. Een bronregistratie betekent dus niet dat een numerieke bonus, tijdvakvoorkeur of temperatuurfactor in de runtime mag worden gebruikt.
+Alle geïnventariseerde entries hebben approvedForPrediction=false. Een bronregistratie betekent dus niet dat een numerieke bonus, tijdvakvoorkeur of temperatuurfactor in de runtime mag worden gebruikt. Bij de audit bleek bovendien dat de evidence-service de aparte uitkomst feeding_incidence nog niet terugleverde; dit is gecorrigeerd in draft PR #220 met een eigen feedingIncidence-property en scope-label voor incidentie plus dieet. De test bewaakt dat dit niet wordt verward met intensiteit of ritme.
 
 ### 212.3 Besluit
 
@@ -6541,3 +6541,17 @@ Alle geïnventariseerde entries hebben approvedForPrediction=false. Een bronregi
 5. Een toekomstige voedingslaag moet afzonderlijk gevalideerd worden; fysiologische activiteit, voedingsactiviteit, lokale aanwezigheid en vangbaarheid blijven aparte uitkomsten.
 
 **Resultaat WP22:** registry-dekking read-only geïnventariseerd. Geen runtimewijziging of numerieke scoreaanpassing. Fase 2 blijft open.
+
+## 213. WP23 — voedingsincidentie afzonderlijk beschikbaar in evidence-service (23 november 2026)
+
+WP22 liet zien dat het research register voor Roofblei entries met measuredOutcome `feeding_incidence` bevatte, maar `feedingEvidenceService.ts` deze uitkomst niet in `SpeciesFeedingEvidenceContext` opnam. De service classificeerde Roofblei daardoor als `diet-only`, waardoor de geregistreerde maagvullings-/vacuïteitsproxy niet zichtbaar was in de servicecontext.
+
+**Wijziging in draft PR #220:**
+- Een aparte `feedingIncidence`-collectie toegevoegd aan `SpeciesFeedingEvidenceContext`.
+- De scope `feeding-incidence-and-diet` toegevoegd voor Roofblei.
+- Feeding incidence blijft nadrukkelijk onderscheiden van directe voedingsintensiteit en voedingsritme.
+- `approvedFeedingEvidence` blijft leeg; geen bron is goedgekeurd en geen numerieke factor, score, UI of vangstkans is gewijzigd.
+
+**Test:** `test-feeding-evidence.ts` controleert dat Roofblei voedingsincidentie als eigen gemeten uitkomst terugkrijgt, terwijl `feedingIntensity` en `feedingRhythm` leeg blijven. De bestaande volledige Quality Gate [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) op commit `634697faa57521ec6a47e04ae93a6cd694fc1117` is volledig groen.
+
+**Status:** technisch afgerond; PR #220 blijft draft en ongemerged voor eigenaarreview. Geen biologische scoring geactiveerd.
