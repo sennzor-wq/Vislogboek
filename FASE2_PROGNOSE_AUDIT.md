@@ -6596,3 +6596,34 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 - Fase 2 blijft open. WP19 blijft voor empirische validatie afhankelijk van echte snapshots/sessies; WP24 legt de huidige integratiegrenzen vast.
 
 **Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.
+
+
+## 215. WP25 — synthetische robuustheidsmatrix habitatbewegingsengine (23 november 2026)
+
+**Scope:** uitsluitend testuitbreiding in `test-advanced-prognosis-modules.ts`; geen runtime-engine, UI, score of opgeslagen data gewijzigd.
+
+### 215.1 Simulatiematrix
+
+| Dimensie | Waarden | Aantal |
+|---|---|---:|
+| Doelsoort | Alle 10 waarden uit `ALL_SPECIES`, inclusief Overig | 10 |
+| Thermische context | Koud, gematigd, warm, thermisch onbekend | 4 |
+| Habitatmatrix | Alle combinaties van soort × thermische context | 40 |
+| Directe waarneming | Aasbellen met ontbrekende thermische/steilocatiecontext, per soort | 10 |
+| **Totaal** | 40 habitatcombinaties + 10 observatieprioriteitstests | **50** |
+
+### 215.2 Gecontroleerde eigenschappen
+
+- Primaire en alternatieve zone hebben naam, beschrijving en onderbouwing.
+- Bewegingshypothese en omgevingsinvloeden bevatten de vereiste tekstvelden.
+- Bij onbekende watertemperatuur wordt geen standaardtemperatuur ingevuld; ontbrekende informatie blijft expliciet.
+- Een directe aasbellenwaarneming blijft leidend wanneer thermische context, watertype en diepte ontbreken.
+- Geen historische sessies, vangsten of persoonlijke catch-rate worden gebruikt of gegenereerd.
+
+**Quality Gate:** volledige run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007) op commit `f07a7239ae8bde8a9f0330069240646deda79dfd` is `success`, inclusief typecheck, alle bestaande tests, dependency audits en productiebuild.
+
+### 215.3 Interpretatie
+
+De matrix toont dat de huidige generieke habitatengine voor alle soortwaarden en de gekozen invoercombinaties stabiele, complete en onbekend-bewuste uitvoer produceert. De matrix toont nadrukkelijk **niet** dat habitatkeuze biologisch soortspecifiek voorspeld wordt: de engine gebruikt geen species-specifieke evidence lookup en is in WP24 als generieke zonehypothese geclassificeerd.
+
+**Resultaat WP25:** technische robuustheidstest afgerond in draft PR #221. Geen biologische validatieclaim en geen runtimewijziging.

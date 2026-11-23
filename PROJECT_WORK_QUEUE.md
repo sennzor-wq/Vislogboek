@@ -122,6 +122,15 @@ De huidige codekoppelingen zijn nagegaan:
 
 **Besluit:** huidige grenzen expliciet vastgelegd in audit §214. Een eventuele kwalitatieve voedingscontext in VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke product-/modelkeuzes. Geen UI, advieslogica, score of code gewijzigd.
 
+### F2-WP25 — synthetische robuustheidsmatrix habitatbewegingsengine
+**Status:** technisch afgerond in draft PR #221; niet gemerged.
+
+De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor alle 10 doelsoorten in 4 thermische contexten (koud, gematigd, warm en thermisch onbekend): 40 scenario's. Daarnaast zijn 10 scenario's getest waarin directe waarneming van aasbellen voorrang moet houden, ook als thermische context en stekgegevens ontbreken.
+
+**Validatie:** primaire/alternatieve zones, bewegingshypothese, omgevingscontext, expliciete unknown-afhandeling en observatieprioriteit zijn gecontroleerd. Volledige Quality Gate groen op commit `f07a7239ae8bde8a9f0330069240646deda79dfd`, run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007).
+
+**Beperking:** de engine blijft generiek en de test valideert technische robuustheid, geen soortspecifieke habitatvoorspelling. Geen engine-regels, scores of UI gewijzigd.
+
 ## Openstaande eigenaarbeslissingen
 
 - PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
@@ -139,6 +148,7 @@ De huidige codekoppelingen zijn nagegaan:
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
 | 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220; commit `634697faa57521ec6a47e04ae93a6cd694fc1117`; run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) groen; draft/niet gemerged. |
 | 2026-11-23 | F2-WP24 | Codekoppelingen van thermische, diel-, voedings- en habitat-evidence read-only gecontroleerd; ontbrekende integratie en generieke habitatlogica vastgelegd. | Fase-2-audit §214; geen runtimewijziging. |
+| 2026-11-23 | F2-WP25 | Habitatbewegingsengine synthetisch getest: 10 soorten × 4 thermische contexten + 10 directe-waarnemingsscenario's; volledige Quality Gate groen. | PR #221; commit `f07a7239ae8bde8a9f0330069240646deda79dfd`; run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007); draft/niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 
