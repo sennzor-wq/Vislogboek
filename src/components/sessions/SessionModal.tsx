@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FishingSession,
   FishingLocation,
@@ -19,6 +19,7 @@ interface SessionModalProps {
   session?: FishingSession | null;
   locations: FishingLocation[];
   onSave: (sessionData: Partial<FishingSession>, pendingSnapshot?: PendingPrognosisSnapshot, rods?: SessionRod[]) => Promise<void>;
+  onSaveLocation?: (location: FishingLocation) => Promise<void>;
   initialRodDetails?: SessionRod[];
   pendingPrognosisSnapshot?: PendingPrognosisSnapshot;
   sessionDurationHours?: number;
@@ -33,6 +34,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   session,
   locations,
   onSave,
+  onSaveLocation,
   pendingPrognosisSnapshot,
   sessionDurationHours,
   plannedEndTime,
@@ -48,6 +50,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
   const defaultEndTime = session?.endTime ? formatDateTimeLocal(new Date(session.endTime)) : '';
 
   const [locationId, setLocationId] = useState(session?.locationId || locations[0]?.id || '');
+  const [gpsLatitude, setGpsLatitude] = useState('');
+  const [gpsLongitude, setGpsLongitude] = useState('');
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState(defaultStartTime);
   const [endTime, setEndTime] = useState(defaultEndTime);
   const [isCompleted, setIsCompleted] = useState(isEditing ? session.outcome !== 'active' : false);
@@ -116,15 +122,30 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     return diffMin > 0 ? Math.round(diffMin) : 0;
   };
 
+  const selectedLocation = locations.find((item) => item.id === locationId);
+  const selectedLocationHasGps = typeof selectedLocation?.latitude === 'number' && Number.isFinite(selectedLocation.latitude) && selectedLocation.latitude >= -90 && selectedLocation.latitude <= 90 && typeof selectedLocation?.longitude === 'number' && Number.isFinite(selectedLocation.longitude) && selectedLocation.longitude >= -180 && selectedLocation.longitude <= 180;
+  useEffect(() => {
+    setGpsLatitude(typeof selectedLocation?.latitude === 'number' ? String(selectedLocation.latitude) : '');
+    setGpsLongitude(typeof selectedLocation?.longitude === 'number' ? String(selectedLocation.longitude) : '');
+    setGpsError(null);
+  }, [locationId, locations]);
+  const handleUseCurrentGps = () => {
+    if (!navigator.geolocation) { setGpsError('GPS wordt niet ondersteund. Voer de coördinaten handmatig in.'); return; }
+    setGpsLoading(true); setGpsError(null);
+    navigator.geolocation.getCurrentPosition((position) => {
+      setGpsLatitude(position.coords.latitude.toFixed(6)); setGpsLongitude(position.coords.longitude.toFixed(6)); setGpsLoading(false);
+    }, (error) => { setGpsError(`GPS kon niet worden bepaald: ${error.message}. Voer de coördinaten handmatig in.`); setGpsLoading(false); },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+  };
   const durationMin = calculateDurationMinutes(startTime, endTime);
   const durationHoursFormatted = `${Math.floor(durationMin / 60)}u ${durationMin % 60}m`;
 
   const handleFetchWeather = async () => {
     const loc = locations.find((l) => l.id === locationId);
-    setFetchingWeather(true);
-    setWeatherFetchMsg(null);
+    if (typeof loc?.latitude !== 'number' || typeof loc?.longitude !== 'number') { setWeatherFetchMsg('Geen GPS-coördinaten voor deze stek. Leg eerst de steklocatie vast om weerdata op te halen.'); return; }
+    setFetchingWeather(true); setWeatherFetchMsg(null);
     try {
-      const snap = await getCurrentWeatherSnapshot(loc?.latitude, loc?.longitude);
+      const snap = await getCurrentWeatherSnapshot(loc.latitude, loc.longitude);
       setWeatherSnapshot(snap);
       setWeatherFetchMsg('Actueel weer succesvol gekoppeld.');
     } catch (err) {
@@ -140,9 +161,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     setFetchingWeather(true);
     setWeatherFetchMsg(null);
     try {
+      if (typeof loc?.latitude !== 'number' || typeof loc?.longitude !== 'number') { setWeatherFetchMsg('Historische weerdata niet opgehaald: deze stek heeft nog geen GPS-coördinaten.'); return; }
       const res = await fetchHistoricalWeatherSnapshot(
-        loc?.latitude ?? 51.961,
-        loc?.longitude ?? 5.228,
+        loc.latitude,
+        loc.longitude,
         startTime,
         endTime
       );
@@ -212,8 +234,16 @@ export const SessionModal: React.FC<SessionModalProps> = ({
     setSaveError(null);
 
     try {
-      const loc = locations.find((l) => l.id === locationId);
+      let loc = locations.find((l) => l.id === locationId);
       let snapshotToSave = createStartSnapshot ? undefined : pendingPrognosisSnapshot;
+      if (!loc) throw new Error('Kies eerst een vislocatie voordat je een sessie start.');
+      if (!isEditing && !isCompleted && createStartSnapshot && !selectedLocationHasGps) {
+        const lat = Number(gpsLatitude.replace(',', '.')); const lon = Number(gpsLongitude.replace(',', '.'));
+        if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lon) || lon < -180 || lon > 180) throw new Error('Leg eerst een geldige GPS-locatie vast voor deze stek. Gebruik Huidige GPS-locatie gebruiken of vul beide coördinaten handmatig in.');
+        loc = { ...loc, latitude: lat, longitude: lon, updatedAt: new Date().toISOString() };
+        if (!onSaveLocation) throw new Error('GPS-locatie kan niet worden opgeslagen. Probeer de sessie opnieuw te openen.');
+        await onSaveLocation(loc);
+      }
       const calculatedDur = isCompleted && endTime ? calculateDurationMinutes(startTime, endTime) : undefined;
       const plannedEndIso = plannedEndTime ?? session?.plannedEndTime ?? null;
       const plannedStartMs = new Date(startTime).getTime();
@@ -264,7 +294,8 @@ export const SessionModal: React.FC<SessionModalProps> = ({
 
       // Iedere fysieke meting blijft een apart event. Koppel alleen echte uurwaarden
       // die maximaal één uur van het fysieke meetmoment afliggen.
-      const enrichedMeasurements = await attachWaterTemperatureWeatherContext(waterTemperatureMeasurements, locations);
+      const locationsWithCurrentStek = loc ? [...locations.filter((item) => item.id !== loc!.id), loc] : locations;
+      const enrichedMeasurements = await attachWaterTemperatureWeatherContext(waterTemperatureMeasurements, locationsWithCurrentStek);
       payload.waterTemperatureMeasurements = enrichedMeasurements;
       const latestUsableMeasurement = [...enrichedMeasurements]
         .filter((item) => item.measuredAt && parseAppTimestamp(item.measuredAt) &&
@@ -283,10 +314,10 @@ export const SessionModal: React.FC<SessionModalProps> = ({
       } else {
         payload.id = session?.id || ('session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6));
         payload.createdAt = new Date().toISOString();
-        if (!payload.weatherSnapshot) {
-          // Probeer weerdata automatisch te koppelen; geen verzonnen data en geen blokkade bij offline gebruik.
+        if (!payload.weatherSnapshot && typeof loc.latitude === 'number' && typeof loc.longitude === 'number') {
+          // Weerdata wordt uitsluitend met de vastgelegde GPS-positie van de stek opgehaald.
           try {
-            payload.weatherSnapshot = await getCurrentWeatherSnapshot(loc?.latitude, loc?.longitude);
+            payload.weatherSnapshot = await getCurrentWeatherSnapshot(loc.latitude, loc.longitude);
           } catch (weatherErr) {
             console.warn('Geen weerdata beschikbaar; sessie wordt zonder weersnapshot opgeslagen:', weatherErr);
           }
@@ -391,6 +422,18 @@ export const SessionModal: React.FC<SessionModalProps> = ({
             </select>
           </div>
 
+          {createStartSnapshot && !isEditing && !isCompleted && !selectedLocationHasGps && (
+            <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-amber-200 font-bold"><MapPin className="w-4 h-4" /> GPS-locatie ontbreekt</div>
+              <p className="text-xs text-slate-300">Leg eenmalig de positie van deze stek vast. De locatie wordt bij de stek opgeslagen; je sessiegegevens blijven behouden.</p>
+              <button type="button" onClick={handleUseCurrentGps} disabled={gpsLoading} className="rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 px-3 py-2 text-xs font-bold text-white">{gpsLoading ? 'GPS bepalen…' : 'Huidige GPS-locatie gebruiken'}</button>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="text-[11px] text-slate-400">Breedtegraad<input type="text" inputMode="decimal" value={gpsLatitude} onChange={(event) => setGpsLatitude(event.target.value)} placeholder="52.000000" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white" /></label>
+                <label className="text-[11px] text-slate-400">Lengtegraad<input type="text" inputMode="decimal" value={gpsLongitude} onChange={(event) => setGpsLongitude(event.target.value)} placeholder="5.000000" className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white" /></label>
+              </div>
+              {gpsError && <p className="text-xs text-rose-300">{gpsError}</p>}
+            </div>
+          )}
           {/* Tijden Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div>

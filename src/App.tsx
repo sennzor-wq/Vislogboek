@@ -229,6 +229,17 @@ export default function App() {
     if (!sessionData.id) return;
 
     const previousSession = await db.sessions.get(sessionData.id);
+    // Centrale veiligheidscontrole: een nieuwe actieve sessie mag nooit via een
+    // alternatieve UI-flow zonder echte GPS-coördinaten op de stek worden opgeslagen.
+    if (!previousSession && sessionData.outcome === 'active') {
+      const sessionLocation = sessionData.locationId ? await db.locations.get(sessionData.locationId) : undefined;
+      const hasValidGps = Boolean(sessionLocation &&
+        typeof sessionLocation.latitude === 'number' && Number.isFinite(sessionLocation.latitude) && sessionLocation.latitude >= -90 && sessionLocation.latitude <= 90 &&
+        typeof sessionLocation.longitude === 'number' && Number.isFinite(sessionLocation.longitude) && sessionLocation.longitude >= -180 && sessionLocation.longitude <= 180);
+      if (!hasValidGps) {
+        throw new Error('De sessie is niet gestart: deze stek heeft nog geen geldige GPS-coördinaten. Leg eerst de GPS-locatie vast via Stekken.');
+      }
+    }
     if (!previousSession && sessionData.outcome === 'active' && !pendingSnapshot && !sessionData.snapshotId) {
       throw new Error('Een nieuwe actieve sessie kan niet starten zonder vooraf berekende prognosesnapshot.');
     }
@@ -490,6 +501,7 @@ export default function App() {
       {isStartingSession && (
         <SessionModal
           locations={locations}
+          onSaveLocation={handleSaveLocation}
           session={
             prefilledLocationId || prefilledSpecies
               ? ({

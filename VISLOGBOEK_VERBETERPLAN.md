@@ -1137,3 +1137,107 @@ Audit §194 heeft een gerichte beperking in de bestaande waterThermalEngine vast
 **Volgende stap:** test-first wijziging van de bestaande waterThermalEngine om te garanderen dat latere forecasturen de temperatuur op een eerder targetTime niet veranderen, en dat rolling 24-/72-uursvensters exact op targetTime eindigen. Test meetanker, historisch profiel, weather-only, onbekende diepte, onvoldoende dekking, vroege/middag/late doelmomenten, ontbrekende uren en DST. Behoud de bestaande ankergestuurde route en gebruik geen nieuwe tijdconstanten of biologische correcties. Zie audit §194 en architectuur §159.
 
 Dit is een technische voorwaarde vóór de intervalscore. Geen runtimewijziging uitgevoerd in de read-only audit. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### Fase 2 — uitvoering minimale targetTime-as-of-correctie (22 november 2026)
+
+De gerichte regressietest uit audit §194 is uitgevoerd. De eerste run bevestigde future-weather leakage in de weather-only schatting en thermische trend. Daarna is de bestaande `waterThermalEngine` minimaal aangepast: bij expliciet `targetTime` gebruiken de tijdstipgebonden doeldagkenmerken uitsluitend forecasturen tot en met dat tijdstip en eindigen de 24-/72-uursvensters op het exacte doelmoment. De bestaande dagbrede modus zonder expliciet doelmoment en de ankergestuurde chronologische extrapolatie zijn behouden. Voldoende voorafgaande 72-uursdekking kan een vroeg doelmoment met minder dan zes doeldaguren ondersteunen; toekomstige uren vullen die dekking niet aan.
+
+Scenario 8.5 slaagt nu voor alle vier assertions (weather-only temperatuur en trend; meetanker-temperatuur en trend). GitHub Actions Quality Gate run 1096 is volledig groen: typecheck, timezone/DST-suite, kernprognose/thermische tests (71/0), overige tests, productiebuild en private-artifactcontrole.
+
+De eerste testvariant bracht twee bestaande tests over gelijke tijdvaksscores aan het licht die nog een variabele doeldag gebruikten. De testfixture is aangepast naar een werkelijk stabiele meerdaagse reeks; de tijdspecifieke prognose wordt niet teruggezet naar dagbrede toekomstige informatie om oude gelijke-scores te forceren.
+
+**Status:** minimale correctie technisch groen, PR #214 blijft draft en niet gemerged. De volledige randgevallenmatrix uit audit §194.4 is nog niet afgedekt. Volgende stap: gerichte test-first validatie van historisch profiel, onbekende diepte, onvoldoende-dekkingfallback, doelmomenten vóór/exact op/na 12:00, ontbrekende uren en thermische DST-overgangen. Pas daarna kan de as-of-poort als volledig gesloten worden beschouwd en de intervalscore verder worden voorbereid. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### Fase 2 — aanvullende targetTime-randgevallenmatrix (22 november 2026)
+
+Scenario 8.6 is test-first uitgebreid met onbekende diepte, historische metingen die ná het doelmoment plaatsvinden, onvoldoende weerdekking, expliciete doelmomenten 08:00/12:00/15:00, een ontbrekend uur en de Amsterdamse lente- en herfst-DST-overgang. De uitbreiding staat in commit `0e36c617221be36e32749ab2d6d6bcaf698b2316`. Alleen `test-thermal-and-prognosis.ts` is in deze stap aangepast; productiecode is ongemoeid gelaten.
+
+**Status:** GitHub Actions Quality Gate run 1107 is volledig groen. Scenario 8.5/8.6 slagen; kernprognose-/thermische tests: 80 geslaagd, 0 mislukt. De expliciet geplande as-of-randgevallenmatrix is daarmee gevalideerd. Dit is geen formele afronding van Fase 2: overige auditpunten en formele acceptatie blijven vereist. Fase 3 blijft geblokkeerd. Zie audit §196.
+
+
+
+### Fase 2 — contractaudit intervalgrenzen en PrognosisInputContext (22 november 2026)
+
+De thermische targetTime-as-of-poort is gevalideerd in Quality Gate 1107. De volgende stap uit het bestaande intervalcontract (§192.5 stap 2) is read-only gecontroleerd in audit §197: geplande start/eindtijden worden al als absolute ISO-grenzen op de pending- en opgeslagen snapshot bewaard en door de evaluatie gebruikt, maar ontbreken nog in `PrognosisInputContext`.
+
+De minimale richting is twee optionele contextvelden (`targetWindowStart`, `targetWindowEnd`) die vanuit exact hetzelfde genormaliseerde ISO-paar worden gevuld als de bestaande top-level snapshotvelden. Oude snapshots blijven geldig; top-level velden blijven bestaan voor evaluatie/backward compatibility; onbekende eindtijd blijft null en geen verzonnen duur. De inputfingerprint neemt de intervalgrenzen al op, maar moet na de contextuitbreiding expliciet op consistentie worden getest. `historyFingerprint` blijft ongewijzigd.
+
+**Volgende stap:** test-first dekking voor oude snapshots, context/top-level gelijkheid, onbekende eindtijd, fingerprintwijziging en legacy evaluatiefallback. Eerst het datetime-local/runtimezonecontract bevestigen; nog geen segmentatiehelper, intervalscore, scoregewichten of biologische aannames wijzigen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §197.
+
+
+
+### Fase 2 — implementatie intervalvelden in PrognosisInputContext (22 november 2026)
+
+Op basis van audit §197 zijn twee optionele velden toegevoegd aan `PrognosisInputContext`: `targetWindowStart` en `targetWindowEnd`. De VisCoach-planbuilder normaliseert de geplande grenzen één keer naar ISO en hergebruikt exact die waarden voor inputcontext, fingerprintpayload en snapshot. De bestaande top-level snapshotgrenzen, evaluatiecode, legacygedrag en `historyFingerprint` blijven ongewijzigd.
+
+De nieuwe regressietest voert de echte planbuilder uit met een lokale weerscache en controleert bekende/ onbekende eindtijd, context-/snapshotgelijkheid en fingerprintwijziging bij een ander interval. Er is geen database-migratie, segmentatiehelper, intervalscore, scoregewicht of biologische wijziging toegevoegd.
+
+**Status:** GitHub Actions Quality Gate run 1117 is volledig groen. De snapshotcontracttests eindigden op 19 geslaagd, 0 mislukt; typecheck, overige suites, productiebuild en audits zijn eveneens groen. De daaropvolgende branchwijzigingen zijn uitsluitend documentatie. Zie audit §197.5.
+
+
+
+### Fase 2 — tijdzonecontract voor intervalsegmentatie vastgelegd (22 november 2026)
+
+Audit §198 heeft de bestaande `datetime-local`-semantiek read-only vastgesteld: invoer wordt in de runtime-/apparaatzone geparseerd, de gebruikte zone wordt bewaard, en daarna worden absolute ISO UTC-grenzen opgeslagen. Kalenderdatum, tijdvak en segmentlabels blijven expliciet `Europe/Amsterdam`. De segmenthelper gebruikt absolute tijd voor duur/overlap en Amsterdamse tijd voor lokale grenzen; DST beïnvloedt dus de elapsed duur. Geen UI- of tijdzonecode gewijzigd.
+
+**Volgende stap:** test-first bouw van de pure intervalsegmentatiehelper uit audit §192.5 stap 3, met gedeeltelijke uren, uurstappen, tijdvak-/middernachtgrenzen, ontbrekende forecasturen en DST. De helper levert alleen segmenten en dekking, geen biologische score. Zie audit §198.
+
+
+
+### Fase 2 — pure segmentatiehelper voor geplande sessie-intervallen (22 november 2026)
+
+De eerste pure helper `segmentPrognosisInterval` is toegevoegd in `src/services/prognosisIntervalEngine.ts`. Hij gebruikt de canonieke ISO-grenzen, splitst op absolute uurgrenzen, bewaart gedeeltelijke uren, labelt met Amsterdamse datum/tijdvak en maakt ontbrekende of dubbele forecasturen expliciet onbekend. Onbekende eindtijd levert geen segmenten/duur; intervallen boven 24 verstreken uren worden geweigerd. Er wordt geen score of biologische factor berekend.
+
+De testmatrix dekt partial hours, middernacht/tijdvak, ontbrekende uurdata, forecasturen buiten het interval, DST, dubbele samples en ongeldige/>24-uursgrenzen. Quality Gate 1132 is volledig groen; `test-session-snapshot-commit.ts` eindigde op 30 geslaagd, 0 mislukt. Volgende stap: factorresolutie en factor-specifieke datadekking per segment vastleggen, zonder scoregewichten te kiezen. Zie audit §199.
+
+
+
+### Fase 2 — factorresolutie en datadekking voor intervalintegratie (22 november 2026)
+
+De pure segmentatiehelper is groen gevalideerd in Quality Gate 1132. Daarna is read-only in audit §200 vastgelegd hoe de bestaande factoren en modules hun gegevens nu ophalen: thermische respons per 6-uurs slot/representatief forecastmoment; druk, wind, bewolking en neerslag met eigen samplevalidatie; persoonlijke ervaring per sessiestarttijdvak; vangkans uit historische sessieduur en vangsten; tactische wind/habitat/positionering rond het gekozen starttijdvak; aanwezigheid als gebruikerswaarneming; voorvoer als planningscontext; hengelblootstelling als achteraf geregistreerde intervallen.
+
+**Volgende stap:** per factor de exacte benodigde velden, lookback, tijdresolutie en minimale dekking mappen naar de nieuwe segmenten. De generieke segmentdekking mag niet als factorbeschikbaarheid worden gelezen. De bestaande thermische score blijft de enige numerieke activiteitsscore; andere factoren blijven context of aparte uitkomsten totdat bewijs een andere rol rechtvaardigt. Geen gewichten of biologische bonus/malus invoeren. Zie audit §200.
+
+
+
+### Fase 2 — factorvelden, validatie en lookback uitgewerkt (22 november 2026)
+
+Audit §201 legt de bestaande geldigheidsranges en tijdsvensters per weerfactor vast. Belangrijk: de huidige 3-uit-6 minimumdekking hoort bij vaste 6-uurs tijdvakken en mag niet automatisch naar korte geplande sessies worden vertaald. Wind vereist snelheid én richting; druktrend vereist een aparte voorafgaande meting; thermische waterontwikkeling heeft eigen 24-/72-uurs- en ankerregels; optionele zonnestraling/vochtigheid/dauwpunt mogen niet als nul worden behandeld.
+
+**Volgende stap:** formele factorresolutie kiezen voor intervalsegmenten (uursegment, tijdvak, kalenderdag of sessiebreed) en per factor een dekkingstatus definiëren. Eerst technisch/semantisch onderbouwen; nog geen minimumpercentage, scoregewicht of biologische bonus/malus verzinnen. Zie audit §§200–201.
+
+
+### Fase 2 — factorresolutiematrix voor geplande sessie-intervallen (23 november 2026)
+
+Audit §202 heeft per factor de huidige code-resolutie, vereiste velden/lookback, intervalkandidaat en ontbrekende-datagedrag vastgelegd. De uitkomst bewaart de bestaande semantiek: thermiek is kandidaat per segment met eigen targetTime-/24-/72-uurslookback; druktrend blijft tijdstipgebonden met voorafgaande meting; druk, wind, bewolking en neerslag houden voorlopig hun 6-uurs factorcontract; seizoen is kalenderdagcontext; tijd/licht is tijdvak-/datumcontext; persoonlijke ervaring blijft sessiestarttijdvak; persoonlijke Poisson-vangkans blijft sessiebreed; aanwezigheid blijft een waarnemingsgebeurtenis; tactische oeverwind/habitat/positionering blijven rond het starttijdvak; voorvoer blijft doeldag-/campagnegebonden; hengelblootstelling blijft achteraf.
+
+**Status:** read-only audit afgerond en gedocumenteerd. Geen runtimecode, score, drempel, weging of gebruikersdata gewijzigd. Er is geen intervalminimumpercentage gekozen. De generieke uursegmentatie geldt niet als factorbeschikbaarheid.
+
+**Volgende stap:** een beperkt interval-outputcontract vastleggen en test-first valideren: welke factorcontext per segment kan worden getoond, welke uitkomsten sessiebreed blijven en welke gegevens bij onvoldoende dekking onbekend blijven. Geen scorewijziging of tweede prognose-engine. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §202 en architectuur §167.
+
+
+### Fase 2 — scope van de bestaande Prognose-uitvoer en VisCoach-vertaling (23 november 2026)
+
+Audit §203 controleert de huidige keten: VisCoach gebruikt dezelfde `calculateDayPrognosis`, de geselecteerde startperiode stuurt de tactische conclusie en de persoonlijke Poisson-vangkans is sessiebreed op basis van geplande duur. De huidige kaart toont echter een combinatie van dagbrede score/beoordeling, starttijdvakgerichte tactiek en sessieduurgebonden vangkans. De dagscore is geen intervalscore; het huidige UI-label “Visactiviteit” is te ruim voor de voorlopige thermische activiteitspotentie. Dit is alleen vastgelegd, niet aangepast.
+
+**Volgende stap:** de kleinste backward-compatible interval-outputstructuur specificeren zonder bestaande `DayPrognosis`-velden anders te interpreteren. Eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Geen tweede engine of gecombineerde intervalscores. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §203 en architectuur §168.
+
+
+### Fase 2 — backward-compatible interval-outputcontract (23 november 2026)
+
+Audit §204 en architectuur §169 leggen de contractgrens vast. Een pure adapter hergebruikt de bestaande uursegmentatie en `DayPrognosis`: dagcontext, starttijdvakcontext en één sessiebrede vangkans blijven gescheiden. Per segment worden absolute grenzen/duur, Amsterdamse datum/tijdvak, forecastdekking en afzonderlijk gevalideerde beschrijvende weersamples geleverd. Ontbrekende/ongeldige waarden blijven `unknown/null`; ontbrekende uren blijven segmenten; onbekende eindtijd levert geen segmenten of duur.
+
+De adapter markeert expliciet dat thermische activiteit niet per segment wordt herberekend, drukfactoren hun bestaande tijdvak-/lookbackcontract houden en wind/neerslag/bewolking uitsluitend beschrijvende context zijn. VisCoach hoort de segmenten chronologisch tot één advies samen te voegen, zonder eigen scores of tweede prognosemodel.
+
+**Status:** dit was de tussenstand bij het vastleggen van het contract; de adapter en VisCoach-koppeling zijn inmiddels uitgevoerd. Zie de vervolgregel hieronder en audit §205.
+
+
+### Fase 2 — intervaluitvoer aangesloten op VisCoach (23 november 2026)
+
+Audit §205 en architectuur §170 documenteren de eerste end-to-end koppeling. De bestaande VisCoach-planbuilder hergebruikt de ene bestaande dagprognose en bouwt daarnaast het interval-outputobject met de al opgehaalde uurforecast. De bestaande adviesfunctie ontvangt dit object optioneel en maakt één chronologisch sessieverhaal: aangrenzende segmenten met gelijke weerscontext worden samengevoegd; ontbrekende waarden worden niet ingevuld; dagscore, starttactiek en sessiebrede vangkans blijven gescheiden. Oude sessieadvies-/reassessment-paden blijven ongewijzigd wanneer zij geen intervalobject aanbieden.
+
+**Status:** nieuwe-planroute en UI zijn aangesloten; Quality Gate run 45156084460 op commit `779f38ed6e6bbd64920e97c2bbca9c4eb187f6d8` is volledig groen, inclusief typecheck, intervalcontract-/VisCoach-tests, regressies en productiebuild. De forecastdekkingstekst maakt onderscheid tussen aanwezigheid van uurrecords en geldigheid van individuele velden. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.

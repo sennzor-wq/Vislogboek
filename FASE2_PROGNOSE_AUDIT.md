@@ -5742,3 +5742,560 @@ Aanvullende rolling-windowassertions moeten bewijzen dat 24/72 uur eindigt op he
 **Vervolg:** de testgevallen zijn nu inhoudelijk afgebakend. De eerstvolgende codehandeling zou een gerichte test-first wijziging in de bestaande engine zijn, gevolgd door de minimale correctie die nodig is om de invarianten te laten slagen. Daarvoor is een normale codewijzigingsworkflow nodig; deze read-only audit heeft geen branch, code of tests aangepast.
 
 Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+## 195. Implementatie en CI-validatie van de targetTime-as-of-correctie (22 november 2026)
+
+**Scope:** minimale correctie in de bestaande `waterThermalEngine` op de afzonderlijke auditbranch. Geen scoreformule, gewichten, thermische tijdconstanten, diepteklassen, gebruikersdata of UI gewijzigd.
+
+### 195.1 Uitgevoerde correctie
+
+- Bij een expliciet `targetTime` worden de doeldagkenmerken voor temperatuur, wind, bewolking, zonnestraling, luchtvochtigheid en dauwpunt uitsluitend opgebouwd uit forecasturen tot en met dat doelmoment.
+- De tijdstipgebonden 24-/72-uursvensters eindigen nu op het exacte `targetTime`; uren ná het doelmoment kunnen niet meer in de tijdstiptrend of weather-only fallback terechtkomen.
+- De bestaande dagbrede verwerking blijft behouden wanneer geen expliciet `targetTime` is opgegeven. Ook de oude intervalgrenzen voor die dagbrede modus blijven behouden.
+- Voor een vroeg doelmoment met minder dan zes uren op de doeldag wordt voldoende voorafgaande 72-uursdekking benut. Zonder die dekking blijft de bestaande veilige fallback voor onvoldoende gegevens gelden.
+- De ankergestuurde chronologische extrapolatie, bestaande temperatuurcorrecties en numerieke scoregewichten zijn niet gewijzigd.
+
+### 195.2 Regressiebewijs
+
+Scenario 8.5 in `test-thermal-and-prognosis.ts` vergelijkt twee identieke forecastreeksen tot en met 23 oktober 2026 15:00 lokale tijd. Alleen latere uren worden extreem gewijzigd. Alle vier assertions slagen:
+1. weather-only watertemperatuurschatting blijft gelijk;
+2. thermische trend en trendbetrouwbaarheid blijven gelijk;
+3. extrapolatie vanaf een echt meetanker blijft gelijk;
+4. trend en trendbetrouwbaarheid met een echt meetanker blijven gelijk.
+
+De bestaande gelijke-tijdvaktest gebruikt nu een werkelijk stabiele meerdaagse weerreeks. Daardoor toetst zij gelijke omstandigheden in plaats van een doeldag met een echte temperatuurontwikkeling te behandelen alsof elk tijdvak dezelfde toestand moet hebben.
+
+### 195.3 Quality Gate
+
+GitHub Actions Quality Gate run **1096** op branch `audit/thermal-asof-regression`, commit `b23340b33d9288af16d2c3d27296601032bdc53c`:
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressietests: geslaagd.
+- Kernprognose- en thermische tests: **71 geslaagd, 0 mislukt**.
+- Overige prognose-, biologische evidence-, waterthermische, historie-, backup-, sessie-, VisCoach- en voorvoertests: alle geslaagd.
+- Productiebuild: geslaagd.
+- Controle dat private artefacten ontbreken in de productiebuild: geslaagd.
+- Dependency-audits: geslaagd.
+
+### 195.4 Afbakening en resterend bewijs
+
+Deze correctie sluit de aangetoonde future-weather leakage voor de geteste weather-only en meetankerroute. Zij is geen bewijs dat alle combinaties uit §194.4 al afzonderlijk zijn getest. Nog gericht te valideren vóór de intervalscore als volledig afgedekt wordt beschouwd: historisch temperatuurprofiel, onbekende diepte, onvoldoende dekking/fallback, targetmomenten vóór en exact op 12:00, ontbrekende uren en thermische DST-grensgevallen. De bestaande Amsterdamse timezone/DST-suite is groen, maar vervangt deze gerichte thermische combinatietests niet.
+
+PR #214 blijft draft en is niet gemerged. De auditbranch blijft afgescheiden van `main`; er is niets naar `main` gemerged. Geen gebruikersdata of database-inhoud gewijzigd.
+
+**Status:** de minimale as-of-correctie en bijbehorende CI-poort zijn groen. De bredere randgevallenmatrix uit §194.4 blijft open; intervalscoring en Fase 3 blijven geblokkeerd totdat de resterende validatie en formele Fase 2-acceptatie zijn afgerond.
+
+
+
+## 196. Uitbreiding targetTime-randgevallenmatrix — test-first (22 november 2026)
+
+Na de minimale correctie uit §195 is de regressiematrix uitgebreid in `test-thermal-and-prognosis.ts` (scenario 8.6). Dit is uitsluitend testcode; de thermische productie-engine is in deze stap niet gewijzigd.
+
+Toegevoegde assertions:
+- Onbekende stekdiepte: weer-only temperatuur, trend en trendbetrouwbaarheid blijven invariant bij wijziging van forecasturen ná het doelmoment.
+- Historisch seizoensprofiel: een echte meting die pas na het doelmoment/de doeldag plaatsvindt, mag niet in het historische profiel terechtkomen.
+- Onvoldoende weersdekking: minder dan zes doeldaguren en onvoldoende voorafgaande 72-uursdekking blijven leiden tot de bestaande veilige status 'Onvoldoende gegevens'; latere uren vullen die dekking niet aan.
+- Expliciete doelmomenten 08:00, 12:00 en 15:00: wijziging van uitsluitend latere forecasturen mag temperatuur, trend en trendbetrouwbaarheid niet wijzigen.
+- Ontbrekend uur vóór het doelmoment: een datagat mag geen toekomstige weersinformatie laten doorlekken.
+- DST-herfstovergang (25 oktober 2026, tweede 02:30 met expliciete +01:00-offset) en lenteovergang (29 maart 2026, 03:30 met expliciete +02:00-offset): de as-of-invariant wordt gecontroleerd met absolute tijdstempels.
+
+**Validatiestatus:** alle aanvullende assertions zijn uitgevoerd in GitHub Actions Quality Gate run **1107** (22 november 2026), branch `audit/thermal-asof-regression`, run-id `45074092372`. Scenario 8.5 en 8.6 zijn volledig groen; de kernprognose-/thermische suite eindigde op **80 geslaagd, 0 mislukt**. De volledige Quality Gate is groen. De matrix dekt nu de hierboven genoemde routes, maar sluit niet automatisch alle denkbare combinaties of alle forecastproviders af.
+
+Geen runtimecode, scoreformule, biologische parameters, gewichten, gebruikersdata, database, snapshots of UI gewijzigd in deze testuitbreiding. PR #214 blijft draft en niet gemerged; `main` blijft ongemoeid. Fase 2 en de as-of-randgevallenpoort blijven open.
+
+
+
+### 196.1 Verfijning van de metamorfische mutatie en actuele branchstatus
+
+De testmutatie is verder aangescherpt: voor uren ná het doelmoment worden niet alleen luchttemperatuur, bewolking en wind gewijzigd, maar ook zonnestraling, relatieve luchtvochtigheid en dauwpunt. Daarmee worden alle weercontextvelden geraakt die de thermische engine in de doeldagcontext kan gebruiken.
+
+De actuele branch-head na deze verfijning is `1bc478dff195a5dd20cbcef511da020e1233b083`. Voor deze head is op dit moment geen bijbehorende GitHub Actions-run of commitstatus beschikbaar via de repositorystatuscontrole. De aanvullende matrix blijft daarom **onbevestigd / niet groen** totdat de tests daadwerkelijk op deze commit zijn uitgevoerd. De eerder groene Quality Gate 1096 geldt uitsluitend voor de eerdere testset en mag niet als validatie van scenario 8.6 worden gepresenteerd.
+
+
+
+### 196.2 Quality Gate 1107 — aanvullende matrix volledig groen
+
+Na de registratie in §196.1 is Quality Gate run **1107** gestart en succesvol afgerond op commit `cbc7140da786e70f8d8aa40e1ed31f93ff22c850` (run-id `45074092372`).
+
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressietests: geslaagd.
+- Kernprognose- en thermische suite: **80 geslaagd, 0 mislukt**.
+- Scenario 8.5: alle vier bestaande as-of-assertions geslaagd.
+- Scenario 8.6: alle negen aanvullende assertions geslaagd, inclusief onbekende diepte, historisch profiel, onvoldoende dekking, 08:00/12:00/15:00, ontbrekend uur en lente-/herfstovergang.
+- Alle overige biologische, thermische, historie-, Brier-, sessie-, VisCoach-, backup-, veiligheid- en voorvoertests: geslaagd.
+- Productiebuild: geslaagd.
+- Controle op uitsluiting van private artefacten uit productiebuild: geslaagd.
+- Dependency-audits: geslaagd.
+
+De testmutatie verandert na targetTime luchttemperatuur, bewolking, wind, zonnestraling, relatieve luchtvochtigheid en dauwpunt. De tests bevestigen dat de thermische uitkomst op het doelmoment gelijk blijft wanneer alleen deze latere invoer verandert.
+
+**Conclusie:** de expliciet geplande targetTime-as-of-randgevallenmatrix uit §196 is technisch gevalideerd. Dit sluit uitsluitend deze auditpoort; het is geen formele afronding van Fase 2 en geen toestemming om de PR te mergen. PR #214 blijft draft; `main` is niet gewijzigd.
+
+
+
+## 197. Contractaudit geplande sessiegrenzen in PrognosisInputContext (22 november 2026)
+
+**Scope:** read-only controle van `PrognosisInputContext`, `buildVisCoachPlan`, snapshotopslag en de evaluatievergelijking. Geen runtimecode of types gewijzigd.
+
+### 197.1 Wat al bestaat
+
+- `VisCoachPlanInput` ontvangt `desiredStartTime` en optioneel `desiredEndTime`.
+- `buildVisCoachPlan` valideert de volgorde en maximale duur van 24 uur en normaliseert de waarden naar absolute ISO-instanties met `start.toISOString()` en `end?.toISOString() ?? null`.
+- `PendingPrognosisSnapshot` en `PrognosisSnapshot` bewaren `targetWindowStart` en `targetWindowEnd` op snapshotniveau.
+- `saveVisCoachPlan` geeft dezelfde velden door aan `savePrognosisSnapshot`; de sessiestartopslag geeft ze eveneens door vanuit de pending snapshot.
+- `evaluationEngine.getTimeWindowComparison` gebruikt deze snapshotvelden voor vergelijking van geplande en werkelijke start-/eindtijd. Oude snapshots zonder intervalgrenzen vallen terug op het bestaande tijdvakcontract.
+- De inputfingerprint van VisCoach neemt momenteel zowel `inputContext` als de genormaliseerde `desiredStartTime`/`desiredEndTime` op. De exacte grenzen worden dus al in de fingerprint vastgelegd, maar buiten `PrognosisInputContext`.
+
+### 197.2 Vastgestelde lacune
+
+`PrognosisInputContext` bevat op dit moment geen `targetWindowStart` of `targetWindowEnd`. Daardoor bewaart de snapshot de intervalgrenzen wel als evaluatiemetadata en fingerprintinput, maar niet als expliciet onderdeel van de gestructureerde modelinvoercontext. Dit is precies de contractlacune uit §192.1.
+
+### 197.3 Minimaal compatibel contract
+
+- Voeg optionele `targetWindowStart?: string` en `targetWindowEnd?: string | null` toe aan `PrognosisInputContext`. Optioneel houdt oude snapshots zonder deze velden geldig; er is geen database-migratie nodig voor deze type-uitbreiding.
+- Gebruik bij een nieuwe VisCoach-run één paar genormaliseerde ISO-waarden als bron: `targetWindowStart = start.toISOString()` en `targetWindowEnd = end?.toISOString() ?? null`. Vul daarmee zowel de context als de bestaande top-level snapshotvelden.
+- Een onbekende eindtijd blijft expliciet `null`; `sessionDurationHours` blijft `null` en de bestaande opslag-sentinel `durationHours: 0` blijft alleen opslagsemantiek, geen voorspelde duur.
+- Behoud top-level `PrognosisSnapshot.targetWindowStart/End` voor bestaande evaluatiecode en legacy snapshots. Dit zijn compatibele projecties van hetzelfde canonieke interval, geen tweede intervalbron.
+- `targetTimeSlot` blijft uitsluitend tactische startcontext en wordt niet hergebruikt als intervalgrens.
+- `historyFingerprint` blijft ongewijzigd: intervalgrenzen zijn run-/planningsinvoer, geen historische vangst- of meetgeschiedenis.
+- De bestaande fingerprint bevat de grenzen al buiten `inputContext`. Na toevoeging aan de context moet de test bewijzen dat dezelfde genormaliseerde waarden in beide representaties staan en dat een gewijzigd interval een andere fingerprint oplevert. Er is geen noodzaak om bestaande opgeslagen fingerprints te herschrijven.
+
+### 197.4 Nog te toetsen vóór implementatie
+
+1. Oude snapshots zonder contextvelden blijven deserialiseren en evalueren via de top-level velden/legacy tijdvakfallback.
+2. Nieuwe snapshots bevatten identieke ISO-grenzen in `inputContext` en top-level snapshotvelden.
+3. Zonder eindtijd worden `targetWindowEnd: null`, `sessionDurationHours: null`, `durationKnown: false` en `durationHours: 0` consistent bewaard.
+4. Verschillende start- of eindtijden veranderen de inputfingerprint; dezelfde genormaliseerde tijden leveren dezelfde fingerprint op.
+5. De bestaande evaluatie blijft uitsluitend de top-level snapshotgrenzen gebruiken en behoudt de legacy fallback voor oude snapshots.
+6. Tijdzonegedrag van de huidige `new Date(datetime-local)`-invoer en `inputContext.timezone` moet expliciet worden vastgelegd. De UI levert lokale datum/tijdstrings, terwijl de service de runtime-/apparaatzone rapporteert; dit moet vóór verdere Amsterdamse segmentatie worden beoordeeld. Geen stille timezone-aanname introduceren.
+
+**Conclusie:** de intervalgrenzen bestaan al in snapshot- en evaluatiecontracten; de minimale volgende wijziging is ze ook expliciet op te nemen in `PrognosisInputContext`, met dezelfde canonieke ISO-waarden en optionele backward-compatible velden. Eerst test-first valideren; nog geen segmentatiehelper of intervalscore implementeren.
+
+Geen runtimecode, types, database, snapshots, fingerprintdata of gebruikersdata gewijzigd. De targetTime-as-of-poort uit §§195–196 is groen. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+
+### 197.5 Minimale contextimplementatie en teststatus
+
+De contractuitbreiding is nu minimaal geïmplementeerd op de auditbranch:
+- `PrognosisInputContext` heeft optionele `targetWindowStart` en `targetWindowEnd`-velden gekregen; bestaande snapshots blijven daarmee structureel compatibel.
+- `buildVisCoachPlan` normaliseert start/einde één keer naar `targetWindowStart`/`targetWindowEnd` en gebruikt exact dezelfde waarden voor context, fingerprintinput, pending snapshot en geretourneerd plan.
+- De bestaande top-level snapshotvelden en de bestaande evaluatiefallback zijn niet gewijzigd.
+- `historyFingerprint`, databaseschema, migraties, scoreberekening en intervalsegmentatie zijn niet gewijzigd.
+
+In `test-session-snapshot-commit.ts` is een regressietest toegevoegd die de echte VisCoach-planbuilder met een lokale weerscache uitvoert. De test controleert context/top-level gelijkheid, bekende duur, exacte fingerprintpayload, fingerprintwijziging bij een ander eindmoment en het behoud van een onbekende eindtijd als `null`/onbekende duur. De bestaande legacy snapshotfixtures blijven zonder deze optionele velden bestaan.
+
+**Validatiestatus:** GitHub Actions Quality Gate run **1117** is volledig groen (run-id `45074683749`). Typecheck, alle bestaande tests, de nieuwe `test-session-snapshot-commit.ts`-checks (19 geslaagd, 0 mislukt), productiebuild, private-artifactcontrole en dependency-audits zijn geslaagd. De run valideerde de code/testcommit `95753d5bdaf921ee613ca3b90b34dd48871293b5`; de daaropvolgende wijzigingen zijn uitsluitend documentatie.
+
+
+
+### 197.6 Quality Gate 1117 — intervalcontext volledig groen
+
+GitHub Actions Quality Gate run **1117** (run-id `45074683749`) is succesvol afgerond op commit `95753d5bdaf921ee613ca3b90b34dd48871293b5`.
+
+- TypeScript typecheck: geslaagd.
+- Amsterdam timezone/DST-regressies: geslaagd.
+- Alle bestaande prognose-, biologische evidence-, thermische, historie-, Brier-, VisCoach-, backup- en veiligheidstests: geslaagd.
+- `test-session-snapshot-commit.ts`: **19 geslaagd, 0 mislukt**. Alle nieuwe planbuilder-, intervalcontext-, fingerprint- en onbekende-eindtijdassertions slagen.
+- Productiebuild en private-artifactcontrole: geslaagd.
+- Dependency-audits: geslaagd.
+
+De Quality Gate valideerde de code- en testwijzigingen. De daaropvolgende commits op de auditbranch wijzigen uitsluitend documentatie. PR #214 blijft draft en niet gemerged; `main` is ongemoeid.
+
+**Status werkonderdeel 2 van §192.5:** de canonieke intervalgrenzen staan nu ook expliciet in `PrognosisInputContext`, met backward-compatible optionele velden en een groene regressiepoort. De volgende stap is de pure segmentatiehelper uit §192.5 stap 3, maar pas nadat het Amsterdamse tijdzonecontract voor datetime-local-invoer als ontwerpregel is vastgelegd. De intervalscore en Fase 3 blijven geblokkeerd.
+
+
+
+## 198. Tijdzonecontract voor geplande VisCoach-intervallen (22 november 2026)
+
+**Scope:** read-only controle van de VisCoach-`datetime-local`-invoer, normalisatie en bestaande Amsterdamse tijdhelpers. Geen UI- of tijdzonecode gewijzigd.
+
+### 198.1 Feitelijk bestaand gedrag
+
+- `VisCoachView` vult de invoervelden met lokale apparaattijd en gebruikt HTML `datetime-local`; de ruwe waarde bevat geen offset.
+- `buildVisCoachPlan` parseert deze invoer met `new Date(...)`. Daarmee wordt de wall-clock invoer geïnterpreteerd in de runtime-/apparaatzone.
+- De service normaliseert de resulterende absolute momenten naar ISO UTC (`toISOString()`) en bewaart de gebruikte runtimezone in `PrognosisInputContext.timezone`.
+- De doelkalenderdatum en de tijdvakindeling worden afzonderlijk in `Europe/Amsterdam` bepaald. Ook de weerprovider levert tijden voor `Europe/Amsterdam`.
+- De centrale `parseAppTimestamp` interpreteert legacy tijdzone-loze timestamps als Amsterdamse wall time; de nieuwe geplande intervalgrenzen zijn echter ISO UTC met expliciete `Z` en worden dus als absolute instanties gelezen.
+
+### 198.2 Vastgelegd contract voor segmentatie
+
+Voor de bestaande VisCoach-invoer behouden we het huidige invoergedrag; deze audit verandert geen scherm of gebruikersverwachting.
+
+1. De wall-clock waarde uit `datetime-local` wordt volgens de runtime-/apparaatzone geïnterpreteerd. De daadwerkelijk gebruikte zone staat in `inputContext.timezone`.
+2. Direct na parsing worden start en einde absolute ISO-instanties. Dit paar is canoniek voor duur, volgorde, snapshot, fingerprint en replay.
+3. Alle intervalrekenkunde gebruikt absolute milliseconden/ISO-instanties; een ISO-UTC-waarde wordt nooit opnieuw als lokale wall time geïnterpreteerd.
+4. Kalenderdatum, Nacht/Ochtend/Middag/Avond en segmentgrenzen op Amsterdamse dag-/tijdvakovergangen worden berekend in `Europe/Amsterdam`, passend bij de weerprovider en de bestaande prognosekalender.
+5. Bij DST kan de elapsed duur verschillen van het verschil tussen lokale kloklabels. De werkelijke absolute duur is leidend; de bestaande maximumduur van 24 elapsed uren blijft gelden.
+6. De runtimezone blijft provenance van de invoer, niet een tweede modeltijdzone. De segmenthelper gebruikt expliciet de Amsterdamse tijdzone voor kalender-/tijdvaklabels.
+
+**Begrenzing:** op apparaten buiten `Europe/Amsterdam` wordt een `datetime-local`-waarde momenteel als apparaattijd ingevoerd, terwijl de prognosekalender Amsterdam gebruikt. Dat is bestaand gedrag en wordt hier niet stilzwijgend gewijzigd. Een eventuele wijziging naar vaste Amsterdamse invoer vraagt een afzonderlijk UX-/productbesluit.
+
+**Conclusie:** het huidige contract is voldoende eenduidig voor een pure segmentatiehelper zolang deze uitsluitend absolute intervalgrenzen gebruikt en expliciet `Europe/Amsterdam` voor lokale segmentlabels toepast. De volgende stap is test-first implementatie van die helper; geen score of biologische factor wordt in deze helper berekend.
+
+
+
+## 199. Pure intervalsegmentatiehelper — implementatie en validatievoorstel (22 november 2026)
+
+**Scope:** pure technische helper voor de reeds bestaande geplande intervalgrenzen. Geen prognosescore, factorweging, UI, database of biologische responsberekening.
+
+### 199.1 Implementatie
+
+Nieuw bestand: `src/services/prognosisIntervalEngine.ts`.
+
+De helper `segmentPrognosisInterval`:
+- accepteert de canonieke absolute ISO-start-/eindtijd uit §197 en de bestaande uurlijkse forecastreeks;
+- weigert ongeldige intervallen en intervallen langer dan 24 verstreken uren;
+- geeft bij een onbekende eindtijd expliciet `unknown_end` terug met nul segmenten en null-duur/dekking;
+- knipt het interval op absolute uurgrenzen, waardoor gedeeltelijke eerste en laatste uren hun werkelijke overlapduur behouden;
+- labelt elk segment met de Amsterdamse kalenderdatum en het bestaande tijdvak (Nacht/Ochtend/Middag/Avond);
+- koppelt alleen de forecastsample die het absolute uur vanaf zijn timestamp vertegenwoordigt;
+- maakt ontbrekende forecasturen expliciet onbekend; een sample wordt nooit over een ontbrekend uur heen doorgetrokken of geïnterpoleerd;
+- behandelt dubbele samples voor hetzelfde absolute uur als ambigu/ontbrekend in plaats van willekeurig één sample te kiezen;
+- rapporteert totale, gedekte en ongedekte minuten plus een ruwe tijdsdekkingratio.
+
+De Amsterdamse datum-/tijdvakgrenzen vallen op absolute uurgrenzen; de uurlijkse segmentatie splitst daardoor ook correct op lokale middernacht en de zesuursgrenzen, inclusief 23-/25-uurs DST-dagen. De helper gebruikt absolute ISO-instanties voor duur en overlap en `Europe/Amsterdam` uitsluitend voor lokale labels.
+
+### 199.2 Afbakening
+
+De dekkingratio is uitsluitend temporele aanwezigheid van een forecastsample. Dit is nog geen factor-specifieke dekking: bijvoorbeeld zonnestraling of dauwpunt kan per sample ontbreken en moet later per factor worden beoordeeld. De helper levert geen neutrale factorwaarde, geen biologische score en geen sessieadvies. De bestaande Prognose-engine blijft de enige scorebron; VisCoach blijft de consument/vertaler.
+
+### 199.3 Teststatus
+
+`test-session-snapshot-commit.ts` is uitgebreid met tests voor gedeeltelijke uren, lokale tijdvak-/middernachtgrenzen, ontbrekende uren, herfst- en lente-DST, onbekende eindtijd, ongeldige intervallen, dubbele uurstempels, maximale 24-uursduur en het niet aanvullen van gaten met forecasturen ná het interval.
+
+De eerste volledige testpoging (Quality Gate 1131) vond één onjuiste testverwachting: een interval van 60 minuten bevatte 30 minuten dekking en 30 minuten ontbrekende dekking, niet 60 minuten ontbrekende dekking. De implementatie was correct; de testverwachting is gecorrigeerd. Quality Gate **1132** is daarna volledig groen: typecheck, alle suites, productiebuild, private-artifactcontrole en dependency-audits geslaagd. `test-session-snapshot-commit.ts`: **30 geslaagd, 0 mislukt**.
+
+**Status:** pure segmentatiehelper en beschreven randgevallenmatrix technisch groen. Er is geen score- of biologische code aangesloten op de helper.
+
+
+
+## 200. Factorresolutie en datadekking vóór intervalintegratie
+
+**Scope:** read-only audit van de bestaande `analyzeTimeSlot`- en tactische contextpaden in `prognosisEngine.ts`. Doel is bepalen welke bestaande informatie per segment kan worden opgehaald, zonder scores of gewichten te veranderen.
+
+### 200.1 Huidige resolutie per factor/module
+
+| Factor/module | Huidige tijdresolutie | Huidige beschikbaarheidsregel | Huidige score-/rolstatus |
+|---|---|---|---|
+| Watertemperatuur / thermische activiteitspotentie | Per bestaand 6-uurs tijdvak; thermische analyse voor een tijdvak gebruikt het middelste beschikbare forecastmoment als `targetTime` | Eigen waterThermalEngine-anker-, historie- en weersdekkingregels | Enige factor die de huidige activiteitsscore numeriek bepaalt |
+| Luchtdruk | Per 6-uurs tijdvakgemiddelde; trend rond één representatief tijdstip | Minimaal 3 geldige drukmetingen in het 6-uurs tijdvak; trend zoekt een huidige meting binnen 30 min en een eerdere meting rond 12 uur ervoor (tolerantie 3 uur) | Context; score 0 |
+| Wind | Per 6-uurs tijdvakgemiddelde en dominante richting | Minimaal 3 geldige records met snelheid, richting en richtingslabel | Context; score 0 |
+| Bewolking | Per 6-uurs tijdvakgemiddelde | Minimaal 3 geldige records | Context; score 0 |
+| Neerslag | Per 6-uurs tijdvaksom | Minimaal 3 geldige records | Context; score 0 |
+| Seizoen | Kalendermaand/-seizoen voor de prognosedatum | Deterministisch uit datum | Altijd context beschikbaar; score 0 |
+| Tijdstip/licht | Tijdvak plus soortspecifieke diel-context en optionele civiele schemering | Tijdvak/datum; schemering via locatiecoördinaten en dagelijkse zondata | Context; score 0 |
+| Persoonlijke ervaring per tijdvak | Historische sessies gegroepeerd op starttijdvak | Alleen vergelijkbare, afgeronde sessies; percentage pas bij minimaal 5 relevante sessies | Afzonderlijke ervaringstekst, geen thermische score |
+| Persoonlijke vangkans | Geplande sessieduur plus historische sessies/vangsten | Alleen geldige sessies met bekende duur en bruikbare uitkomst; anders null/onvoldoende data | Eigen Poisson-kans, niet optellen bij activiteitsscore |
+| Aanwezigheidswaarneming | Door gebruiker vastgelegd moment/waarneming | Alleen expliciete waarneming | Kwalitatieve context, geen numerieke bonus |
+| Windkant/oeverrelatie | Huidig tactisch starttijdvak | Winddekking, temperatuurcontext, locatie-/watertype en oeveroriëntatie | Tactisch advies, geen activiteitsscore |
+| Habitat-/visbeweging | Huidig tactisch starttijdvak plus waarnemingen/historie | Afhankelijk van wind, thermische context, wolken, druktrend, locatie en waarnemingen | Tactische hypothese/advies, geen activiteitsscore |
+| Hengelpositionering | Datum, volledige forecastreeks en gekozen tactisch tijdvak | Afhankelijk van locatie, thermische context, wind en historie | Tactisch advies, geen activiteitsscore |
+| Voorvoerplan | Doeldatum, beschikbare dagen vooraf, soort en optionele sessieduur | Soortondersteuning en planinvoer | Afzonderlijke tactiek, geen activiteitsscore |
+| Hengelblootstelling | Werkelijk geregistreerde hengelactieve intervallen | Alleen expliciete rod-active intervals | Achteraf beschrijvend; geen prognose-input |
+
+### 200.2 Belangrijke scheiding: dagslots versus geplande sessie
+
+De huidige `calculateDayPrognosis` maakt vier vaste tijdvakken. De factorbreakdown gebruikt per tijdvak de beschikbare weersrecords en vaste drempels. Een expliciet VisCoach-starttijdvak beperkt de tactische weercontext tot dat starttijdvak; het geplande eindmoment wordt nog niet gebruikt om wind-, druk-, wolken-, habitat- of positioneringscontext over de volledige sessie te middelen.
+
+De nieuwe segmentatiehelper uit §199 levert daarom nog geen factorwaarden. Hij levert alleen de tijdssegmenten, de Amsterdamse labels en de aanwezigheid/afwezigheid van een forecastrecord per uur. De huidige factorbeschikbaarheid kan niet zonder meer op de segmenten worden gekopieerd: sommige factoren vragen meerdere samples of een voorafgaande 12-uursmeting; andere gebruiken locatie/historie of een andere tijdsresolutie.
+
+### 200.3 Regels voor volgende factorresolutie
+
+1. Behoud bestaande factorsemantiek en drempels; verander ze niet door de segmentatie alleen.
+2. Leg per factor vast welke velden vereist zijn, welke geldige waarden tellen, welke historische lookback nodig is en welke minimale dekking geldt.
+3. Scheid `weatherAvailable` van `factorAvailable`; één aanwezig forecastrecord betekent niet dat druktrend, windrichting of alle andere velden bruikbaar zijn.
+4. Factoren met een context-/adviesrol blijven niet-numeriek zolang er geen onderbouwde biologische scorefunctie bestaat.
+5. Thermische activiteitspotentie, persoonlijke vangkans, aanwezigheid, habitatbeweging, hengelpositionering en voorvoeradvies blijven afzonderlijke uitkomsten; niet optellen tot één ongedefinieerde totaalscore.
+6. Het bestaande 3-uit-6 tijdvakminimum is een huidige datakwaliteitsregel, geen automatisch minimum voor een kortere geplande sessie. Voor een intervalregel moet de betekenis per factor apart worden vastgesteld.
+7. Geen factor krijgt een intervalbonus, -malus of gewicht in deze stap.
+
+**Conclusie:** de segmentatiehelper is een tijds-/dekkingslaag. De volgende technische audit moet per factor de invoervelden, lookback, tijdresolutie en beschikbaarheidsregel mappen naar de segmenten. Pas daarna kan worden bepaald welke bestaande context zinvol per interval kan worden samengevat. De score blijft ongewijzigd.
+
+
+
+## 201. Factor-specifieke invoervelden en lookback-contracten
+
+**Scope:** nadere read-only uitwerking van de bestaande validatie en lookback in `prognosisEngine` en `waterThermalEngine`. Geen drempels aangepast.
+
+### 201.1 Weervelden en huidige validatie
+
+| Veld | Huidige geldigheidsrange | Huidige rol |
+|---|---:|---|
+| Luchttemperatuur | -30 tot 55 °C | Input voor thermische waterontwikkeling; geen vervanging voor watertemperatuur |
+| Luchtdruk | 850 tot 1100 hPa | Tijdvakgemiddelde en aparte druktrend |
+| Windsnelheid | 0 tot 200 km/u | Tijdvakgemiddelde en tactische windcontext |
+| Windrichting | 0 tot 360° plus niet-lege richtingslabel | Vereist voor windrichting-/oevercontext |
+| Neerslag | 0 tot 300 mm per uurrecord | Tijdvaksom/context |
+| Bewolking | 0 tot 100% | Tijdvakgemiddelde en lichtcontext |
+| Relatieve luchtvochtigheid | 0 tot 100% | Thermische weerschatting/context, indien aanwezig |
+| Dauwpunt | -50 tot 50 °C | Thermische weerschatting/context, indien aanwezig |
+| Zonnestraling | 0 tot 1600 W/m² | Thermische weerschatting/context, indien aanwezig |
+
+### 201.2 Lookback en beschikbaarheid
+
+- De bestaande tijdvakfactoren druk, wind, neerslag en bewolking tellen geldige records binnen het volledige vaste 6-uurs tijdvak. De huidige minimumdrempel is `ceil(6/2) = 3` records.
+- Wind vereist in dezelfde records zowel een geldige snelheid als geldige richting en een niet-leeg richtingslabel. Alleen een snelheidsmeting is niet voldoende voor de bestaande windfactor.
+- De expliciete VisCoach-starttijdvakcontext gebruikt een eigen regel: als er minder dan zes forecastrecords bestaan, moet ieder beschikbaar record voor de betreffende wind-/bewolkingscontext geldig zijn; de UI-/analysecontext vermeldt dat het tijdvak onvolledig is. Dit is geen algemene regel voor een willekeurig kort interval.
+- Druktrend is geen simpele tijdvakgemiddelde: er moet een actuele drukmeting binnen 30 minuten van het representatieve doelmoment bestaan en een eerdere drukmeting binnen 3 uur van het richtpunt 12 uur daarvoor.
+- De thermische wateranalyse gebruikt een eigen chronologische 24-/72-uursdekking en wateranker-/diepte-/historiepad. De tijdvakprognose kiest nu één representatief forecastmoment (middelste beschikbare uur) als `targetTime`; dit is niet hetzelfde als ieder intervalsegment afzonderlijk doorrekenen.
+- Zonnestraling, luchtvochtigheid en dauwpunt zijn optionele velden. Hun afwezigheid mag niet worden geïnterpreteerd als een gemeten nulwaarde; de thermische engine gebruikt alleen geldige aanwezige waarden.
+- Persoonlijke ervaring gebruikt sessies die op het betreffende tijdvak zijn gestart; de 5-sessiedrempel geldt voor het tonen van een catch-rate percentage, niet als universele minimumdekking voor alle factoren.
+
+### 201.3 Intervalmapping zonder nieuwe aannames
+
+Voor een toekomstig interval moeten we de bestaande veldvalidatie behouden, maar de dekkingsnoemer aanpassen aan de werkelijke segmentduur. Dat betekent niet dat de huidige 3-uit-6 drempel automatisch 50% van een korte sessie wordt. Per factor moet expliciet worden gekozen of:
+- een geldig sample voor een uursegment voldoende is voor uitsluitend beschrijvende context;
+- meerdere samples/lookback nodig blijven (zoals druktrend en thermische waterontwikkeling);
+- de factor op een ander niveau blijft (per tijdvak, per kalenderdag of sessiebreed);
+- ontbrekende optionele velden alleen die factor onbekend maken, zonder andere factoren te blokkeren.
+
+Er is nog geen minimumpercentage voor intervaldekking gekozen en er is geen biologische drempel of weging afgeleid. Die keuzes blijven open totdat de factoren afzonderlijk zijn gemapt en gevalideerd.
+
+**Conclusie:** de generieke segmentdekking kan niet rechtstreeks als factorbeschikbaarheid worden gebruikt. De volgende stap is per factor een formele resolutie-/dekkingregel vastleggen en pas daarna testen welke samenvattingen voor een sessie-interval technisch en inhoudelijk verantwoord zijn.
+
+
+## 202. Formele factorresolutiematrix voor geplande sessie-intervallen
+
+**Werkpakket 13 — read-only architectuur- en codeaudit (23 november 2026).** Deze matrix zet de bestaande factorcontracten uit §§200–201 om naar een expliciete keuze voor tijdresolutie bij een gepland interval. De statuskolom maakt onderscheid tussen wat de huidige code daadwerkelijk doet en wat alleen een kandidaat voor latere intervalintegratie is. Er zijn geen runtimebestanden, scores, drempels of gebruikersgegevens gewijzigd.
+
+### 202.1 Beslisregels
+
+1. De bestaande Prognosepagina blijft de enige berekeningsbron; VisCoach consumeert en verwoordt de uitkomsten.
+2. De generieke uursegmentatie uit §199 bepaalt uitsluitend intervalgrenzen en aanwezigheid van forecastrecords. Zij verleent geen factorbeschikbaarheid.
+3. Bestaande resolutie en semantiek blijven leidend totdat een afzonderlijk testbaar intervalcontract is goedgekeurd.
+4. Een factor mag alleen op een fijnere resolutie worden berekend als de vereiste invoer en lookback op die resolutie beschikbaar en gevalideerd zijn. Een uurrecord is niet automatisch voldoende voor een factor die meerdere waarnemingen of historische context vereist.
+5. Ontbrekende invoer blijft per factor onbekend; geen nulinvulling, interpolatie, forward-fill of neutrale biologische aanname.
+6. Factoren met verschillende rollen worden niet gemiddeld of opgeteld. Thermische activiteitspotentie, persoonlijke vangkans, persoonlijke ervaring, aanwezigheid en tactische adviezen blijven afzonderlijke uitkomsten.
+7. Deze matrix kiest nog geen intervaldekkingspercentage, minimumaantal samples voor kortere intervallen, weging of biologische correctie.
+
+### 202.2 Factorresolutiematrix
+
+| Factor/module | Huidige code-resolutie en bron | Benodigde invoer / lookback | Besluit voor intervalresolutie | Ontbrekende of ongeldige data | Rol en status |
+|---|---|---|---|---|---|
+| Watertemperatuur / thermische activiteitspotentie | Per vast 6-uurs tijdvak; `analyzeTimeSlot` gebruikt het middelste beschikbare forecastmoment als `targetTime`; `waterThermalEngine` rekent met meetanker, historie en weer | Geldige watermeting/geschikte schatting, locatie-/dieptecontext waar vereist, chronologische weerdata tot targetTime en eigen 24-/72-uurslookback | **Kandidaat: per uursegment een afzonderlijke thermische toestand op een expliciet gekozen representatief tijdstip.** De precieze timestampconventie en aggregatie over de sessie zijn nog open; niet simpelweg het bestaande 6-uursresultaat kopiëren | Segment zonder bruikbare thermische toestand blijft onbekend; ontbrekende lookback wordt niet met weer ná targetTime aangevuld | Enige bestaande numerieke activiteitsscore. Kandidaat voor intervaluitwerking, nog niet aangesloten |
+| Luchtdruk (absolute context) | Gemiddelde per vast 6-uurs tijdvak in `analyzeTimeSlot` | Geldige drukmetingen 850–1100 hPa; huidige vaste slotdrempel 3 van 6 | **Huidig contract behouden als tijdvakcontext.** Een intervaloverzicht mag tijdvakken afzonderlijk tonen; geen nieuw uursegmentgemiddelde zonder eigen dekkingsregel | Onvoldoende geldige samples = onbekend voor dit tijdvak; de 3-uit-6-drempel niet automatisch verkleinen voor korte intervallen | Niet-numerieke weerscontext |
+| Druktrend | Eén representatief doelmoment; `findPressureTrend` zoekt actuele meting binnen 30 min en eerdere meting rond 12 uur ervoor (±3 uur) | Twee geldige drukmetingen met expliciete chronologische relatie | **Tijdstipgebonden context met voorafgaande lookback**, niet een sessiegemiddelde. Per segment alleen kandidaat als beide meetpunten voor dat segment bestaan | Zonder actueel of historisch meetpunt blijft trend onbekend; nooit trend afleiden uit alleen het sessie-interval | Niet-numerieke context; lookback kan vóór sessiestart liggen |
+| Wind / windrichting | Gemiddelde en dominante richting per 6-uurs slot; tactische VisCoach-route gebruikt gekozen starttijdvak met eigen volledigheidsregel | Geldige snelheid 0–200 km/u én richting 0–360° en niet-leeg richtingslabel; bestaande slotregel of expliciete startslotregel | **Twee gescheiden contracten behouden:** slotfactor blijft tijdvakgebonden; tactische wind blijft voorlopig starttijdvakgebonden. Per-segmentwind is alleen een kandidaat voor beschrijvende context na een aparte dekkingstest | Snelheid zonder richting/label is geen bruikbare windfactor; onvoldoende samples = onbekend. Geen windrichting afleiden uit gemiddelde of ontbrekende records | Niet-numerieke context; tactische relatie met oever blijft aparte module |
+| Bewolking | Gemiddelde per vast 6-uurs tijdvak; tactische route gebruikt gekozen startslot | Geldige bewolking 0–100%; huidige 3-uit-6 slotregel of expliciete startslotregel | **Slotgebonden voor bestaande factor; startslotgebonden voor huidige tactische context.** Per segment alleen kandidaat als beschrijvende uurcontext, niet als biologische score | Onvoldoende geldige records = onbekend; geen nulwaarde bij ontbrekende bewolking | Niet-numerieke weers-/lichtcontext |
+| Neerslag | Som per vast 6-uurs tijdvak | Geldige neerslag 0–300 mm per uurrecord; huidige 3-uit-6 slotregel | **Tijdvakgebonden behouden.** Een sessiesom is alleen kandidaat als de volledige intervaldekking en semantiek van de neerslagrecords expliciet zijn vastgesteld; huidige code levert geen gevalideerde intervalsom | Onvoldoende geldige records = onbekend; ontbrekende uren niet als droog/nul tellen | Niet-numerieke weerscontext |
+| Seizoen | Kalendermaand/-seizoen van prognosedatum in Amsterdamse context | Geldige lokale kalenderdatum | **Kalenderdaggebonden.** Bij een interval over lokale middernacht mag het label per datum wisselen; geen sessiegemiddelde van seizoenen | Ongeldige datum = onbekend; normale geldige datum is deterministisch beschikbaar | Niet-numerieke context, score 0 |
+| Tijdstip / diel- en lichtcontext | Bestaand tijdvak plus soortspecifieke diel-tekst; optionele civiele schemering uit datum, breedtegraad en zonsopkomst/-ondergang | Amsterdamse lokale datum/tijdvak; zondata en locatie voor civiele schemering; bronstatus van soortspecifiek bewijs | **Tijdvak-/segmentgebonden context met kalenderdagafhankelijke zonmomenten.** Segmentlabels kunnen de bestaande tijdvakcontext bepalen, maar geven geen voedingspiek of scorebonus | Ontbrekende zondata/locatie maakt schemering onbekend; niet-goedgekeurd bewijs blijft beschrijvend | Niet-numerieke context; voedingsritme alleen toepassen bij passend goedgekeurd direct voedingsbewijs |
+| Persoonlijke ervaring | Historische sessies gegroepeerd op **sessiestarttijdvak** | Afgeronde, vergelijkbare sessies met bekende doelsoortuitkomst; minimaal 5 voor catch-rate-percentage | **Sessie-starttijdvak behouden.** Niet herverdelen over alle tijdvakken die een lange sessie doorkruist; geen kunstmatige verdeling van één sessie over meerdere segmenten | Minder dan 5 vergelijkbare sessies: aantallen/context mogen zichtbaar blijven, percentage blijft null | Persoonlijke ervaringsuitkomst, niet de thermische score |
+| Persoonlijke vangkans / Poisson | Sessiebreed; historische vangsttempo λ uit geldige sessies met bekende duur en vangstaantallen, toegepast op geplande sessieduur | Minimaal 5 vergelijkbare sessies én 5 sessies met bekende duur en bruikbare aantallen; geplande duur bekend; centrale weer-/thermische datakwaliteit moet bruikbaar zijn | **Sessiebreed behouden.** Gebruik de canonieke intervalduur; geen segmentkansen optellen of tijdvakscore als numerieke correctie gebruiken | Onbekende eindtijd/duur of onvoldoende historie = null; geen standaardduur in VisCoach | Afzonderlijke persoonlijke uitkomst; geen activiteitsscore en geen gevalideerde koppeling met thermiek/habitat |
+| Aanwezigheidswaarnemingen | Expliciete gebruikerswaarneming; aanwezigheidstekst wordt als context doorgegeven | Waarnemingstype en tijdstempel; waarnemingen kunnen aan sessie of stek gekoppeld zijn | **Gebeurtenis-/tijdstempelresolutie.** Alleen waarnemingen die aantoonbaar bij de sessie/periode horen mogen later als intervalcontext worden samengevat; huidige code kent geen numerieke intervalscore | Geen waarneming betekent onbekend, niet afwezig; geen waarneming is geen bewijs van afwezigheid | Kwalitatieve context, geen bonus/malus |
+| Windkant/oeverrelatie | Huidig tactisch starttijdvak; `analyzeBankWind` vertaalt windrichting naar fysieke oeverrelatie | Windrichting/snelheid, geregistreerde oeverkijkrichting en watertype; thermische context en seizoen voor duiding | **Voorlopig starttijdvakgebonden.** Een wisselende wind tijdens de sessie kan later als afzonderlijke segmentcontext worden getoond, maar de bestaande module levert geen tijdreeks van oeveradviezen | Zonder oeveroriëntatie of geldige wind geen vaste oeverrelatie; stromend water blijft onderscheiden | Tactische uitleg/positionering, niet numeriek |
+| Habitat-/visbeweging | Eén analyse met datum/seizoen, thermische toestand, gekozen targetSlot, lokale habitat en waarnemingen; weercontext komt uit gekozen tactische periode | Watertype, diepte/habitatkenmerken, thermische context, wind/bewolking/druktrend en expliciete waarnemingen/historie | **Voorlopig starttijdvak + sessie-/locatiecontext.** Geen per-uur habitatverandering fabriceren. Een segmentgerichte update is kandidaat voor later, alleen wanneer de vereiste context per segment aantoonbaar beschikbaar is | Ontbrekende watertype-/diepte-/wind-/licht-/thermische context verlaagt confidence of laat onderdelen onbekend; directe waarneming blijft onderscheiden | Tactische hypothese/advies, geen activiteitsscore |
+| Hengelpositionering | Eén advies per prognoserun; ontvangt dagforecast, thermische analyse, historie en targetSlot | Locatie, waterdiepte/-type, habitat, thermiek, wind en relevante historie | **Voorlopig gekozen starttijdvak.** Niet middelen over sessie; eventuele herziening per segment is een latere product-/architectuurbeslissing | Ontbrekende context verlaagt confidence; geen default stek of viszone invullen | Tactisch advies, geen activiteitsscore |
+| Voorvoerplan | Doeldatum en planningscontext; beschikbare dagen vooraf, soort, thermische basis en optionele sessieduur | Doeldatum, planningDate, beschikbare voorvoerdagen, soort, watertemperatuurstatus, watertype/diepte, techniek | **Doeldag-/campagnegebonden, niet sessiesegmentgebonden.** Starttijd of uursegment verandert de bestaande campagneplanning niet | Onvoldoende thermische basis/watertype/diepte leidt tot ontbrekende of afgeschermde hoeveelheden volgens bestaand contract | Afzonderlijke tactiek; niet optellen bij activiteitsscore |
+| Hengelblootstelling | Werkelijk geregistreerde rod-active intervallen, achteraf | Expliciete begin-/eindtijden van hengelactiviteit en sessiecontext | **Werkelijk interval achteraf.** Niet gebruiken als forecastinput en niet verwarren met gepland interval | Onvolledige of buiten-sessie intervallen blijven als datakwaliteitsprobleem herkenbaar | Beschrijvende sessieanalyse, geen prognosefactor |
+
+### 202.3 Uitkomst: wat kan wel en niet naar intervalniveau?
+
+**Vastgesteld als bestaande/veilige resolutie:**
+- Thermische respons blijft targetTime-gebonden en heeft per berekening de eigen 24-/72-uurslookback. De huidige score is nog per 6-uurs tijdvak.
+- Druktrend blijft een tijdstipmeting met voorafgaande lookback; absolute druk, wind, bewolking en neerslag behouden voorlopig hun bestaande 6-uurs factorcontract.
+- Seizoen is kalenderdagcontext; diel/licht is tijdvak-/datumcontext.
+- Persoonlijke ervaring blijft gekoppeld aan het starttijdvak van historische sessies.
+- Persoonlijke vangkans blijft één sessiebrede Poisson-uitkomst op basis van geplande duur.
+- Aanwezigheid blijft een expliciete waarnemingsgebeurtenis.
+- Oeverwind, habitat en positionering blijven tactische uitkomsten voor het gekozen starttijdvak.
+- Voorvoer blijft een doeldag-/campagne-uitkomst; hengelblootstelling blijft achteraf.
+
+**Alleen kandidaat voor vervolgonderzoek, nog niet besloten:**
+- Thermische toestand per uursegment berekenen en vervolgens een sessie-uitkomst samenvatten. Eerst timestampconventie, overlapduur, meetankersemantiek, ontbrekende segmenten en aggregatiecontract vaststellen.
+- Wind, bewolking en eventueel neerslag als beschrijvende segmentcontext tonen, mits de factorvelden afzonderlijk geldig zijn. Dit maakt ze nog geen scorefactor.
+- Druktrend per segment bepalen wanneer zowel het actuele als het voorafgaande meetpunt aanwezig zijn.
+- Waarnemingen aan de geplande sessie koppelen op basis van hun echte tijdstempel.
+
+**Niet verantwoord op basis van de huidige code:**
+- De vier bestaande 6-uurscores simpelweg middelen naar de sessieduur.
+- De bestaande 3-uit-6 drempel automatisch omzetten naar een percentage voor korte intervallen.
+- Een ontbrekend uur als nulweer of neutrale factor behandelen.
+- Een sessie-ervaring over alle doorkruiste tijdvakken verdelen.
+- Segmentvangstkansen optellen of thermiek, wind, licht, habitat en persoonlijke vangkans tot één ongedefinieerde totaalscore samenvoegen.
+- Een uursegment gebruiken als vervanging voor de 12-uurs druktrend of 24-/72-uurs thermische lookback.
+
+### 202.4 Besluit en vervolgpoort
+
+De matrix is een **auditbesluit over behoud van bestaande semantiek**, geen definitieve goedkeuring voor intervalscoring. Er is nog geen factor-specifiek intervalminimum, gewichtsmodel of biologische correctie gekozen. De bestaande 1–10 thermische activiteitsscore blijft ongewijzigd en de VisCoach blijft uitsluitend consument/vertaler van Prognose-uitkomsten.
+
+**Volgende werkstap:** maak op basis van deze matrix een klein interval-outputcontract: welke bestaande factorcontext kan per segment worden weergegeven, welke uitkomst blijft één sessiewaarde, en welke velden blijven onbekend bij onvoldoende dekking. Begin met tests van het contract en de as-of-grens; pas daarna kan worden besloten of enige factorberekening in de bestaande Prognose-engine moet worden uitgebreid. Geen tweede prognose-engine en geen scorewijziging.
+
+
+## 203. Outputcontract Prognosepagina ↔ VisCoach voor een gepland interval
+
+**Werkpakket 14 — read-only controle van de bestaande uitvoerketen (23 november 2026).** Doel is vastleggen welke bestaande resultaten dagbreed, starttijdvakgebonden of sessiebreed zijn voordat een intervalresultaat wordt ontworpen. Alleen `sessionCoachService`, `viscoachService` en `VisCoachView` zijn gecontroleerd; geen code of UI gewijzigd.
+
+### 203.1 Huidige uitvoerketen
+
+- `buildVisCoachPlan` roept de bestaande `calculateDayPrognosis` aan. Er is geen tweede VisCoach-prognose-engine.
+- De geplande start/eindtijd wordt als canoniek interval opgeslagen in inputcontext en snapshot. De duur gaat als `sessionDurationHours` naar de bestaande Prognose-engine.
+- Het gekozen starttijdvak (`targetTimeSlot`) wordt apart doorgegeven voor tactische context.
+- `buildVisCoachAdviceText` ontvangt één `DayPrognosis`, de weersnapshot rond de starttijd, het geselecteerde tijdvak en de sessieduur.
+- Bij één geselecteerd tijdvak gebruikt de coachtekst de conclusie uit `prognosis.timeSlots[selectedTimeSlot]`. Bij meerdere tijdvakken zegt de coachtekst expliciet dat de sessie meerdere tijdvakken bestrijkt en dat de dagwinnaar niet automatisch als sessievoorkeur wordt aangewezen.
+- Tactische positionering, habitat en oeverwind worden nog als één analyse per plan opgebouwd rond het gekozen starttijdvak; het zijn geen tijdreeksen over de volledige sessie.
+- De persoonlijke Poisson-vangkans is sessiebreed en gebruikt de geplande duur wanneer die bekend is.
+
+### 203.2 Huidige UI-semantiek en beperking
+
+De huidige VisCoach-kaart toont:
+- de geplande start/eindtijd;
+- het geselecteerde tijdvak, of “Meerdere tijdvakken”;
+- daarnaast de algemene `prognosis.bestTimeSlot` als dagcontext;
+- `prognosis.advice` als algemene dagbeoordeling;
+- `prognosis.activityScore` als dagscore (gemiddelde van de vier bestaande tijdvakscorewaarden, alleen beschikbaar als alle vier bruikbaar zijn);
+- `prognosis.personalCatchChance` als persoonlijke kans voor de geplande duur, alleen wanneer die duur bekend en de historische/data-invoer voldoende is;
+- een verhalend advies dat de gekozen startperiode gebruikt, maar waarvan de openingssamenvatting nog `prognosis.advice` gebruikt.
+
+Daarmee is de huidige UI een **hybride weergave**: een dagbrede thermische score/beoordeling, een starttijdvakgerichte tactiek en een sessieduurgebonden persoonlijke vangkans. De dagscore is geen score voor het geplande interval. De zichtbare kaart noemt de dagscore momenteel “Visactiviteit”, terwijl de code en auditdefinitie uitsluitend voorlopige thermische activiteitspotentie beschrijven. Dat label mag niet worden gebruikt als bewijs van gemeten visactiviteit of daadwerkelijke vangstactiviteit.
+
+### 203.3 Contract voor toekomstige intervaluitvoer
+
+Dit is de voorgestelde semantische scheiding voor de bestaande twee productonderdelen; het introduceert geen derde product of parallelle engine.
+
+| Uitvoer | Eigen scope | Mag door VisCoach worden gebruikt als | Mag niet worden gepresenteerd als |
+|---|---|---|---|
+| Bestaande dagscore en dagbeoordeling | Kalenderdag / vier vaste tijdvakken | Expliciete dagcontext, herkenbaar als dagprognose | Score of oordeel voor alleen de geplande sessie |
+| Thermische toestand per intervalsegment (toekomstige kandidaat) | Segment met eigen targetTime en thermische lookback | Onderdeel van de Prognose-intervaluitvoer zodra per-segmentberekening en dekking zijn gevalideerd | Gemeten visactiviteit, voedingsactiviteit of vangstkans |
+| Weerfactorcontext per segment | Segment of bestaand tijdvak, afhankelijk van factorcontract | Verklaring van veranderende omstandigheden binnen de sessie; onbekende factoren blijven zichtbaar onbekend | Biologische bonus/malus of een samengevoegde score zonder bewijs |
+| Persoonlijke ervaring | Historisch sessiestarttijdvak | Persoonlijke context voor het starttijdvak | Historische vangstfrequentie voor elk segment dat de sessie doorkruist |
+| Persoonlijke vangkans | Volledige geplande sessieduur | Eén persoonlijke sessiebrede uitkomst | Kans per segment of opgetelde segmentkansen |
+| Aanwezigheidswaarneming | Werkelijk waarnemingstijdstip / sessie | Gedateerde kwalitatieve observatie | Voorspelde aanwezigheid wanneer niet waargenomen |
+| Windkant, habitat en positionering | Huidig gekozen tactisch starttijdvak totdat een apart tijdreekscontract bestaat | Starttactiek met onzekerheden en alternatieve zone indien onderbouwd | Gegarandeerd advies voor ieder later sessiesegment |
+| Voorvoerplan | Doeldag en campagne vóór de sessie | Voorbereidings- en sessietactiek | Uurlijkse factor of activiteitsscore |
+| Hengelblootstelling | Werkelijk geregistreerde actieve intervallen achteraf | Evaluatie van werkelijk gevist tijdsvenster | Forecastinput of voorspelde inspanning |
+
+### 203.4 Vereiste regels voor de toekomstige VisCoach-vertaling
+
+1. De Prognosepagina berekent en levert de intervalinformatie; VisCoach maakt daar één samenhangend verhaal en tactiek van. VisCoach berekent geen eigen factoren of score.
+2. Dagbrede informatie blijft beschikbaar als dagcontext, maar moet als zodanig herkenbaar blijven. Zij mag niet stilzwijgend als intervalresultaat worden gelabeld.
+3. Bij een sessie die meerdere tijdvakken bestrijkt, moet de vertaling de relevante opeenvolgende segmenten/perioden beschrijven; de dagwinnaar mag niet als beste sessietijd worden gepresenteerd.
+4. Een sessiebrede vangkans blijft één getal voor de hele geplande duur. Een onbekende eindtijd betekent geen duurgebaseerde vangkans en geen verzonnen intervaldekking.
+5. De samenvatting mag alleen factoren noemen waarvan de eigen beschikbaarheidsregel is gehaald. Ontbrekende factorinformatie blijft expliciet onbekend en blokkeert niet automatisch andere onafhankelijke factoren.
+6. De thermische activiteitspotentie blijft onderscheiden van visaanwezigheid, voedselopname, foerageeractiviteit en vangstkans.
+7. Geen gecombineerde intervalscores, factorgewichten of nieuwe biologische koppelingen in deze outputlaag.
+
+### 203.5 Status en volgende poort
+
+De bestaande uitvoerketen is helder genoeg om een semantisch outputcontract te formuleren, maar de daadwerkelijke intervalfactoren zijn nog niet berekend. De dagscore blijft dus de huidige dagscore en mag niet worden hernoemd naar een sessiescore. De huidige UI-labeling “Visactiviteit” is een afzonderlijke terminologische bevinding voor latere gerichte UI-correctie; deze is in dit read-only werkpakket niet gewijzigd.
+
+**Volgende stap:** specificeer de kleinste backward-compatible outputstructuur voor segmentstatussen en factorbeschikbaarheid, zonder de bestaande `DayPrognosis`-velden te herinterpreteren. Schrijf eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Pas daarna een minimale uitbreiding van de bestaande Prognose-engine overwegen. Zie audit §§199–203.
+
+
+## 204. Backward-compatible interval-outputcontract voor Prognose en VisCoach
+
+**Werkpakket 15 — contractdefinitie en eerste pure adapter (23 november 2026).** Dit contract maakt de bestaande uursegmentatie bruikbaar aan de grens tussen Prognosepagina en VisCoach, zonder een tweede prognose-engine te introduceren.
+
+### 204.1 Eén uitvoerobject, drie scopes
+
+De nieuwe adapter `createPrognosisIntervalOutput` combineert uitsluitend:
+- de bestaande `segmentPrognosisInterval` voor grenzen, overlapduur, Amsterdamse datum/tijdvak en tijdsdekking;
+- de bestaande `DayPrognosis` voor de onveranderde dagcontext en sessiebrede uitkomsten;
+- de expliciet gekozen starttijdvakwaarde voor de bestaande starttactiek.
+
+De output houdt drie scopes uit elkaar:
+
+| Scope | Velden | Betekenis |
+|---|---|---|
+| Dag | `dayContext.activityScore`, `activityScoreAvailable`, `advice`, `bestTimeSlot` | Bestaande dagprognose. Nooit herlabelen als sessiescore of sessieadvies. |
+| Start | `startContext.selectedTimeSlot` | Gekozen starttijdvak voor bestaande tactische context. Niet automatisch geldig voor latere segmenten. |
+| Sessie | `sessionContext.plannedDurationHours`, `personalCatchChance`, `personalCatchConfidence` | Eén persoonlijke uitkomst voor de volledige bekende geplande duur. Geen segmentkansen. |
+
+### 204.2 Segmentcontract
+
+Elk segment bevat:
+- absolute `startTime` en `endTime`, werkelijke `durationMinutes`, Amsterdamse `targetDate` en bestaand `timeSlot`;
+- `weatherRecordStatus` en `weatherSampleTime`;
+- afzonderlijk gevalideerde, uitsluitend beschrijvende `weatherContext`: luchttemperatuur (-30..55 °C), druk (850..1100 hPa), wind (snelheid 0..200 km/u én richting 0..360° én niet-leeg label), neerslag (0..300 mm) en bewolking (0..100%).
+
+Een aanwezig uurrecord maakt niet automatisch alle velden beschikbaar. Een ongeldige windrichting maakt alleen de windcontext onbekend; andere geldige velden blijven bruikbaar. Geldige nulneerslag blijft beschikbaar als nul. Ontbrekende of ongeldige waarden zijn expliciet `{status: 'unknown', value: null}`, met reden `missing_forecast` of `invalid_value`; er vindt geen nulinvulling, interpolatie of forward-fill plaats.
+
+### 204.3 Factorresolutie blijft expliciet begrensd
+
+De segmentadapter levert geen nieuwe factorberekeningen:
+- thermische activiteit: `not_calculated_per_segment`; de bestaande dag-/tijdvakberekening blijft onaangetast;
+- absolute druk: `existing_time_slot_only`; één uurwaarde is geen vervanging van de bestaande 3-uit-6 tijdvakfactor;
+- druktrend: `requires_timepoint_lookback`; de bestaande actuele en voorafgaande metingen blijven vereist;
+- wind, neerslag en bewolking: `descriptive_only`; ruwe segmentcontext is geen gevalideerde biologische factor of score.
+
+De adapter berekent geen habitatbeweging, oeverrelatie, positionering, persoonlijke ervaring of voorvoer opnieuw. Deze blijven op hun bestaande scope totdat een afzonderlijk tijdreekscontract is gevalideerd.
+
+### 204.4 Ontbrekende interval- en sessiegegevens
+
+- `unknown_end`: geen segmenten, geen totale duur, geen dekkingsratio; sessieduur en duurgebonden persoonlijke vangkans blijven null.
+- `partial`: alle segmenten blijven aanwezig; segmenten zonder forecast behouden hun werkelijke grenzen/duur maar krijgen `weatherRecordStatus: 'missing'` en onbekende veldwaarden.
+- `invalid_interval`: geen segmenten of gefabriceerde duur.
+- Een ontbrekende factor blokkeert geen onafhankelijke factor.
+- Een niet-beschikbare dagscore blijft null en krijgt `activityScoreAvailable: false`.
+
+### 204.5 VisCoach-consumptieregels
+
+VisCoach leest het outputobject en maakt één samenhangend advies:
+1. Begin met het werkelijke geplande interval en benoem de dekking van uurforecastrecords; maak expliciet dat een aanwezig record niet garandeert dat alle afzonderlijke waarden geldig/beschikbaar zijn.
+2. Beschrijf opeenvolgende segmenten chronologisch; groepeer aangrenzende segmenten alleen wanneer hun beschikbare context gelijksoortig is.
+3. Benoem uitsluitend beschikbare factorcontext. Noem ontbrekende gegevens alleen wanneer die de praktische conclusie begrenzen.
+4. Gebruik dagscore en dagbeoordeling uitsluitend als herkenbare dagcontext; gebruik het geselecteerde starttijdvak alleen voor de bestaande starttactiek.
+5. Toon persoonlijke vangkans hoogstens één keer als sessiebrede uitkomst, uitsluitend bij bekende duur en voldoende bestaande historische/data-invoer.
+6. Trek geen segmentvangstkansen af, tel geen factoren op en maak geen nieuwe totaalscore.
+
+### 204.6 Eerste testdekking en begrenzing
+
+`test-prognosis-interval-output.ts` controleert bekende en onbekende eindtijd, gedeeltelijke dekking, ontbrekend uur, afzonderlijk ongeldige factorvelden, windvalidatie, behoud van dag-/start-/sessiescope en null bij onbekende duur of niet-beschikbare dagscore. De adapter is een backward-compatible presentatie-/contractlaag: de bestaande `calculateDayPrognosis` en alle bestaande scores, drempels en gewichten blijven ongewijzigd.
+
+**Status:** historische contractdefinitie; de adapter en VisCoach-koppeling zijn inmiddels uitgevoerd en gevalideerd, zie §205. De aanvullende nuance rond uurrecorddekking versus individuele veldvaliditeit is in §205 en de formattertests verwerkt.
+
+
+## 205. VisCoach-consumptie van intervaluitvoer
+
+**Werkpakket 16 — eerste end-to-end adviesvertaling (23 november 2026).** De bestaande `buildVisCoachPlan` maakt nu na de bestaande `calculateDayPrognosis` één `PrognosisIntervalOutput` met dezelfde genormaliseerde intervalgrenzen en de al opgehaalde uurforecast. De planbuilder voert geen tweede prognoseberekening uit.
+
+De bestaande VisCoach-adviesfunctie accepteert de intervaluitvoer optioneel. Bij een nieuw gepland plan:
+- blijft de openingssamenvatting herkenbaar dagprognose en zegt expliciet dat de dagscore geen sessiescore is;
+- beschrijft de advieslaag de sessiechronologie in één tekstblok, waarbij aangrenzende segmenten met identieke beschrijvende weerscontext worden samengevoegd;
+- worden alleen individueel beschikbare luchttemperatuur, wind, neerslag en bewolking genoemd;
+- worden ontbrekende uren als gedeeltelijke weersdekking benoemd; er worden geen waarden ingevuld;
+- blijven de bestaande starttijdvakgerichte tactiek en sessiebrede persoonlijke vangkans afzonderlijk;
+- levert een onbekende eindtijd geen tijdlijn of duurgebonden vangkans.
+
+Bestaande opgeslagen sessieadviezen en reassessment-paden roepen de functie nog steeds zonder intervalobject aan en behouden daarmee hun huidige gedrag. Contracttests controleren de gecombineerde dag-/sessiesemantiek en de chronologische VisCoach-vertaling.
+
+**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. Review heeft de dekkingstekst aangescherpt: de dekking betreft aanwezigheid van uurforecastrecords, niet automatisch de geldigheid van alle velden. De formatter benoemt dit expliciet en een regressietest dekt het af. Quality Gate run 45156084460 op commit `779f38ed6e6bbd64920e97c2bbca9c4eb187f6d8` is volledig groen: typecheck, intervalcontracttests, VisCoach-tests, regressies en productiebuild. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.
+
+
+## Aanvullende correctie — GPS-herkomst en VisCoach-scorebeschikbaarheid (23 november 2026)
+
+Deze wijziging corrigeert twee uitvoerproblemen zonder een tweede prognose- of thermische engine toe te voegen.
+
+### GPS-coördinaten van een stek
+- Ontbrekende GPS-coördinaten blijven onbekend; de locatie-editor vult geen standaardpositie meer in.
+- Bij het starten van een nieuwe actieve sessie met een stek zonder GPS vraagt het bestaande sessiescherm om de positie vast te leggen. De gebruiker kan de huidige browser-GPS gebruiken of beide coördinaten handmatig invullen.
+- De positie wordt via de bestaande opslagcallback bij de stek opgeslagen. De sessie-invoer blijft open en hoeft niet opnieuw te worden ingevuld.
+- Actuele en historische weerservices weigeren ontbrekende of ongeldige coördinaten; de startsnapshot maakt geen weerprognose op basis van een fictieve positie.
+- De Prognosepagina meldt dat GPS ontbreekt en berekent geen weersafhankelijke prognose op basis van een standaardlocatie.
+- Bestaande geldige coördinaten en historische sessie-/meetgegevens worden niet gewijzigd.
+
+### Thermische score en VisCoach
+- De bestaande `waterThermalEngine`, lokale meetankers, historische weercontext en kalibratie blijven ongewijzigd.
+- Een bruikbare lokale meting of modelschatting blijft de bestaande thermische invoer voor de prognose; deze correctie schakelt de schatting niet uit.
+- Alleen wanneer `activityScoreAvailable === false` mag VisCoach de interne adviesplaceholder niet als bijvoorbeeld “Gemiddeld” presenteren. De samenvatting meldt dan dat geen betrouwbare activiteitsscore beschikbaar is.
+- Andere beschikbare weers-, habitat- en tactische informatie blijft onderdeel van het advies.
+
+**Validatiestatus:** gerichte regressietest toegevoegd voor de onbeschikbare score in de VisCoach-samenvatting. TypeScript, de volledige relevante testsuite, de productiebuild en de praktische UI-controle moeten nog worden uitgevoerd; er wordt hier geen geslaagde test of praktijkcontrole geclaimd.
+
+## Aanvullende correctie — VisCoach-keuzevelden en centrale GPS-blokkade (23 november 2026)
+
+Praktijkfeedback na de vorige GPS-wijziging liet zien dat de gewenste gebruikersflow nog niet volledig was afgedekt. De code-inspectie bevestigde:
+- VisCoachView selecteerde bij openen automatisch de eerste stek en vulde Karper als doelvis in.
+- De VisCoach-pagina waarschuwde niet direct bij het kiezen van een stek zonder geldige GPS.
+- De GPS-controle in het sessiemodal was gekoppeld aan de startsnapshot-flow. De centrale opslagfunctie controleerde niet zelfstandig of een nieuwe actieve sessie een stek met geldige GPS had.
+
+Daarom is de flow aangescherpt:
+- Stek en doelvis beginnen beide op een expliciete placeholder: **Kies een stek** en **Kies een doelvis**.
+- Een stek zonder geldige breedte- en lengtegraad toont direct een waarschuwing op de VisCoach-pagina.
+- Het maken van een visplan is geblokkeerd zolang geen geldige GPS voor de gekozen stek bestaat; de melding verwijst naar Stekken om de positie vast te leggen.
+- De centrale opslagfunctie weigert nu ook een nieuwe actieve sessie zonder bestaande, geldige GPS-coördinaten op de gekoppelde stek. Dit voorkomt dat een alternatieve startflow de controle kan omzeilen.
+- Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
+
+**Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.

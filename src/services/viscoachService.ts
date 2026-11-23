@@ -11,6 +11,7 @@ import {
   PrognosisInputContext,
 } from '../types';
 import { calculateDayPrognosis, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
+import { createPrognosisIntervalOutput, PrognosisIntervalOutput } from './prognosisIntervalOutput';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
@@ -181,6 +182,7 @@ export interface VisCoachPlan {
   desiredEndTime: string | null;
   durationHours: number | null;
   selectedTimeSlot?: import('../types').TimeSlot;
+  intervalOutput: PrognosisIntervalOutput;
 }
 
 /** Bepaalt hoeveel kalenderdagen voorbereiding beschikbaar zijn, binnen de bestaande 0-3-daagse voerplannergrens. */
@@ -237,6 +239,9 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   if (durationHours !== null && (durationHours <= 0 || durationHours > 24)) {
     throw new Error('De geplande sessieduur moet langer dan nul en maximaal 24 uur zijn.');
   }
+  // Eén genormaliseerd intervalpaar voedt context, fingerprint en snapshot.
+  const targetWindowStart = start.toISOString();
+  const targetWindowEnd = end?.toISOString() ?? null;
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(start);
   const [weather, snapshots, locations] = await Promise.all([
     getForecast(input.location.latitude, input.location.longitude, false),
@@ -307,6 +312,8 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     calculatedAt: new Date().toISOString(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Amsterdam',
     targetDate: date,
+    targetWindowStart,
+    targetWindowEnd,
     targetTimeSlot: tacticalStartSlot ?? null,
     targetSpecies: input.targetSpecies,
     sessionDurationHours: durationHours,
@@ -341,22 +348,29 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   const inputFingerprint = createPrognosisInputFingerprint({
     inputContext,
     date,
-    desiredStartTime: start.toISOString(),
-    desiredEndTime: end?.toISOString() ?? null,
+    desiredStartTime: targetWindowStart,
+    desiredEndTime: targetWindowEnd,
     species: input.targetSpecies,
     locationId: input.location.id,
     weather: weather.hourly,
   });
 
   const selectedTimeSlot = resolveSelectedTimeSlot(start, end);
+  const intervalOutput = createPrognosisIntervalOutput(
+    targetWindowStart,
+    targetWindowEnd,
+    weather.hourly,
+    prognosis,
+    tacticalStartSlot ?? null
+  );
   const pendingSnapshot: PendingPrognosisSnapshot = {
     prognosis,
     durationHours: durationHours ?? 0,
     durationKnown: durationHours !== null,
     locationName: input.location.name,
     chosenSlot: tacticalStartSlot,
-    targetWindowStart: start.toISOString(),
-    targetWindowEnd: end?.toISOString() ?? null,
+    targetWindowStart,
+    targetWindowEnd,
     conditions,
     weatherInput: weather.hourly,
     inputContext,
@@ -367,10 +381,11 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   return {
     prognosis,
     pendingSnapshot,
-    desiredStartTime: start.toISOString(),
-    desiredEndTime: end?.toISOString() ?? null,
+    desiredStartTime: targetWindowStart,
+    desiredEndTime: targetWindowEnd,
     durationHours,
     selectedTimeSlot,
+    intervalOutput,
   };
 }
 

@@ -121,95 +121,115 @@ export function analyzeWaterThermalDevelopment(
   const hasMeasured = isActualSituation;
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
-  // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren
-  const dayForecasts = forecasts.filter((h) => getAmsterdamDateKey(h.time) === targetDateStr);
-  const dayTemperatureForecasts = dayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
+  // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren.
+  // Bij een expliciet doelmoment mogen uitsluitend uren tot en met dat moment
+  // bijdragen aan de tijdstipgebonden thermische toestand. Zonder expliciet
+  // doelmoment blijft de bestaande dagbrede prognoseweergave behouden.
+  const targetDayForecasts = forecasts.filter((h) => {
+    if (getAmsterdamDateKey(h.time) !== targetDateStr) return false;
+    if (!hasValidTargetTime) return true;
+    const timestampMs = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
+    return Number.isFinite(timestampMs) && timestampMs <= estimationTargetMs;
+  });
+  const dayTemperatureForecasts = targetDayForecasts.filter((h) => Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55);
   const expectedAnchorHours = anchorAgeHours === null ? 0 : Math.max(0, Math.floor(anchorAgeHours));
   let weatherCoverageRatio = expectedAnchorHours > 0
     ? Math.min(1, weatherSinceAnchor.length / expectedAnchorHours)
     : Math.min(1, dayTemperatureForecasts.length / 24);
 
-  // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
-  if (dayTemperatureForecasts.length < 6) {
-    const recentAnchorAgeHours = anchor ? Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000) : null;
-    const recentAnchorEstimate = anchor && recentAnchorAgeHours !== null && recentAnchorAgeHours <= 24
-      ? Math.round(anchor.temperature * 10) / 10
-      : null;
-    return {
-      trend: 'Onvoldoende gegevens',
-      trendConfidence: 'Onvoldoende gegevens',
-      targetTimestamp,
-      forecastAsOf,
-      hasMeasuredWaterTemp: hasMeasured,
-      measuredWaterTemp: measuredTemp,
-      estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
-      estimatedRange: recentAnchorEstimate !== null
-        ? [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10]
-        : historicalProfile ? [historicalProfile.lowerC, historicalProfile.upperC] : null,
-      waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : historicalProfile ? 'estimated_from_history' : 'unknown',
-      anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
-      anchorAgeHours,
-      weatherCoverageRatio,
-      uncertaintyC: recentAnchorEstimate !== null ? 1.0 : historicalProfile?.uncertaintyC ?? null,
-      historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
-      historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
-      historicalWaterTemperatureMeasurementDepthM: historicalProfile?.measurementDepthM ?? null,
-      historicalWaterTemperatureSource: historicalProfile?.source ?? null,
-      surfaceVsBulkNote: recentAnchorEstimate !== null ? 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.' : historicalProfile ? 'Historisch seizoensprofiel is beschikbaar, maar zonder weerdekking kan geen actuele waterstratificatie worden berekend.' : 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
-      inertiaFactor: 'Gemiddeld',
-      summaryRationale: recentAnchorEstimate !== null
-        ? 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.'
-        : historicalProfile ? 'Geen actuele weerdekking; daarom wordt uitsluitend een seizoensprofiel uit echte historische watertemperatuurmetingen gebruikt.'
-        : 'Er zijn onvoldoende betrouwbare weersgegevens of historische watertemperatuurmetingen om de thermische ontwikkeling te bepalen.',
-      dataPointsAvailable: {
-        past24hAvailable: false,
-        past72hAvailable: false,
-        solarRadiationIndication: 'Onvoldoende gegevens',
-        windMixingInfluence: 'Onvoldoende gegevens',
-        depthKnown: typeof location?.waterDepth === 'number' && Number.isFinite(location.waterDepth) && location.waterDepth > 0,
-        waterDepthMeters: location?.waterDepth,
-        historicalTemperatureSamples: historicalProfile?.sampleCount ?? 0,
-      },
-      prognosisImpactNote: recentAnchorEstimate !== null
-        ? 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
-        : historicalProfile ? 'Historisch seizoensprofiel gebruikt; actuele weersontwikkeling ontbreekt.'
-        : 'Geen thermische correctie toegepast wegens ontbrekende weerdata.'
-    };
-  }
-
-  // Kenmerken van de doeldag
-  const dayTemps = dayTemperatureForecasts.map((h) => h.temperature);
-  const dayMin = Math.min(...dayTemps);
-  const dayMax = Math.max(...dayTemps);
-  const dayAvg = dayTemps.reduce((a, b) => a + b, 0) / dayTemps.length;
-  const validDayWind = dayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
-  const validDayCloud = dayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
-  const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
-
-  // 3. Evalueer omliggende dagen (voorafgaand en na de doeldag binnen de 8-daagse reeks)
-  const targetTimeMs = parseAppTimestamp(`${targetDateStr}T12:00:00`)?.getTime() ?? Date.UTC(
-    Number(targetDateStr.slice(0, 4)), Number(targetDateStr.slice(5, 7)) - 1, Number(targetDateStr.slice(8, 10)), 11
-  );
-
-  // Forecasts in vensters vóór de doeldag
+  // Rolling vensters eindigen bij een expliciet doelmoment. Zonder expliciet
+  // doelmoment behouden we de bestaande lokale-dagreferentie en intervalgrenzen.
+  const targetTimeMs = hasValidTargetTime ? estimationTargetMs : targetDateMs;
   const past24hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t < targetTimeMs && t >= targetTimeMs - 24 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    const inWindow = hasValidTargetTime
+      ? t <= targetTimeMs && t > targetTimeMs - 24 * 3600000
+      : t < targetTimeMs && t >= targetTimeMs - 24 * 3600000;
+    return inWindow && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
   const past72hForecasts = forecasts.filter((h) => {
     const t = parseAppTimestamp(h.time)?.getTime() ?? Number.NaN;
-    return t < targetTimeMs && t >= targetTimeMs - 72 * 3600000 && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
+    const inWindow = hasValidTargetTime
+      ? t <= targetTimeMs && t > targetTimeMs - 72 * 3600000
+      : t < targetTimeMs && t >= targetTimeMs - 72 * 3600000;
+    return inWindow && Number.isFinite(h.temperature) && h.temperature >= -30 && h.temperature <= 55;
   });
-
   const hasPast24h = past24hForecasts.length >= 12;
   const hasPast72h = past72hForecasts.length >= 36;
 
-  const past24Avg = hasPast24h
-    ? past24hForecasts.reduce((s, h) => s + h.temperature, 0) / past24hForecasts.length
-    : dayAvg;
-  const past72Avg = hasPast72h
-    ? past72hForecasts.reduce((s, h) => s + h.temperature, 0) / past72hForecasts.length
-    : past24Avg;
+  // Een vroeg doelmoment kan minder dan zes uren op de doeldag hebben.
+  // Voldoende voorafgaande 72-uursdekking kan die daguren vervangen; toekomstige
+  // uren van dezelfde dag worden nooit gebruikt om de dekking kunstmatig te vullen.
+  if (dayTemperatureForecasts.length < 6 && !hasPast72h) {
+    // Voor een thermische schatting zijn minimaal zes geldige uurtemperaturen op de doeldag nodig.
+    if (dayTemperatureForecasts.length < 6) {
+      const recentAnchorAgeHours = anchor ? Math.max(0, (estimationTargetMs - anchor.timestampMs) / 3600000) : null;
+      const recentAnchorEstimate = anchor && recentAnchorAgeHours !== null && recentAnchorAgeHours <= 24
+        ? Math.round(anchor.temperature * 10) / 10
+        : null;
+      return {
+        trend: 'Onvoldoende gegevens',
+        trendConfidence: 'Onvoldoende gegevens',
+        targetTimestamp,
+        forecastAsOf,
+        hasMeasuredWaterTemp: hasMeasured,
+        measuredWaterTemp: measuredTemp,
+        estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
+        estimatedRange: recentAnchorEstimate !== null
+          ? [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10]
+          : historicalProfile ? [historicalProfile.lowerC, historicalProfile.upperC] : null,
+        waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : historicalProfile ? 'estimated_from_history' : 'unknown',
+        anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
+        anchorAgeHours,
+        weatherCoverageRatio,
+        uncertaintyC: recentAnchorEstimate !== null ? 1.0 : historicalProfile?.uncertaintyC ?? null,
+        historicalWaterTemperatureBaselineC: historicalProfile?.baselineC ?? null,
+        historicalWaterTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+        historicalWaterTemperatureMeasurementDepthM: historicalProfile?.measurementDepthM ?? null,
+        historicalWaterTemperatureSource: historicalProfile?.source ?? null,
+        surfaceVsBulkNote: recentAnchorEstimate !== null ? 'Recente echte stekmeting als tijdelijk anker gebruikt; zonder weerdekking is geen betrouwbare verdere temperatuurontwikkeling te berekenen.' : historicalProfile ? 'Historisch seizoensprofiel is beschikbaar, maar zonder weerdekking kan geen actuele waterstratificatie worden berekend.' : 'Onvoldoende uurlijkse weergegevens beschikbaar om waterstratificatie te analyseren.',
+        inertiaFactor: 'Gemiddeld',
+        summaryRationale: recentAnchorEstimate !== null
+          ? 'De recente watertemperatuurmeting geeft een bruikbaar kortetermijn-startpunt, maar de verdere ontwikkeling is onzeker door ontbrekende weergegevens.'
+          : historicalProfile ? 'Geen actuele weerdekking; daarom wordt uitsluitend een seizoensprofiel uit echte historische watertemperatuurmetingen gebruikt.'
+          : 'Er zijn onvoldoende betrouwbare weersgegevens of historische watertemperatuurmetingen om de thermische ontwikkeling te bepalen.',
+        dataPointsAvailable: {
+          past24hAvailable: false,
+          past72hAvailable: false,
+          solarRadiationIndication: 'Onvoldoende gegevens',
+          windMixingInfluence: 'Onvoldoende gegevens',
+          depthKnown: typeof location?.waterDepth === 'number' && Number.isFinite(location.waterDepth) && location.waterDepth > 0,
+          waterDepthMeters: location?.waterDepth,
+          historicalTemperatureSamples: historicalProfile?.sampleCount ?? 0,
+        },
+        prognosisImpactNote: recentAnchorEstimate !== null
+          ? 'Korte-termijnschatting gebruikt de recente gemeten watertemperatuur met een ruime onzekerheidsmarge; weerontwikkeling ontbreekt.'
+          : historicalProfile ? 'Historisch seizoensprofiel gebruikt; actuele weersontwikkeling ontbreekt.'
+          : 'Geen thermische correctie toegepast wegens ontbrekende weerdata.'
+      };
+    }
+  
+  }
+
+  // Kenmerken van de doeldag, uitsluitend tot het doelmoment.
+  const dayTemps = dayTemperatureForecasts.map((h) => h.temperature);
+  const preliminaryPast24Avg = hasPast24h
+    ? past24hForecasts.reduce((sum, h) => sum + h.temperature, 0) / past24hForecasts.length
+    : null;
+  const preliminaryPast72Avg = hasPast72h
+    ? past72hForecasts.reduce((sum, h) => sum + h.temperature, 0) / past72hForecasts.length
+    : null;
+  const dayAvg = dayTemps.length
+    ? dayTemps.reduce((a, b) => a + b, 0) / dayTemps.length
+    : preliminaryPast24Avg ?? preliminaryPast72Avg ?? 0;
+  const dayMin = dayTemps.length ? Math.min(...dayTemps) : dayAvg;
+  const dayMax = dayTemps.length ? Math.max(...dayTemps) : dayAvg;
+  const validDayWind = targetDayForecasts.filter((h) => Number.isFinite(h.windSpeed) && h.windSpeed >= 0 && h.windSpeed <= 200);
+  const validDayCloud = targetDayForecasts.filter((h) => Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100);
+  const dayAvgWind = validDayWind.length ? validDayWind.reduce((a, b) => a + b.windSpeed, 0) / validDayWind.length : null;
+
+  const past24Avg = preliminaryPast24Avg ?? dayAvg;
+  const past72Avg = preliminaryPast72Avg ?? past24Avg;
 
   // 4. Waterdiepte en thermische traagheid
   const depth = location?.waterDepth;
@@ -233,12 +253,12 @@ export function analyzeWaterThermalDevelopment(
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18;
   });
-  const daytimeCloudSamples = dayForecasts.filter((h) => {
+  const daytimeCloudSamples = targetDayForecasts.filter((h) => {
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.cloudCover) && h.cloudCover >= 0 && h.cloudCover <= 100;
   });
   const daytimeCloudAvg = daytimeCloudSamples.length > 0 ? daytimeCloudSamples.reduce((s,h)=>s+h.cloudCover,0)/daytimeCloudSamples.length : null;
-  const daytimeRadiationSamples = dayForecasts.filter((h) => {
+  const daytimeRadiationSamples = targetDayForecasts.filter((h) => {
     const hour = getAmsterdamHour(h.time);
     return hour !== null && hour >= 8 && hour <= 18 && Number.isFinite(h.shortwaveRadiation) && (h.shortwaveRadiation as number) >= 0 && (h.shortwaveRadiation as number) <= 1600;
   });
@@ -255,9 +275,9 @@ export function analyzeWaterThermalDevelopment(
   else if (daytimeCloudAvg <= 70) solarIndication = 'Matig (half bewolkt)';
   else solarIndication = 'Gering (zwaarbewolkt/mist)';
 
-  const humiditySamples = dayForecasts.filter((h) => Number.isFinite(h.relativeHumidity) && (h.relativeHumidity as number) >= 0 && (h.relativeHumidity as number) <= 100);
-  const dewPointSamples = dayForecasts.filter((h) => Number.isFinite(h.dewPoint) && (h.dewPoint as number) >= -50 && (h.dewPoint as number) <= 50);
-  const evaporationSamples = dayForecasts.filter((h) =>
+  const humiditySamples = targetDayForecasts.filter((h) => Number.isFinite(h.relativeHumidity) && (h.relativeHumidity as number) >= 0 && (h.relativeHumidity as number) <= 100);
+  const dewPointSamples = targetDayForecasts.filter((h) => Number.isFinite(h.dewPoint) && (h.dewPoint as number) >= -50 && (h.dewPoint as number) <= 50);
+  const evaporationSamples = targetDayForecasts.filter((h) =>
     Number.isFinite(h.dewPoint) && Number.isFinite(h.temperature) &&
     (h.temperature - (h.dewPoint as number)) >= 0 && (h.temperature - (h.dewPoint as number)) <= 40
   );

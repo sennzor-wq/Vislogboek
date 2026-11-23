@@ -563,6 +563,9 @@ export interface PrognosisInputContext {
   manualWaterTemperatureInput?: ManualWaterTemperatureInput | null;
   timezone: string;
   targetDate: string;
+  /** Canonieke absolute ISO-grenzen van een geplande sessie; optioneel voor legacy snapshots. */
+  targetWindowStart?: string;
+  targetWindowEnd?: string | null;
   /** Expliciet tijdvak van de gekozen sessiestart voor reproduceerbare coach-tactiek. */
   targetTimeSlot?: TimeSlot | null;
   targetSpecies: FishSpecies | 'Algemeen';

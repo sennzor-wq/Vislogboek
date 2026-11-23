@@ -24,10 +24,10 @@ export const LocationModal: React.FC<LocationModalProps> = ({
     location?.waterDepth !== undefined ? String(location.waterDepth) : ''
   );
   const [latitude, setLatitude] = useState<string>(
-    location?.latitude !== undefined ? String(location.latitude) : '51.9610'
+    location?.latitude !== undefined ? String(location.latitude) : ''
   );
   const [longitude, setLongitude] = useState<string>(
-    location?.longitude !== undefined ? String(location.longitude) : '5.2280'
+    location?.longitude !== undefined ? String(location.longitude) : ''
   );
   const [notes, setNotes] = useState(location?.notes || '');
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -59,6 +59,9 @@ export const LocationModal: React.FC<LocationModalProps> = ({
     const latNum = parseFloat(latitude.replace(',', '.'));
     const lonNum = parseFloat(longitude.replace(',', '.'));
     const depthNum = waterDepth.trim() !== '' ? parseFloat(waterDepth.replace(',', '.')) : undefined;
+    const hasAnyGps = latitude.trim() !== '' || longitude.trim() !== '';
+    const validGps = Number.isFinite(latNum) && latNum >= -90 && latNum <= 90 && Number.isFinite(lonNum) && lonNum >= -180 && lonNum <= 180;
+    if (hasAnyGps && !validGps) { setGpsError('Vul beide geldige GPS-coördinaten in, of laat beide velden leeg.'); return; }
 
     const locPayload: FishingLocation = {
       id: location?.id || 'loc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -66,8 +69,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({
       description: description.trim() || undefined,
       waterType,
       waterDepth: depthNum && !isNaN(depthNum) ? depthNum : undefined,
-      latitude: !isNaN(latNum) ? latNum : 51.961,
-      longitude: !isNaN(lonNum) ? lonNum : 5.228,
+      latitude: validGps ? latNum : undefined,
+      longitude: validGps ? lonNum : undefined,
       notes: notes.trim() || undefined,
       isBenchmark: location?.isBenchmark || false,
       createdAt: location?.createdAt || new Date().toISOString(),

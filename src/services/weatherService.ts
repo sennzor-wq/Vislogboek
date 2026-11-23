@@ -142,10 +142,11 @@ export function startWeatherAutoRefresh(
  * Haalt weersverwachting op via Open-Meteo met automatische fallback naar IndexedDB cache.
  */
 export async function getForecast(
-  lat = 51.961,
-  lon = 5.228,
+  lat?: number,
+  lon?: number,
   forceRefresh = false
 ): Promise<ForecastResponse> {
+  if (typeof lat !== 'number' || !Number.isFinite(lat) || lat < -90 || lat > 90 || typeof lon !== 'number' || !Number.isFinite(lon) || lon < -180 || lon > 180) throw new Error('Voor weersgegevens zijn geldige GPS-coördinaten van de stek vereist.');
   const cacheKey = `${lat.toFixed(2)}_${lon.toFixed(2)}`;
 
   // 1. Controleer lokale cache
@@ -282,9 +283,10 @@ export async function getForecast(
  * Maakt een actuele snapshot van het weer voor bij een vissessie
  */
 export async function getCurrentWeatherSnapshot(
-  lat = 51.961,
-  lon = 5.228
+  lat?: number,
+  lon?: number
 ): Promise<WeatherSnapshot> {
+  if (typeof lat !== 'number' || !Number.isFinite(lat) || lat < -90 || lat > 90 || typeof lon !== 'number' || !Number.isFinite(lon) || lon < -180 || lon > 180) throw new Error('Voor een weersnapshot zijn geldige GPS-coördinaten van de stek vereist.');
   try {
     const forecast = await getForecast(lat, lon, false);
     const nowIso = new Date().toISOString();
@@ -348,6 +350,7 @@ export async function fetchHistoricalWeatherSnapshot(
   sessionEndTimeIso?: string | null
 ): Promise<{ snapshot: WeatherSnapshot | null; message: string; success: boolean }> {
   try {
+    if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lon) || lon < -180 || lon > 180) return { snapshot: null, message: 'Historische weerdata niet opgehaald: deze stek heeft geen geldige GPS-coördinaten.', success: false };
     const startMs = parseAppTimestamp(sessionStartTimeIso)?.getTime() ?? Number.NaN;
     const endMsForDate = sessionEndTimeIso ? parseAppTimestamp(sessionEndTimeIso)?.getTime() ?? Number.NaN : startMs;
     const startDate = Number.isFinite(startMs) ? formatAmsterdamDate(new Date(startMs)) : '';

@@ -432,6 +432,222 @@ async function run14Scenarios() {
     '8.4c Zichtbare temperatuurtoelichting toont geen fictieve [undefined–undefined]-band'
   );
 
+  // 8.5 As-of invariant: weather samples strictly after targetTime may not alter
+  // any thermal estimate or trend that is presented as known at that target instant.
+  console.log('\n--- SCENARIO 8.5: Geen invloed van weersdata ná het doelmoment ---');
+  const asOfTarget = '2026-10-23T15:00:00';
+  const asOfReference = new Date('2026-10-20T12:00:00.000Z');
+  const asOfBaseForecasts = makeHourlySeries('2026-10-20', 5, () => 12, () => 40, 8).map((hour) => ({
+    ...hour,
+    shortwaveRadiation: 400,
+    relativeHumidity: 60,
+    dewPoint: 8,
+  }));
+  const asOfChangedFutureForecasts = asOfBaseForecasts.map((hour) => {
+    return hour.time > '2026-10-23T15:00'
+      ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
+      : hour;
+  });
+  const asOfWeatherOnlyBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  const asOfWeatherOnlyChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfChangedFutureForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  assert(
+    asOfWeatherOnlyBase.estimatedWaterTemp === asOfWeatherOnlyChanged.estimatedWaterTemp,
+    '8.5.1 Weer-only waterestimate is invariant voor gewijzigde weersuren ná targetTime',
+    `base=${asOfWeatherOnlyBase.estimatedWaterTemp}, changed=${asOfWeatherOnlyChanged.estimatedWaterTemp}`
+  );
+  assert(
+    asOfWeatherOnlyBase.trend === asOfWeatherOnlyChanged.trend &&
+      asOfWeatherOnlyBase.trendConfidence === asOfWeatherOnlyChanged.trendConfidence,
+    '8.5.2 Thermische trend en betrouwbaarheid zijn invariant voor weersuren ná targetTime',
+    `base=${asOfWeatherOnlyBase.trend}/${asOfWeatherOnlyBase.trendConfidence}, changed=${asOfWeatherOnlyChanged.trend}/${asOfWeatherOnlyChanged.trendConfidence}`
+  );
+
+  const asOfMeasuredBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 12,
+    userMeasuredWaterTempAt: '2026-10-23T06:00:00.000Z',
+    currentDateRef: new Date('2026-10-23T07:00:00.000Z'),
+    targetTime: asOfTarget,
+  });
+  const asOfMeasuredChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfChangedFutureForecasts, {
+    location: locLokkershoek,
+    userMeasuredWaterTemp: 12,
+    userMeasuredWaterTempAt: '2026-10-23T06:00:00.000Z',
+    currentDateRef: new Date('2026-10-23T07:00:00.000Z'),
+    targetTime: asOfTarget,
+  });
+  assert(
+    asOfMeasuredBase.estimatedWaterTemp === asOfMeasuredChanged.estimatedWaterTemp,
+    '8.5.3 Extrapolatie vanaf een echt meetanker negeert weersuren ná targetTime'
+  );
+  assert(
+    asOfMeasuredBase.trend === asOfMeasuredChanged.trend &&
+      asOfMeasuredBase.trendConfidence === asOfMeasuredChanged.trendConfidence,
+    '8.5.4 Ook de trend bij een echt meetanker negeert weersuren ná targetTime',
+    `base=${asOfMeasuredBase.trend}/${asOfMeasuredBase.trendConfidence}, changed=${asOfMeasuredChanged.trend}/${asOfMeasuredChanged.trendConfidence}`
+  );
+
+  // 8.6 Aanvullende targetTime-randgevallen: onbekende diepte, historisch profiel,
+  // onvoldoende dekking, ontbrekende uren en tijdstippen rond de lokale middag.
+  console.log('\n--- SCENARIO 8.6: TargetTime-randgevallen ---');
+  const locUnknownDepth: FishingLocation = { ...locLokkershoek, waterDepth: undefined };
+  const unknownDepthBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locUnknownDepth,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  const unknownDepthChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfChangedFutureForecasts, {
+    location: locUnknownDepth,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  assert(
+    unknownDepthBase.estimatedWaterTemp === unknownDepthChanged.estimatedWaterTemp &&
+      unknownDepthBase.trend === unknownDepthChanged.trend &&
+      unknownDepthBase.trendConfidence === unknownDepthChanged.trendConfidence,
+    '8.6.1 Onbekende stekdiepte lekt geen weersinformatie van na targetTime'
+  );
+
+  const historicalProfileObservations = [
+    { locationId: locLokkershoek.id, temperatureC: 11, timestamp: '2026-10-05T10:00:00Z', measurementDepthM: 0.4, measurementSource: 'manual' as const, measurementMethod: 'thermometer' as const },
+    { locationId: locLokkershoek.id, temperatureC: 12, timestamp: '2026-10-12T10:00:00Z', measurementDepthM: 0.4, measurementSource: 'manual' as const, measurementMethod: 'thermometer' as const },
+    { locationId: locLokkershoek.id, temperatureC: 13, timestamp: '2026-10-19T10:00:00Z', measurementDepthM: 0.4, measurementSource: 'manual' as const, measurementMethod: 'thermometer' as const },
+  ];
+  const historicalProfileWithFuture = [
+    ...historicalProfileObservations,
+    { locationId: locLokkershoek.id, temperatureC: 30, timestamp: '2026-10-23T18:00:00Z', measurementDepthM: 0.4, measurementSource: 'manual' as const, measurementMethod: 'thermometer' as const },
+  ];
+  const historyBase = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+    historicalWaterTemperatures: historicalProfileObservations,
+  });
+  const historyChanged = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+    historicalWaterTemperatures: historicalProfileWithFuture,
+  });
+  assert(
+    historyBase.historicalWaterTemperatureBaselineC === historyChanged.historicalWaterTemperatureBaselineC &&
+      historyBase.historicalWaterTemperatureSamples === historyChanged.historicalWaterTemperatureSamples &&
+      historyBase.historicalWaterTemperatureBaselineC === 12,
+    '8.6.2 Historische profielselectie gebruikt geen meting die pas ná de doeldag/het doelmoment is verricht'
+  );
+
+  const sparseEarlyForecasts = makeHourlySeries('2026-10-23', 1, () => 12).filter((hour) => hour.time <= '2026-10-23T03:00');
+  const sparseFutureChanged = makeHourlySeries('2026-10-23', 1, () => 12).map((hour) =>
+    hour.time > '2026-10-23T03:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 } : hour
+  );
+  const sparseBase = analyzeWaterThermalDevelopment('2026-10-23', sparseEarlyForecasts, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: '2026-10-23T03:00:00',
+  });
+  const sparseChanged = analyzeWaterThermalDevelopment('2026-10-23', sparseFutureChanged, {
+    location: locLokkershoek,
+    currentDateRef: asOfReference,
+    targetTime: '2026-10-23T03:00:00',
+  });
+  assert(
+    sparseBase.trend === 'Onvoldoende gegevens' &&
+      sparseBase.estimatedWaterTemp === sparseChanged.estimatedWaterTemp &&
+      sparseBase.trend === sparseChanged.trend &&
+      sparseBase.trendConfidence === sparseChanged.trendConfidence,
+    '8.6.3 Onvoldoende dekking blijft een veilige fallback en wordt niet aangevuld met latere uren'
+  );
+
+  for (const target of ['2026-10-23T08:00:00', '2026-10-23T12:00:00', '2026-10-23T15:00:00']) {
+    const changedAfterTarget = asOfBaseForecasts.map((hour) =>
+      hour.time > target.slice(0, 16)
+        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
+        : hour
+    );
+    const beforeMutation = analyzeWaterThermalDevelopment('2026-10-23', asOfBaseForecasts, {
+      location: locUnknownDepth,
+      currentDateRef: asOfReference,
+      targetTime: target,
+    });
+    const afterMutation = analyzeWaterThermalDevelopment('2026-10-23', changedAfterTarget, {
+      location: locUnknownDepth,
+      currentDateRef: asOfReference,
+      targetTime: target,
+    });
+    assert(
+      beforeMutation.estimatedWaterTemp === afterMutation.estimatedWaterTemp &&
+        beforeMutation.trend === afterMutation.trend &&
+        beforeMutation.trendConfidence === afterMutation.trendConfidence,
+      `8.6.4 As-of invariant blijft gelden voor onbekende diepte op targetTime ${target}`
+    );
+  }
+
+  const missingEarlierHour = asOfBaseForecasts.filter((hour) => hour.time !== '2026-10-23T10:00');
+  const missingHourChangedFuture = missingEarlierHour.map((hour) =>
+    hour.time > '2026-10-23T15:00' ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 } : hour
+  );
+  const missingHourBase = analyzeWaterThermalDevelopment('2026-10-23', missingEarlierHour, {
+    location: locUnknownDepth,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  const missingHourChanged = analyzeWaterThermalDevelopment('2026-10-23', missingHourChangedFuture, {
+    location: locUnknownDepth,
+    currentDateRef: asOfReference,
+    targetTime: asOfTarget,
+  });
+  assert(
+    missingHourBase.estimatedWaterTemp === missingHourChanged.estimatedWaterTemp &&
+      missingHourBase.trend === missingHourChanged.trend &&
+      missingHourBase.trendConfidence === missingHourChanged.trendConfidence,
+    '8.6.5 Een ontbrekend uur vóór targetTime veroorzaakt geen toekomstige-weersdata-lek'
+  );
+
+  const dstTargets = [
+    { date: '2026-10-25', target: '2026-10-25T02:30:00+01:00', label: 'herfstovergang met dubbel 02:00' },
+    { date: '2026-03-29', target: '2026-03-29T03:30:00+02:00', label: 'lenteovergang na overgeslagen 02:00' },
+  ];
+  for (const dstCase of dstTargets) {
+    const targetMs = Date.parse(dstCase.target);
+    const dstBaseForecasts = Array.from({ length: 120 }, (_, index) => ({
+      ...asOfBaseForecasts[0],
+      time: new Date(targetMs - 96 * 3600000 + index * 3600000).toISOString(),
+      temperature: 12,
+      cloudCover: 40,
+      windSpeed: 8,
+    }));
+    const dstFutureChanged = dstBaseForecasts.map((hour) =>
+      Date.parse(hour.time) > targetMs
+        ? { ...hour, temperature: -20, cloudCover: 100, windSpeed: 35, shortwaveRadiation: 0, relativeHumidity: 100, dewPoint: -30 }
+        : hour
+    );
+    const dstReference = new Date(targetMs - 72 * 3600000);
+    const dstBase = analyzeWaterThermalDevelopment(dstCase.date, dstBaseForecasts, {
+      location: locUnknownDepth,
+      currentDateRef: dstReference,
+      targetTime: dstCase.target,
+    });
+    const dstChanged = analyzeWaterThermalDevelopment(dstCase.date, dstFutureChanged, {
+      location: locUnknownDepth,
+      currentDateRef: dstReference,
+      targetTime: dstCase.target,
+    });
+    assert(
+      dstBase.estimatedWaterTemp === dstChanged.estimatedWaterTemp &&
+        dstBase.trend === dstChanged.trend &&
+        dstBase.trendConfidence === dstChanged.trendConfidence,
+      `8.6.6 DST-as-of invariant blijft gelden bij ${dstCase.label}`
+    );
+  }
+
   // 9. Ontbrekende of onvolledige historische weergegevens
   console.log('\n--- SCENARIO 9: Ontbrekende of onvolledige weerdata ---');
   const s9 = analyzeWaterThermalDevelopment('2026-10-23', [], { location: locLokkershoek });
@@ -509,8 +725,9 @@ async function run14Scenarios() {
   const forecastQuality = unknownDurationPrognosis.dataQualityReport?.results.find((item) => item.name === 'Weersverwachting');
   assert(temperatureQuality?.status === 'modelled' && forecastQuality?.status === 'forecast',
     '12.2a Centrale datakwaliteitscontrole onderscheidt thermische modelschatting van weersverwachting');
+  const equalSlotForecasts = makeHourlySeries('2026-10-20', 5, () => 14, () => 40, 8);
   const equalSlotPrognosis = calculateDayPrognosis(
-    '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
+    '2026-10-23', equalSlotForecasts, 'Karper', tenSessions, undefined, null,
     new Date('2026-10-23T03:00:00Z'), { sessionDurationHours: 3 }
   );
   const genericTimeContext = calculateDayPrognosis(

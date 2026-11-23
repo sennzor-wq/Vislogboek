@@ -577,6 +577,8 @@ async function run() {
       sessionDayGuidance: { feedDuringSession: false, recommendedAmountGrams: 0, amountDisplay: 'Geen extra voer', advice: 'Geen bulkvoeradvies. Kies ter plaatse een kleine, doelgerichte presentatie en beoordeel activiteit en aanbeten.' },
     },
   } as any, null, null, 'Avond', 3);
+  const unavailableScoreAdvice = buildVisCoachAdviceText({ ...baselinePrognosis, activityScoreAvailable: false, advice: 'Gemiddeld', thermalAnalysis: { hasMeasuredWaterTemp: false, measuredWaterTemp: null, estimatedWaterTemp: null } } as any, null, null, 'Avond', 3);
+  assert(!unavailableScoreAdvice.summary.toLowerCase().includes('gemiddeld') && unavailableScoreAdvice.summary.includes('Geen betrouwbare activiteitsscore beschikbaar'), 'VisCoach presenteert de interne gemiddelde placeholder niet als prognose wanneer thermische schatting ontbreekt');
   assert(
     !unknownTemperatureCarp.tactics.includes('klein PVA-zakje') &&
     !unknownTemperatureCarp.tactics.includes('method feeder een minimaal'),

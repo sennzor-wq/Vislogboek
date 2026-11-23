@@ -59,8 +59,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   onSavePlan,
   onCancelPlan,
 }) => {
-  const [locationId, setLocationId] = useState<string>(locations[0]?.id || '');
-  const [species, setSpecies] = useState<FishSpecies>('Karper');
+  const [locationId, setLocationId] = useState<string>('');
+  const [species, setSpecies] = useState<FishSpecies | ''>('');
   const [startTime, setStartTime] = useState<string>(() => toLocalDateTimeInput(new Date()));
   const [endTime, setEndTime] = useState<string>('');
   const [plan, setPlan] = useState<VisCoachPlan | null>(null);
@@ -71,6 +71,9 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
 
   const selectedLocation = locations.find((location) => location.id === locationId) || null;
+  const selectedLocationHasGps = Boolean(selectedLocation &&
+    typeof selectedLocation.latitude === 'number' && Number.isFinite(selectedLocation.latitude) && selectedLocation.latitude >= -90 && selectedLocation.latitude <= 90 &&
+    typeof selectedLocation.longitude === 'number' && Number.isFinite(selectedLocation.longitude) && selectedLocation.longitude >= -180 && selectedLocation.longitude <= 180);
   const startIsFuture = startTime ? new Date(startTime).getTime() > Date.now() : false;
   const activePlans = plannedSessions
     .filter((item) => item.status === 'planned' || item.status === 'overdue')
@@ -82,7 +85,8 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
         plan.pendingSnapshot.conditions,
         plan.pendingSnapshot.inputContext?.technique,
         plan.selectedTimeSlot ?? null,
-        plan.durationHours
+        plan.durationHours,
+        plan.intervalOutput
       )
     : null;
 
@@ -95,6 +99,14 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   const handleBuildPlan = async () => {
     if (!selectedLocation) {
       setError('Kies eerst een stek.');
+      return;
+    }
+    if (!species) {
+      setError('Kies eerst een doelvis.');
+      return;
+    }
+    if (!selectedLocationHasGps) {
+      setError('Deze stek heeft nog geen geldige GPS-coördinaten. Voeg de GPS-locatie toe via Stekken voordat je een visplan maakt.');
       return;
     }
     if (!startTime) {
@@ -135,7 +147,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   };
 
   const handleSavePlan = async () => {
-    if (!plan || !selectedLocation) return;
+    if (!plan || !selectedLocation || !species) return;
     setSavingPlan(true);
     setError(null);
     try {
@@ -149,7 +161,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   };
 
   const handleStartNow = () => {
-    if (!plan || !selectedLocation || startIsFuture) return;
+    if (!plan || !selectedLocation || !species || startIsFuture) return;
     const now = Date.now();
     const endTimestamp = plan.desiredEndTime ? new Date(plan.desiredEndTime).getTime() : NaN;
     const remainingDuration = Number.isFinite(endTimestamp) && endTimestamp > now
@@ -191,6 +203,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
               onChange={(event) => { setSpecies(event.target.value as FishSpecies); invalidatePlan(); }}
               className="w-full rounded-xl border border-slate-600 bg-slate-900 px-3 py-3 text-sm text-white focus:border-emerald-400 focus:outline-none"
             >
+              <option value="">Kies een doelvis</option>
               {ALL_SPECIES.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
@@ -234,12 +247,18 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
             Voeg eerst een stek toe via Stekken voordat je een visplan maakt.
           </div>
         )}
+        {selectedLocation && !selectedLocationHasGps && (
+          <div role="alert" className="rounded-xl border border-amber-500/50 bg-amber-950/40 p-3 text-sm text-amber-200">
+            <strong className="block mb-1">GPS-locatie ontbreekt voor deze stek</strong>
+            Voeg de juiste coördinaten toe via <strong>Stekken</strong>. Zonder GPS kunnen we geen betrouwbare lokale weersverwachting en prognose voor deze stek berekenen.
+          </div>
+        )}
         {error && <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 text-sm text-rose-200">{error}</div>}
         {savedMessage && <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-sm text-emerald-200">{savedMessage}</div>}
 
         <button
           onClick={handleBuildPlan}
-          disabled={loading || !selectedLocation || !startTime}
+          disabled={loading || !selectedLocation || !species || !selectedLocationHasGps || !startTime}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-3 text-sm font-bold text-white transition"
         >
           {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
