@@ -6299,20 +6299,3 @@ Daarom is de flow aangescherpt:
 - Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
 
 **Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.
-
-
-## 208. WP18 — thermische kandidaatuitvoer per intervalsegment
-
-**Controle en correctie (23 november 2026).** De actuele draft PR #218 bevat een geïsoleerde helper `calculateThermalIntervalCandidates` die per bestaand segment de thermische toestand op exact `segment.startTime` opvraagt. De helper hergebruikt de bestaande waterthermische engine en soortcurve; er is geen koppeling met UI, dagscore, tijdvakscore, persoonlijke vangkans of opgeslagen sessiedata.
-
-De eerste live controle vond een fout in de ontbrekende-uurtest: de segmentatie kreeg een gefilterde forecastreeks, maar de kandidaathelper kreeg daarna per ongeluk de oorspronkelijke volledige reeks. Daarmee kon het verwijderde uur alsnog in de thermische berekening terechtkomen. De test is gecorrigeerd zodat zowel segmentatie als kandidaatberekening exact dezelfde onvolledige forecastreeks ontvangen.
-
-De contracttest dekt nu aanvullend:
-- behoud van het ontbrekende segment en de exacte segmentstart als `targetTime`;
-- expliciet onderscheid tussen een bruikbare recente meetanker-schatting en het ontbreken van een forecastuur (geen verzonnen uurrecord);
-- volledige `unknown`/null-uitvoer wanneer zowel forecast, meetanker als historische thermische basis ontbreken;
-- geen nulscore of afgeleide efficiëntie bij onbekende watertemperatuur.
-
-**Quality Gate-bewijs:** de bestaande PR-commit `d5bd8a498ed4e0d5781bc89680f6c4e2ba0b0e0c` had GitHub Actions-run [45194513037](https://github.com/sennzor-wq/Vislogboek/actions/runs/45194513037) met conclusie `success`. Die run is vóór bovenstaande testcorrectie uitgevoerd en geldt daarom niet als bewijs voor de gecorrigeerde contracttest. Na de correctie moet een nieuwe volledige Quality Gate groen zijn. Er is in deze sessie geen lokale test of build uitgevoerd.
-
-**Status:** kandidaatimplementatie aanwezig; testcorrectie aangebracht in de PR-branch; technische acceptatie blijft open totdat de nieuwe volledige CI-run slaagt en de volledige diff opnieuw is beoordeeld. Dit is geen biologische validatie en geen bewijs van voorspellende nauwkeurigheid.
