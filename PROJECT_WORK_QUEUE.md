@@ -69,6 +69,20 @@ Acceptatie:
 - Geen modelwijziging op basis van onvoldoende of synthetische data.
 - Duidelijke beslissing: verder onderzoek, aanvullende dataverzameling of onderbouwd modelvoorstel.
 
+### F2-WP20 — herkomst en onderbouwing thermische soortparameters
+**Status:** afgerond — read-only audit.
+
+Alle tien operationele profielen zijn naast de centrale thermal-evidence-registry gelegd. De exacte optimum- en curvebreedtewaarden zijn geïnventariseerd. Geen code, score, profielparameter of gebruikersdata gewijzigd.
+
+**Uitkomst van de bestaande registry-classificatie:**
+- **Aerobe-scopebewijs, niet goedgekeurd voor numerieke voorspelling:** Baars en Snoekbaars. Studies zijn contextgebonden; bij baars is de relatie met lichaamsmassa expliciet, bij snoekbaars betreft het volwassen kweekvis.
+- **Alleen metabool bewijs, niet goedgekeurd:** Karper, Brasem, Snoek en Voorn. Metabolisme/zuurstofverbruik is geen directe meting van activiteit, voedselopname of vangbaarheid.
+- **Geen vergelijkbaar thermisch fysiologiebewijs in de huidige registry:** Zeelt, Meerval, Roofblei en Overig. Andere gedrags-/voedingsbronnen veranderen deze classificatie niet automatisch.
+
+**Parameterconclusie:** alle tien optimumwaarden en alle twintig koude-/warme curvebreedtes blijven voorlopige modelprioren. De geregistreerde studies leveren geen volledige, overdraagbare set van soortspecifieke optimum- én breedteparameters voor Nederlandse veldsituaties. Zie Fase-2-audit §210.
+
+**Acceptatie:** herkomststatus per soort vastgelegd; fysiologisch bewijs onderscheiden van metabolisme, voeding en vangst; geen ongefundeerde herkalibratie uitgevoerd.
+
 ## Openstaande eigenaarbeslissingen
 
 - PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
@@ -81,6 +95,7 @@ Acceptatie:
 |---|---|---|---|
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
 | 2026-11-23 | F2-WP18/WP19 | 60 synthetische soort-/weerscenario-combinaties, targetTime-, datadekking-, DST-, tijdvakpariteit- en immutable-snapshotreplaytests; 201 kandidaatcontractchecks groen. | Commit `f2eebc52c8434ddde6e9ab2993f4aae365c20d11`; run [45203638825](https://github.com/sennzor-wq/Vislogboek/actions/runs/45203638825); PR #218 open/draft, niet gemerged. |
+| 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 

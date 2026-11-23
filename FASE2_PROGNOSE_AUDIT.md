@@ -6405,3 +6405,46 @@ De eerste live review vond een fout in de ontbrekende-uurtest: segmentatie ontvi
 **Datatoegang en steekproefomvang:** in deze werksessie zijn geen echte sessies, historische prognoses of persoonlijke app-export beschikbaar. De app bewaart snapshots in lokale Dexie/IndexedDB; GitHub bevat alleen schema, code en synthetische fixtures. Er is dus geen persoonlijke steekproefomvang, soort-/seizoens-/stekdekking of missingness vastgesteld. Een echte geanonimiseerde export is nodig voor empirische haalbaarheid en samplegrootte. De WP18-scenariomatrix is uitsluitend een deterministische softwaretest en mag niet als empirische modelvalidatie worden geïnterpreteerd.
 
 **Conclusie WP19 tot nu toe:** technische replay is in principe mogelijk voor snapshots met volledige oorspronkelijke invoer; echte datadekking is onbekend en er zijn in deze opdracht geen echte sessies beschikbaar. De 60-combinatie-scenariomatrix, exacte pariteit met de bestaande tijdvakscore, synthetische snapshotreplay en bestaande 12-punts thermische synthetische validatie bevestigen alleen softwaregedrag en thermische berekening onder gecontroleerde aannames. Zij bewijzen geen soortspecifieke biologische respons of vangstkans. Segmentniveau-biologische validatie is beperkter dan sessieniveau-evaluatie en mag niet uit sessiebrede labels worden afgeleid. Geen echte backtest, parameterfit, scorewijziging of nauwkeurigheidsclaim uitgevoerd. Volgende stap: synthetische scenario's blijven gebruiken voor technische regressies; empirische validatie pas starten zodra echte geanonimiseerde snapshots/sessiedata bestaan.
+
+
+## 210. WP20 — herkomst en onderbouwing thermische soortparameters (23 november 2026)
+
+**Scope:** read-only vergelijking van de tien profielen in `src/services/fishProfiles.ts` met de centrale classificatie in `src/services/researchRegistry.ts` en `src/services/thermalEvidenceService.ts`. De operationele parameters blijven uitsluitend in `fishProfiles.ts`; het research register blijft leidend voor bewijsstatus. Geen code, score, parameters, UI, database of gebruikersdata gewijzigd.
+
+### 210.1 Huidige operationele profielwaarden
+
+| Soort | Wetenschappelijke naam | Optimum (°C) | Breedte koud | Breedte warm | Registry thermisch bewijs |
+|---|---|---:|---:|---:|---|
+| Karper | *Cyprinus carpio* | 21,0 | 5,8 | 5,5 | Metabool |
+| Brasem | *Abramis brama* | 17,5 | 6,2 | 5,8 | Metabool |
+| Snoek | *Esox lucius* | 12,5 | 6,5 | 6,0 | Metabool |
+| Baars | *Perca fluviatilis* | 16,5 | 6,0 | 5,5 | Aerobe scope |
+| Voorn | *Rutilus rutilus* | 15,0 | 6,5 | 6,0 | Metabool |
+| Zeelt | *Tinca tinca* | 20,5 | 5,0 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Snoekbaars | *Sander lucioperca* | 15,0 | 6,2 | 6,0 | Aerobe scope |
+| Meerval | *Silurus glanis* | 22,0 | 5,0 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Roofblei | *Aspius aspius* | 18,5 | 5,5 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Overig | *Teleostei* | 16,5 | 6,0 | 5,5 | Generiek terugvalprofiel; geen soortspecifieke curve |
+
+De breedtes zijn modelinstellingen voor de Gaussische profielcurve; ze zijn geen gemeten tolerantiebereiken. De optimumwaarden zijn de piek van de huidige modelprior, niet automatisch het fysiologische optimum of de temperatuur waarbij een soort in het veld het best vangbaar is.
+
+### 210.2 Wat de registry daadwerkelijk ondersteunt
+
+- **Baars:** geregistreerde aerobe-scope-/metabole studie met 120 Europese baarzen en meerdere acclimatisatietemperaturen. De relatie van aerobe scope en voorkeurstemperatuur hangt af van lichaamsmassa; één vaste waarde voor alle lengtes/levensfasen is daarom niet onderbouwd. Niet goedgekeurd als numerieke runtimefactor.
+- **Snoekbaars:** geregistreerde aerobe-scope-/metabole studie bij volwassen kweekvis; het gerapporteerde optimum en bereik zijn contextgebonden en er was geen significant verschil over een groot deel van de onderzochte band. Niet goedgekeurd voor numerieke voorspelling.
+- **Karper:** geregistreerde studie meet acuut metabolisme, hartslag en ventilatie bij vissen geacclimeerd op 19 °C; dit levert geen volledige veldcurve voor voedingsactiviteit of gevalideerde optimum-/breedteset.
+- **Brasem en Voorn:** geregistreerde respirometrie meet standaard-/routinezuurstofverbruik over 5–23 °C. Dit onderbouwt temperatuurafhankelijk metabolisme, niet rechtstreeks activiteit, voedselopname of vangbaarheid.
+- **Snoek:** geregistreerde metabole studie bevat meetpunten bij onder meer 2 en 14 °C; dit is onvoldoende om de huidige optimum- en breedteparameters als veldrespons te valideren.
+- **Zeelt:** de registry bevat beperkte voedingsfysiologische temperatuurvergelijking, maar geen vergelijkbare aerobe-scope-/metabole curve voor de huidige fysiologische activiteitsscore.
+- **Meerval en Roofblei:** er zijn biologische/gedragsbronnen geregistreerd, maar geen vergelijkbare soortspecifieke aerobe-scope-/metabole temperatuurcurve in de huidige thermal-evidence-service.
+- **Overig:** is een generiek terugvalprofiel en kan niet als soortspecifiek biologisch profiel worden gevalideerd.
+
+### 210.3 Besluit en vervolgstap
+
+1. Alle tien optimumwaarden en alle twintig breedtewaarden blijven expliciet voorlopige modelprioren.
+2. Geen parameter wordt aangepast op basis van metabole Q10, groeitemperatuur, voedselopnamepunt of kweekoptimum zonder overdraagbaarheidsanalyse naar soort, lichaamsgrootte, levensfase, acclimatisatie, watertype en de werkelijk gemeten respons.
+3. Metabole activiteit, aerobe scope, voedingsintensiteit, locomotorische activiteit en hengelvangbaarheid blijven afzonderlijke uitkomsten.
+4. De bestaande runtime-tekst en evidence-service houden de niet-goedgekeurde status zichtbaar; er is geen numerieke scorebonus of correctie toegevoegd.
+5. Volgende inhoudelijke stap: primaire literatuur per soort controleren op exacte gemeten respons, steekproef, temperatuurband en levensfase; daarna pas beoordelen of een curveparameter verdedigbaar is. Dit blijft los van empirische backtesting op echte Vislogboek-sessies.
+
+**Resultaat WP20:** read-only parameterherkomst-audit afgerond. Geen enkele thermische profielparameter is op basis van deze audit empirisch gevalideerd of gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
