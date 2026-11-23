@@ -104,6 +104,9 @@ jobs:
       - name: Prognosis interval output contract tests
         run: bun run tsx test-prognosis-interval-output.ts
 
+      - name: Thermal interval candidate contract tests
+        run: bun run tsx test-prognosis-interval-thermal.ts
+
       - name: Viscoach and backup normalization tests
         run: bun run tsx test-viscoach-part1.ts
 
