@@ -1513,3 +1513,12 @@ Audit §202 legt per bestaande factor vast op welk niveau de informatie thuishoo
 Aanwezigheid blijft een expliciete waarnemingsgebeurtenis. Oeverwind, habitat en hengelpositionering blijven tactische context rond het gekozen starttijdvak. Voorvoer blijft doeldag-/campagnegebonden; hengelblootstelling is uitsluitend achteraf geregistreerd. Een factor mag niet naar een fijnere resolutie worden vertaald zonder eigen veldvalidatie en dekkingcontract.
 
 Er is geen intervalminimumpercentage, nieuwe scoreweging of biologische bonus/malus vastgesteld. De bestaande 1–10 thermische activiteitsscore blijft ongewijzigd; persoonlijke vangkans en tactische uitkomsten blijven afzonderlijk. Volgende poort is het definiëren en testen van een beperkt interval-outputcontract, niet direct intervalscoring. Zie audit §202.
+
+
+## 168. Outputscope van Prognosepagina en VisCoach
+
+Audit §203 bevestigt de huidige uitvoerketen: VisCoach roept de bestaande `calculateDayPrognosis` aan en vertaalt de `DayPrognosis` naar één verhaal/tactiek. Het gekozen starttijdvak wordt gebruikt voor de tactische conclusie; bij meerdere tijdvakken wordt de dagwinnaar niet als sessievoorkeur aangewezen. De persoonlijke Poisson-vangkans is sessiebreed op basis van de geplande duur.
+
+De huidige VisCoach-kaart is nog hybride: algemene dagbeoordeling en dagscore, gekozen starttijdvak, sessieduurgebonden persoonlijke vangkans en starttijdvakgerichte tactiek. De dagscore is geen intervalscore. Het UI-label “Visactiviteit” is inhoudelijk te ruim voor de bestaande voorlopige thermische activiteitspotentie en is als latere terminologische correctie geregistreerd.
+
+Voor toekomstige intervaluitvoer blijft de Prognosepagina de enige berekeningsbron. Zij levert segment- en factorstatussen; VisCoach maakt daarvan één samenhangend verhaal. Dagscore blijft dagcontext, persoonlijke vangkans blijft één sessie-uitkomst, historische ervaring blijft starttijdvakgebonden, aanwezigheid blijft waarnemingsgebonden en tactische adviezen blijven starttijdvakgebonden totdat een afzonderlijk gevalideerd tijdreekscontract bestaat. Geen tweede engine, geen intervalsom van vangstkansen en geen ongedefinieerde totaalscore. Eerst backward-compatible outputcontract en tests; zie audit §203.
