@@ -1240,4 +1240,4 @@ De adapter markeert expliciet dat thermische activiteit niet per segment wordt h
 
 Audit §205 en architectuur §170 documenteren de eerste end-to-end koppeling. De bestaande VisCoach-planbuilder hergebruikt de ene bestaande dagprognose en bouwt daarnaast het interval-outputobject met de al opgehaalde uurforecast. De bestaande adviesfunctie ontvangt dit object optioneel en maakt één chronologisch sessieverhaal: aangrenzende segmenten met gelijke weerscontext worden samengevoegd; ontbrekende waarden worden niet ingevuld; dagscore, starttactiek en sessiebrede vangkans blijven gescheiden. Oude sessieadvies-/reassessment-paden blijven ongewijzigd wanneer zij geen intervalobject aanbieden.
 
-**Status:** nieuwe-planroute en UI zijn aangesloten; extra contracttests toegevoegd. CI-validatie van deze koppeling staat nog open. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.
+**Status:** nieuwe-planroute en UI zijn aangesloten; extra contracttests toegevoegd. Quality Gate run 45155087915 is volledig groen, inclusief typecheck, intervalcontract-/VisCoach-tests en productiebuild. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.

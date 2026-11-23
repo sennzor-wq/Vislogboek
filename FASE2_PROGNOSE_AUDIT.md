@@ -6261,4 +6261,4 @@ De bestaande VisCoach-adviesfunctie accepteert de intervaluitvoer optioneel. Bij
 
 Bestaande opgeslagen sessieadviezen en reassessment-paden roepen de functie nog steeds zonder intervalobject aan en behouden daarmee hun huidige gedrag. Contracttests controleren de gecombineerde dag-/sessiesemantiek en de chronologische VisCoach-vertaling.
 
-**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. De nieuwe CI-run moet deze uitbreiding nog valideren. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.
+**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. Quality Gate run 45155087915 op commit `6c287b00af5d3fb7a118b24a0ef7b382d025dad6` is volledig groen: typecheck, alle regressies, intervalcontract-/VisCoach-tests, productiebuild en private-artifactcontrole. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.
