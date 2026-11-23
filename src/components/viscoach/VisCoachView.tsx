@@ -252,17 +252,26 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
           </div>
         )}
         {selectedLocation && !selectedLocationHasGps && (
-          <div role="alert" className="rounded-xl border border-amber-500/50 bg-amber-950/40 p-3 text-sm text-amber-200">
-            <strong className="block mb-1">GPS-locatie ontbreekt voor deze stek</strong>
-            Zonder GPS kunnen we geen betrouwbare lokale weersverwachting en prognose voor deze stek berekenen.
-            <button
-              type="button"
-              onClick={() => setShowGpsLocationModal(true)}
-              className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 font-bold text-slate-950 hover:bg-amber-400 transition"
-            >
-              <MapPin className="w-4 h-4" />
-              GPS-locatie toevoegen
-            </button>
+          <div
+            role="alert"
+            className="rounded-xl border border-amber-500/50 bg-amber-950/40 p-4 sm:p-5 text-sm text-amber-200"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <strong className="block mb-1 text-amber-100">GPS-locatie ontbreekt voor deze stek</strong>
+                <p className="leading-relaxed text-amber-200/90">
+                  Zonder GPS kunnen we geen betrouwbare lokale weersverwachting en prognose voor deze stek berekenen.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGpsLocationModal(true)}
+                className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-3 font-bold text-slate-950 shadow-sm transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:ring-offset-2 focus-visible:ring-offset-amber-950"
+              >
+                <MapPin className="w-4 h-4" />
+                GPS-locatie toevoegen
+              </button>
+            </div>
           </div>
         )}
         {error && <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 text-sm text-rose-200">{error}</div>}
