@@ -6298,4 +6298,341 @@ Daarom is de flow aangescherpt:
 - De centrale opslagfunctie weigert nu ook een nieuwe actieve sessie zonder bestaande, geldige GPS-coördinaten op de gekoppelde stek. Dit voorkomt dat een alternatieve startflow de controle kan omzeilen.
 - Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
 
-**Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.
+**Validatiestatus:** de wijzigingen zijn gemerged naar `main` via PR #214 (merge commit `d1835a552fa68d93c63e5201dff5c626ac9e90e6`). De volledige Quality Gate is groen op commit `ea3b49a24bf450facaa831bf78e29aa7897c6060` (run [45186362324](https://github.com/sennzor-wq/Vislogboek/actions/runs/45186362324)). De praktische werking in een echte gebruikerssessie is hiermee niet afzonderlijk bewezen; die praktijkcontrole blijft een apart aandachtspunt.
+
+
+## 206. Huidige scoresemantiek en gereedheid voor thermische intervaluitvoer (23 november 2026)
+
+**Werkpakket 17 — read-only inspectie van de actuele `main`-implementatie.** Gecontroleerd: `prognosisEngine.ts`, `fishProfiles.ts`, `waterThermalEngine.ts`, `prognosisIntervalEngine.ts`, `prognosisIntervalOutput.ts` en de intervalcontracttests. Geen runtimecode, tests, scoreparameters of gebruikersdata gewijzigd.
+
+### 206.1 De huidige numerieke score
+
+- `calculateThermalEfficiency` gebruikt per soort een voorlopige Gaussische temperatuurrespons met `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. De efficiëntie wordt begrensd op 0,08–1,00.
+- De bestaande tijdvakscore gebruikt `1 + 9 * efficiency^0.85` en wordt afgerond op één decimaal binnen 1–10.
+- Alleen deze thermische respons beïnvloedt de huidige numerieke activiteitspotentie. Druk, wind, seizoen, tijd/licht, bewolking en neerslag leveren momenteel geen biologische bonus of aftrek; zij blijven context.
+- De thermische curve is expliciet een voorlopige profielprior en geen gevalideerde veldcurve, directe meting van visactiviteit, voedselopname of vangbaarheid.
+- De score is alleen beschikbaar wanneer een geldige gemeten of geschatte watertemperatuur bestaat. De interne placeholder bij ontbrekende temperatuur mag niet als score worden getoond.
+
+### 206.2 Bestaande tijdsresolutie vóór de intervaladapter
+
+- `calculateDayPrognosis` berekent vier tijdvakanalyses: Nacht, Ochtend, Middag en Avond.
+- Voor een toekomstig/actueel tijdvak met beschikbare uurforecast kiest de engine één representatief forecastmoment (de middelste beschikbare sample) en roept de bestaande `analyzeWaterThermalDevelopment` aan met dat exacte `targetTime`.
+- De thermische toestand wordt vanaf het laatst geldige meetanker opnieuw chronologisch tot dat doelmoment bepaald; de vier tijdvakken zijn dus geen vier onafhankelijke temperatuurmodellen.
+- Verstreken tijdvakken gebruiken de bestaande dagbrede thermische analyse. De tijdvakscore is daarmee een representatieve tijdstipuitkomst, geen gemiddelde van alle uren in dat tijdvak.
+- De dagscore is het ongewogen gemiddelde van de vier tijdvakscorewaarden en is alleen beschikbaar wanneer alle vier tijdvakuitkomsten beschikbaar zijn. Bij ontbrekende score-invoer wordt intern een placeholderwaarde gebruikt, maar `activityScoreAvailable` blijft false en de score hoort niet te worden gepresenteerd.
+- Deze dagscore is geen score voor het geplande sessie-interval.
+
+### 206.3 Wat de intervaluitvoer nu werkelijk bevat
+
+- `segmentPrognosisInterval` splitst het geplande interval op absolute uurblokken. Een forecastsample op tijdstip T vertegenwoordigt het uurblok dat op T begint; gedeeltelijke eerste/laatste uren behouden hun werkelijke overlapduur.
+- De helper levert segmentgrenzen, Amsterdamse datum/tijdvak, forecastrecorddekking en een verwijzing naar de bijbehorende uurforecast.
+- `prognosisIntervalOutput` valideert luchttemperatuur, druk, wind, neerslag en bewolking afzonderlijk, maar markeert deze waarden uitdrukkelijk als beschrijvende context.
+- Het outputcontract markeert thermische activiteit nog als `not_calculated_per_segment`. Er bestaat dus nog geen thermische segmentscore of duurgewogen intervalscores.
+- De bestaande persoonlijke Poisson-vangkans blijft één sessiebrede uitkomst; zij mag niet naar segmenten worden gekopieerd of opgeteld.
+
+### 206.4 Technisch mogelijke, maar nog niet goedgekeurde vervolgrichting
+
+De bestaande thermische engine accepteert een exact `targetTime` en de bestaande soortcurve kan dezelfde thermische responsfunctie hergebruiken. Daardoor is een test-first kandidaat per intervalsegment technisch voorstelbaar zonder een tweede prognose-engine of nieuwe biologische factor te introduceren.
+
+Voor een zuivere kandidaat moet het doelmoment van elk segment de absolute starttijd van dat segment zijn. Dat sluit aan op het bestaande forecastcontract: de uurforecast op T vertegenwoordigt het uur dat op T begint, en de thermische toestand op T mag uitsluitend invoer tot en met T gebruiken. Een segmentscore zou dezelfde bestaande soortcurve en scoretransformatie gebruiken; er worden geen nieuwe gewichten of correctiefactoren toegevoegd.
+
+Dit is nog geen implementatiebesluit. Voor een sessiescore zijn daarnaast afzonderlijke besluiten nodig over:
+- hoe gedeeltelijke thermische dekking wordt gerapporteerd;
+- of een sessietotaal alleen bij volledige dekking beschikbaar mag zijn, of onder welke later onderbouwde dekkingsregel;
+- hoe de bestaande temperatuuronzekerheidsband per segment wordt weergegeven en hoe deze doorwerkt in een eventuele intervaluitkomst;
+- hoe een onbekende thermische uitkomst in één segment het sessietotaal begrenst.
+
+Er wordt nu geen minimumdekking, onzekerheidsdrempel of aggregatieregel gekozen.
+
+### 206.5 Volgende concrete stap
+
+**Werkpakket 18:** voeg eerst geïsoleerde contracttests toe voor een kandidaat thermische segmentuitvoer binnen de bestaande prognoseketen. Test minimaal:
+1. segmentdoelmoment is exact `segment.startTime`, inclusief gedeeltelijke eerste uren;
+2. wijziging van forecasturen ná het segmentdoelmoment verandert de thermische uitkomst van dat segment niet;
+3. ieder segment gebruikt hetzelfde laatst geldige meetanker en de bestaande chronologische thermische engine;
+4. gemeten temperatuur, schatting vanaf meetanker, historisch profiel, weer-only fallback en onbekende temperatuur behouden hun bestaande bron-/beschikbaarheidsstatus;
+5. temperatuurband/onzekerheid blijft afzonderlijk beschikbaar en wordt niet stilzwijgend een statistisch betrouwbaarheidsinterval;
+6. ontbrekende forecasturen en ontbrekende thermische uitkomsten blijven expliciet onbekend;
+7. de bestaande dagscore, tijdvakscore, persoonlijke vangkans en opgeslagen snapshots blijven ongewijzigd.
+
+Pas na deze tests wordt een zuivere kandidaatuitvoer beoordeeld. De sessie-aggregatie en de uiteindelijke score-/coverage-regel blijven daarna een afzonderlijke modelbeslissing.
+
+### 206.6 Statuscorrectie
+
+De eerdere notities §§195–196 beschrijven de toenmalige auditbranchstatus vóór de latere merge. De strict targetTime-as-of-correctie en de bijbehorende randgevallenmatrix zijn inmiddels opgenomen in `main` via PR #214. De intervalcontext, segmentatiehelper en VisCoach-output zijn eveneens op `main` aangesloten. De status in §§195–196 is historische voortgang en mag niet worden gelezen als de huidige merge-status.
+
+**Resultaat werkpakket 17:** read-only score- en intervalgereedheidsaudit afgerond. Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Geen nieuwe tests uitgevoerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 208. WP18 — thermische kandidaatuitvoer per intervalsegment
+
+**Technische correctie en Quality Gate (23 november 2026).** De geïsoleerde helper `calculateThermalIntervalCandidates` berekent per bestaand segment de thermische toestand op exact `segment.startTime` met de bestaande waterthermische engine en soortcurve. De helper is niet aangesloten op UI, dagscore, tijdvakscore, persoonlijke vangkans of sessieaggregatie.
+
+De eerste live review vond een fout in de ontbrekende-uurtest: segmentatie ontving een gefilterde forecastreeks, maar de kandidaathelper kreeg daarna de oorspronkelijke volledige reeks. De test is gecorrigeerd zodat beide exact dezelfde onvolledige reeks ontvangen. Aanvullende assertions controleren dat:
+- het ontbrekende uur ontbreekt in de daadwerkelijke kandidaatberekening;
+- een geldig recent meetanker een beperkte schatting mag dragen zonder het ontbrekende forecastrecord te fabriceren;
+- zonder forecast, meetanker of historisch thermisch profiel de segmentuitkomst volledig `unknown`/null blijft;
+- er bij onbekende temperatuur geen efficiëntie of kandidaat-score wordt geproduceerd;
+- dezelfde gevalideerde lokale seizoenskalibratie als in de bestaande dag-/tijdvakprognose wordt toegepast op modelschattingen, maar nooit op een echte meting of een onbekende uitkomst;
+- de kalibratieherkomst per segment traceerbaar blijft en de temperatuurvelden neutraal `waterTemperatureC`/`waterTemperatureRangeC` heten, omdat de opgeloste waarde zowel gemeten als geschat kan zijn.
+
+**Synthetische scenariomatrix (23 november 2026):** de contracttest bevat 60 deterministische combinaties: zes kunstmatig opgebouwde weersreeksen (koud/stabiel, mild/stabiel, warm/stabiel, heet/stabiel, opwarming en afkoeling) voor alle tien `FishSpecies`-profielen. Per combinatie worden geldige weerafgeleide watertemperatuur, efficiëntie binnen 0,08–1,00, kandidaatindex binnen 1–10 en deterministische herhaalbaarheid gecontroleerd. Aanvullend zijn extreme forecastwijzigingen ná `targetTime`, te korte weershistorie zonder meetanker en beide Amsterdamse DST-overgangen getest. De kandidaatcontracttest rapporteert **221 geslaagd, 0 mislukt**. De snapshotreplayfixture reconstrueert de kandidaat vanuit de exacte opgeslagen `weatherInput` en `inputContext` (stekcontext en lokale kalibratie) en levert exact dezelfde segmentuitvoer als de directe berekening. De fixture bevat bewust nul sessies en geen persoonlijke vangkans. Een extra integratiecontrole vergelijkt op exact hetzelfde representatieve tijdstip en met dezelfde lokale temperatuurkalibratie de kandidaat met de bestaande tijdvakscore voor alle tien doelsoorten; alle tien zijn exact gelijk aan `timeSlots.Middag.activityScore`. Voor alle tien blijft `personalCatchChance` zonder sessiehistorie expliciet `null`. De volledige scorematrix uit de CI-log (kolommen zijn de tien huidige profielprioren; waarden zijn kandidaatindex 1–10):
+
+| Synthetisch scenario | Opgeloste watertemp. | Karper | Brasem | Snoek | Baars | Voorn | Zeelt | Snoekbaars | Meerval | Roofblei | Overig |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Koud stabiel | 4,0 °C | 2,1 | 2,2 | 5,4 | 2,4 | 3,7 | 2,1 | 3,4 | 2,1 | 2,1 | 2,4 |
+| Mild stabiel | 12,0 °C | 4,2 | 7,4 | 10,0 | 8,1 | 9,2 | 3,6 | 9,1 | 2,6 | 6,0 | 8,1 |
+| Warm stabiel | 20,4 °C | 10,0 | 9,1 | 5,3 | 8,3 | 7,4 | 10,0 | 7,4 | 9,6 | 9,5 | 8,3 |
+| Heet stabiel | 30,0 °C | 3,9 | 2,3 | 2,1 | 2,1 | 2,1 | 2,9 | 2,1 | 4,0 | 2,1 | 2,1 |
+| Opwarming | 13,3 °C | 5,3 | 8,4 | 9,9 | 9,0 | 9,7 | 4,7 | 9,7 | 3,5 | 7,2 | 9,0 |
+| Afkoeling | 10,5 °C | 3,2 | 6,2 | 9,6 | 6,9 | 8,3 | 2,6 | 8,2 | 2,1 | 4,7 | 6,9 |
+
+De matrix toont dat de kandidaat de ingestelde profielcurves per soort onderscheidt en binnen de grenzen blijft. De waarden zijn volledig afhankelijk van de huidige voorlopige optimum-/breedteprioren; zij zijn geen onafhankelijke biologische validatie of vangstkans. Dit zijn uitkomsten van gekozen synthetische invoer en de bestaande voorlopige profielprior, geen echte watermetingen, sessies, biologische waarnemingen of vangstkansvalidatie.
+
+**Aanvullende bestaande synthetische thermiekvalidatie in dezelfde CI-run:** de onafhankelijke testreferentie gaf voor het opwarmscenario 20,2 °C versus 19,42 °C (absolute fout 0,78 °C), voor afkoeling 13,4 °C versus 13,98 °C (fout 0,58 °C) en voor het historische profiel 14,2 °C versus 14,15 °C (fout 0,05 °C); alle 12 checks slaagden. Dit toetst de thermische rekenketen onder expliciet synthetische aannames, niet de voorspellende nauwkeurigheid in echte wateren.
+
+**Quality Gate:** volledige GitHub Actions-run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992) op commit `fc08c636d99f3d32e4949fa76f7037f8c8948822` is `success`. TypeScript typecheck, alle bestaande regressietests, de uitgebreide thermische kandidaatcontracttest, dependency audits en productiebuild zijn geslaagd.
+
+**Status:** WP18 technisch afgerond in draft PR #218. De PR bevat uitsluitend CI-configuratie, kandidaathelper en contracttests; de documentatie is apart bijgewerkt in PR #217 om overlappende auditwijzigingen te vermijden. PR #218 blijft open en ongemerged in afwachting van eigenaarreview. Geen biologische validiteit of voorspellende nauwkeurigheid bewezen.
+
+## 209. WP19 — kandidaatvalidatie: data- en replayhaalbaarheid
+
+**Read-only schema-audit (23 november 2026).** De huidige opslagstructuur bevat de belangrijkste bouwstenen voor een reproduceerbare historische replay:
+- `PrognosisSnapshot.weatherInput` bewaart de exacte uurlijkse forecastreeks die bij de prognoserun is gebruikt.
+- `inputContext` bewaart het berekeningstijdstip, tijdzone, doelsoort, doelvenster, locatiecontext (waaronder diepte en coördinaten), historische watertemperatuurmetingen, historische sessie-/vangst-/waarnemingsfeatures, de eventuele lokale watertemperatuurkalibratie, historie-fingerprint en ophaaltijd van het weer.
+- De snapshot bewaart `forecastTimestamp`, `modelVersion`, `engineVersions`, `targetWindowStart`/`targetWindowEnd`, soort, stek, bestaande prognose-uitvoer en voorspelde thermische bron-/onzekerheidsvelden.
+- Een afgeronde sessie kan via `linkedSessionId` worden gekoppeld met `actualOutcome` en `actualTargetCatchesCount`. De uitkomst is op sessieniveau; `catch` en `skunk_confirmed` zijn de expliciete doelsoortuitkomsten.
+- Een vangstrecord heeft een tijdstempel, soort en aantal. `timestampEntryMode` en legacy-kwaliteitsvlaggen kunnen helpen onzekere tijdstippen uit te sluiten, maar garanderen niet dat alle gebeurtenissen zijn geregistreerd.
+
+**Synthetische snapshotreplay (23 november 2026):** een testfixture bouwt een immutable `PrognosisSnapshot` met `weatherInput` en `inputContext`, reconstrueert daaruit stekcontext, oorspronkelijke berekeningstijd en lokale temperatuurkalibratie en voert de thermische segmentkandidaat opnieuw uit. De replay levert exact dezelfde segmentuitvoer als de directe berekening. De fixture heeft nul sessies, vangsten of persoonlijke vangkans. Dit bevestigt dat de schemaonderdelen voor een technische replay samen kunnen worden gebruikt; het bewijst niet dat bestaande echte snapshots volledig of voldoende representatief zijn.
+
+**Beperkingen voor intervalvalidatie:**
+1. De bestaande snapshot bewaart dag-/sessie-uitvoer, niet de nieuwe thermische kandidaat per afzonderlijk segment. De kandidaat kan technisch achteraf worden gereconstrueerd uit de opgeslagen oorspronkelijke forecast en inputcontext, mits die velden aanwezig en voldoende compleet zijn.
+2. De thermische kandidaat moet bij replay de oorspronkelijke as-of-grens respecteren en alleen vooraf beschikbare meetankers/historie gebruiken. De exacte opgeslagen lokale temperatuurkalibratie moet worden hergebruikt; anders wijkt de kandidaat af van de bestaande dag-/tijdvakthermiek. Vergelijking tussen verschillende engineversies moet expliciet worden gescheiden; snapshots bevatten hiervoor engineversies.
+3. Een sessiebrede vangst of nulvangst is geen label voor ieder uursegment. Alleen betrouwbaar getimestampte vangsten kunnen eventueel aan een segment worden gekoppeld; afwezigheid van een vangst in een segment is geen bewezen nulactiviteit zonder volledige gebeurtenisregistratie.
+4. De bestaande watertemperatuurvalidatie vereist een vooraf voorspelde temperatuur en een geldige latere fysieke meting met herkomst/methode en tijdstempel. Eén optionele meting per sessie kan hoogstens één moment toetsen en bewijst geen soortspecifieke activiteit of vangbaarheid.
+5. De bestaande evaluatiecode hanteert minimumaantallen (onder meer vijf geldige temperatuurparen voor de status `hasSufficientData` en acht onafhankelijke paren voor lokale biascorrectie). Dit zijn softwaredrempels, geen bewijs van statistische power of voldoende dekking.
+
+**Datatoegang en steekproefomvang:** in deze werksessie zijn geen echte sessies, historische prognoses of persoonlijke app-export beschikbaar. De app bewaart snapshots in lokale Dexie/IndexedDB; GitHub bevat alleen schema, code en synthetische fixtures. Er is dus geen persoonlijke steekproefomvang, soort-/seizoens-/stekdekking of missingness vastgesteld. Een echte geanonimiseerde export is nodig voor empirische haalbaarheid en samplegrootte. De WP18-scenariomatrix is uitsluitend een deterministische softwaretest en mag niet als empirische modelvalidatie worden geïnterpreteerd.
+
+**Conclusie WP19 tot nu toe:** technische replay is in principe mogelijk voor snapshots met volledige oorspronkelijke invoer; echte datadekking is onbekend en er zijn in deze opdracht geen echte sessies beschikbaar. De 60-combinatie-scenariomatrix, exacte pariteit met de bestaande tijdvakscore, synthetische snapshotreplay en bestaande 12-punts thermische synthetische validatie bevestigen alleen softwaregedrag en thermische berekening onder gecontroleerde aannames. Zij bewijzen geen soortspecifieke biologische respons of vangstkans. Segmentniveau-biologische validatie is beperkter dan sessieniveau-evaluatie en mag niet uit sessiebrede labels worden afgeleid. Geen echte backtest, parameterfit, scorewijziging of nauwkeurigheidsclaim uitgevoerd. Volgende stap: synthetische scenario's blijven gebruiken voor technische regressies; empirische validatie pas starten zodra echte geanonimiseerde snapshots/sessiedata bestaan.
+
+
+## 210. WP20 — herkomst en onderbouwing thermische soortparameters (23 november 2026)
+
+**Scope:** read-only vergelijking van de tien profielen in `src/services/fishProfiles.ts` met de centrale classificatie in `src/services/researchRegistry.ts` en `src/services/thermalEvidenceService.ts`. De operationele parameters blijven uitsluitend in `fishProfiles.ts`; het research register blijft leidend voor bewijsstatus. Geen code, score, parameters, UI, database of gebruikersdata gewijzigd.
+
+### 210.1 Huidige operationele profielwaarden
+
+| Soort | Wetenschappelijke naam | Optimum (°C) | Breedte koud | Breedte warm | Registry thermisch bewijs |
+|---|---|---:|---:|---:|---|
+| Karper | *Cyprinus carpio* | 21,0 | 5,8 | 5,5 | Metabool |
+| Brasem | *Abramis brama* | 17,5 | 6,2 | 5,8 | Metabool |
+| Snoek | *Esox lucius* | 12,5 | 6,5 | 6,0 | Metabool |
+| Baars | *Perca fluviatilis* | 16,5 | 6,0 | 5,5 | Aerobe scope |
+| Voorn | *Rutilus rutilus* | 15,0 | 6,5 | 6,0 | Metabool |
+| Zeelt | *Tinca tinca* | 20,5 | 5,0 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Snoekbaars | *Sander lucioperca* | 15,0 | 6,2 | 6,0 | Aerobe scope |
+| Meerval | *Silurus glanis* | 22,0 | 5,0 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Roofblei | *Aspius aspius* | 18,5 | 5,5 | 5,0 | Geen vergelijkbare thermische fysiologiebron |
+| Overig | *Teleostei* | 16,5 | 6,0 | 5,5 | Generiek terugvalprofiel; geen soortspecifieke curve |
+
+De breedtes zijn modelinstellingen voor de Gaussische profielcurve; ze zijn geen gemeten tolerantiebereiken. De optimumwaarden zijn de piek van de huidige modelprior, niet automatisch het fysiologische optimum of de temperatuur waarbij een soort in het veld het best vangbaar is.
+
+### 210.2 Wat de registry daadwerkelijk ondersteunt
+
+- **Baars:** geregistreerde aerobe-scope-/metabole studie met 120 Europese baarzen en meerdere acclimatisatietemperaturen. De relatie van aerobe scope en voorkeurstemperatuur hangt af van lichaamsmassa; één vaste waarde voor alle lengtes/levensfasen is daarom niet onderbouwd. Niet goedgekeurd als numerieke runtimefactor.
+- **Snoekbaars:** geregistreerde aerobe-scope-/metabole studie bij volwassen kweekvis; het gerapporteerde optimum en bereik zijn contextgebonden en er was geen significant verschil over een groot deel van de onderzochte band. Niet goedgekeurd voor numerieke voorspelling.
+- **Karper:** geregistreerde studie meet acuut metabolisme, hartslag en ventilatie bij vissen geacclimeerd op 19 °C; dit levert geen volledige veldcurve voor voedingsactiviteit of gevalideerde optimum-/breedteset.
+- **Brasem en Voorn:** geregistreerde respirometrie meet standaard-/routinezuurstofverbruik over 5–23 °C. Dit onderbouwt temperatuurafhankelijk metabolisme, niet rechtstreeks activiteit, voedselopname of vangbaarheid.
+- **Snoek:** geregistreerde metabole studie bevat meetpunten bij onder meer 2 en 14 °C; dit is onvoldoende om de huidige optimum- en breedteparameters als veldrespons te valideren.
+- **Zeelt:** de registry bevat beperkte voedingsfysiologische temperatuurvergelijking, maar geen vergelijkbare aerobe-scope-/metabole curve voor de huidige fysiologische activiteitsscore.
+- **Meerval en Roofblei:** er zijn biologische/gedragsbronnen geregistreerd, maar geen vergelijkbare soortspecifieke aerobe-scope-/metabole temperatuurcurve in de huidige thermal-evidence-service.
+- **Overig:** is een generiek terugvalprofiel en kan niet als soortspecifiek biologisch profiel worden gevalideerd.
+
+### 210.3 Besluit en vervolgstap
+
+1. Alle tien optimumwaarden en alle twintig breedtewaarden blijven expliciet voorlopige modelprioren.
+2. Geen parameter wordt aangepast op basis van metabole Q10, groeitemperatuur, voedselopnamepunt of kweekoptimum zonder overdraagbaarheidsanalyse naar soort, lichaamsgrootte, levensfase, acclimatisatie, watertype en de werkelijk gemeten respons.
+3. Metabole activiteit, aerobe scope, voedingsintensiteit, locomotorische activiteit en hengelvangbaarheid blijven afzonderlijke uitkomsten.
+4. De bestaande runtime-tekst en evidence-service houden de niet-goedgekeurde status zichtbaar; er is geen numerieke scorebonus of correctie toegevoegd.
+5. Volgende inhoudelijke stap: primaire literatuur per soort controleren op exacte gemeten respons, steekproef, temperatuurband en levensfase; daarna pas beoordelen of een curveparameter verdedigbaar is. Dit blijft los van empirische backtesting op echte Vislogboek-sessies.
+
+**Resultaat WP20:** read-only parameterherkomst-audit afgerond. Geen enkele thermische profielparameter is op basis van deze audit empirisch gevalideerd of gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 211. WP21 — primaire-literatuurcontrole thermische parameter-overdraagbaarheid (23 november 2026)
+
+**Scope:** gerichte controle van primaire publicaties en abstracts voor vijf voorbeelden waar verschillende biologische uitkomsten of levensfasen makkelijk door elkaar kunnen lopen. Dit is bronkritiek, geen systematische review en geen volledige literatuurinventaris. Geen code, modelgewicht, profielparameter of gebruikersdata gewijzigd.
+
+### 211.1 Baars — lichaamsgrootte verandert de temperatuurrelatie
+
+Christensen, Svendsen & Steffensen (2020) onderzochten Europese baars bij acclimatisatietemperaturen van 15–28 °C. De studie vond dat het optimum voor aerobe scope met toenemende lichaamsmassa daalde; vissen onder 40 g vertoonden geen daling van aerobe scope bij hogere testtemperaturen. De studie mat metabolisme/aerobe scope en temperatuurvoorkeur, niet voedselopname of hengelvangbaarheid.
+
+Bron: https://doi.org/10.1111/jfb.14435
+
+**Gevolg voor Vislogboek:** een vaste Baars-piek van 16,5 °C kan niet worden voorgesteld als een universeel optimum voor alle formaten. De runtime heeft geen betrouwbare lichaamsmassa-/levensfase-invoer om een dergelijke correctie te berekenen. Geen aanpassing gedaan.
+
+### 211.2 Snoekbaars — volwassen kweekvis heeft een brede optimumzone
+
+Frisk, Skov & Steffensen (2012) maten standaard- en maximaal metabolisme bij volwassen kweek-snoekbaars op zes temperaturen van 13–28 °C. De maximale aerobe scope werd berekend bij 18,8 °C, maar tussen 13 en 25 °C was de aerobe scope niet significant verschillend. De gerapporteerde 80%-zone bedroeg 10,4–26,9 °C. De auteurs beschrijven daarnaast hogere temperatuur-optima uit eerdere juveniele studies (25–30 °C), wat een ontogenetisch verschil benadrukt.
+
+Bron: https://doi.org/10.1016/j.aquaculture.2011.10.024
+
+**Gevolg voor Vislogboek:** een smalle vaste piek op 15,0 °C is geen directe weergave van de studie. De brede adult-band, kweekcontext en leeftijdsverschillen moeten behouden blijven in de bewijsnuance. Geen parameterfit uitgevoerd.
+
+### 211.3 Karper — voedingsintensiteit is niet hetzelfde als fysiologische activiteit
+
+Chen et al. (2012) onderzochten de voedingsritmes van de Aziatische ondersoort *Cyprinus carpio haematopterus* bij 4–34 °C. De studie beschrijft twee dagelijkse voedingspieken; de maximale dagelijkse voedselopname van de geteste volwassen en jonge groepen lag rond 28 °C en daalde sterk bij 34 °C. Dit is directe informatie over voedselopname in de onderzochte ondersoort en grootteklassen, maar niet een aerobe-scopecurve en niet een veldvangstoptimum voor alle Europese karpers.
+
+Bron: https://doi.org/10.1016/S1006-8104(12)60039-7
+
+**Gevolg voor Vislogboek:** de studie hoort primair bij voedings-/foerageerbewijs. Zij mag niet worden gebruikt om de thermische activiteitsscore automatisch van 21 naar 28 °C te verschuiven. De fysiologische en voedingslaag blijven gescheiden.
+
+### 211.4 Zeelt — larvale kweekgroei is geen volwassen veldactiviteit
+
+Wolnicki, Kamiński & Sikorska (2016; online first 24 oktober 2016) onderzochten larvale zeelt gedurende 16 dagen bij 27, 30 en 33 °C en verschillende dagelijkse voedselbeschikbaarheidsperioden. De gemeten uitkomsten waren larvale groei en overleving bij gecontroleerde voedering; de auteurs rapporteerden een optimale combinatie voor larvale kweekcondities rond 28,6 °C met continue voedselbeschikbaarheid.
+
+Bron: https://doi.org/10.1111/are.13207
+
+**Gevolg voor Vislogboek:** dit ondersteunt geen optimum van 20,5 °C voor volwassen fysiologische activiteit of hengelvangbaarheid. Levensfase, voedselregime en uitkomstmaat zijn niet overdraagbaar zonder aanvullend bewijs.
+
+### 211.5 Meerval — veldbeweging is een andere respons dan voedselopname
+
+Slavík & Horký (2012) onderzochten de dagelijkse activiteit/energieconsumptie van Europese meerval met EMG in een rivieromgeving. De studie rapporteerde individuele variatie in dag-/nachtpatronen en een relatie tussen hogere temperatuur en hogere EMG-waarden; stroming beïnvloedde de waarden eveneens. EMG-bewegingsactiviteit is niet hetzelfde als directe voedselopname, aerobe-scopeoptimum of hengelvangbaarheid.
+
+Bron: https://doi.org/10.1111/j.1095-8649.2012.03436.x
+
+**Gevolg voor Vislogboek:** de bron kan kwalitatieve context voor locomotorische activiteit ondersteunen, maar niet de vaste thermische piek van 22,0 °C valideren. De bestaande thermal-evidence-service classificeert de soort daarom terecht niet als aerobe-scope-/metabole curvebron.
+
+### 211.6 Geconsolideerd besluit
+
+1. Een bron mag alleen een parameter ondersteunen als de gemeten uitkomst overeenkomt met de modeluitkomst: metabolisme ≠ aerobe scope ≠ voedingsintensiteit ≠ beweging ≠ vangbaarheid.
+2. Lichaamsgrootte, levensfase, acclimatisatie, kweek-/veldcontext en watertype bepalen overdraagbaarheid; ontbrekende invoer mag niet met een gemiddelde aanname worden ingevuld.
+3. De literatuur ondersteunt het behouden van gescheiden fysiologische, voedings-, habitat- en vangstuitkomsten, maar levert op basis van deze gerichte controle geen reden om de bestaande profielwaarden numeriek te wijzigen.
+4. Alle huidige thermische optimum-/breedteparameters blijven voorlopige modelprioren. Numerieke herkalibratie vereist een bredere soortspecifieke bronset én later onafhankelijke chronologische validatie.
+
+**Resultaat WP21:** vijf gerichte primaire-broncontroles afgerond; geen numerieke of runtimewijziging. Fase 2 blijft open.
+
+
+## 212. WP22 — dekking en uitkomstclassificatie voedings-/foerageerbewijs (23 november 2026)
+
+**Scope:** read-only inventaris van measuredOutcomes in de centrale research registry, gekoppeld aan de negen concrete soorten. De aantallen hieronder zijn registry-entries waarin de soort voorkomt en ten minste één voedings-/foerageeruitkomst is geregistreerd; een gedeelde entry kan bij meer dan één soort meetellen. Dit zijn geen aantallen onafhankelijke studies of datapoints.
+
+### 212.1 Dekking per soort
+
+| Soort | Registry-entries | Geregistreerde uitkomsttypen | Interpretatiegrens |
+|---|---:|---|---|
+| Karper | 13 | Voedingsintensiteit, voedingsritme, foerageergedrag | Meerdere veld-, vijver- en kweekcontexten; aasbezoek/voerconsumptie niet gelijk aan alle natuurlijke voedselopname. |
+| Brasem | 6 | Voedingsintensiteit, voedingsritme, foerageergedrag, prooikeuze | Maagvulling en prooiverwerking zijn context-/prooispecifiek; niet één universele dagcurve. |
+| Snoek | 4 | Voedingsintensiteit, voedingsritme, dieet | Een deel is levensfasegebonden; hartslag/vertering of maaginhoud is niet automatisch directe jachtactiviteit. |
+| Baars | 6 | Voedingsintensiteit, voedingsritme, dieet, prooikeuze | Seizoen, lengteklasse, habitat en prooigroep veranderen het patroon. |
+| Voorn | 9 | Voedingsintensiteit, voedingsritme, dieet, foerageergedrag, prooikeuze | Sterke variatie naar leeftijd, seizoen, littoraal/pelagiaal en voedseltype. |
+| Zeelt | 4 | Voedingsintensiteit, voedingsritme, foerageergedrag, dieet | Mix van veld- en kweekdata; nachtelijk ritme en larvale voedingsproeven niet zonder meer overdraagbaar. |
+| Snoekbaars | 5 | Voedingsintensiteit, voedingsritme, dieet, prooikeuze | Ontogenetische prooiverschuiving, geslacht/seizoen en kweek-/veldcontext relevant. |
+| Meerval | 4 | Voedingsintensiteit, voedingsritme, foerageergedrag, dieet | Gecontroleerde zelfvoerproeven en juveniele reservoirdata verschillen sterk in levensfase en context. |
+| Roofblei | 3 | Voedingsincidentie, dieet, prooikeuze | Huidige dekking is vooral vacuïteits-/maaginhoud- en dieetproxy; directe voedingsintensiteit of dagritme is beperkter. |
+
+### 212.2 Belangrijke scheiding van uitkomstmaten
+
+- **Voedingsintensiteit / directe voedselopname:** hoeveelheid gegeten voedsel, maagvulling of rantsoen; meetmethode en tijdsresolutie blijven relevant.
+- **Voedingsincidentie / vacuïteit:** aandeel vissen met lege maag; dit is geen exacte hoeveelheid of voedingssnelheid.
+- **Voedingsritme:** wanneer voedselopname optreedt; een dag-/nachtpatroon is niet automatisch een temperatuurrespons.
+- **Foerageergedrag / habitatgebruik:** zoeken, bewegen, voerlocaties bezoeken of prooi benaderen; dit bewijst niet dat voedsel daadwerkelijk is opgenomen.
+- **Dieet / prooikeuze:** wat wordt gegeten; dit geeft niet op zichzelf de intensiteit of het tijdstip van eten aan.
+
+Alle geïnventariseerde entries hebben approvedForPrediction=false. Een bronregistratie betekent dus niet dat een numerieke bonus, tijdvakvoorkeur of temperatuurfactor in de runtime mag worden gebruikt. Bij de audit bleek bovendien dat de evidence-service de aparte uitkomst feeding_incidence nog niet terugleverde; dit is gecorrigeerd in draft PR #220 met een eigen feedingIncidence-property en scope-label voor incidentie plus dieet. De test bewaakt dat dit niet wordt verward met intensiteit of ritme.
+
+### 212.3 Besluit
+
+1. Het register bevat bruikbare kwalitatieve kennis voor alle negen concrete doelsoorten, maar de uitkomstmaten en contexten zijn ongelijk.
+2. Roofblei heeft op dit moment een andere en beperktere directe voedingsuitkomstdekking dan de andere soorten; dit mag niet worden aangevuld met aannames uit verwante soorten.
+3. Een kwalitatieve uitleg mag alleen de werkelijk gemeten uitkomst benoemen en moet de relevante levensfase, habitat, seizoen en methode noemen.
+4. Geen numerieke voedingsfactor, dagdeelbonus, temperatuurinteractie of vangkanscorrectie wordt door deze inventaris geactiveerd.
+5. Een toekomstige voedingslaag moet afzonderlijk gevalideerd worden; fysiologische activiteit, voedingsactiviteit, lokale aanwezigheid en vangbaarheid blijven aparte uitkomsten.
+
+**Resultaat WP22:** registry-dekking read-only geïnventariseerd. Geen runtimewijziging of numerieke scoreaanpassing. Fase 2 blijft open.
+
+## 213. WP23 — voedingsincidentie afzonderlijk beschikbaar in evidence-service (23 november 2026)
+
+WP22 liet zien dat het research register voor Roofblei entries met measuredOutcome `feeding_incidence` bevatte, maar `feedingEvidenceService.ts` deze uitkomst niet in `SpeciesFeedingEvidenceContext` opnam. De service classificeerde Roofblei daardoor als `diet-only`, waardoor de geregistreerde maagvullings-/vacuïteitsproxy niet zichtbaar was in de servicecontext.
+
+**Wijziging in draft PR #220:**
+- Een aparte `feedingIncidence`-collectie toegevoegd aan `SpeciesFeedingEvidenceContext`.
+- De scope `feeding-incidence-and-diet` toegevoegd voor Roofblei.
+- Feeding incidence blijft nadrukkelijk onderscheiden van directe voedingsintensiteit en voedingsritme.
+- `approvedFeedingEvidence` blijft leeg; geen bron is goedgekeurd en geen numerieke factor, score, UI of vangstkans is gewijzigd.
+
+**Test:** `test-feeding-evidence.ts` controleert dat Roofblei voedingsincidentie als eigen gemeten uitkomst terugkrijgt, terwijl `feedingIntensity` en `feedingRhythm` leeg blijven. De bestaande volledige Quality Gate [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) op commit `634697faa57521ec6a47e04ae93a6cd694fc1117` is volledig groen.
+
+**Status:** technisch afgerond; PR #220 blijft draft en ongemerged voor eigenaarreview. Geen biologische scoring geactiveerd.
+
+
+## 214. WP24 — integratiegrenzen soortspecifieke evidence in prognose en habitatmodel (23 november 2026)
+
+**Scope:** read-only code-audit van service-imports en functiegebruik in `prognosisEngine.ts`, `feedingEvidenceService.ts`, `dielBehaviorEvidenceService.ts`, `thermalEvidenceService.ts` en `habitatMovementEngine.ts`. Geen code, UI, score of adviesuitvoer gewijzigd.
+
+### 214.1 Huidige integratie
+
+| Onderdeel | Huidig gebruik | Gevolg |
+|---|---|---|
+| Thermische evidence-service | Wordt door de prognosis engine aangeroepen | De uitleg kan de soortspecifieke status van thermisch fysiologiebewijs meenemen; geen niet-goedgekeurde bron wordt automatisch een factor. |
+| Diel-behavior evidence-service | Wordt door de prognosis engine aangeroepen | Tijdgebonden voedings-/bewegingsbronnen worden naar gemeten respons gescheiden; niet-goedgekeurde tijdvakvoorkeur blijft neutraal. |
+| Feeding evidence-service | Geen aanroep vanuit prognosis engine of VisCoach aangetroffen | De per-soort voedingsregistry is als service beschikbaar, maar de context wordt momenteel niet door de gebruikersprognose/VisCoach verbruikt. |
+| Habitat movement engine | Geen research-registry lookup | De soortparameter wordt alleen gebruikt in één algemene koude-water-uitlegzin. Zonekeuze volgt algemene temperatuurgrenzen, watertype, lokale structuur, tijdvak en directe waarnemingen; er is geen soortspecifieke habitatrespons. |
+
+### 214.2 Interpretatie
+
+1. Het bestaan van een evidence-service betekent niet dat de informatie al in het gebruikersadvies zit.
+2. Het huidige habitatmodel is een generieke lokale zoek-/zonehypothese, geen soortspecifiek gevalideerd verspreidingsmodel.
+3. De tijdgebonden evidence-service is wel geïntegreerd, maar toont context en neutraliteit; zij activeert geen niet-goedgekeurde numerieke tijdvakbonus.
+4. De voedingsservice kan kwalitatieve context leveren, maar is nog niet aangesloten. Het toevoegen van tekst aan VisCoach vraagt een bewuste productkeuze over waar, wanneer en hoe bronbeperkingen worden getoond.
+5. Een soortspecifieke habitatlaag vereist eerst een passende bronset per soort, responsmaat en watertype. Geen aannames uit verwante soorten of generieke profielen toevoegen.
+
+### 214.3 Besluit / volgende eigenaargrens
+
+- Geen automatische score- of advieswijziging op basis van deze audit.
+- Eventuele kwalitatieve voedingscontext in de prognose/VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke keuzes; zij worden niet stilzwijgend in deze technische audit doorgevoerd.
+- Fase 2 blijft open. WP19 is op besluit van de eigenaar uit de actieve werkvoorraad gehaald (zie §216); WP24 legt de huidige integratiegrenzen vast.
+
+**Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.
+
+
+## 215. WP25 — synthetische robuustheidsmatrix habitatbewegingsengine (23 november 2026)
+
+**Scope:** uitsluitend testuitbreiding in `test-advanced-prognosis-modules.ts`; geen runtime-engine, UI, score of opgeslagen data gewijzigd.
+
+### 215.1 Simulatiematrix
+
+| Dimensie | Waarden | Aantal |
+|---|---|---:|
+| Doelsoort | Alle 10 waarden uit `ALL_SPECIES`, inclusief Overig | 10 |
+| Thermische context | Koud, gematigd, warm, thermisch onbekend | 4 |
+| Habitatmatrix | Alle combinaties van soort × thermische context | 40 |
+| Directe waarneming | Aasbellen met ontbrekende thermische/steilocatiecontext, per soort | 10 |
+| **Totaal** | 40 habitatcombinaties + 10 observatieprioriteitstests | **50** |
+
+### 215.2 Gecontroleerde eigenschappen
+
+- Primaire en alternatieve zone hebben naam, beschrijving en onderbouwing.
+- Bewegingshypothese en omgevingsinvloeden bevatten de vereiste tekstvelden.
+- Bij onbekende watertemperatuur wordt geen standaardtemperatuur ingevuld; ontbrekende informatie blijft expliciet.
+- Een directe aasbellenwaarneming blijft leidend wanneer thermische context, watertype en diepte ontbreken.
+- Geen historische sessies, vangsten of persoonlijke catch-rate worden gebruikt of gegenereerd.
+
+**Quality Gate:** volledige run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007) op commit `f07a7239ae8bde8a9f0330069240646deda79dfd` is `success`, inclusief typecheck, alle bestaande tests, dependency audits en productiebuild.
+
+### 215.3 Interpretatie
+
+De matrix toont dat de huidige generieke habitatengine voor alle soortwaarden en de gekozen invoercombinaties stabiele, complete en onbekend-bewuste uitvoer produceert. De matrix toont nadrukkelijk **niet** dat habitatkeuze biologisch soortspecifiek voorspeld wordt: de engine gebruikt geen species-specifieke evidence lookup en is in WP24 als generieke zonehypothese geclassificeerd.
+
+**Resultaat WP25:** technische robuustheidstest afgerond in draft PR #221. Geen biologische validatieclaim en geen runtimewijziging.
+
+
+## 216. Scopebesluit eigenaar — WP19 niet uitvoeren (23 november 2026)
+
+De eigenaar heeft expliciet besloten F2-WP19 (empirische kandidaatvalidatie en modelvergelijking) niet uit te voeren. Er zijn momenteel geen echte historische sessies en prognosesnapshots beschikbaar om deze validatie uit te voeren. Daarom wordt WP19 uit de actieve werkvoorraad verwijderd en vormt het geen blokkade voor de overige Fase-2-werkzaamheden.
+
+De eerdere read-only schema- en replayhaalbaarheidscontrole in §209 blijft behouden als historische documentatie; dit betekent niet dat empirische validatie is uitgevoerd of geslaagd. Synthetische simulaties blijven uitsluitend technische contract-/regressietests en worden niet gebruikt als vervanging voor echte uitkomstdata. Er worden geen sessies, vangsten, labels, nauwkeurigheidsresultaten of biologische parameters verzonnen.
+
+WP19 kan alleen opnieuw worden overwogen als echte data later beschikbaar komen én de eigenaar besluit dat empirische validatie alsnog gewenst is. Tot die tijd gaan de overige reeds geplande en geautoriseerde werkzaamheden verder zonder deze afhankelijkheid.
