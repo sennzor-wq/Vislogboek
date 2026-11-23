@@ -29,12 +29,12 @@
 
 ## Eerstvolgende stap
 
-**Eigenaarreview van de vier open draft PR's.** De technisch afgebakende werkpakketten WP18 en WP20–WP25 zijn uitgevoerd; WP19 is op besluit van de eigenaar uit scope gehaald. De actuele Quality Gate is groen op de huidige heads van PR #217, #218, #220 en #221. De volgende stap is beoordeling door de eigenaar van de inhoud en scope van deze PR's. Geen van deze PR's wordt automatisch gemerged.
+**Eigenaarreview van PR #221.** WP18 en WP23 zijn inmiddels gemerged naar `main`; PR #221 (WP25) is de enige resterende open Fase-2-PR. De volgende stap is beoordeling van de habitatbewegingssimulaties door de eigenaar. WP19 blijft op besluit van de eigenaar buiten scope. Na de PR-review volgen de twee afzonderlijke product-/modelkeuzes onderaan deze queue. Geen verdere PR wordt automatisch gemerged.
 
 ## Afgeronde Fase-2-werkpakketten (status en bewijs)
 
 ### F2-WP18 — kandidaat thermische uitvoer per intervalsegment
-**Status:** technisch afgerond in open draft PR #218; 6 weerscenario’s × 10 soorten, volledige scorematrix, exacte tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, immutable-snapshotreplay en volledige GitHub Quality Gate zijn groen op commit `fc08c636d99f3d32e4949fa76f7037f8c8948822` (run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992)). De kandidaatcontracttest rapporteert 221 geslaagd, 0 mislukt. PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
+**Status:** technisch afgerond en gemerged naar `main` via PR #218; merge commit `cb15aa395462284d3d3286d606ddd7781daf460a`. De volledige GitHub Quality Gate was groen op de PR-head (run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992)). 6 weerscenario’s × 10 soorten, volledige scorematrix, exacte tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies en immutable-snapshotreplay zijn synthetisch gecontroleerd. De kandidaatcontracttest rapporteerde 221 geslaagd, 0 mislukt. De kandidaat blijft geïsoleerd: niet aangesloten op UI, dag-/tijdvakscore, persoonlijke vangkans of sessieaggregatie.
 **Branch:** `feat/fase2-thermal-interval-candidates`
 **PR:** https://github.com/sennzor-wq/Vislogboek/pull/218
 
@@ -47,7 +47,7 @@ Acties:
 5a. **Afgerond — synthetische simulatie:** 6 weerscenario’s (koud/stabiel, mild/stabiel, warm/stabiel, heet/stabiel, opwarming en afkoeling) × 10 doelsoorten = 60 deterministische combinaties; per combinatie worden bronstatus, finite temperatuur, efficiëntiegrenzen, 1–10 kandidaat-score en reproduceerbaarheid gecontroleerd. Extra checks testen extreme forecastwijzigingen ná `targetTime`, onvoldoende weershistorie zonder meetanker, beide Amsterdamse DST-overgangen en exacte scorepariteit met het bestaande representatieve tijdvak inclusief lokale kalibratie. De thermische kandidaat blijft beschikbaar terwijl persoonlijke vangkans zonder sessiehistorie null blijft. Een synthetische immutable `PrognosisSnapshot`-fixture is ook opnieuw doorgerekend vanuit exact opgeslagen `weatherInput` en `inputContext` (stekcontext en kalibratie); replay-uitvoer is identiek aan directe berekening.
 6. **Afgerond via diff-review:** dagscore, tijdvakscore, bestaande intervaloutput, persoonlijke vangkans, UI en opgeslagen data zijn niet gewijzigd. De kandidaat gebruikt dezelfde gevalideerde lokale temperatuurkalibratie als de bestaande dag-/tijdvakprognose, uitsluitend voor modelschattingen; echte metingen en unknown-uitkomsten worden niet gecorrigeerd.
 7. **Afgerond:** bestaande Fase-2-audit en queue bijgewerkt met exacte code- en CI-bewijsstatus.
-8. Laat PR #218 open voor eigenaarbeoordeling; niet mergen zonder expliciete toestemming.
+8. PR #218 is door de eigenaar voorwaardelijk goedgekeurd en na groene controles gemerged; de kandidaat staat op `main` maar is nog geen gebruikersfunctie of biologisch gevalideerde score.
 
 Acceptatie:
 - Typecheck en volledige GitHub Quality Gate zijn aantoonbaar groen.
@@ -91,11 +91,11 @@ De bestaande research registry is per concrete doelsoort geïnventariseerd op di
 **Besluit:** geen numerieke voedingsfactor, dagdeelbonus of temperatuurinteractie activeren. Gedrag, maagvulling, dieet, prooikeuze en directe voedselopname blijven gescheiden. Geen code of score gewijzigd.
 
 ### F2-WP23 — voedingsincidentie als afzonderlijke evidence-uitkomst beschikbaar maken
-**Status:** technisch afgerond in draft PR #220; niet gemerged.
+**Status:** technisch afgerond en gemerged naar `main` via PR #220; merge commit `0f79840906c53d53985590a67d7045a6ed295f5c`.
 
 De read-only WP22-audit vond dat het register voor Roofblei een directe voedingsincidentie-/vacuïteitsproxy bevatte, maar dat de service alleen voedingsintensiteit, voedingsritme, foerageren en dieet terugleverde. Daardoor verdween die afzonderlijke uitkomst uit de servicecontext. In PR #220 is een aparte property `feedingIncidence` toegevoegd en wordt Roofblei geclassificeerd als `feeding-incidence-and-diet`; het wordt nadrukkelijk niet als voedingsintensiteit of voedingsritme behandeld.
 
-**Validatie:** volledige Quality Gate groen op commit `634697faa57521ec6a47e04ae93a6cd694fc1117`, run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427). De bestaande test controleert dat de Roofblei-bron zichtbaar blijft als incidentie, zonder goedkeuring of numerieke scoring.
+**Validatie:** volledige Quality Gate groen op de bijgewerkte branchcommit `d4dc2cbebfa718360e04f7a7ae07dec2a6bd57fd`, run [45244576575](https://github.com/sennzor-wq/Vislogboek/actions/runs/45244576575). De test controleert dat de Roofblei-bron zichtbaar blijft als incidentie, zonder goedkeuring of numerieke scoring. Na deze gate is PR #220 gesquasht gemerged naar `main` (merge commit `0f79840906c53d53985590a67d7045a6ed295f5c`).
 
 ### F2-WP24 — integratiegrenzen soortspecifieke evidence in prognose en habitatmodel
 **Status:** afgerond — read-only architectuur-/gebruiksaudit.
@@ -119,11 +119,11 @@ De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor
 
 ## Openstaande eigenaarbeslissingen
 
-**Open draft PR's — alle vier bewust ongemerged; eigenaarreview vereist:**
-- [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — bestaande Fase-2-audit en werkvoorraad.
-- [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat en synthetische contract-/pariteitstests.
-- [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst.
-- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix.
+**Openstaande Fase-2-PR — PR #221; eigenaarreview vereist:**
+- [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — Fase-2-audit en werkvoorraad; gemerged.
+- [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat; gemerged.
+- [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst; gemerged.
+- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix; enige resterende open draft PR.
 
 Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/merge altijd actuele diff en Quality Gate.
 
@@ -137,12 +137,12 @@ Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/
 
 | Datum | Werkpakket | Gebeurtenis | Bewijs/status |
 |---|---|---|---|
-| 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
-| 2026-11-23 | F2-WP18 | 60 synthetische soort-/weerscenario-combinaties met volledige 6×10-scorematrix, tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, targetTime-, DST- en immutable-snapshotreplaytests; 221 kandidaatcontractchecks groen. | Commit `fc08c636d99f3d32e4949fa76f7037f8c8948822`; run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992); PR #218 open/draft, niet gemerged. |
+| 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie gemerged via PR #217 (merge commit `99ae2d6895fe80c47c2fa9922769fb0efc2543c4`). |
+| 2026-11-23 | F2-WP18 | 60 synthetische soort-/weerscenario-combinaties met volledige 6×10-scorematrix, tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, targetTime-, DST- en immutable-snapshotreplaytests; 221 kandidaatcontractchecks groen. | PR #218 gemerged naar `main` via `cb15aa395462284d3d3286d606ddd7781daf460a`; Quality Gate run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992). |
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
 | 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
-| 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220; commit `634697faa57521ec6a47e04ae93a6cd694fc1117`; run [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) groen; draft/niet gemerged. |
+| 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220 gemerged naar `main` via `0f79840906c53d53985590a67d7045a6ed295f5c`; bijgewerkte Quality Gate run [45244576575](https://github.com/sennzor-wq/Vislogboek/actions/runs/45244576575) groen. |
 | 2026-11-23 | F2-WP24 | Codekoppelingen van thermische, diel-, voedings- en habitat-evidence read-only gecontroleerd; ontbrekende integratie en generieke habitatlogica vastgelegd. | Fase-2-audit §214; geen runtimewijziging. |
 | 2026-11-23 | F2-WP25 | Habitatbewegingsengine synthetisch getest: 10 soorten × 4 thermische contexten + 10 directe-waarnemingsscenario's; volledige Quality Gate groen. | PR #221; commit `f07a7239ae8bde8a9f0330069240646deda79dfd`; run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007); draft/niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
