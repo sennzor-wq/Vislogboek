@@ -29,7 +29,7 @@
 
 ## Eerstvolgende stap
 
-**Eigenaarreview van PR #221.** WP18 en WP23 zijn inmiddels gemerged naar `main`; PR #221 (WP25) is de enige resterende open Fase-2-PR. De volgende stap is beoordeling van de habitatbewegingssimulaties door de eigenaar. WP19 blijft op besluit van de eigenaar buiten scope. Na de PR-review volgen de twee afzonderlijke product-/modelkeuzes onderaan deze queue. Geen verdere PR wordt automatisch gemerged.
+**Eigenaarbesluiten over de twee product-/modelkeuzes.** De technische Fase-2-werkpakketten WP18, WP23 en WP25 zijn gemerged naar `main`; WP19 is op besluit van de eigenaar buiten scope. De eerstvolgende stappen zijn de twee afzonderlijke product-/modelkeuzes hieronder. Geen nieuwe functionaliteit of biologische parameters worden zonder eigenaarbesluit toegevoegd.
 
 ## Afgeronde Fase-2-werkpakketten (status en bewijs)
 
@@ -109,21 +109,22 @@ De huidige codekoppelingen zijn nagegaan:
 **Besluit:** huidige grenzen expliciet vastgelegd in audit §214. Een eventuele kwalitatieve voedingscontext in VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke product-/modelkeuzes. Geen UI, advieslogica, score of code gewijzigd.
 
 ### F2-WP25 — synthetische robuustheidsmatrix habitatbewegingsengine
-**Status:** technisch afgerond in draft PR #221; niet gemerged.
+**Status:** technisch afgerond en gemerged naar `main` via PR #221; merge commit `e7c07267ccbed082eacb72862cfb00b7f2e568c3`.
 
 De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor alle 10 doelsoorten in 4 thermische contexten (koud, gematigd, warm en thermisch onbekend): 40 scenario's. Daarnaast zijn 10 scenario's getest waarin directe waarneming van aasbellen voorrang moet houden, ook als thermische context en stekgegevens ontbreken.
 
-**Validatie:** primaire/alternatieve zones, bewegingshypothese, omgevingscontext, expliciete unknown-afhandeling en observatieprioriteit zijn gecontroleerd. Volledige Quality Gate groen op commit `f07a7239ae8bde8a9f0330069240646deda79dfd`, run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007).
+**Validatie:** primaire/alternatieve zones, bewegingshypothese, omgevingscontext, expliciete unknown-afhandeling en observatieprioriteit zijn gecontroleerd. Na synchronisatie met `main` is de volledige Quality Gate groen op commit `37c251957d552abcac5360a312a13c62a1e1bc9f`, run [45245295080](https://github.com/sennzor-wq/Vislogboek/actions/runs/45245295080). Daarna is PR #221 gesquasht gemerged via `e7c07267ccbed082eacb72862cfb00b7f2e568c3`.
 
 **Beperking:** de engine blijft generiek en de test valideert technische robuustheid, geen soortspecifieke habitatvoorspelling. Geen engine-regels, scores of UI gewijzigd.
 
 ## Openstaande eigenaarbeslissingen
 
-**Openstaande Fase-2-PR — PR #221; eigenaarreview vereist:**
+**Openstaande documentatie-PR — PR #222; eigenaarreview vereist:**
 - [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — Fase-2-audit en werkvoorraad; gemerged.
 - [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat; gemerged.
 - [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst; gemerged.
-- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix; enige resterende open draft PR.
+- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix; gemerged via `e7c07267ccbed082eacb72862cfb00b7f2e568c3`.
+- [PR #222](https://github.com/sennzor-wq/Vislogboek/pull/222) — documentatie-update na merges WP18, WP23 en WP25; open, bijgewerkte Quality Gate vereist.
 
 Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/merge altijd actuele diff en Quality Gate.
 
@@ -144,7 +145,7 @@ Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
 | 2026-11-23 | F2-WP23 | Feeding-incidence als afzonderlijke uitkomst in evidence-service beschikbaar gemaakt; Roofblei blijft buiten intensiteit/ritmeclassificatie. | PR #220 gemerged naar `main` via `0f79840906c53d53985590a67d7045a6ed295f5c`; bijgewerkte Quality Gate run [45244576575](https://github.com/sennzor-wq/Vislogboek/actions/runs/45244576575) groen. |
 | 2026-11-23 | F2-WP24 | Codekoppelingen van thermische, diel-, voedings- en habitat-evidence read-only gecontroleerd; ontbrekende integratie en generieke habitatlogica vastgelegd. | Fase-2-audit §214; geen runtimewijziging. |
-| 2026-11-23 | F2-WP25 | Habitatbewegingsengine synthetisch getest: 10 soorten × 4 thermische contexten + 10 directe-waarnemingsscenario's; volledige Quality Gate groen. | PR #221; commit `f07a7239ae8bde8a9f0330069240646deda79dfd`; run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007); draft/niet gemerged. |
+| 2026-11-23 | F2-WP25 | Habitatbewegingsengine synthetisch getest: 10 soorten × 4 thermische contexten + 10 directe-waarnemingsscenario's; volledige Quality Gate groen. | PR #221 gemerged naar `main` via `e7c07267ccbed082eacb72862cfb00b7f2e568c3`; bijgewerkte Quality Gate run [45245295080](https://github.com/sennzor-wq/Vislogboek/actions/runs/45245295080). |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 (historische schema-audit) | De schema-/replayhaalbaarheid is read-only onderzocht en vastgelegd in audit §209; geen echte steekproef of segmentlabels vastgesteld. | Alleen historische documentatie; verdere empirische validatie is op besluit van de eigenaar niet in scope. |
 
