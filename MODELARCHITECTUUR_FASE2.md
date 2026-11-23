@@ -1504,3 +1504,12 @@ Volgende stap is de factor-specifieke dekking en resolutie per segment verder ui
 Audit §201 legt de bestaande ranges en dekking vast: temperatuur -30..55 °C; druk 850..1100 hPa; wind 0..200 km/u plus richting/label; neerslag 0..300; bewolking 0..100%; relatieve vochtigheid 0..100%; dauwpunt -50..50 °C; zonnestraling 0..1600 W/m². De huidige 3-uit-6 drempel geldt voor vaste 6-uursfactoren, niet automatisch voor kortere geplande intervallen. Druktrend vereist een actuele meting binnen 30 minuten en een voorafgaande meting rond 12 uur (±3 uur). Thermische waterontwikkeling behoudt haar eigen 24-/72-uurs- en ankerlogica.
 
 De segmentatiehelper rapporteert alleen uurrecorddekking. Factorbeschikbaarheid blijft apart: wind vereist ook richting, optionele thermische velden mogen niet als nul worden ingevuld en druk/thermiek kunnen historische lookback nodig hebben. Er is nog geen intervalminimumpercentage of nieuwe factorweging gekozen. Zie audit §201.
+
+
+## 167. Formele resolutiegrenzen voor geplande sessie-intervallen
+
+Audit §202 legt per bestaande factor vast op welk niveau de informatie thuishoort. De generieke uursegmentatie is uitsluitend een tijd-/recorddekkinglaag. Thermische toestand kan kandidaat per segment worden berekend met de eigen targetTime- en 24-/72-uurslookback, maar timestampconventie en sessieaggregatie zijn nog niet besloten. Absolute druk, wind, bewolking en neerslag behouden voorlopig hun bestaande 6-uurs factorcontract; druktrend blijft een tijdstipmeting met voorafgaande lookback. Seizoen blijft kalenderdagcontext, diel/licht tijdvak-/datumcontext, persoonlijke ervaring sessie-starttijdvak en persoonlijke Poisson-vangkans één sessiebrede uitkomst op basis van de geplande duur.
+
+Aanwezigheid blijft een expliciete waarnemingsgebeurtenis. Oeverwind, habitat en hengelpositionering blijven tactische context rond het gekozen starttijdvak. Voorvoer blijft doeldag-/campagnegebonden; hengelblootstelling is uitsluitend achteraf geregistreerd. Een factor mag niet naar een fijnere resolutie worden vertaald zonder eigen veldvalidatie en dekkingcontract.
+
+Er is geen intervalminimumpercentage, nieuwe scoreweging of biologische bonus/malus vastgesteld. De bestaande 1–10 thermische activiteitsscore blijft ongewijzigd; persoonlijke vangkans en tactische uitkomsten blijven afzonderlijk. Volgende poort is het definiëren en testen van een beperkt interval-outputcontract, niet direct intervalscoring. Zie audit §202.
