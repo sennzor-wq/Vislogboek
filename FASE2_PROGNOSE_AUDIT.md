@@ -6299,3 +6299,66 @@ Daarom is de flow aangescherpt:
 - Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
 
 **Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.
+
+
+## 206. Huidige scoresemantiek en gereedheid voor thermische intervaluitvoer (23 november 2026)
+
+**Werkpakket 17 — read-only inspectie van de actuele `main`-implementatie.** Gecontroleerd: `prognosisEngine.ts`, `fishProfiles.ts`, `waterThermalEngine.ts`, `prognosisIntervalEngine.ts`, `prognosisIntervalOutput.ts` en de intervalcontracttests. Geen runtimecode, tests, scoreparameters of gebruikersdata gewijzigd.
+
+### 206.1 De huidige numerieke score
+
+- `calculateThermalEfficiency` gebruikt per soort een voorlopige Gaussische temperatuurrespons met `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm`. De efficiëntie wordt begrensd op 0,08–1,00.
+- De bestaande tijdvakscore gebruikt `1 + 9 * efficiency^0.85` en wordt afgerond op één decimaal binnen 1–10.
+- Alleen deze thermische respons beïnvloedt de huidige numerieke activiteitspotentie. Druk, wind, seizoen, tijd/licht, bewolking en neerslag leveren momenteel geen biologische bonus of aftrek; zij blijven context.
+- De thermische curve is expliciet een voorlopige profielprior en geen gevalideerde veldcurve, directe meting van visactiviteit, voedselopname of vangbaarheid.
+- De score is alleen beschikbaar wanneer een geldige gemeten of geschatte watertemperatuur bestaat. De interne placeholder bij ontbrekende temperatuur mag niet als score worden getoond.
+
+### 206.2 Bestaande tijdsresolutie vóór de intervaladapter
+
+- `calculateDayPrognosis` berekent vier tijdvakanalyses: Nacht, Ochtend, Middag en Avond.
+- Voor een toekomstig/actueel tijdvak met beschikbare uurforecast kiest de engine één representatief forecastmoment (de middelste beschikbare sample) en roept de bestaande `analyzeWaterThermalDevelopment` aan met dat exacte `targetTime`.
+- De thermische toestand wordt vanaf het laatst geldige meetanker opnieuw chronologisch tot dat doelmoment bepaald; de vier tijdvakken zijn dus geen vier onafhankelijke temperatuurmodellen.
+- Verstreken tijdvakken gebruiken de bestaande dagbrede thermische analyse. De tijdvakscore is daarmee een representatieve tijdstipuitkomst, geen gemiddelde van alle uren in dat tijdvak.
+- De dagscore is het ongewogen gemiddelde van de vier tijdvakscorewaarden en is alleen beschikbaar wanneer alle vier tijdvakuitkomsten beschikbaar zijn. Bij ontbrekende score-invoer wordt intern een placeholderwaarde gebruikt, maar `activityScoreAvailable` blijft false en de score hoort niet te worden gepresenteerd.
+- Deze dagscore is geen score voor het geplande sessie-interval.
+
+### 206.3 Wat de intervaluitvoer nu werkelijk bevat
+
+- `segmentPrognosisInterval` splitst het geplande interval op absolute uurblokken. Een forecastsample op tijdstip T vertegenwoordigt het uurblok dat op T begint; gedeeltelijke eerste/laatste uren behouden hun werkelijke overlapduur.
+- De helper levert segmentgrenzen, Amsterdamse datum/tijdvak, forecastrecorddekking en een verwijzing naar de bijbehorende uurforecast.
+- `prognosisIntervalOutput` valideert luchttemperatuur, druk, wind, neerslag en bewolking afzonderlijk, maar markeert deze waarden uitdrukkelijk als beschrijvende context.
+- Het outputcontract markeert thermische activiteit nog als `not_calculated_per_segment`. Er bestaat dus nog geen thermische segmentscore of duurgewogen intervalscores.
+- De bestaande persoonlijke Poisson-vangkans blijft één sessiebrede uitkomst; zij mag niet naar segmenten worden gekopieerd of opgeteld.
+
+### 206.4 Technisch mogelijke, maar nog niet goedgekeurde vervolgrichting
+
+De bestaande thermische engine accepteert een exact `targetTime` en de bestaande soortcurve kan dezelfde thermische responsfunctie hergebruiken. Daardoor is een test-first kandidaat per intervalsegment technisch voorstelbaar zonder een tweede prognose-engine of nieuwe biologische factor te introduceren.
+
+Voor een zuivere kandidaat moet het doelmoment van elk segment de absolute starttijd van dat segment zijn. Dat sluit aan op het bestaande forecastcontract: de uurforecast op T vertegenwoordigt het uur dat op T begint, en de thermische toestand op T mag uitsluitend invoer tot en met T gebruiken. Een segmentscore zou dezelfde bestaande soortcurve en scoretransformatie gebruiken; er worden geen nieuwe gewichten of correctiefactoren toegevoegd.
+
+Dit is nog geen implementatiebesluit. Voor een sessiescore zijn daarnaast afzonderlijke besluiten nodig over:
+- hoe gedeeltelijke thermische dekking wordt gerapporteerd;
+- of een sessietotaal alleen bij volledige dekking beschikbaar mag zijn, of onder welke later onderbouwde dekkingsregel;
+- hoe de bestaande temperatuuronzekerheidsband per segment wordt weergegeven en hoe deze doorwerkt in een eventuele intervaluitkomst;
+- hoe een onbekende thermische uitkomst in één segment het sessietotaal begrenst.
+
+Er wordt nu geen minimumdekking, onzekerheidsdrempel of aggregatieregel gekozen.
+
+### 206.5 Volgende concrete stap
+
+**Werkpakket 18:** voeg eerst geïsoleerde contracttests toe voor een kandidaat thermische segmentuitvoer binnen de bestaande prognoseketen. Test minimaal:
+1. segmentdoelmoment is exact `segment.startTime`, inclusief gedeeltelijke eerste uren;
+2. wijziging van forecasturen ná het segmentdoelmoment verandert de thermische uitkomst van dat segment niet;
+3. ieder segment gebruikt hetzelfde laatst geldige meetanker en de bestaande chronologische thermische engine;
+4. gemeten temperatuur, schatting vanaf meetanker, historisch profiel, weer-only fallback en onbekende temperatuur behouden hun bestaande bron-/beschikbaarheidsstatus;
+5. temperatuurband/onzekerheid blijft afzonderlijk beschikbaar en wordt niet stilzwijgend een statistisch betrouwbaarheidsinterval;
+6. ontbrekende forecasturen en ontbrekende thermische uitkomsten blijven expliciet onbekend;
+7. de bestaande dagscore, tijdvakscore, persoonlijke vangkans en opgeslagen snapshots blijven ongewijzigd.
+
+Pas na deze tests wordt een zuivere kandidaatuitvoer beoordeeld. De sessie-aggregatie en de uiteindelijke score-/coverage-regel blijven daarna een afzonderlijke modelbeslissing.
+
+### 206.6 Statuscorrectie
+
+De eerdere notities §§195–196 beschrijven de toenmalige auditbranchstatus vóór de latere merge. De strict targetTime-as-of-correctie en de bijbehorende randgevallenmatrix zijn inmiddels opgenomen in `main` via PR #214. De intervalcontext, segmentatiehelper en VisCoach-output zijn eveneens op `main` aangesloten. De status in §§195–196 is historische voortgang en mag niet worden gelezen als de huidige merge-status.
+
+**Resultaat werkpakket 17:** read-only score- en intervalgereedheidsaudit afgerond. Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Geen nieuwe tests uitgevoerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
