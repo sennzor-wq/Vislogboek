@@ -6283,3 +6283,19 @@ Deze wijziging corrigeert twee uitvoerproblemen zonder een tweede prognose- of t
 - Andere beschikbare weers-, habitat- en tactische informatie blijft onderdeel van het advies.
 
 **Validatiestatus:** gerichte regressietest toegevoegd voor de onbeschikbare score in de VisCoach-samenvatting. TypeScript, de volledige relevante testsuite, de productiebuild en de praktische UI-controle moeten nog worden uitgevoerd; er wordt hier geen geslaagde test of praktijkcontrole geclaimd.
+
+## Aanvullende correctie — VisCoach-keuzevelden en centrale GPS-blokkade (23 november 2026)
+
+Praktijkfeedback na de vorige GPS-wijziging liet zien dat de gewenste gebruikersflow nog niet volledig was afgedekt. De code-inspectie bevestigde:
+- VisCoachView selecteerde bij openen automatisch de eerste stek en vulde Karper als doelvis in.
+- De VisCoach-pagina waarschuwde niet direct bij het kiezen van een stek zonder geldige GPS.
+- De GPS-controle in het sessiemodal was gekoppeld aan de startsnapshot-flow. De centrale opslagfunctie controleerde niet zelfstandig of een nieuwe actieve sessie een stek met geldige GPS had.
+
+Daarom is de flow aangescherpt:
+- Stek en doelvis beginnen beide op een expliciete placeholder: **Kies een stek** en **Kies een doelvis**.
+- Een stek zonder geldige breedte- en lengtegraad toont direct een waarschuwing op de VisCoach-pagina.
+- Het maken van een visplan is geblokkeerd zolang geen geldige GPS voor de gekozen stek bestaat; de melding verwijst naar Stekken om de positie vast te leggen.
+- De centrale opslagfunctie weigert nu ook een nieuwe actieve sessie zonder bestaande, geldige GPS-coördinaten op de gekoppelde stek. Dit voorkomt dat een alternatieve startflow de controle kan omzeilen.
+- Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
+
+**Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.
