@@ -180,8 +180,10 @@ const makeForecasts = (name: string): WeatherHourlyForecast[] => Array.from({ le
 const scenarios = ['cold_stable', 'mild_stable', 'warm_stable', 'hot_stable', 'warming', 'cooling'] as const;
 const simSegmentation = segmentPrognosisInterval(simulationTarget, simulationEnd, makeForecasts('mild_stable'));
 let simulationCases = 0;
-const karperScenarioSummary: Array<{ scenario: string; waterTemperatureC: number; candidateActivityScore: number }> = [];
+const speciesScenarioScores: Record<string, Record<string, number>> = {};
+const scenarioWaterTemperatures: Record<string, number> = {};
 for (const scenario of scenarios) {
+  speciesScenarioScores[scenario] = {};
   const series = makeForecasts(scenario);
   for (const species of ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', 'Snoekbaars', 'Meerval', 'Roofblei', 'Overig'] as const) {
     const opts = { location: simulationLocation, currentDateRef: new Date(simulationStart) };
@@ -196,14 +198,15 @@ for (const scenario of scenarios) {
       'Synthetisch ' + scenario + ' / ' + species + ': efficiëntie en score binnen grenzen');
     assert(JSON.stringify(result) === JSON.stringify(repeated),
       'Synthetisch ' + scenario + ' / ' + species + ': deterministische uitvoer');
-    if (species === 'Karper' && s.waterTemperatureC !== null && s.candidateActivityScore !== null) {
-      karperScenarioSummary.push({ scenario, waterTemperatureC: s.waterTemperatureC, candidateActivityScore: s.candidateActivityScore });
+    if (s.waterTemperatureC !== null && s.candidateActivityScore !== null) {
+      speciesScenarioScores[scenario][species] = s.candidateActivityScore;
+      scenarioWaterTemperatures[scenario] = s.waterTemperatureC;
     }
     simulationCases++;
   }
 }
 assert(simulationCases === 60, '6 weerscenario’s × 10 soorten = 60 synthetische combinaties');
-console.log('SYNTHETIC_INTERVAL_KARPER_SCENARIOS=' + JSON.stringify(karperScenarioSummary));
+console.log('SYNTHETIC_INTERVAL_SPECIES_SCORE_MATRIX=' + JSON.stringify(scenarios.map((scenario) => ({ scenario, waterTemperatureC: scenarioWaterTemperatures[scenario], scores: speciesScenarioScores[scenario] }))));
 
 
 const parityForecasts = makeForecasts('mild_stable');
