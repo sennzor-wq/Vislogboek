@@ -195,8 +195,8 @@ for (const scenario of scenarios) {
       'Synthetisch ' + scenario + ' / ' + species + ': efficiëntie en score binnen grenzen');
     assert(JSON.stringify(result) === JSON.stringify(repeated),
       'Synthetisch ' + scenario + ' / ' + species + ': deterministische uitvoer');
-    if (species === 'Karper' && segment.waterTemperatureC !== null && segment.candidateActivityScore !== null) {
-      karperScenarioSummary.push({ scenario, waterTemperatureC: segment.waterTemperatureC, candidateActivityScore: segment.candidateActivityScore });
+    if (species === 'Karper' && s.waterTemperatureC !== null && s.candidateActivityScore !== null) {
+      karperScenarioSummary.push({ scenario, waterTemperatureC: s.waterTemperatureC, candidateActivityScore: s.candidateActivityScore });
     }
     simulationCases++;
   }
