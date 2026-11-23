@@ -6393,7 +6393,7 @@ De matrix toont dat de kandidaat de ingestelde profielcurves per soort ondersche
 
 **Quality Gate:** volledige GitHub Actions-run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992) op commit `fc08c636d99f3d32e4949fa76f7037f8c8948822` is `success`. TypeScript typecheck, alle bestaande regressietests, de uitgebreide thermische kandidaatcontracttest, dependency audits en productiebuild zijn geslaagd.
 
-**Status:** WP18 technisch afgerond in draft PR #218. De PR bevat uitsluitend CI-configuratie, kandidaathelper en contracttests; de documentatie is apart bijgewerkt in PR #217 om overlappende auditwijzigingen te vermijden. PR #218 blijft open en ongemerged in afwachting van eigenaarreview. Geen biologische validiteit of voorspellende nauwkeurigheid bewezen.
+**Status:** WP18 technisch afgerond en gemerged naar `main` via PR #218 (merge commit `cb15aa395462284d3d3286d606ddd7781daf460a`). De PR bevatte uitsluitend CI-configuratie, kandidaathelper en contracttests; de documentatie is apart bijgewerkt in PR #217. De volledige Quality Gate op de PR-head was groen (run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992)). De kandidaat is niet aangesloten op gebruikersuitvoer en bewijst geen biologische validiteit of voorspellende nauwkeurigheid.
 
 ## 209. WP19 — kandidaatvalidatie: data- en replayhaalbaarheid
 
@@ -6565,7 +6565,7 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 
 **Test:** `test-feeding-evidence.ts` controleert dat Roofblei voedingsincidentie als eigen gemeten uitkomst terugkrijgt, terwijl `feedingIntensity` en `feedingRhythm` leeg blijven. De bestaande volledige Quality Gate [45205373427](https://github.com/sennzor-wq/Vislogboek/actions/runs/45205373427) op commit `634697faa57521ec6a47e04ae93a6cd694fc1117` is volledig groen.
 
-**Status:** technisch afgerond; PR #220 blijft draft en ongemerged voor eigenaarreview. Geen biologische scoring geactiveerd.
+**Status:** technisch afgerond en gemerged naar `main` via PR #220 (merge commit `0f79840906c53d53985590a67d7045a6ed295f5c`). De bijgewerkte volledige Quality Gate op commit `d4dc2cbebfa718360e04f7a7ae07dec2a6bd57fd` is groen (run [45244576575](https://github.com/sennzor-wq/Vislogboek/actions/runs/45244576575)). Geen biologische scoring geactiveerd.
 
 
 ## 214. WP24 — integratiegrenzen soortspecifieke evidence in prognose en habitatmodel (23 november 2026)
