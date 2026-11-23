@@ -8,6 +8,8 @@ import {
 
 export type FeedingEvidenceScope =
   | 'direct-feeding'
+  | 'feeding-incidence-and-diet'
+  | 'feeding-incidence-only'
   | 'foraging-only'
   | 'diet-only'
   | 'none';
@@ -15,6 +17,8 @@ export type FeedingEvidenceScope =
 export interface SpeciesFeedingEvidenceContext {
   species: FishSpecies;
   feedingIntensity: ResearchRegistryEntry[];
+  /** Maagvulling/vacuïteitsproxy; niet gelijk aan voedselhoeveelheid of voedingssnelheid. */
+  feedingIncidence: ResearchRegistryEntry[];
   feedingRhythm: ResearchRegistryEntry[];
   foragingBehavior: ResearchRegistryEntry[];
   dietComposition: ResearchRegistryEntry[];
@@ -37,22 +41,26 @@ export function getSpeciesFeedingEvidenceContext(
   species: FishSpecies
 ): SpeciesFeedingEvidenceContext {
   const feedingIntensity = byOutcome(species, 'feeding_intensity');
+  const feedingIncidence = byOutcome(species, 'feeding_incidence');
   const feedingRhythm = byOutcome(species, 'feeding_rhythm');
   const foragingBehavior = byOutcome(species, 'foraging_behavior');
   const dietComposition = byOutcome(species, 'diet_composition');
   const preySelection = byOutcome(species, 'prey_selection');
 
   const hasDirectFeeding = feedingIntensity.length > 0 || feedingRhythm.length > 0;
+  const hasFeedingIncidence = feedingIncidence.length > 0;
   const hasForaging = foragingBehavior.length > 0;
   const hasDiet = dietComposition.length > 0 || preySelection.length > 0;
 
   const scope: FeedingEvidenceScope = hasDirectFeeding
     ? 'direct-feeding'
-    : hasForaging
-      ? 'foraging-only'
-      : hasDiet
-        ? 'diet-only'
-        : 'none';
+    : hasFeedingIncidence
+      ? hasDiet ? 'feeding-incidence-and-diet' : 'feeding-incidence-only'
+      : hasForaging
+        ? 'foraging-only'
+        : hasDiet
+          ? 'diet-only'
+          : 'none';
 
   const feedingEvidence = [
     ...feedingIntensity,
@@ -70,6 +78,7 @@ export function getSpeciesFeedingEvidenceContext(
   return {
     species,
     feedingIntensity,
+    feedingIncidence,
     feedingRhythm,
     foragingBehavior,
     dietComposition,
