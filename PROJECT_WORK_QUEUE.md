@@ -27,7 +27,11 @@
 - Respecteer strikt de `targetTime`-as-of-grens; latere gegevens mogen eerdere prognoses niet beïnvloeden.
 - Een groene Quality Gate is geen bewijs van biologische voorspellende nauwkeurigheid.
 
-## Eerstvolgende taken
+## Eerstvolgende stap
+
+**Eigenaarreview van de vier open draft PR's.** De technisch afgebakende werkpakketten WP18 en WP20–WP25 zijn uitgevoerd; WP19 is op besluit van de eigenaar uit scope gehaald. De actuele Quality Gate is groen op de huidige heads van PR #217, #218, #220 en #221. De volgende stap is beoordeling door de eigenaar van de inhoud en scope van deze PR's. Geen van deze PR's wordt automatisch gemerged.
+
+## Afgeronde Fase-2-werkpakketten (status en bewijs)
 
 ### F2-WP18 — kandidaat thermische uitvoer per intervalsegment
 **Status:** technisch afgerond in open draft PR #218; 6 weerscenario’s × 10 soorten, volledige scorematrix, exacte tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, immutable-snapshotreplay en volledige GitHub Quality Gate zijn groen op commit `fc08c636d99f3d32e4949fa76f7037f8c8948822` (run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992)). De kandidaatcontracttest rapporteert 221 geslaagd, 0 mislukt. PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
