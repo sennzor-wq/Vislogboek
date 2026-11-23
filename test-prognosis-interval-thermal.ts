@@ -66,16 +66,49 @@ assert(
   'Forecastwijzigingen na segmentdoelmoment beïnvloeden de eerdere segmentuitkomst niet'
 );
 
+const partialForecasts = forecasts.filter((forecast) => forecast.time !== '2026-11-24T11:00:00.000Z');
 const partial = segmentPrognosisInterval(
   '2026-11-24T10:30:00Z',
   '2026-11-24T12:00:00Z',
-  forecasts.filter((forecast) => forecast.time !== '2026-11-24T11:00:00.000Z')
+  partialForecasts
 );
-const partialCandidates = calculateThermalIntervalCandidates(partial, forecasts, 'Karper', options);
-assert(partialCandidates.segments.length === 2, 'Ontbrekende uurforecast verwijdert geen thermisch segment');
+// Pass the same genuinely incomplete source series to the candidate helper.
+// Passing the original full series here would silently reintroduce the missing hour.
+const partialCandidates = calculateThermalIntervalCandidates(partial, partialForecasts, 'Karper', options);
+assert(partial.segments.length === 2 && partialCandidates.segments.length === 2, 'Ontbrekende uurforecast verwijdert geen thermisch segment');
 assert(
-  partialCandidates.segments.every((segment) => segment.status === 'unknown' || segment.status === 'available'),
-  'Ontbrekende invoer wordt expliciet unknown of berekend, nooit als nulscore'
+  partial.segments[1].weatherAvailable === false &&
+  partialCandidates.segments[1].targetTime === partial.segments[1].startTime,
+  'Het ontbrekende forecastuur blijft ontbrekend bij de thermische kandidaatberekening'
+);
+assert(
+  partialCandidates.segments[1].status === 'available' &&
+  partialCandidates.segments[1].thermalSource === 'estimated_from_measurement',
+  'Een expliciet beschikbaar recent meetanker mag een beperkte modelschatting dragen zonder ontbrekende uurdata te verzinnen'
+);
+
+const noThermalBasis = segmentPrognosisInterval(
+  '2026-11-24T10:30:00Z',
+  '2026-11-24T12:00:00Z',
+  []
+);
+const noBasisCandidates = calculateThermalIntervalCandidates(noThermalBasis, [], 'Karper', {
+  location,
+  currentDateRef: new Date('2026-11-23T09:00:00Z'),
+});
+assert(
+  noBasisCandidates.segments.length === 2 &&
+  noBasisCandidates.segments.every((segment) =>
+    segment.status === 'unknown' &&
+    segment.unknownReason === 'missing_temperature' &&
+    segment.thermalSource === null &&
+    segment.estimatedWaterTempC === null &&
+    segment.estimatedRangeC === null &&
+    segment.uncertaintyC === null &&
+    segment.thermalEfficiency === null &&
+    segment.candidateActivityScore === null
+  ),
+  'Zonder meetanker, historische temperatuur of bruikbare forecast blijft iedere thermische uitkomst expliciet unknown/null'
 );
 
 console.log('\nThermal interval candidate contract: ' + passed + ' passed, ' + failed + ' failed');
