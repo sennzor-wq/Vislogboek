@@ -51,24 +51,6 @@ Acceptatie:
 - Volledige diff bevat alleen bedoelde geïsoleerde kandidaatuitvoer, tests en noodzakelijke CI-wijziging.
 - Geen claims over biologische validiteit of sessieaggregatie.
 
-### F2-WP19 — kandidaatvalidatie en modelvergelijking
-**Status:** code-level haalbaarheid onderzocht; empirische validatie is geblokkeerd totdat een echte, geanonimiseerde export van lokale sessie-/prognosedata beschikbaar is. WP18 heeft een groene volledige Quality Gate, maar PR #218 blijft open en ongemerged.
-Acties:
-1. **Afgerond — schema-audit:** `PrognosisSnapshot` bewaart de exacte `weatherInput`, `inputContext`, doelvenster, soort, model-/engineversies en voorspelde uitvoer. `inputContext` bevat onder meer stek-/dieptecontext, historische watertemperatuurmetingen, historische feature-snapshots en de bij die prognoserun gebruikte lokale watertemperatuurkalibratie.
-2. **Afgerond — uitkomstkoppeling:** snapshots kunnen aan een voltooide sessie worden gekoppeld met `actualOutcome` en `actualTargetCatchesCount`; de uitkomst is sessiebreed (`catch`/`skunk_confirmed`), geen automatisch segmentlabel.
-3. **Afgerond — tijdstempelkwaliteit:** vangstrecords hebben een tijdstempel en optionele invoer-/legacy-kwaliteitsvlaggen. Alleen records met aantoonbaar bekende soort, aantallen en tijdstippen mogen eventueel aan een segment worden gekoppeld; dit bewijst nog niet dat alle vangsten volledig zijn geregistreerd.
-4. **Geblokkeerd op echte data — datadekking:** er zijn in deze werksessie geen echte sessies of historische prognoses beschikbaar gesteld. Daarom is geen persoonlijke export, steekproefomvang of soort-/seizoens-/stekdekking vastgesteld. GitHub heeft geen toegang tot de lokale Dexie/IndexedDB. De synthetische simulaties toetsen uitsluitend softwaregedrag en randgevallen; zij vervangen geen echte historische validatie.
-5. **Gedeeltelijk — synthetische replay geslaagd:** een immutable snapshot-fixture reconstrueert dezelfde kandidaatuitvoer uit `weatherInput` en `inputContext`, inclusief stekcontext en exacte lokale temperatuurkalibratie; er zijn nul persoonlijke sessies nodig voor deze technische replay. **Open voor echte data:** inventariseer echte snapshots op volledigheid, versieherkomst en oorspronkelijke as-of-invoer zodra zulke data beschikbaar zijn. Houd de chronologische train-/testscheiding strikt.
-6. **Open — segmentlabels:** gebruik sessiebrede vangstuitkomsten niet als bewijs dat ieder afzonderlijk segment goed/slecht was. Segmenttoewijzing kan hoogstens bij aantoonbaar betrouwbare vangsttijdstempels; nulvangst per segment vereist volledige gebeurtenisregistratie die nu niet is aangetoond.
-7. **Open — thermische vergelijking:** een achteraf geregistreerde watertemperatuurmeting kan alleen het segment ondersteunen waarin het fysieke meetmoment valt en alleen als zij na de voorspelling is verricht. Eén optionele meting per sessie valideert niet automatisch alle segmenten en valideert geen biologische activiteitsscore.
-8. Geen gewichten fitten, geen scoreparameters aanpassen en geen kandidaat integreren op basis van synthetische of onvoldoende data.
-
-Acceptatie:
-- Reproduceerbare validatieopzet met expliciete datadekking en chronologische scheiding.
-- Geen future leakage.
-- Geen modelwijziging op basis van onvoldoende of synthetische data.
-- Duidelijke beslissing: verder onderzoek, aanvullende dataverzameling of onderbouwd modelvoorstel.
-
 ### F2-WP20 — herkomst en onderbouwing thermische soortparameters
 **Status:** afgerond — read-only audit.
 
@@ -145,14 +127,14 @@ Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/
 - Of kwalitatieve voedingscontext (zonder numerieke bonus) zichtbaar moet worden in Prognose/VisCoach; de feeding-evidence-service is nog niet geïntegreerd.
 - Of en hoe het generieke habitatbewegingsmodel later soortspecifiek moet worden; daarvoor is eerst een passende bronset en afbakening van responsmaten nodig.
 
-**Empirische blokkade:** WP19 kan zonder echte prognosesnapshots en afgeronde sessies niet worden omgezet in een echte chronologische backtest. Er worden geen sessies of vangsten verzonnen; synthetische tests blijven alleen technische tests.
+**Scopebesluit:** WP19 (empirische kandidaatvalidatie/modelvergelijking) wordt op besluit van de eigenaar niet uitgevoerd en staat niet langer in de actieve werkvoorraad. Er zijn momenteel geen echte sessie-/prognosedata beschikbaar; dit is daarom geen actieve blokkade. De historische schema-audit blijft alleen als naslag in Fase-2-audit §209. Synthetische tests blijven technische tests en worden niet als empirische validatie gepresenteerd.
 
 ## Voortgangslog
 
 | Datum | Werkpakket | Gebeurtenis | Bewijs/status |
 |---|---|---|---|
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
-| 2026-11-23 | F2-WP18/WP19 | 60 synthetische soort-/weerscenario-combinaties met volledige 6×10-scorematrix, tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, targetTime-, DST- en immutable-snapshotreplaytests; 221 kandidaatcontractchecks groen. | Commit `fc08c636d99f3d32e4949fa76f7037f8c8948822`; run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992); PR #218 open/draft, niet gemerged. |
+| 2026-11-23 | F2-WP18 | 60 synthetische soort-/weerscenario-combinaties met volledige 6×10-scorematrix, tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, targetTime-, DST- en immutable-snapshotreplaytests; 221 kandidaatcontractchecks groen. | Commit `fc08c636d99f3d32e4949fa76f7037f8c8948822`; run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992); PR #218 open/draft, niet gemerged. |
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
 | 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
 | 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
@@ -160,7 +142,9 @@ Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/
 | 2026-11-23 | F2-WP24 | Codekoppelingen van thermische, diel-, voedings- en habitat-evidence read-only gecontroleerd; ontbrekende integratie en generieke habitatlogica vastgelegd. | Fase-2-audit §214; geen runtimewijziging. |
 | 2026-11-23 | F2-WP25 | Habitatbewegingsengine synthetisch getest: 10 soorten × 4 thermische contexten + 10 directe-waarnemingsscenario's; volledige Quality Gate groen. | PR #221; commit `f07a7239ae8bde8a9f0330069240646deda79dfd`; run [45206942007](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206942007); draft/niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
-| 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
+| 2026-11-23 | F2-WP19 (historische schema-audit) | De schema-/replayhaalbaarheid is read-only onderzocht en vastgelegd in audit §209; geen echte steekproef of segmentlabels vastgesteld. | Alleen historische documentatie; verdere empirische validatie is op besluit van de eigenaar niet in scope. |
+
+| 2026-11-23 | Scopebesluit WP19 | Eigenaar heeft besloten WP19 niet uit te voeren zolang er geen echte sessie-/prognosedata beschikbaar zijn; WP19 is uit de actieve werkvoorraad verwijderd en vormt geen blokkade. | Vastgelegd in Fase-2-audit §216; geen data, tests of validatieresultaten verzonnen. |
 
 ## Bijwerken van deze queue
 

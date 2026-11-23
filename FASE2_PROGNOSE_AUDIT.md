@@ -6593,7 +6593,7 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 
 - Geen automatische score- of advieswijziging op basis van deze audit.
 - Eventuele kwalitatieve voedingscontext in de prognose/VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke keuzes; zij worden niet stilzwijgend in deze technische audit doorgevoerd.
-- Fase 2 blijft open. WP19 blijft voor empirische validatie afhankelijk van echte snapshots/sessies; WP24 legt de huidige integratiegrenzen vast.
+- Fase 2 blijft open. WP19 is op besluit van de eigenaar uit de actieve werkvoorraad gehaald (zie §216); WP24 legt de huidige integratiegrenzen vast.
 
 **Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.
 
@@ -6627,3 +6627,12 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 De matrix toont dat de huidige generieke habitatengine voor alle soortwaarden en de gekozen invoercombinaties stabiele, complete en onbekend-bewuste uitvoer produceert. De matrix toont nadrukkelijk **niet** dat habitatkeuze biologisch soortspecifiek voorspeld wordt: de engine gebruikt geen species-specifieke evidence lookup en is in WP24 als generieke zonehypothese geclassificeerd.
 
 **Resultaat WP25:** technische robuustheidstest afgerond in draft PR #221. Geen biologische validatieclaim en geen runtimewijziging.
+
+
+## 216. Scopebesluit eigenaar — WP19 niet uitvoeren (23 november 2026)
+
+De eigenaar heeft expliciet besloten F2-WP19 (empirische kandidaatvalidatie en modelvergelijking) niet uit te voeren. Er zijn momenteel geen echte historische sessies en prognosesnapshots beschikbaar om deze validatie uit te voeren. Daarom wordt WP19 uit de actieve werkvoorraad verwijderd en vormt het geen blokkade voor de overige Fase-2-werkzaamheden.
+
+De eerdere read-only schema- en replayhaalbaarheidscontrole in §209 blijft behouden als historische documentatie; dit betekent niet dat empirische validatie is uitgevoerd of geslaagd. Synthetische simulaties blijven uitsluitend technische contract-/regressietests en worden niet gebruikt als vervanging voor echte uitkomstdata. Er worden geen sessies, vangsten, labels, nauwkeurigheidsresultaten of biologische parameters verzonnen.
+
+WP19 kan alleen opnieuw worden overwogen als echte data later beschikbaar komen én de eigenaar besluit dat empirische validatie alsnog gewenst is. Tot die tijd gaan de overige reeds geplande en geautoriseerde werkzaamheden verder zonder deze afhankelijkheid.
