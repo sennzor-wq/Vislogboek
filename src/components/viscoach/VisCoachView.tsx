@@ -10,6 +10,7 @@ import {
 import { PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { buildVisCoachPlan, VisCoachPlan } from '../../services/viscoachService';
 import { buildVisCoachAdviceText } from '../../services/sessionCoachService';
+import { LocationModal } from '../locations/LocationModal';
 import {
   CalendarClock,
   Clock,
@@ -31,6 +32,7 @@ interface VisCoachViewProps {
   onStartSession: (species?: FishSpecies, locationId?: string, pendingSnapshot?: PendingPrognosisSnapshot, durationHours?: number, endTime?: string | null) => void;
   onStartPlannedSession: (plan: PlannedFishingSession) => Promise<void>;
   onSavePlan: (plan: VisCoachPlan, location: FishingLocation, species: FishSpecies) => Promise<void>;
+  onSaveLocation: (location: FishingLocation) => Promise<void>;
   onCancelPlan: (planId: string) => Promise<void>;
 }
 
@@ -57,6 +59,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   onStartSession,
   onStartPlannedSession,
   onSavePlan,
+  onSaveLocation,
   onCancelPlan,
 }) => {
   const [locationId, setLocationId] = useState<string>('');
@@ -69,6 +72,7 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
   const [startingPlanId, setStartingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedMessage, setSavedMessage] = useState<string | null>(null);
+  const [showGpsLocationModal, setShowGpsLocationModal] = useState(false);
 
   const selectedLocation = locations.find((location) => location.id === locationId) || null;
   const selectedLocationHasGps = Boolean(selectedLocation &&
@@ -250,7 +254,15 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
         {selectedLocation && !selectedLocationHasGps && (
           <div role="alert" className="rounded-xl border border-amber-500/50 bg-amber-950/40 p-3 text-sm text-amber-200">
             <strong className="block mb-1">GPS-locatie ontbreekt voor deze stek</strong>
-            Voeg de juiste coördinaten toe via <strong>Stekken</strong>. Zonder GPS kunnen we geen betrouwbare lokale weersverwachting en prognose voor deze stek berekenen.
+            Zonder GPS kunnen we geen betrouwbare lokale weersverwachting en prognose voor deze stek berekenen.
+            <button
+              type="button"
+              onClick={() => setShowGpsLocationModal(true)}
+              className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2 font-bold text-slate-950 hover:bg-amber-400 transition"
+            >
+              <MapPin className="w-4 h-4" />
+              GPS-locatie toevoegen
+            </button>
           </div>
         )}
         {error && <div className="rounded-xl border border-rose-500/40 bg-rose-950/30 p-3 text-sm text-rose-200">{error}</div>}
@@ -354,6 +366,17 @@ export const VisCoachView: React.FC<VisCoachViewProps> = ({
           </div>
           {startIsFuture && <p className="text-xs text-slate-500">Dit tijdstip ligt nog in de toekomst. Je kunt de sessie alvast plannen; starten kan zodra je daadwerkelijk gaat vissen.</p>}
         </section>
+      )}
+
+      {showGpsLocationModal && selectedLocation && (
+        <LocationModal
+          location={selectedLocation}
+          onSave={async (updatedLocation) => {
+            await onSaveLocation(updatedLocation);
+            invalidatePlan();
+          }}
+          onClose={() => setShowGpsLocationModal(false)}
+        />
       )}
 
       <section className="rounded-3xl border border-slate-700 bg-slate-800/70 p-4 sm:p-6 space-y-3">
