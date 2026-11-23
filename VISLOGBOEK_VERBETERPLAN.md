@@ -1241,3 +1241,12 @@ De adapter markeert expliciet dat thermische activiteit niet per segment wordt h
 Audit §205 en architectuur §170 documenteren de eerste end-to-end koppeling. De bestaande VisCoach-planbuilder hergebruikt de ene bestaande dagprognose en bouwt daarnaast het interval-outputobject met de al opgehaalde uurforecast. De bestaande adviesfunctie ontvangt dit object optioneel en maakt één chronologisch sessieverhaal: aangrenzende segmenten met gelijke weerscontext worden samengevoegd; ontbrekende waarden worden niet ingevuld; dagscore, starttactiek en sessiebrede vangkans blijven gescheiden. Oude sessieadvies-/reassessment-paden blijven ongewijzigd wanneer zij geen intervalobject aanbieden.
 
 **Status:** nieuwe-planroute en UI zijn aangesloten; Quality Gate run 45156084460 op commit `779f38ed6e6bbd64920e97c2bbca9c4eb187f6d8` is volledig groen, inclusief typecheck, intervalcontract-/VisCoach-tests, regressies en productiebuild. De forecastdekkingstekst maakt onderscheid tussen aanwezigheid van uurrecords en geldigheid van individuele velden. Geen tweede prognosemodel, intervalscores of gewichten toegevoegd.
+
+
+### Fase 2 — scoresemantiek en gereedheid thermische intervaluitvoer (23 november 2026)
+
+Audit §206 heeft de actuele `main`-code gecontroleerd. De bestaande 1–10-score gebruikt uitsluitend de voorlopige soortspecifieke thermische temperatuurcurve (`1 + 9 * efficiency^0.85`); overige weers- en tijdsfactoren blijven context zonder numerieke bonus/aftrek. De huidige tijdvakscore gebruikt één representatief forecastmoment per tijdvak; de dagscore is het ongewogen gemiddelde van vier tijdvakuitkomsten en is geen sessie-intervalscore.
+
+De intervaladapter bevat nu alleen segmentgrenzen, forecastdekking en afzonderlijk gevalideerde beschrijvende weersamples. Thermische activiteit is expliciet nog niet per segment berekend. Een kandidaat per segment kan de bestaande `waterThermalEngine` met exact `targetTime = segment.startTime` en dezelfde soortcurve hergebruiken, maar dit is nog niet geïmplementeerd of goedgekeurd.
+
+**Volgende stap:** werkpakket 18 — test-first contracttests voor kandidaat thermische segmentuitvoer, bron-/onzekerheidsstatus, strikte as-of-invariant en behoud van bestaande dag-/tijdvak-/sessie-uitkomsten. Nog geen sessieaggregatie, minimumdekking, nieuwe gewichten of biologische factoren kiezen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §206.
