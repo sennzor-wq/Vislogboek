@@ -30,7 +30,7 @@
 ## Eerstvolgende taken
 
 ### F2-WP18 — kandidaat thermische uitvoer per intervalsegment
-**Status:** technisch afgerond in open draft PR #218; uitgebreide synthetische scenario-matrix en volledige GitHub Quality Gate zijn groen op commit `e575bdedae1bac7582426ce84d4ba241abd72302` (run [45201974917](https://github.com/sennzor-wq/Vislogboek/actions/runs/45201974917)). PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
+**Status:** technisch afgerond in open draft PR #218; uitgebreide synthetische scenario-matrix, inspecteerbare scenariouitvoer en volledige GitHub Quality Gate zijn groen op commit `5533eeaac752cb99cc136a76836bad632c5b77fd` (run [45202582240](https://github.com/sennzor-wq/Vislogboek/actions/runs/45202582240)). PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
 **Branch:** `feat/fase2-thermal-interval-candidates`
 **PR:** https://github.com/sennzor-wq/Vislogboek/pull/218
 
@@ -39,7 +39,7 @@ Acties:
 2. Controleer TypeScript-contracten en testdata in `src/services/prognosisIntervalThermal.ts` en `test-prognosis-interval-thermal.ts`.
 3. **Afgerond:** zowel segmentatie als kandidaathelper ontvangen dezelfde daadwerkelijk gefilterde forecast-input; de test controleert dat het ontbrekende uur niet opnieuw wordt aangeleverd.
 4. **Afgerond:** contracttests dekken ontbrekende thermische basisdata, expliciete unknown/null-semantiek, as-of-invariant en de kalibratiepariteit.
-5. **Afgerond:** volledige bestaande Quality Gate geslaagd, inclusief typecheck, alle tests, dependency audits en productiebuild; run [45201974917](https://github.com/sennzor-wq/Vislogboek/actions/runs/45201974917).
+5. **Afgerond:** volledige bestaande Quality Gate geslaagd, inclusief typecheck, alle tests, dependency audits en productiebuild; run [45202582240](https://github.com/sennzor-wq/Vislogboek/actions/runs/45202582240).
 5a. **Afgerond — synthetische simulatie:** 6 weerscenario’s (koud/stabiel, mild/stabiel, warm/stabiel, heet/stabiel, opwarming en afkoeling) × 10 doelsoorten = 60 deterministische combinaties; per combinatie worden bronstatus, finite temperatuur, efficiëntiegrenzen, 1–10 kandidaat-score en reproduceerbaarheid gecontroleerd. Extra checks testen extreme forecastwijzigingen ná `targetTime`, onvoldoende weershistorie zonder meetanker en beide Amsterdamse DST-overgangen.
 6. **Afgerond via diff-review:** dagscore, tijdvakscore, bestaande intervaloutput, persoonlijke vangkans, UI en opgeslagen data zijn niet gewijzigd. De kandidaat gebruikt dezelfde gevalideerde lokale temperatuurkalibratie als de bestaande dag-/tijdvakprognose, uitsluitend voor modelschattingen; echte metingen en unknown-uitkomsten worden niet gecorrigeerd.
 7. **Afgerond:** bestaande Fase-2-audit en queue bijgewerkt met exacte code- en CI-bewijsstatus.
@@ -80,7 +80,7 @@ Acceptatie:
 | Datum | Werkpakket | Gebeurtenis | Bewijs/status |
 |---|---|---|---|
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
-| 2026-11-23 | F2-WP18 | Missing-hour- en unknown/null-tests gecorrigeerd; lokale kalibratiepariteit toegevoegd; 60 synthetische soort-/weerscenario-combinaties plus targetTime-, datadekking- en DST-randgevallen toegevoegd; volledige Quality Gate groen. | Commit `e575bdedae1bac7582426ce84d4ba241abd72302`; run [45201974917](https://github.com/sennzor-wq/Vislogboek/actions/runs/45201974917); PR #218 open/draft, niet gemerged. |
+| 2026-11-23 | F2-WP18 | Missing-hour- en unknown/null-tests gecorrigeerd; lokale kalibratiepariteit toegevoegd; 60 synthetische soort-/weerscenario-combinaties plus targetTime-, datadekking- en DST-randgevallen toegevoegd; scenariouitvoer controleerbaar gelogd; volledige Quality Gate groen. | Commit `5533eeaac752cb99cc136a76836bad632c5b77fd`; run [45202582240](https://github.com/sennzor-wq/Vislogboek/actions/runs/45202582240); PR #218 open/draft, niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 
