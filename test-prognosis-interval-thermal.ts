@@ -154,5 +154,80 @@ assert(
   'Zonder meetanker, historische temperatuur of bruikbare forecast blijft iedere thermische uitkomst expliciet unknown/null'
 );
 
+
+const simulationStart = Date.parse('2026-11-20T00:00:00Z');
+const simulationTarget = '2026-11-24T12:00:00Z';
+const simulationEnd = '2026-11-24T13:00:00Z';
+const simulationLocation: FishingLocation = { ...location, id: 'synthetic-water', waterDepth: 2.2, waterType: 'Plas/Zandafgraving' };
+const scenarioTemp = (name: string, hour: number): number => {
+  if (name === 'cold_stable') return 4;
+  if (name === 'mild_stable') return 12;
+  if (name === 'warm_stable') return 20;
+  if (name === 'hot_stable') return 30;
+  if (name === 'warming') return hour < 48 ? 7 : hour < 84 ? 11 : 17;
+  if (name === 'cooling') return hour < 48 ? 19 : hour < 84 ? 13 : 6;
+  throw new Error('Unknown scenario ' + name);
+};
+const makeForecasts = (name: string): WeatherHourlyForecast[] => Array.from({ length: 120 }, (_, hour) => ({
+  time: new Date(simulationStart + hour * 3600000).toISOString(),
+  temperature: scenarioTemp(name, hour), pressure: 1012 + hour % 8,
+  windSpeed: name === 'hot_stable' ? 3 : name === 'cooling' ? 18 : 8,
+  windDirection: 225, windDirectionText: 'ZW', precipitation: name === 'cooling' ? 0.2 : 0,
+  precipitationProbability: name === 'cooling' ? 20 : 0,
+  cloudCover: name === 'warm_stable' ? 15 : 65, weatherCode: 1,
+}));
+const scenarios = ['cold_stable', 'mild_stable', 'warm_stable', 'hot_stable', 'warming', 'cooling'] as const;
+const simSegmentation = segmentPrognosisInterval(simulationTarget, simulationEnd, makeForecasts('mild_stable'));
+let simulationCases = 0;
+for (const scenario of scenarios) {
+  const series = makeForecasts(scenario);
+  for (const species of ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', 'Snoekbaars', 'Meerval', 'Roofblei', 'Overig'] as const) {
+    const opts = { location: simulationLocation, currentDateRef: new Date(simulationStart) };
+    const result = calculateThermalIntervalCandidates(simSegmentation, series, species, opts);
+    const repeated = calculateThermalIntervalCandidates(simSegmentation, series, species, opts);
+    const s = result.segments[0];
+    assert(s.status === 'available' && s.thermalSource === 'estimated_from_weather' &&
+      typeof s.waterTemperatureC === 'number' && Number.isFinite(s.waterTemperatureC),
+      'Synthetisch ' + scenario + ' / ' + species + ': geldige weerafgeleide watertemperatuur');
+    assert(s.thermalEfficiency !== null && s.thermalEfficiency >= 0.08 && s.thermalEfficiency <= 1 &&
+      s.candidateActivityScore !== null && s.candidateActivityScore >= 1 && s.candidateActivityScore <= 10,
+      'Synthetisch ' + scenario + ' / ' + species + ': efficiëntie en score binnen grenzen');
+    assert(JSON.stringify(result) === JSON.stringify(repeated),
+      'Synthetisch ' + scenario + ' / ' + species + ': deterministische uitvoer');
+    simulationCases++;
+  }
+}
+assert(simulationCases === 60, '6 weerscenario’s × 10 soorten = 60 synthetische combinaties');
+
+const futurePerturbed = makeForecasts('mild_stable').map((f) => Date.parse(f.time) > Date.parse(simulationTarget)
+  ? { ...f, temperature: 55, windSpeed: 180, precipitation: 50 } : f);
+const original = calculateThermalIntervalCandidates(simSegmentation, makeForecasts('mild_stable'), 'Karper', {
+  location: simulationLocation, currentDateRef: new Date(simulationStart),
+});
+const perturbed = calculateThermalIntervalCandidates(simSegmentation, futurePerturbed, 'Karper', {
+  location: simulationLocation, currentDateRef: new Date(simulationStart),
+});
+assert(JSON.stringify(original.segments[0]) === JSON.stringify(perturbed.segments[0]),
+  'Extreem gewijzigde forecast na targetTime verandert het eerdere segment niet');
+
+const shortSeries = makeForecasts('mild_stable').filter((f) =>
+  Date.parse(f.time) >= Date.parse('2026-11-24T06:00:00Z') && Date.parse(f.time) <= Date.parse('2026-11-24T12:00:00Z'));
+const shortSeg = segmentPrognosisInterval(simulationTarget, simulationEnd, shortSeries);
+const shortResult = calculateThermalIntervalCandidates(shortSeg, shortSeries, 'Karper', {
+  location: simulationLocation, currentDateRef: new Date(simulationStart),
+});
+assert(shortResult.segments[0].status === 'unknown' && shortResult.segments[0].waterTemperatureC === null &&
+  shortResult.segments[0].candidateActivityScore === null,
+  'Te korte weershistorie zonder lokaal meetanker blijft expliciet unknown');
+
+const springDst = segmentPrognosisInterval('2026-03-29T00:00:00Z', '2026-03-29T03:00:00Z', []);
+const autumnDst = segmentPrognosisInterval('2026-10-25T00:00:00Z', '2026-10-25T03:00:00Z', []);
+assert(springDst.segments.length === 3 && springDst.totalDurationMinutes === 180 &&
+  springDst.segments.reduce((sum, s) => sum + s.durationMinutes, 0) === 180,
+  'Voorjaars-DST behoudt exact 180 verstreken minuten');
+assert(autumnDst.segments.length === 3 && autumnDst.totalDurationMinutes === 180 &&
+  autumnDst.segments.reduce((sum, s) => sum + s.durationMinutes, 0) === 180,
+  'Najaars-DST behoudt exact 180 verstreken minuten bij dubbel lokaal uur');
+
 console.log('\nThermal interval candidate contract: ' + passed + ' passed, ' + failed + ' failed');
 if (failed > 0) process.exit(1);
