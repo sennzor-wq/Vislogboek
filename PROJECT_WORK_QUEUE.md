@@ -95,6 +95,15 @@ Een gerichte cross-check van primaire studies is uitgevoerd voor soorten waarbij
 
 **Besluit:** geen van deze uitkomsten mag zonder outcome-, levensfase-, grootte- en contextmatch als vervanging van de bestaande thermische prior worden gebruikt. Geen score of parameter aangepast.
 
+### F2-WP22 — dekking en uitkomstclassificatie voedings-/foerageerbewijs
+**Status:** afgerond — read-only registeraudit.
+
+De bestaande research registry is per concrete doelsoort geïnventariseerd op directe uitkomsttypen voor voedingsintensiteit, voedingsincidentie/-ritme, foerageergedrag, dieet en prooikeuze. De dekking en interpretatiebeperkingen staan in audit §212.
+
+**Uitkomst:** alle negen concrete soorten hebben geregistreerde voedings-/gedragsbronnen, maar niet dezelfde uitkomstmaten. Roofblei heeft in de huidige set vooral voedingsincidentie/dieet/prooikeuze, terwijl andere soorten ook voedingsintensiteit of -ritme hebben. Alle geïnventariseerde entries blijven niet-goedgekeurd voor numerieke voorspelling.
+
+**Besluit:** geen numerieke voedingsfactor, dagdeelbonus of temperatuurinteractie activeren. Gedrag, maagvulling, dieet, prooikeuze en directe voedselopname blijven gescheiden. Geen code of score gewijzigd.
+
 ## Openstaande eigenaarbeslissingen
 
 - PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
@@ -109,6 +118,7 @@ Een gerichte cross-check van primaire studies is uitgevoerd voor soorten waarbij
 | 2026-11-23 | F2-WP18/WP19 | 60 synthetische soort-/weerscenario-combinaties, targetTime-, datadekking-, DST-, tijdvakpariteit- en immutable-snapshotreplaytests; 201 kandidaatcontractchecks groen. | Commit `f2eebc52c8434ddde6e9ab2993f4aae365c20d11`; run [45203638825](https://github.com/sennzor-wq/Vislogboek/actions/runs/45203638825); PR #218 open/draft, niet gemerged. |
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
 | 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
+| 2026-11-23 | F2-WP22 | Per soort dekking van geregistreerde voedings-/foerageeruitkomsten geïnventariseerd; alle bronnen blijven niet-goedgekeurd voor numerieke scoring. | Fase-2-audit §212; geen runtimewijziging. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 

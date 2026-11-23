@@ -6502,3 +6502,42 @@ Bron: https://doi.org/10.1111/j.1095-8649.2012.03436.x
 4. Alle huidige thermische optimum-/breedteparameters blijven voorlopige modelprioren. Numerieke herkalibratie vereist een bredere soortspecifieke bronset én later onafhankelijke chronologische validatie.
 
 **Resultaat WP21:** vijf gerichte primaire-broncontroles afgerond; geen numerieke of runtimewijziging. Fase 2 blijft open.
+
+
+## 212. WP22 — dekking en uitkomstclassificatie voedings-/foerageerbewijs (23 november 2026)
+
+**Scope:** read-only inventaris van measuredOutcomes in de centrale research registry, gekoppeld aan de negen concrete soorten. De aantallen hieronder zijn registry-entries waarin de soort voorkomt en ten minste één voedings-/foerageeruitkomst is geregistreerd; een gedeelde entry kan bij meer dan één soort meetellen. Dit zijn geen aantallen onafhankelijke studies of datapoints.
+
+### 212.1 Dekking per soort
+
+| Soort | Registry-entries | Geregistreerde uitkomsttypen | Interpretatiegrens |
+|---|---:|---|---|
+| Karper | 13 | Voedingsintensiteit, voedingsritme, foerageergedrag | Meerdere veld-, vijver- en kweekcontexten; aasbezoek/voerconsumptie niet gelijk aan alle natuurlijke voedselopname. |
+| Brasem | 6 | Voedingsintensiteit, voedingsritme, foerageergedrag, prooikeuze | Maagvulling en prooiverwerking zijn context-/prooispecifiek; niet één universele dagcurve. |
+| Snoek | 4 | Voedingsintensiteit, voedingsritme, dieet | Een deel is levensfasegebonden; hartslag/vertering of maaginhoud is niet automatisch directe jachtactiviteit. |
+| Baars | 6 | Voedingsintensiteit, voedingsritme, dieet, prooikeuze | Seizoen, lengteklasse, habitat en prooigroep veranderen het patroon. |
+| Voorn | 9 | Voedingsintensiteit, voedingsritme, dieet, foerageergedrag, prooikeuze | Sterke variatie naar leeftijd, seizoen, littoraal/pelagiaal en voedseltype. |
+| Zeelt | 4 | Voedingsintensiteit, voedingsritme, foerageergedrag, dieet | Mix van veld- en kweekdata; nachtelijk ritme en larvale voedingsproeven niet zonder meer overdraagbaar. |
+| Snoekbaars | 5 | Voedingsintensiteit, voedingsritme, dieet, prooikeuze | Ontogenetische prooiverschuiving, geslacht/seizoen en kweek-/veldcontext relevant. |
+| Meerval | 4 | Voedingsintensiteit, voedingsritme, foerageergedrag, dieet | Gecontroleerde zelfvoerproeven en juveniele reservoirdata verschillen sterk in levensfase en context. |
+| Roofblei | 3 | Voedingsincidentie, dieet, prooikeuze | Huidige dekking is vooral vacuïteits-/maaginhoud- en dieetproxy; directe voedingsintensiteit of dagritme is beperkter. |
+
+### 212.2 Belangrijke scheiding van uitkomstmaten
+
+- **Voedingsintensiteit / directe voedselopname:** hoeveelheid gegeten voedsel, maagvulling of rantsoen; meetmethode en tijdsresolutie blijven relevant.
+- **Voedingsincidentie / vacuïteit:** aandeel vissen met lege maag; dit is geen exacte hoeveelheid of voedingssnelheid.
+- **Voedingsritme:** wanneer voedselopname optreedt; een dag-/nachtpatroon is niet automatisch een temperatuurrespons.
+- **Foerageergedrag / habitatgebruik:** zoeken, bewegen, voerlocaties bezoeken of prooi benaderen; dit bewijst niet dat voedsel daadwerkelijk is opgenomen.
+- **Dieet / prooikeuze:** wat wordt gegeten; dit geeft niet op zichzelf de intensiteit of het tijdstip van eten aan.
+
+Alle geïnventariseerde entries hebben approvedForPrediction=false. Een bronregistratie betekent dus niet dat een numerieke bonus, tijdvakvoorkeur of temperatuurfactor in de runtime mag worden gebruikt.
+
+### 212.3 Besluit
+
+1. Het register bevat bruikbare kwalitatieve kennis voor alle negen concrete doelsoorten, maar de uitkomstmaten en contexten zijn ongelijk.
+2. Roofblei heeft op dit moment een andere en beperktere directe voedingsuitkomstdekking dan de andere soorten; dit mag niet worden aangevuld met aannames uit verwante soorten.
+3. Een kwalitatieve uitleg mag alleen de werkelijk gemeten uitkomst benoemen en moet de relevante levensfase, habitat, seizoen en methode noemen.
+4. Geen numerieke voedingsfactor, dagdeelbonus, temperatuurinteractie of vangkanscorrectie wordt door deze inventaris geactiveerd.
+5. Een toekomstige voedingslaag moet afzonderlijk gevalideerd worden; fysiologische activiteit, voedingsactiviteit, lokale aanwezigheid en vangbaarheid blijven aparte uitkomsten.
+
+**Resultaat WP22:** registry-dekking read-only geïnventariseerd. Geen runtimewijziging of numerieke scoreaanpassing. Fase 2 blijft open.
