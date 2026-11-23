@@ -6448,3 +6448,57 @@ De breedtes zijn modelinstellingen voor de Gaussische profielcurve; ze zijn geen
 5. Volgende inhoudelijke stap: primaire literatuur per soort controleren op exacte gemeten respons, steekproef, temperatuurband en levensfase; daarna pas beoordelen of een curveparameter verdedigbaar is. Dit blijft los van empirische backtesting op echte Vislogboek-sessies.
 
 **Resultaat WP20:** read-only parameterherkomst-audit afgerond. Geen enkele thermische profielparameter is op basis van deze audit empirisch gevalideerd of gewijzigd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 211. WP21 — primaire-literatuurcontrole thermische parameter-overdraagbaarheid (23 november 2026)
+
+**Scope:** gerichte controle van primaire publicaties en abstracts voor vijf voorbeelden waar verschillende biologische uitkomsten of levensfasen makkelijk door elkaar kunnen lopen. Dit is bronkritiek, geen systematische review en geen volledige literatuurinventaris. Geen code, modelgewicht, profielparameter of gebruikersdata gewijzigd.
+
+### 211.1 Baars — lichaamsgrootte verandert de temperatuurrelatie
+
+Christensen, Svendsen & Steffensen (2020) onderzochten Europese baars bij acclimatisatietemperaturen van 15–28 °C. De studie vond dat het optimum voor aerobe scope met toenemende lichaamsmassa daalde; vissen onder 40 g vertoonden geen daling van aerobe scope bij hogere testtemperaturen. De studie mat metabolisme/aerobe scope en temperatuurvoorkeur, niet voedselopname of hengelvangbaarheid.
+
+Bron: https://doi.org/10.1111/jfb.14435
+
+**Gevolg voor Vislogboek:** een vaste Baars-piek van 16,5 °C kan niet worden voorgesteld als een universeel optimum voor alle formaten. De runtime heeft geen betrouwbare lichaamsmassa-/levensfase-invoer om een dergelijke correctie te berekenen. Geen aanpassing gedaan.
+
+### 211.2 Snoekbaars — volwassen kweekvis heeft een brede optimumzone
+
+Frisk, Skov & Steffensen (2012) maten standaard- en maximaal metabolisme bij volwassen kweek-snoekbaars op zes temperaturen van 13–28 °C. De maximale aerobe scope werd berekend bij 18,8 °C, maar tussen 13 en 25 °C was de aerobe scope niet significant verschillend. De gerapporteerde 80%-zone bedroeg 10,4–26,9 °C. De auteurs beschrijven daarnaast hogere temperatuur-optima uit eerdere juveniele studies (25–30 °C), wat een ontogenetisch verschil benadrukt.
+
+Bron: https://doi.org/10.1016/j.aquaculture.2011.10.024
+
+**Gevolg voor Vislogboek:** een smalle vaste piek op 15,0 °C is geen directe weergave van de studie. De brede adult-band, kweekcontext en leeftijdsverschillen moeten behouden blijven in de bewijsnuance. Geen parameterfit uitgevoerd.
+
+### 211.3 Karper — voedingsintensiteit is niet hetzelfde als fysiologische activiteit
+
+Chen et al. (2012) onderzochten de voedingsritmes van de Aziatische ondersoort *Cyprinus carpio haematopterus* bij 4–34 °C. De studie beschrijft twee dagelijkse voedingspieken; de maximale dagelijkse voedselopname van de geteste volwassen en jonge groepen lag rond 28 °C en daalde sterk bij 34 °C. Dit is directe informatie over voedselopname in de onderzochte ondersoort en grootteklassen, maar niet een aerobe-scopecurve en niet een veldvangstoptimum voor alle Europese karpers.
+
+Bron: https://doi.org/10.1016/S1006-8104(12)60039-7
+
+**Gevolg voor Vislogboek:** de studie hoort primair bij voedings-/foerageerbewijs. Zij mag niet worden gebruikt om de thermische activiteitsscore automatisch van 21 naar 28 °C te verschuiven. De fysiologische en voedingslaag blijven gescheiden.
+
+### 211.4 Zeelt — larvale kweekgroei is geen volwassen veldactiviteit
+
+Wolnicki, Kamiński & Sikorska (2016; online first 24 oktober 2016) onderzochten larvale zeelt gedurende 16 dagen bij 27, 30 en 33 °C en verschillende dagelijkse voedselbeschikbaarheidsperioden. De gemeten uitkomsten waren larvale groei en overleving bij gecontroleerde voedering; de auteurs rapporteerden een optimale combinatie voor larvale kweekcondities rond 28,6 °C met continue voedselbeschikbaarheid.
+
+Bron: https://doi.org/10.1111/are.13207
+
+**Gevolg voor Vislogboek:** dit ondersteunt geen optimum van 20,5 °C voor volwassen fysiologische activiteit of hengelvangbaarheid. Levensfase, voedselregime en uitkomstmaat zijn niet overdraagbaar zonder aanvullend bewijs.
+
+### 211.5 Meerval — veldbeweging is een andere respons dan voedselopname
+
+Slavík & Horký (2012) onderzochten de dagelijkse activiteit/energieconsumptie van Europese meerval met EMG in een rivieromgeving. De studie rapporteerde individuele variatie in dag-/nachtpatronen en een relatie tussen hogere temperatuur en hogere EMG-waarden; stroming beïnvloedde de waarden eveneens. EMG-bewegingsactiviteit is niet hetzelfde als directe voedselopname, aerobe-scopeoptimum of hengelvangbaarheid.
+
+Bron: https://doi.org/10.1111/j.1095-8649.2012.03436.x
+
+**Gevolg voor Vislogboek:** de bron kan kwalitatieve context voor locomotorische activiteit ondersteunen, maar niet de vaste thermische piek van 22,0 °C valideren. De bestaande thermal-evidence-service classificeert de soort daarom terecht niet als aerobe-scope-/metabole curvebron.
+
+### 211.6 Geconsolideerd besluit
+
+1. Een bron mag alleen een parameter ondersteunen als de gemeten uitkomst overeenkomt met de modeluitkomst: metabolisme ≠ aerobe scope ≠ voedingsintensiteit ≠ beweging ≠ vangbaarheid.
+2. Lichaamsgrootte, levensfase, acclimatisatie, kweek-/veldcontext en watertype bepalen overdraagbaarheid; ontbrekende invoer mag niet met een gemiddelde aanname worden ingevuld.
+3. De literatuur ondersteunt het behouden van gescheiden fysiologische, voedings-, habitat- en vangstuitkomsten, maar levert op basis van deze gerichte controle geen reden om de bestaande profielwaarden numeriek te wijzigen.
+4. Alle huidige thermische optimum-/breedteparameters blijven voorlopige modelprioren. Numerieke herkalibratie vereist een bredere soortspecifieke bronset én later onafhankelijke chronologische validatie.
+
+**Resultaat WP21:** vijf gerichte primaire-broncontroles afgerond; geen numerieke of runtimewijziging. Fase 2 blijft open.

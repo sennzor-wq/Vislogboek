@@ -83,6 +83,18 @@ Alle tien operationele profielen zijn naast de centrale thermal-evidence-registr
 
 **Acceptatie:** herkomststatus per soort vastgelegd; fysiologisch bewijs onderscheiden van metabolisme, voeding en vangst; geen ongefundeerde herkalibratie uitgevoerd.
 
+### F2-WP21 — gerichte primaire-literatuurcontrole thermische parameter-overdraagbaarheid
+**Status:** afgerond — broncontrole, geen modelwijziging.
+
+Een gerichte cross-check van primaire studies is uitgevoerd voor soorten waarbij een studie gemakkelijk te ruim als temperatuur-optimum kan worden geïnterpreteerd. De bevindingen staan in Fase-2-audit §211:
+- Baars: aerobe-scopeoptimum verschilt met lichaamsmassa; kleine vissen onder 40 g vertoonden in deze studie geen afname bij hogere testtemperatuur.
+- Snoekbaars: volwassen kweekvis had een brede 80%-aerobe-scopeband; 13–25 °C verschilde niet significant, terwijl juveniele studies een hogere band rapporteerden.
+- Karper: de geregistreerde studie met voedselopname vond een piek rond 28 °C bij de geteste Aziatische ondersoort en twee grootteklassen; dit is voedingsintensiteit, niet de fysiologische activiteitsscore.
+- Zeelt: de gevonden hoge-temperatuurstudie betrof larvale groei/overleving en voedselbeschikbaarheid onder kweekcondities, niet volwassen veldactiviteit.
+- Meerval: veld-EMG ondersteunt temperatuurafhankelijke bewegingsactiviteit als context, maar levert geen directe voedingscurve of universeel optimum.
+
+**Besluit:** geen van deze uitkomsten mag zonder outcome-, levensfase-, grootte- en contextmatch als vervanging van de bestaande thermische prior worden gebruikt. Geen score of parameter aangepast.
+
 ## Openstaande eigenaarbeslissingen
 
 - PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
@@ -96,6 +108,7 @@ Alle tien operationele profielen zijn naast de centrale thermal-evidence-registr
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
 | 2026-11-23 | F2-WP18/WP19 | 60 synthetische soort-/weerscenario-combinaties, targetTime-, datadekking-, DST-, tijdvakpariteit- en immutable-snapshotreplaytests; 201 kandidaatcontractchecks groen. | Commit `f2eebc52c8434ddde6e9ab2993f4aae365c20d11`; run [45203638825](https://github.com/sennzor-wq/Vislogboek/actions/runs/45203638825); PR #218 open/draft, niet gemerged. |
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
+| 2026-11-23 | F2-WP21 | Primaire-literatuurcontrole op uitkomstmaat, levensfase, lichaamsgrootte en overdraagbaarheid voor baars, snoekbaars, karper, zeelt en meerval. | Fase-2-audit §211; geen runtimewijziging. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 
