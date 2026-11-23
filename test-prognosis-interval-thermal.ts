@@ -1,6 +1,6 @@
 import { calculateThermalIntervalCandidates } from './src/services/prognosisIntervalThermal';
 import { segmentPrognosisInterval } from './src/services/prognosisIntervalEngine';
-import { FishingLocation, WeatherHourlyForecast } from './src/types';
+import { FishingLocation, PrognosisSnapshot, WeatherHourlyForecast } from './src/types';
 import { calculateDayPrognosis } from './src/services/prognosisEngine';
 
 let passed = 0;
@@ -237,6 +237,96 @@ assert(
 assert(
   existingDay.personalCatchChance === null,
   'Zonder historische sessies blijft de persoonlijke vangkans null, ook wanneer de thermische kandidaat beschikbaar is'
+);
+
+
+const replaySnapshot: PrognosisSnapshot = {
+  id: 'synthetic-immutable-prognosis-snapshot',
+  forecastTimestamp: '2026-11-20T00:00:00Z',
+  targetDate: '2026-11-24',
+  targetSlot: 'Middag',
+  targetSpecies: 'Karper',
+  locationId: simulationLocation.id,
+  locationName: simulationLocation.name,
+  durationHours: 1,
+  durationKnown: true,
+  targetWindowStart: parityStart,
+  targetWindowEnd: '2026-11-24T15:00:00Z',
+  predictedActivityScore: parityCandidate.candidateActivityScore,
+  activityScoreAvailable: true,
+  predictedCatchChance: null,
+  source: 'synthetic-replay-fixture',
+  modelVersion: 'synthetic-test-only',
+  createdAt: '2026-11-20T00:00:00Z',
+  weatherInput: parityForecasts,
+  inputContext: {
+    calculatedAt: '2026-11-20T00:00:00Z',
+    timezone: 'Europe/Amsterdam',
+    targetDate: '2026-11-24',
+    targetWindowStart: parityStart,
+    targetWindowEnd: '2026-11-24T15:00:00Z',
+    targetSpecies: 'Karper',
+    sessionDurationHours: 1,
+    location: {
+      id: simulationLocation.id,
+      waterType: simulationLocation.waterType,
+      waterDepth: simulationLocation.waterDepth,
+    },
+    historicalSessionIds: [],
+    catchRecordIds: [],
+    observationIds: [],
+    waterTemperatureCalibration: parityCalibration,
+    historicalWaterTemperatureSamples: [],
+    historySummary: {
+      sessionCount: 0,
+      catchRecordCount: 0,
+      observationCount: 0,
+      historicalWaterTemperatureSampleCount: 0,
+    },
+    weatherFetchedAt: '2026-11-20T00:00:00Z',
+  },
+};
+const replayContext = replaySnapshot.inputContext!;
+const replayLocation: FishingLocation = {
+  id: replayContext.location.id,
+  name: replaySnapshot.locationName ?? 'Snapshot replay water',
+  waterType: replayContext.location.waterType as FishingLocation['waterType'],
+  waterDepth: replayContext.location.waterDepth,
+  createdAt: replayContext.calculatedAt,
+  updatedAt: replayContext.calculatedAt,
+};
+const replayedCandidate = calculateThermalIntervalCandidates(
+  paritySegmentation,
+  replaySnapshot.weatherInput ?? [],
+  replaySnapshot.targetSpecies as 'Karper',
+  {
+    location: replayLocation,
+    currentDateRef: new Date(replayContext.calculatedAt),
+    forecastAsOf: replayContext.weatherFetchedAt,
+    waterTemperatureCalibration: replayContext.waterTemperatureCalibration,
+    historicalWaterTemperatures: replayContext.historicalWaterTemperatureSamples.map((sample) => ({
+      locationId: sample.locationId,
+      temperatureC: sample.temperatureC,
+      timestamp: sample.timestamp,
+      waterType: sample.waterType as FishingLocation['waterType'],
+      waterDepth: sample.waterDepth,
+      latitude: sample.latitude,
+      longitude: sample.longitude,
+      isBenchmark: sample.isBenchmark,
+      measurementSource: sample.measurementSource,
+      measurementMethod: sample.measurementMethod,
+      measurementDepthM: sample.measurementDepthM,
+    })),
+  }
+);
+assert(
+  JSON.stringify(replayedCandidate.segments[0]) === JSON.stringify(parityCandidate),
+  'Synthetische snapshotreplay reconstrueert dezelfde segmentuitvoer uit exact opgeslagen forecast-, stek- en kalibratiecontext'
+);
+assert(
+  replaySnapshot.predictedCatchChance === null &&
+  replayContext.historySummary.sessionCount === 0,
+  'Replayfixture bevat expliciet geen persoonlijke sessiehistorie of gefabriceerde vangkans'
 );
 
 const futurePerturbed = makeForecasts('mild_stable').map((f) => Date.parse(f.time) > Date.parse(simulationTarget)
