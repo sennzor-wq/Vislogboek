@@ -179,6 +179,7 @@ const makeForecasts = (name: string): WeatherHourlyForecast[] => Array.from({ le
 const scenarios = ['cold_stable', 'mild_stable', 'warm_stable', 'hot_stable', 'warming', 'cooling'] as const;
 const simSegmentation = segmentPrognosisInterval(simulationTarget, simulationEnd, makeForecasts('mild_stable'));
 let simulationCases = 0;
+const karperScenarioSummary: Array<{ scenario: string; waterTemperatureC: number; candidateActivityScore: number }> = [];
 for (const scenario of scenarios) {
   const series = makeForecasts(scenario);
   for (const species of ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', 'Snoekbaars', 'Meerval', 'Roofblei', 'Overig'] as const) {
@@ -194,10 +195,14 @@ for (const scenario of scenarios) {
       'Synthetisch ' + scenario + ' / ' + species + ': efficiëntie en score binnen grenzen');
     assert(JSON.stringify(result) === JSON.stringify(repeated),
       'Synthetisch ' + scenario + ' / ' + species + ': deterministische uitvoer');
+    if (species === 'Karper' && segment.waterTemperatureC !== null && segment.candidateActivityScore !== null) {
+      karperScenarioSummary.push({ scenario, waterTemperatureC: segment.waterTemperatureC, candidateActivityScore: segment.candidateActivityScore });
+    }
     simulationCases++;
   }
 }
 assert(simulationCases === 60, '6 weerscenario’s × 10 soorten = 60 synthetische combinaties');
+console.log('SYNTHETIC_INTERVAL_KARPER_SCENARIOS=' + JSON.stringify(karperScenarioSummary));
 
 const futurePerturbed = makeForecasts('mild_stable').map((f) => Date.parse(f.time) > Date.parse(simulationTarget)
   ? { ...f, temperature: 55, windSpeed: 180, precipitation: 50 } : f);
