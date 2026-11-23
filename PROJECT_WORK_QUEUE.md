@@ -119,7 +119,7 @@ De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor
 
 ## Openstaande eigenaarbeslissingen
 
-**Open draft PR's — alle vier bewust ongemerged; eigenaarreview vereist:**
+**Openstaande Fase-2-PR — PR #221; eigenaarreview vereist:**
 - [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — Fase-2-audit en werkvoorraad; gemerged.
 - [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat; gemerged.
 - [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst; gemerged.
