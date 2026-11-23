@@ -6182,3 +6182,66 @@ Dit is de voorgestelde semantische scheiding voor de bestaande twee productonder
 De bestaande uitvoerketen is helder genoeg om een semantisch outputcontract te formuleren, maar de daadwerkelijke intervalfactoren zijn nog niet berekend. De dagscore blijft dus de huidige dagscore en mag niet worden hernoemd naar een sessiescore. De huidige UI-labeling “Visactiviteit” is een afzonderlijke terminologische bevinding voor latere gerichte UI-correctie; deze is in dit read-only werkpakket niet gewijzigd.
 
 **Volgende stap:** specificeer de kleinste backward-compatible outputstructuur voor segmentstatussen en factorbeschikbaarheid, zonder de bestaande `DayPrognosis`-velden te herinterpreteren. Schrijf eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Pas daarna een minimale uitbreiding van de bestaande Prognose-engine overwegen. Zie audit §§199–203.
+
+
+## 204. Backward-compatible interval-outputcontract voor Prognose en VisCoach
+
+**Werkpakket 15 — contractdefinitie en eerste pure adapter (23 november 2026).** Dit contract maakt de bestaande uursegmentatie bruikbaar aan de grens tussen Prognosepagina en VisCoach, zonder een tweede prognose-engine te introduceren.
+
+### 204.1 Eén uitvoerobject, drie scopes
+
+De nieuwe adapter `createPrognosisIntervalOutput` combineert uitsluitend:
+- de bestaande `segmentPrognosisInterval` voor grenzen, overlapduur, Amsterdamse datum/tijdvak en tijdsdekking;
+- de bestaande `DayPrognosis` voor de onveranderde dagcontext en sessiebrede uitkomsten;
+- de expliciet gekozen starttijdvakwaarde voor de bestaande starttactiek.
+
+De output houdt drie scopes uit elkaar:
+
+| Scope | Velden | Betekenis |
+|---|---|---|
+| Dag | `dayContext.activityScore`, `activityScoreAvailable`, `advice`, `bestTimeSlot` | Bestaande dagprognose. Nooit herlabelen als sessiescore of sessieadvies. |
+| Start | `startContext.selectedTimeSlot` | Gekozen starttijdvak voor bestaande tactische context. Niet automatisch geldig voor latere segmenten. |
+| Sessie | `sessionContext.plannedDurationHours`, `personalCatchChance`, `personalCatchConfidence` | Eén persoonlijke uitkomst voor de volledige bekende geplande duur. Geen segmentkansen. |
+
+### 204.2 Segmentcontract
+
+Elk segment bevat:
+- absolute `startTime` en `endTime`, werkelijke `durationMinutes`, Amsterdamse `targetDate` en bestaand `timeSlot`;
+- `weatherRecordStatus` en `weatherSampleTime`;
+- afzonderlijk gevalideerde, uitsluitend beschrijvende `weatherContext`: luchttemperatuur (-30..55 °C), druk (850..1100 hPa), wind (snelheid 0..200 km/u én richting 0..360° én niet-leeg label), neerslag (0..300 mm) en bewolking (0..100%).
+
+Een aanwezig uurrecord maakt niet automatisch alle velden beschikbaar. Een ongeldige windrichting maakt alleen de windcontext onbekend; andere geldige velden blijven bruikbaar. Geldige nulneerslag blijft beschikbaar als nul. Ontbrekende of ongeldige waarden zijn expliciet `{status: 'unknown', value: null}`, met reden `missing_forecast` of `invalid_value`; er vindt geen nulinvulling, interpolatie of forward-fill plaats.
+
+### 204.3 Factorresolutie blijft expliciet begrensd
+
+De segmentadapter levert geen nieuwe factorberekeningen:
+- thermische activiteit: `not_calculated_per_segment`; de bestaande dag-/tijdvakberekening blijft onaangetast;
+- absolute druk: `existing_time_slot_only`; één uurwaarde is geen vervanging van de bestaande 3-uit-6 tijdvakfactor;
+- druktrend: `requires_timepoint_lookback`; de bestaande actuele en voorafgaande metingen blijven vereist;
+- wind, neerslag en bewolking: `descriptive_only`; ruwe segmentcontext is geen gevalideerde biologische factor of score.
+
+De adapter berekent geen habitatbeweging, oeverrelatie, positionering, persoonlijke ervaring of voorvoer opnieuw. Deze blijven op hun bestaande scope totdat een afzonderlijk tijdreekscontract is gevalideerd.
+
+### 204.4 Ontbrekende interval- en sessiegegevens
+
+- `unknown_end`: geen segmenten, geen totale duur, geen dekkingsratio; sessieduur en duurgebonden persoonlijke vangkans blijven null.
+- `partial`: alle segmenten blijven aanwezig; segmenten zonder forecast behouden hun werkelijke grenzen/duur maar krijgen `weatherRecordStatus: 'missing'` en onbekende veldwaarden.
+- `invalid_interval`: geen segmenten of gefabriceerde duur.
+- Een ontbrekende factor blokkeert geen onafhankelijke factor.
+- Een niet-beschikbare dagscore blijft null en krijgt `activityScoreAvailable: false`.
+
+### 204.5 VisCoach-consumptieregels
+
+VisCoach leest het outputobject en maakt één samenhangend advies:
+1. Begin met het werkelijke geplande interval en benoem of de weersdekking volledig of gedeeltelijk is.
+2. Beschrijf opeenvolgende segmenten chronologisch; groepeer aangrenzende segmenten alleen wanneer hun beschikbare context gelijksoortig is.
+3. Benoem uitsluitend beschikbare factorcontext. Noem ontbrekende gegevens alleen wanneer die de praktische conclusie begrenzen.
+4. Gebruik dagscore en dagbeoordeling uitsluitend als herkenbare dagcontext; gebruik het geselecteerde starttijdvak alleen voor de bestaande starttactiek.
+5. Toon persoonlijke vangkans hoogstens één keer als sessiebrede uitkomst, uitsluitend bij bekende duur en voldoende bestaande historische/data-invoer.
+6. Trek geen segmentvangstkansen af, tel geen factoren op en maak geen nieuwe totaalscore.
+
+### 204.6 Eerste testdekking en begrenzing
+
+`test-prognosis-interval-output.ts` controleert bekende en onbekende eindtijd, gedeeltelijke dekking, ontbrekend uur, afzonderlijk ongeldige factorvelden, windvalidatie, behoud van dag-/start-/sessiescope en null bij onbekende duur of niet-beschikbare dagscore. De adapter is een backward-compatible presentatie-/contractlaag: de bestaande `calculateDayPrognosis` en alle bestaande scores, drempels en gewichten blijven ongewijzigd.
+
+**Status:** contract en pure adapter zijn toegevoegd op branch `feature/prognosis-interval-output-contract`. De CI-teststap is toegevoegd; uitvoering en typecheck moeten nog door GitHub Actions worden bevestigd. VisCoach consumeert de adapter nog niet in de UI. Dit is dus geen afgeronde end-to-end integratie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -1225,3 +1225,12 @@ Audit §202 heeft per factor de huidige code-resolutie, vereiste velden/lookback
 Audit §203 controleert de huidige keten: VisCoach gebruikt dezelfde `calculateDayPrognosis`, de geselecteerde startperiode stuurt de tactische conclusie en de persoonlijke Poisson-vangkans is sessiebreed op basis van geplande duur. De huidige kaart toont echter een combinatie van dagbrede score/beoordeling, starttijdvakgerichte tactiek en sessieduurgebonden vangkans. De dagscore is geen intervalscore; het huidige UI-label “Visactiviteit” is te ruim voor de voorlopige thermische activiteitspotentie. Dit is alleen vastgelegd, niet aangepast.
 
 **Volgende stap:** de kleinste backward-compatible interval-outputstructuur specificeren zonder bestaande `DayPrognosis`-velden anders te interpreteren. Eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Geen tweede engine of gecombineerde intervalscores. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §203 en architectuur §168.
+
+
+### Fase 2 — backward-compatible interval-outputcontract (23 november 2026)
+
+Audit §204 en architectuur §169 leggen de contractgrens vast. Een pure adapter hergebruikt de bestaande uursegmentatie en `DayPrognosis`: dagcontext, starttijdvakcontext en één sessiebrede vangkans blijven gescheiden. Per segment worden absolute grenzen/duur, Amsterdamse datum/tijdvak, forecastdekking en afzonderlijk gevalideerde beschrijvende weersamples geleverd. Ontbrekende/ongeldige waarden blijven `unknown/null`; ontbrekende uren blijven segmenten; onbekende eindtijd levert geen segmenten of duur.
+
+De adapter markeert expliciet dat thermische activiteit niet per segment wordt herberekend, drukfactoren hun bestaande tijdvak-/lookbackcontract houden en wind/neerslag/bewolking uitsluitend beschrijvende context zijn. VisCoach hoort de segmenten chronologisch tot één advies samen te voegen, zonder eigen scores of tweede prognosemodel.
+
+**Status:** adapter, eerste contracttests en CI-teststap toegevoegd op branch `feature/prognosis-interval-output-contract`. CI/typecheck nog niet bevestigd; VisCoach-UI-consumptie is nog niet aangesloten. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

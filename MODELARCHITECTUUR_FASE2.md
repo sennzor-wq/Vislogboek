@@ -1522,3 +1522,14 @@ Audit §203 bevestigt de huidige uitvoerketen: VisCoach roept de bestaande `calc
 De huidige VisCoach-kaart is nog hybride: algemene dagbeoordeling en dagscore, gekozen starttijdvak, sessieduurgebonden persoonlijke vangkans en starttijdvakgerichte tactiek. De dagscore is geen intervalscore. Het UI-label “Visactiviteit” is inhoudelijk te ruim voor de bestaande voorlopige thermische activiteitspotentie en is als latere terminologische correctie geregistreerd.
 
 Voor toekomstige intervaluitvoer blijft de Prognosepagina de enige berekeningsbron. Zij levert segment- en factorstatussen; VisCoach maakt daarvan één samenhangend verhaal. Dagscore blijft dagcontext, persoonlijke vangkans blijft één sessie-uitkomst, historische ervaring blijft starttijdvakgebonden, aanwezigheid blijft waarnemingsgebonden en tactische adviezen blijven starttijdvakgebonden totdat een afzonderlijk gevalideerd tijdreekscontract bestaat. Geen tweede engine, geen intervalsom van vangstkansen en geen ongedefinieerde totaalscore. Eerst backward-compatible outputcontract en tests; zie audit §203.
+
+
+## 169. Contractgrens voor intervaluitvoer
+
+De backward-compatible adapter `createPrognosisIntervalOutput` is de grens tussen de bestaande Prognose-uitvoer en de VisCoach-vertaling. Zij hergebruikt `segmentPrognosisInterval` en `DayPrognosis`; zij voert geen tweede prognoseberekening uit.
+
+Het contract houdt dagcontext (`activityScore`, `advice`, `bestTimeSlot`), startcontext (`selectedTimeSlot`) en sessiecontext (bekende geplande duur en één persoonlijke vangkans) gescheiden. Per uursegment worden grenzen, duur, Amsterdamse datum/tijdvak, forecastdekking en afzonderlijk gevalideerde beschrijvende weerwaarden geleverd.
+
+Elk veld is onafhankelijk beschikbaar of `unknown/null`. Een geldig uurrecord is geen factorbeschikbaarheid. Thermische activiteit wordt niet opnieuw per segment berekend; absolute druk blijft aan het bestaande tijdvakcontract gebonden; druktrend behoudt haar voorafgaande meetvenster; wind/neerslag/bewolking zijn alleen beschrijvende segmentcontext. Ontbrekende uren blijven zichtbare segmenten met onbekende weerwaarden. Een onbekende eindtijd levert geen segmenten of sessieduur/vangkans.
+
+VisCoach moet de opeenvolgende segmenten tot één chronologisch advies vertalen, alleen beschikbare context noemen en dag-/start-/sessie-uitkomsten herkenbaar gescheiden houden. Geen segmentscores, opgetelde kansen, gewichten of tweede engine. De pure adaptertests zijn toegevoegd; daadwerkelijke UI-consumptie en CI-validatie zijn nog open. Zie audit §204.
