@@ -133,9 +133,19 @@ De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor
 
 ## Openstaande eigenaarbeslissingen
 
-- PR #217 — documentatie-auditintervalscore: open draft, niet gemerged.
-- PR #218 — kandidaat thermische segmentuitvoer: open draft, technisch groen, niet gemerged; eigenaarreview vereist.
-- Beide PR's moeten op actuele status en diff worden gecontroleerd. Geen merge uitvoeren zonder expliciete eigenaarstoestemming.
+**Open draft PR's — alle vier bewust ongemerged; eigenaarreview vereist:**
+- [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — bestaande Fase-2-audit en werkvoorraad.
+- [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat en synthetische contract-/pariteitstests.
+- [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst.
+- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix.
+
+Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/merge altijd actuele diff en Quality Gate.
+
+**Product-/modelkeuzes die niet automatisch worden doorgevoerd:**
+- Of kwalitatieve voedingscontext (zonder numerieke bonus) zichtbaar moet worden in Prognose/VisCoach; de feeding-evidence-service is nog niet geïntegreerd.
+- Of en hoe het generieke habitatbewegingsmodel later soortspecifiek moet worden; daarvoor is eerst een passende bronset en afbakening van responsmaten nodig.
+
+**Empirische blokkade:** WP19 kan zonder echte prognosesnapshots en afgeronde sessies niet worden omgezet in een echte chronologische backtest. Er worden geen sessies of vangsten verzonnen; synthetische tests blijven alleen technische tests.
 
 ## Voortgangslog
 
