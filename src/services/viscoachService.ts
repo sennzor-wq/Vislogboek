@@ -11,6 +11,7 @@ import {
   PrognosisInputContext,
 } from '../types';
 import { calculateDayPrognosis, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot, savePrognosisSnapshot } from './prognosisEngine';
+import { createPrognosisIntervalOutput, PrognosisIntervalOutput } from './prognosisIntervalOutput';
 import { getForecast } from './weatherService';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
