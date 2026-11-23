@@ -6298,7 +6298,7 @@ Daarom is de flow aangescherpt:
 - De centrale opslagfunctie weigert nu ook een nieuwe actieve sessie zonder bestaande, geldige GPS-coördinaten op de gekoppelde stek. Dit voorkomt dat een alternatieve startflow de controle kan omzeilen.
 - Bestaande sessies bewerken en historische sessies opslaan vallen niet onder deze nieuwe-startblokkade.
 
-**Validatiestatus:** wijzigingen staan op de auditbranch en moeten nog door CI en de gebruikerspraktijktest worden gevalideerd. PR #214 blijft open en niet samengevoegd; de gepubliceerde hoofdversie bevat deze wijzigingen dus nog niet.
+**Validatiestatus:** de wijzigingen zijn gemerged naar `main` via PR #214 (merge commit `d1835a552fa68d93c63e5201dff5c626ac9e90e6`). De volledige Quality Gate is groen op commit `ea3b49a24bf450facaa831bf78e29aa7897c6060` (run [45186362324](https://github.com/sennzor-wq/Vislogboek/actions/runs/45186362324)). De praktische werking in een echte gebruikerssessie is hiermee niet afzonderlijk bewezen; die praktijkcontrole blijft een apart aandachtspunt.
 
 
 ## 206. Huidige scoresemantiek en gereedheid voor thermische intervaluitvoer (23 november 2026)
