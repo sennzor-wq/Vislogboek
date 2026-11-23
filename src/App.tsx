@@ -490,6 +490,7 @@ export default function App() {
       {isStartingSession && (
         <SessionModal
           locations={locations}
+          onSaveLocation={handleSaveLocation}
           session={
             prefilledLocationId || prefilledSpecies
               ? ({

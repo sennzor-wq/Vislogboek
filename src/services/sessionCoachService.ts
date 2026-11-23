@@ -511,9 +511,13 @@ export function buildVisCoachAdviceText(
     : 'Zie je geen activiteit of krijg je geen aanbeten, controleer dan eerst opnieuw de omgeving en probeer een tweede herkenbare structuur of diepteovergang. Verander niet steeds van aanpak door kleine weersschommelingen.';
   tacticSections.push(`Als het niet werkt\n${fallback}`);
 
+  const activityScoreAvailable = prognosis.activityScoreAvailable !== false;
+  const unavailableThermalSummary = 'Geen betrouwbare activiteitsscore beschikbaar: er is geen bruikbare watertemperatuurmeting of modelschatting.';
   const summary = intervalOutput
-    ? `De dagprognose voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}. De omstandigheden binnen je geplande sessie worden hieronder in tijdsvolgorde beschreven; de dagscore is geen sessiescore.`
-    : `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
+    ? `${activityScoreAvailable ? `De dagprognose voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.` : unavailableThermalSummary} De omstandigheden binnen je geplande sessie worden hieronder in tijdsvolgorde beschreven; de dagscore is geen sessiescore.`
+    : activityScoreAvailable
+      ? `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`
+      : unavailableThermalSummary;
   const reasons: string[] = [];
   const summaryRationale = cleanCoachText(prognosis.summaryRationale);
   if (summaryRationale && !/aanvullende locatiegegevens|onbekend/i.test(summaryRationale)) {

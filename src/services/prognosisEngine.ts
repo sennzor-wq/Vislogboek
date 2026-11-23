@@ -1541,9 +1541,8 @@ export async function createLiveSnapshotForSessionStart(
   manualWaterTemperatureMeasurement?: WaterTemperatureMeasurement | null
 ): Promise<PendingPrognosisSnapshot | null> {
   try {
-    const lat = location.latitude ?? 51.961;
-    const lon = location.longitude ?? 5.228;
-    const weather = await getForecast(lat, lon, false);
+    if (typeof location.latitude !== 'number' || !Number.isFinite(location.latitude) || location.latitude < -90 || location.latitude > 90 || typeof location.longitude !== 'number' || !Number.isFinite(location.longitude) || location.longitude < -180 || location.longitude > 180) throw new Error('De stek heeft geen geldige GPS-coördinaten; er wordt geen locatie of weerdata aangenomen.');
+    const weather = await getForecast(location.latitude, location.longitude, false);
     const [allSessions, allCatches, allSnapshots, allLocations] = await Promise.all([
       db.sessions.toArray(),
       db.catches.toArray(),

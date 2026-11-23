@@ -103,10 +103,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
   const fetchAndCalculatePrognoses = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const lat = selectedLoc?.latitude ?? 51.961;
-      const lon = selectedLoc?.longitude ?? 5.228;
-
-      const weather = await getForecast(lat, lon, forceRefresh);
+      if (typeof selectedLoc?.latitude !== 'number' || !Number.isFinite(selectedLoc.latitude) || selectedLoc.latitude < -90 || selectedLoc.latitude > 90 || typeof selectedLoc?.longitude !== 'number' || !Number.isFinite(selectedLoc.longitude) || selectedLoc.longitude < -180 || selectedLoc.longitude > 180) {
+        setHourlyForecast([]); setDayPrognoses([]); setWeatherUpdatedAt(''); setIsCachedWeather(false); return;
+      }
+      const weather = await getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh);
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
@@ -310,6 +310,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      {(!selectedLoc || typeof selectedLoc.latitude !== 'number' || typeof selectedLoc.longitude !== 'number') && <div className="mb-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">Deze stek heeft nog geen GPS-coördinaten. Leg de GPS-locatie vast bij Stekken om een weersafhankelijke prognose te berekenen. Er wordt geen standaardlocatie gebruikt.</div>}
       {/* Top Banner / Filters */}
       <div className="rounded-2xl bg-slate-800/90 border border-slate-700/80 p-4 sm:p-5 shadow-lg backdrop-blur">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-700/70">

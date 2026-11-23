@@ -6262,3 +6262,24 @@ De bestaande VisCoach-adviesfunctie accepteert de intervaluitvoer optioneel. Bij
 Bestaande opgeslagen sessieadviezen en reassessment-paden roepen de functie nog steeds zonder intervalobject aan en behouden daarmee hun huidige gedrag. Contracttests controleren de gecombineerde dag-/sessiesemantiek en de chronologische VisCoach-vertaling.
 
 **Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. Review heeft de dekkingstekst aangescherpt: de dekking betreft aanwezigheid van uurforecastrecords, niet automatisch de geldigheid van alle velden. De formatter benoemt dit expliciet en een regressietest dekt het af. Quality Gate run 45156084460 op commit `779f38ed6e6bbd64920e97c2bbca9c4eb187f6d8` is volledig groen: typecheck, intervalcontracttests, VisCoach-tests, regressies en productiebuild. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.
+
+
+## Aanvullende correctie — GPS-herkomst en VisCoach-scorebeschikbaarheid (23 november 2026)
+
+Deze wijziging corrigeert twee uitvoerproblemen zonder een tweede prognose- of thermische engine toe te voegen.
+
+### GPS-coördinaten van een stek
+- Ontbrekende GPS-coördinaten blijven onbekend; de locatie-editor vult geen standaardpositie meer in.
+- Bij het starten van een nieuwe actieve sessie met een stek zonder GPS vraagt het bestaande sessiescherm om de positie vast te leggen. De gebruiker kan de huidige browser-GPS gebruiken of beide coördinaten handmatig invullen.
+- De positie wordt via de bestaande opslagcallback bij de stek opgeslagen. De sessie-invoer blijft open en hoeft niet opnieuw te worden ingevuld.
+- Actuele en historische weerservices weigeren ontbrekende of ongeldige coördinaten; de startsnapshot maakt geen weerprognose op basis van een fictieve positie.
+- De Prognosepagina meldt dat GPS ontbreekt en berekent geen weersafhankelijke prognose op basis van een standaardlocatie.
+- Bestaande geldige coördinaten en historische sessie-/meetgegevens worden niet gewijzigd.
+
+### Thermische score en VisCoach
+- De bestaande `waterThermalEngine`, lokale meetankers, historische weercontext en kalibratie blijven ongewijzigd.
+- Een bruikbare lokale meting of modelschatting blijft de bestaande thermische invoer voor de prognose; deze correctie schakelt de schatting niet uit.
+- Alleen wanneer `activityScoreAvailable === false` mag VisCoach de interne adviesplaceholder niet als bijvoorbeeld “Gemiddeld” presenteren. De samenvatting meldt dan dat geen betrouwbare activiteitsscore beschikbaar is.
+- Andere beschikbare weers-, habitat- en tactische informatie blijft onderdeel van het advies.
+
+**Validatiestatus:** gerichte regressietest toegevoegd voor de onbeschikbare score in de VisCoach-samenvatting. TypeScript, de volledige relevante testsuite, de productiebuild en de praktische UI-controle moeten nog worden uitgevoerd; er wordt hier geen geslaagde test of praktijkcontrole geclaimd.
