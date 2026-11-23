@@ -30,7 +30,7 @@
 ## Eerstvolgende taken
 
 ### F2-WP18 — kandidaat thermische uitvoer per intervalsegment
-**Status:** technisch afgerond in open draft PR #218; volledige GitHub Quality Gate is groen op commit `0f0c350ddc5663b119c826f9480af86b3633fd17` (run [45198334165](https://github.com/sennzor-wq/Vislogboek/actions/runs/45198334165)). PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
+**Status:** technisch afgerond in open draft PR #218; volledige GitHub Quality Gate is groen op de actuele kandidaatcommit `0be488deca21e59b0895831735516027bef367be` (run [45200232002](https://github.com/sennzor-wq/Vislogboek/actions/runs/45200232002)). PR blijft draft en is niet gemerged; kandidaat staat dus nog niet op `main`.
 **Branch:** `feat/fase2-thermal-interval-candidates`
 **PR:** https://github.com/sennzor-wq/Vislogboek/pull/218
 
@@ -38,10 +38,10 @@ Acties:
 1. Controleer de actuele PR-diff en meest recente Quality Gate-run; ga niet uit van eerder waargenomen status.
 2. Controleer TypeScript-contracten en testdata in `src/services/prognosisIntervalThermal.ts` en `test-prognosis-interval-thermal.ts`.
 3. **Afgerond:** zowel segmentatie als kandidaathelper ontvangen dezelfde daadwerkelijk gefilterde forecast-input; de test controleert dat het ontbrekende uur niet opnieuw wordt aangeleverd.
-4. **Afgerond:** contracttests dekken ontbrekende thermische basisdata en expliciete unknown/null-semantiek; de bestaande strikte targetTime-as-of-test blijft behouden.
-5. **Afgerond:** volledige bestaande Quality Gate geslaagd, inclusief typecheck, alle tests, dependency audits en productiebuild; run [45198334165](https://github.com/sennzor-wq/Vislogboek/actions/runs/45198334165).
-6. Controleer dat dagscore, tijdvakscore, bestaande intervaloutput, persoonlijke vangkans, UI en opgeslagen data niet onbedoeld zijn gewijzigd.
-7. Werk de bestaande Fase-2-audit en deze queue bij met exacte bewijsstatus.
+4. **Afgerond:** contracttests dekken ontbrekende thermische basisdata, expliciete unknown/null-semantiek, as-of-invariant en de kalibratiepariteit.
+5. **Afgerond:** volledige bestaande Quality Gate geslaagd, inclusief typecheck, alle tests, dependency audits en productiebuild; run [45200232002](https://github.com/sennzor-wq/Vislogboek/actions/runs/45200232002).
+6. **Afgerond via diff-review:** dagscore, tijdvakscore, bestaande intervaloutput, persoonlijke vangkans, UI en opgeslagen data zijn niet gewijzigd. De kandidaat gebruikt dezelfde gevalideerde lokale temperatuurkalibratie als de bestaande dag-/tijdvakprognose, uitsluitend voor modelschattingen; echte metingen en unknown-uitkomsten worden niet gecorrigeerd.
+7. **Afgerond:** bestaande Fase-2-audit en queue bijgewerkt met exacte code- en CI-bewijsstatus.
 8. Laat PR #218 open voor eigenaarbeoordeling; niet mergen zonder expliciete toestemming.
 
 Acceptatie:
@@ -53,11 +53,11 @@ Acceptatie:
 ### F2-WP19 — kandidaatvalidatie en modelvergelijking
 **Status:** code-level haalbaarheid onderzocht; empirische validatie is geblokkeerd totdat een echte, geanonimiseerde export van lokale sessie-/prognosedata beschikbaar is. WP18 heeft een groene volledige Quality Gate, maar PR #218 blijft open en ongemerged.
 Acties:
-1. **Afgerond — schema-audit:** `PrognosisSnapshot` bewaart de exacte `weatherInput`, `inputContext`, doelvenster, soort, model-/engineversies en voorspelde uitvoer. `inputContext` bevat onder meer stek-/dieptecontext, historische watertemperatuurmetingen en historische feature-snapshots.
+1. **Afgerond — schema-audit:** `PrognosisSnapshot` bewaart de exacte `weatherInput`, `inputContext`, doelvenster, soort, model-/engineversies en voorspelde uitvoer. `inputContext` bevat onder meer stek-/dieptecontext, historische watertemperatuurmetingen, historische feature-snapshots en de bij die prognoserun gebruikte lokale watertemperatuurkalibratie.
 2. **Afgerond — uitkomstkoppeling:** snapshots kunnen aan een voltooide sessie worden gekoppeld met `actualOutcome` en `actualTargetCatchesCount`; de uitkomst is sessiebreed (`catch`/`skunk_confirmed`), geen automatisch segmentlabel.
 3. **Afgerond — tijdstempelkwaliteit:** vangstrecords hebben een tijdstempel en optionele invoer-/legacy-kwaliteitsvlaggen. Alleen records met aantoonbaar bekende soort, aantallen en tijdstippen mogen eventueel aan een segment worden gekoppeld; dit bewijst nog niet dat alle vangsten volledig zijn geregistreerd.
 4. **Open — datadekking:** tel in een echte export het aantal onafhankelijke snapshots, gekoppelde afgeronde sessies, soorten, seizoenen, stekken, beschikbare uurforecasts, thermische meetankers en bruikbare tijdstempels. GitHub geeft geen toegang tot de lokale Dexie/IndexedDB van de gebruiker; er is hier geen echte steekproefomvang vastgesteld.
-5. **Open — replayprotocol:** selecteer alleen snapshots met voldoende `weatherInput`, `inputContext`, doelvenster en versieherkomst; replay uitsluitend met de invoer die op het oorspronkelijke prognosemoment beschikbaar was en houd de chronologische train-/testscheiding strikt.
+5. **Open — replayprotocol:** selecteer alleen snapshots met voldoende `weatherInput`, `inputContext`, doelvenster en versieherkomst; replay uitsluitend met de invoer die op het oorspronkelijke prognosemoment beschikbaar was, inclusief de exact opgeslagen lokale temperatuurkalibratie. Houd de chronologische train-/testscheiding strikt.
 6. **Open — segmentlabels:** gebruik sessiebrede vangstuitkomsten niet als bewijs dat ieder afzonderlijk segment goed/slecht was. Segmenttoewijzing kan hoogstens bij aantoonbaar betrouwbare vangsttijdstempels; nulvangst per segment vereist volledige gebeurtenisregistratie die nu niet is aangetoond.
 7. **Open — thermische vergelijking:** een achteraf geregistreerde watertemperatuurmeting kan alleen het segment ondersteunen waarin het fysieke meetmoment valt en alleen als zij na de voorspelling is verricht. Eén optionele meting per sessie valideert niet automatisch alle segmenten en valideert geen biologische activiteitsscore.
 8. Geen gewichten fitten, geen scoreparameters aanpassen en geen kandidaat integreren op basis van synthetische of onvoldoende data.
@@ -79,7 +79,7 @@ Acceptatie:
 | Datum | Werkpakket | Gebeurtenis | Bewijs/status |
 |---|---|---|---|
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie staat in draft PR #217; niet gemerged. |
-| 2026-11-23 | F2-WP18 | Ontbrekende-uurtest gecorrigeerd; expliciete unknown/null-basisdekking toegevoegd; volledige Quality Gate groen. | Commit `0f0c350ddc5663b119c826f9480af86b3633fd17`; run [45198334165](https://github.com/sennzor-wq/Vislogboek/actions/runs/45198334165); PR #218 open/draft, niet gemerged. |
+| 2026-11-23 | F2-WP18 | Missing-hour- en unknown/null-tests gecorrigeerd; lokale kalibratiepariteit toegevoegd; meet-/schattingsveldsemantiek verduidelijkt; volledige Quality Gate groen. | Commit `0be488deca21e59b0895831735516027bef367be`; run [45200232002](https://github.com/sennzor-wq/Vislogboek/actions/runs/45200232002); PR #218 open/draft, niet gemerged. |
 | 2026-11-23 | Agent-werkwijze | Deze permanente instructies en operationele queue opgesteld. | PR #219 gemerged naar `main` op commit `0634b80c1f0796b919f24cccce4bb1dd8c793d5d`. |
 | 2026-11-23 | F2-WP19 | Schema-audit bevestigt replaybare prognosesnapshots, maar lokale echte steekproef en segmentlabels zijn niet via GitHub beschikbaar. | Empirische validatie wacht op echte geanonimiseerde export; geen nauwkeurigheidsclaim of modelwijziging. |
 

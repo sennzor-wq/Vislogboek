@@ -6372,24 +6372,26 @@ De eerste live review vond een fout in de ontbrekende-uurtest: segmentatie ontvi
 - het ontbrekende uur ontbreekt in de daadwerkelijke kandidaatberekening;
 - een geldig recent meetanker een beperkte schatting mag dragen zonder het ontbrekende forecastrecord te fabriceren;
 - zonder forecast, meetanker of historisch thermisch profiel de segmentuitkomst volledig `unknown`/null blijft;
-- er bij onbekende temperatuur geen efficiëntie of kandidaat-score wordt geproduceerd.
+- er bij onbekende temperatuur geen efficiëntie of kandidaat-score wordt geproduceerd;
+- dezelfde gevalideerde lokale seizoenskalibratie als in de bestaande dag-/tijdvakprognose wordt toegepast op modelschattingen, maar nooit op een echte meting of een onbekende uitkomst;
+- de kalibratieherkomst per segment traceerbaar blijft en de temperatuurvelden neutraal `waterTemperatureC`/`waterTemperatureRangeC` heten, omdat de opgeloste waarde zowel gemeten als geschat kan zijn.
 
-**Quality Gate:** volledige GitHub Actions-run [45198334165](https://github.com/sennzor-wq/Vislogboek/actions/runs/45198334165) op commit `0f0c350ddc5663b119c826f9480af86b3633fd17` is `success`. TypeScript typecheck, kandidaatcontracttest, bestaande regressietests, dependency audits en productiebuild zijn geslaagd. De eerdere run [45194513037](https://github.com/sennzor-wq/Vislogboek/actions/runs/45194513037) was groen maar dateerde van vóór de testcorrectie en is niet als bewijs voor de gecorrigeerde test gebruikt.
+**Quality Gate:** volledige GitHub Actions-run [45200232002](https://github.com/sennzor-wq/Vislogboek/actions/runs/45200232002) op commit `0be488deca21e59b0895831735516027bef367be` is `success`. TypeScript typecheck, kandidaatcontracttest, bestaande regressietests, dependency audits en productiebuild zijn geslaagd. De eerdere run [45194513037](https://github.com/sennzor-wq/Vislogboek/actions/runs/45194513037) was groen maar dateerde van vóór de testcorrectie en is niet als bewijs voor de gecorrigeerde test gebruikt.
 
-**Status:** WP18 technisch afgerond in draft PR #218. De PR blijft open en ongemerged in afwachting van eigenaarreview. Geen biologische validiteit of voorspellende nauwkeurigheid bewezen.
+**Status:** WP18 technisch afgerond in draft PR #218. De PR bevat uitsluitend CI-configuratie, kandidaathelper en contracttests; de documentatie is apart bijgewerkt in PR #217 om overlappende auditwijzigingen te vermijden. PR #218 blijft open en ongemerged in afwachting van eigenaarreview. Geen biologische validiteit of voorspellende nauwkeurigheid bewezen.
 
 ## 209. WP19 — kandidaatvalidatie: data- en replayhaalbaarheid
 
 **Read-only schema-audit (23 november 2026).** De huidige opslagstructuur bevat de belangrijkste bouwstenen voor een reproduceerbare historische replay:
 - `PrognosisSnapshot.weatherInput` bewaart de exacte uurlijkse forecastreeks die bij de prognoserun is gebruikt.
-- `inputContext` bewaart het berekeningstijdstip, tijdzone, doelsoort, doelvenster, locatiecontext (waaronder diepte en coördinaten), historische watertemperatuurmetingen, historische sessie-/vangst-/waarnemingsfeatures, eventuele temperatuurkalibratie, historie-fingerprint en ophaaltijd van het weer.
+- `inputContext` bewaart het berekeningstijdstip, tijdzone, doelsoort, doelvenster, locatiecontext (waaronder diepte en coördinaten), historische watertemperatuurmetingen, historische sessie-/vangst-/waarnemingsfeatures, de eventuele lokale watertemperatuurkalibratie, historie-fingerprint en ophaaltijd van het weer.
 - De snapshot bewaart `forecastTimestamp`, `modelVersion`, `engineVersions`, `targetWindowStart`/`targetWindowEnd`, soort, stek, bestaande prognose-uitvoer en voorspelde thermische bron-/onzekerheidsvelden.
 - Een afgeronde sessie kan via `linkedSessionId` worden gekoppeld met `actualOutcome` en `actualTargetCatchesCount`. De uitkomst is op sessieniveau; `catch` en `skunk_confirmed` zijn de expliciete doelsoortuitkomsten.
 - Een vangstrecord heeft een tijdstempel, soort en aantal. `timestampEntryMode` en legacy-kwaliteitsvlaggen kunnen helpen onzekere tijdstippen uit te sluiten, maar garanderen niet dat alle gebeurtenissen zijn geregistreerd.
 
 **Beperkingen voor intervalvalidatie:**
 1. De bestaande snapshot bewaart dag-/sessie-uitvoer, niet de nieuwe thermische kandidaat per afzonderlijk segment. De kandidaat kan technisch achteraf worden gereconstrueerd uit de opgeslagen oorspronkelijke forecast en inputcontext, mits die velden aanwezig en voldoende compleet zijn.
-2. De thermische kandidaat moet bij replay de oorspronkelijke as-of-grens respecteren en alleen vooraf beschikbare meetankers/historie gebruiken. Vergelijking tussen verschillende engineversies moet expliciet worden gescheiden; snapshots bevatten hiervoor engineversies.
+2. De thermische kandidaat moet bij replay de oorspronkelijke as-of-grens respecteren en alleen vooraf beschikbare meetankers/historie gebruiken. De exacte opgeslagen lokale temperatuurkalibratie moet worden hergebruikt; anders wijkt de kandidaat af van de bestaande dag-/tijdvakthermiek. Vergelijking tussen verschillende engineversies moet expliciet worden gescheiden; snapshots bevatten hiervoor engineversies.
 3. Een sessiebrede vangst of nulvangst is geen label voor ieder uursegment. Alleen betrouwbaar getimestampte vangsten kunnen eventueel aan een segment worden gekoppeld; afwezigheid van een vangst in een segment is geen bewezen nulactiviteit zonder volledige gebeurtenisregistratie.
 4. De bestaande watertemperatuurvalidatie vereist een vooraf voorspelde temperatuur en een geldige latere fysieke meting met herkomst/methode en tijdstempel. Eén optionele meting per sessie kan hoogstens één moment toetsen en bewijst geen soortspecifieke activiteit of vangbaarheid.
 5. De bestaande evaluatiecode hanteert minimumaantallen (onder meer vijf geldige temperatuurparen voor de status `hasSufficientData` en acht onafhankelijke paren voor lokale biascorrectie). Dit zijn softwaredrempels, geen bewijs van statistische power of voldoende dekking.
