@@ -6626,7 +6626,7 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 
 De matrix toont dat de huidige generieke habitatengine voor alle soortwaarden en de gekozen invoercombinaties stabiele, complete en onbekend-bewuste uitvoer produceert. De matrix toont nadrukkelijk **niet** dat habitatkeuze biologisch soortspecifiek voorspeld wordt: de engine gebruikt geen species-specifieke evidence lookup en is in WP24 als generieke zonehypothese geclassificeerd.
 
-**Resultaat WP25:** technische robuustheidstest afgerond en gemerged naar `main` via PR #221 (merge commit `e7c07267ccbed082eacb72862cfb00b7f2e568c3). De bijgewerkte volledige Quality Gate op commit `37c251957d552abcac5360a312a13c62a1e1bc9f` is groen (run [45245295080](https://github.com/sennzor-wq/Vislogboek/actions/runs/45245295080)). Geen biologische validatieclaim en geen runtimewijziging.
+**Resultaat WP25:** technische robuustheidstest afgerond en gemerged naar `main` via PR #221 (merge commit `e7c07267ccbed082eacb72862cfb00b7f2e568c3`). De bijgewerkte volledige Quality Gate op commit `37c251957d552abcac5360a312a13c62a1e1bc9f` is groen (run [45245295080](https://github.com/sennzor-wq/Vislogboek/actions/runs/45245295080)). Geen biologische validatieclaim en geen runtimewijziging.
 
 
 ## 216. Scopebesluit eigenaar — WP19 niet uitvoeren (23 november 2026)
