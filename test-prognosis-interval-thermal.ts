@@ -52,6 +52,49 @@ assert(candidates.segments.every((segment) => segment.status === 'unknown' || (
   segment.thermalEfficiency !== null && segment.candidateActivityScore !== null
 )), 'Beschikbare thermische uitkomst bevat bron, temperatuur, efficiëntie en kandidaat-score');
 
+const calibration = { appliedCorrectionC: 1.2, sampleCount: 8, season: 'herfst' as const };
+const calibratedCandidates = calculateThermalIntervalCandidates(
+  segmentation,
+  forecasts,
+  'Karper',
+  { ...options, waterTemperatureCalibration: calibration }
+);
+assert(
+  calibratedCandidates.segments.every((segment, index) => {
+    const original = candidates.segments[index];
+    return segment.status === 'unknown' ||
+      (original.status === 'available' &&
+        segment.estimatedWaterTempC === Math.round(((original.estimatedWaterTempC as number) - 1.2) * 10) / 10 &&
+        segment.thermalCalibration?.appliedCorrectionC === 1.2 &&
+        segment.thermalCalibration.sampleCount === 8);
+  }),
+  'Dezelfde gevalideerde lokale temperatuurkalibratie wordt toegepast op geschatte segmenttemperaturen en blijft herleidbaar'
+);
+
+const measuredSegmentation = segmentPrognosisInterval(
+  '2026-11-23T10:00:00Z',
+  '2026-11-23T11:00:00Z',
+  forecasts
+);
+const measuredCandidates = calculateThermalIntervalCandidates(
+  measuredSegmentation,
+  forecasts,
+  'Karper',
+  {
+    location,
+    userMeasuredWaterTemp: 15,
+    userMeasuredWaterTempAt: '2026-11-23T10:00:00Z',
+    currentDateRef: new Date('2026-11-23T11:00:00Z'),
+    waterTemperatureCalibration: calibration,
+  }
+);
+assert(
+  measuredCandidates.segments[0].thermalSource === 'measured' &&
+  measuredCandidates.segments[0].estimatedWaterTempC === 15 &&
+  measuredCandidates.segments[0].thermalCalibration === null,
+  'Een directe watertemperatuurmeting wordt nooit door de lokale kalibratie aangepast'
+);
+
 const laterForecastChanged = forecasts.map((forecast) => {
   const time = Date.parse(forecast.time);
   return time > Date.parse(segmentation.segments[0].startTime)

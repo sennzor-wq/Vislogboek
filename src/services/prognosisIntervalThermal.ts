@@ -3,6 +3,15 @@ import { PrognosisIntervalSegmentation } from './prognosisIntervalEngine';
 import { analyzeWaterThermalDevelopment, ThermalAnalysisOptions } from './waterThermalEngine';
 import { calculateThermalEfficiency, SPECIES_PROFILES } from './fishProfiles';
 
+export interface ThermalIntervalCandidateOptions extends ThermalAnalysisOptions {
+  /** The same validated local seasonal correction used by the day/time-slot prognosis. */
+  waterTemperatureCalibration?: {
+    appliedCorrectionC: number;
+    sampleCount: number;
+    season: 'winter' | 'lente' | 'zomer' | 'herfst';
+  } | null;
+}
+
 export interface ThermalIntervalSegmentCandidate {
   targetTime: string;
   targetDate: string;
@@ -13,6 +22,7 @@ export interface ThermalIntervalSegmentCandidate {
   estimatedWaterTempC: number | null;
   estimatedRangeC: [number, number] | null;
   uncertaintyC: number | null;
+  thermalCalibration: ThermalIntervalCandidateOptions['waterTemperatureCalibration'];
   thermalEfficiency: number | null;
   /** Candidate on the existing 1–10 thermic scale; not a measured activity or catch chance. */
   candidateActivityScore: number | null;
@@ -34,14 +44,35 @@ export function calculateThermalIntervalCandidates(
   segmentation: PrognosisIntervalSegmentation,
   forecasts: WeatherHourlyForecast[],
   species: FishSpecies,
-  options: ThermalAnalysisOptions = {}
+  options: ThermalIntervalCandidateOptions = {}
 ): ThermalIntervalCandidateOutput {
+  const { waterTemperatureCalibration, ...thermalOptions } = options;
   const profile = SPECIES_PROFILES[species];
   const segments = segmentation.segments.map((segment): ThermalIntervalSegmentCandidate => {
     const thermal = analyzeWaterThermalDevelopment(segment.targetDate, forecasts, {
-      ...options,
+      ...thermalOptions,
       targetTime: segment.startTime,
     });
+
+    // Match the existing day/time-slot prognosis: apply only a validated local
+    // correction to a modelled temperature, never to a direct measurement or
+    // an unavailable thermal result.
+    if (
+      waterTemperatureCalibration &&
+      !thermal.hasMeasuredWaterTemp &&
+      thermal.trendConfidence !== 'Onvoldoende gegevens' &&
+      typeof thermal.estimatedWaterTemp === 'number'
+    ) {
+      const correction = waterTemperatureCalibration.appliedCorrectionC;
+      thermal.estimatedWaterTemp = Math.round((thermal.estimatedWaterTemp - correction) * 10) / 10;
+      if (thermal.estimatedRange) {
+        thermal.estimatedRange = [
+          Math.round((thermal.estimatedRange[0] - correction) * 10) / 10,
+          Math.round((thermal.estimatedRange[1] - correction) * 10) / 10,
+        ];
+      }
+      thermal.calibration = waterTemperatureCalibration;
+    }
     const temperature = thermal.hasMeasuredWaterTemp
       ? thermal.measuredWaterTemp
       : thermal.estimatedWaterTemp;
@@ -58,6 +89,7 @@ export function calculateThermalIntervalCandidates(
         estimatedWaterTempC: null,
         estimatedRangeC: null,
         uncertaintyC: null,
+        thermalCalibration: null,
         thermalEfficiency: null,
         candidateActivityScore: null,
       };
@@ -74,6 +106,7 @@ export function calculateThermalIntervalCandidates(
       estimatedWaterTempC: temperature,
       estimatedRangeC: thermal.estimatedRange ?? null,
       uncertaintyC: thermal.uncertaintyC ?? null,
+      thermalCalibration: thermal.calibration ?? null,
       thermalEfficiency: efficiency,
       candidateActivityScore: Math.round((1 + 9 * Math.pow(efficiency, 0.85)) * 10) / 10,
     };
