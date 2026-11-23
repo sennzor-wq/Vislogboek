@@ -6122,3 +6122,63 @@ Er is nog geen minimumpercentage voor intervaldekking gekozen en er is geen biol
 De matrix is een **auditbesluit over behoud van bestaande semantiek**, geen definitieve goedkeuring voor intervalscoring. Er is nog geen factor-specifiek intervalminimum, gewichtsmodel of biologische correctie gekozen. De bestaande 1–10 thermische activiteitsscore blijft ongewijzigd en de VisCoach blijft uitsluitend consument/vertaler van Prognose-uitkomsten.
 
 **Volgende werkstap:** maak op basis van deze matrix een klein interval-outputcontract: welke bestaande factorcontext kan per segment worden weergegeven, welke uitkomst blijft één sessiewaarde, en welke velden blijven onbekend bij onvoldoende dekking. Begin met tests van het contract en de as-of-grens; pas daarna kan worden besloten of enige factorberekening in de bestaande Prognose-engine moet worden uitgebreid. Geen tweede prognose-engine en geen scorewijziging.
+
+
+## 203. Outputcontract Prognosepagina ↔ VisCoach voor een gepland interval
+
+**Werkpakket 14 — read-only controle van de bestaande uitvoerketen (23 november 2026).** Doel is vastleggen welke bestaande resultaten dagbreed, starttijdvakgebonden of sessiebreed zijn voordat een intervalresultaat wordt ontworpen. Alleen `sessionCoachService`, `viscoachService` en `VisCoachView` zijn gecontroleerd; geen code of UI gewijzigd.
+
+### 203.1 Huidige uitvoerketen
+
+- `buildVisCoachPlan` roept de bestaande `calculateDayPrognosis` aan. Er is geen tweede VisCoach-prognose-engine.
+- De geplande start/eindtijd wordt als canoniek interval opgeslagen in inputcontext en snapshot. De duur gaat als `sessionDurationHours` naar de bestaande Prognose-engine.
+- Het gekozen starttijdvak (`targetTimeSlot`) wordt apart doorgegeven voor tactische context.
+- `buildVisCoachAdviceText` ontvangt één `DayPrognosis`, de weersnapshot rond de starttijd, het geselecteerde tijdvak en de sessieduur.
+- Bij één geselecteerd tijdvak gebruikt de coachtekst de conclusie uit `prognosis.timeSlots[selectedTimeSlot]`. Bij meerdere tijdvakken zegt de coachtekst expliciet dat de sessie meerdere tijdvakken bestrijkt en dat de dagwinnaar niet automatisch als sessievoorkeur wordt aangewezen.
+- Tactische positionering, habitat en oeverwind worden nog als één analyse per plan opgebouwd rond het gekozen starttijdvak; het zijn geen tijdreeksen over de volledige sessie.
+- De persoonlijke Poisson-vangkans is sessiebreed en gebruikt de geplande duur wanneer die bekend is.
+
+### 203.2 Huidige UI-semantiek en beperking
+
+De huidige VisCoach-kaart toont:
+- de geplande start/eindtijd;
+- het geselecteerde tijdvak, of “Meerdere tijdvakken”;
+- daarnaast de algemene `prognosis.bestTimeSlot` als dagcontext;
+- `prognosis.advice` als algemene dagbeoordeling;
+- `prognosis.activityScore` als dagscore (gemiddelde van de vier bestaande tijdvakscorewaarden, alleen beschikbaar als alle vier bruikbaar zijn);
+- `prognosis.personalCatchChance` als persoonlijke kans voor de geplande duur, alleen wanneer die duur bekend en de historische/data-invoer voldoende is;
+- een verhalend advies dat de gekozen startperiode gebruikt, maar waarvan de openingssamenvatting nog `prognosis.advice` gebruikt.
+
+Daarmee is de huidige UI een **hybride weergave**: een dagbrede thermische score/beoordeling, een starttijdvakgerichte tactiek en een sessieduurgebonden persoonlijke vangkans. De dagscore is geen score voor het geplande interval. De zichtbare kaart noemt de dagscore momenteel “Visactiviteit”, terwijl de code en auditdefinitie uitsluitend voorlopige thermische activiteitspotentie beschrijven. Dat label mag niet worden gebruikt als bewijs van gemeten visactiviteit of daadwerkelijke vangstactiviteit.
+
+### 203.3 Contract voor toekomstige intervaluitvoer
+
+Dit is de voorgestelde semantische scheiding voor de bestaande twee productonderdelen; het introduceert geen derde product of parallelle engine.
+
+| Uitvoer | Eigen scope | Mag door VisCoach worden gebruikt als | Mag niet worden gepresenteerd als |
+|---|---|---|---|
+| Bestaande dagscore en dagbeoordeling | Kalenderdag / vier vaste tijdvakken | Expliciete dagcontext, herkenbaar als dagprognose | Score of oordeel voor alleen de geplande sessie |
+| Thermische toestand per intervalsegment (toekomstige kandidaat) | Segment met eigen targetTime en thermische lookback | Onderdeel van de Prognose-intervaluitvoer zodra per-segmentberekening en dekking zijn gevalideerd | Gemeten visactiviteit, voedingsactiviteit of vangstkans |
+| Weerfactorcontext per segment | Segment of bestaand tijdvak, afhankelijk van factorcontract | Verklaring van veranderende omstandigheden binnen de sessie; onbekende factoren blijven zichtbaar onbekend | Biologische bonus/malus of een samengevoegde score zonder bewijs |
+| Persoonlijke ervaring | Historisch sessiestarttijdvak | Persoonlijke context voor het starttijdvak | Historische vangstfrequentie voor elk segment dat de sessie doorkruist |
+| Persoonlijke vangkans | Volledige geplande sessieduur | Eén persoonlijke sessiebrede uitkomst | Kans per segment of opgetelde segmentkansen |
+| Aanwezigheidswaarneming | Werkelijk waarnemingstijdstip / sessie | Gedateerde kwalitatieve observatie | Voorspelde aanwezigheid wanneer niet waargenomen |
+| Windkant, habitat en positionering | Huidig gekozen tactisch starttijdvak totdat een apart tijdreekscontract bestaat | Starttactiek met onzekerheden en alternatieve zone indien onderbouwd | Gegarandeerd advies voor ieder later sessiesegment |
+| Voorvoerplan | Doeldag en campagne vóór de sessie | Voorbereidings- en sessietactiek | Uurlijkse factor of activiteitsscore |
+| Hengelblootstelling | Werkelijk geregistreerde actieve intervallen achteraf | Evaluatie van werkelijk gevist tijdsvenster | Forecastinput of voorspelde inspanning |
+
+### 203.4 Vereiste regels voor de toekomstige VisCoach-vertaling
+
+1. De Prognosepagina berekent en levert de intervalinformatie; VisCoach maakt daar één samenhangend verhaal en tactiek van. VisCoach berekent geen eigen factoren of score.
+2. Dagbrede informatie blijft beschikbaar als dagcontext, maar moet als zodanig herkenbaar blijven. Zij mag niet stilzwijgend als intervalresultaat worden gelabeld.
+3. Bij een sessie die meerdere tijdvakken bestrijkt, moet de vertaling de relevante opeenvolgende segmenten/perioden beschrijven; de dagwinnaar mag niet als beste sessietijd worden gepresenteerd.
+4. Een sessiebrede vangkans blijft één getal voor de hele geplande duur. Een onbekende eindtijd betekent geen duurgebaseerde vangkans en geen verzonnen intervaldekking.
+5. De samenvatting mag alleen factoren noemen waarvan de eigen beschikbaarheidsregel is gehaald. Ontbrekende factorinformatie blijft expliciet onbekend en blokkeert niet automatisch andere onafhankelijke factoren.
+6. De thermische activiteitspotentie blijft onderscheiden van visaanwezigheid, voedselopname, foerageeractiviteit en vangstkans.
+7. Geen gecombineerde intervalscores, factorgewichten of nieuwe biologische koppelingen in deze outputlaag.
+
+### 203.5 Status en volgende poort
+
+De bestaande uitvoerketen is helder genoeg om een semantisch outputcontract te formuleren, maar de daadwerkelijke intervalfactoren zijn nog niet berekend. De dagscore blijft dus de huidige dagscore en mag niet worden hernoemd naar een sessiescore. De huidige UI-labeling “Visactiviteit” is een afzonderlijke terminologische bevinding voor latere gerichte UI-correctie; deze is in dit read-only werkpakket niet gewijzigd.
+
+**Volgende stap:** specificeer de kleinste backward-compatible outputstructuur voor segmentstatussen en factorbeschikbaarheid, zonder de bestaande `DayPrognosis`-velden te herinterpreteren. Schrijf eerst contracttests voor onbekende eindtijd, meerdere tijdvakken, gedeeltelijke/missende factorinvoer en scheiding tussen dag-, starttijdvak- en sessie-uitkomsten. Pas daarna een minimale uitbreiding van de bestaande Prognose-engine overwegen. Zie audit §§199–203.
