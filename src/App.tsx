@@ -438,6 +438,7 @@ export default function App() {
             onStartSession={handleStartSession}
             onStartPlannedSession={handleStartPlannedSession}
             onSavePlan={handleSavePlannedSession}
+            onSaveLocation={handleSaveLocation}
             onCancelPlan={handleCancelPlannedSession}
           />
         )}
