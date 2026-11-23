@@ -19,8 +19,8 @@ export interface ThermalIntervalSegmentCandidate {
   status: 'available' | 'unknown';
   unknownReason: 'missing_temperature' | null;
   thermalSource: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | null;
-  estimatedWaterTempC: number | null;
-  estimatedRangeC: [number, number] | null;
+  waterTemperatureC: number | null;
+  waterTemperatureRangeC: [number, number] | null;
   uncertaintyC: number | null;
   thermalCalibration: ThermalIntervalCandidateOptions['waterTemperatureCalibration'];
   thermalEfficiency: number | null;
@@ -86,8 +86,8 @@ export function calculateThermalIntervalCandidates(
         status: 'unknown',
         unknownReason: 'missing_temperature',
         thermalSource: null,
-        estimatedWaterTempC: null,
-        estimatedRangeC: null,
+        waterTemperatureC: null,
+        waterTemperatureRangeC: null,
         uncertaintyC: null,
         thermalCalibration: null,
         thermalEfficiency: null,
@@ -103,8 +103,8 @@ export function calculateThermalIntervalCandidates(
       status: 'available',
       unknownReason: null,
       thermalSource: source,
-      estimatedWaterTempC: temperature,
-      estimatedRangeC: thermal.estimatedRange ?? null,
+      waterTemperatureC: temperature,
+      waterTemperatureRangeC: thermal.estimatedRange ?? null,
       uncertaintyC: thermal.uncertaintyC ?? null,
       thermalCalibration: thermal.calibration ?? null,
       thermalEfficiency: efficiency,

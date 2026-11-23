@@ -48,7 +48,7 @@ assert(candidates.segments[0].targetTime === segmentation.segments[0].startTime,
 assert(candidates.segments[1].targetTime === segmentation.segments[1].startTime, 'Tweede segment gebruikt exact de absolute segmentstart als doelmoment');
 assert(candidates.segments.every((segment) => segment.status === 'available' || segment.status === 'unknown'), 'Elk segment heeft expliciete beschikbaarheidsstatus');
 assert(candidates.segments.every((segment) => segment.status === 'unknown' || (
-  segment.thermalSource !== null && segment.estimatedWaterTempC !== null &&
+  segment.thermalSource !== null && segment.waterTemperatureC !== null &&
   segment.thermalEfficiency !== null && segment.candidateActivityScore !== null
 )), 'Beschikbare thermische uitkomst bevat bron, temperatuur, efficiëntie en kandidaat-score');
 
@@ -64,7 +64,7 @@ assert(
     const original = candidates.segments[index];
     return segment.status === 'unknown' ||
       (original.status === 'available' &&
-        segment.estimatedWaterTempC === Math.round(((original.estimatedWaterTempC as number) - 1.2) * 10) / 10 &&
+        segment.waterTemperatureC === Math.round(((original.waterTemperatureC as number) - 1.2) * 10) / 10 &&
         segment.thermalCalibration?.appliedCorrectionC === 1.2 &&
         segment.thermalCalibration.sampleCount === 8);
   }),
@@ -90,7 +90,7 @@ const measuredCandidates = calculateThermalIntervalCandidates(
 );
 assert(
   measuredCandidates.segments[0].thermalSource === 'measured' &&
-  measuredCandidates.segments[0].estimatedWaterTempC === 15 &&
+  measuredCandidates.segments[0].waterTemperatureC === 15 &&
   measuredCandidates.segments[0].thermalCalibration === null,
   'Een directe watertemperatuurmeting wordt nooit door de lokale kalibratie aangepast'
 );
@@ -103,7 +103,7 @@ const laterForecastChanged = forecasts.map((forecast) => {
 });
 const afterFutureChange = calculateThermalIntervalCandidates(segmentation, laterForecastChanged, 'Karper', options);
 assert(
-  candidates.segments[0].estimatedWaterTempC === afterFutureChange.segments[0].estimatedWaterTempC &&
+  candidates.segments[0].waterTemperatureC === afterFutureChange.segments[0].waterTemperatureC &&
   candidates.segments[0].thermalEfficiency === afterFutureChange.segments[0].thermalEfficiency &&
   candidates.segments[0].candidateActivityScore === afterFutureChange.segments[0].candidateActivityScore,
   'Forecastwijzigingen na segmentdoelmoment beïnvloeden de eerdere segmentuitkomst niet'
@@ -145,8 +145,8 @@ assert(
     segment.status === 'unknown' &&
     segment.unknownReason === 'missing_temperature' &&
     segment.thermalSource === null &&
-    segment.estimatedWaterTempC === null &&
-    segment.estimatedRangeC === null &&
+    segment.waterTemperatureC === null &&
+    segment.waterTemperatureRangeC === null &&
     segment.uncertaintyC === null &&
     segment.thermalEfficiency === null &&
     segment.candidateActivityScore === null
