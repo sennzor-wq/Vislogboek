@@ -1,6 +1,7 @@
 import { calculateThermalIntervalCandidates } from './src/services/prognosisIntervalThermal';
 import { segmentPrognosisInterval } from './src/services/prognosisIntervalEngine';
 import { FishingLocation, WeatherHourlyForecast } from './src/types';
+import { calculateDayPrognosis } from './src/services/prognosisEngine';
 
 let passed = 0;
 let failed = 0;
@@ -203,6 +204,40 @@ for (const scenario of scenarios) {
 }
 assert(simulationCases === 60, '6 weerscenario’s × 10 soorten = 60 synthetische combinaties');
 console.log('SYNTHETIC_INTERVAL_KARPER_SCENARIOS=' + JSON.stringify(karperScenarioSummary));
+
+
+const parityForecasts = makeForecasts('mild_stable');
+const parityStart = '2026-11-24T14:00:00Z'; // representative 15:00 Amsterdam sample of the existing Middag slot
+const paritySegmentation = segmentPrognosisInterval(parityStart, '2026-11-24T15:00:00Z', parityForecasts);
+const parityCalibration = { appliedCorrectionC: 1.2, sampleCount: 8, season: 'herfst' as const };
+const parityOptions = {
+  location: simulationLocation,
+  currentDateRef: new Date(simulationStart),
+  waterTemperatureCalibration: parityCalibration,
+};
+const parityCandidate = calculateThermalIntervalCandidates(
+  paritySegmentation, parityForecasts, 'Karper', parityOptions
+).segments[0];
+const existingDay = calculateDayPrognosis(
+  '2026-11-24',
+  parityForecasts,
+  'Karper',
+  [],
+  undefined,
+  null,
+  new Date(simulationStart),
+  { ...parityOptions, sessionDurationHours: 3 }
+);
+assert(
+  parityCandidate.status === 'available' &&
+  parityCandidate.candidateActivityScore === existingDay.timeSlots.Middag.activityScore &&
+  parityCandidate.thermalCalibration?.appliedCorrectionC === parityCalibration.appliedCorrectionC,
+  'Bij hetzelfde exacte representatieve tijdstip reproduceert de intervalkandidaat de bestaande tijdvakscore inclusief lokale kalibratie'
+);
+assert(
+  existingDay.personalCatchChance === null,
+  'Zonder historische sessies blijft de persoonlijke vangkans null, ook wanneer de thermische kandidaat beschikbaar is'
+);
 
 const futurePerturbed = makeForecasts('mild_stable').map((f) => Date.parse(f.time) > Date.parse(simulationTarget)
   ? { ...f, temperature: 55, windSpeed: 180, precipitation: 50 } : f);
