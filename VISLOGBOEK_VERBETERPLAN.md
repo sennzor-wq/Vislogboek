@@ -1209,3 +1209,12 @@ De pure segmentatiehelper is groen gevalideerd in Quality Gate 1132. Daarna is r
 Audit §201 legt de bestaande geldigheidsranges en tijdsvensters per weerfactor vast. Belangrijk: de huidige 3-uit-6 minimumdekking hoort bij vaste 6-uurs tijdvakken en mag niet automatisch naar korte geplande sessies worden vertaald. Wind vereist snelheid én richting; druktrend vereist een aparte voorafgaande meting; thermische waterontwikkeling heeft eigen 24-/72-uurs- en ankerregels; optionele zonnestraling/vochtigheid/dauwpunt mogen niet als nul worden behandeld.
 
 **Volgende stap:** formele factorresolutie kiezen voor intervalsegmenten (uursegment, tijdvak, kalenderdag of sessiebreed) en per factor een dekkingstatus definiëren. Eerst technisch/semantisch onderbouwen; nog geen minimumpercentage, scoregewicht of biologische bonus/malus verzinnen. Zie audit §§200–201.
+
+
+### Fase 2 — factorresolutiematrix voor geplande sessie-intervallen (23 november 2026)
+
+Audit §202 heeft per factor de huidige code-resolutie, vereiste velden/lookback, intervalkandidaat en ontbrekende-datagedrag vastgelegd. De uitkomst bewaart de bestaande semantiek: thermiek is kandidaat per segment met eigen targetTime-/24-/72-uurslookback; druktrend blijft tijdstipgebonden met voorafgaande meting; druk, wind, bewolking en neerslag houden voorlopig hun 6-uurs factorcontract; seizoen is kalenderdagcontext; tijd/licht is tijdvak-/datumcontext; persoonlijke ervaring blijft sessiestarttijdvak; persoonlijke Poisson-vangkans blijft sessiebreed; aanwezigheid blijft een waarnemingsgebeurtenis; tactische oeverwind/habitat/positionering blijven rond het starttijdvak; voorvoer blijft doeldag-/campagnegebonden; hengelblootstelling blijft achteraf.
+
+**Status:** read-only audit afgerond en gedocumenteerd. Geen runtimecode, score, drempel, weging of gebruikersdata gewijzigd. Er is geen intervalminimumpercentage gekozen. De generieke uursegmentatie geldt niet als factorbeschikbaarheid.
+
+**Volgende stap:** een beperkt interval-outputcontract vastleggen en test-first valideren: welke factorcontext per segment kan worden getoond, welke uitkomsten sessiebreed blijven en welke gegevens bij onvoldoende dekking onbekend blijven. Geen scorewijziging of tweede prognose-engine. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §202 en architectuur §167.
