@@ -565,7 +565,7 @@ assert(
 // =====================================================================
 
 console.log('\n--- TESTGROEP 3B: Synthetische habitatmatrix alle doelsoorten ---');
-const habitatMatrixScenarios = [
+const habitatMatrixScenarios: Array<{ name: string; date: string; thermal: WaterThermalAnalysis; location: FishingLocation }> = [
   { name: 'koud', date: '2026-01-20', thermal: coldThermal, location: baseLocation },
   { name: 'gematigd', date: '2026-03-20', thermal: chillyThermal, location: baseLocation },
   { name: 'warm', date: '2026-07-20', thermal: warmThermal, location: baseLocation },
@@ -575,7 +575,7 @@ const habitatMatrixScenarios = [
     thermal: unknownThermal,
     location: { ...baseLocation, waterType: undefined, waterDepth: undefined, habitatFeatures: [] },
   },
-] as const;
+];
 let habitatSimulationCases = 0;
 for (const species of ALL_SPECIES) {
   for (const scenario of habitatMatrixScenarios) {
