@@ -11,7 +11,7 @@ const expectedScopes: Record<string, string> = {
   Zeelt: 'direct-feeding',
   Snoekbaars: 'direct-feeding',
   Meerval: 'direct-feeding',
-  Roofblei: 'diet-only',
+  Roofblei: 'feeding-incidence-and-diet',
   Overig: 'none',
 };
 
@@ -28,6 +28,10 @@ for (const species of ALL_SPECIES) {
 const asp = getSpeciesFeedingEvidenceContext('Roofblei');
 if (asp.feedingIntensity.length !== 0 || asp.feedingRhythm.length !== 0) {
   throw new Error('Asp diet evidence must not be interpreted as measured daily feeding intensity or rhythm.');
+}
+if (asp.feedingIncidence.length === 0 ||
+    !asp.feedingIncidence.some((entry) => entry.measuredOutcomes?.includes('feeding_incidence'))) {
+  throw new Error('Asp stomach-fullness/vacuity evidence must remain visible as feeding incidence, not be discarded or mislabeled as intensity.');
 }
 if (asp.dietComposition.length === 0 || asp.preySelection.length === 0) {
   throw new Error('Asp diet and prey-selection context must remain available as separate evidence.');
