@@ -10,6 +10,7 @@ import {
   WeatherHourlyForecast,
   PresenceObservation,
   COMPASS_DIRECTIONS,
+  ALL_SPECIES,
 } from './src/types';
 
 let passed = 0;
@@ -562,6 +563,79 @@ assert(
 // =====================================================================
 // DEEL 4: VOLLEDIGE DAGPROGNOSE & INTEGRATIE
 // =====================================================================
+
+console.log('\n--- TESTGROEP 3B: Synthetische habitatmatrix alle doelsoorten ---');
+const habitatMatrixScenarios = [
+  { name: 'koud', date: '2026-01-20', thermal: coldThermal, location: baseLocation },
+  { name: 'gematigd', date: '2026-03-20', thermal: chillyThermal, location: baseLocation },
+  { name: 'warm', date: '2026-07-20', thermal: warmThermal, location: baseLocation },
+  {
+    name: 'thermisch-onbekend',
+    date: '2026-07-20',
+    thermal: unknownThermal,
+    location: { ...baseLocation, waterType: undefined, waterDepth: undefined, habitatFeatures: [] },
+  },
+] as const;
+let habitatSimulationCases = 0;
+for (const species of ALL_SPECIES) {
+  for (const scenario of habitatMatrixScenarios) {
+    const result = analyzeHabitatMovement(species, scenario.date, {
+      location: scenario.location,
+      thermalAnalysis: scenario.thermal,
+      targetSlot: 'Middag',
+      avgWindSpeedKmH: 8,
+      windDirText: 'W',
+      pressureTrend: 'stabiel',
+      cloudCoverPercent: 50,
+      historicalSessions: [],
+      observations: [],
+      sessionObservations: [],
+    });
+    assert(
+      Boolean(result.primaryZone.name && result.primaryZone.description && result.primaryZone.whyLikely) &&
+      Boolean(result.alternativeZone.name && result.alternativeZone.description && result.alternativeZone.whyLikely),
+      'Habitatmatrix ' + species + ' / ' + scenario.name + ': primaire en alternatieve zone volledig'
+    );
+    assert(
+      Boolean(result.movementHypothesis.likelyDirection && result.movementHypothesis.migrationalTrigger &&
+        result.movementHypothesis.timeOfDayDynamic && result.movementHypothesis.seasonalPattern) &&
+      Boolean(result.environmentalInfluence.temperatureImpact && result.environmentalInfluence.windAndWaveImpact),
+      'Habitatmatrix ' + species + ' / ' + scenario.name + ': bewegings- en omgevingscontext volledig'
+    );
+    if (scenario.name === 'thermisch-onbekend') {
+      assert(
+        result.missingInformation.some((item) => item.toLowerCase().includes('watertemperatuur')) &&
+        !result.primaryZone.description.includes('14.0'),
+        'Habitatmatrix ' + species + ': ontbrekende thermiek blijft onbekend zonder standaardtemperatuur'
+      );
+    }
+    habitatSimulationCases++;
+  }
+
+  const observed = analyzeHabitatMovement(species, '2026-07-20', {
+    location: { ...baseLocation, waterType: undefined, waterDepth: undefined },
+    thermalAnalysis: unknownThermal,
+    targetSlot: 'Middag',
+    sessionObservations: ['aasbellen_voedselactiviteit'],
+    historicalSessions: [],
+  });
+  assert(
+    observed.primaryZone.name.includes('waarnemingszone') &&
+    observed.dataProvenance.userObservations.some((item) => item.includes('aasbellen')),
+    'Habitatmatrix ' + species + ': directe viswaarneming blijft leidend zonder thermische of stekcontext'
+  );
+}
+assert(
+  habitatSimulationCases === ALL_SPECIES.length * 4,
+  'Habitatmatrix omvat alle doelsoorten × 4 thermische scenario’s zonder sessiehistorie'
+);
+console.log('SYNTHETIC_HABITAT_MATRIX=' + JSON.stringify({
+  speciesCount: ALL_SPECIES.length,
+  thermalScenarios: habitatMatrixScenarios.map((scenario) => scenario.name),
+  habitatCases: habitatSimulationCases,
+  directObservationCases: ALL_SPECIES.length,
+}));
+
 console.log('\n--- TESTGROEP 4: Volledige Dagprognose & Integratie ---');
 
 const mockHourlyForecasts: WeatherHourlyForecast[] = [];
