@@ -306,12 +306,50 @@ export function buildVisCoachBiologicalContext(species: FishSpecies | 'Algemeen'
   return 'In het huidige bronnenregister ontbreekt directe dagdeelmeting van voedselopname voor deze soort. Er is daarom geen onderbouwde soortspecifieke tijdvakvoorkeur.';
 }
 
+function formatIntervalTimeline(
+  interval: import('./prognosisIntervalOutput').PrognosisIntervalOutput | undefined
+): string | null {
+  if (!interval || interval.status === 'unknown_end' || interval.status === 'invalid_interval' || interval.segments.length === 0) {
+    return null;
+  }
+  const formatTime = (value: string) => new Intl.DateTimeFormat('nl-NL', {
+    timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).format(new Date(value));
+  const describe = (segment: import('./prognosisIntervalOutput').PrognosisIntervalSegmentOutput) => {
+    const weather = segment.weatherContext;
+    const details: string[] = [];
+    if (weather.airTemperatureC.status === 'available') details.push(`lucht ${weather.airTemperatureC.value.toFixed(1)} °C`);
+    if (weather.wind.status === 'available') details.push(`wind ${weather.wind.value.directionLabel} ${weather.wind.value.speedKmh.toFixed(0)} km/u`);
+    if (weather.precipitationMm.status === 'available') details.push(`neerslag ${weather.precipitationMm.value.toFixed(1)} mm/u`);
+    if (weather.cloudCoverPercent.status === 'available') details.push(`bewolking ${weather.cloudCoverPercent.value.toFixed(0)}%`);
+    return details.length ? details.join(', ') : 'geen bruikbare weersgegevens';
+  };
+  const groups: Array<{ start: string; end: string; description: string }> = [];
+  for (const segment of interval.segments) {
+    const description = describe(segment);
+    const previous = groups[groups.length - 1];
+    if (previous && previous.description === description && previous.end === segment.startTime) {
+      previous.end = segment.endTime;
+    } else {
+      groups.push({ start: segment.startTime, end: segment.endTime, description });
+    }
+  }
+  const coverage = interval.status === 'complete'
+    ? 'De weersverwachting dekt de volledige geplande sessie.'
+    : `De weersverwachting dekt ongeveer ${Math.round((interval.temporalCoverageRatio ?? 0) * 100)}% van de geplande sessieduur; voor ontbrekende uren doe ik geen aannames.`;
+  const timeline = groups.map(group =>
+    `${formatTime(group.start)}–${formatTime(group.end)}: ${group.description}`
+  ).join('; ');
+  return `${coverage} ${timeline} Dit is beschrijvende weerscontext, geen afzonderlijke activiteitsscore per segment.`;
+}
+
 export function buildVisCoachAdviceText(
   prognosis: DayPrognosis,
   weather?: import('../types').WeatherSnapshot | null,
   technique?: string | null,
   selectedTimeSlot?: TimeSlot | null,
-  sessionDurationHours?: number | null
+  sessionDurationHours?: number | null,
+  intervalOutput?: import('./prognosisIntervalOutput').PrognosisIntervalOutput
 ): VisCoachAdviceText {
   const positioning = prognosis.positioningAdvice;
   const habitat = prognosis.habitatAnalysis;
@@ -334,6 +372,11 @@ export function buildVisCoachAdviceText(
           : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
   adviceSections.push(`Wanneer\n${when}`);
+  const intervalTimeline = formatIntervalTimeline(intervalOutput);
+  if (intervalTimeline) adviceSections.push(`Verloop tijdens je sessie\n${intervalTimeline}`);
+  else if (intervalOutput?.status === 'unknown_end') {
+    adviceSections.push('Verloop tijdens je sessie\nDe eindtijd is nog niet bekend. Daarom geef ik geen uitspraak over de volledige sessieduur of een duurgebonden persoonlijke vangkans.');
+  }
 
   const zoneResolution = resolveCoachStartZone(habitat, positioning);
   const primaryZone = zoneResolution.primaryZone;
@@ -468,7 +511,9 @@ export function buildVisCoachAdviceText(
     : 'Zie je geen activiteit of krijg je geen aanbeten, controleer dan eerst opnieuw de omgeving en probeer een tweede herkenbare structuur of diepteovergang. Verander niet steeds van aanpak door kleine weersschommelingen.';
   tacticSections.push(`Als het niet werkt\n${fallback}`);
 
-  const summary = `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
+  const summary = intervalOutput
+    ? `De dagprognose voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}. De omstandigheden binnen je geplande sessie worden hieronder in tijdsvolgorde beschreven; de dagscore is geen sessiescore.`
+    : `De verwachting voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.`;
   const reasons: string[] = [];
   const summaryRationale = cleanCoachText(prognosis.summaryRationale);
   if (summaryRationale && !/aanvullende locatiegegevens|onbekend/i.test(summaryRationale)) {

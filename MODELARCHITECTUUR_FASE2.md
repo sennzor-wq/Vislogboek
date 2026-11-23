@@ -1533,3 +1533,10 @@ Het contract houdt dagcontext (`activityScore`, `advice`, `bestTimeSlot`), start
 Elk veld is onafhankelijk beschikbaar of `unknown/null`. Een geldig uurrecord is geen factorbeschikbaarheid. Thermische activiteit wordt niet opnieuw per segment berekend; absolute druk blijft aan het bestaande tijdvakcontract gebonden; druktrend behoudt haar voorafgaande meetvenster; wind/neerslag/bewolking zijn alleen beschrijvende segmentcontext. Ontbrekende uren blijven zichtbare segmenten met onbekende weerwaarden. Een onbekende eindtijd levert geen segmenten of sessieduur/vangkans.
 
 VisCoach moet de opeenvolgende segmenten tot één chronologisch advies vertalen, alleen beschikbare context noemen en dag-/start-/sessie-uitkomsten herkenbaar gescheiden houden. Geen segmentscores, opgetelde kansen, gewichten of tweede engine. De pure adaptertests zijn toegevoegd; daadwerkelijke UI-consumptie en CI-validatie zijn nog open. Zie audit §204.
+
+
+## 170. VisCoach als intervalconsument
+
+De bestaande `buildVisCoachPlan` roept nog steeds één keer `calculateDayPrognosis` aan en bouwt daarna de intervalpresentatie met de al opgehaalde uurforecast. De resulterende `intervalOutput` wordt als onderdeel van hetzelfde plan aan de bestaande VisCoach-tekstfunctie doorgegeven.
+
+VisCoach groepeert alleen aangrenzende segmenten met gelijke beschrijvende weercontext en beschrijft de rest chronologisch. Ontbrekende waarden blijven buiten de tekst of worden als ontbrekende dekking benoemd; er worden geen schattingen of scores gegenereerd. De dagprognose blijft expliciet dagcontext, de starttactiek blijft aan het gekozen starttijdvak gekoppeld en de persoonlijke vangkans blijft één sessiebrede uitkomst. De extra parameter is optioneel, zodat bestaande sessie-start- en reassessment-adviezen hun bestaande gedrag behouden. Zie audit §205.

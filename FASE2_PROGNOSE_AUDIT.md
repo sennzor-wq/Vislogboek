@@ -6245,3 +6245,20 @@ VisCoach leest het outputobject en maakt één samenhangend advies:
 `test-prognosis-interval-output.ts` controleert bekende en onbekende eindtijd, gedeeltelijke dekking, ontbrekend uur, afzonderlijk ongeldige factorvelden, windvalidatie, behoud van dag-/start-/sessiescope en null bij onbekende duur of niet-beschikbare dagscore. De adapter is een backward-compatible presentatie-/contractlaag: de bestaande `calculateDayPrognosis` en alle bestaande scores, drempels en gewichten blijven ongewijzigd.
 
 **Status:** contract en pure adapter zijn toegevoegd op branch `feature/prognosis-interval-output-contract`. De CI-teststap is toegevoegd; uitvoering en typecheck moeten nog door GitHub Actions worden bevestigd. VisCoach consumeert de adapter nog niet in de UI. Dit is dus geen afgeronde end-to-end integratie. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 205. VisCoach-consumptie van intervaluitvoer
+
+**Werkpakket 16 — eerste end-to-end adviesvertaling (23 november 2026).** De bestaande `buildVisCoachPlan` maakt nu na de bestaande `calculateDayPrognosis` één `PrognosisIntervalOutput` met dezelfde genormaliseerde intervalgrenzen en de al opgehaalde uurforecast. De planbuilder voert geen tweede prognoseberekening uit.
+
+De bestaande VisCoach-adviesfunctie accepteert de intervaluitvoer optioneel. Bij een nieuw gepland plan:
+- blijft de openingssamenvatting herkenbaar dagprognose en zegt expliciet dat de dagscore geen sessiescore is;
+- beschrijft de advieslaag de sessiechronologie in één tekstblok, waarbij aangrenzende segmenten met identieke beschrijvende weerscontext worden samengevoegd;
+- worden alleen individueel beschikbare luchttemperatuur, wind, neerslag en bewolking genoemd;
+- worden ontbrekende uren als gedeeltelijke weersdekking benoemd; er worden geen waarden ingevuld;
+- blijven de bestaande starttijdvakgerichte tactiek en sessiebrede persoonlijke vangkans afzonderlijk;
+- levert een onbekende eindtijd geen tijdlijn of duurgebonden vangkans.
+
+Bestaande opgeslagen sessieadviezen en reassessment-paden roepen de functie nog steeds zonder intervalobject aan en behouden daarmee hun huidige gedrag. Contracttests controleren de gecombineerde dag-/sessiesemantiek en de chronologische VisCoach-vertaling.
+
+**Status:** intervaluitvoer is aangesloten op de nieuwe-planroute van VisCoach. UI-consumptie gebruikt dezelfde planuitvoer; bestaande sessieadviespaden zijn backward-compatible. De nieuwe CI-run moet deze uitbreiding nog valideren. Geen tweede engine, intervalscores, factorweging of biologische correctie toegevoegd.

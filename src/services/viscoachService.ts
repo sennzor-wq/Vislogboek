@@ -181,6 +181,7 @@ export interface VisCoachPlan {
   desiredEndTime: string | null;
   durationHours: number | null;
   selectedTimeSlot?: import('../types').TimeSlot;
+  intervalOutput: PrognosisIntervalOutput;
 }
 
 /** Bepaalt hoeveel kalenderdagen voorbereiding beschikbaar zijn, binnen de bestaande 0-3-daagse voerplannergrens. */
@@ -354,6 +355,13 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
   });
 
   const selectedTimeSlot = resolveSelectedTimeSlot(start, end);
+  const intervalOutput = createPrognosisIntervalOutput(
+    targetWindowStart,
+    targetWindowEnd,
+    weather.hourly,
+    prognosis,
+    tacticalStartSlot ?? null
+  );
   const pendingSnapshot: PendingPrognosisSnapshot = {
     prognosis,
     durationHours: durationHours ?? 0,
@@ -376,6 +384,7 @@ export async function buildVisCoachPlan(input: VisCoachPlanInput): Promise<VisCo
     desiredEndTime: targetWindowEnd,
     durationHours,
     selectedTimeSlot,
+    intervalOutput,
   };
 }
 

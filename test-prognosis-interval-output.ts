@@ -1,5 +1,6 @@
 import { buildPrognosisIntervalOutput, createPrognosisIntervalOutput } from './src/services/prognosisIntervalOutput';
 import { DayPrognosis, WeatherHourlyForecast } from './src/types';
+import { buildVisCoachAdviceText } from './src/services/sessionCoachService';
 
 let passed = 0;
 let failed = 0;
@@ -30,6 +31,9 @@ assert(complete.startContext.selectedTimeSlot === 'Ochtend', 'Gekozen starttijdv
 assert(complete.segments[0].weatherContext.airTemperatureC.status === 'available', 'Geldig uurrecord levert beschrijvende luchttemperatuur');
 assert(complete.segments[0].weatherContext.wind.status === 'available', 'Wind vereist geldige snelheid én richting/label');
 assert(complete.segments.every(s => s.factorResolution.thermalActivity === 'not_calculated_per_segment'), 'Segmentcontext wordt niet als thermische segmentscore gepresenteerd');
+const composedAdvice = buildVisCoachAdviceText(day, null, null, null, 2.75, complete);
+assert(composedAdvice.summary.includes('dagprognose') && composedAdvice.summary.includes('geen sessiescore'), 'VisCoach houdt dagprognose expliciet gescheiden van sessieadvies');
+assert(composedAdvice.advice.includes('Verloop tijdens je sessie') && composedAdvice.advice.includes('wind ZW'), 'VisCoach vertaalt de segmenten chronologisch naar één samenhangend advies');
 
 const partial = createPrognosisIntervalOutput('2026-11-23T10:15:00+01:00', '2026-11-23T13:00:00+01:00', forecasts.slice(0, 2), day, 'Ochtend');
 assert(partial.status === 'partial' && partial.segments.length === 3, 'Ontbrekend uur maakt dekking gedeeltelijk zonder segment te verwijderen');
