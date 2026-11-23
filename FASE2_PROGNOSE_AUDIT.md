@@ -6362,3 +6362,38 @@ Pas na deze tests wordt een zuivere kandidaatuitvoer beoordeeld. De sessie-aggre
 De eerdere notities §§195–196 beschrijven de toenmalige auditbranchstatus vóór de latere merge. De strict targetTime-as-of-correctie en de bijbehorende randgevallenmatrix zijn inmiddels opgenomen in `main` via PR #214. De intervalcontext, segmentatiehelper en VisCoach-output zijn eveneens op `main` aangesloten. De status in §§195–196 is historische voortgang en mag niet worden gelezen als de huidige merge-status.
 
 **Resultaat werkpakket 17:** read-only score- en intervalgereedheidsaudit afgerond. Geen runtimecode, tests, types, scoreformule, parameters, gewichten, database, snapshots, UI of gebruikersdata gewijzigd. Geen nieuwe tests uitgevoerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.
+
+
+## 208. WP18 — thermische kandidaatuitvoer per intervalsegment
+
+**Technische correctie en Quality Gate (23 november 2026).** De geïsoleerde helper `calculateThermalIntervalCandidates` berekent per bestaand segment de thermische toestand op exact `segment.startTime` met de bestaande waterthermische engine en soortcurve. De helper is niet aangesloten op UI, dagscore, tijdvakscore, persoonlijke vangkans of sessieaggregatie.
+
+De eerste live review vond een fout in de ontbrekende-uurtest: segmentatie ontving een gefilterde forecastreeks, maar de kandidaathelper kreeg daarna de oorspronkelijke volledige reeks. De test is gecorrigeerd zodat beide exact dezelfde onvolledige reeks ontvangen. Aanvullende assertions controleren dat:
+- het ontbrekende uur ontbreekt in de daadwerkelijke kandidaatberekening;
+- een geldig recent meetanker een beperkte schatting mag dragen zonder het ontbrekende forecastrecord te fabriceren;
+- zonder forecast, meetanker of historisch thermisch profiel de segmentuitkomst volledig `unknown`/null blijft;
+- er bij onbekende temperatuur geen efficiëntie of kandidaat-score wordt geproduceerd.
+
+**Quality Gate:** volledige GitHub Actions-run [45198334165](https://github.com/sennzor-wq/Vislogboek/actions/runs/45198334165) op commit `0f0c350ddc5663b119c826f9480af86b3633fd17` is `success`. TypeScript typecheck, kandidaatcontracttest, bestaande regressietests, dependency audits en productiebuild zijn geslaagd. De eerdere run [45194513037](https://github.com/sennzor-wq/Vislogboek/actions/runs/45194513037) was groen maar dateerde van vóór de testcorrectie en is niet als bewijs voor de gecorrigeerde test gebruikt.
+
+**Status:** WP18 technisch afgerond in draft PR #218. De PR blijft open en ongemerged in afwachting van eigenaarreview. Geen biologische validiteit of voorspellende nauwkeurigheid bewezen.
+
+## 209. WP19 — kandidaatvalidatie: data- en replayhaalbaarheid
+
+**Read-only schema-audit (23 november 2026).** De huidige opslagstructuur bevat de belangrijkste bouwstenen voor een reproduceerbare historische replay:
+- `PrognosisSnapshot.weatherInput` bewaart de exacte uurlijkse forecastreeks die bij de prognoserun is gebruikt.
+- `inputContext` bewaart het berekeningstijdstip, tijdzone, doelsoort, doelvenster, locatiecontext (waaronder diepte en coördinaten), historische watertemperatuurmetingen, historische sessie-/vangst-/waarnemingsfeatures, eventuele temperatuurkalibratie, historie-fingerprint en ophaaltijd van het weer.
+- De snapshot bewaart `forecastTimestamp`, `modelVersion`, `engineVersions`, `targetWindowStart`/`targetWindowEnd`, soort, stek, bestaande prognose-uitvoer en voorspelde thermische bron-/onzekerheidsvelden.
+- Een afgeronde sessie kan via `linkedSessionId` worden gekoppeld met `actualOutcome` en `actualTargetCatchesCount`. De uitkomst is op sessieniveau; `catch` en `skunk_confirmed` zijn de expliciete doelsoortuitkomsten.
+- Een vangstrecord heeft een tijdstempel, soort en aantal. `timestampEntryMode` en legacy-kwaliteitsvlaggen kunnen helpen onzekere tijdstippen uit te sluiten, maar garanderen niet dat alle gebeurtenissen zijn geregistreerd.
+
+**Beperkingen voor intervalvalidatie:**
+1. De bestaande snapshot bewaart dag-/sessie-uitvoer, niet de nieuwe thermische kandidaat per afzonderlijk segment. De kandidaat kan technisch achteraf worden gereconstrueerd uit de opgeslagen oorspronkelijke forecast en inputcontext, mits die velden aanwezig en voldoende compleet zijn.
+2. De thermische kandidaat moet bij replay de oorspronkelijke as-of-grens respecteren en alleen vooraf beschikbare meetankers/historie gebruiken. Vergelijking tussen verschillende engineversies moet expliciet worden gescheiden; snapshots bevatten hiervoor engineversies.
+3. Een sessiebrede vangst of nulvangst is geen label voor ieder uursegment. Alleen betrouwbaar getimestampte vangsten kunnen eventueel aan een segment worden gekoppeld; afwezigheid van een vangst in een segment is geen bewezen nulactiviteit zonder volledige gebeurtenisregistratie.
+4. De bestaande watertemperatuurvalidatie vereist een vooraf voorspelde temperatuur en een geldige latere fysieke meting met herkomst/methode en tijdstempel. Eén optionele meting per sessie kan hoogstens één moment toetsen en bewijst geen soortspecifieke activiteit of vangbaarheid.
+5. De bestaande evaluatiecode hanteert minimumaantallen (onder meer vijf geldige temperatuurparen voor de status `hasSufficientData` en acht onafhankelijke paren voor lokale biascorrectie). Dit zijn softwaredrempels, geen bewijs van statistische power of voldoende dekking.
+
+**Datatoegang en steekproefomvang:** de app bewaart de snapshots in lokale Dexie/IndexedDB. De GitHub-repository bevat schema, code en synthetische testfixtures, maar geen echte persoonlijke sessie-/snapshotdatabase. Deze audit kan daarom geen actuele aantallen, soort-/seizoens-/stekdekking, missingness of onafhankelijke teststeekproef claimen. Een echte geanonimiseerde app-export is nodig voordat de empirische haalbaarheid en samplegrootte kunnen worden vastgesteld.
+
+**Conclusie WP19 tot nu toe:** technische replay is in principe mogelijk voor snapshots met volledige oorspronkelijke invoer; echte datadekking is nog onbekend. Segmentniveau-biologische validatie is beperkter dan sessieniveau-evaluatie en mag niet uit sessiebrede labels worden afgeleid. Geen echte backtest, parameterfit, scorewijziging of nauwkeurigheidsclaim uitgevoerd. Volgende stap: een echte geanonimiseerde export inventariseren zodra er voldoende nieuwe sessies/snapshots zijn vastgelegd.

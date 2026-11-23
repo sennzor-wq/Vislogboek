@@ -20,3 +20,79 @@ Deze instructies gelden voor iedere AI-agent, ontwikkelaar en geautomatiseerde w
 - Maak onderscheid tussen statische code-inspectie, daadwerkelijk uitgevoerde tests/builds en praktijkvalidatie. Claim nooit dat iets getest is als dat niet is uitgevoerd.
 - Werk projectdocumentatie en statusregisters bij wanneer besluiten of implementatiestatus veranderen.
 - Bekijk vóór iedere wijziging de volledige diff; voer geen destructieve migratie of reset uit op basis van aannames.
+
+## Verplichte startprocedure voor iedere werksessie
+
+Voer deze controles uit voordat je code of documentatie wijzigt:
+
+1. Lees dit bestand volledig.
+2. Lees `PROJECT_CONTEXT.md` en bepaal welk plan/auditdocument voor de opdracht leidend is.
+3. Lees de actuele `PROJECT_WORK_QUEUE.md`. Als dit bestand ontbreekt, maak niet zelf een nieuwe projectscope aan; reconstrueer de eerstvolgende stap uit de bestaande leidende roadmap/audit en leg het ontbreken vast.
+4. Controleer de actuele `main`-HEAD, de eigen branch, openstaande relevante PR's en hun status. Vertrouw niet op oude chatcontext of oude SHA's.
+5. Controleer openstaande GitHub Actions / Quality Gates voor relevante commits en PR's. Een queued/running check is niet geslaagd; een ontbrekende check is niet automatisch een geslaagde check.
+6. Lees de actuele code en tests die direct bij de eerstvolgende taak horen.
+7. Vergelijk de actuele repositorystatus met de werkvoorraad. Werk eerst verouderde statussen bij voordat je verdergaat.
+
+## Zelfstandige werkcyclus
+
+Na iedere afgeronde taak moet de agent zelf deze cyclus uitvoeren, zonder op een nieuw chatbericht te wachten zolang de sessie/uitvoeromgeving actief is:
+
+1. **Taak afronden:** implementeer of onderzoek alleen de eerstvolgende geautoriseerde taak uit de werkvoorraad.
+2. **Diff-review:** controleer volledige diff, gewijzigde bestanden, scope, dataveiligheid en onbedoelde neveneffecten.
+3. **Quality Gate:** voer passende gerichte tests uit; voer daarna typecheck, volledige relevante regressiesuite en productiebuild uit waar de omgeving dit ondersteunt. Controleer daarnaast de GitHub Actions-resultaten.
+4. **Fouten herstellen:** bij falende controles onderzoek je de oorzaak, herstel je die binnen dezelfde scope en voer je de controles opnieuw uit. Ga niet door naar een afhankelijke taak zolang de gate faalt.
+5. **Bewijs vastleggen:** noteer exacte commit/PR, uitgevoerde commando's of workflowrun, uitkomst en beperkingen. Maak onderscheid tussen lokaal uitgevoerde controles en GitHub CI.
+6. **Werkvoorraad bijwerken:** markeer de taak als afgerond, gedeeltelijk, geblokkeerd of wachtend op eigenaar; wijs precies één volgende taak aan.
+7. **Documentatie bijwerken:** voeg alleen nieuwe bevindingen toe aan het bestaande canonieke document. Maak geen tweede roadmap, audit of concurrerend statusregister.
+8. **Doorgaan:** start de volgende taak automatisch als die duidelijk, geautoriseerd, niet-destructief en niet afhankelijk van een openstaande beslissing is.
+
+Een agent mag niet claimen dat hij buiten een actieve agent-run/chat zelfstandig blijft doorwerken. Een GitHub-instructiebestand start zelf geen agent. Een scheduler, webhook of agent-runner is nodig om een nieuwe werkcyclus te starten.
+
+## Quality Gate — betekenis en toelating
+
+- Quality Gate omvat ten minste typecheck, relevante tests, productiebuild, dependency/security checks die in de repositoryworkflow zijn gedefinieerd en een volledige diff-review.
+- Voor iedere wijziging moet de agent de bestaande `.github/workflows/` inspecteren en de actuele workflow gebruiken; verzin geen alternatieve testset die bestaande controles omzeilt.
+- Alleen status `success`/groen telt als geslaagd. `queued`, `in_progress`, `cancelled`, `skipped`, ontbrekende of niet-beschikbare resultaten zijn niet geslaagd.
+- Als een test niet uitvoerbaar is, vermeld exact waarom en welke acceptatie hierdoor openblijft.
+- Een groene Quality Gate bewijst technische kwaliteit/regressiecontrole, geen biologische juistheid, voorspellende nauwkeurigheid of praktijkvalidatie.
+
+## Beslissingen waarvoor de eigenaar nodig is
+
+Stop vóór de handeling en vraag expliciete toestemming voor:
+
+- mergen naar `main`;
+- productie-deploys, productieconfiguratie of wijzigingen met externe impact;
+- verwijderen, overschrijven of destructief migreren van echte gebruikersdata;
+- wijzigingen aan bestaande productafspraken, architectuurgrenzen of goedgekeurde scope;
+- betaalde diensten, externe accounts, secrets of permissies;
+- een keuze waarvoor meerdere wezenlijk verschillende product-/modelrichtingen bestaan en de bestaande documenten geen besluit geven.
+
+Een PR aanmaken en op een feature-/documentatiebranch werken mag binnen de expliciet opgedragen scope en bestaande branchafspraken. Mergen blijft altijd apart beschermd.
+
+## Verboden werkwijzen
+
+- Geen fictieve data, GPS-coördinaten, weerswaarden, biologische parameters, scoregewichten of validatieresultaten invullen.
+- Geen nieuwe parallelle engine, roadmap of bron van waarheid introduceren als een bestaande component/document de taak al afdekt.
+- Geen historische of persoonlijke gegevens verwijderen om tests eenvoudiger te maken.
+- Geen ongeteste wijzigingen als afgerond of productiegeschikt beschrijven.
+- Geen werkpakket overslaan om een zichtbare feature sneller op te leveren.
+- Geen eindeloze herhaalpogingen bij een externe blokkade; registreer de blokkade en ga alleen door met onafhankelijk werk dat veilig kan worden uitgevoerd.
+
+## Stop- en hervatprotocol
+
+Wanneer een blokkade optreedt:
+1. Leg vast wat is geprobeerd, het concrete resultaat en de exacte blokkade.
+2. Laat de werkvoorraad op de geblokkeerde taak staan en benoem eventuele onafhankelijke vervolgtaken.
+3. Vraag alleen de beslissing/informatie die werkelijk nodig is.
+4. Hervat bij een volgende run door opnieuw de volledige startprocedure uit te voeren; gebruik de actuele GitHub-status, niet de oude chattranscriptie.
+
+## Rapportage aan de eigenaar
+
+Rapporteer alleen bij een betekenisvolle mijlpaal, een beslissing die toestemming vereist, een blokkade of een afgeronde fase. Houd berichten kort en vermeld:
+- wat aantoonbaar is afgerond;
+- welke Quality Gates daadwerkelijk zijn geslaagd of niet;
+- PR/commit-link;
+- wat de eerstvolgende taak is;
+- wat nog niet is bewezen.
+
+De agent hoeft niet na iedere kleine actie om bevestiging te vragen. Binnen de bestaande opdracht mag hij zelfstandig doorwerken volgens bovenstaande regels.
