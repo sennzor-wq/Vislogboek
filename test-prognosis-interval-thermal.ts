@@ -242,6 +242,26 @@ assert(
   'Zonder historische sessies blijft de persoonlijke vangkans null, ook wanneer de thermische kandidaat beschikbaar is'
 );
 
+for (const species of ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', 'Snoekbaars', 'Meerval', 'Roofblei', 'Overig'] as const) {
+  const speciesCandidate = calculateThermalIntervalCandidates(
+    paritySegmentation, parityForecasts, species, parityOptions
+  ).segments[0];
+  const speciesDay = calculateDayPrognosis(
+    '2026-11-24', parityForecasts, species, [], undefined, null,
+    new Date(simulationStart), { ...parityOptions, sessionDurationHours: 3 }
+  );
+  assert(
+    speciesCandidate.status === 'available' &&
+    speciesCandidate.candidateActivityScore === speciesDay.timeSlots.Middag.activityScore,
+    'Intervalkandidaat reproduceert voor ' + species + ' exact de bestaande tijdvakscore op hetzelfde representatieve tijdstip'
+  );
+  assert(
+    speciesDay.personalCatchChance === null,
+    'Zonder sessiehistorie blijft persoonlijke vangkans voor ' + species + ' null'
+  );
+}
+
+
 
 const replaySnapshot: PrognosisSnapshot = {
   id: 'synthetic-immutable-prognosis-snapshot',
