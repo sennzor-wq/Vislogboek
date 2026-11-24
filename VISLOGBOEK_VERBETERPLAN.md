@@ -1250,3 +1250,48 @@ Audit §206 heeft de actuele `main`-code gecontroleerd. De bestaande 1–10-scor
 De intervaladapter bevat nu alleen segmentgrenzen, forecastdekking en afzonderlijk gevalideerde beschrijvende weersamples. Thermische activiteit is expliciet nog niet per segment berekend. Een kandidaat per segment kan de bestaande `waterThermalEngine` met exact `targetTime = segment.startTime` en dezelfde soortcurve hergebruiken, maar dit is nog niet geïmplementeerd of goedgekeurd.
 
 **Volgende stap:** werkpakket 18 — test-first contracttests voor kandidaat thermische segmentuitvoer, bron-/onzekerheidsstatus, strikte as-of-invariant en behoud van bestaande dag-/tijdvak-/sessie-uitkomsten. Nog geen sessieaggregatie, minimumdekking, nieuwe gewichten of biologische factoren kiezen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §206.
+
+
+---
+
+## Actuele uitvoeringsstatus en eerstvolgende opdracht — 24 november 2026
+
+**Dit is het enige actieve hervattingspunt voor de huidige Fase-2-werkstroom.** Oudere "volgende stap"-vermeldingen in historische secties blijven bewaard als auditspoor, maar zijn geen parallelle opdrachten wanneer ze afwijken van deze actuele status.
+
+### Afgerond
+
+- De interval-outputcontracten en VisCoach-koppeling zijn uitgevoerd en in de eerdere secties van dit plan geregistreerd.
+- De operationele geïntegreerde soortscore v1 is geïmplementeerd via PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223).
+- PR #223 is gemerged op 24 november 2026. Mergecommit: `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`.
+- Quality Gate run [45379544577](https://github.com/sennzor-wq/Vislogboek/actions/runs/45379544577) op de exacte PR-head is geslaagd.
+- De actuele architectuur en soortspecifieke score-documenten beschrijven de operationele v1. De oude status "PR #223 open/niet gemerged" in eerdere uitvoeringsnotities is achterhaald en wordt door de gedateerde correctie in `FASE2_UITVOERINGSRESULTATEN.md` vervangen.
+
+### Huidige modelgrenzen
+
+- Eén bestaande geïntegreerde score van 1–10 voor de dag en de vier tijdvakken.
+- Fysiologische en voedings-/foerageerrespons blijven afzonderlijk berekend en uitlegbaar.
+- De 50/50-combinatie en actieve profielwaarden zijn voorlopige operationele startwaarden, geen bewezen biologische verhouding of empirisch gefitte parameters.
+- Onbekende drivers worden niet als nul of neutraal ingevuld; de oorspronkelijke driverdekking blijft zichtbaar.
+- Lokale aanwezigheid/habitat en persoonlijke empirische vangkans blijven afzonderlijke uitkomsten.
+- Prognose berekent; VisCoach vertaalt uitsluitend naar tactiek en advies.
+
+### Eerstvolgende opdracht — read-only audit van scoreberekening en datadekking
+
+Controleer de actuele code op `main` en leg in `FASE2_PROGNOSE_AUDIT.md` vast:
+
+1. De exacte rekenketen van soortprofielen en voedingsrespons tot de bestaande tijdvakscore en dagscore.
+2. Hoe de 50/50-combinatie omgaat met ontbrekende fysiologische of voedingsrespons.
+3. Hoe de lage bekende voedingsdriverdekking (momenteel 35–45%) doorwerkt in de voedingsrespons én in de geïntegreerde score.
+4. Of de zichtbare dekking en onzekerheid voldoende duidelijk gescheiden zijn van de score zelf.
+5. Per vissoort waar dezelfde regels gelden en waar profiel-/dataverschillen een andere uitkomst geven.
+
+**Acceptatiecriteria voor deze opdracht:**
+- Read-only: geen runtimecode, tests, scoreformule, gewichten, parameters, database of UI aanpassen.
+- Alle bevindingen zijn herleidbaar naar actuele code en bestaande tests.
+- Onderscheid maken tussen softwarematig correct gedrag, modelmatige beperking en biologische onzekerheid.
+- Geen nieuwe factor of weging voorstellen alsof die al is goedgekeurd.
+- Lever een korte bevindingenlijst met concrete impact en eventueel een voorkeursadvies.
+
+**Stop-/goedkeuringspoort:** na deze audit stopt het werk. Rapporteer de bevindingen en eventuele wijzigingsvoorstellen aan de eigenaar. Pas scoreformule, gewichten, parameters of UI pas aan na expliciete goedkeuring. Geen andere Fase-2-taak tussendoor starten.
+
+Fase 2 blijft open en Fase 3 geblokkeerd totdat de formele acceptatiecriteria aantoonbaar zijn gehaald.

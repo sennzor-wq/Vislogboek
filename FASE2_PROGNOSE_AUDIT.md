@@ -6672,3 +6672,23 @@ Wind, luchtdruk, neerslag en bewolking blijven context en krijgen geen zelfstand
 De 95 registry-records blijven ongewijzigd; geen record is stilzwijgend op approvedForPrediction: true gezet. De operationele modelparameters zijn expliciete startprioren uit het bestaande werkboek en de soortprofielen, niet rechtstreeks gefitte effectgroottes. Driverdekking is geen statistisch betrouwbaarheidsinterval. De huidige score is dus operationeel, maar de biologische juistheid en voorspellende nauwkeurigheid zijn niet empirisch bewezen.
 
 De bestaande dag-/vier tijdvakweergave, onbekend-semantiek, snapshotcontracten, Europe/Amsterdam-intervalgrenzen, DST en targetTime-as-of-invariant blijven leidend. De vervolgstap is iteratieve verfijning van de actieve parameters en het toevoegen van betrouwbare inputdrivers zodra die beschikbaar zijn; niet opnieuw wachten met activeren tot alle literatuur volledig is gevalideerd.
+
+
+---
+
+## 207. Status- en hervattingscorrectie na merge PR #223 (24 november 2026)
+
+PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) is op 24 november 2026 gemerged naar `main`. De gemergde head is `25925ccf5f0f0785018f3623f8d99f9a9accb774`; mergecommit `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`. Quality Gate run [45379544577](https://github.com/sennzor-wq/Vislogboek/actions/runs/45379544577) op de PR-head is `success`. Oudere uitvoeringsnotities die PR #223 nog als open beschrijven zijn historisch en niet langer actueel.
+
+De operationele geïntegreerde score v1 is actief in de bestaande Prognose-engine. De architectuur- en scorebeschrijvingen in §171–172 en de actuele soortspecifieke score-documenten zijn de inhoudelijke referentie voor deze versie. De score is operationeel maar voorlopig; softwarematige tests vormen geen biologische of empirische validatie.
+
+### Actuele vervolgstap
+
+Voer eerst een read-only audit uit van de bestaande rekenketen en datadekking:
+- exacte combinatie van fysiologische en voedings-/foerageerrespons;
+- gedrag bij ontbrekende responsen;
+- invloed van de 35–45% bekende voedingsdriverdekking op de voedingsrespons en geïntegreerde score;
+- scheiding tussen score, driverdekking en onzekerheid;
+- soortspecifieke verschillen.
+
+Geen runtime-, UI-, test-, database-, score-, gewicht- of parameterwijziging tijdens deze audit. Leg bevindingen en eventuele voorstellen voor aan de eigenaar. Een wijziging volgt uitsluitend na expliciete goedkeuring. Zie het leidende uitvoeringsplan `VISLOGBOEK_VERBETERPLAN.md`.

@@ -686,3 +686,20 @@ Leidend uitgangspunt:
 De scoreberekening blijft actief. De volgende iteraties verfijnen de bestaande T0–T3-, dagritme- en seizoensprofielen met de beste beschikbare bronextracties, en voegen nieuwe factoren toe zodra betrouwbare actuele invoer beschikbaar is (bijvoorbeeld zuurstof, troebelheid, lokaal prooiaanbod en wateractiviteit). Geen herstart van het model, geen nieuwe engine, geen uitstel van de operationele score en geen ongevraagde UI-uitbreiding.
 
 PR #223 blijft open en ongemerged; geen merge of deployment uitgevoerd.
+
+
+---
+
+## Statuscorrectie 24 november 2026 — PR #223
+
+De eerdere tekst in dit document waarin staat dat PR #223 open en ongemerged is, is achterhaald. Deze notitie behoudt die historische status maar vervangt haar als actuele status.
+
+- PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) is **gemerged** op 24 november 2026.
+- Gemergde head: `25925ccf5f0f0785018f3623f8d99f9a9accb774`.
+- Mergecommit op `main`: `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`.
+- Quality Gate run [45379544577](https://github.com/sennzor-wq/Vislogboek/actions/runs/45379544577) op de PR-head is voltooid met conclusie `success`.
+- Er is geen deployment uitgevoerd of geclaimd.
+
+Werkonderdeel 12 — operationele geïntegreerde soortscore v1 — is hiermee softwarematig geïmplementeerd en door de PR-Quality Gate gecontroleerd. Dit bewijst geen biologische juistheid of voorspellende nauwkeurigheid.
+
+**Actuele eerstvolgende opdracht:** de read-only audit van de bestaande scoreberekening, responscombinatie en driverdekking zoals vastgelegd in de actuele uitvoeringsstatus van `VISLOGBOEK_VERBETERPLAN.md`. Geen runtimewijziging of nieuwe scoreweging zonder expliciete goedkeuring.
