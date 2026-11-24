@@ -19,6 +19,16 @@ const LATENT_HEAT_VAPORIZATION_J_KG = 2_450_000;
 const BULK_TRANSFER_COEFFICIENT = 0.0013;
 const SHORTWAVE_EXTINCTION_PER_M = 1.0;
 
+function getDirectionalFetchM(sectors: number[] | undefined, windFromDegrees: number | undefined): number | undefined {
+  if (!sectors || sectors.length !== 16 || !sectors.every((value) => Number.isFinite(value) && value >= 0) ||
+      typeof windFromDegrees !== 'number' || !Number.isFinite(windFromDegrees)) return undefined;
+  const position = (((windFromDegrees % 360) + 360) % 360) / 22.5;
+  const lower = Math.floor(position) % 16;
+  const upper = (lower + 1) % 16;
+  const fraction = position - Math.floor(position);
+  return sectors[lower] * (1 - fraction) + sectors[upper] * fraction;
+}
+
 export interface WaterColumnForcingSample {
   time: string;
   /** Required whenever an as-of cutoff is supplied. */
@@ -48,6 +58,7 @@ export interface WaterColumnModelInput {
   initialIceThicknessM?: number;
   windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
   effectiveFetchM?: number;
+  windFetchByDirectionM?: number[];
   secchiDepthM?: number;
 }
 export interface WaterColumnLayer {
@@ -155,7 +166,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
   const exposureFactor = input.windExposure === 'sheltered' ? 0.55
     : input.windExposure === 'partly_exposed' ? 0.8 : 1;
   const validFetch = typeof input.effectiveFetchM === 'number' && Number.isFinite(input.effectiveFetchM) && input.effectiveFetchM >= 10 && input.effectiveFetchM <= 10000;
-  const fetchFactor = validFetch ? clamp(Math.sqrt((input.effectiveFetchM as number) / 100), 0.5, 2.5) : 1;
+  const scalarFetchFactor = validFetch ? clamp(Math.sqrt((input.effectiveFetchM as number) / 100), 0.5, 2.5) : 1;
   let temperatures = mixConvectivelyUnstableLayers(input.initialLayerTemperaturesC);
   let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, 2);
   const { accepted, rejected } = validForcing(input.forcing, input.targetTime, input.asOf);
@@ -180,6 +191,11 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     // Site exposure and effective fetch adjust the 10 m reference wind to a
     // provisional over-water forcing. Unknown site properties retain the
     // documented neutral prior rather than inventing a local correction.
+    const directionalFetchM = getDirectionalFetchM(input.windFetchByDirectionM, sample.windDirectionDegrees);
+    const effectiveFetchM = directionalFetchM ?? (validFetch ? input.effectiveFetchM as number : undefined);
+    const fetchFactor = effectiveFetchM !== undefined
+      ? clamp(Math.sqrt(effectiveFetchM / 100), 0.5, 2.5)
+      : scalarFetchFactor;
     const waterWindMs = clamp(windMs * exposureFactor * fetchFactor, 0, 30);
     const cloud = clamp(sample.cloudCoverPercent ?? 50, 0, 100) / 100;
     const shortwave = clamp(sample.shortwaveRadiationWm2 ?? 0, 0, 1600);
