@@ -2,7 +2,7 @@ import { db } from '../db/db';
 import type { CachedWaterColumnWeatherHistory, CachedWaterColumnWeatherSample } from '../types';
 import type { WaterColumnForcingSample } from './waterColumnModel';
 
-const HISTORY_DAYS = 180;
+const HISTORY_DAYS = 365;
 const ARCHIVE_DELAY_DAYS = 5;
 const RECENT_BRIDGE_DAYS = 7;
 const CACHE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
@@ -112,7 +112,7 @@ function toResult(
 }
 
 /**
- * Builds the 180-day spin-up forcing and forecast bridge for the water column.
+ * Builds the 365-day spin-up forcing and forecast bridge for the water column.
  * An explicit asOf is replay-only: no network request is made, preventing hindsight leakage.
  */
 export async function getWaterColumnForcing(
@@ -177,6 +177,14 @@ export async function getWaterColumnForcing(
   const retrievedAt = new Date().toISOString();
   const archiveSamples = archiveData ? parseHourlyBlock(archiveData, 'era5-seamless', retrievedAt) : [];
   const recentSamples = recentData ? parseHourlyBlock(recentData, 'open-meteo-forecast', retrievedAt) : [];
+  if (archiveSamples.length === 0 && recentSamples.length === 0) {
+    if (cacheAvailableAtAsOf && cachedHistory && covers) {
+      return toResult(cachedHistory, requestedAsOf, true, true,
+        'Netwerkverversing mislukt; de laatst beschikbare lokale forcing wordt als verouderde invoer hergebruikt.', 'partial');
+    }
+    return toResult(undefined, requestedAsOf, false, false,
+      'Open-Meteo leverde geen bruikbare forcing en er is geen geschikte lokale cache beschikbaar.');
+  }
   const merged = new Map<string, CachedWaterColumnWeatherSample>();
   // Preserve usable older samples if one upstream source is temporarily unavailable.
   cachedHistory?.hourly.forEach((sample) => { merged.set(sample.time, sample); });
@@ -204,10 +212,6 @@ export async function getWaterColumnForcing(
   const complete = Boolean(history && history.hourly.some((sample) => sample.source === 'era5-seamless') &&
     history.hourly.some((sample) => sample.source === 'open-meteo-forecast'));
   const bothSourcesRefreshed = archiveSamples.length > 0 && recentSamples.length > 0;
-  if (!history && cacheAvailableAtAsOf && cachedHistory && covers) {
-    return toResult(cachedHistory, requestedAsOf, true, true,
-      'Netwerkverversing mislukt; de laatst beschikbare lokale forcing wordt met lagere betrouwbaarheid hergebruikt.', 'partial');
-  }
   return toResult(history, retrievedAt, false, false, history
     ? complete
       ? bothSourcesRefreshed

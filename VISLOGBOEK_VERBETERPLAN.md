@@ -2786,7 +2786,7 @@ Niet in de MVP: gedetailleerde sediment-/bodemwarmte, waterhelderheidsmodel, str
 
 #### A4. Praktische beginconditie en historische spin-up
 - Gebruik de geldige totale stekdiepte als kolomhoogte.
-- Vraag historische uurlijkse weersforcing op voor maximaal 180 dagen en voer die door de waterkolom om een thermische voorgeschiedenis op te bouwen.
+- Vraag historische uurlijkse weersforcing op voor maximaal 365 dagen en voer die door de waterkolom om een thermische voorgeschiedenis op te bouwen.
 - Begin met enkele eenvoudige plausibele startprofielen (bijvoorbeeld gemengd, zomerstratificatie en winterinversie). Laat de simulatie bepalen welk profiel door de historische forcing ontstaat.
 - Vergelijk de uitkomsten van die startprofielen. Als ze voldoende naar elkaar toe convergeren, gebruik de geconvergeerde toestand. Als dat niet gebeurt, lever nog steeds de beste voorspelling, maar met bredere onzekerheid en status 'beginprofiel onvoldoende geconvergeerd'.
 - Een lokale meting op bekende diepte wordt op het juiste meetmoment aan de corresponderende laag gekoppeld. Eén meting maakt niet het hele profiel bekend.
@@ -2797,8 +2797,8 @@ De 180 dagen zijn een praktische startkeuze voor de MVP, geen universele natuurk
 
 #### A5. Historische weersbron eenvoudig houden
 - Gebruik voor de MVP de bestaande Open-Meteo-infrastructuur en voeg één historische archive-aanvraag toe voor de benodigde periode.
-- Kies bij implementatie één consistente historische dataset/configuratie die alle voor de warmtebalans noodzakelijke variabelen levert. Voorkeur is ERA5-Seamless als de API voor de benodigde variabelen een consistente reeks levert; anders ERA5 als complete fallback.
-- Gebruik ERA5-Land niet geïsoleerd als enige forcing: de huidige Open-Meteo-documentatie vermeldt dat de ERA5-Land-variant geen wind, neerslag of zonnestraling levert. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Verifieer de feitelijke variabelebeschikbaarheid in de implementatietest vóór de bron vast wordt gezet.
+- Kies bij implementatie één consistente historische dataset/configuratie die alle voor de warmtebalans noodzakelijke variabelen levert. Voorkeur is ERA5-Land als de API voor de benodigde variabelen een consistente reeks levert; anders ERA5 als complete fallback.
+- Gebruik ERA5-Land niet geïsoleerd als enige forcing: de huidige Open-Meteo-documentatie vermeldt dat de ERA5-Land-variant geen wind, neerslag of zonnestraling levert. ERA5-Land combineert bepaalde velden uit ERA5-Land en ERA5. Verifieer de feitelijke variabelebeschikbaarheid in de implementatietest vóór de bron vast wordt gezet.
 - Behoud de bestaande Open-Meteo Forecast API voor recente actuele data en de toekomst. Maak de overgang tussen historische reanalyse en forecast expliciet en voorkom dubbele uren of sprongen.
 - Gebruik KNMI in deze eerste implementatie als onafhankelijke validatiebron, niet als tweede live-integratie. Dat houdt API-keybeheer, stationselectie en bronfusie buiten de MVP.
 - Cache de historische forcing per stekcoördinaten en periode zodat niet bij elke prognose opnieuw 180 dagen worden opgehaald. Hergebruik bestaande cache-/servicepatronen waar mogelijk.
@@ -2860,7 +2860,7 @@ Werkpakketten mogen in één implementatiebranch/PR worden uitgevoerd als dat ov
 
 ### E. Gecorrigeerde databronnuance
 
-De eerdere formulering dat ERA5-Land zelfstandig alle gewenste historische warmtebalansvariabelen bevatte was te ruim. De huidige Open-Meteo-documentatie geeft voor ERA5-Land onder meer temperatuur, vochtigheid en dauwpunt, maar niet dezelfde beschikbaarheid van wind, neerslag en zonnestraling als ERA5. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Daarom kiest de MVP eerst op **complete, consistente variabelendekking**, niet op de fijnste rasterresolutie alleen.
+De eerdere formulering dat ERA5-Land zelfstandig alle gewenste historische warmtebalansvariabelen bevatte was te ruim. De huidige Open-Meteo-documentatie geeft voor ERA5-Land onder meer temperatuur, vochtigheid en dauwpunt, maar niet dezelfde beschikbaarheid van wind, neerslag en zonnestraling als ERA5. ERA5-Land combineert bepaalde velden uit ERA5-Land en ERA5. Daarom kiest de MVP eerst op **complete, consistente variabelendekking**, niet op de fijnste rasterresolutie alleen.
 
 Documentatie:
 - Open-Meteo Historical Weather API en variabelen per dataset: https://open-meteo.com/en/docs/historical-weather-api
@@ -2879,7 +2879,7 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 **Status:** dit is uitsluitend de eerste geïsoleerde fysische rekenkern. Zij is nog niet aangesloten op `analyzeWaterThermalDevelopment`, historische spin-up, de app of de bestaande score. De huidige productieprognose en score blijven daardoor ongewijzigd. De module is pas technisch geaccepteerd na een groene Quality Gate en diff-review.
 
 **Uitvoering 2 — historische forcingadapter (gestart):**
-- Nieuwe service `src/services/waterColumnWeatherService.ts` haalt maximaal 180 dagen historische forcing op via Open-Meteo Historical Weather API met expliciete `era5_seamless`-selectie en de variabelen luchttemperatuur, dauwpunt, luchtvochtigheid, kortgolvige straling, bewolking en wind.
+- Nieuwe service `src/services/waterColumnWeatherService.ts` haalt maximaal 365 dagen historische forcing op via Open-Meteo Historical Weather API met expliciete `era5_seamless`-selectie en de variabelen luchttemperatuur, dauwpunt, luchtvochtigheid, kortgolvige straling, bewolking en wind.
 - De laatste zeven dagen uit de bestaande Forecast API vormen de recente brug en forecast; de overlap vervangt dubbele uren zonder een gat bij de vertraagde historische reanalyse.
 - De forcing wordt op werkelijke ophaaltijd gestempeld met `availableAt`. Een expliciet historisch `asOf`-moment is replay-only: er wordt dan geen netwerkdata achteraf opgehaald.
 - Historische forcing wordt als optioneel veld in de bestaande IndexedDB-weercache bewaard. Er is geen nieuwe tabel, databaseversie of migratie toegevoegd. De gewone forecast-cache blijft bruikbaar wanneer de historische cache-entry nog geen forecasturen bevat.
