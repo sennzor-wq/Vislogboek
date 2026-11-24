@@ -2894,6 +2894,14 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 - De uitvoer bevat een scenario-spreiding en forcingdekking. Dit is een modelgevoeligheidsrange, geen empirisch gekalibreerd betrouwbaarheidsinterval. Bij onvoldoende spin-up, ontbrekende diepte of onvoldoende forcing blijft de status laag.
 - Als forcing het doelmoment niet bereikt, wordt geen temperatuur voor dat doelmoment gefingeerd; de bestaande prognoseketen blijft dan de fallback.
 
-**Status:** de multi-profiel voorspelfunctie en meetankers zijn toegevoegd aan de geïsoleerde kern. Ze worden nog niet door de bestaande prognose-engine of score gebruikt. Eerst moet de Quality Gate slagen; daarna volgt shadow-integratie naast de bestaande temperatuur, zonder score-impact.
+**Validatie:** de geïsoleerde multi-profiel kern en meetankers zijn geslaagd in Quality Gate run `45418265874` op commit `cb8d6e9`. De shadow-integratie in uitvoering 4 bouwt hierop voort; de scorekoppeling blijft uitgeschakeld.
 
-**Eerstvolgende taak:** voeg de nieuwe schatting als afzonderlijke shadow-uitvoer toe aan de bestaande `WaterThermalAnalysis`, zonder `estimatedWaterTemp`, soortcurves of score te wijzigen. Voer beide modellen parallel uit via de bestaande prognose-ingang en vergelijk de uitkomsten met historische echte metingen. Pas na die vergelijking wordt besloten of de nieuwe temperatuur de bestaande scalar mag vervangen.
+**Uitvoering 4 — shadow-integratie in de prognose (gestart):**
+- De bestaande `PrognosisView` vraagt de historische/recentere waterforcing parallel met de gewone weersverwachting op. De eerste fetch is begrensd (8 seconden voor de archivebron, 6 seconden voor de recente forecast); bij ontbrekende forcing blijft de bestaande prognose actief.
+- De bestaande `analyzeWaterThermalDevelopment` voert de nieuwe waterkolomschatting aanvullend uit en plaatst die in `WaterThermalAnalysis.waterColumnPrediction`.
+- De nieuwe schatting blijft bewust shadow-only: `estimatedWaterTemp`, soortcurves, scoreformule en catch-chance worden niet gewijzigd. Er is geen UI- of databaseschemawijziging voor deze diagnostische output.
+- Voor de huidige dag gebruikt de shadowberekening het actuele referentiemoment; voor toekomstige dagen wordt het lokale middagmoment gebruikt. De volumegewogen kolomtemperatuur blijft de standaard scalar zolang geen aparte visdiepte is opgegeven.
+
+**Status:** de shadow-integratie en een regressietest zijn toegevoegd aan PR #224. De test controleert dat de fysieke schatting met stekdiepte en dieptegebonden meetanker beschikbaar komt, terwijl de bestaande temperatuur en score exact gelijk blijven. De nieuwe integratiestap wacht nog op de Quality Gate.
+
+**Eerstvolgende taak:** voer de volledige Quality Gate uit en herstel eventuele regressies. Daarna de shadow-uitvoer vergelijken met echte historische metingen per meetdiepte, seizoen en watertype. Pas na die vergelijking wordt besloten of de nieuwe temperatuur de bestaande scalar mag vervangen. De scoreformule blijft onaangeroerd.

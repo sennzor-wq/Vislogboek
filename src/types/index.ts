@@ -1,3 +1,5 @@
+import type { WaterColumnPrediction } from '../services/waterColumnModel';
+
 /**
  * Vislogboek Data Types & Schema
  * Versie 2.2 — Nederlandstalig, Offline-first, Europe/Amsterdam
@@ -486,6 +488,8 @@ export type ThermalTrend =
   | 'Onvoldoende gegevens';
 
 export interface WaterThermalAnalysis {
+  /** Shadow-only physical model output; it does not affect the current score/temperature scalar. */
+  waterColumnPrediction?: WaterColumnPrediction | null;
   trend: ThermalTrend;
   trendConfidence: 'Onvoldoende gegevens' | 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   hasMeasuredWaterTemp: boolean;

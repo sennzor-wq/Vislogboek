@@ -107,6 +107,9 @@ jobs:
       - name: Water column prediction and spin-up tests
         run: bun run tsx test-water-column-prediction.ts
 
+      - name: Water column shadow integration
+        run: bun run tsx test-water-column-shadow-integration.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 
