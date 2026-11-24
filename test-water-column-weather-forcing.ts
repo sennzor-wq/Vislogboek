@@ -50,6 +50,7 @@ async function run() {
         shortwave_radiation: [120, 300],
         cloud_cover: [50, 20],
         wind_speed_10m: [8, 10],
+        wind_direction_10m: [225, 240],
       },
     };
     return new Response(JSON.stringify(payload), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -68,7 +69,7 @@ async function run() {
     if (!result.hourly.every((sample) => sample.availableAt === result.asOf)) {
       throw new Error('Every forcing sample must retain its actual retrieval/availability time.');
     }
-    if (result.hourly[1].shortwaveRadiationWm2 !== 80 || result.hourly[2].windSpeedKmh !== 8) {
+    if (result.hourly[1].shortwaveRadiationWm2 !== 80 || result.hourly[2].windSpeedKmh !== 8 || result.hourly[2].windDirectionDegrees !== 225) {
       throw new Error('Solar radiation and wind units/values must be preserved without fabricated defaults.');
     }
 
