@@ -3018,7 +3018,7 @@ De eerdere windmenging gebruikte een empirische mengdiepte en een uitwisselingsf
 
 - Windschuifspanning wordt benaderd als `τ = ρlucht · Cd · U²`.
 - Het beschikbare windwerk per uur wordt benaderd als `η · τ · U · Δt` en gelijkmatig verdeeld over de vier interfaces van de vijf lagen.
-- Per interface wordt dit vergeleken met de zwaartekrachtspotentiële-energiedrempel voor homogenisatie van twee gelijke lagen: `g · |Δρ| · h² / 4`.
+- Per interface wordt dit vergeleken met de zwaartekrachtspotentiële-energiedrempel voor homogenisatie van twee gelijke lagen: `g · |Δρ| · h² / 2`.
 - Alleen een begrensde fractie van het temperatuurverschil wordt uitgewisseld; de gelijke en tegengestelde temperatuurverandering behoudt de warmte-inhoud van de twee gelijke lagen. Convectieve instabiliteit rond de zoetwaterdichtheidsanomalie blijft daarna apart gecorrigeerd.
 
 De lucht-water dragcoëfficiënt (0,0013), mengrendement (2%), rustige achtergronduitwisseling (0,001) en bovengrens (0,12) zijn expliciete voorlopige modelparameters. De methode is een bulkmatige potentiële-energiebeperking en nadrukkelijk geen volledig opgelost TKE-/golfmodel. De fetch- en blootstellingscorrecties blijven de invoerwindsnelheid aanpassen; hun onzekerheid is dus nog aanwezig. Parameters moeten later met onafhankelijke temperatuurprofielen worden gevalideerd.
