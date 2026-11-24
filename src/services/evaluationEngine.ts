@@ -369,7 +369,7 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
     if (snapshot.actualWaterTemperatureMeasurementSource !== 'manual' && snapshot.actualWaterTemperatureMeasurementSource !== 'imported') return false;
     if (snapshot.actualWaterTemperatureMeasurementMethod !== 'thermometer' && snapshot.actualWaterTemperatureMeasurementMethod !== 'probe' && snapshot.actualWaterTemperatureMeasurementMethod !== 'other') return false;
-    // A physical bottom prediction is validated only against a measurement taken at that same bottom depth.
+    // A physical target-depth prediction is validated only against a measurement taken at that same depth.
     const predictedTargetDepth = snapshot.predictedWaterColumnProfile?.targetDepthM;
     if (snapshot.predictedWaterColumnProfile && typeof predictedTargetDepth !== 'number') return false;
     if (typeof predictedTargetDepth === 'number' &&
