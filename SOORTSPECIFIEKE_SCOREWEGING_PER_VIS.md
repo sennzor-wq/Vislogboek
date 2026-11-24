@@ -327,24 +327,22 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 - Niet-gevalideerde Excel-aannames en parameters zijn expliciet uitgesloten van directe score-invoer.
 
 **Huidige opdracht — lopend**
-- De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de bestaande onderzoeksregistratie.
-- De voorlopige prioriteiten zijn aangescherpt: fysiologische curvebeoordeling start bij baars en snoekbaars; voedingsbewijsbeoordeling start bij karper, brasem en blankvoorn.
-- De primaire broncontrole van elf studies is vastgelegd in sectie 11. Belangrijke beperkingen zijn onder meer lichaamsgrootte bij baars, de brede aerobe-scope-respons bij snoekbaars, context-/levensfaseafhankelijk voedingsritme en het onderscheid tussen meervalvoeding in voerproeven en beweging in veldtelemetrie.
-- De directe voedingsritmestudie van volwassen Europese meerval (Boujard 1995) is als afzonderlijk bewijsrecord toegevoegd aan het bestaande `researchRegistry.ts`. De roofblei-telemetriebronnen waren al geregistreerd en zijn niet dubbel toegevoegd.
+- De eerste evidence matrix per soort en uitkomst staat in sectie 10. Deze is gestart vanuit de oorspronkelijke 94 registerrecords; daarna is één afzonderlijk meerval-voedingsrecord toegevoegd, dus het register bevat nu 95 records.
+- De primaire broncontrole van elf studies staat in sectie 11. De meervalstudie van Boujard (1995) is als afzonderlijk record toegevoegd met `approvedForPrediction: false`; deze activeert dus nog geen scorefactor.
+- De eerste V0.1-factorselectie voor alle negen soorten staat in sectie 13. Daarin zijn factoren verdeeld in direct kandidaatbewijs, beperkt/provisioneel, context en niet opnemen.
 - De iteratieve implementatieafspraak staat in sectie 12: na afronding van de eerste factorselectie bouwen we V0.1; volledige Excel-validatie is geen voorwaarde om te beginnen met implementeren.
-- Nog uit te voeren: resterende primaire bronresponsen controleren en de eerste factorselectie per soort/uitkomst afronden. Per factor volgt de status: numeriek inzetbaar, voorlopig begrensd, contextueel of nog niet inzetbaar.
+- Nog uit te voeren: V0.1-modelcontract, voorlopige parameters en beslisregels vastleggen. Belangrijk open punt: hoe de voedingsuitkomst voor soorten met beperkte directe data eerlijk wordt weergegeven zonder onbekend als gemiddeld te behandelen.
 
-**Volgende stap na afronding van de huidige factorselectie**
-- V0.1-modelcontract en parameterconfiguratie afronden, inclusief onzekerheid, ontbrekende data en tijdvak/dag-consistentie.
-- Runtime-integratieplan maken op basis van de bestaande prognose-engine, soortprofielen en intervalcontracten; daarna V0.1 implementeren en testen.
-- De resterende Excel-bronnen en -parameters parallel/na de eerste werkende versie valideren en gevalideerde informatie aan het bestaande onderzoeksregister toevoegen.
-- Nieuwe bronnen, lokale meetgegevens en vangstdata gebruiken om volgende modelversies gecontroleerd te tunen.
+**Volgende stap**
+- V0.1-modelcontract en eerste parameterkeuzes afronden: scorebereik, responsvormen, factorstatus, dekking/onzekerheid en koppeling aan bestaande 1–10-uitvoer.
+- Runtime-integratieplan maken op basis van de bestaande prognose-engine, bestaande soortprofielen en intervalcontracten.
+- Daarna V0.1 implementeren en testen. Resterende Excel-bronnen en -parameters kunnen parallel/na de eerste werkende versie gevalideerd worden.
 
-**Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De Excel-koppeling, evidence matrix, elf broncontroles en iteratieve implementatiestrategie zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
+**Hervatten vanaf:** V0.1-modelcontract en eerste parameterkeuzes op basis van de factorselectie in sectie 13. De Excel-koppeling, evidence matrix, elf broncontroles en iteratieve implementatiestrategie zijn vastgelegd.
 
 # 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
 
-**Status:** eerste classificatie van de 94 bestaande registerrecords op basis van hun vastgelegde \`measuredOutcomes\`, samenvatting en beperkingen. Dit is een onderbouwde prioritering, nog geen numerieke weging.
+**Status:** eerste classificatie van de oorspronkelijke 94 registerrecords; daarna is één aanvullend meervalrecord toegevoegd (95 totaal) op basis van hun vastgelegde \`measuredOutcomes\`, samenvatting en beperkingen. Dit is een onderbouwde prioritering, nog geen numerieke weging.
 
 ## 10.1 Bewijsclassificatie
 
@@ -426,7 +424,7 @@ De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteit
 
 # 11. Primaire broncontrole — eerste kandidaten (24-11-2026)
 
-De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor elf primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
+De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor elf primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 95 records.
 
 | Bronrecord | Gecontroleerde bevinding | Gevolg voor de weging |
 |---|---|---|
@@ -510,7 +508,7 @@ Er worden geen willekeurige universele percentages opgelegd. Waar een numerieke 
 
 ## 12.5 Implementatiepoort
 
-De overgang naar runtime-implementatie vereist niet dat alle 94 bronnen of alle Excel-tabbladen volledig gevalideerd zijn. Wel moeten minimaal gereed zijn:
+De overgang naar runtime-implementatie vereist niet dat alle 95 bronrecords of alle Excel-tabbladen volledig gevalideerd zijn. Wel moeten minimaal gereed zijn:
 
 - het modelcontract en de betekenis van iedere uitkomst;
 - een eerste factorselectie per soort voor V0.1;
