@@ -280,6 +280,11 @@ export interface WaterColumnPredictionInput {
   asOf?: string;
 }
 export interface WaterColumnPrediction {
+  /** Exact target and data-availability timestamps used by the forecast. */
+  targetTime: string;
+  asOf: string | null;
+  forcingStartTime: string;
+  forcingEndTime: string;
   status: 'low_confidence' | 'scenario_converged';
   scenarioConverged: boolean;
   estimatedTemperatureC: number;
@@ -357,6 +362,10 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
   const measurementAnchorsUsed = Math.min(...simulations.map((simulation) => simulation.measurementAnchorsUsed));
   const measurementAnchorsRejected = Math.max(...simulations.map((simulation) => simulation.measurementAnchorsRejected));
   return {
+    targetTime: new Date(targetMs).toISOString(),
+    asOf: input.asOf ? new Date(Date.parse(input.asOf)).toISOString() : null,
+    forcingStartTime: accepted[0].time,
+    forcingEndTime: accepted[accepted.length - 1].time,
     status: scenarioConverged ? 'scenario_converged' : 'low_confidence',
     scenarioConverged,
     estimatedTemperatureC: Math.round(estimatedTemperatureC * 100) / 100,

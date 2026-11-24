@@ -110,6 +110,9 @@ jobs:
       - name: Water column shadow integration
         run: bun run tsx test-water-column-shadow-integration.ts
 
+      - name: Water column empirical validation metrics
+        run: bun run tsx test-water-column-empirical-validation.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 

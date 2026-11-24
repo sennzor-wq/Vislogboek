@@ -2906,4 +2906,18 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 
 **Huidige status:** PR #224 staat open op `feat/water-column-physics-mvp` en is nog niet naar `main` gemerged. De shadowberekening draait in de prognosecode zodra forcing beschikbaar is, maar blijft volledig buiten de score en de bestaande temperatuurweergave. Er is nog geen empirische nauwkeurigheidsclaim en geen KNMI-live-integratie.
 
-**Eerstvolgende taak:** maak een compacte empirische evaluatie op basis van de opgeslagen shadow-snapshots en echte temperatuurmetingen. Vergelijk per meetdiepte, seizoen en watertype: MAE, RMSE, bias, scenario-spreiding en forcingdekking. Sluit metingen uit die op het oorspronkelijke as-of-moment nog niet beschikbaar waren. Als er nog te weinig gekoppelde shadow-snapshots zijn, laat de evaluatie expliciet zien hoeveel waarnemingen ontbreken en verzamel eerst meer sessies. Pas na deze vergelijking wordt besloten of de nieuwe temperatuur de bestaande scalar mag vervangen. De scoreformule blijft onaangeroerd.
+**Uitvoering 5 — empirische evaluatie voorbereid:**
+- De nieuwe zuivere evaluatiefunctie `evaluateWaterColumnEmpiricalValidation` koppelt opgeslagen shadow-profielen aan echte sessiemetingen op dezelfde stek, binnen 90 minuten van het voorspelde doelmoment en op een bekende meetdiepte.
+- De voorspelling wordt op de werkelijke meetdiepte uit de vijflaagse profieluitvoer geïnterpoleerd; het kolomgemiddelde wordt dus niet onterecht vergeleken met een puntmeting.
+- Per meetpunt worden MAE, RMSE, bias, scenario-spreiding, forcingdekking, spin-up en convergentie gerapporteerd, uitgesplitst naar seizoen, watertype en meetdiepte.
+- De evaluatie kiest per fysieke meting de vroegste vooraf vastgelegde voorspelling om dubbele herberekeningen te beperken. Metingen die op of vóór het prognose-/snapshotmoment zijn geregistreerd, worden uitgesloten om hindsight leakage te voorkomen.
+- De uitvoer is expliciet beschrijvend. De scenario-spreiding hoort bij de scalar waarop de voorspelling is berekend (in de huidige app het volumegewogen gemiddelde), is geen dieptespecifieke spreiding en geen gekalibreerd betrouwbaarheidsinterval. Sampleaantallen uit dezelfde sessie zijn niet onafhankelijk.
+- De voorspelling bewaart nu expliciet `targetTime`, `asOf` en het gebruikte forcingtijdvak, zodat de vergelijking herleidbaar is.
+
+**Validatie evaluatiecode:** de deterministische test dekt diepte-interpolatie (en bewijst dat een puntmeting niet met het kolomgemiddelde wordt vergeleken), een voorspelling na het meetmoment, een snapshot die pas na het meetmoment is opgeslagen en ontbrekende meetdiepte. De test wordt aan de bestaande Quality Gate toegevoegd.
+
+**Uitvoeren op een echte app-backup:** `bun run tsx scripts/evaluate-water-column-backup.ts <vislogboek-backup.json>`. Het script leest alleen de opgegeven JSON-backup en print een privacybewust evaluatierapport; het schrijft niets terug naar de database of backup.
+
+**Databeschikbaarheid / empirische status:** de repository-testbackup van 26 oktober 2026 bevat 11 sessies, 0 watertemperatuurmetingen en 0 prognosesnapshots. Dit is een legacy-testfixture en geen praktijkdataset. PR #224 staat bovendien nog open en de shadow-uitvoer is niet op `main` actief. Er zijn daarom nog 0 beschikbare echte shadow-meetparen; er wordt geen MAE/RMSE/bias-resultaat of nauwkeurigheidsclaim verzonnen.
+
+**Eerstvolgende stap:** na eigenaar-goedgekeurde merge en gebruik van de shadowversie moet een actuele JSON-backup met echte sessiemetingen en shadow-snapshots door deze evaluator. Tot die tijd is de evaluatiecode voorbereid, maar de empirische modelvalidatie zelf wacht op praktijkdata. De scoreformule blijft onaangeroerd.
