@@ -1600,3 +1600,116 @@ Vergelijk modeluitvoer waar mogelijk met onafhankelijke temperatuurmetingen op m
 **Volgende ontwerpstap:** maak een beargumenteerde vergelijking van (a) een FLake-achtige tweelaags parametrisatie, (b) een multilaags 1D-energie-/mengmodel en (c) een hybride die past bij ondiepe en diepe stilstaande wateren. Beoordeel per optie benodigde invoer, rekenlast, reproduceerbaarheid, ondersteuning van de 4 °C-dichtheidsanomalie, zomerthermocline, bodem/ijs, geschiktheid voor stromend water en haalbare validatie met de bestaande meetregistraties. Leg daarna één voorkeursontwerp met expliciete beperkingen en tests voor aan de eigenaar.
 
 **Besluitpoort blijft gesloten voor implementatie:** deze onderzoeksnotitie autoriseert documentatie en ontwerpvergelijking. Zij autoriseert geen codewijziging, formulekeuze, parameterisatie, extra databron, databasewijziging of aanpassing van de bestaande score. De scoreberekeningsaudit blijft uitgesteld totdat het watertemperatuurwerk deze prioriteit heeft afgerond of de eigenaar de volgorde wijzigt.
+
+
+### Vervolgonderzoek — modelarchitectuur en geschiktheid voor Vislogboek-wateren (24 november 2026)
+
+**Aanleiding en scope:** vervolg op de vergelijking van KNMI, FLake, GLM, Simstrat, GOTM, Delft3D FM en PGRNN. Deze notitie werkt de nog openstaande vergelijking uit van (a) een tweelaags parametrisch model, (b) een multilaags 1D-waterkolommodel en (c) een hybride aanpak. De notitie is uitsluitend onderzoek en ontwerp; er is geen implementatie of parameterkeuze goedgekeurd.
+
+#### 1. Nieuwe bevinding uit grootschalige modelvergelijking
+
+Mesman et al. (2025), *Learning from a large-scale calibration effort of multiple lake temperature models* (Hydrology and Earth System Sciences 29, 1183–1209, DOI: 10.5194/hess-29-1183-2025), kalibreerden vier modellen voor 73 meren en vergeleken meerdere prestatiematen en meerclusters.
+
+De resultaten nuanceren een algemene rangorde:
+
+- De drie verticale 1D-modellen GLM, GOTM en Simstrat presteerden in het algemeen beter dan het 0.5D-model FLake, maar niet elk model won voor ieder meer of iedere prestatiemaat.
+- Voor meer dan 90% van de meren waren ten minste twee modellen voor verschillende prestatiematen het beste. Modelkeuze moet dus afhangen van het watertype en de gewenste uitvoer.
+- Simstrat presteerde relatief goed rond de thermocline in diepe, gematigd warme en warme meren; de auteurs relateren dit mede aan de interne-seicheparameterisatie.
+- GLM presteerde rond de thermocline relatief goed in kleine gematigde meren.
+- Voor de cluster grote ondiepe meren kon geen thermocline worden bepaald. Dat onderstreept dat niet elk ondiep water een stabiele seizoensmatige thermocline heeft.
+- De studie benadrukt ook de gevoeligheid voor meteorologische forcing, wind- en stralingsschaling en lichtuitdoving. De gestandaardiseerde vergelijking liet instroom en uitstroom buiten beschouwing; resultaten mogen dus niet zonder meer worden vertaald naar wateren met relevante doorstroming.
+
+**Gevolg voor Vislogboek:** GLM is een sterke eerste referentie voor een verticale waterkolom, maar geen universele winnaar. Simstrat blijft zinvol als profielreferentie voor dieper gestratificeerd water. Voor ondiepe, ondiepe-en-winderige en sterk beschutte wateren moet de toepasbaarheid afzonderlijk worden vastgesteld.
+
+#### 2. Vergelijking van de drie architectuuropties
+
+| Architectuur | Sterke punten | Beperkingen voor Vislogboek | Onderzoeksbeoordeling |
+|---|---|---|---|
+| Tweelaags parametrisch (FLake-achtig) | Lage rekencapaciteit; expliciete gemengde bovenlaag en onderliggende thermocline; processen zoals straling, bodem en ijs kunnen parametrisch worden meegenomen | Beperkte vrijheid om meerdere verticale gradiënten, lokale meetdieptes en complexe inverse profielen te beschrijven; prestaties kunnen per ondiep watertype sterk verschillen | Geschikt als snelle referentie/baseline, niet als voorkeurskern zonder lokale profielvalidatie |
+| Multilaags 1D met vast raster | Directe temperatuur per dieptelaag; transparante energiebalans en verticale diffusie; eenvoudig te testen op behoud van energie en temperatuurgrenzen | Laagresolutie en numerieke diffusie beïnvloeden thermocline; menging en dichtheidsstabiliteit vragen expliciete parameterisatie; vaste lagen kunnen inefficiënt zijn bij sterk wisselende gradiënten | Fysisch passende kandidaat, maar vereist onderbouwde rasterkeuze en mengingsvalidatie |
+| Multilaags 1D met flexibele/adaptieve lagen (GLM-achtig) | Lagen kunnen in dikte veranderen met stratificatie en menging; temperatuur-, dichtheids- en mengprofielen; kan thermocline gericht representeren | Meer implementatiecomplexiteit; vraagt meer locatie-invoer zoals hypsografie, lichtuitdoving, beginprofiel en waar relevant in-/uitstroom | Beste primaire onderzoeksreferentie voor de verticale kern, onder voorbehoud van invoerbeschikbaarheid en ondiepwater-validatie |
+| Hybride: vereenvoudigde kern met adaptieve complexiteit per watertype | Kan eenvoudige berekening gebruiken waar water goed gemengd is en verticale resolutie verhogen wanneer profielvorming relevant is | Risico op moeilijk uitlegbare overgangen en meerdere rekenpaden; complexiteit mag pas worden toegevoegd als een aantoonbaar voordeel is | Interessante uiteindelijke productrichting, maar pas na vergelijking met één multilaags referentiemodel |
+
+**Belangrijke ontwerpnuance:** een hybride aanpak betekent niet twee concurrerende thermische engines. Het blijft één canonieke toestand en één energiebalans. Eventuele vereenvoudiging of adaptieve resolutie moet een gecontroleerde numerieke modus van diezelfde engine zijn.
+
+#### 3. Invoervereisten en huidige haalbaarheid
+
+De GLM-documentatie en modeltoepassingen laten zien dat een bruikbare verticale simulatie meer nodig heeft dan alleen totale waterdiepte en weersverwachting. Typische invoer omvat:
+
+- meteorologische tijdreeksen: luchttemperatuur, wind, kortgolvige straling, langgolvige straling of bewolking, relatieve vochtigheid en neerslag;
+- morfometrie/hypsografie: wateroppervlak of bekkenoppervlak als functie van diepte, of een expliciet vereenvoudigde geometrische aanname;
+- lichtuitdoving/doorzicht, bijvoorbeeld afgeleid uit Secchi-diepte;
+- initiële verticale temperatuurverdeling met meetdieptes;
+- waar relevant: in-/uitstroom, debiet en temperatuur/dichtheid daarvan;
+- waar relevant: waterniveau, ijs/sneeuw en warmte-uitwisseling met sediment/bodem.
+
+Een GLM-invoerhandleiding noemt onder meer hypsografische curve, extinctiecoëfficiënt, meteorologische forcing, in-/uitstroom en een initieel temperatuurprofiel als invoer. De 2019 Simstrat-toepassing op Zwitserse meren gebruikt eveneens uurlijkse meteorologie, hydrologische gegevens en meerkenmerken. Dit maakt duidelijk dat het rechtstreeks draaien van een volledige GLM/Simstrat-configuratie voor iedere Vislogboek-stek niet vanzelfsprekend is.
+
+**Relatie met de bestaande Vislogboek-data-audit:** de huidige app heeft weerreeksen en een spotdiepte, maar de eerdere read-only audit heeft geen structureel beschikbare hypsografie, waterhelderheid/lichtuitdoving, verticale beginprofielen of volledige in-/uitstroomgegevens aangetoond. Historische metingen op verschillende dieptes zijn bovendien nog niet overal gekoppeld aan een expliciete doel-/meetdiepte in de huidige prognoseaanroep. Dit is een invoer- en representativiteitsbeperking, geen reden om ontbrekende waarden stilzwijgend te verzinnen.
+
+Daarom zijn twee gebruiksmodi conceptueel nodig, maar nog niet technisch vastgelegd:
+1. **Profiel ondersteund:** betrouwbare lokale metingen op één of meer dieptes en voldoende locatiekenmerken; verticale toestand kan worden geïnitialiseerd en lokaal getoetst.
+2. **Profiel onvoldoende bekend:** geen bruikbaar beginprofiel of beperkte morfometrie/helderheid; de uitkomst moet een grotere, expliciet onderbouwde onzekerheid hebben. Een schijnbaar precies temperatuurgetal mag de ontbrekende begintoestand niet verhullen.
+
+#### 4. Grenzen van een 1D-waterkolom voor verschillende watertypen
+
+Een 1D-model veronderstelt in essentie dat de relevante horizontale variatie klein genoeg is om een verticale kolom representatief te laten zijn. Het is dus geen algemene oplossing voor elke Nederlandse watergang.
+
+| Watertype | 1D-toepasbaarheid | Wat moet Vislogboek doen? |
+|---|---|---|
+| Stilstaande vijver of kleine plas, relatief homogeen | Vaak bruikbare eerste benadering, maar bodem-/oevereffecten en beschutting blijven relevant | Verticale kolom onderzoeken; ondiepwater-validatie verplicht |
+| Diepe, relatief beschutte plas | Goede kandidaat voor verticale stratificatie | GLM/Simstrat-profielen als referentie vergelijken |
+| Ondiepe, windgevoelige plas | Kan vaak goed mengen; dagelijkse gradiënten en windblootstelling zijn belangrijk | Toets of profielvorming überhaupt significant is; niet automatisch een thermocline aannemen |
+| Water met relevante instroom/uitstroom of temperatuurpluim | 1D kan horizontale gradiënten en advectie missen | Invoerstatus expliciet maken; hogere onzekerheid of aparte hydrodynamische behandeling onderzoeken |
+| Stromende sloot/rivier | Een enkele stilstaande kolom is vaak niet representatief door advectie en menging langs de stroom | Niet als standaard 1D-stilstaand-watergeval behandelen; eerst stromingsklasse en advectie-invloed bepalen |
+
+Een 2023 review van lake-water-temperature-modellen beschrijft de 1D-aanname als verwaarlozing van relevante horizontale dichtheidsgradiënten. Voor kleine en middelgrote waterlichamen kan dat passend zijn, maar bij complexe geometrie, sterke horizontale stroming of lokale temperatuurpluimen niet vanzelfsprekend.
+
+#### 5. Voorlopige architectuurvoorkeur
+
+Op basis van de beschikbare bronnen is de meest verdedigbare richting:
+
+1. **Behoud één canonieke `waterThermalEngine` en bestaande meet-/herkomstregistratie.**
+2. **Gebruik een multilaags verticale waterkolom als primaire ontwerp-referentie**, met GLM als belangrijkste proces- en architectuurreferentie. Onderzoek adaptieve lagen tegenover een eenvoudiger vast raster voordat een implementatievorm wordt gekozen.
+3. **Gebruik KNMI/De Bruin-Wessels als primaire referentie voor de oppervlaktewarmtebalans en faseovergang**, maar neem niet aan dat het operationele KNMI-éénlaagsmodel zelf de verticale stratificatie oplost.
+4. **Gebruik Simstrat als onafhankelijke vergelijking** voor diepe stratificatie, menging, interne seiches en ijsprocessen; niet als automatische keuze voor ondiepe vijvers.
+5. **Gebruik FLake als snelle parametrische benchmark**, niet als standaard verticale waarheid voor ondiepe wateren.
+6. **Laat de modelcomplexiteit afhangen van de fysische situatie en de beschikbare invoer.** Een volledig 1D-profielmodel mag geen schijnnauwkeurigheid opleveren wanneer beginprofiel, lichtuitdoving, bodemvorm of stromingsgegevens ontbreken.
+7. **Houd stromend water buiten de onbewezen geldigheidsclaim** van een stilstaande 1D-kolom. De modelstatus moet duidelijk aangeven wanneer advectie/horizontale verschillen onvoldoende worden beschreven.
+
+Dit is een voorkeursrichting voor verdere uitwerking, geen definitieve goedkeuring van een raster, algoritme, parameter of implementatie.
+
+#### 6. Validatie- en bewijsplan aangescherpt
+
+De validatie moet modellen met exact dezelfde meteorologische forcing en dezelfde meetperioden vergelijken. Waar mogelijk worden de volgende drie referenties naast elkaar gezet:
+- eenvoudige gemengde/één-temperatuur-baseline;
+- tweelaags parametrische FLake-achtige referentie;
+- multilaags GLM-achtige verticale referentie (en Simstrat voor representatieve dieper gestratificeerde gevallen).
+
+Meetdata moeten op bekende dieptes en tijdstippen worden gescheiden in initialisatie/kalibratie en onafhankelijke validatie. Rapporteer minimaal:
+- MAE, RMSE en bias per dieptelaag;
+- fout in thermocline-diepte wanneer een thermocline werkelijk aanwezig is;
+- afwijking in oppervlakte- en bodemtemperatuur;
+- timing van opwarming, afkoeling, menging en omkering rond 4 °C;
+- onzekerheidsdekking en gevoeligheid voor ontbrekende invoer;
+- rekentijd en datavereisten per watertype.
+
+Een ondiep water zonder meetbare thermocline mag niet worden beoordeeld op thermocline-diepte. Evenmin mag een model met ontbrekende bodemmetingen een goede bodemnauwkeurigheid claimen op basis van alleen oppervlaktedata.
+
+#### 7. Bronnen
+
+- Mesman, J.P. et al. (2025), *Learning from a large-scale calibration effort of multiple lake temperature models*, Hydrology and Earth System Sciences 29, 1183–1209, DOI: 10.5194/hess-29-1183-2025. Vergelijking van GLM, GOTM, Simstrat en FLake voor 73 meren, modelclusters en prestatiematen: https://hess.copernicus.org/articles/29/1183/2025/
+- Hipsey et al. (2022), *Effects of dimensionality on the performance of hydrodynamic models for stratified lakes and reservoirs*, Geoscientific Model Development 15, 2197–222ვით. Beschrijving van GLM als 1D-model met flexibele Lagrangiaanse lagen en dynamische verticale stratificatie: https://gmd.copernicus.org/articles/15/2197/2022/
+- *Lake Water Temperature Modeling in an Era of Climate Change: Data Sources, Models, and Future Prospects* (2024), Reviews of Geophysics, DOI: 10.1029/2023RG000816. Uitleg 1D-modelaannames, verticale transportvergelijking, morfometrie en toepasbaarheidsgrenzen: https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023RG000816
+- Eawag, Simstrat modelbeschrijving: verticale stratificatie, k-ε-menging, interne seiches, ijs en optionele AED2-koppeling: https://www.eawag.ch/en/department/surf/projects/simstrat/
+- Gaudard et al. (2019), *Toward an open access to high-frequency lake modeling and statistics data for scientists and practitioners – the case of Swiss lakes using Simstrat v2.1*, Geoscientific Model Development 12, 3955–3974. Meteorologische en hydrologische invoer en meerkenmerken: https://gmd.copernicus.org/articles/12/3955/2019/
+- GLM officiële documentatie: modelprocessen, configuratie en invoer: https://aquaticecodynamics.github.io/glm-aed/
+- NETLAKE Toolbox, GLM-invoerbeschrijving: hypsografie, lichtuitdoving, meteorologie, in-/uitstroom en initieel temperatuurprofiel: https://eprints.dkit.ie/id/eprint/534/1/NETLAKE%20Toolbox%2003%20GLM.pdf
+
+#### 8. Uitkomst en eerstvolgende actie
+
+**Uitkomst van deze onderzoeksstap:** een GLM-achtige multilaags verticale kolom is de sterkste primaire onderzoeksreferentie voor Vislogboek, maar de volledige GLM-invoervereisten zijn niet aantoonbaar beschikbaar in de huidige app. De uiteindelijke productoplossing moet daarom worden ontworpen rond één verticale thermische toestand, expliciete invoerkwaliteit en onzekerheid, en afzonderlijke geldigheidsklassen voor stilstaand en stromend water. Een tweelaags model blijft nuttig als benchmark; Simstrat blijft een vergelijkingsreferentie voor diepe gestratificeerde wateren.
+
+**Volgende actie:** maak een concrete gegevens-/invoermatrix voor de bestaande Vislogboek-app: per vereist modelveld vaststellen (a) aanwezig in database/type, (b) beschikbaar via bestaande weer- of locatiebron, (c) afleidbaar met betrouwbare methode, (d) alleen lokaal meetbaar, of (e) ontbrekend. Koppel dit aan de al uitgevoerde read-only code-audit en bepaal daarna welke modelvariant werkelijk uitvoerbaar is zonder niet-bestaande gegevens te veronderstellen.
+
+**Status:** documentatie- en onderzoekswerk toegestaan; productiecode, formule, numerieke laagindeling, parameterwaarden, databronnen, database en score blijven ongewijzigd. De scoreberekeningsaudit blijft uitgesteld totdat het watertemperatuurwerk deze prioriteit heeft afgerond of de eigenaar de volgorde wijzigt.
