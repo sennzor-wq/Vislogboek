@@ -626,6 +626,18 @@ Leidende uitwerking:
 - `SOORTSPECIFIEKE_SCORE_WEGING.md` §8;
 - `MODELARCHITECTUUR_FASE2.md` §171.
 
+### Voortgang responsmatrix — eerste brongebaseerde richting (24 november 2026)
+
+De eerste responsmatrix is verder uitgewerkt in `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §19. Per soort zijn de in het register vastgelegde directe fysiologische en voedingsresponsen, tijdspatronen, meetcontext en overdraagbaarheidsgrenzen naast elkaar gezet. De matrix laat onder meer zien:
+- Karper: meerdere, onderling contextafhankelijke veld-/voerlocatiepatronen; geen universele nachtbonus.
+- Brasem en blankvoorn: dag-/nachtpatronen veranderen met voedselgilde, levensfase, seizoen en habitat.
+- Snoek: volwassen voedingscontext en juveniele prooiconsumptie moeten gescheiden blijven.
+- Baars en snoekbaars: directe voedingsbronnen bestaan, maar verschillen per levensfase, seizoen en watertype; aerobe scope is geen voedingscurve.
+- Zeelt en meerval: nachtelijke responsen zijn context-/levensfasegebonden en niet direct een universele volwassen veldcurve.
+- Roofblei: huidige registry heeft geen directe dagelijkse voedingsintensiteitsbron; incidentie/dieet vult dit niet op.
+
+Dit is een brongebaseerde eerste classificatie, nog geen systematische extractie van alle primaire effectgroottes of gevalideerde modelparameter. De vervolgstap blijft het vaststellen van passende responsfuncties en ranges per soort, zonder gewichten te verzinnen.
+
 ## Werkonderdeel 11 — modelcontract en verantwoordelijkheidsgrens
 
 **Status:** ontwerpbesluit vastgelegd; nog geen runtime-score, numerieke gewichten of tactiekcode gewijzigd.
