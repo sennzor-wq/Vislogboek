@@ -183,6 +183,39 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+/**
+ * Aggregates complete chronological segments into a duration-weighted daily score.
+ * Missing segments are never silently replaced by a neutral/average score.
+ * The numeric zero is only a compatibility sentinel when available=false;
+ * callers must use the availability flag before displaying the score.
+ */
+export function calculateDurationWeightedActivityScore(
+  segments: Array<{ score: number; durationMinutes: number; available: boolean }>
+): { score: number; available: boolean; coverageRatio: number } {
+  const totalDuration = segments.reduce(
+    (sum, segment) => sum + (Number.isFinite(segment.durationMinutes) && segment.durationMinutes > 0 ? segment.durationMinutes : 0),
+    0
+  );
+  if (totalDuration <= 0) return { score: 0, available: false, coverageRatio: 0 };
+
+  const validDuration = segments.reduce((sum, segment) => {
+    if (!segment.available || !Number.isFinite(segment.score) || !Number.isFinite(segment.durationMinutes) || segment.durationMinutes <= 0) return sum;
+    return sum + segment.durationMinutes;
+  }, 0);
+  const coverageRatio = validDuration / totalDuration;
+  if (coverageRatio < 1) return { score: 0, available: false, coverageRatio };
+
+  const weightedTotal = segments.reduce(
+    (sum, segment) => sum + segment.score * segment.durationMinutes,
+    0
+  );
+  return {
+    score: Math.round((weightedTotal / totalDuration) * 10) / 10,
+    available: true,
+    coverageRatio: 1,
+  };
+}
+
 function getSolarTransitionContext(
   slot: TimeSlot,
   solarTimes?: CivilTwilightTimes | null
@@ -877,9 +910,15 @@ export function calculateDayPrognosis(
     }
   }
 
-  const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
-  const dayScoreAvailable = slots.every(slot => timeSlotAnalyses[slot].activityScoreAvailable !== false);
-  const dayScore = dayScoreAvailable ? Math.round((allSlotScores.reduce((sum,v)=>sum+v,0)/allSlotScores.length)*10)/10 : 5.0;
+  const dailyActivity = calculateDurationWeightedActivityScore(
+    slots.map((slot) => ({
+      score: timeSlotAnalyses[slot].activityScore,
+      durationMinutes: 6 * 60,
+      available: timeSlotAnalyses[slot].activityScoreAvailable !== false,
+    }))
+  );
+  const dayScoreAvailable = dailyActivity.available;
+  const dayScore = dailyActivity.score;
 
   let advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig' = 'Gemiddeld';
   if (dayScoreAvailable && dayScore >= 7.0) advice = 'Gunstig';

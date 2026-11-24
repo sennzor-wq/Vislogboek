@@ -6,7 +6,7 @@
 
 import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
+import { calculateDurationWeightedActivityScore, calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import { resolveTimestampEntryMode } from './src/utils/timestampProvenance';
@@ -70,6 +70,18 @@ function makeHourlySeries(
 }
 
 async function run14Scenarios() {
+  const weightedDaily = calculateDurationWeightedActivityScore([
+    { score: 4, durationMinutes: 360, available: true },
+    { score: 8, durationMinutes: 180, available: true },
+  ]);
+  assert(weightedDaily.available && weightedDaily.score === 5.3 && weightedDaily.coverageRatio === 1,
+    'F2 V0.1: dagscore wordt naar werkelijke segmentduur gewogen');
+  const incompleteDaily = calculateDurationWeightedActivityScore([
+    { score: 4, durationMinutes: 360, available: true },
+    { score: 8, durationMinutes: 180, available: false },
+  ]);
+  assert(!incompleteDaily.available && incompleteDaily.score === 0 && incompleteDaily.coverageRatio === 2 / 3,
+    'F2 V0.1: ontbrekende segmenten leveren geen fictieve neutrale dagscore op');
   console.log('=== STARTING VISLOGBOEK 14-SCENARIO VERIFICATION ===\n');
 
   // Timestamp provenance: automatic by default, editable, and never retroactively inferred.

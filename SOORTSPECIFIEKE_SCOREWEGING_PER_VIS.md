@@ -679,3 +679,42 @@ Hiermee kan de UI de score verklaren en kan latere tuning per factor worden verg
 De eerste versie presenteert geen ongedifferentieerde totaalscore die fysiologie, voeding, aanwezigheid en vangkans optelt. De prognose kan één begrijpelijke samenvatting geven, maar toont de twee biologische indexen afzonderlijk en maakt duidelijk wanneer één ervan voorlopig of niet berekenbaar is. De bestaande empirische persoonlijke vangkans blijft als aparte statistiek zichtbaar wanneer voldoende data aanwezig zijn.
 
 **Besluit:** dit contract is de basis voor de eerste runtime-integratie. De volgende stap is het ontwerpen van de parameterconfiguratie en de concrete berekeningsregels per geselecteerde factor; daarna volgt implementatie in de bestaande engine.
+
+
+# 15. V0.1-parameterisatie en eerste rekenregels
+
+**Status:** eerste uitvoerbare parameterisatie; conservatief en expliciet voorlopig. Dit is een startversie voor technische en latere praktijkvalidatie, geen claim dat de parameterwaarden rechtstreeks uit één vergelijkbare set veldstudies zijn gefit.
+
+## 15.1 Fysiologische activiteitspotentie
+
+- De bestaande soortprofielen in `fishProfiles.ts` blijven de enige operationele parametercatalogus. Er komt geen tweede soortcatalogus.
+- De bestaande asymmetrische Gauss-respons blijft in V0.1 de thermische responsvorm. De profielwaarden `thermalOptimum`, `thermalWidthCold` en `thermalWidthWarm` blijven voorlopige modelprioren; hun status wordt niet opgewaardeerd doordat de berekening numeriek werkt.
+- V0.1-factorweging fysiologie: watertemperatuur krijgt gewicht **1,00 (100% van de actieve fysiologische index)**, omdat dit momenteel de enige numeriek actieve factor is. Dit is een architecturale normalisatie, geen wetenschappelijk afgeleide relatieve effectgrootte.
+- Lucht-, wind-, druk-, neerslag-, troebelheids-, zuurstof- en tijdvakfactoren krijgen in deze fysiologische score geen numeriek gewicht zolang passende onafhankelijke responsdata en betrouwbare invoer ontbreken. Ze blijven context of expliciet uitgesloten.
+- De thermische efficiëntie blijft op de bestaande 1–10-transformatie. De uitkomst betekent uitsluitend relatieve thermische/fysiologische potentie en niet feitelijke visbeweging, voedselopname, aanwezigheid of vangstkans.
+- Voor soorten met zwakke directe fysiologische onderbouwing blijft de score technisch beschikbaar maar krijgt zij de status voorlopig; voor soorten met een betere responsbasis blijft de overdraagbaarheid naar volwassen Nederlandse veldvis eveneens expliciet begrensd. Geen van de bestaande profielcurves wordt als gevalideerde veldcurve gepresenteerd.
+
+## 15.2 Voedings-/foerageeractiviteit
+
+- Er wordt in deze eerste runtime-stap **geen generieke numerieke voedingsscore** afgeleid uit de thermische fysiologiescore. De twee uitkomsten meten verschillende biologische processen.
+- Een voedingsscore wordt pas berekend wanneer een soortspecifieke kwantitatieve responsfunctie beschikbaar is voor de betreffende uitkomst en de vereiste context/invoer bekend is. Voedselincidentie, maagvulling, dieet, prooikeuze, beweging en directe voedselopname zijn niet onderling uitwisselbaar.
+- Totdat die responsfunctie per soort is vastgelegd, is de voedingsscore `null` met status `insufficient_evidence` of `insufficient_input`; nooit automatisch 5, nooit een vaste schemer-/nachtbonus.
+- De huidige broninventaris blijft bruikbaar voor het selecteren en valideren van volgende soortspecifieke responsfuncties. Roofblei blijft zonder numerieke voedingsfactor totdat directe kwantitatieve voedingsintensiteit/-ritme beschikbaar is.
+
+## 15.3 Dagaggregatie, dekking en onbekend
+
+- Een dagscore is het duurgewogen gemiddelde van de vier chronologische tijdvakken; bij de huidige vier gelijke tijdvakken is dat gelijk aan het gemiddelde, maar de helper gebruikt expliciet minuten zodat gedeeltelijke segmenten later correct kunnen worden verwerkt.
+- Als één of meer noodzakelijke segmenten ontbreken, wordt geen dagscore als beschikbaar gerapporteerd. De bestaande numerieke veldcompatibiliteit gebruikt dan uitsluitend `0` als verborgen sentinel met `activityScoreAvailable=false`; dit is nadrukkelijk geen biologische score en mag niet worden getoond.
+- `coverageRatio` is de tijdsdekking en geen bewijssterkte. Een volledig beschikbare score kan nog steeds biologisch voorlopig zijn.
+- De tijdvakscore blijft afzonderlijk berekend. De dagscore mag ontbrekende tijdvakken niet vervangen door 5, 0 als neutraal, of een andere aangenomen waarde.
+- Deze rekenregel wijzigt de betekenis van bestaande vangkans, habitat/aanwezigheid of persoonlijke waarnemingen niet.
+
+## 15.4 V0.1-implementatiestappen
+
+1. **Nu:** expliciete duurweging en geen fictieve dagscore bij ontbrekende segmenten in de bestaande engine.
+2. **Daarna:** de voedingsrespons per soort in bestaande profiel-/evidence-structuren parametriseren, met bron-ID, uitkomsttype, levensfase/context, parameterstatus en invoervereisten.
+3. **Daarna:** voedingsscore in bestaande dag-/tijdvakcontracten toevoegen als nullable uitkomst; pas na contracttests de bestaande prognose-view aansluiten.
+4. **Daarna:** intervaluitvoer dezelfde responsfuncties laten gebruiken en daguitvoer uit exacte segmentduur aggregeren.
+5. **Daarna:** Excel-tabbladen resterend valideren en passende parameters opnemen; daarna tuning op lokale metingen, waarnemingen en sessie-/vangstdata.
+
+**Acceptatie voor deze eerste codewijziging:** dagaggregatie is duurgewogen, incomplete dekking levert geen schijnbaar gemiddelde 5, en bestaande 1–10-velden blijven compatibel met de availability-vlag.
