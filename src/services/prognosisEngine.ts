@@ -469,6 +469,7 @@ function analyzeTimeSlot(
   // Onderscheid geverifieerde gemeten watertemperatuur vs. modelschatting vs. 2m-luchttemperatuur
   const hasMeasured = Boolean(
     thermalAnalysis?.hasMeasuredWaterTemp &&
+    thermalAnalysis.measuredWaterTempAtBottom !== false &&
     typeof thermalAnalysis.measuredWaterTemp === 'number' &&
     !isNaN(thermalAnalysis.measuredWaterTemp)
   );
@@ -1533,12 +1534,12 @@ export async function savePrognosisSnapshot(
     predictedWaterColumnProfile: prognosis.thermalAnalysis?.waterColumnPrediction ?? null,
     // Alleen een voorafgaande modelschatting kan achteraf onafhankelijk worden gevalideerd.
     predictedWaterTemperature:
-      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp &&
+      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtBottom === false) &&
       typeof prognosis.thermalAnalysis.estimatedWaterTemp === 'number'
         ? prognosis.thermalAnalysis.estimatedWaterTemp
         : null,
     predictedWaterTemperatureRange:
-      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp
+      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtBottom === false)
         ? prognosis.thermalAnalysis.estimatedRange ?? null
         : null,
     predictedWaterTemperatureStatus: prognosis.thermalAnalysis?.waterTemperatureStatus,
