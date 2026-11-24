@@ -69,6 +69,27 @@ const noForcing = estimateWaterColumnTemperature({
 });
 if (noForcing !== null) throw new Error('Zonder enige forcing mag geen schijnvoorspelling uit alleen de startprior ontstaan.');
 
+const runawayStartMs = Date.parse('2026-01-01T00:00:00Z');
+const runawayForcing: WaterColumnForcingSample[] = Array.from({ length: 24 * 45 + 1 }, (_, index) => ({
+  time: new Date(runawayStartMs + index * 3600000).toISOString(),
+  availableAt: new Date(runawayStartMs + index * 3600000).toISOString(),
+  airTemperatureC: 40,
+  windSpeedKmh: 0,
+  shortwaveRadiationWm2: 1600,
+  cloudCoverPercent: 0,
+  dewPointC: 35,
+}));
+const runawayTarget = runawayForcing[runawayForcing.length - 1].time;
+const runawayPrediction = estimateWaterColumnTemperature({
+  totalDepthM: 0.9,
+  forcing: runawayForcing,
+  targetTime: runawayTarget,
+  asOf: runawayTarget,
+});
+if (runawayPrediction !== null) {
+  throw new Error('Een fysisch ontspoorde lange forcingreeks mag geen watertemperatuur boven het plausibele modelbereik publiceren.');
+}
+
 const physicalInputs = estimateWaterColumnTemperature({
   totalDepthM: 0.9,
   forcing,
