@@ -3350,3 +3350,6 @@ De eigenaar heeft de implementatie- en testwerkzaamheden voor de fysieke waterte
 - Een regressietest simuleert een 24 uur oude cache en controleert dat alleen de recente forecast wordt opgehaald en de ERA5-historie behouden blijft.
 
 Dit vermindert herhaald netwerkverkeer substantieel, maar is nog niet de volledige persistente waterkolomtoestand. De vijf scenario-spin-ups bij herberekening blijven een afzonderlijke vervolgstap en zijn nog niet opgelost.
+
+
+Testcorrectie 24 november 2026: de historische replay-regressietest vergelijkt netwerkverzoeken nu met de teller direct vóór de replay. De test voert eerst bewust een nieuwe forecast-refresh uit; de eerdere vergelijking met de teller van vóór die refresh was onjuist en testte niet uitsluitend de replay.

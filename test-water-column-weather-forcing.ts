@@ -109,8 +109,9 @@ async function run() {
     }
 
     const beforeAvailability = new Date(Date.parse(result.asOf) - 1000).toISOString();
+    const callsBeforeReplay = fetchCalls;
     const replay = await getWaterColumnForcing(52, 5, targetTime, { asOf: beforeAvailability });
-    if (replay.hourly.length !== 0 || fetchCalls !== callsAfterFetch) {
+    if (replay.hourly.length !== 0 || fetchCalls !== callsBeforeReplay) {
       throw new Error('Historical as-of replay must not use later-retrieved weather data or make a hindsight network request.');
     }
 
