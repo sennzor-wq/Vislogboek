@@ -3112,3 +3112,40 @@ Controle van de actuele main-bestanden src/types/index.ts, src/services/fishProf
 - De soortspecifieke diepte-/habitatverdeling is daarom een echte ontbrekende modelcomponent; zij mag niet worden nagebootst door bestaande tekstuele zoneadviezen als een gemeten of gekwantificeerd diepteprofiel te behandelen.
 
 **Voorlopige ontwerpconclusie:** hergebruik de bestaande soortcatalogus, bronregistratie, thermische profielen, dagritme-/seizoenscontext en vijflaagse fysieke waterkolom. Ontwerp daarboven een afzonderlijke soortspecifieke habitatverdeling, met onafhankelijke onderbouwing van voedingsactiviteit versus aanwezigheid/laagkeuze. Eerst de volledige soort- en broninventarisatie afronden; geen numerieke dieptegewichten toevoegen op basis van alleen algemene soortbeschrijvingen. Deze bevindingen zijn een eerste deelcontrole, geen afronding van fase 2.
+
+### Fase 2 — afgeronde eerste inventarisatie van soorten en biologische evidence (24 november 2026)
+De volledige huidige soortcatalogus en het onderzoeksregister zijn gecontroleerd. De negen concrete soorten zijn Karper, Brasem, Snoek, Baars, Voorn (blankvoorn), Zeelt, Snoekbaars, Meerval en Roofblei; Overig is uitsluitend een generieke fallback en mag niet als tiende soortspecifiek biologisch profiel worden behandeld.
+
+**Omvang van de geregistreerde onderzoekscontext per soort** (aantal records waarin de soort expliciet is opgenomen; records kunnen meerdere soorten betreffen):
+- Karper: 16 records.
+- Brasem: 12 records.
+- Snoek: 13 records.
+- Baars: 12 records.
+- Voorn: 14 records.
+- Zeelt: 5 records.
+- Snoekbaars: 11 records.
+- Meerval: 11 records.
+- Roofblei: 5 records.
+
+Geen van de gecontroleerde records is gemarkeerd als approvedForPrediction=true. Dat betekent niet dat de literatuur onbruikbaar is; het betekent dat de bronregistratie momenteel geen expliciet vrijgegeven, contextgematchte parameterisatie voor de operationele prognose aangeeft.
+
+**Per-soort beoordeling voor de volgende ontwerpstap:**
+- Karper: relatief brede basis voor thermische fysiologie, veld-/laboratoriumvoedselritmes, aasplaatsgebruik en hengelvangbaarheid. PR #225 maakt bodemtemperatuur op de geregistreerde stekdiepte de thermische invoer. De volgende biologische stap moet bodemgebonden foerageren onderscheiden van totale aanwezigheid en mag nacht-/dagvoorkeur niet als universeel vast aannemen.
+- Brasem: bronnen over planktonconsumptie, filtervoeding, troebelheid, winteractiviteit en seizoensbeweging. Levensfase en voedseltype veranderen het patroon; onderscheid benthisch foerageren van pelagische planktonvoeding.
+- Snoek: bronnen over seizoensdiepte, thermisch habitat, zuurstofbeperking, zicht, schemeringsbeweging en voedselopname. Hinderlaagjacht betekent dat lage locomotorische activiteit niet gelijkstaat aan lage jachtactiviteit. Geen universele bodemvoorkeur; vegetatie/structuur en beschikbare thermische/zuurstoflagen zijn relevant.
+- Baars: bronnen over thermische fysiologie, grootte, beweging, habitat, dieet, prooikeuze en seizoens-/dagritme. Levensfase en prooigrootte kunnen de verticale positie veranderen; volwassen en juveniele patronen niet samenvoegen zonder onderbouwing.
+- Voorn (blankvoorn): bronnen over dieet, waterplanten, dag-/nachtbeweging, pelagische planktonvoeding, wintermigratie en leeftijdsafhankelijke patronen. Waterhelderheid en vegetatie beïnvloeden zonegebruik; geen vaste dieptecurve afleiden uit alleen dagritme.
+- Zeelt: beperkte(re) basis voor temperatuur, voedselopname, nachtelijk gedrag, habitat en voortplanting. Waarschijnlijk sterk gekoppeld aan ondiepe vegetatie/bodemhabitat, maar exacte laaggewichten vereisen expliciete veldonderbouwing.
+- Snoekbaars: bronnen over thermische fysiologie, habitatbeweging, dieet/prooikeuze, dagelijkse verdeling, schemeringsritme en paaigedrag. Licht, zicht, prooivis en structuur moeten worden onderscheiden van temperatuur; geen simpele vaste bodemregel.
+- Meerval: bronnen over nachtelijke voedselactiviteit, seizoens-/dieptebeweging, winteraggregatie, dieet en habitat. Dieptegebruik kan seizoens- en waterlichaamafhankelijk zijn; resultaten uit noordelijke populaties of reservoirs niet automatisch naar elk Nederlands stilstaand water kopiëren.
+- Roofblei: beperkte(re) basis, vooral migratie, seizoens-/dagbeweging en dieet/prooikeuze. Sterke afhankelijkheid van open water en stroming is ecologisch plausibel, maar voor kleine stilstaande wateren is overdraagbaarheid onzeker; daarom terughoudende score en expliciete lage dekking.
+
+**Kwaliteitswaarschuwing voor bestaande numerieke profielen:** de T0–T3 thermische curven en seizoensscores in fishProfiles.ts zijn operationele modelprioren, geen rechtstreeks gemeten Nederlandse vangst- of voedselopnamecurven. De confidence-velden in die profielen mogen niet worden gelezen als empirische validatie van de volledige prognose. De feeding-response-engine kan een relatieve score uit dagritme en seizoensfase opbouwen, maar benoemt ontbrekende voedsel-/prooiaanvoer en wateractiviteit; de evidence assessment houdt predictionEligible expliciet op false totdat contextgematchte kwantitatieve parameters zijn gevalideerd.
+
+**Ontwerpbesluit voor fase 2:** bouw niet één vaste diepte per soort en gebruik niet één score voor alle biologische processen. Maak afzonderlijke componenten voor (a) thermische geschiktheid per waterlaag, (b) habitat-/aanwezigheidsverdeling per laag of zone, (c) voedings-/foerageerrespons en (d) vangbaarheid/angling response. De uiteindelijke kansverdeling moet worden genormaliseerd over de werkelijk beschikbare waterlagen van de geregistreerde stekdiepte. Als een soort een habitat gebruikt dat niet door de vijf waterlagen alleen wordt beschreven (bijvoorbeeld oevervegetatie, open water of stromingsluwte), modelleer die als habitatcontext/zone naast verticale diepte, niet als fictieve extra temperatuurlaag.
+
+**Minimale invoer en onzekerheid:** gebruik beschikbare seizoen, lokale tijd/licht, totale stekdiepte, gemodelleerde temperatuur per laag, watertype, waterbeweging, geregistreerde vegetatie/structuur, zicht/troebelheid indien beschikbaar en waarnemingen. Zuurstof mag alleen als gemeten of via een expliciet gevalideerd model beschikbaar worden gebruikt; temperatuur alleen voorspelt geen zuurstofconcentratie. Leeftijd/lengte en prooiaanbod ontbreken doorgaans; modelleer deze als ontbrekende drivers en verlaag dekking/zekerheid in plaats van ze stilzwijgend te imputeren.
+
+**Implementatievolgorde aanbevolen:** (1) definieer outputcontract voor habitatkans per laag + onzekerheid; (2) implementeer en test eerst snoek als referentie voor dynamisch verticaal habitatgebruik, en karper als bodemgebonden referentie; (3) voeg de overige soorten alleen toe wanneer de bijbehorende evidence-mapping is uitgewerkt; (4) valideer afzonderlijk tegen temperatuurmetingen op diepte, viswaarnemingen en vangst-/nulvangstgegevens. Vangstdata alleen zijn geen zuivere aanwezigheidmeting, omdat hengeltechniek en vangbaarheid de uitkomst beïnvloeden.
+
+Deze inventarisatie is afgerond als ontwerp-/code-audit. De soortspecifieke laagverdeling zelf is nog niet geïmplementeerd en er zijn geen nieuwe biologische parameters vrijgegeven voor de live prognose.
