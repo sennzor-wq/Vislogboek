@@ -52,11 +52,13 @@ function parseHourlyBlock(
       source,
     };
     const windSpeedKmh = optional(hourly?.wind_speed_10m?.[index], 0, 200);
+    const windDirectionDegrees = optional(hourly?.wind_direction_10m?.[index], 0, 360);
     const shortwaveRadiationWm2 = optional(hourly?.shortwave_radiation?.[index], 0, 1600);
     const cloudCoverPercent = optional(hourly?.cloud_cover?.[index], 0, 100);
     const dewPointC = optional(hourly?.dew_point_2m?.[index], -60, 60);
     const relativeHumidityPercent = optional(hourly?.relative_humidity_2m?.[index], 0, 100);
     if (windSpeedKmh !== undefined) sample.windSpeedKmh = windSpeedKmh;
+    if (windDirectionDegrees !== undefined) sample.windDirectionDegrees = windDirectionDegrees;
     if (shortwaveRadiationWm2 !== undefined) sample.shortwaveRadiationWm2 = shortwaveRadiationWm2;
     if (cloudCoverPercent !== undefined) sample.cloudCoverPercent = cloudCoverPercent;
     if (dewPointC !== undefined) sample.dewPointC = dewPointC;
@@ -155,7 +157,7 @@ export async function getWaterColumnForcing(
       'Geen lokaal gecachte forcing die aantoonbaar beschikbaar was op dit historische as-of-moment; netwerkdata wordt niet achteraf als toen beschikbaar behandeld.');
   }
 
-  const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${historyStartDate}&end_date=${archiveEndDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m&models=era5_seamless&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
+  const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${historyStartDate}&end_date=${archiveEndDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&models=era5_seamless&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
   const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=${RECENT_BRIDGE_DAYS}&forecast_days=8&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
 
   const responses = await Promise.allSettled([
