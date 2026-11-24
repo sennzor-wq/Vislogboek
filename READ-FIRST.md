@@ -15,7 +15,8 @@ Fase 0 — datadictionary en technische nulmeting
 
 
 WAAR BEN JE GEBLEVEN en waar je vooral naar moet kijken:
-Je bent nu bezig in bestanden FASE2_PROGNOSE_AUDIT.md en MODELARCHITECTUUR_FASE2.md en VISLOGBOEK_VERBETERPLAN.md. 
+Je bent nu bezig in bestanden FASE2_PROGNOSE_AUDIT.md en MODELARCHITECTUUR_FASE2.md en VISLOGBOEK_VERBETERPLAN.md.  Daarnaast heb je ook lokaal in de libray 
+de bestand vismodel_voorstel_v2 waarin informatie nodig is voor deze acties.
 
 Op het moment werk je aan de SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md en SOORTSPECIFIEKE_SCORE_WEGING.md. Hiermee moeten we de prognose verder automatiseren om
 een zo goed mogelijk prognose af te geven in de vorm van de huidige weergave. Dit is voor nu de enige opdracht die je hebt.
