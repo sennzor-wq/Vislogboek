@@ -3007,3 +3007,6 @@ De geometrie wordt maximaal 30 dagen lokaal gecachet in de bestaande IndexedDB-w
 De richtingafhankelijke fetch stuurt uitsluitend de bestaande shadow-only winduitwisseling in het waterkolommodel. De handmatige windbeschuttingskeuze blijft aanvullend actief; automatische categorieclassificatie (beschut/deels open/open) wordt bewust niet afgeleid uit arbitraire afstandsdrempels. Vangstscore, soortcurves en bestaande productie-uitvoer zijn ongewijzigd.
 
 **Validatiegrens:** de geometrische algoritmetests controleren ray-intersecties, sectorinterpolatie, windrichtingswrap en cachegedrag met synthetische polygonen. Dit bewijst de berekening, niet de volledigheid of nauwkeurigheid van OSM-kaartdekking op iedere Nederlandse stek. De live Overpass-lookup moet daarom altijd als optionele bron behandeld blijven.
+
+
+**Quality Gate — automatische fetch:** run `45447717359` op commit `4557a4a87a07897f6593359dea19aff0d4d0d8d3` is volledig geslaagd. Dit omvat TypeScript, bestaande regressietests, de nieuwe richtingafhankelijke fetch-geometrie/cache-test, waterkolomtests, productiebuild en controle dat private artefacten niet in de build terechtkomen. De test gebruikt synthetische OSM-polygongeometrie; hij bewijst de geometrische berekening en cache, niet de landelijke volledigheid van live OSM-data.
