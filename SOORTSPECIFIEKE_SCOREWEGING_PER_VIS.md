@@ -920,3 +920,48 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 5. **Habitat en vangbaarheid blijven aparte lagen.** De bronset ondersteunt lokale gedrags-/habitatverschillen en enkele hengelvangbaarheidsrelaties, maar geen universele lokale aanwezigheidskans of persoonlijke vangstkans.
 
 **Vervolg binnen dezelfde hoofdtaak:** primaire brongegevens en responscurves per soort systematisch naast elkaar leggen, de bruikbare meetbereiken en effectvormen vaststellen en pas daarna de afzonderlijke fysiologische en voedingsresponsen normaliseren. De gecombineerde 1–10-functie volgt daarna; er worden in deze stap nog geen gewichten of runtimeparameters ingevuld.
+
+
+## 20. Integratiebeoordeling van `vismodel_voorstel_v2.xlsx` (24-11-2026)
+
+**Bron:** de elf tabbladen van `vismodel_voorstel_v2.xlsx` zijn volledig uitgelezen. Het bestand presenteert zichzelf als read-only voorstel; de eigen toelichting vermeldt dat waarden deels uit literatuur en deels uit schattingen komen, dat niet iedere bron volledig is gelezen en dat het model niet met vangstdata is gevalideerd. Daarom is dit een kandidaatontwerp en checklist, geen gevalideerde parameterbron.
+
+### 20.1 Wat rechtstreeks bruikbaar is als modelstructuur
+
+| Werkblad/onderdeel | Bruikbaar uitgangspunt voor Prognose | Beperking / besluit |
+|---|---|---|
+| Model — driedelige opzet | Onderscheid tussen aanwezigheid/habitat, fysiologische/limiterende respons en aanvullende drivers; trage factoren per dag en snelle factoren per tijdvak | De uiteindelijke gebruikersscore moet de afzonderlijke biologische responsen samenvoegen zoals vastgelegd in §17. Habitat blijft een aparte laag totdat een expliciete scorekoppeling gevalideerd is. |
+| Archetypen | Kan helpen om gedeelde biologische mechanismen te groeperen en onderzoek efficiënt te structureren | Vier archetypen vervangen de negen soortprofielen niet. Ze mogen soortverschillen, levensfase en uitzonderingen niet verbergen en leveren geen gewichten. |
+| Afspraken | Ontbrekende data expliciet tonen; redenen bij de score geven; nulvangstsessies, duur en methode blijven belangrijk voor latere kalibratie | Beschikbaarheidsdekking en bewijssterkte blijven twee verschillende begrippen. Herberekenen over beschikbare drivers mag geen schijnbaar volledige score opleveren. |
+| Tijdvakopzet | Temperatuur/seizoensfase zijn langzame context; licht en voedingsritme kunnen sneller en tijdvakgebonden veranderen; daguitkomst afleiden uit tijdsegmenten | Alleen wanneer de betreffende factor werkelijk per segment gemeten of passend gemodelleerd is. Bestaande interval-, DST- en targetTime-as-of-contracten blijven leidend. |
+
+### 20.2 Factoren die als kandidaat in de volledige matrix blijven
+
+| Factor | Mogelijke responslaag | Beoordeling van het Excel-voorstel |
+|---|---|---|
+| Temperatuur en temperatuurverloop | Fysiologie én, met afzonderlijk bewijs, voedingsrespons | Trapeziumvorm is een bruikbare hypothese, maar de T0–T3-curves mengen bronnen over groei, metabolisme, voorkeur en voedselopname. Per respons en soort moet de curve opnieuw worden onderbouwd. De generieke dalingsfactor 0,85 is een schatting en wordt niet overgenomen. |
+| Zuurstof | Mogelijke fysiologische/voedingslimiter | Limiterconcept is bruikbaar. De sheet vermeldt zelf dat de soortdrempels grotendeels geschat zijn; alleen richting bij karper en snoekbaars heeft enige bronbasis. Geen lineaire soortdrempel of filter activeren zonder passende lokale meting en respons. |
+| Troebelheid/zicht | Context/modulator voor prooi, predator en foerageren; soms habitat | De per-soortfactoren zijn grotendeels schattingen. De matrix houdt onderscheid tussen gemeten beweging (bijvoorbeeld brasem) en directe prooiconsumptie (jonge snoek). Geen generieke vermenigvuldigingsfactor. |
+| Voedsel-/prooiaanbod | Voedingscontext en mogelijke voorwaarde voor foerageren | Lokaal prooiaanbod is niet beschikbaar als standaardinvoer. Bij roofblei kan prooivisactiviteit een relevante hypothese zijn, maar de huidige registry heeft geen directe dagelijkse voedselopname-intensiteit. Houd aanbod, foerageren en opgenomen voedsel gescheiden. |
+| Licht/dagritme | Tijdgebonden voedings-/foerageerrespons of locomotie | De sheet bevat per soort ingevulde waarden, maar meerdere zijn als laag/geschat aangeduid en conflicteren met directer veldbewijs. Gebruik de responsmatrix en broncontext, niet de vaste 0–1-waarden. |
+| Seizoens-/biologische fase | Langzame modulator van voeding, fysiologie of habitat | Maandtabellen zijn grotendeels geschat en kunnen temperatuur, fotoperiode en voortplantingsfase dubbel tellen. Kalendermaand is geen directe voedingsdrang. Alleen fase-/responsrelaties gebruiken die een bron daadwerkelijk ondersteunt. |
+| Wateractiviteit/stroming | Habitat, voedseltransport of soortspecifieke locomotie/foerageren | De rubric mengt stilstaand water, stroming, gemaal en scheepvaart in één invoer. Deze oorzaken moeten uit elkaar; archetypewaarden zijn schattingen en geen scorefactor. |
+| Habitat, diepte, bodem, vegetatie en watertype | Lokale aanwezigheid/habitat en tactische zone | De habitatklassen zijn bruikbare hypotheses voor context, maar geen gevalideerde lokale aanwezigheidskans. Een harde gate op basis van een globale watertypeklasse kan te veel uitsluiten. |
+| Persoonlijke vangsthistorie | Empirische vangkans/evaluatie, niet biologische respons | De afspraak om ook nulvangsten, sessieduur en methode vast te leggen is bruikbaar. Vangstdata mogen de biologische score niet stilzwijgend vervangen. |
+
+### 20.3 Wat niet als numerieke parameter wordt overgenomen
+
+1. **Archetypegewichten 45/20/15/20, 40/20/15/25, 35/25/15/25 en 15/20/25/40:** afgeleid uit een oude eigen tabel, afgerond en door het werkblad zelf als lage zekerheid aangeduid. Geen gemeten effectgroottes; niet activeren.
+2. **T0–T3 en zuurstofdrempels:** verschillende responsen en levensfasen zijn samengevoegd; diverse grenswaarden zijn geschat. Alleen passende respons-specifieke broncurves kunnen later worden gebruikt.
+3. **Dagritme 0–1:** waarden zijn deels geschat en soms strijdig met de geregistreerde voedingsstudies. Geen vaste soortbonus per kloktijdvak.
+4. **Maandelijkse seizoensscores:** vooral hypothesen op basis van paai, trek of seizoensbeschrijvingen; geen directe dagelijkse voedingsscore en risico op dubbeltelling.
+5. **Troebelheidsfactoren en habitatgate:** waarden zijn grotendeels geschat; niet als harde vermenigvuldiger of nulscore gebruiken.
+6. **Wateractiviteitsrubric:** combineert meerdere fysische oorzaken en kent arbitraire archetypescores; eerst de werkelijke invoer en respons uit elkaar halen.
+7. **Ontbrekende drivers automatisch herschalen:** de dekking als apart veld is nuttig, maar de gewichten blind herverdelen kan een schijnbaar complete score opleveren terwijl een essentiële factor ontbreekt. De Prognose moet dekking, onzekerheid en scorebeschikbaarheid afzonderlijk teruggeven.
+8. **0–100 als vervanging van de gebruikersscore:** interne deelscores mogen eventueel 0–100 gebruiken, maar de bestaande gebruikersscore blijft 1–10.
+
+### 20.4 Koppeling met de bestaande evidence registry
+
+De bronnen uit het Excel-tabblad `Bronnen` worden niet als tweede bronregister toegevoegd. Ze worden waar relevant gekoppeld aan bestaande registry-ID's of als kandidaat voor latere broncontrole gemarkeerd. Secundaire bronnen, factsheets, abstracts en niet volledig gelezen publicaties zijn geen gelijkwaardige vervanging voor primaire responsmetingen. De primaire registry-respons bepaalt of een bron fysiologie, voedselopname, voedingsritme, foerageergedrag, habitat of vangbaarheid ondersteunt.
+
+**Resultaat:** het Excel-bestand levert een bruikbare modelstructuur en aanvullende factorchecklist, maar geen vrijgegeven numerieke gewichten of drempels. De bestaande factorinventaris wordt hiermee aangevuld; de uiteindelijke geïntegreerde score blijft soortspecifiek en bewijs-/responsgebonden.

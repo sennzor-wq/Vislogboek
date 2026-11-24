@@ -638,6 +638,12 @@ De eerste responsmatrix is verder uitgewerkt in `SOORTSPECIFIEKE_SCOREWEGING_PER
 
 Dit is een brongebaseerde eerste classificatie, nog geen systematische extractie van alle primaire effectgroottes of gevalideerde modelparameter. De vervolgstap blijft het vaststellen van passende responsfuncties en ranges per soort, zonder gewichten te verzinnen.
 
+### Beoordeling bestaand Excel-voorstel
+
+De elf tabbladen van `vismodel_voorstel_v2.xlsx` zijn volledig gelezen en beoordeeld in `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §20. Bruikbaar zijn de driedelige factorstructuur, het onderscheid tussen trage dagfactoren en snelle tijdvakfactoren, de factorchecklist en de eis om redenen/dekking te tonen. Niet overgenomen zijn de archetypegewichten, geschatte T0–T3- en zuurstofdrempels, geschatte dagritme-/seizoensscores, troebelheidsvermenigvuldigers, habitatgate en automatische herweging van ontbrekende drivers. De sheet vermeldt zelf dat veel waarden schattingen zijn, bronnen niet allemaal volledig zijn gelezen en het voorstel niet met vangstdata is gevalideerd.
+
+De bestaande registry blijft het canonieke bronregister. Excel-bronnen worden waar passend gekoppeld aan bestaande records of als broncontrolekandidaat behandeld; er komt geen tweede register. Het Excel-bestand vult de factorinventaris aan, maar levert geen numerieke parameter die nu al mag worden geactiveerd.
+
 ## Werkonderdeel 11 — modelcontract en verantwoordelijkheidsgrens
 
 **Status:** ontwerpbesluit vastgelegd; nog geen runtime-score, numerieke gewichten of tactiekcode gewijzigd.
