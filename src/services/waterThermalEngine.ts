@@ -167,9 +167,10 @@ export function analyzeWaterThermalDevelopment(
   // Een handmatige meting is alleen "actueel" op/voor het meetmoment.
   // Voor een toekomstig tijdstip wordt dezelfde meting een historisch anker
   // en wordt de ontwikkeling vanaf dat moment chronologisch doorgerekend.
-  const hasTargetDepthMeasurement = typeof options?.measurementDepthM === 'number' &&
-    typeof options?.targetDepthM === 'number' &&
-    Math.abs(options.measurementDepthM - options.targetDepthM) <= 0.2;
+  const hasTargetDepthMeasurement = options?.targetDepthM == null || (
+    typeof options?.measurementDepthM === 'number' &&
+    Math.abs(options.measurementDepthM - options.targetDepthM) <= 0.2
+  );
   const isActualSituation = Boolean(
     anchor && anchor.source === 'current' &&
     (!currentDateRef || targetIsCurrentDate) &&
@@ -234,7 +235,7 @@ export function analyzeWaterThermalDevelopment(
         measuredWaterTempAtTargetDepth: hasMeasured && hasTargetDepthMeasurement,
         measuredWaterTemp: measuredTemp,
         estimatedWaterTemp: waterColumnPrediction && !hasTargetDepthMeasurement
-          ? waterColumnPrediction.bottomTemperatureC
+          ? waterColumnPrediction.estimatedTemperatureC
           : recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
         estimatedRange: waterColumnPrediction && !hasTargetDepthMeasurement
           ? waterColumnPrediction.estimatedRangeC
@@ -607,7 +608,9 @@ export function analyzeWaterThermalDevelopment(
     surfaceVsBulkNote = waterColumnPrediction.targetDepthM !== null
       ? `Fysisch waterkolommodel: oppervlak ${waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C; doeltemperatuur ${waterColumnPrediction.estimatedTemperatureC.toFixed(1)} °C op ${waterColumnPrediction.targetDepthM.toFixed(2)} m; bodem ${waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C.`
       : `Fysisch waterkolommodel: oppervlak ${waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C; volumegemiddelde ${waterColumnPrediction.volumeMeanTemperatureC.toFixed(1)} °C; bodem ${waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C.`;
-    prognosisImpactNote = 'De karperprognose gebruikt de berekende bodemtemperatuur van deze stek; oppervlaktetemperatuur en eventuele ijsvorming blijven afzonderlijke profielinformatie.';
+    prognosisImpactNote = waterColumnPrediction.targetDepthM !== null
+      ? 'De karperprognose gebruikt de berekende bodemtemperatuur van deze stek; oppervlaktetemperatuur en eventuele ijsvorming blijven afzonderlijke profielinformatie.'
+      : 'De thermische prognose gebruikt het volumegemiddelde van het berekende waterkolomprofiel; oppervlak en bodem blijven afzonderlijk beschikbaar.';
   }
 
   return {
