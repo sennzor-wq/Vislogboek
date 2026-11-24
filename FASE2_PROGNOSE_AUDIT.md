@@ -6636,3 +6636,31 @@ De eigenaar heeft expliciet besloten F2-WP19 (empirische kandidaatvalidatie en m
 De eerdere read-only schema- en replayhaalbaarheidscontrole in §209 blijft behouden als historische documentatie; dit betekent niet dat empirische validatie is uitgevoerd of geslaagd. Synthetische simulaties blijven uitsluitend technische contract-/regressietests en worden niet gebruikt als vervanging voor echte uitkomstdata. Er worden geen sessies, vangsten, labels, nauwkeurigheidsresultaten of biologische parameters verzonnen.
 
 WP19 kan alleen opnieuw worden overwogen als echte data later beschikbaar komen én de eigenaar besluit dat empirische validatie alsnog gewenst is. Tot die tijd gaan de overige reeds geplande en geautoriseerde werkzaamheden verder zonder deze afhankelijkheid.
+
+
+## 217. Repositorystatus, open PR's en resterende eigenaarspoort (24 november 2026)
+
+### 217.1 Actuele main en Quality Gate
+
+De leidende `main`-HEAD is `496920d7ac698d3bd82dda2abf176b9fb9ceb4da` (commitbericht: `docs: document per-species prognosis score priorities`). De volledige GitHub Actions Quality Gate-run [45259288513](https://github.com/sennzor-wq/Vislogboek/actions/runs/45259288513) is voltooid met `success`; de job Typecheck, tests and production build is groen. De workflow omvat dependency-audits, TypeScript-typecheck, de bestaande regressiesuites en productiebuild/private-artifactcontrole.
+
+Commit `496920d` voegt `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` toe. Dit document vult het bestaande algemene kader in `SOORTSPECIFIEKE_SCORE_WEGING.md` aan met een kwalitatieve prioriteitsvolgorde per soort en uitkomst. Het presenteert geen percentageverdeling, activeert geen numerieke gewichten en wijzigt geen runtimecode. Het blijft gelden dat geregistreerde evidence niet automatisch is goedgekeurd voor numerieke voorspelling.
+
+### 217.2 Open PR's op het moment van controle
+
+- **PR #222** — open, niet gemerged, base `main`, branch `docs/fase2-intervalscore-readiness-audit`. Bij aanvang van deze documentatiesynchronisatie stond de head op `8629d9b3fb3127cc5b3fed193d5e457d55d6fbd9`; de compare met `main` gaf 25 commits ahead en 2 behind. De diff bevatte toen alleen `PROJECT_WORK_QUEUE.md` en `FASE2_PROGNOSE_AUDIT.md`. De volledige Quality Gate-run [45246013386](https://github.com/sennzor-wq/Vislogboek/actions/runs/45246013386) op die head was `success`. Deze synchronisatie voegt ook `VISLOGBOEK_VERBETERPLAN.md` toe; de nieuwe PR-head vereist daarom een eigen actuele Quality Gate. Er is niet gemerged.
+- **PR #200** — open, niet gemerged, documentatie-only; 1 commit ahead en 89 behind `main`. De oude head-run [44735872012](https://github.com/sennzor-wq/Vislogboek/actions/runs/44735872012) was `success`, maar de branch is niet bijgewerkt met de huidige main.
+- **PR #209** — open, niet gemerged; oudere sessiegebonden meetevent-arrayimplementatie; 1 commit ahead en 81 behind `main`. De oude head-run [44745509641](https://github.com/sennzor-wq/Vislogboek/actions/runs/44745509641) eindigde in `failure`. De huidige `main` bevat al een `WaterTemperatureMeasurement[]`-veld op de sessie en de bijbehorende sessie-invoer. De branch verschilt op meerdere implementatiedetails en mag niet als actuele mergekandidaat worden beschouwd zonder volledige diff-/regressiereview.
+- **PR #210** — open, niet gemerged; alternatieve opslag als aparte meeteventtabel met Dexie v6-migratie, backup-/restore- en verwijderintegratie; 7 commits ahead en 81 behind `main`. De oude head-run [44747207595](https://github.com/sennzor-wq/Vislogboek/actions/runs/44747207595) was `success`, maar is geen actuele controle tegen `main`. De huidige `main` heeft geen aparte `waterTemperatureMeasurements`-tabel; dit PR-model wijkt dus af van de bestaande sessie-array.
+
+De runs van PR #200, #209 en #210 zijn historische headresultaten en bewijzen niet dat de huidige branches zonder synchronisatie of regressiecontrole kunnen worden gemerged. Geen van deze PR's is door deze audit gemerged of gesloten. De eigenaar moet de gewenste bestemming bepalen; met name de aparte tabel in #210 is een architectuurwijziging ten opzichte van de huidige main-opslag.
+
+### 217.3 Interval-outputbranch
+
+De bestaande branch `feature/prognosis-interval-output-contract` staat op `dc52f044ac9e355c49cb68f37ebc1e89f0ff95fe`, zonder open PR; de branchcompare gaf 67 commits ahead en 11 behind `main`. De actuele `main` bevat inmiddels `src/services/prognosisIntervalEngine.ts`, `src/services/prognosisIntervalOutput.ts`, `test-prognosis-interval-output.ts` en de VisCoach-koppeling in `viscoachService.ts`. Deze oude branch is divergent en wordt niet opnieuw geïntegreerd of geforceerd bijgewerkt op basis van de branchnaam alleen.
+
+### 217.4 Resterende eigenaarspoort
+
+WP18, WP23 en WP25 zijn gemerged; zie §§208, 213 en 215. WP19 blijft expliciet buiten scope volgens §216. De twee reeds vastgelegde product-/modelkeuzes blijven open: (1) kwalitatieve voedingscontext in Prognose/VisCoach en (2) een eventuele soortspecifieke habitatbewegingslaag. Daarnaast vraagt de disposition van de legacy-meet-PR's #200, #209 en #210 om eigenaarreview. Er is op basis van de huidige werkvoorraad geen volgende runtimewijziging die zonder deze beslissingen veilig geautoriseerd is.
+
+De synthetische tests blijven uitsluitend technische contract-/robuustheidstests. Er zijn geen echte sessies, vangsten, temperatuurmetingen, GPS-waarden, weersgegevens, biologische labels, nauwkeurigheidsresultaten of nieuwe gewichten aangemaakt. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

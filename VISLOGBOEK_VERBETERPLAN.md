@@ -1250,3 +1250,12 @@ Audit §206 heeft de actuele `main`-code gecontroleerd. De bestaande 1–10-scor
 De intervaladapter bevat nu alleen segmentgrenzen, forecastdekking en afzonderlijk gevalideerde beschrijvende weersamples. Thermische activiteit is expliciet nog niet per segment berekend. Een kandidaat per segment kan de bestaande `waterThermalEngine` met exact `targetTime = segment.startTime` en dezelfde soortcurve hergebruiken, maar dit is nog niet geïmplementeerd of goedgekeurd.
 
 **Volgende stap:** werkpakket 18 — test-first contracttests voor kandidaat thermische segmentuitvoer, bron-/onzekerheidsstatus, strikte as-of-invariant en behoud van bestaande dag-/tijdvak-/sessie-uitkomsten. Nog geen sessieaggregatie, minimumdekking, nieuwe gewichten of biologische factoren kiezen. Fase 2 blijft open; Fase 3 blijft geblokkeerd. Zie audit §206.
+
+
+### Fase 2 — status na technische merges en actuele eigenaarspoort (24 november 2026)
+
+De actuele `main`-HEAD is `496920d7ac698d3bd82dda2abf176b9fb9ceb4da`; de volledige Quality Gate-run [45259288513](https://github.com/sennzor-wq/Vislogboek/actions/runs/45259288513) is groen. De technische werkpakketten WP18, WP23 en WP25 zijn inmiddels gemerged (zie Fase-2-audit §§208, 213 en 215). WP19 is op expliciet eigenaarbesluit buiten scope en blijft geen blokkade (§216).
+
+Op `main` is daarnaast `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` toegevoegd. Dit document beschrijft relatieve soort-/uitkomstprioriteiten als kwalitatief kader; het activeert geen numerieke gewichten en wijzigt de bestaande runtime-score niet.
+
+De actuele PR-status, de oude meet-PR's #200/#209/#210, de divergente interval-outputbranch en de resterende eigenaarbeslissingen zijn vastgelegd in Fase-2-audit §217 en `PROJECT_WORK_QUEUE.md`. De eerstvolgende poort is eigenaarreview/disposition; geen nieuwe product-/modelrichting of architectuurwijziging wordt automatisch geïmplementeerd. Fase 2 blijft open; Fase 3 blijft geblokkeerd.

@@ -2,7 +2,8 @@
 
 **Doel:** operationele eerstvolgende taken vastleggen. Dit bestand vervangt geen productvisie, roadmap of audit; het verwijst naar de bestaande canonieke documenten.
 **Leidende repositorystatus:** actuele `main` en GitHub Actions.
-**Laatste bijgewerkte context:** 23 november 2026.
+**Main-snapshot (24 november 2026):** `496920d7ac698d3bd82dda2abf176b9fb9ceb4da`; Quality Gate-run [45259288513](https://github.com/sennzor-wq/Vislogboek/actions/runs/45259288513) is volledig `success`.
+**Laatste bijgewerkte context:** 24 november 2026.
 
 ## Algemene regels
 
@@ -29,7 +30,7 @@
 
 ## Eerstvolgende stap
 
-**Eigenaarbesluiten over de twee product-/modelkeuzes.** De technische Fase-2-werkpakketten WP18, WP23 en WP25 zijn gemerged naar `main`; WP19 is op besluit van de eigenaar buiten scope. De eerstvolgende stappen zijn de twee afzonderlijke product-/modelkeuzes hieronder. Geen nieuwe functionaliteit of biologische parameters worden zonder eigenaarbesluit toegevoegd.
+**Eigenaarreview en besluitpoort.** De technische Fase-2-werkpakketten WP18, WP23 en WP25 zijn gemerged naar `main`; WP19 is op besluit van de eigenaar buiten scope. De eerstvolgende actie is eigenaarreview van documentatie-PR #222 en een expliciete disposition van de legacy-meet-PR's #200, #209 en #210. De twee product-/modelkeuzes hieronder blijven daarnaast open. Geen nieuwe implementatie binnen deze onderwerpen zonder eigenaarbesluit. Zie audit §217.
 
 ## Afgeronde Fase-2-werkpakketten (status en bewijs)
 
@@ -119,14 +120,22 @@ De generieke habitatbewegingsengine is met synthetische invoer doorgerekend voor
 
 ## Openstaande eigenaarbeslissingen
 
-**Openstaande documentatie-PR — PR #222; eigenaarreview vereist:**
-- [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — Fase-2-audit en werkvoorraad; gemerged.
-- [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat; gemerged.
-- [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst; gemerged.
-- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix; gemerged via `e7c07267ccbed082eacb72862cfb00b7f2e568c3`.
-- [PR #222](https://github.com/sennzor-wq/Vislogboek/pull/222) — documentatie-update na merges WP18, WP23 en WP25; open, bijgewerkte Quality Gate vereist.
+**Documentatie-PR #222 — eigenaarreview vereist; niet gemerged:**
+- [PR #222](https://github.com/sennzor-wq/Vislogboek/pull/222) — synchronisatie van werkvoorraad en Fase-2-audit na de merges. Bij aanvang van deze update stond de PR-head op `8629d9b3fb3127cc5b3fed193d5e457d55d6fbd9`; de branch was 25 commits ahead en 2 behind `main`, met een mergeable diff van alleen documentatie. De volledige Quality Gate op die voorafgaande head is groen (run [45246013386](https://github.com/sennzor-wq/Vislogboek/actions/runs/45246013386)). Deze update voegt ook het bestaande verbeterplan toe; de nieuwe head moet zijn eigen Quality Gate doorlopen voordat de PR kan worden beoordeeld.
 
-Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/merge altijd actuele diff en Quality Gate.
+**Eerdere Fase-2-PR's — reeds gemerged:**
+- [PR #217](https://github.com/sennzor-wq/Vislogboek/pull/217) — Fase-2-audit en werkvoorraad; gemerged.
+- [PR #218](https://github.com/sennzor-wq/Vislogboek/pull/218) — thermische intervalkandidaat; gemerged (exacte merge- en CI-bewijzen in audit §208).
+- [PR #220](https://github.com/sennzor-wq/Vislogboek/pull/220) — feeding-incidence als afzonderlijke evidence-uitkomst; gemerged via `0f79840906c53d53985590a67d7045a6ed295f5c`.
+- [PR #221](https://github.com/sennzor-wq/Vislogboek/pull/221) — synthetische habitatbewegingsmatrix; gemerged via `e7c07267ccbed082eacb72862cfb00b7f2e568c3`.
+
+**Legacy open meet-PR's — eigenaar moet de actuele bestemming bepalen; niet automatisch mergen of sluiten:**
+- [PR #200](https://github.com/sennzor-wq/Vislogboek/pull/200) — documentatie over sessiegebonden metingen; open, 1 commit ahead / 89 behind `main`; alleen drie documentbestanden; oude Quality Gate-run [44735872012](https://github.com/sennzor-wq/Vislogboek/actions/runs/44735872012) was `success`, maar is geen controle op de huidige `main`.
+- [PR #209](https://github.com/sennzor-wq/Vislogboek/pull/209) — meetevents als array binnen een sessie; open, 1 commit ahead / 81 behind; oude Quality Gate-run [44745509641](https://github.com/sennzor-wq/Vislogboek/actions/runs/44745509641) faalde. De huidige `main` bevat al een sessiegebonden `WaterTemperatureMeasurement[]` en invoer-UI; de oudere branch is niet zonder volledige diff-review samen te voegen.
+- [PR #210](https://github.com/sennzor-wq/Vislogboek/pull/210) — aparte meeteventtabel met Dexie v6-migratie en backup-/verwijderintegratie; open, 7 commits ahead / 81 behind; oude Quality Gate-run [44747207595](https://github.com/sennzor-wq/Vislogboek/actions/runs/44747207595) was `success`, maar is geen controle op de huidige `main`. Deze tabelarchitectuur staat niet in de huidige `main` en verschilt van de bestaande sessie-array.
+- PR #209 en #210 zijn dus geen twee actuele groene kandidaten: ze zijn oud, verschillen in opslagmodel en vereisen eerst eigenaarreview. Details en broncontrole staan in audit §217.
+
+Geen PR mergen of sluiten zonder expliciete eigenaarstoestemming. Controleer vóór review/merge altijd de actuele diff en Quality Gate.
 
 **Product-/modelkeuzes die niet automatisch worden doorgevoerd:**
 - Of kwalitatieve voedingscontext (zonder numerieke bonus) zichtbaar moet worden in Prognose/VisCoach; de feeding-evidence-service is nog niet geïntegreerd.
@@ -138,6 +147,8 @@ Geen PR mergen zonder expliciete eigenaarstoestemming. Controleer vóór review/
 
 | Datum | Werkpakket | Gebeurtenis | Bewijs/status |
 |---|---|---|---|
+| 2026-11-23 | Soortspecifieke scoreprioriteiten | `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` toegevoegd aan `main` in commit `496920d7ac698d3bd82dda2abf176b9fb9ceb4da`; relatieve prioriteitsvolgorde, geen numerieke gewichten of runtimewijziging. | Main Quality Gate run [45259288513](https://github.com/sennzor-wq/Vislogboek/actions/runs/45259288513) groen. |
+| 2026-11-24 | Repo-/PR-statusaudit | Actuele `main`, alle open PR's, relevante branches en Quality Gates gecontroleerd; actuele eigenaarspoort en verouderde meet-PR's vastgelegd. | Fase-2-audit §217; geen runtimecode of gebruikersdata gewijzigd. |
 | 2026-11-23 | F2-WP17 | Scoresemantiek en intervalgereedheid onderzocht; vastgelegd in Fase-2-audit §206. | Documentatie gemerged via PR #217 (merge commit `99ae2d6895fe80c47c2fa9922769fb0efc2543c4`). |
 | 2026-11-23 | F2-WP18 | 60 synthetische soort-/weerscenario-combinaties met volledige 6×10-scorematrix, tijdvakscorepariteit voor alle 10 soorten, persoonlijke vangkans null zonder sessies, targetTime-, DST- en immutable-snapshotreplaytests; 221 kandidaatcontractchecks groen. | PR #218 gemerged naar `main` via `cb15aa395462284d3d3286d606ddd7781daf460a`; Quality Gate run [45206087992](https://github.com/sennzor-wq/Vislogboek/actions/runs/45206087992). |
 | 2026-11-23 | F2-WP20 | Read-only audit van alle 10 thermische profielen tegen de soortspecifieke registry-classificatie; geen numerieke parameter is als empirisch gevalideerd aangemerkt. | Fase-2-audit §210; geen runtimewijziging. |
