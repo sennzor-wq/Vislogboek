@@ -614,37 +614,37 @@ Deze matrix is voldoende om het V0.1-modelcontract concreet te maken, maar nog n
 
 | Veld / uitkomst | Schaal / type | Betekenis | V0.1-regel |
 |---|---|---|---|
-| Fysiologische activiteitspotentie | Bestaande schaal 1–10 | Relatieve thermische/fysiologische potentie; geen gemeten visbeweging, voedselopname of vangstkans | Bestaand \`activityScore\` blijft voorlopig compatibel. De uitleg wordt aangescherpt; de numerieke basis wordt per soortstatus gelabeld |
-| Voedings-/foerageeractiviteit | Zelfde relatieve schaal 1–10, nullable | Relatieve voedselopname-/foerageerrespons voor soort en tijdvak | Alleen numeriek wanneer een toegelaten soortspecifieke respons beschikbaar is; anders \`null\` met reden/status, nooit automatisch 5 |
+| Fysiologische activiteitspotentie | Bestaande schaal 1–10 | Relatieve thermische/fysiologische potentie; geen gemeten visbeweging, voedselopname of vangstkans | Bestaand `activityScore` blijft voorlopig compatibel. De uitleg wordt aangescherpt; de numerieke basis wordt per soortstatus gelabeld |
+| Voedings-/foerageeractiviteit | Zelfde relatieve schaal 1–10, nullable | Relatieve voedselopname-/foerageerrespons voor soort en tijdvak | Alleen numeriek wanneer een toegelaten soortspecifieke respons beschikbaar is; anders `null` met reden/status, nooit automatisch 5 |
 | Lokale aanwezigheid/habitat | Status/geschiktheid, later eventueel index | Lokale waarneming en/of geschiktheid van de locatie voor de soort | Gescheiden van activiteit; onbekend blijft onbekend. Geen afgeleide aanwezigheid uit een hoge activiteitsscore |
 | Empirische vangkans | Bestaande kans in %, nullable | Kans op minimaal één vangst binnen sessieduur en inspanning op basis van eigen/historische sessiegegevens | Bestaande empirische berekening blijft apart; nooit afleiden uit fysiologische of voedingsscore |
 
 ## 14.2 Compatibiliteit met bestaande typen
 
-- \`DayPrognosis.activityScore\` en \`TimeSlotAnalysis.activityScore\` blijven in V0.1 de compatibele fysiologische/thermische index op schaal 1–10.
-- De betekenis van \`activityScore\` mag niet stilzwijgend veranderen in "kans dat de vis aast" of "vangstkans".
+- `DayPrognosis.activityScore` en `TimeSlotAnalysis.activityScore` blijven in V0.1 de compatibele fysiologische/thermische index op schaal 1–10.
+- De betekenis van `activityScore` mag niet stilzwijgend veranderen in "kans dat de vis aast" of "vangstkans".
 - Nieuwe velden voor voedingsactiviteit worden optioneel toegevoegd aan dag- en tijdvakuitvoer, zodat oude opgeslagen snapshots zonder deze velden blijven lezen.
-- Een nieuw voedingsveld bevat minimaal: \`score: number | null\`, \`status\`, \`evidenceStatus\`, \`coverage\`, \`uncertainty\` en een factor-/redenlijst.
-- De bestaande \`personalCatchChance\` blijft uitsluitend empirisch. Bestaande persoonlijke vangstdata en hun onzekerheidsinterval worden niet samengevoegd met biologische indexen.
+- Een nieuw voedingsveld bevat minimaal: `score: number | null`, `status`, `evidenceStatus`, `coverage`, `uncertainty` en een factor-/redenlijst.
+- De bestaande `personalCatchChance` blijft uitsluitend empirisch. Bestaande persoonlijke vangstdata en hun onzekerheidsinterval worden niet samengevoegd met biologische indexen.
 - De bestaande 1–10-schaal blijft in de eerste implementatie behouden. Een eventuele migratie naar 0–100 vereist een aparte versie-/UI-beslissing en mag niet impliciet gebeuren.
 
 ## 14.3 Statuswaarden
 
 Voor iedere nieuwe uitkomst:
 
-- \`available\`: de noodzakelijke invoer en minimaal één toegelaten factor zijn beschikbaar.
-- \`provisional\`: er is een berekenbare uitkomst, maar één of meer belangrijke parameters zijn voorlopige modelkeuzes of contextueel overdraagbaar bewijs.
-- \`insufficient_evidence\`: voor deze soort/uitkomst bestaat nog geen passende numerieke responsbasis; score blijft \`null\`.
-- \`insufficient_input\`: passende respons bestaat, maar benodigde invoer ontbreekt of is onbetrouwbaar.
-- \`not_applicable\`: de uitkomst is voor deze prognoserun niet gevraagd of niet van toepassing.
+- `available`: de noodzakelijke invoer en minimaal één toegelaten factor zijn beschikbaar.
+- `provisional`: er is een berekenbare uitkomst, maar één of meer belangrijke parameters zijn voorlopige modelkeuzes of contextueel overdraagbaar bewijs.
+- `insufficient_evidence`: voor deze soort/uitkomst bestaat nog geen passende numerieke responsbasis; score blijft `null`.
+- `insufficient_input`: passende respons bestaat, maar benodigde invoer ontbreekt of is onbetrouwbaar.
+- `not_applicable`: de uitkomst is voor deze prognoserun niet gevraagd of niet van toepassing.
 
 Bewijsstatus en databeschikbaarheid zijn afzonderlijk: een nauwkeurig gemeten watertemperatuur maakt een voorlopige biologische curve niet automatisch sterk onderbouwd.
 
 ## 14.4 Dekking en onzekerheid
 
-- \`coverage\` beschrijft welk deel van de voor deze soort/uitkomst geselecteerde factoren met bruikbare invoer is berekend; het is geen bewijssterkte.
-- \`evidenceStatus\` beschrijft de kwaliteit/overdraagbaarheid van de biologische responsbasis.
-- \`uncertainty\` beschrijft onzekerheid in invoer en modelrespons; dit mag niet worden vervangen door alleen een dekkingspercentage.
+- `coverage` beschrijft welk deel van de voor deze soort/uitkomst geselecteerde factoren met bruikbare invoer is berekend; het is geen bewijssterkte.
+- `evidenceStatus` beschrijft de kwaliteit/overdraagbaarheid van de biologische responsbasis.
+- `uncertainty` beschrijft onzekerheid in invoer en modelrespons; dit mag niet worden vervangen door alleen een dekkingspercentage.
 - Ontbrekende factoren worden niet als neutraal ingevuld.
 - Actieve gewichten mogen alleen worden herschaald binnen een vooraf vastgelegde dekkingsregel. Bij ontbrekende kerninvoer of te lage dekking wordt geen numerieke score getoond.
 - Een score van 5 betekent een middenpositie binnen de expliciet gedefinieerde responsindex, niet "gemiddelde vangstkans" en niet "gemiddeld veel vis".
