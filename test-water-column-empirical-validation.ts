@@ -86,4 +86,17 @@ if (snapshotCreatedAfterMeasurement.evaluatedSampleCount !== 0 ||
     snapshotCreatedAfterMeasurement.exclusions.hindsightLeakage !== 1) {
   throw new Error('A snapshot created after the target measurement must be excluded even if its forecast timestamp is backdated.');
 }
+
+const forcingRetrievedAfterForecast = {
+  ...basePrediction,
+  asOf: '2026-05-31T12:02:00Z',
+};
+const lateForcingReport = evaluateWaterColumnEmpiricalValidation(
+  [session], [snapshot('late-forcing', forcingRetrievedAfterForecast)], [location]
+);
+if (lateForcingReport.evaluatedSampleCount !== 0 ||
+    lateForcingReport.exclusions.hindsightLeakage !== 1) {
+  throw new Error('Forcing retrieved after forecast/snapshot creation must be excluded, even when it predates the physical measurement.');
+}
+
 console.log('Water-column empirical validation tests passed.');
