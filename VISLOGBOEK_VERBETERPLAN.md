@@ -3073,3 +3073,29 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 - [x] Validatie koppelt een voorspelling met expliciete doelmeetdiepte alleen aan een meting op dezelfde diepte (tolerantie 0,2 m).
 - [x] TypeScript, volledige regressiesuite, productiebuild en private-artifactcontrole geslaagd: [Quality Gate run 45461359772](https://github.com/sennzor-wq/Vislogboek/actions/runs/45461359772), commit `a8711a5dcbf01af105b1c51367429f706bb89485`.
 - [ ] PR laten controleren; niet mergen zonder expliciete toestemming.
+
+## Nieuwe vervolgpunten — soortspecifiek habitat en ijswaarschuwing (24 november 2026)
+
+### Soortspecifiek habitat- en gedragsmodel — gepland vervolg fase 2
+De vijflaagse waterkolom is de gedeelde fysieke basis; de biologische interpretatie wordt per vissoort bepaald. De karper gebruikt de bodemtemperatuur op de geregistreerde stekdiepte, maar deze regel mag niet automatisch op andere soorten worden toegepast.
+
+Onderzoek en ontwerp per daadwerkelijk ondersteunde vissoort:
+- Waarschijnlijke diepte-/laagverdeling en seizoensverschuivingen.
+- Temperatuurvoorkeur en thermische grenzen, inclusief acclimatisatie en tijdsvertraging waar de literatuur dit ondersteunt.
+- Dag-/nacht- en lichtafhankelijk gedrag.
+- Habitatkenmerken zoals vegetatie, bodem, structuur, oeverzone en open water, uitsluitend wanneer de gegevens beschikbaar zijn.
+- Voedsel- en prooigedrag, migratie/verplaatsing en paaiperiodes waar relevant.
+- Zuurstof als mogelijke habitatbeperking; nooit uit temperatuur alleen afleiden. Zonder bruikbare zuurstofinvoer blijft dit expliciete onzekerheid.
+- Onderscheid tussen totale activiteit/voedingsactiviteit en de kans dat een soort zich in een bepaalde waterlaag of zone bevindt.
+
+Gebruik per soort een onderbouwde kansverdeling over de beschikbare waterlagen in plaats van één universele doeltemperatuur of diepte. De verdeling moet rekening houden met de werkelijke waterdiepte van de stek. Gebruik wetenschappelijke bronnen en noteer per parameter bron, toepassingsgebied, onzekerheid en ontbrekende lokale invoer. Geen arbitraire dieptedrempels of schijnprecisie. Eerst de bestaande soortcatalogus en engines auditen; pas daarna implementeren. De bestaande volume-gemiddelde fallback voor niet-karper blijft tijdelijk totdat een gevalideerd soortmodel beschikbaar is.
+
+### Mogelijke ijsvorming — latere VisCoach-waarschuwing
+Het waterkolommodel bevat al een ijsfase-/ijsdikteschatting. Later onderzoeken hoe deze uitvoer veilig kan worden vertaald naar een praktische melding bij kleine, stilstaande wateren:
+- Maak onderscheid tussen modelmatig mogelijke ijsvorming en daadwerkelijk waargenomen ijs; presenteer een schatting nooit als lokale observatie.
+- Neem waterbeweging, waterdiepte, weersverloop en modelonzekerheid mee; kleine stilstaande wateren kunnen eerder dichtvriezen dan diepe of stromende wateren.
+- Toon een korte waarschuwing in de VisCoach-welkomsttekst wanneer de kans op ijsvorming relevant is, bijvoorbeeld dat de stek mogelijk (gedeeltelijk) bevroren is en vissen daardoor lastig of niet mogelijk kan zijn.
+- Waarschuw niet op basis van alleen een luchttemperatuur onder nul; gebruik de fysieke water-/ijsuitvoer en duidelijke onzekerheidsgrenzen.
+- Dit is een latere UX-/integratiestap en mag de huidige PR #225 of lopende prognosewerkzaamheden niet blokkeren.
+
+**Prioriteit:** eerst PR #225 afronden via review en expliciet eigenaarbesluit; daarna fase 2-audit voortzetten met de soortcatalogus en bestaande habitat-/soortservices. IJswaarschuwing blijft geregistreerd als later verbeterpunt.
