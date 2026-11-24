@@ -2954,4 +2954,6 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 4. Onderzoek sedimentwarmteflux als aparte kandidaat, met een expliciete bodemtemperatuur-/sedimentprior en onzekerheidsanalyse; niet als verborgen correctiefactor.
 5. Vergelijk kandidaatvarianten chronologisch met onafhankelijke publieke meetreeksen en later met vrijwillige lokale metingen. Houd een blinde holdoutset apart; pas geen parameters aan op dezelfde meetpunten waarmee de nauwkeurigheid wordt gerapporteerd.
 
-**Status:** wetenschappelijke literatuurcontrole en aanvullende fysische invarianttests uitgevoerd. De openstaande processen zijn geregistreerd; ze zijn bewust niet met ongefundeerde parameters in de rekenkern geforceerd. Er is nog geen empirische nauwkeurigheidsclaim.
+**Validatie:** Quality Gate-run `45427223287` op commit `936a71119e7fa28a8847fbdcbf089fa3322e51db` is volledig geslaagd, inclusief TypeScript, alle bestaande regressietests, de uitgebreide waterkolom-invarianttests, empirische validatietests en productiebuild/private-artifactcontrole.
+
+**Status:** wetenschappelijke literatuurcontrole en aanvullende fysische invarianttests uitgevoerd en softwarematig gevalideerd. De openstaande processen zijn geregistreerd; ze zijn bewust niet met ongefundeerde parameters in de rekenkern geforceerd. Er is nog geen empirische nauwkeurigheidsclaim.
