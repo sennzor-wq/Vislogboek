@@ -762,6 +762,7 @@ export interface CachedWaterColumnWeatherSample {
   availableAt: string;
   airTemperatureC: number;
   windSpeedKmh?: number;
+  windDirectionDegrees?: number;
   shortwaveRadiationWm2?: number;
   cloudCoverPercent?: number;
   dewPointC?: number;
