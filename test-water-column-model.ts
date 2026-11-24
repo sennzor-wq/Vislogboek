@@ -56,5 +56,42 @@ const frozen = simulateWaterColumn({
 });
 assert(frozen.layers.every((layer) => layer.temperatureC >= 0) && frozen.iceThicknessM > 0,
   'Onderkoeling wordt als ijsfase verwerkt, niet als negatieve vloeibare temperatuur');
+
+
+// Scientific invariant sweep: test the complete freshwater density curve and
+// multiple seasonal/mixed profiles, not only one hand-picked overturn case.
+let maximumDensity = Number.NEGATIVE_INFINITY;
+let maximumDensityTemperature = 0;
+for (let step = 0; step <= 1000; step++) {
+  const temperature = step / 100;
+  const density = freshwaterDensityKgM3(temperature);
+  if (density > maximumDensity) {
+    maximumDensity = density;
+    maximumDensityTemperature = temperature;
+  }
+}
+assert(Math.abs(maximumDensityTemperature - 3.98) <= 0.02,
+  'Dichtheidsfunctie heeft haar maximum rond 3,98 °C over het volledige bereik 0–10 °C',
+  `maximum bij ${maximumDensityTemperature.toFixed(2)} °C`);
+
+const profileCases = [
+  [0, 8, 2, 12, 4],
+  [25, 18, 22, 9, 6],
+  [1, 3, 2, 4, 0.5],
+  [18, 4, 16, 7, 12],
+  [4, 4, 4, 4, 4],
+  [30, 25, 20, 15, 10],
+];
+for (const profile of profileCases) {
+  const mixed = mixConvectivelyUnstableLayers(profile);
+  const originalHeatProxy = profile.reduce((sum, value) => sum + value, 0);
+  const mixedHeatProxy = mixed.reduce((sum, value) => sum + value, 0);
+  const stableDensityOrder = mixed.slice(0, -1).every((value, index) =>
+    freshwaterDensityKgM3(value) <= freshwaterDensityKgM3(mixed[index + 1]) + 1e-7);
+  assert(mixed.length === profile.length && stableDensityOrder &&
+    Math.abs(originalHeatProxy - mixedHeatProxy) < 1e-8,
+    'Convectieve overturning behoudt warmte en eindigt stabiel voor profiel ' + profile.join('/'));
+}
+
 console.log(`Water-column MVP tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
