@@ -1256,46 +1256,34 @@ De intervaladapter bevat nu alleen segmentgrenzen, forecastdekking en afzonderli
 
 ## Actuele uitvoeringsstatus en eerstvolgende opdracht — 24 november 2026
 
-**Dit is het enige actieve hervattingspunt voor de huidige Fase-2-werkstroom.** Oudere "volgende stap"-vermeldingen in historische secties blijven bewaard als auditspoor, maar zijn geen parallelle opdrachten wanneer ze afwijken van deze actuele status.
+**Dit is het enige actieve hervattingspunt.** De eigenaar heeft de watertemperatuurverbetering expliciet vóór de resterende score-audit geplaatst. Oudere verwijzingen naar de score-audit als eerstvolgende taak zijn daarmee historisch; de audit is uitgesteld, niet geannuleerd.
 
-### Afgerond
+### Afgerond en bevestigd
+- De interval-outputcontracten en VisCoach-koppeling zijn uitgevoerd en eerder geregistreerd.
+- De geïntegreerde soortscore v1 is via PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) gemerged; mergecommit `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`.
+- De brede wetenschappelijke verkenning van het watertemperatuurmodel is gesloten: de basis voor oppervlaktewarmtebalans, verticale structuur, zoetwaterdichtheid, menging, ijs en initialisatie is voldoende.
+- De vijf ontwerpvervolgstappen zijn read-only uitgevoerd en in de sectie **Technisch ontwerp watertemperatuurmodel** hieronder vastgelegd: actuele codeketen, fysisch modelontwerp, databronvergelijking, validatieprotocol en besluit-/implementatiegrenzen.
+- De actuele `main`-baseline is commit `df4758ec196c7595ddc47664d451982bf3f7b314`. De daarop uitgevoerde Quality Gate run [45411964253](https://github.com/sennzor-wq/Vislogboek/actions/runs/45411964253) is geslaagd. Dit is bewijs voor die baseline, niet voor een nog niet uitgevoerde modelimplementatie.
 
-- De interval-outputcontracten en VisCoach-koppeling zijn uitgevoerd en in de eerdere secties van dit plan geregistreerd.
-- De operationele geïntegreerde soortscore v1 is geïmplementeerd via PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223).
-- PR #223 is gemerged op 24 november 2026. Mergecommit: `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`.
-- Quality Gate run [45379544577](https://github.com/sennzor-wq/Vislogboek/actions/runs/45379544577) op de exacte PR-head is geslaagd.
-- De actuele architectuur en soortspecifieke score-documenten beschrijven de operationele v1. De oude status "PR #223 open/niet gemerged" in eerdere uitvoeringsnotities is achterhaald en wordt door de gedateerde correctie in `FASE2_UITVOERINGSRESULTATEN.md` vervangen.
+### Huidige prioriteit — watertemperatuurmodel
+De eerstvolgende werkstroom is het afronden en laten beoordelen van het technische ontwerp voor de bestaande `waterThermalEngine`. De voorgestelde architectuur is één verticale 1D-waterkolom met fysische warmtebalans, dichtheidsafhankelijke stratificatie, menging en ijsfase. De exacte implementatieparameters en bronintegratie zijn nog niet goedgekeurd.
 
-### Huidige modelgrenzen
+### Uitgestelde werkstroom
+De read-only audit van de scoreberekening en voedingsdriverdekking blijft uitgesteld. Deze wordt pas hervat nadat het watertemperatuurwerk de afgesproken ontwerp-/implementatiepoort heeft bereikt, of wanneer de eigenaar de prioriteit expliciet wijzigt. De bestaande scoreformule, gewichten en soortrespons blijven buiten de huidige ontwerpwerkstroom.
 
-- Eén bestaande geïntegreerde score van 1–10 voor de dag en de vier tijdvakken.
-- Fysiologische en voedings-/foerageerrespons blijven afzonderlijk berekend en uitlegbaar.
-- De 50/50-combinatie en actieve profielwaarden zijn voorlopige operationele startwaarden, geen bewezen biologische verhouding of empirisch gefitte parameters.
-- Onbekende drivers worden niet als nul of neutraal ingevuld; de oorspronkelijke driverdekking blijft zichtbaar.
-- Lokale aanwezigheid/habitat en persoonlijke empirische vangkans blijven afzonderlijke uitkomsten.
-- Prognose berekent; VisCoach vertaalt uitsluitend naar tactiek en advies.
+### Eerstvolgende opdracht
+Leg het ontwerp ter beoordeling aan de eigenaar voor. Verwerk eventuele feedback in ditzelfde centrale plan. Pas na expliciete goedkeuring van de modelarchitectuur, uitvoerscope en databronstrategie mag een afgebakend implementatievoorstel worden gestart.
 
-### Eerstvolgende opdracht — read-only audit van scoreberekening en datadekking
+### Stop-/goedkeuringspoort
+Tot expliciete goedkeuring blijven runtimecode, tests, parameters, formules, database, UI, databronintegraties, data-imports, externe aanvragen, accounts/secrets en deployment ongewijzigd. De ontwerpdocumentatie is geen impliciete toestemming om een van deze zaken uit te voeren.
 
-Controleer de actuele code op `main` en leg in `FASE2_PROGNOSE_AUDIT.md` vast:
+### Relevante openstaande PR's op 24 november 2026
+- PR [#222](https://github.com/sennzor-wq/Vislogboek/pull/222): documentatie-/Fase-2-auditwerk; open en niet gemerged.
+- PR [#209](https://github.com/sennzor-wq/Vislogboek/pull/209) en [#210](https://github.com/sennzor-wq/Vislogboek/pull/210): twee verschillende voorstellen voor sessiegebonden temperatuurmetingen; beide open en niet gemerged. Niet als actuele `main`-implementatie behandelen en niet parallel voortzetten zonder expliciete keuze.
+- PR [#200](https://github.com/sennzor-wq/Vislogboek/pull/200): ouder documentatievoorstel; open en niet gemerged.
+De technische analyse in deze sessie is uitsluitend gebaseerd op actuele `main`, niet op code uit deze PR-branches.
 
-1. De exacte rekenketen van soortprofielen en voedingsrespons tot de bestaande tijdvakscore en dagscore.
-2. Hoe de 50/50-combinatie omgaat met ontbrekende fysiologische of voedingsrespons.
-3. Hoe de lage bekende voedingsdriverdekking (momenteel 35–45%) doorwerkt in de voedingsrespons én in de geïntegreerde score.
-4. Of de zichtbare dekking en onzekerheid voldoende duidelijk gescheiden zijn van de score zelf.
-5. Per vissoort waar dezelfde regels gelden en waar profiel-/dataverschillen een andere uitkomst geven.
-
-**Acceptatiecriteria voor deze opdracht:**
-- Read-only: geen runtimecode, tests, scoreformule, gewichten, parameters, database of UI aanpassen.
-- Alle bevindingen zijn herleidbaar naar actuele code en bestaande tests.
-- Onderscheid maken tussen softwarematig correct gedrag, modelmatige beperking en biologische onzekerheid.
-- Geen nieuwe factor of weging voorstellen alsof die al is goedgekeurd.
-- Lever een korte bevindingenlijst met concrete impact en eventueel een voorkeursadvies.
-
-**Stop-/goedkeuringspoort:** na deze audit stopt het werk. Rapporteer de bevindingen en eventuele wijzigingsvoorstellen aan de eigenaar. Pas scoreformule, gewichten, parameters of UI pas aan na expliciete goedkeuring. Geen andere Fase-2-taak tussendoor starten.
-
-Fase 2 blijft open en Fase 3 geblokkeerd totdat de formele acceptatiecriteria aantoonbaar zijn gehaald.
-
+Fase 2 blijft open. Fase 3 blijft geblokkeerd totdat de actuele fasepoorten formeel zijn gehaald.
 
 ---
 
@@ -2412,3 +2400,252 @@ De volgende stap is niet verder breed zoeken, maar een concreet technisch ontwer
 **Nog niet uitgevoerd:** geen modelontwerp tot implementatie vertaald, geen code/types/database/UI/formules/parameters gewijzigd, geen externe databron aangesloten, geen meetbestanden geïmporteerd, geen tests of productiebuild uitgevoerd, geen scoreberekening aangepast en geen deployment uitgevoerd. De scoreberekeningsaudit blijft uitgesteld.
 
 **Besluit:** ga nu door naar de concrete technische ontwerpfase voor het verbeterde watertemperatuurmodel. De implementatiebesluitpoort blijft gesloten totdat het ontwerp en de wijzigingsscope aan de producteigenaar zijn voorgelegd en expliciet zijn goedgekeurd.
+
+
+---
+
+## Technisch ontwerp watertemperatuurmodel — 24 november 2026
+
+**Status:** read-only ontwerpvoorstel; wacht op beoordeling en expliciete eigenaarstoestemming.  
+**Broncodebaseline:** `main` op `df4758ec196c7595ddc47664d451982bf3f7b314`.  
+**Scope:** één bestaande thermische engine verbeteren voor stilstaand, zoet, buitenwater. Geen tweede engine en geen wijzigingen aan biologische gewichten of scoreformules in deze ontwerpfase.
+
+### 1. Uitkomst van de actuele code-audit
+
+Actueel gecontroleerd:
+- `src/services/waterThermalEngine.ts`
+- `src/services/waterTemperatureHistory.ts`
+- `src/services/prognosisEngine.ts`
+- `src/services/weatherService.ts`
+- `src/types/index.ts`
+- `test-water-temperature-synthetic-validation.ts`
+
+Bevestigde aansluitpunten en beperkingen:
+
+1. `analyzeWaterThermalDevelopment` is de bestaande thermische ingang. De functie ontvangt stek, sessies, historische metingen, weersamples, optionele `targetTime`, `forecastAsOf` en `measurementDepthM`. Behoud deze publieke ingang waar mogelijk als compatibiliteitslaag.
+2. `WaterTemperatureMeasurement` bewaart meetwaarde, fysiek meetmoment, registratiemoment, bron, methode, optionele meetdiepte en eventueel gekoppelde weercontext. `FishingSession` ondersteunt een lijst met meetgebeurtenissen. De historische profielservice selecteert echte metingen en houdt bekende meetdieptes gescheiden.
+3. De prognose-aanroep in `calculateDayPrognosis` geeft momenteel geen `measurementDepthM` door aan de thermische engine. De diepteoptie bestaat dus op engine-niveau, maar is niet volledig aangesloten op de actuele prognoseketen.
+4. De thermische toestand is nu één scalar. Diepte beïnvloedt vaste responscategorieën/tijdconstanten; er bestaat geen berekende verticale temperatuurkolom.
+5. De huidige schatting gebruikt onder meer luchttemperatuurvensters, een beperkte zoncorrectie en windcategorieën. Langgolvige straling en voelbare/latente warmtefluxen worden niet als volledige energiebalans doorgerekend.
+6. De huidige code bevat geen dichtheidsanomalie rond 4 °C, geen expliciete convectieve omkering en geen ijs-/latente-warmtefase. Een negatieve modelschatting kan daardoor ontstaan; de bestaande post-hoc lokale kalibratie kan de uitkomst verder verlagen zonder fysische fasecontrole.
+7. `forecastAsOf` wordt genormaliseerd en gerapporteerd. De thermische engine begrenst de weersamples zelf niet op basis van het moment waarop de data beschikbaar kwam. De prognose-engine controleert wel een ongeldige/toekomstige ophaaltijd, maar dit is nog geen volledig bronbewust as-of-contract.
+8. De huidige weerophaalroute via Open-Meteo bevat drie dagen recente historie en acht dagen verwachting. Dat is onvoldoende voor een betrouwbare absolute beginconditie van een diepe waterkolom.
+9. De bestaande synthetische validatie gebruikt een onafhankelijk eerste-orde referentiemodel met een ingestelde tijdconstante. Dat is nuttig voor regressiecontrole, maar geen empirische validatie van echte meren of winter-/zomerstratificatie.
+10. De thermische uitkomst voedt in `prognosisEngine.ts` de bestaande soortspecifieke thermische efficiëntie. De biologische curve/formule hoeft niet te veranderen, maar een verbeterde temperatuur kan vanzelfsprekend wel de numerieke fysiologische respons en daarmee de geïntegreerde score veranderen. Dit is een gevolg van een andere invoer, geen wijziging van scoregewichten.
+
+### 2. Voorgestelde architectuur
+
+#### 2.1 Eén bestaande engine, intern opgesplitst in heldere rekenlagen
+
+Behoud `waterThermalEngine.ts` als bestaande publieke ingang en compatibiliteitslaag. Laat deze uiteindelijk één deterministische simulatie aanroepen. Geen concurrerende engine en geen dubbele bron van waarheid.
+
+Voorgestelde interne verantwoordelijkheden:
+- meteorologische invoer normaliseren en valideren;
+- beginprofiel initialiseren of reconstrueren;
+- oppervlaktefluxen berekenen;
+- verticale warmteoverdracht en menging berekenen;
+- dichtheidsstabiliteit en convectie bepalen;
+- ijsvorming/smelting en isolatie verwerken;
+- uitvoer op doel- en referentiedieptes afleiden;
+- onzekerheid, bronherkomst en modelstatus samenstellen.
+
+#### 2.2 Meteorologische forcing als bronbewust contract
+
+Elke uurlijkse sample moet ten minste bevatten:
+- UTC-tijdstip van de meteorologische waarneming/verwachting;
+- bron en bron-/modelversie indien beschikbaar;
+- ophaal-/publicatietijd en moment waarop de sample beschikbaar kwam;
+- luchttemperatuur;
+- windsnelheid en -richting of windvector, met bekende meet-/modelhoogte;
+- relatieve luchtvochtigheid en/of dauwpunt;
+- inkomende kortgolvige zonnestraling;
+- inkomende langgolvige straling, of expliciet gemarkeerd als afgeleid;
+- bewolking;
+- neerslag en, waar beschikbaar, sneeuw.
+
+Eenheden worden vóór de fysische berekening genormaliseerd. Geaccumuleerde stralingsenergie mag niet als momentane W/m² worden behandeld. Ontbrekende variabelen blijven ontbrekend; geen stilzwijgende nulwaarden of verzonnen gemiddelden. Afgeleide langgolvige straling krijgt een eigen herkomst en onzekerheidsbijdrage.
+
+Het as-of-contract moet twee tijden onderscheiden:
+- `targetTime`: het fysieke moment waarvoor de watertoestand wordt berekend;
+- `forecastAsOf`/data-available-at: het moment waarop de gebruikte weerinformatie daadwerkelijk beschikbaar was.
+
+Voor iedere prognoserun geldt dat geen sample of meetwaarde mag worden gebruikt die na de relevante beschikbaarheidsgrens bekend werd. Historische reanalyse mag worden gebruikt voor retrospectieve fysische validatie, maar niet worden voorgesteld als informatie die bij een historische operationele prognose al beschikbaar was.
+
+#### 2.3 Verticale waterkolom — finite-volume benadering
+
+Gebruik een 1D verticale kolom van wateroppervlak tot bodem, verdeeld in rekenvolumes. Per volume worden ten minste bijgehouden:
+- boven- en onderdiepte en laagdikte;
+- vloeibare watertemperatuur;
+- warmte-inhoud/thermische capaciteit;
+- temperatuurafhankelijke dichtheid;
+- eventuele ijs-/fasefractie waar fysisch relevant.
+
+Een fijnere resolutie nabij het oppervlak kan nodig zijn om snelle oppervlaktedynamiek te representeren; diepere lagen kunnen dikker zijn. Het aantal en de dikte van de cellen worden niet vooraf als willekeurig productgetal vastgezet. Kies de resolutie via grid-convergentietests: verdere verfijning mag de relevante dieptetemperaturen niet betekenisvol veranderen ten opzichte van de afgesproken numerieke tolerantie.
+
+De uitvoer op een willekeurige gevraagde diepte volgt uit interpolatie tussen aangrenzende cellen, niet uit het selecteren van een willekeurige laag.
+
+#### 2.4 Oppervlakte-energiebalans
+
+Gebruik een expliciete netto-oppervlaktewarmteflux met afzonderlijke componenten:
+- geabsorbeerde kortgolvige zonnestraling;
+- inkomende en uitgaande langgolvige straling;
+- voelbare warmte-uitwisseling tussen lucht en water;
+- latente warmteflux door verdamping/condensatie;
+- neerslag-/sneeuwbijdrage wanneer temperatuur en fase voldoende bekend zijn.
+
+De fluxcomponenten moeten apart worden gelogd voor controle en validatie. De zonnestraling kan met een diepte-afhankelijke extinctie over de waterkolom worden verdeeld. Omdat waterhelderheid nu niet als betrouwbare invoer aanwezig is, moet die parameter als onzeker worden behandeld; geen vaste helderheid presenteren als lokale meting.
+
+Wanneer langgolvige straling niet direct beschikbaar is, mag een gedocumenteerde schatting worden gebruikt met een grotere onzekerheidsbijdrage. Het model mag die ontbrekende component niet als nul behandelen.
+
+#### 2.5 Dichtheid, zomer- en winterstratificatie
+
+Gebruik een gevalideerde temperatuur-dichtheidsrelatie voor zoet water binnen het relevante temperatuurbereik, met maximale dichtheid rond 4 °C.
+
+Dezelfde fysica moet beide stabiele regimes kunnen produceren:
+- zomer: relatief warm, lichter oppervlaktewater boven koeler, dichter dieper water;
+- winter: water kouder dan circa 4 °C kan boven water rond 4 °C blijven.
+
+Convectieve menging wordt bepaald uit een fysisch instabiel dichtheidsprofiel en moet interne warmte behouden. Windmenging wordt gekoppeld aan windstress en de stabiliteit van de waterkolom; een sterkere stabiele stratificatie moet meer mengenergie vragen dan een gemengde kolom. Een simpele vaste kalenderregel voor omslag is niet toegestaan.
+
+De precieze turbulentie-/mengparameterisatie is een modelparameter en moet met profieldata en gevoeligheidsanalyse worden onderbouwd. Wind alleen bepaalt de mengdiepte niet: waterdiepte, stratificatie en ontbrekende fetch-/oevergeometrie blijven relevante onzekerheden.
+
+#### 2.6 Bodem, stroming en waterregime
+
+De eerste nauwkeurigheidsclaim blijft beperkt tot stilstaand of nagenoeg stilstaand zoet buitenwater. Onbekende instroom, uitstroom en advectie mogen niet worden genegeerd en tegelijk als nauwkeurig gemodelleerd worden gepresenteerd.
+
+Bodemwarmte-uitwisseling is relevant, vooral in ondiep water. Neem deze pas als gekwantificeerde flux op wanneer bodem-/sedimentinformatie of een gevalideerde begrensde parameterisatie beschikbaar is. Anders wordt de grensvoorwaarde expliciet vastgelegd en als onzekerheidsbron gerapporteerd.
+
+Kanaal, rivier, haven en andere duidelijk stromende wateren vallen buiten de eerste nauwkeurigheidsclaim. Bij onduidelijk waterregime wordt de modelstatus onzeker/buiten scope; een waterType-label alleen bewijst niet dat een plas volledig stilstaand is.
+
+#### 2.7 IJs en faseovergang
+
+Behandel het water als een faseovergangsprobleem:
+- vloeibaar zoet water wordt niet als gewone vloeistof onder het vriespunt gerapporteerd;
+- bij het bereiken van de vriesconditie gaat verdere energieonttrekking naar latente warmte/ijsaanwas;
+- ijsdikte en eventuele sneeuwlaag isoleren de vloeibare waterkolom;
+- bij dooi wordt latente warmte voor smelten verwerkt.
+
+Een simpele numerieke clamp op -0,1 °C is niet voldoende: het model moet onderscheid maken tussen vloeibaar water, ijsdek en eventuele gemengde overgangstoestand. Als de beschikbare gegevens geen betrouwbare ijsstatus ondersteunen, moet de uitvoer dat expliciet melden.
+
+#### 2.8 Beginconditie en spin-up
+
+Gebruik geen willekeurige vaste starttemperatuur als absolute waarheid.
+
+Initialisatievolgorde:
+1. Lokaal verticaal profiel met tijd, diepte, methode en bron: initialiseer de overeenkomstige lagen.
+2. Eén lokale meting op bekende diepte: anker die diepte; overige lagen blijven onzeker.
+3. Eén lokale meting zonder diepte: niet stilzwijgend aan een willekeurige laag koppelen. Behandel dit als een diepte-ambigu observatie met beperkte profielinformatie.
+4. Geen lokale meting: voer historische weersforcing door meerdere plausibele startprofielen.
+
+De eerder vastgelegde 30/90/180/365 dagen blijven experimentvensters, geen productieparameter. Test ook langere spin-up als de diepe laag niet convergeert. Convergentie wordt beoordeeld tussen verschillende beginprofielen op de relevante dieptes én op de profielstructuur. Als de uitkomsten niet voldoende convergeren, blijft de absolute temperatuur onbetrouwbaar en wordt dat in de status zichtbaar.
+
+#### 2.9 Uitvoercontract en aansluiting
+
+Behoud de bestaande `WaterThermalAnalysis`-velden waar mogelijk voor compatibiliteit, maar breid het conceptuele contract uit met:
+- temperatuurprofiel per diepte-interval;
+- oppervlakte-, bodem- en volumegewogen bulktemperatuur;
+- doel-/meetdiepte waarop de gerapporteerde scalar betrekking heeft;
+- vloeibaar/ijsstatus;
+- onzekerheidsbijdragen (forcing, beginprofiel, meng-/optische parameters, meetkwaliteit);
+- modelstatus (bijvoorbeeld gemeten, convergent geschat, niet geconvergeerd, onvoldoende invoer of buiten scope);
+- volledige bron- en tijdstempelherkomst.
+
+**Voorgestelde betekenis voor de bestaande scalar:** als expliciete doel-/visdiepte beschikbaar is, rapporteert de doeltemperatuur die diepte. Als die ontbreekt, is een volumegewogen bulktemperatuur de aanbevolen compatibele scalar; deze mag niet als oppervlaktetemperatuur of temperatuur op een onbekende visdiepte worden benoemd. Oppervlakte- en bodemtemperatuur blijven afzonderlijke profielvelden. Dit is een ontwerpkeuze ter goedkeuring, geen reeds geïmplementeerde wijziging.
+
+De huidige prognoseketen moet de beschikbare meetdiepte expliciet doorgeven. Het bestaande meetevent-/historiepad blijft leidend; geen dubbele meetopslag. Of een volledig profiel ook in iedere onveranderlijke prognosesnapshot wordt opgeslagen, moet vóór implementatie worden afgewogen tegen opslagomvang en reproduceerbaarheid. De bestaande snapshot bewaart al weersinvoer en scalar temperatuurvalidatievelden.
+
+#### 2.10 Kalibratie en biologische scoregrens
+
+De bestaande lokale temperatuurkalibratie is een post-hoc correctie op de scalar. Deze moet opnieuw worden beoordeeld tegen de fysieke toestand: een biascorrectie mag geen vloeibaar water onder het vriespunt of een onmogelijke fase opleveren. Voorkeur is kalibratie te valideren als correctie op modelbias/fluxen of als begrensde observatiecorrectie mét fysische fasecontrole; niet blind een temperatuurwaarde aftrekken.
+
+De bestaande soortcurves, fysiologische responsformule, voedingsrespons, 50/50-combinatie en geïntegreerde scoregewichten blijven ongewijzigd. Let op: als de nieuwe temperatuur als invoer van de bestaande thermische respons wordt gebruikt, kan de numerieke score wel veranderen doordat de temperatuurinvoer beter/anders is. Een volledige bevriezing van score-uitkomsten zou betekenen dat de nieuwe temperatuur eerst alleen als afzonderlijke modeluitvoer wordt getoond en nog niet in de bestaande respons wordt ingevoerd. Dit onderscheid moet vóór implementatie expliciet worden goedgekeurd.
+
+### 3. Databronbesluit — voorkeursrichting, nog niet aangesloten
+
+| Bron | Beoordeling | Voorgestelde rol |
+|---|---|---|
+| KNMI uurlijkse stationswaarnemingen | Echte lokale/regiometingen met luchttemperatuur, dauwpunt, vochtigheid, wind, bewolking, neerslag en globale straling. Dataset vermeldt CC BY 4.0. API-toegang vereist een API-key en is bestand-/tijdstipgericht. Stationafstand en variabeledekking moeten per stek worden gecontroleerd. | Onafhankelijke Nederlandse waarnemingsreferentie; eventueel forcing als nabijgelegen station voldoende representatief is. |
+| ERA5-Land | Uurlijkse reanalyse vanaf 1950 op 0,1° raster. Bevat 2m-temperatuur, dauwpunt, windcomponenten, neerslag en neerwaartse korte- en langgolvige straling. Ongeveer vijf dagen vertraging; straling is geaccumuleerd en vereist correcte de-accumulatie. Geen lokale meting. | Voorkeurskandidaat voor lange historische spin-up, na controle tegen KNMI-waarnemingen. |
+| Bestaande Open-Meteo-route | Al geïntegreerd en locatiegericht; huidige forecastaanvraag heeft drie dagen recente historie en acht dagen vooruit. De huidige types bevatten kortgolvige straling, dauwpunt, vochtigheid, wind en bewolking, maar geen expliciete langgolvige straling. | Voorlopig behouden voor korte actuele/toekomstige forcing; niet als enige bron voor de absolute beginconditie. |
+
+Bronnen:
+- KNMI uurlijkse automatische stationswaarnemingen en variabelen: https://dataplatform.knmi.nl/dataset/docs/hourly-in-situ-meteorological-observations-1-0
+- KNMI dataset en CC BY 4.0: https://dataplatform.knmi.nl/dataset/hourly-in-situ-meteorological-observations-1-0
+- KNMI Open Data API en API-keyvereiste: https://developer.dataplatform.knmi.nl/open-data-api
+- ERA5-Land product guide, uurlijkse resolutie, 0,1° raster, historische dekking en vertraging: https://confluence.ecmwf.int/pages/viewpage.action?pageId=576394633
+- ERA5-Land variabelen en stralingsconversie: https://developers.google.com/earth-engine/datasets/catalog/ECMWF_ERA5_LAND_HOURLY
+
+**Voorkeursrichting:** ERA5-Land voor historische spin-up, KNMI voor onafhankelijke validatie en waar mogelijk lokale waarnemingsforcing, Open-Meteo voor de bestaande korte prognosehorizon. Dit is een architectuuradvies, geen definitieve integratiekeuze. Er is nog geen API-key aangevraagd, account aangemaakt, data opgevraagd of geïmporteerd. Voor implementatie moet ook de recente periode worden gecontroleerd op een mogelijke overgangskloof tussen de ERA5-Land-vertraging en de korte Open-Meteo-historie.
+
+### 4. Validatieprotocol
+
+#### 4.1 Fysische invarianten — eerst synthetisch
+
+| Testgroep | Vereiste uitkomst |
+|---|---|
+| Energiebalans | Verandering van totale warmte-inhoud sluit aan op geïntegreerde grensfluxen; interne menging creëert of vernietigt geen warmte. |
+| Dichtheidsanomalie | Zoetwaterdichtheid heeft een maximum rond 4 °C; stabiliteit wordt correct beoordeeld aan beide kanten daarvan. |
+| Zomerstratificatie | Opwarming kan een lichtere warme bovenlaag boven koeler dieper water vormen en behouden. |
+| Winterinversie | Water kouder dan 4 °C kan stabiel boven dieper, warmer water blijven. |
+| Convectie | Afkoeling richting 4 °C kan dichter oppervlaktewater laten zinken; verdere afkoeling onder 4 °C mag niet met dezelfde dichtheidsrichting worden behandeld. |
+| Windmenging | Meer mengenergie verzwakt een bestaande gradiënt; de totale warmte blijft behouden. |
+| Overgang/seizoensomslag | Lente-/herfstomslag volgt uit forcing en stabiliteit, niet uit vaste kalenderregels. |
+| IJs | Geen negatieve vloeibare watertemperatuur; latente warmte en isolatie beïnvloeden ijsaanwas en dooi. |
+| Diepte-uitvoer | Interpolatie op bekende meetdieptes is reproduceerbaar; dieptes buiten de waterkolom worden afgewezen of als onbekend gemarkeerd. |
+| Beginconditie | Verschillende plausibele startprofielen convergeren waar voldoende spin-up beschikbaar is; anders wordt de schatting als niet-convergent/onbetrouwbaar gemarkeerd. |
+| As-of | Een sample, meting of reanalysebestand dat niet beschikbaar was op het prognosemoment verandert de historische operationele prognose niet. |
+
+Numerieke toleranties voor energiebalans en gridconvergentie worden bepaald uit de gekozen solver/tijdstap en verfijningsproeven, niet willekeurig ingevuld.
+
+#### 4.2 Empirische validatie — gescheiden naar watertype
+
+- **Ondiep gemengd:** Mooij et al. (2008) en geschikte lokale meetreeksen voor bulktemperatuur en lucht-waterrespons.
+- **Zomerprofiel/thermocline:** European Multi Lake Survey (EMLS) als eerste reproduceerbare profielvorm-test; EDI 705 als aanvullende kandidaat na licentie-/downloadcontrole.
+- **Diepe Nederlandse plas:** Klinkenbergerplas-rapport als inhoudelijke referentie; ruwe tijd-/dieptebestanden zijn nog niet verkregen en vereisen een aparte toestemming voor aanvraag.
+- **Verticale tijdsdynamiek:** RWS Marker Wadden-meetpaal met twee meetniveaus als aanvullende stress-/mengingsreferentie; niet zonder meer representatief voor stilstaande vijvers.
+- **Stromend water:** Deltares/RWS uitsluitend als buiten-scope stresstest; niet gebruiken om nauwkeurigheid voor stilstaande vijvers te claimen.
+
+**Bekende leemte:** nog geen bevestigde open Nederlandse wintertijdreeks met meerdere gelijktijdige dieptes in stilstaand zoet water plus ijswaarnemingen. Winterinversie en ijs krijgen daarom eerst sterke fysische/synthetische invarianttests; empirische wintervalidatie blijft expliciet open.
+
+#### 4.3 Maatstaven en rapportage
+
+Rapporteer minimaal:
+- MAE, RMSE en gemiddelde bias in °C;
+- fout per diepte, seizoen, diepteklasse en gemengd/gestratificeerd regime;
+- fout op dezelfde meetdiepte als de referentiemeting;
+- dekking van de voorspelde onzekerheidsintervallen;
+- vergelijking met de huidige engine als baseline op exact dezelfde meetmomenten;
+- resultaten op meren/perioden die niet zijn gebruikt voor parameterkeuze of kalibratie.
+
+Synthetische tests bewijzen fysische randgevallen en softwaregedrag, geen praktijknauwkeurigheid. Geen algemene nauwkeurigheidsgarantie afleiden uit één dataset of één waterlichaam. Acceptatiedrempels worden pas vastgesteld nadat de beschikbare datasets, dieptes, kwaliteitscodes en steekproefomvang zijn geverifieerd.
+
+### 5. Afgebakende implementatievolgorde na goedkeuring
+
+1. Leg de invoer-/uitvoercontracten en modelstatussen definitief vast.
+2. Bouw de pure verticale solver en afzonderlijke fysische componenten binnen de bestaande thermische engine.
+3. Voeg fysische unit-/invarianttests toe voordat de prognoseketen wordt aangepast.
+4. Voeg de historische forcing-/spin-upadapter toe na definitieve bron- en toegangsgoedkeuring.
+5. Sluit lokale meetevents en meetdiepte aan; behoud bestaande historie en provenance.
+6. Sluit de nieuwe uitvoer aan op dag- en tijdvakprognoses met expliciete as-of-grenzen.
+7. Herbeoordeel lokale kalibratie en de betekenis van de bestaande scalar.
+8. Voer volledige regressies, typecheck, Quality Gate en productiebuild uit; inspecteer de volledige diff en documenteer beperkingen.
+9. Vergelijk met empirische meetreeksen; markeer praktijkvalidatie apart van synthetische teststatus.
+
+### 6. Open besluiten vóór implementatie
+
+1. **Scalar zonder doel-/visdiepte:** akkoord op volumegewogen bulktemperatuur als bestaande compatibele scalar, met afzonderlijke oppervlakte-/bodemtemperatuur en profiel? Voorkeursadvies: ja.
+2. **Scorekoppeling:** mag de nieuwe temperatuur direct de bestaande soortspecifieke thermische respons voeden (formule/gewichten ongewijzigd, numerieke score kan veranderen), of moet de nieuwe temperatuur eerst los van de score zichtbaar worden? Voorkeursadvies: eerst fysische temperatuuruitvoer valideren; daarna gecontroleerd aansluiten.
+3. **Waterregime:** welke bestaande watertypes mogen onder de eerste stilstaand-zoetwaterclaim vallen? Bij twijfel moet de status onzeker/buiten scope blijven; geen stromingsaanname op basis van alleen een naam.
+4. **Databronnen:** akkoord op ERA5-Land als spin-upkandidaat, KNMI als onafhankelijke waarnemingsreferentie en Open-Meteo voor de prognosehorizon? Externe aansluiting blijft apart goedkeuringsplichtig.
+5. **Kalibratie:** bestaande post-hoc seizoenscorrectie pas opnieuw activeren nadat fysische fasebegrenzing en dieptevergelijking aantoonbaar zijn getest.
+
+### 7. Uitgevoerde werkzaamheden en grenzen
+
+- De actuele codeketen, bestaande types, weerinvoer, meetgeschiedenis en relevante synthetische test zijn read-only geïnspecteerd.
+- De databronnen zijn op documentatie-/metadata-niveau vergeleken; er zijn geen datasets gedownload of API's bevraagd.
+- Het technische ontwerp, de validatiematrix en open besluiten zijn in dit centrale plan vastgelegd.
+- Geen runtimecode, tests, formules, gewichten, parameters, database, UI of gebruikersdata gewijzigd.
+- Geen tests of productiebuild uitgevoerd voor een modelwijziging; er is immers geen modelcode gewijzigd.
+- Geen externe aanvraag, API-integratie, account, secret of deployment uitgevoerd.
+
+**Huidige status:** ontwerpvoorstel gereed voor eigenaarreview. Implementatiebesluitpoort blijft gesloten. De scoreberekeningsaudit blijft uitgesteld.
