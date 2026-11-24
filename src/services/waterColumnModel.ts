@@ -100,7 +100,10 @@ export function calculateWindMixingExchangeFraction(
 ): number {
   const availableWork = Number.isFinite(windWorkJm2) ? Math.max(0, windWorkJm2) : 0;
   const barrier = Number.isFinite(buoyancyBarrierJm2) ? Math.max(0, buoyancyBarrierJm2) : 0;
-  const energyLimitedFraction = barrier <= 1e-9 ? 0.12 : 0.5 * availableWork / barrier;
+  const energyRatio = barrier <= 1e-9 ? 1 : clamp(availableWork / barrier, 0, 1);
+  // For two equal layers, exchanged fraction q consumes the fraction
+  // 4q(1-q) of the full homogenisation potential-energy barrier.
+  const energyLimitedFraction = 0.5 * (1 - Math.sqrt(1 - energyRatio));
   return clamp(0.001 + energyLimitedFraction, 0.001, 0.12);
 }
 
@@ -282,7 +285,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
         freshwaterDensityKgM3(temperatures[i + 1]));
       // Potential-energy barrier to homogenising two equal-thickness layers.
       // The efficiency and drag coefficient remain explicit provisional priors.
-      const buoyancyBarrierJm2 = 9.81 * densityDifference * layerThickness ** 2 / 4;
+      const buoyancyBarrierJm2 = 9.81 * densityDifference * layerThickness ** 2 / 2;
       const exchangeRate = calculateWindMixingExchangeFraction(
         windWorkJm2, buoyancyBarrierJm2,
       );
