@@ -2649,3 +2649,97 @@ Synthetische tests bewijzen fysische randgevallen en softwaregedrag, geen prakti
 - Geen externe aanvraag, API-integratie, account, secret of deployment uitgevoerd.
 
 **Huidige status:** ontwerpvoorstel gereed voor eigenaarreview. Implementatiebesluitpoort blijft gesloten. De scoreberekeningsaudit blijft uitgesteld.
+
+
+---
+
+## Eigenaaradvies en gekozen ontwerpuitgangspunten — 24 november 2026
+
+De eigenaar heeft verduidelijkt dat dit product een **voorspellende vis-app** is. Een lokale meting is welkom en moet zwaar meewegen, maar het ontbreken ervan mag niet verhinderen dat de app een best mogelijke voorspelling geeft. Absolute exactheid is geen realistische eis; wetenschappelijke plausibiliteit, consistente trends, dieptebewustzijn, transparante onzekerheid en geen fysisch onmogelijke uitkomsten zijn de doelen.
+
+Op basis daarvan worden de eerdere open ontwerpvragen als volgt ingevuld. Dit zijn de aanbevolen ontwerpbesluiten voor de volgende implementatiefase; dit document wijzigt op zichzelf nog geen runtimegedrag.
+
+### Besluit 1 — Altijd een best-effort voorspelling
+
+**Gekozen richting:** de engine levert voor iedere geldige stek en doeltijd een best-effort watertemperatuurvoorspelling, ook zonder lokale watertemperatuurmeting.
+
+- Geen lokale meting betekent niet "onbekend" als eindresultaat. Het betekent een modelgestarte voorspelling met een bredere onzekerheidsmarge.
+- Een meting verankert het model op de gemeten tijd en gemeten diepte. Zij wordt niet automatisch behandeld als actuele temperatuur op alle dieptes.
+- Oudere geldige metingen blijven bruikbaar als historische ankers, waarbij het model de ontwikkeling vanaf het meetmoment doorrekent.
+- Als beginprofiel, diepte of forcing zwak bekend is, blijft de beste puntschatting beschikbaar, maar krijgt zij een lagere betrouwbaarheidsstatus en ruimere onzekerheid.
+- Alleen wanneer essentiële invoer ontbreekt of ongeldig is, mag de engine terugvallen op een expliciet gemarkeerde noodschatting. Ook dan geen schijnzekerheid.
+
+**Waarom:** de primaire functie is voorspellen voor een vissessie. Een model dat bij ontbrekende lokale metingen niets voorspelt, voldoet niet aan dat doel. Een onzekerheidslabel is beter dan een lege uitkomst of een verzonnen zekerheid.
+
+### Besluit 2 — Stekd iepte is de totale waterdiepte voor het verticale model
+
+De bestaande `FishingLocation.waterDepth` is de diepte in meters en is de primaire bron voor de totale waterdiepte van de stek. De actuele thermische engine leest dit veld al. Gebruik deze waarde dus als geometrische bovengrens van de verticale waterkolom wanneer zij geldig is.
+
+- Gebruik niet de historische sessiediepte of een meetdiepte als vervanging voor de totale stekd iepte.
+- Een lokale watertemperatuurmeting met `measurementDepthM` beschrijft de temperatuur op die meetdiepte; dat is een andere grootheid dan de totale waterdiepte.
+- Als de stekd iepte ontbreekt, blijft een voorspelling verplicht. Leid dan een expliciete diepteprior af uit het bekende watertype en eventueel andere beschikbare stekkenkenmerken, met ruime onzekerheid. Verzin geen exacte diepte en bewaar de gebruikte prior als modelaanname.
+- Als er onvoldoende kenmerken zijn om zelfs een redelijke diepteprior te kiezen, gebruik een generieke ondiepe-waterkolom als noodscenario met zeer lage betrouwbaarheid en maak duidelijk dat de diepte onbekend was.
+- Bij een opgegeven diepte die buiten plausibele grenzen valt of niet positief is, negeer de waarde als onbetrouwbare geometrie en val terug op dezelfde prior/noodroute.
+
+### Besluit 3 — Verticale profielsimulatie blijft de gekozen fysische kern
+
+Behoud de voorgestelde 1D verticale waterkolom. De engine rekent het temperatuurprofiel van oppervlak tot bodem door, met:
+- oppervlakte-energiebalans;
+- zonlichtpenetratie en onzekerheid door onbekende waterhelderheid;
+- temperatuurafhankelijke zoetwaterdichtheid met maximum rond 4 °C;
+- zomerstratificatie én winterse inverse stratificatie;
+- windgedreven menging en convectie;
+- faseovergang en isolatie door ijs/sneeuw;
+- dieptebewuste beginconditie en historische spin-up.
+
+Gebruik adaptieve of via convergentietests gekozen laagindeling. Leg geen willekeurig vast aantal lagen, vaste seizoensomslagdata of ongetoetste mengcoëfficiënten vast.
+
+### Besluit 4 — Temperatuuruitvoer voor de vis-app
+
+- De engine levert altijd een temperatuur voor de gevraagde doeltijd.
+- Als een expliciete doel-/visdiepte bestaat, gebruik de voorspelde temperatuur op die diepte.
+- Als geen visdiepte bekend is, gebruik de volumegewogen gemiddelde temperatuur van de waterkolom als compatibele centrale watertemperatuur voor de bestaande soortrespons. Dit is een pragmatische proxy, geen claim dat vissen zich op die gemiddelde diepte bevinden.
+- Lever daarnaast oppervlakte-, bodem- en verticaal profiel waar de kwaliteit van de berekening dat toelaat.
+- De bestaande UI hoeft niet direct het hele profiel te tonen; de interne uitvoer moet wel dieptebewust en controleerbaar zijn.
+- Houd de meetdiepte, totale waterdiepte en eventuele visdiepte als drie afzonderlijke begrippen.
+
+### Besluit 5 — Bestaande scorekoppeling behouden, zonder scoreformules te veranderen
+
+**Gekozen richting:** na het halen van de fysische en regressie-validatie mag de nieuwe voorspelde centrale/gevraagde temperatuur de bestaande soortspecifieke thermische respons voeden. De bestaande soortcurves, gewichten en scoreformules blijven ongewijzigd.
+
+De numerieke score kan daardoor veranderen omdat de temperatuuringang beter wordt. Dat is een verwacht gevolg en geen wijziging van de scoreberekening zelf. Tijdens ontwikkeling worden de oude en nieuwe temperatuuruitkomsten naast elkaar gevalideerd; activeer de nieuwe temperatuur pas voor de score nadat de afgesproken gates slagen. Geen aparte tweede score-engine.
+
+### Besluit 6 — Watertype en buiten-scope situaties
+
+De eerste nauwkeurigheidsclaim blijft voor stilstaand of nagenoeg stilstaand zoet buitenwater. Voor kanalen, rivieren, havens of stekken met onbekende sterke stroming:
+- probeer nog steeds een best-effort voorspelling te leveren;
+- gebruik beschikbare watertypekenmerken als context;
+- verhoog onzekerheid en geef een beperking/status mee;
+- presenteer de uitkomst niet als even goed gevalideerd als voor stilstaand water.
+
+Brak/zout water zonder saliniteitscorrectie en sterke thermische lozingen blijven buiten de eerste nauwkeurigheidsclaim. Niet stilzwijgend de zoetwaterdichtheid gebruiken alsof saliniteit bekend nul is.
+
+### Besluit 7 — Meteorologische bronnen
+
+Hanteer de eerder geadviseerde taakverdeling als voorkeursarchitectuur:
+- ERA5-Land als kandidaat voor historische spin-up;
+- KNMI-stations als onafhankelijke Nederlandse waarnemingsreferentie en mogelijke forcing wanneer representatief;
+- de bestaande Open-Meteo-route voor actuele en toekomstige forcing.
+
+De overgang tussen vertraagde ERA5-Land-data en recente/verwachte Open-Meteo- of KNMI-data moet expliciet worden geharmoniseerd. Controleer tijdstempels, tijdzone, eenheden, stralingsaccumulatie, bronbeschikbaarheid en eventuele bias. Geen dubbele telling of discontinuïteit bij bronovergang. De databronnen worden pas na aparte implementatiegoedkeuring aangesloten.
+
+### Besluit 8 — Lokale kalibratie wordt ondergeschikt aan de fysica
+
+Gebruik lokale metingen om het model te initialiseren en te evalueren. Een eventuele biascorrectie mag niet achteraf een onmogelijke vloeibare temperatuur of onstabiel profiel veroorzaken. Herontwerp kalibratie bij voorkeur als beperkte parameter-/fluxcorrectie of als observatie-nudging op de juiste meetdiepte en meettijd, met behoud van energie- en fasegrenzen. De huidige post-hoc scalarcorrectie wordt niet zonder herontwerp overgenomen.
+
+### Definitieve ontwerpprioriteiten
+
+1. Voorspel altijd best-effort; lokale meting is een anker, geen vereiste.
+2. Gebruik `FishingLocation.waterDepth` als totale stekd iepte wanneer bekend.
+3. Gebruik een verticale 1D-fysische kolom met zomer- en winterstratificatie.
+4. Maak voorspelling, doel-/meetdiepte, onzekerheid en herkomst expliciet.
+5. Houd bestaande biologische respons en scoreformules intact; sluit de nieuwe temperatuur pas aan na validatie.
+6. Gebruik de genoemde meteorologische bronrollen, maar sluit nog niets aan zonder implementatiebesluit.
+7. Scoreberekenings-/driveraudit blijft uitgesteld.
+
+**Huidige status:** inhoudelijke ontwerpkeuzes zijn op basis van de aanwijzing van de eigenaar ingevuld. De eerstvolgende stap is het vertalen van dit gekozen ontwerp naar een gefaseerd technisch implementatieplan en acceptatiecriteria. Runtime-implementatie blijft gescheiden van deze ontwerpbesluiten en wordt pas gestart na expliciete opdracht.
