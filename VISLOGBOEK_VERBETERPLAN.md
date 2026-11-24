@@ -2921,3 +2921,37 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 **Databeschikbaarheid / empirische status:** de repository-testbackup van 26 oktober 2026 is daadwerkelijk gecontroleerd: 11 sessies, 0 locaties, 0 watertemperatuurmetingen, 0 prognosesnapshots en 0 shadowvoorspellingen. Dit is een legacy-testfixture, geen praktijkdataset. Er is in deze uitvoering geen persoonlijke app-backup beschikbaar gesteld of ingelezen. PR #224 staat nog open en de shadow-uitvoer is niet op `main` actief. Er zijn dus nog 0 beschikbare echte shadow-meetparen; er wordt geen MAE/RMSE/bias-resultaat of nauwkeurigheidsclaim verzonnen.
 
 **Eerstvolgende stap:** zodra de shadowversie na expliciet akkoord is gemerged en beschikbaar is in de gebruikte app, kan een verse volledige JSON-backup met echte sessiemetingen en shadow-snapshots door deze evaluator. De huidige repository-fixture kan de empirische stap niet dragen. Tot er echte meetparen zijn, worden geen modelparameters bijgesteld en blijft de scoreformule onaangeroerd.
+
+
+## Wetenschappelijke audit waterkolommodel — 24 november 2026
+
+**Doel:** de huidige MVP toetsen aan actuele limnologische modelkennis voordat extra formules of parameters worden toegevoegd. Bronnen: Piccolroaz et al. (2024), *Lake Water Temperature Modeling in an Era of Climate Change: Data Sources, Models, and Future Prospects*, Reviews of Geophysics, https://doi.org/10.1029/2023RG000816; *What controls the onset of winter stratification in a deep, dimictic lake?* (2024), Limnology and Oceanography, https://doi.org/10.1002/lno.12704; en de modelalgoritme-intercomparatie voor thermische regimes van meren (2021), Water Resources Research, https://doi.org/10.1029/2020WR028776.
+
+### Bevestigd aanwezig in de MVP
+- Niet-lineaire zoetwaterdichtheid met dichtheidsmaximum nabij 3,98 °C; dit is essentieel voor zomerstratificatie én winterse inverse stratificatie.
+- Convectieve overturning die onstabiele lagen mengt en de gemiddelde warmteproxy behoudt.
+- Uurlijkse oppervlaktenergiebalans met kortgolvige instraling, langgolvige straling, voelbare en latente warmteflux.
+- Diepteverdeling van kortgolvige straling, windgedreven verticale uitwisseling, ijsfase en meerprofiel-spin-up.
+- Tijd- en beschikbaarheidsgrenzen om toekomstinformatie uit historische voorspellingen te weren.
+
+### Wetenschappelijke beperkingen die expliciet open blijven
+1. **Windmenging is nog een heuristiek.** De huidige vaste relatie voor mengdiepte en uitwisselingsfractie is geen volwaardig turbulentie- of TKE-model. Gevestigde 1D-meermodellen vergelijken windenergie met de potentiële energie die nodig is om een gestratificeerde laag mee te mengen; de uitkomst hangt mede af van fetch, meeroppervlak/vorm, stratificatie en seizoen. De huidige stekgegevens leveren die geometrie en lokale windblootstelling niet betrouwbaar. Daarom is de juiste actie nu niet om een willekeurige nieuwe coëfficiënt te kiezen, maar om deze menging als voorlopige prior te markeren en later pas te vervangen zodra fetch/blootstelling en onafhankelijke temperatuurprofielen beschikbaar zijn.
+2. **Bodem-/sedimentwarmte ontbreekt.** De algemene 1D-warmtevergelijking bevat een bodemwarmteflux. Die kan bij ondiepe wateren relatief belangrijk zijn. De MVP behandelt de bodem momenteel als thermisch geïsoleerd. Zonder sedimenttemperatuur, bodemtype en thermische eigenschappen kan een numerieke bodemflux echter niet verantwoord worden berekend. Dit blijft een expliciete beperking, vooral bij ondiepe sloten en vijvers.
+3. **Lichtuitdoving is een vaste prior.** De extinctiecoëfficiënt van 1,0 m⁻¹ is niet lokaal gekalibreerd. Werkelijke lichtpenetratie verandert met troebelheid, zwevend materiaal, algen en opgeloste stoffen. Zonder transparantie-/troebelheidsgegevens mag deze waarde niet als universeel worden beschouwd; de uitkomst moet als modelonzekerheid worden behandeld.
+4. **Eendimensionale aanname heeft grenzen.** Een verticale waterkolom veronderstelt dat horizontale verschillen en advectie klein genoeg zijn. Stromende sloten, rivieren, havens met doorstroming, inlaat/uitlaat en sterk beschutte of windgedreven lokale circulatie kunnen die aanname schenden. Voor zulke wateren blijft de schatting best-effort met lage betrouwbaarheid; een 1D-model mag geen lokale stroming suggereren die niet is gemodelleerd.
+5. **Winter- en overgangsprocessen zijn complexer dan alleen een temperatuurgradiënt.** De overgang van winterse inversie naar voorjaarsstratificatie wordt mede door radiatief gedreven convectie rond de temperatuur van maximale dichtheid bepaald. De herfstovergang hangt onder meer af van wind, afkoeling en morfologie en kan per jaar verschillen. De MVP bevat de basismechanismen, maar heeft nog geen gevalideerde ijs-/sneeuwlaag, seizoensafhankelijke turbulentie of lokale morfologie.
+6. **Vaste vijf lagen beperken verticale resolutie.** Dit is bewust compact voor de MVP, maar kan een dunne thermocline of zeer ondiepe oppervlaktelaag uitsmeren. Meer lagen toevoegen zonder profielmetingen en een passende numerieke mengmethode zou vooral schijnprecisie opleveren.
+
+### Uitgevoerde actie in deze wijziging
+- De bestaande fysische vergelijkingen zijn niet blind aangepast: de literatuur laat zien dat windmenging, bodemflux en lichtuitdoving belangrijke modelkeuzes zijn, maar de benodigde stek-/waterkolomgegevens ontbreken nog. Ongekalibreerde coëfficiënten wijzigen zou geen wetenschappelijke verbetering aantonen.
+- De deterministische fysicatests zijn uitgebreid met een volledige dichtheidsmaximum-scan van 0–10 °C en meerdere zomer-, winter- en gemengde temperatuurprofielen. Voor elk profiel wordt gecontroleerd dat convectieve menging de warmteproxy behoudt en een stabiele dichtheidsvolgorde oplevert.
+- De bestaande vijflaagse uitvoer blijft shadow-only. Geen score, soortcurve, bestaande watertemperatuuruitvoer, database of productiegedrag is gewijzigd.
+
+### Besluit en volgende technische volgorde
+1. Behoud de huidige natuurkundige basis als **experimentele schaduwvoorspelling**, niet als bewezen nauwkeurig model.
+2. Valideer eerst de numerieke kern en de volledige Quality Gate.
+3. Voeg pas daarna, als de invoer betrouwbaar beschikbaar is, waterbody-eigenschappen toe die windmenging en lichtpenetratie werkelijk kunnen begrenzen: stromend/stil water, effectieve fetch/windblootstelling en transparantie/troebelheid. Geen verplicht lokaal meetproces voor gebruikers.
+4. Onderzoek sedimentwarmteflux als aparte kandidaat, met een expliciete bodemtemperatuur-/sedimentprior en onzekerheidsanalyse; niet als verborgen correctiefactor.
+5. Vergelijk kandidaatvarianten chronologisch met onafhankelijke publieke meetreeksen en later met vrijwillige lokale metingen. Houd een blinde holdoutset apart; pas geen parameters aan op dezelfde meetpunten waarmee de nauwkeurigheid wordt gerapporteerd.
+
+**Status:** wetenschappelijke literatuurcontrole en aanvullende fysische invarianttests uitgevoerd. De openstaande processen zijn geregistreerd; ze zijn bewust niet met ongefundeerde parameters in de rekenkern geforceerd. Er is nog geen empirische nauwkeurigheidsclaim.
