@@ -3099,3 +3099,16 @@ Het waterkolommodel bevat al een ijsfase-/ijsdikteschatting. Later onderzoeken h
 - Dit is een latere UX-/integratiestap en mag de huidige PR #225 of lopende prognosewerkzaamheden niet blokkeren.
 
 **Prioriteit:** eerst PR #225 afronden via review en expliciet eigenaarbesluit; daarna fase 2-audit voortzetten met de soortcatalogus en bestaande habitat-/soortservices. IJswaarschuwing blijft geregistreerd als later verbeterpunt.
+
+### Eerste codebevindingen fase 2 — soort- en habitatmodel (24 november 2026, read-only)
+Controle van de actuele main-bestanden src/types/index.ts, src/services/fishProfiles.ts, src/services/habitatMovementEngine.ts, src/services/feedingResponseEngine.ts en src/services/researchRegistry.ts levert de volgende voorlopige bevindingen op:
+
+- De applicatiecatalogus bevat negen concrete soorten plus Overig: Karper, Brasem, Snoek, Baars, Voorn (blankvoorn), Zeelt, Snoekbaars, Meerval en Roofblei.
+- fishProfiles.ts bevat per concrete soort een beschrijving, aannames, literatuurverwijzingen, voorlopige thermische parameters en (meestal) dagritme-/seizoensscores. De code documenteert expliciet dat literatuurverwijzingen niet automatisch de numerieke parameters valideren.
+- feedingResponseEngine.ts kan een voorlopige relatieve respons uit dagritme en seizoensfase berekenen, maar meldt ontbrekende voedsel-/prooiaanvoer en wateractiviteit. De geregistreerde evidence assessment markeert de respons expliciet als niet geschikt voor numerieke prognose (predictionEligible: false) totdat contextgematchte kwantitatieve parameters zijn gevalideerd.
+- De bekeken records in researchRegistry.ts zijn geregistreerd als approvedForPrediction: false. Geregistreerde literatuur is dus onderzoekscontext, geen automatische toestemming om er een numerieke modelregel van te maken.
+- habitatMovementEngine.ts kiest hoofdzakelijk generieke zones op basis van waarnemingen, watertype, temperatuurklasse, seizoen en geregistreerde structuur. De huidige implementatie bevat geen afzonderlijke soortspecifieke kansverdeling over de vijf waterlagen en berekent geen kwantitatieve diepteverdeling per soort.
+- De habitatuitvoer vermeldt regelmatig expliciet dat lokaal diepteverloop, thermische verschillen, bodemvorm of structuur onbekend zijn. Dat is een nuttige onzekerheidsgrens die behouden moet blijven.
+- De soortspecifieke diepte-/habitatverdeling is daarom een echte ontbrekende modelcomponent; zij mag niet worden nagebootst door bestaande tekstuele zoneadviezen als een gemeten of gekwantificeerd diepteprofiel te behandelen.
+
+**Voorlopige ontwerpconclusie:** hergebruik de bestaande soortcatalogus, bronregistratie, thermische profielen, dagritme-/seizoenscontext en vijflaagse fysieke waterkolom. Ontwerp daarboven een afzonderlijke soortspecifieke habitatverdeling, met onafhankelijke onderbouwing van voedingsactiviteit versus aanwezigheid/laagkeuze. Eerst de volledige soort- en broninventarisatie afronden; geen numerieke dieptegewichten toevoegen op basis van alleen algemene soortbeschrijvingen. Deze bevindingen zijn een eerste deelcontrole, geen afronding van fase 2.
