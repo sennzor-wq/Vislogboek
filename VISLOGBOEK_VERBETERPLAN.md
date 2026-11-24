@@ -2786,7 +2786,7 @@ Niet in de MVP: gedetailleerde sediment-/bodemwarmte, waterhelderheidsmodel, str
 
 #### A4. Praktische beginconditie en historische spin-up
 - Gebruik de geldige totale stekdiepte als kolomhoogte.
-- Vraag historische uurlijkse weersforcing op voor maximaal 180 dagen en voer die door de waterkolom om een thermische voorgeschiedenis op te bouwen.
+- Vraag historische uurlijkse weersforcing op voor maximaal 365 dagen en voer die door de waterkolom om een thermische voorgeschiedenis op te bouwen.
 - Begin met enkele eenvoudige plausibele startprofielen (bijvoorbeeld gemengd, zomerstratificatie en winterinversie). Laat de simulatie bepalen welk profiel door de historische forcing ontstaat.
 - Vergelijk de uitkomsten van die startprofielen. Als ze voldoende naar elkaar toe convergeren, gebruik de geconvergeerde toestand. Als dat niet gebeurt, lever nog steeds de beste voorspelling, maar met bredere onzekerheid en status 'beginprofiel onvoldoende geconvergeerd'.
 - Een lokale meting op bekende diepte wordt op het juiste meetmoment aan de corresponderende laag gekoppeld. Eén meting maakt niet het hele profiel bekend.
@@ -2797,8 +2797,8 @@ De 180 dagen zijn een praktische startkeuze voor de MVP, geen universele natuurk
 
 #### A5. Historische weersbron eenvoudig houden
 - Gebruik voor de MVP de bestaande Open-Meteo-infrastructuur en voeg één historische archive-aanvraag toe voor de benodigde periode.
-- Kies bij implementatie één consistente historische dataset/configuratie die alle voor de warmtebalans noodzakelijke variabelen levert. Voorkeur is ERA5-Seamless als de API voor de benodigde variabelen een consistente reeks levert; anders ERA5 als complete fallback.
-- Gebruik ERA5-Land niet geïsoleerd als enige forcing: de huidige Open-Meteo-documentatie vermeldt dat de ERA5-Land-variant geen wind, neerslag of zonnestraling levert. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Verifieer de feitelijke variabelebeschikbaarheid in de implementatietest vóór de bron vast wordt gezet.
+- Kies bij implementatie één consistente historische dataset/configuratie die alle voor de warmtebalans noodzakelijke variabelen levert. Voorkeur is ERA5-Land als de API voor de benodigde variabelen een consistente reeks levert; anders ERA5 als complete fallback.
+- Gebruik ERA5-Land niet geïsoleerd als enige forcing: de huidige Open-Meteo-documentatie vermeldt dat de ERA5-Land-variant geen wind, neerslag of zonnestraling levert. ERA5-Land combineert bepaalde velden uit ERA5-Land en ERA5. Verifieer de feitelijke variabelebeschikbaarheid in de implementatietest vóór de bron vast wordt gezet.
 - Behoud de bestaande Open-Meteo Forecast API voor recente actuele data en de toekomst. Maak de overgang tussen historische reanalyse en forecast expliciet en voorkom dubbele uren of sprongen.
 - Gebruik KNMI in deze eerste implementatie als onafhankelijke validatiebron, niet als tweede live-integratie. Dat houdt API-keybeheer, stationselectie en bronfusie buiten de MVP.
 - Cache de historische forcing per stekcoördinaten en periode zodat niet bij elke prognose opnieuw 180 dagen worden opgehaald. Hergebruik bestaande cache-/servicepatronen waar mogelijk.
@@ -2860,7 +2860,7 @@ Werkpakketten mogen in één implementatiebranch/PR worden uitgevoerd als dat ov
 
 ### E. Gecorrigeerde databronnuance
 
-De eerdere formulering dat ERA5-Land zelfstandig alle gewenste historische warmtebalansvariabelen bevatte was te ruim. De huidige Open-Meteo-documentatie geeft voor ERA5-Land onder meer temperatuur, vochtigheid en dauwpunt, maar niet dezelfde beschikbaarheid van wind, neerslag en zonnestraling als ERA5. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Daarom kiest de MVP eerst op **complete, consistente variabelendekking**, niet op de fijnste rasterresolutie alleen.
+De eerdere formulering dat ERA5-Land zelfstandig alle gewenste historische warmtebalansvariabelen bevatte was te ruim. De huidige Open-Meteo-documentatie geeft voor ERA5-Land onder meer temperatuur, vochtigheid en dauwpunt, maar niet dezelfde beschikbaarheid van wind, neerslag en zonnestraling als ERA5. ERA5-Land combineert bepaalde velden uit ERA5-Land en ERA5. Daarom kiest de MVP eerst op **complete, consistente variabelendekking**, niet op de fijnste rasterresolutie alleen.
 
 Documentatie:
 - Open-Meteo Historical Weather API en variabelen per dataset: https://open-meteo.com/en/docs/historical-weather-api
@@ -2868,6 +2868,172 @@ Documentatie:
 
 ### F. Uitvoeringsgrens en status
 
-Dit implementatieplan is een concreet voorstel voor de kleinste bruikbare eerste versie. De scope is bewust beperkt en de technische keuzes zijn voldoende om te starten. Er is bij het vastleggen van dit plan nog geen runtimecode, testcode, parameter, formule, database, UI, API-integratie of deployment gewijzigd.
+Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 november 2026 expliciet opdracht gegeven om het plan uit te voeren en te implementeren. De uitvoeringsgrens is daarmee opgeheven voor deze watertemperatuurscope. Dit geeft geen toestemming voor wijziging van de bestaande scoreformule/soortcurves, KNMI-live-integratie, externe accounts/API-sleutels, destructieve database-/snapshotmigraties of deployment.
 
-**Volgende uitvoeringsstap na opdracht:** start werkpakket 1 en 2 in de bestaande codebasis, voer de minimale harde tests uit, en ga alleen door naar aansluiting op prognose/score wanneer de fysische kern de invarianten haalt. De eigenaar heeft gevraagd om advies en een effectief plan; deze vraag is geen expliciete opdracht om nu al runtimecode te wijzigen.
+**Uitvoering 1 — geïsoleerde fysische kern (gestart):**
+- Nieuwe pure module `src/services/waterColumnModel.ts`: vijf vaste lagen, zoetwaterdichtheid met maximum rond 4 °C, convectieve overturning met behoud van gemiddelde warmte, eenvoudige windgedreven uitwisseling, kortgolvige stralingspenetratie, bulk-lucht/waterwarmtefluxen en een elementaire ijsfase met latente warmte.
+- Nieuwe deterministische test `test-water-column-model.ts`, opgenomen in de bestaande Quality Gate.
+- De kern accepteert alleen forcing tot het doelmoment; wanneer een as-of-grens wordt opgegeven, is `availableAt` verplicht. Data zonder beschikbaarheidstijd wordt dan afgewezen.
+- De startcoëfficiënten voor optische extinctie en turbulente uitwisseling zijn expliciete voorlopige priors. Ze zijn niet empirisch gekalibreerd en rechtvaardigen nog geen nauwkeurigheidsclaim.
+
+**Status:** dit is uitsluitend de eerste geïsoleerde fysische rekenkern. Zij is nog niet aangesloten op `analyzeWaterThermalDevelopment`, historische spin-up, de app of de bestaande score. De huidige productieprognose en score blijven daardoor ongewijzigd. De module is pas technisch geaccepteerd na een groene Quality Gate en diff-review.
+
+**Uitvoering 2 — historische forcingadapter (gestart):**
+- Nieuwe service `src/services/waterColumnWeatherService.ts` haalt maximaal 365 dagen historische forcing op via Open-Meteo Historical Weather API met expliciete `era5_seamless`-selectie en de variabelen luchttemperatuur, dauwpunt, luchtvochtigheid, kortgolvige straling, bewolking en wind.
+- De laatste zeven dagen uit de bestaande Forecast API vormen de recente brug en forecast; de overlap vervangt dubbele uren zonder een gat bij de vertraagde historische reanalyse.
+- De forcing wordt op werkelijke ophaaltijd gestempeld met `availableAt`. Een expliciet historisch `asOf`-moment is replay-only: er wordt dan geen netwerkdata achteraf opgehaald.
+- Historische forcing wordt als optioneel veld in de bestaande IndexedDB-weercache bewaard. Er is geen nieuwe tabel, databaseversie of migratie toegevoegd. De gewone forecast-cache blijft bruikbaar wanneer de historische cache-entry nog geen forecasturen bevat.
+- Deterministische tests controleren bronselectie, bronoverlap, tijdsortering, as-of-beschikbaarheid en cachehergebruik. De nieuwe test staat in de bestaande Quality Gate.
+
+**Validatie uitvoering 1 en 2:** PR #224 commit `bc809353` heeft Quality Gate run `45417670611` succesvol doorlopen (typecheck, bestaande regressietests, fysieke invarianttests, forcing/cachetests en productiebuild). De code is nog niet gemerged en er is geen empirische nauwkeurigheidsclaim.
+
+**Uitvoering 3 — multi-profiel spin-up en lokale meetankers (gestart):**
+- De pure modelkern simuleert vijf plausibele initiële waterkolomprofielen (isotherm 4/12/20 °C, zomerstratificatie en winterinversie) over de beschikbare forcing.
+- Bij een expliciet target depth wordt de temperatuur tussen de relevante laagcentra geïnterpoleerd; zonder target depth wordt het volumegewogen kolomgemiddelde gebruikt.
+- Echte metingen worden alleen op de dichtstbijzijnde modellaag bij hun geregistreerde meetdiepte en meettijd toegepast. Een meting wordt niet over de volledige waterkolom uitgesmeerd. De registratie-/beschikbaarheidstijd wordt aan de as-of-grens getoetst.
+- De uitvoer bevat een scenario-spreiding en forcingdekking. Dit is een modelgevoeligheidsrange, geen empirisch gekalibreerd betrouwbaarheidsinterval. Bij onvoldoende spin-up, ontbrekende diepte of onvoldoende forcing blijft de status laag.
+- Als forcing het doelmoment niet bereikt, wordt geen temperatuur voor dat doelmoment gefingeerd; de bestaande prognoseketen blijft dan de fallback.
+
+**Validatie:** de geïsoleerde multi-profiel kern en meetankers zijn geslaagd in Quality Gate run `45418265874` op commit `cb8d6e9`. De shadow-integratie in uitvoering 4 bouwt hierop voort; de scorekoppeling blijft uitgeschakeld.
+
+**Uitvoering 4 — shadow-integratie in de prognose (gestart):**
+- De bestaande `PrognosisView` vraagt de historische/recentere waterforcing parallel met de gewone weersverwachting op. De eerste fetch is begrensd (8 seconden voor de archivebron, 6 seconden voor de recente forecast); bij ontbrekende forcing blijft de bestaande prognose actief.
+- De bestaande `analyzeWaterThermalDevelopment` voert de nieuwe waterkolomschatting aanvullend uit en plaatst die in `WaterThermalAnalysis.waterColumnPrediction`.
+- De nieuwe schatting blijft bewust shadow-only: `estimatedWaterTemp`, soortcurves, scoreformule en catch-chance worden niet gewijzigd. De bestaande `PrognosisSnapshot.prognosisData` bewaart de volledige `DayPrognosis`, inclusief de nieuwe diagnostische analyse; er is geen nieuwe tabel, index of databaseschemamigratie nodig.
+- Voor de huidige dag gebruikt de shadowberekening het actuele referentiemoment; voor toekomstige dagen wordt het lokale middagmoment gebruikt. De volumegewogen kolomtemperatuur blijft de standaard scalar zolang geen aparte visdiepte is opgegeven.
+
+**Validatie shadow-integratie:** Quality Gate run `45419468936` op commit `adecaf45` is volledig geslaagd: TypeScript, alle bestaande regressietests, de vier waterkolomtests, shadow-integratie, productiebuild en private-artifactcontrole. De shadowtest bewijst dat de oude scalar, activity score en catch chance gelijk blijven. Ook is getest dat de volledige shadow-uitvoer automatisch in het bestaande `PrognosisSnapshot.prognosisData` wordt bewaard; geen nieuwe tabel of migratie.
+
+**Huidige status:** PR #224 staat open op `feat/water-column-physics-mvp` en is nog niet naar `main` gemerged. De shadowberekening draait in de prognosecode zodra forcing beschikbaar is, maar blijft volledig buiten de score en de bestaande temperatuurweergave. Er is nog geen empirische nauwkeurigheidsclaim en geen KNMI-live-integratie.
+
+**Uitvoering 5 — empirische evaluatie voorbereid:**
+- De nieuwe zuivere evaluatiefunctie `evaluateWaterColumnEmpiricalValidation` koppelt opgeslagen shadow-profielen aan echte sessiemetingen op dezelfde stek, binnen 90 minuten van het voorspelde doelmoment en op een bekende meetdiepte.
+- De voorspelling wordt op de werkelijke meetdiepte uit de vijflaagse profieluitvoer geïnterpoleerd; het kolomgemiddelde wordt dus niet onterecht vergeleken met een puntmeting.
+- Per meetpunt worden MAE, RMSE, bias, scenario-spreiding, forcingdekking, spin-up en convergentie gerapporteerd, uitgesplitst naar seizoen, watertype en meetdiepte.
+- De evaluatie kiest per fysieke meting de vroegste vooraf vastgelegde voorspelling om dubbele herberekeningen te beperken. Metingen die op of vóór het prognose-/snapshotmoment zijn geregistreerd, worden uitgesloten om hindsight leakage te voorkomen.
+- De uitvoer is expliciet beschrijvend. De scenario-spreiding hoort bij de scalar waarop de voorspelling is berekend (in de huidige app het volumegewogen gemiddelde), is geen dieptespecifieke spreiding en geen gekalibreerd betrouwbaarheidsinterval. Sampleaantallen uit dezelfde sessie zijn niet onafhankelijk.
+- De voorspelling bewaart nu expliciet `targetTime`, `asOf` en het gebruikte forcingtijdvak, zodat de vergelijking herleidbaar is.
+
+**Validatie evaluatiecode:** de deterministische test dekt diepte-interpolatie (en bewijst dat een puntmeting niet met het kolomgemiddelde wordt vergeleken), een voorspelling na het meetmoment, een snapshot die pas na het meetmoment is opgeslagen, ontbrekende meetdiepte en forcing die pas ná het prognose-/snapshotmoment beschikbaar kwam. De evaluator accepteert forcing alleen wanneer `asOf` niet later is dan het voorspellingstijdstip én het aanmaken van de snapshot. De test staat in de bestaande Quality Gate; run `45422428730` op de actuele branch-head is volledig geslaagd (typecheck, alle regressietests, empirische evaluatietest en productiebuild).
+
+**Uitvoeren op een echte app-backup:** `bun run tsx scripts/evaluate-water-column-backup.ts <vislogboek-backup.json>`. Het script leest alleen de opgegeven JSON-backup en print een privacybewust evaluatierapport; het schrijft niets terug naar de database of backup.
+
+**Databeschikbaarheid / empirische status:** de repository-testbackup van 26 oktober 2026 is daadwerkelijk gecontroleerd: 11 sessies, 0 locaties, 0 watertemperatuurmetingen, 0 prognosesnapshots en 0 shadowvoorspellingen. Dit is een legacy-testfixture, geen praktijkdataset. Er is in deze uitvoering geen persoonlijke app-backup beschikbaar gesteld of ingelezen. PR #224 staat nog open en de shadow-uitvoer is niet op `main` actief. Er zijn dus nog 0 beschikbare echte shadow-meetparen; er wordt geen MAE/RMSE/bias-resultaat of nauwkeurigheidsclaim verzonnen.
+
+**Eerstvolgende stap:** zodra de shadowversie na expliciet akkoord is gemerged en beschikbaar is in de gebruikte app, kan een verse volledige JSON-backup met echte sessiemetingen en shadow-snapshots door deze evaluator. De huidige repository-fixture kan de empirische stap niet dragen. Tot er echte meetparen zijn, worden geen modelparameters bijgesteld en blijft de scoreformule onaangeroerd.
+
+
+## Wetenschappelijke audit waterkolommodel — 24 november 2026
+
+**Doel:** de huidige MVP toetsen aan actuele limnologische modelkennis voordat extra formules of parameters worden toegevoegd. Bronnen: Piccolroaz et al. (2024), *Lake Water Temperature Modeling in an Era of Climate Change: Data Sources, Models, and Future Prospects*, Reviews of Geophysics, https://doi.org/10.1029/2023RG000816; *What controls the onset of winter stratification in a deep, dimictic lake?* (2024), Limnology and Oceanography, https://doi.org/10.1002/lno.12704; en de modelalgoritme-intercomparatie voor thermische regimes van meren (2021), Water Resources Research, https://doi.org/10.1029/2020WR028776.
+
+### Bevestigd aanwezig in de MVP
+- Niet-lineaire zoetwaterdichtheid met dichtheidsmaximum nabij 3,98 °C; dit is essentieel voor zomerstratificatie én winterse inverse stratificatie.
+- Convectieve overturning die onstabiele lagen mengt en de gemiddelde warmteproxy behoudt.
+- Uurlijkse oppervlaktenergiebalans met kortgolvige instraling, langgolvige straling, voelbare en latente warmteflux.
+- Diepteverdeling van kortgolvige straling, windgedreven verticale uitwisseling, ijsfase en meerprofiel-spin-up.
+- Tijd- en beschikbaarheidsgrenzen om toekomstinformatie uit historische voorspellingen te weren.
+
+### Wetenschappelijke beperkingen die expliciet open blijven
+1. **Windmenging is nog een heuristiek.** De huidige vaste relatie voor mengdiepte en uitwisselingsfractie is geen volwaardig turbulentie- of TKE-model. Gevestigde 1D-meermodellen vergelijken windenergie met de potentiële energie die nodig is om een gestratificeerde laag mee te mengen; de uitkomst hangt mede af van fetch, meeroppervlak/vorm, stratificatie en seizoen. De huidige stekgegevens leveren die geometrie en lokale windblootstelling niet betrouwbaar. Daarom is de juiste actie nu niet om een willekeurige nieuwe coëfficiënt te kiezen, maar om deze menging als voorlopige prior te markeren en later pas te vervangen zodra fetch/blootstelling en onafhankelijke temperatuurprofielen beschikbaar zijn.
+2. **Bodem-/sedimentwarmte ontbreekt.** De algemene 1D-warmtevergelijking bevat een bodemwarmteflux. Die kan bij ondiepe wateren relatief belangrijk zijn. De MVP behandelt de bodem momenteel als thermisch geïsoleerd. Zonder sedimenttemperatuur, bodemtype en thermische eigenschappen kan een numerieke bodemflux echter niet verantwoord worden berekend. Dit blijft een expliciete beperking, vooral bij ondiepe sloten en vijvers.
+3. **Lichtuitdoving is een vaste prior.** De extinctiecoëfficiënt van 1,0 m⁻¹ is niet lokaal gekalibreerd. Werkelijke lichtpenetratie verandert met troebelheid, zwevend materiaal, algen en opgeloste stoffen. Zonder transparantie-/troebelheidsgegevens mag deze waarde niet als universeel worden beschouwd; de uitkomst moet als modelonzekerheid worden behandeld.
+4. **Eendimensionale aanname heeft grenzen.** Een verticale waterkolom veronderstelt dat horizontale verschillen en advectie klein genoeg zijn. Stromende sloten, rivieren, havens met doorstroming, inlaat/uitlaat en sterk beschutte of windgedreven lokale circulatie kunnen die aanname schenden. Voor zulke wateren blijft de schatting best-effort met lage betrouwbaarheid; een 1D-model mag geen lokale stroming suggereren die niet is gemodelleerd.
+5. **Winter- en overgangsprocessen zijn complexer dan alleen een temperatuurgradiënt.** De overgang van winterse inversie naar voorjaarsstratificatie wordt mede door radiatief gedreven convectie rond de temperatuur van maximale dichtheid bepaald. De herfstovergang hangt onder meer af van wind, afkoeling en morfologie en kan per jaar verschillen. De MVP bevat de basismechanismen, maar heeft nog geen gevalideerde ijs-/sneeuwlaag, seizoensafhankelijke turbulentie of lokale morfologie.
+6. **Vaste vijf lagen beperken verticale resolutie.** Dit is bewust compact voor de MVP, maar kan een dunne thermocline of zeer ondiepe oppervlaktelaag uitsmeren. Meer lagen toevoegen zonder profielmetingen en een passende numerieke mengmethode zou vooral schijnprecisie opleveren.
+
+### Uitgevoerde actie in deze wijziging
+- De bestaande fysische vergelijkingen zijn niet blind aangepast: de literatuur laat zien dat windmenging, bodemflux en lichtuitdoving belangrijke modelkeuzes zijn, maar de benodigde stek-/waterkolomgegevens ontbreken nog. Ongekalibreerde coëfficiënten wijzigen zou geen wetenschappelijke verbetering aantonen.
+- De deterministische fysicatests zijn uitgebreid met een volledige dichtheidsmaximum-scan van 0–10 °C en meerdere zomer-, winter- en gemengde temperatuurprofielen. Voor elk profiel wordt gecontroleerd dat convectieve menging de warmteproxy behoudt en een stabiele dichtheidsvolgorde oplevert.
+- De bestaande vijflaagse uitvoer blijft shadow-only. Geen score, soortcurve, bestaande watertemperatuuruitvoer, database of productiegedrag is gewijzigd.
+
+### Besluit en volgende technische volgorde
+1. Behoud de huidige natuurkundige basis als **experimentele schaduwvoorspelling**, niet als bewezen nauwkeurig model.
+2. Valideer eerst de numerieke kern en de volledige Quality Gate.
+3. Voeg pas daarna, als de invoer betrouwbaar beschikbaar is, waterbody-eigenschappen toe die windmenging en lichtpenetratie werkelijk kunnen begrenzen: stromend/stil water, effectieve fetch/windblootstelling en transparantie/troebelheid. Geen verplicht lokaal meetproces voor gebruikers.
+4. Onderzoek sedimentwarmteflux als aparte kandidaat, met een expliciete bodemtemperatuur-/sedimentprior en onzekerheidsanalyse; niet als verborgen correctiefactor.
+5. Vergelijk kandidaatvarianten chronologisch met onafhankelijke publieke meetreeksen en later met vrijwillige lokale metingen. Houd een blinde holdoutset apart; pas geen parameters aan op dezelfde meetpunten waarmee de nauwkeurigheid wordt gerapporteerd.
+
+**Validatie:** Quality Gate-run `45427223287` op commit `936a71119e7fa28a8847fbdcbf089fa3322e51db` is volledig geslaagd, inclusief TypeScript, alle bestaande regressietests, de uitgebreide waterkolom-invarianttests, empirische validatietests en productiebuild/private-artifactcontrole.
+
+**Status:** wetenschappelijke literatuurcontrole en aanvullende fysische invarianttests uitgevoerd en softwarematig gevalideerd. De openstaande processen zijn geregistreerd; ze zijn bewust niet met ongefundeerde parameters in de rekenkern geforceerd. Er is nog geen empirische nauwkeurigheidsclaim.
+
+
+## Waterbody-fysieke invoer toegevoegd — 24 november 2026
+
+De locatiegegevens zijn uitgebreid met optionele fysieke kenmerken die de waterkolomvoorspelling daadwerkelijk kan gebruiken. Dit is een compatibele uitbreiding van bestaande `FishingLocation`-records; er is geen IndexedDB-schemawijziging nodig. De bestaande backup exporteert/importteert de volledige locatieobjecten en behoudt deze optionele eigenschappen.
+
+### Nieuwe locatievelden
+- `windExposure`: beschut, gedeeltelijk open of open. Dit corrigeert de 10 m-weerswind voor lokale afscherming.
+- `effectiveFetchM`: geschatte vrije waterlengte in de dominante windrichting (10–10.000 m). Dit schaalt de lokale windblootstelling.
+- `secchiDepthM`: zichtdiepte van een Secchi-schijf (0,1–20 m). Hiermee wordt de kortgolvige lichtuitdoving afgeleid.
+- `waterMovement`: stilstaand, zwak stromend, stromend, getijde of onbekend. Voor rivier/kanaal worden bij bestaande locaties conservatieve startwaarden voorgesteld; gebruiker kan dit aanpassen.
+
+De velden staan onder een ingeklapte sectie in het locatieformulier en zijn nooit verplicht. Onbekende waarden blijven expliciete priors; ze blokkeren de zelfstandige voorspelling niet.
+
+### Fysische toepassing
+- Secchi: `Kd = 1,7 / ZSecchi` (m⁻¹), begrensd op 0,15–5 m⁻¹. De factor 1,7 is een gangbare empirische startrelatie, geen universele natuurconstante. Publicaties rapporteren verschillende coëfficiënten en waarschuwen dat de relatie in troebele wateren zwakker kan zijn. Referenties: CE-QUAL-W2 User Manual (2025), https://ce-qual-w2-erdc.github.io/documentation/users-manual/W2manual45_Part3_InputOutputFiles_rev8.pdf; NIWA/Poole & Atkins-overzicht, https://www.envirolink.govt.nz/assets/Envirolink/158-wcrc18.pdf; Bowers et al. (2020), https://doi.org/10.1029/2020JC016172.
+- Wind: de 10 m-wind wordt voorlopig aangepast met een transparante blootstellingsfactor (0,55 beschut; 0,8 deels open; 1,0 open) en een begrensde wortelrelatie met fetch. De aangepaste windsnelheid stuurt de bestaande bulk-warmteflux en winduitwisseling; een bovengrens van 30 m/s voorkomt numerieke ontsporing.
+- Stroming: zwakke/sterke stroming en getijde worden expliciet als niet-gemodelleerde horizontale advectie gemarkeerd. De uitkomst blijft best-effort maar krijgt geen status 'scenario_converged'. Een 1D-model mag stromend water niet als stilstaand meer voorstellen.
+- De uitvoer rapporteert welke fysieke priors zijn gebruikt, een invoerdekkingspercentage en concrete waarschuwingen. Dit is invoerbeschikbaarheid, geen empirische betrouwbaarheidskans.
+
+### Wetenschappelijke begrenzing
+De fetch-/blootstellingsfactoren zijn expliciete voorlopige engineering-priors, geen gekalibreerde TKE- of fetch-energieformulering. Ze zijn een verbetering ten opzichte van één identieke windaanname voor elke stek, maar worden niet als definitief gepresenteerd. Delft3D-onderzoek laat zien dat lokale winddrag en beschutting met waterlichaam en omliggende bomen samenhangen en dat Secchi/optische parameters tegen temperatuurprofielen moeten worden gekalibreerd: https://doi.org/10.5194/ESD-12-439-2021.
+
+### Nog bewust niet toegevoegd
+Bodemtype alleen is onvoldoende om een betrouwbare sedimentwarmteflux te berekenen. Daarvoor ontbreken sedimenttemperatuur en thermische eigenschappen; een willekeurige bodemcorrectie zou ongefundeerd zijn. Dit blijft een afzonderlijke volgende modelstap, net als een volwaardige windenergie/TKE-benadering en geautomatiseerde geometrische fetchbepaling.
+
+**Status:** fysieke locatie-invoer, formulier, modelkoppeling en regressietests toegevoegd op de bestaande PR-branch. De wijziging blijft shadow-only; score, soortcurves, bestaande temperatuuruitvoer en productiegedrag zijn niet aangepast.
+
+
+**Quality Gate:** run `45444651337` op commit `fea0aeb6815f8a5b74ead84642e67dd70010a478` is volledig geslaagd. TypeScript, waterkolomfysica, voorspelling/spin-up, shadow-integratie, empirische evaluator, backup/import-regressies en productiebuild zijn succesvol afgerond.
+
+
+### Vervolg fysieke invoer — windrichting beschikbaar gemaakt (24 november 2026)
+
+De historische ERA5-Seamless- en recente Open-Meteo-forcing halen nu naast windsnelheid ook de uurlijkse windrichting op (`wind_direction_10m`). De richting wordt als optioneel veld opgeslagen in de bestaande lokale waterkolomcache en doorgegeven aan de waterkolom-forcingtypen. Bestaande caches zonder richting blijven compatibel; ontbrekende waarden worden niet gefingeerd.
+
+Dit is de noodzakelijke invoerbasis voor de volgende stap: richtingafhankelijke fetch uit waterlichaamgeometrie. De richting wordt op dit moment nog niet als zelfstandige fysieke correctie op de menging toegepast. De huidige fetchfactor blijft dus de eerder beschreven voorlopige scalar-prior. Een kaart-/polygonbron moet eerst aantoonbaar het juiste waterlichaam rond de GPS-positie vinden; bij ontbrekende of ambigue geometrie blijft handmatige invoer leidend. Geen automatische fetchwaarde wordt op basis van alleen een steknaam of grove watercategorie verzonnen.
+
+**Wijzigingen:** `src/types/index.ts`, `src/services/waterColumnModel.ts` en `src/services/waterColumnWeatherService.ts`.
+
+
+### Automatische richtingafhankelijke fetch — 24 november 2026
+
+De waterkolomprognose kan nu optioneel zelf de watergeometrie van een stek gebruiken. De lookup gebruikt OpenStreetMap/Overpass en accepteert uitsluitend een gesloten, getagde water-way die de opgeslagen GPS-positie daadwerkelijk bevat. Uit de polygonrand worden 16 upwind-fetchafstanden berekend (22,5° sectoren, vanaf noord met de klok mee). Per uur wordt de meteorologische windrichting gebruikt om tussen aangrenzende sectoren te interpoleren. De bestaande handmatige scalar-fetch blijft terugval wanneer geen bruikbare polygon beschikbaar is.
+
+De geometrie wordt maximaal 30 dagen lokaal gecachet in de bestaande IndexedDB-weatherCache; er is geen schema-/indexmigratie. Overpass-, netwerk-, CORS-, ontbrekende of niet-ondersteunde geometrie resulteert in `null`, nooit in een verzonnen fetchafstand. De eerste implementatie verwerkt gesloten OSM-ways; complexe multipolygon-relaties, waterpolygonen met gaten en rivierpolygonen die niet als gesloten way zijn gemapt vallen terug op de handmatige prior. De gebruikte polygonoppervlakte wordt bewaard voor diagnose, maar nog niet als afzonderlijke betrouwbaarheidsmaat gebruikt.
+
+De richtingafhankelijke fetch stuurt uitsluitend de bestaande shadow-only winduitwisseling in het waterkolommodel. De handmatige windbeschuttingskeuze blijft aanvullend actief; automatische categorieclassificatie (beschut/deels open/open) wordt bewust niet afgeleid uit arbitraire afstandsdrempels. Vangstscore, soortcurves en bestaande productie-uitvoer zijn ongewijzigd.
+
+**Validatiegrens:** de geometrische algoritmetests controleren ray-intersecties, sectorinterpolatie, windrichtingswrap en cachegedrag met synthetische polygonen. Dit bewijst de berekening, niet de volledigheid of nauwkeurigheid van OSM-kaartdekking op iedere Nederlandse stek. De live Overpass-lookup moet daarom altijd als optionele bron behandeld blijven.
+
+
+**Quality Gate — automatische fetch:** run `45447717359` op commit `4557a4a87a07897f6593359dea19aff0d4d0d8d3` is volledig geslaagd. Dit omvat TypeScript, bestaande regressietests, de nieuwe richtingafhankelijke fetch-geometrie/cache-test, waterkolomtests, productiebuild en controle dat private artefacten niet in de build terechtkomen. De test gebruikt synthetische OSM-polygongeometrie; hij bewijst de geometrische berekening en cache, niet de landelijke volledigheid van live OSM-data.
+
+
+### Windmenging energiebegrensd gemaakt — 24 november 2026
+
+De eerdere windmenging gebruikte een empirische mengdiepte en een uitwisselingsfractie die rechtstreeks met windsnelheid opliepen. Dit is vervangen door een compacte energiebegrensde benadering:
+
+- Windschuifspanning wordt benaderd als `τ = ρlucht · Cd · U²`.
+- Het beschikbare windwerk per uur wordt benaderd als `η · τ · u* · Δt`, waarbij `u* = √(τ/ρwater)` de waterside wrijvingssnelheid is en gelijkmatig verdeeld over de vier interfaces van de vijf lagen.
+- Per interface wordt dit vergeleken met de zwaartekrachtspotentiële-energiedrempel voor homogenisatie van twee gelijke lagen: `g · |Δρ| · h² / 2`.
+- Alleen een begrensde fractie van het temperatuurverschil wordt uitgewisseld; de gelijke en tegengestelde temperatuurverandering behoudt de warmte-inhoud van de twee gelijke lagen. Convectieve instabiliteit rond de zoetwaterdichtheidsanomalie blijft daarna apart gecorrigeerd.
+
+De lucht-water dragcoëfficiënt (0,0013), mengrendement (2%), rustige achtergronduitwisseling (0,001) en bovengrens (0,12) zijn expliciete voorlopige modelparameters. De methode is een bulkmatige potentiële-energiebeperking en nadrukkelijk geen volledig opgelost TKE-/golfmodel. De lokale blootstellingsfactor verlaagt de 10 m-wind voor de wateroppervlakte. Fetch schaalt afzonderlijk het beschikbare windwerk als voorlopige golfontwikkelingsfactor; fetch verandert dus niet kunstmatig de windsnelheid in de bulk-warmteflux. De wortelrelatie en begrenzing blijven voorlopige priors. Parameters moeten later met onafhankelijke temperatuurprofielen worden gevalideerd.
+
+**Validatie toegevoegd:** meer windwerk geeft meer menging, sterkere dichtheidsbarrières remmen menging, negatieve energie geeft geen extra menging en de fractie blijft begrensd. De bestaande paargewijze uitwisseling behoudt de warmte-inhoud; de bestaande 4 °C-dichtheids- en convectietests blijven van kracht. Shadow-only; geen vangstscore, soortcurve of productiegedrag gewijzigd.
+
+
+### Productievoorbereiding — privacygrens automatische waterfetch (24 november 2026)
+
+De eerste volledige Quality Gate na de energiebegrensde windmenging is geslaagd: run [45450048974](https://github.com/sennzor-wq/Vislogboek/actions/runs/45450048974), commit `7f2421e4bf867b465681ac148dd34b729890d21c`. TypeScript, alle regressies, waterkolomtests, shadow-integratie, productiebuild en controle op privéartefacten zijn geslaagd.
+
+Bij de productiecontrole is één privacygrens aangescherpt: automatische waterfetch gebruikt de exacte opgeslagen stekcoördinaten in een verzoek aan OpenStreetMap Overpass. Dit is een nieuwe externe ontvanger naast de bestaande weersbron. Daarom is automatische OSM-fetch nu standaard uitgeschakeld en per stek expliciet opt-in gemaakt in het locatieformulier. Zonder toestemming wordt geen Overpass-verzoek gedaan; handmatige fetch of de neutrale modelprior blijft beschikbaar. De keuze wordt als optioneel veld in het bestaande locatieobject opgeslagen; geen database-schemawijziging. De prognoseflow vangt fouten van de optionele OSM-lookup af en laat de bestaande prognose doorgaan.
+
+De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt en dat opt-in de bestaande geometrie-/cacheberekening uitvoert.
+
+**Quality Gate na privacywijziging:** run [45450553451](https://github.com/sennzor-wq/Vislogboek/actions/runs/45450553451) op commit `58f0b783f14ad050ef1a057b5fe21df6054abcd7` is volledig geslaagd. TypeScript, alle regressietests inclusief opt-in/geen-OSM-verzoek bij opt-out, waterkolom/fetch, shadow-integratie, productiebuild en private-artifactcontrole zijn groen.
+
+**Resterende releasegrens:** de code is technisch build- en testklaar voor shadow-release. Voor merge/uitrol is nog finale diffcontrole en expliciete toestemming van de eigenaar vereist. Er is nog niet gemerged of gedeployed.

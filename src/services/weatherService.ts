@@ -235,11 +235,13 @@ export async function getForecast(
       return [{ date, tempMax, tempMin, sunrise, sunset }];
     });
 
+    const latestCache = await db.weatherCache.get(cacheKey);
     const cacheEntry: WeatherCacheEntry = {
       id: cacheKey,
       latitude: lat,
       longitude: lon,
       fetchedAt: new Date().toISOString(),
+      ...(latestCache?.waterColumnHistory ? { waterColumnHistory: latestCache.waterColumnHistory } : {}),
       hourly: hourlyForecasts,
       dailySummary: dailySummaries,
     };

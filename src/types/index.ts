@@ -1,3 +1,5 @@
+import type { WaterColumnPrediction } from '../services/waterColumnModel';
+
 /**
  * Vislogboek Data Types & Schema
  * Versie 2.2 — Nederlandstalig, Offline-first, Europe/Amsterdam
@@ -134,6 +136,15 @@ export interface FishingLocation {
   longitude?: number;
   waterDepth?: number;            // meters
   waterType?: 'Kanaal' | 'Rivier' | 'Polder' | 'Plas/Zandafgraving' | 'Stadswater' | 'Haven' | 'Overig' | 'Onbekend';
+  /** Optional site physics; absent values remain explicit model priors. */
+  windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
+  effectiveFetchM?: number;
+  /** User opt-in: share this stek's exact GPS coordinates with OpenStreetMap Overpass for automatic water fetch. */
+  automaticWaterFetchEnabled?: boolean;
+  /** 16 directional upwind fetch distances, clockwise from north, derived from mapped water geometry. */
+  windFetchByDirectionM?: number[];
+  secchiDepthM?: number;
+  waterMovement?: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
   notes?: string;
   isBenchmark?: boolean;          // Beschermde benchmarkstek
   createdAt: string;
@@ -486,6 +497,8 @@ export type ThermalTrend =
   | 'Onvoldoende gegevens';
 
 export interface WaterThermalAnalysis {
+  /** Shadow-only physical model output; it does not affect the current score/temperature scalar. */
+  waterColumnPrediction?: WaterColumnPrediction | null;
   trend: ThermalTrend;
   trendConfidence: 'Onvoldoende gegevens' | 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   hasMeasuredWaterTemp: boolean;
@@ -748,11 +761,35 @@ export interface WeatherHourlyForecast {
   weatherCode: number;
 }
 
+export interface CachedWaterColumnWeatherSample {
+  time: string;
+  availableAt: string;
+  airTemperatureC: number;
+  windSpeedKmh?: number;
+  windDirectionDegrees?: number;
+  shortwaveRadiationWm2?: number;
+  cloudCoverPercent?: number;
+  dewPointC?: number;
+  relativeHumidityPercent?: number;
+  source: 'era5-seamless' | 'open-meteo-forecast';
+}
+
+export interface CachedWaterColumnWeatherHistory {
+  startDate: string;
+  archiveEndDate: string;
+  retrievedAt: string;
+  hourly: CachedWaterColumnWeatherSample[];
+}
+
 export interface WeatherCacheEntry {
   id: string;                     // `lat_lon`
   latitude: number;
   longitude: number;
   fetchedAt: string;
+  /** Long-range hourly forcing for the water-column model; optional, no DB index/migration. */
+  waterColumnHistory?: CachedWaterColumnWeatherHistory;
+  /** Cached OSM-derived directional water fetch; optional and independent of weather history. */
+  directionalWaterFetch?: { fetchedAt: string; source: 'openstreetmap'; sectorFetchM: number[]; polygonAreaM2: number };
   hourly: WeatherHourlyForecast[];
   dailySummary?: {
     date: string;

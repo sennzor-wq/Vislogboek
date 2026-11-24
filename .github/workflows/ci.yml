@@ -98,6 +98,24 @@ jobs:
       - name: Synthetic water temperature validation
         run: bun run tsx test-water-temperature-synthetic-validation.ts
 
+      - name: Water column physical invariants
+        run: bun run tsx test-water-column-model.ts
+
+      - name: Water column weather forcing tests
+        run: bun run tsx test-water-column-weather-forcing.ts
+
+      - name: Directional water fetch geometry tests
+        run: bun run tsx test-water-fetch-geometry.ts
+
+      - name: Water column prediction and spin-up tests
+        run: bun run tsx test-water-column-prediction.ts
+
+      - name: Water column shadow integration
+        run: bun run tsx test-water-column-shadow-integration.ts
+
+      - name: Water column empirical validation metrics
+        run: bun run tsx test-water-column-empirical-validation.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 

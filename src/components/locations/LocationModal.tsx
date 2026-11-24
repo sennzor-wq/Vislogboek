@@ -23,6 +23,11 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [waterDepth, setWaterDepth] = useState<string>(
     location?.waterDepth !== undefined ? String(location.waterDepth) : ''
   );
+  const [windExposure, setWindExposure] = useState<FishingLocation['windExposure'] | ''>(location?.windExposure ?? '');
+  const [effectiveFetchM, setEffectiveFetchM] = useState(location?.effectiveFetchM !== undefined ? String(location.effectiveFetchM) : '');
+  const [secchiDepthM, setSecchiDepthM] = useState(location?.secchiDepthM !== undefined ? String(location.secchiDepthM) : '');
+  const [waterMovement, setWaterMovement] = useState<FishingLocation['waterMovement']>(location?.waterMovement ?? (location?.waterType === 'Rivier' ? 'flowing' : location?.waterType === 'Kanaal' ? 'weak_flow' : 'unknown'));
+  const [automaticWaterFetchEnabled, setAutomaticWaterFetchEnabled] = useState(location?.automaticWaterFetchEnabled ?? false);
   const [latitude, setLatitude] = useState<string>(
     location?.latitude !== undefined ? String(location.latitude) : ''
   );
@@ -32,6 +37,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [notes, setNotes] = useState(location?.notes || '');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleGetCurrentGps = () => {
     if (!navigator.geolocation) {
@@ -56,9 +62,14 @@ export const LocationModal: React.FC<LocationModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     const latNum = parseFloat(latitude.replace(',', '.'));
     const lonNum = parseFloat(longitude.replace(',', '.'));
     const depthNum = waterDepth.trim() !== '' ? parseFloat(waterDepth.replace(',', '.')) : undefined;
+    const fetchNum = effectiveFetchM.trim() !== '' ? parseFloat(effectiveFetchM.replace(',', '.')) : undefined;
+    const secchiNum = secchiDepthM.trim() !== '' ? parseFloat(secchiDepthM.replace(',', '.')) : undefined;
+    if (fetchNum !== undefined && (!Number.isFinite(fetchNum) || fetchNum < 10 || fetchNum > 10000)) { setFormError('Fetch moet tussen 10 en 10.000 meter liggen.'); return; }
+    if (secchiNum !== undefined && (!Number.isFinite(secchiNum) || secchiNum < 0.1 || secchiNum > 20)) { setFormError('Secchi-diepte moet tussen 0,1 en 20 meter liggen.'); return; }
     const hasAnyGps = latitude.trim() !== '' || longitude.trim() !== '';
     const validGps = Number.isFinite(latNum) && latNum >= -90 && latNum <= 90 && Number.isFinite(lonNum) && lonNum >= -180 && lonNum <= 180;
     if (hasAnyGps && !validGps) { setGpsError('Vul beide geldige GPS-coördinaten in, of laat beide velden leeg.'); return; }
@@ -69,6 +80,11 @@ export const LocationModal: React.FC<LocationModalProps> = ({
       description: description.trim() || undefined,
       waterType,
       waterDepth: depthNum && !isNaN(depthNum) ? depthNum : undefined,
+      windExposure: windExposure || undefined,
+      effectiveFetchM: fetchNum,
+      secchiDepthM: secchiNum,
+      waterMovement: waterMovement || 'unknown',
+      automaticWaterFetchEnabled,
       latitude: validGps ? latNum : undefined,
       longitude: validGps ? lonNum : undefined,
       notes: notes.trim() || undefined,
@@ -83,7 +99,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg rounded-3xl bg-slate-850 border border-slate-700 p-6 shadow-2xl text-slate-100">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-850 border border-slate-700 p-6 shadow-2xl text-slate-100">
         <div className="flex items-center justify-between pb-4 border-b border-slate-700">
           <h3 className="text-xl font-black text-white flex items-center gap-2">
             <MapPin className="w-5 h-5 text-emerald-400" />
@@ -98,6 +114,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 text-xs sm:text-sm">
+          {formError && <p className="rounded-xl border border-rose-700 bg-rose-950/60 px-3 py-2 text-xs text-rose-300">{formError}</p>}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
               Naam van de visstek *
@@ -160,6 +177,52 @@ export const LocationModal: React.FC<LocationModalProps> = ({
             </div>
           </div>
 
+          <details className="rounded-2xl border border-slate-700 bg-slate-800/50 p-3.5">
+            <summary className="cursor-pointer text-xs font-bold text-emerald-300">
+              Extra waterkenmerken voor temperatuurmodel (optioneel)
+            </summary>
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-400">
+              Alleen invullen als je het weet. Onbekende waarden blijven herkenbare modelaannames en blokkeren de voorspelling niet.
+            </p>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] text-slate-300 mb-1">Windbeschutting</label>
+                <select value={windExposure} onChange={(e) => setWindExposure(e.target.value as FishingLocation['windExposure'] | '')}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                  <option value="">Onbekend</option>
+                  <option value="sheltered">Beschut (bomen/gebouwen)</option>
+                  <option value="partly_exposed">Gedeeltelijk open</option>
+                  <option value="exposed">Vrij/open water</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-300 mb-1">Open-waterlengte / fetch (m)</label>
+                <input type="text" inputMode="decimal" placeholder="bijv. 250" value={effectiveFetchM}
+                  onChange={(e) => setEffectiveFetchM(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
+                <span className="block mt-1 text-[10px] text-slate-500">Schatting van de vrije waterlengte in de meest voorkomende windrichting.</span>
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-300 mb-1">Secchi-diepte / zichtdiepte (m)</label>
+                <input type="text" inputMode="decimal" placeholder="bijv. 0,8" value={secchiDepthM}
+                  onChange={(e) => setSecchiDepthM(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
+                <span className="block mt-1 text-[10px] text-slate-500">Diepte waarop een witte Secchi-schijf net uit zicht verdwijnt.</span>
+              </div>
+              <div>
+                <label className="block text-[11px] text-slate-300 mb-1">Waterbeweging</label>
+                <select value={waterMovement ?? 'unknown'} onChange={(e) => setWaterMovement(e.target.value as FishingLocation['waterMovement'])}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                  <option value="unknown">Onbekend</option>
+                  <option value="still">Vrijwel stilstaand</option>
+                  <option value="weak_flow">Zwak stromend</option>
+                  <option value="flowing">Duidelijk stromend</option>
+                  <option value="tidal">Getijdenwater</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
           {/* GPS Coördinaten met auto-detect */}
           <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
             <div className="flex items-center justify-between">
@@ -201,6 +264,21 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                 />
               </div>
             </div>
+
+            <label className="mt-3 flex items-start gap-2.5 rounded-xl border border-slate-700 bg-slate-900/60 p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={automaticWaterFetchEnabled}
+                onChange={(e) => setAutomaticWaterFetchEnabled(e.target.checked)}
+                className="mt-0.5 accent-emerald-500"
+              />
+              <span>
+                <span className="block text-xs font-semibold text-slate-200">Automatische waterkaartanalyse toestaan</span>
+                <span className="mt-1 block text-[10px] leading-relaxed text-slate-400">
+                  Als je dit inschakelt, worden de exacte GPS-coördinaten van deze stek naar OpenStreetMap (Overpass) gestuurd om de watergrens en windafhankelijke fetch te bepalen. Optioneel; zonder toestemming gebruikt het model alleen handmatige invoer of zijn neutrale aanname.
+                </span>
+              </span>
+            </label>
           </div>
 
           <div>

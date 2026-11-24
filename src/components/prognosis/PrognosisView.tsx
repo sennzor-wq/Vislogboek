@@ -13,6 +13,8 @@ import {
   PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
+import { getWaterColumnForcing } from '../../services/waterColumnWeatherService';
+import { getAutomaticWaterFetchForLocation } from '../../services/waterFetchGeometry';
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
@@ -106,7 +108,22 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       if (typeof selectedLoc?.latitude !== 'number' || !Number.isFinite(selectedLoc.latitude) || selectedLoc.latitude < -90 || selectedLoc.latitude > 90 || typeof selectedLoc?.longitude !== 'number' || !Number.isFinite(selectedLoc.longitude) || selectedLoc.longitude < -180 || selectedLoc.longitude > 180) {
         setHourlyForecast([]); setDayPrognoses([]); setWeatherUpdatedAt(''); setIsCachedWeather(false); return;
       }
-      const weather = await getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh);
+      const waterColumnTargetTime = new Date(Date.now() + 7 * 24 * 3600000).toISOString();
+      const [weather, waterColumnWeather, automaticWaterFetch] = await Promise.all([
+        getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh),
+        getWaterColumnForcing(selectedLoc.latitude, selectedLoc.longitude, waterColumnTargetTime)
+          .catch((error) => {
+            console.warn('Water-column shadow forcing niet beschikbaar; bestaande prognose blijft actief.', error);
+            return null;
+          }),
+        getAutomaticWaterFetchForLocation(selectedLoc).catch((error) => {
+          console.warn('Automatische waterkaartanalyse niet beschikbaar; handmatige fetch of neutrale prior blijft actief.', error);
+          return null;
+        }),
+      ]);
+      const predictionLocation = automaticWaterFetch
+        ? { ...selectedLoc, windFetchByDirectionM: automaticWaterFetch.sectorFetchM }
+        : selectedLoc;
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
@@ -142,9 +159,11 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           {
             sessionDurationHours: selectedDurationHours,
             locationId: selectedLocationId,
-            location: selectedLoc,
+            location: predictionLocation,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             historicalWaterTemperatures,
+            waterColumnForcing: waterColumnWeather?.hourly,
+            waterColumnAsOf: waterColumnWeather?.asOf,
             dailySolarTimes: weather.dailySummaries,
             presenceObservation: selectedPresenceObs,
             catches,

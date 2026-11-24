@@ -6,6 +6,8 @@ import {
   ThermalTrend,
 } from '../types';
 import { deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
+import { estimateWaterColumnTemperature } from './waterColumnModel';
+import type { WaterColumnForcingSample, WaterColumnObservation } from './waterColumnModel';
 import { getAmsterdamDateKey, getAmsterdamHour, parseAppTimestamp } from '../utils/dateTime';
 
 export interface ThermalAnalysisOptions {
@@ -23,6 +25,9 @@ export interface ThermalAnalysisOptions {
   targetHour?: number;
   currentDateRef?: Date;
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
+  /** Historical + recent forcing for the shadow-only physical water-column model. */
+  waterColumnForcing?: WaterColumnForcingSample[];
+  waterColumnAsOf?: string;
 }
 
 /**
@@ -61,6 +66,50 @@ export function analyzeWaterThermalDevelopment(
   const targetTimestamp = hasValidTargetTime ? new Date(parsedTargetTimeMs).toISOString() : null;
   const parsedForecastAsOf = options?.forecastAsOf ? parseAppTimestamp(options.forecastAsOf) : null;
   const forecastAsOf = parsedForecastAsOf?.toISOString() ?? null;
+  const waterColumnTargetTime = targetTimestamp ??
+    (targetIsCurrentDate && currentDateRef
+      ? currentDateRef.toISOString()
+      : parseAppTimestamp(`${targetDateStr}T12:00:00`)?.toISOString() ?? new Date(targetDateMs).toISOString());
+  const waterColumnAsOf = options?.waterColumnAsOf ?? forecastAsOf ?? undefined;
+  const waterColumnObservations: WaterColumnObservation[] = (options?.historicalWaterTemperatures ?? [])
+    .filter((observation) => observation.locationId === location?.id &&
+      typeof observation.measurementDepthM === 'number' && Number.isFinite(observation.measurementDepthM) &&
+      observation.measurementDepthM >= 0 && typeof observation.recordedAt === 'string' &&
+      Boolean(parseAppTimestamp(observation.recordedAt)) &&
+      Boolean(observation.measurementSource) && observation.measurementSource !== 'unknown' &&
+      Boolean(observation.measurementMethod) && observation.measurementMethod !== 'unknown')
+    .map((observation) => ({
+      time: observation.timestamp,
+      availableAt: observation.recordedAt as string,
+      temperatureC: observation.temperatureC,
+      depthM: observation.measurementDepthM as number,
+    }));
+  if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) &&
+      typeof options?.measurementDepthM === 'number' && Number.isFinite(options.measurementDepthM) &&
+      options.measurementDepthM >= 0) {
+    const measurementTime = options?.userMeasuredWaterTempAt ??
+      currentDateRef?.toISOString() ?? waterColumnTargetTime;
+    waterColumnObservations.push({
+      time: measurementTime,
+      availableAt: waterColumnAsOf ?? forecastAsOf ?? measurementTime,
+      temperatureC: userMeasured,
+      depthM: options.measurementDepthM,
+    });
+  }
+  const waterColumnPrediction = options?.waterColumnForcing?.length
+    ? estimateWaterColumnTemperature({
+        totalDepthM: location?.waterDepth,
+        forcing: options.waterColumnForcing,
+        observations: waterColumnObservations,
+        windExposure: location?.windExposure,
+        effectiveFetchM: location?.effectiveFetchM,
+        windFetchByDirectionM: location?.windFetchByDirectionM,
+        secchiDepthM: location?.secchiDepthM,
+        waterMovement: location?.waterMovement ?? (location?.waterType === 'Rivier' ? 'flowing' : location?.waterType === 'Kanaal' ? 'weak_flow' : 'unknown'),
+        targetTime: waterColumnTargetTime,
+        asOf: waterColumnAsOf,
+      })
+    : null;
   const measurementCandidates: Array<{ temperature: number; timestampMs: number; source: 'current' | 'session' }> = [];
 
   if (typeof userMeasured === 'number' && Number.isFinite(userMeasured) && userMeasured >= 0 && userMeasured <= 35) {
@@ -168,6 +217,7 @@ export function analyzeWaterThermalDevelopment(
         ? Math.round(anchor.temperature * 10) / 10
         : null;
       return {
+        waterColumnPrediction,
         trend: 'Onvoldoende gegevens',
         trendConfidence: 'Onvoldoende gegevens',
         targetTimestamp,
@@ -536,6 +586,7 @@ export function analyzeWaterThermalDevelopment(
   }
 
   return {
+    waterColumnPrediction,
     trend,
     trendConfidence,
     targetTimestamp,

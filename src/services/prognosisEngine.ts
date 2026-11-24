@@ -25,6 +25,7 @@ import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
+import type { WaterColumnForcingSample } from './waterColumnModel';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
@@ -712,6 +713,11 @@ export interface PrognosisOptions {
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
   /** Exact physical timestamp of the supplied water-temperature reading, when known. */
   userWaterTempMeasuredAt?: string | null;
+  /** Historical + recent forcing for the shadow-only water-column model. */
+  waterColumnForcing?: WaterColumnForcingSample[];
+  waterColumnAsOf?: string;
+  /** Actual depth of a manually supplied water-temperature reading, not total spot depth. */
+  measurementDepthM?: number | null;
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
@@ -783,6 +789,9 @@ export function calculateDayPrognosis(
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
     forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
+    waterColumnForcing: options?.waterColumnForcing,
+    waterColumnAsOf: options?.waterColumnAsOf,
+    measurementDepthM: options?.measurementDepthM,
   });
 
   // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
