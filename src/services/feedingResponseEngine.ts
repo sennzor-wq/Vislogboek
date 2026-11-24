@@ -1,6 +1,80 @@
-import type { FishSpecies, FeedingActivityAssessment, FeedingEvidenceLevel, FeedingResponseEvidenceSummary } from '../types';
+import type { FishSpecies, FeedingActivityAssessment, FeedingEvidenceLevel, FeedingResponseEvidenceSummary, TimeSlot } from '../types';
+import { SPECIES_PROFILES } from './fishProfiles';
+import type { CivilTwilightTimes } from './solarTimeEngine';
 import { getSpeciesFeedingEvidenceContext } from './feedingEvidenceService';
 import type { ResearchRegistryEntry } from './researchRegistry';
+
+export interface FeedingResponseScore {
+  score: number;
+  dielScore: number;
+  seasonalScore: number;
+  confidencePercent: number;
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
+  usedDrivers: string[];
+  missingDrivers: string[];
+  explanation: string;
+}
+
+const SLOT_MINUTES: Record<TimeSlot, [number, number]> = {
+  Nacht: [0, 360], Ochtend: [360, 720], Middag: [720, 1080], Avond: [1080, 1440],
+};
+
+function clockMinutes(value: string): number | null {
+  const match = /^(\\d{2}):(\\d{2})$/.exec(value);
+  if (!match) return null;
+  const hour = Number(match[1]), minute = Number(match[2]);
+  return hour <= 23 && minute <= 59 ? hour * 60 + minute : null;
+}
+
+function calculateDielScore(species: FishSpecies, slot: TimeSlot, solarTimes?: CivilTwilightTimes | null): number | null {
+  const diel = SPECIES_PROFILES[species].dielFeedingScores;
+  if (!diel) return null;
+  const [slotStart, slotEnd] = SLOT_MINUTES[slot];
+  const dawn = solarTimes ? clockMinutes(solarTimes.civilDawn) : null;
+  const sunrise = solarTimes ? clockMinutes(solarTimes.sunrise) : null;
+  const sunset = solarTimes ? clockMinutes(solarTimes.sunset) : null;
+  const dusk = solarTimes ? clockMinutes(solarTimes.civilDusk) : null;
+  if (dawn === null || sunrise === null || sunset === null || dusk === null || !(dawn <= sunrise && sunrise < sunset && sunset <= dusk)) {
+    return ({ Nacht: diel.night, Ochtend: (diel.dawn + diel.day) / 2, Middag: diel.day, Avond: (diel.dusk + diel.night) / 2 })[slot];
+  }
+  const phases = [
+    { start: 0, end: dawn, value: diel.night },
+    { start: dawn, end: sunrise, value: diel.dawn },
+    { start: sunrise, end: sunset, value: diel.day },
+    { start: sunset, end: dusk, value: diel.dusk },
+    { start: dusk, end: 1440, value: diel.night },
+  ];
+  return phases.reduce((sum, phase) => sum + Math.max(0, Math.min(slotEnd, phase.end) - Math.max(slotStart, phase.start)) * phase.value, 0) / (slotEnd - slotStart);
+}
+
+/** Operationele v1: soortspecifiek dagritme + seizoensfase; ontbrekende voedsel- en waterdrivers verlagen dekking, niet de score via een fictieve nul. */
+export function calculateSpeciesFeedingResponse(species: FishSpecies, month: number, slot: TimeSlot, solarTimes?: CivilTwilightTimes | null): FeedingResponseScore | null {
+  if (species === 'Overig') return null;
+  const profile = SPECIES_PROFILES[species], weights = profile.feedingDriverWeights;
+  const dielScore = calculateDielScore(species, slot, solarTimes);
+  const seasonalValue = profile.seasonalFeedingScores?.[month - 1];
+  const seasonalScore = Number.isFinite(seasonalValue) ? (seasonalValue as number) / 100 : null;
+  if (!weights || dielScore === null || seasonalScore === null) return null;
+  const activeWeight = weights.diel + weights.seasonalPhase;
+  if (activeWeight <= 0) return null;
+  const normalized = (dielScore * weights.diel + seasonalScore * weights.seasonalPhase) / activeWeight;
+  const confidencePercent = Math.round(activeWeight * 100);
+  const score = Math.round((1 + 9 * Math.max(0, Math.min(1, normalized))) * 10) / 10;
+  const missingDrivers = [
+    ...(weights.foodAvailability > 0 ? ['Voedsel-/prooiaanbod (geen actuele invoer)'] : []),
+    ...(weights.waterActivity > 0 ? ['Stroming/wateractiviteit (geen actuele invoer)'] : []),
+  ];
+  const usedDrivers = [
+    `Dagritme/licht (${Math.round(dielScore * 100)}/100; gewicht ${Math.round(weights.diel * 100)}%)`,
+    `Seizoensfase (${Math.round(seasonalScore * 100)}/100; gewicht ${Math.round(weights.seasonalPhase * 100)}%)`,
+  ];
+  return {
+    score, dielScore, seasonalScore, confidencePercent,
+    confidenceLevel: confidencePercent >= 75 ? 'Redelijk' : confidencePercent >= 50 ? 'Matig' : 'Laag',
+    usedDrivers, missingDrivers,
+    explanation: `Voorlopige voedings-/foerageerrespons ${score.toFixed(1)}/10 uit soortspecifiek dagritme en seizoensfase. Bekend gewicht: ${confidencePercent}%; voedsel-/prooiaanbod en wateractiviteit ontbreken en zijn niet als neutraal ingevuld. Resterende bekende gewichten zijn genormaliseerd. Dit is geen directe lokale meting van voedselopname.`,
+  };
+}
 
 function summariseResponse(
   entries: ResearchRegistryEntry[],
@@ -25,12 +99,15 @@ function summariseResponse(
  * stomach-fullness proxies, diel rhythm, foraging behaviour and diet remain distinct.
  * The result makes the available evidence and the reason for a missing score explicit.
  */
-export function assessSpeciesFeedingActivity(species: FishSpecies): FeedingActivityAssessment {
+export function assessSpeciesFeedingActivity(species: FishSpecies, slotResponses: Array<FeedingResponseScore | null> = []): FeedingActivityAssessment {
   if (species === 'Overig') {
     const empty = summariseResponse([], 'none', 'Geen soortspecifieke voedingsrespons beschikbaar voor Overig.');
     return {
       score: null,
       status: 'not_applicable',
+      confidencePercent: 0,
+      confidenceLevel: 'Laag',
+      missingDrivers: [],
       evidenceLevel: 'none',
       responses: {
         intensity: empty,
@@ -103,15 +180,20 @@ export function assessSpeciesFeedingActivity(species: FishSpecies): FeedingActiv
       : 'Geen afzonderlijke prooikeuzebron geregistreerd.'
   );
 
+  const validScores = slotResponses.filter((item): item is FeedingResponseScore => item !== null && Number.isFinite(item.score));
+  const score = validScores.length ? Math.round(validScores.reduce((sum, item) => sum + item.score, 0) / validScores.length * 10) / 10 : null;
+  const confidencePercent = validScores.length ? Math.round(validScores.reduce((sum, item) => sum + item.confidencePercent, 0) / validScores.length) : 0;
+  const missingDrivers = Array.from(new Set(validScores.flatMap((item) => item.missingDrivers)));
   return {
-    score: null,
-    status: 'insufficient_evidence',
+    score,
+    status: score === null ? 'insufficient_evidence' : 'provisional',
     evidenceLevel,
+    confidencePercent,
+    confidenceLevel: confidencePercent >= 75 ? 'Redelijk' : confidencePercent >= 50 ? 'Matig' : 'Laag',
+    missingDrivers,
     responses: { intensity, incidence, rhythm, foraging, diet, preySelection },
-    explanation: hasDirectEvidence
-      ? `Voor ${species} bestaan directe voedingsstudies, maar de bronnen zijn nog niet omgezet naar een gevalideerde, kwantitatieve responsfunctie die past bij soort, levensfase en context. Daarom blijft de numerieke voedingsscore onbekend.`
-      : hasProxyEvidence || hasContextEvidence
-        ? `Voor ${species} is voedingsgerelateerde literatuur beschikbaar, maar deze meet vooral proxies of context en ondersteunt nog geen numerieke voedingsintensiteitsscore.`
-        : `Voor ${species} is onvoldoende soortspecifiek voedingsbewijs geregistreerd voor een numerieke voedingsscore.`,
+    explanation: score === null
+      ? `Voor ${species} kon de voorlopige dagritme-/seizoensrespons niet worden berekend.`
+      : `Operationele voorlopige voedings-/foerageerrespons voor ${species}: ${score.toFixed(1)}/10 (driverdekking ${confidencePercent}%). ${missingDrivers.join('; ')}. De score gebruikt bestaande werkboek-startwaarden; directe voedselopname, maagvulling, foerageergedrag, dieet en prooikeuze blijven afzonderlijk zichtbaar. Dit is geen vangstkans en wordt iteratief verfijnd.`,
   };
 }

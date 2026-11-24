@@ -13,6 +13,16 @@ export interface SpeciesProfile {
   thermalOptimum: number;
   thermalWidthCold: number;
   thermalWidthWarm: number;
+  /** Eerste operationele soortcurve uit vismodel_voorstel_v2; expliciet voorlopige T0–T3-prior. */
+  thermalCurve?: { t0: number; t1: number; t2: number; t3: number; confidence: 'high' | 'moderate' | 'low' };
+  /** Relatieve voedings-/foerageerrespons per astronomische fase; geen locomotie- of vangstkans. */
+  dielFeedingScores?: { night: number; dawn: number; day: number; dusk: number };
+  dielEvidenceConfidence?: 'high' | 'moderate' | 'low';
+  /** Jan–Dec, relatieve seizoensfase uit het werkboek (0–100); niet de temperatuurcurve. */
+  seasonalFeedingScores?: number[];
+  seasonalEvidenceConfidence?: 'high' | 'moderate' | 'low';
+  /** Gewichten uit de vier werkboek-archetypen; ontbrekende drivers worden als dekking gerapporteerd. */
+  feedingDriverWeights?: { foodAvailability: number; diel: number; seasonalPhase: number; waterActivity: number };
 }
 
 export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
@@ -47,6 +57,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 21.0,
     thermalWidthCold: 5.8,
     thermalWidthWarm: 5.5,
+    thermalCurve: { t0: 6, t1: 20, t2: 27, t3: 34, confidence: 'high' },
+    dielFeedingScores: { night: 0.8, dawn: 0.9, day: 0.8, dusk: 0.9 },
+    dielEvidenceConfidence: 'low',
+    seasonalFeedingScores: [70, 70, 75, 60, 50, 60, 85, 90, 100, 100, 85, 70],
+    seasonalEvidenceConfidence: 'moderate',
+    feedingDriverWeights: { foodAvailability: 0.45, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.2 },
   },
   Brasem: {
     species: 'Brasem',
@@ -74,6 +90,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 17.5,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 5.8,
+    thermalCurve: { t0: 3, t1: 16, t2: 26, t3: 32, confidence: 'moderate' },
+    dielFeedingScores: { night: 0.9, dawn: 1, day: 0.8, dusk: 1 },
+    dielEvidenceConfidence: 'low',
+    seasonalFeedingScores: [70, 70, 75, 75, 50, 70, 85, 90, 100, 100, 85, 70],
+    seasonalEvidenceConfidence: 'moderate',
+    feedingDriverWeights: { foodAvailability: 0.45, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.2 },
   },
   Snoek: {
     species: 'Snoek',
@@ -102,6 +124,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 12.5,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
+    thermalCurve: { t0: 2, t1: 10, t2: 22, t3: 29, confidence: 'high' },
+    dielFeedingScores: { night: 0.3, dawn: 0.9, day: 1, dusk: 0.9 },
+    dielEvidenceConfidence: 'low',
+    seasonalFeedingScores: [70, 45, 50, 80, 100, 85, 70, 75, 95, 100, 95, 80],
+    seasonalEvidenceConfidence: 'moderate',
+    feedingDriverWeights: { foodAvailability: 0.4, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.25 },
   },
   Baars: {
     species: 'Baars',
@@ -132,6 +160,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 16.5,
     thermalWidthCold: 6.0,
     thermalWidthWarm: 5.5,
+    thermalCurve: { t0: 3, t1: 16, t2: 27, t3: 32, confidence: 'moderate' },
+    dielFeedingScores: { night: 0.2, dawn: 1, day: 0.9, dusk: 1 },
+    dielEvidenceConfidence: 'high',
+    seasonalFeedingScores: [70, 70, 75, 50, 85, 85, 80, 85, 100, 100, 90, 70],
+    seasonalEvidenceConfidence: 'low',
+    feedingDriverWeights: { foodAvailability: 0.4, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.25 },
   },
   Voorn: {
     species: 'Voorn',
@@ -165,6 +199,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 15.0,
     thermalWidthCold: 6.5,
     thermalWidthWarm: 6.0,
+    thermalCurve: { t0: 2, t1: 15, t2: 26, t3: 33, confidence: 'moderate' },
+    dielFeedingScores: { night: 0.5, dawn: 0.9, day: 1, dusk: 0.9 },
+    dielEvidenceConfidence: 'low',
+    seasonalFeedingScores: [70, 70, 75, 50, 55, 75, 85, 90, 100, 100, 85, 70],
+    seasonalEvidenceConfidence: 'low',
+    feedingDriverWeights: { foodAvailability: 0.45, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.2 },
   },
   Zeelt: {
     species: 'Zeelt',
@@ -187,6 +227,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 20.5,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
+    thermalCurve: { t0: 8, t1: 18, t2: 26, t3: 32, confidence: 'low' },
+    dielFeedingScores: { night: 0.6, dawn: 1, day: 0.6, dusk: 0.9 },
+    dielEvidenceConfidence: 'low',
+    seasonalFeedingScores: [60, 60, 65, 70, 80, 55, 55, 70, 90, 80, 65, 60],
+    seasonalEvidenceConfidence: 'low',
+    feedingDriverWeights: { foodAvailability: 0.45, diel: 0.2, seasonalPhase: 0.15, waterActivity: 0.2 },
   },
   Snoekbaars: {
     species: 'Snoekbaars',
@@ -214,6 +260,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 15.0,
     thermalWidthCold: 6.2,
     thermalWidthWarm: 6.0,
+    thermalCurve: { t0: 4, t1: 11, t2: 26, t3: 32, confidence: 'moderate' },
+    dielFeedingScores: { night: 0.9, dawn: 1, day: 0.3, dusk: 1 },
+    dielEvidenceConfidence: 'high',
+    seasonalFeedingScores: [65, 65, 70, 55, 55, 85, 80, 85, 100, 100, 90, 70],
+    seasonalEvidenceConfidence: 'low',
+    feedingDriverWeights: { foodAvailability: 0.35, diel: 0.25, seasonalPhase: 0.15, waterActivity: 0.25 },
   },
   Meerval: {
     species: 'Meerval',
@@ -239,6 +291,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 22.0,
     thermalWidthCold: 5.0,
     thermalWidthWarm: 5.0,
+    thermalCurve: { t0: 7, t1: 23, t2: 28, t3: 34, confidence: 'moderate' },
+    dielFeedingScores: { night: 1, dawn: 0.7, day: 0.2, dusk: 0.9 },
+    dielEvidenceConfidence: 'high',
+    seasonalFeedingScores: [60, 60, 60, 65, 80, 60, 70, 100, 100, 85, 70, 60],
+    seasonalEvidenceConfidence: 'moderate',
+    feedingDriverWeights: { foodAvailability: 0.35, diel: 0.25, seasonalPhase: 0.15, waterActivity: 0.25 },
   },
   Roofblei: {
     species: 'Roofblei',
@@ -261,6 +319,12 @@ export const SPECIES_PROFILES: Record<FishSpecies, SpeciesProfile> = {
     thermalOptimum: 18.5,
     thermalWidthCold: 5.5,
     thermalWidthWarm: 5.0,
+    thermalCurve: { t0: 4, t1: 14, t2: 24, t3: 30, confidence: 'low' },
+    dielFeedingScores: { night: 0.2, dawn: 1, day: 0.7, dusk: 1 },
+    dielEvidenceConfidence: 'moderate',
+    seasonalFeedingScores: [50, 50, 40, 45, 85, 95, 100, 100, 100, 80, 55, 50],
+    seasonalEvidenceConfidence: 'moderate',
+    feedingDriverWeights: { foodAvailability: 0.15, diel: 0.2, seasonalPhase: 0.25, waterActivity: 0.4 },
   },
   Overig: {
     species: 'Overig',
@@ -295,11 +359,22 @@ export function calculateThermalEfficiency(
   temp: number,
   profile: SpeciesProfile
 ): { efficiency: number; description: string; impact: 'positief' | 'neutraal' | 'negatief' } {
-  const { thermalOptimum, thermalWidthCold, thermalWidthWarm, species } = profile;
-  const width = temp < thermalOptimum ? thermalWidthCold : thermalWidthWarm;
-  const diff = temp - thermalOptimum;
-  const rawEfficiency = Math.exp(-(diff * diff) / (2 * width * width));
-  const efficiency = Math.max(0.08, Math.min(1.0, rawEfficiency));
-  const description = `Watertemperatuur (${temp.toFixed(1)} °C): de voorlopige thermische profielcurve voor ${species} schat een relatieve respons van ${(efficiency * 100).toFixed(0)}%. De modelpiek en curvebreedtes zijn geen gemeten optimum; er bestaat voor deze profielcurve geen gevalideerde fysiologische tolerantiegrens. Dit is geen directe meting van activiteit of voedselopname; lage temperatuur bewijst geen winterrust. opgeloste zuurstof wordt niet gemeten, dus hoge temperatuur alleen bewijst geen zuurstofstress.`;
-  return { efficiency, description, impact: 'neutraal' };
+  const curve = profile.thermalCurve;
+  let efficiency: number;
+  let curveDescription: string;
+  if (curve) {
+    const { t0, t1, t2, t3 } = curve;
+    efficiency = temp <= t0 || temp >= t3 ? 0 : temp < t1 ? (temp - t0) / (t1 - t0) : temp <= t2 ? 1 : (t3 - temp) / (t3 - t2);
+    efficiency = Math.max(0, Math.min(1, efficiency));
+    curveDescription = `De voorlopige T0–T3-respons uit het operationele werkboekmodel gebruikt ${t0} °C als ondergrens, ${t1}–${t2} °C als plateau en ${t3} °C als bovengrens (zekerheid: ${curve.confidence}).`;
+  } else {
+    const { thermalOptimum, thermalWidthCold, thermalWidthWarm } = profile;
+    const width = temp < thermalOptimum ? thermalWidthCold : thermalWidthWarm;
+    const diff = temp - thermalOptimum;
+    efficiency = Math.max(0, Math.min(1, Math.exp(-(diff * diff) / (2 * width * width))));
+    curveDescription = `De generieke voorlopige thermische profielcurve gebruikt een modelprior rond ${thermalOptimum} °C.`;
+  }
+  const impact = efficiency >= 0.75 ? 'positief' : efficiency <= 0.35 ? 'negatief' : 'neutraal';
+  const description = `Watertemperatuur (${temp.toFixed(1)} °C): relatieve thermische respons voor ${profile.species} ${Math.round(efficiency * 100)}%. ${curveDescription} Dit is een operationele modelprior, geen gemeten activiteit, directe voedselopname of vangstkans. De onzekerheid van de curve blijft onderdeel van de prognose.`;
+  return { efficiency, description, impact };
 }

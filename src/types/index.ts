@@ -296,9 +296,12 @@ export interface FeedingResponseEvidenceSummary {
 }
 
 export interface FeedingActivityAssessment {
-  /** Null until a species-specific quantitative feeding response is parameterised and validated. */
+  /** Dagbrede voorlopige voedings-/foerageerrespons (1–10); geen vangstkans. */
   score: number | null;
-  status: 'insufficient_evidence' | 'not_applicable';
+  status: 'provisional' | 'insufficient_evidence' | 'not_applicable';
+  confidencePercent: number;
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
+  missingDrivers: string[];
   evidenceLevel: FeedingEvidenceLevel;
   responses: {
     intensity: FeedingResponseEvidenceSummary;
@@ -330,8 +333,11 @@ export interface WeatherDataQuality {
 export interface TimeSlotAnalysis {
   slot: TimeSlot;
   timeRange: string;              // bijv. "06:00 – 12:00"
-  activityScore: number;          // 1.0 – 10.0 voorlopige thermische activiteitspotentie (geen gemeten visactiviteit)
+  activityScore: number;          // 1.0–10.0 geïntegreerde fysiologische + voedings-/foerageerprognose-index
   activityScoreAvailable?: boolean;
+  physiologicalResponseScore: number | null;
+  feedingResponseScore: number | null;
+  scoreConfidencePercent: number;
   isPast?: boolean;               // Is dit tijdvak reeds volledig verstreken?
   remainingHours?: number;        // Aantal resterende uren in dit tijdvak
   temperatureFactor: FactorBreakdown;
@@ -367,8 +373,10 @@ export interface DayPrognosis {
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
   species: FishSpecies | 'Algemeen';
-  activityScore: number;          // 1.0 - 10.0 (alleen presenteren wanneer activityScoreAvailable true is)
+  activityScore: number;          // 1.0–10.0 geïntegreerde prognose-index (geen vangstkans)
   activityScoreAvailable?: boolean;
+  physiologicalResponseScore?: number | null;
+  integratedScoreConfidencePercent?: number;
   weatherDataQuality?: WeatherDataQuality;
   advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig';
   bestTimeSlot: TimeSlot | 'Geen toekomstig tijdvak meer vandaag' | 'Geen betekenisvol onderscheid';

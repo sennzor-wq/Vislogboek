@@ -1,10 +1,10 @@
 import { ALL_SPECIES } from './src/types';
-import { assessSpeciesFeedingActivity } from './src/services/feedingResponseEngine';
+import { assessSpeciesFeedingActivity, calculateSpeciesFeedingResponse } from './src/services/feedingResponseEngine';
 
 for (const species of ALL_SPECIES) {
   const result = assessSpeciesFeedingActivity(species);
-  if (result.score !== null) {
-    throw new Error(`${species}: feeding score must remain null until a quantitative response is validated.`);
+  if (species !== 'Overig' && (result.score !== null || result.status !== 'insufficient_evidence')) {
+    throw new Error(`${species}: day-level feeding score requires explicit time-slot responses.`);
   }
   if (species === 'Overig') {
     if (result.status !== 'not_applicable' || result.evidenceLevel !== 'none') {
@@ -26,7 +26,20 @@ for (const species of ALL_SPECIES) {
   }
 }
 
-const asp = assessSpeciesFeedingActivity('Roofblei');
+const provisional = calculateSpeciesFeedingResponse('Baars', 7, 'Middag');
+if (!provisional || provisional.score < 1 || provisional.score > 10 || provisional.confidencePercent >= 100 || provisional.missingDrivers.length !== 2) {
+  throw new Error('Operational feeding response must expose a provisional score and missing-driver coverage.');
+}
+const perchNight = calculateSpeciesFeedingResponse('Baars', 7, 'Nacht');
+if (!perchNight || perchNight.score === provisional.score) throw new Error('Diel response must change the score by time slot.');
+const tenchSpring = calculateSpeciesFeedingResponse('Zeelt', 4, 'Avond');
+const tenchAutumn = calculateSpeciesFeedingResponse('Zeelt', 10, 'Avond');
+if (!tenchSpring || !tenchAutumn || tenchSpring.score === tenchAutumn.score) throw new Error('Seasonal phase must change the score.');
+const asp = assessSpeciesFeedingActivity('Roofblei', [
+  calculateSpeciesFeedingResponse('Roofblei', 7, 'Ochtend'),
+  calculateSpeciesFeedingResponse('Roofblei', 7, 'Avond'),
+]);
+if (asp.score === null || asp.status !== 'provisional' || asp.confidencePercent >= 100) throw new Error('Roofblei must receive a low-confidence proxy response.');
 if (asp.responses.intensity.sourceCount !== 0 ||
     asp.responses.rhythm.sourceCount !== 0 ||
     asp.responses.incidence.sourceCount === 0 ||
@@ -48,4 +61,4 @@ if (!pike.responses.rhythm.sourceIds.includes('pike-juvenile-feeding-rhythm-firs
   throw new Error('Juvenile pike feeding rhythm must remain visible without adult generalisation.');
 }
 
-console.log('Species feeding response output tests passed.');
+console.log('Species feeding response and provisional scoring tests passed.');
