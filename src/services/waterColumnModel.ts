@@ -418,7 +418,7 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     asOf: input.asOf ? new Date(Date.parse(input.asOf)).toISOString() : null,
     forcingStartTime: accepted[0].time,
     forcingEndTime: accepted[accepted.length - 1].time,
-    status: scenarioConverged ? 'scenario_converged' : 'low_confidence',
+    status: scenarioConverged && physicalInputCoveragePercent >= 80 && !advectionNotModeled ? 'scenario_converged' : 'low_confidence',
     scenarioConverged,
     estimatedTemperatureC: Math.round(estimatedTemperatureC * 100) / 100,
     estimatedRangeC: [Math.round(minTemperature * 100) / 100, Math.round(maxTemperature * 100) / 100],
