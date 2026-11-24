@@ -1,5 +1,5 @@
 import {
-  freshwaterDensityKgM3, mixConvectivelyUnstableLayers, simulateWaterColumn, WATER_COLUMN_LAYER_COUNT,
+  calculateWindMixingExchangeFraction, freshwaterDensityKgM3, mixConvectivelyUnstableLayers, simulateWaterColumn, WATER_COLUMN_LAYER_COUNT,
 } from './src/services/waterColumnModel';
 import type { WaterColumnForcingSample } from './src/services/waterColumnModel';
 let passed = 0;
@@ -93,6 +93,21 @@ for (const profile of profileCases) {
     'Convectieve overturning behoudt warmte en eindigt stabiel voor profiel ' + profile.join('/'));
 }
 
+
+
+// Wind mixing energy budget: more wind work increases exchange, while a
+// stronger density interface raises the potential-energy barrier.
+const calmExchange = calculateWindMixingExchangeFraction(0.01, 1);
+const strongWindExchange = calculateWindMixingExchangeFraction(0.5, 1);
+const strongStratificationExchange = calculateWindMixingExchangeFraction(0.1, 4);
+assert(strongWindExchange > calmExchange,
+  'Meer beschikbare windarbeid verhoogt de toegestane menging');
+assert(strongStratificationExchange < calculateWindMixingExchangeFraction(0.1, 1),
+  'Een sterkere stabiele dichtheidsbarrière remt de menging');
+assert(calculateWindMixingExchangeFraction(100, 1) <= 0.12,
+  'Energiegestuurde uitwisseling blijft numeriek begrensd');
+assert(Math.abs(calculateWindMixingExchangeFraction(-1, 1) - 0.001) < 1e-12,
+  'Negatieve windarbeid kan geen extra menging veroorzaken');
 
 // Site-specific physical inputs: Secchi depth controls the optical extinction
 // coefficient; exposed fetch increases wind-driven exchange relative to shelter.
