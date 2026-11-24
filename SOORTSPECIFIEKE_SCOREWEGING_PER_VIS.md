@@ -327,10 +327,11 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 - Niet-gevalideerde Excel-aannames en parameters zijn expliciet uitgesloten van directe score-invoer.
 
 **Huidige opdracht — lopend**
-- De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de 94 bestaande registerrecords.
+- De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de bestaande onderzoeksregistratie.
 - De voorlopige prioriteiten zijn aangescherpt: fysiologische curvebeoordeling start bij baars en snoekbaars; voedingsbewijsbeoordeling start bij karper, brasem en blankvoorn.
-- De primaire broncontrole van tien studies is vastgelegd in sectie 11. Belangrijke beperkingen zijn onder meer lichaamsgrootte bij baars, de brede aerobe-scope-respons bij snoekbaars en context-/levensfaseafhankelijk voedingsritme.
-- De iteratieve implementatieafspraak is vastgelegd in sectie 12: na afronding van de eerste factorselectie bouwen we V0.1; volledige Excel-validatie is geen voorwaarde om te beginnen met implementeren.
+- De primaire broncontrole van elf studies is vastgelegd in sectie 11. Belangrijke beperkingen zijn onder meer lichaamsgrootte bij baars, de brede aerobe-scope-respons bij snoekbaars, context-/levensfaseafhankelijk voedingsritme en het onderscheid tussen meervalvoeding in voerproeven en beweging in veldtelemetrie.
+- De directe voedingsritmestudie van volwassen Europese meerval (Boujard 1995) is als afzonderlijk bewijsrecord toegevoegd aan het bestaande `researchRegistry.ts`. De roofblei-telemetriebronnen waren al geregistreerd en zijn niet dubbel toegevoegd.
+- De iteratieve implementatieafspraak staat in sectie 12: na afronding van de eerste factorselectie bouwen we V0.1; volledige Excel-validatie is geen voorwaarde om te beginnen met implementeren.
 - Nog uit te voeren: resterende primaire bronresponsen controleren en de eerste factorselectie per soort/uitkomst afronden. Per factor volgt de status: numeriek inzetbaar, voorlopig begrensd, contextueel of nog niet inzetbaar.
 
 **Volgende stap na afronding van de huidige factorselectie**
@@ -339,7 +340,7 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 - De resterende Excel-bronnen en -parameters parallel/na de eerste werkende versie valideren en gevalideerde informatie aan het bestaande onderzoeksregister toevoegen.
 - Nieuwe bronnen, lokale meetgegevens en vangstdata gebruiken om volgende modelversies gecontroleerd te tunen.
 
-**Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De Excel-koppeling, evidence matrix, tien broncontroles en iteratieve implementatiestrategie zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
+**Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De Excel-koppeling, evidence matrix, elf broncontroles en iteratieve implementatiestrategie zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
 
 # 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
 
@@ -425,7 +426,7 @@ De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteit
 
 # 11. Primaire broncontrole — eerste kandidaten (24-11-2026)
 
-De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor tien primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
+De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor elf primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
 
 | Bronrecord | Gecontroleerde bevinding | Gevolg voor de weging |
 |---|---|---|
@@ -446,7 +447,7 @@ De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor tien 
 
 ## 11.2 Status na deze broncontrole
 
-**Afgerond:** eerste broncontrole van tien relevante studies en aanscherping van de interpretatie van de bijbehorende evidence records.
+**Afgerond:** eerste broncontrole van elf relevante studies en aanscherping van de interpretatie van de bijbehorende evidence records.
 
 **Nog open binnen de huidige wegingstaak:** primaire broncontrole van overige kandidaatstudies, vooral directe voedselopname bij snoek, baars, zeelt, snoekbaars en meerval; vervolgens responsvormen en toepassingsgrenzen naast elkaar zetten. Pas wanneer responsen voldoende vergelijkbaar zijn, volgt een numeriek gewicht.
 
