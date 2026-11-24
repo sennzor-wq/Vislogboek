@@ -2957,3 +2957,30 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 **Validatie:** Quality Gate-run `45427223287` op commit `936a71119e7fa28a8847fbdcbf089fa3322e51db` is volledig geslaagd, inclusief TypeScript, alle bestaande regressietests, de uitgebreide waterkolom-invarianttests, empirische validatietests en productiebuild/private-artifactcontrole.
 
 **Status:** wetenschappelijke literatuurcontrole en aanvullende fysische invarianttests uitgevoerd en softwarematig gevalideerd. De openstaande processen zijn geregistreerd; ze zijn bewust niet met ongefundeerde parameters in de rekenkern geforceerd. Er is nog geen empirische nauwkeurigheidsclaim.
+
+
+## Waterbody-fysieke invoer toegevoegd — 24 november 2026
+
+De locatiegegevens zijn uitgebreid met optionele fysieke kenmerken die de waterkolomvoorspelling daadwerkelijk kan gebruiken. Dit is een compatibele uitbreiding van bestaande `FishingLocation`-records; er is geen IndexedDB-schemawijziging nodig. De bestaande backup exporteert/importteert de volledige locatieobjecten en behoudt deze optionele eigenschappen.
+
+### Nieuwe locatievelden
+- `windExposure`: beschut, gedeeltelijk open of open. Dit corrigeert de 10 m-weerswind voor lokale afscherming.
+- `effectiveFetchM`: geschatte vrije waterlengte in de dominante windrichting (10–10.000 m). Dit schaalt de lokale windblootstelling.
+- `secchiDepthM`: zichtdiepte van een Secchi-schijf (0,1–20 m). Hiermee wordt de kortgolvige lichtuitdoving afgeleid.
+- `waterMovement`: stilstaand, zwak stromend, stromend, getijde of onbekend. Voor rivier/kanaal worden bij bestaande locaties conservatieve startwaarden voorgesteld; gebruiker kan dit aanpassen.
+
+De velden staan onder een ingeklapte sectie in het locatieformulier en zijn nooit verplicht. Onbekende waarden blijven expliciete priors; ze blokkeren de zelfstandige voorspelling niet.
+
+### Fysische toepassing
+- Secchi: `Kd = 1,7 / ZSecchi` (m⁻¹), begrensd op 0,15–5 m⁻¹. De factor 1,7 is een gangbare empirische startrelatie, geen universele natuurconstante. Publicaties rapporteren verschillende coëfficiënten en waarschuwen dat de relatie in troebele wateren zwakker kan zijn. Referenties: CE-QUAL-W2 User Manual (2025), https://ce-qual-w2-erdc.github.io/documentation/users-manual/W2manual45_Part3_InputOutputFiles_rev8.pdf; NIWA/Poole & Atkins-overzicht, https://www.envirolink.govt.nz/assets/Envirolink/158-wcrc18.pdf; Bowers et al. (2020), https://doi.org/10.1029/2020JC016172.
+- Wind: de 10 m-wind wordt voorlopig aangepast met een transparante blootstellingsfactor (0,55 beschut; 0,8 deels open; 1,0 open) en een begrensde wortelrelatie met fetch. De aangepaste windsnelheid stuurt de bestaande bulk-warmteflux en winduitwisseling; een bovengrens van 30 m/s voorkomt numerieke ontsporing.
+- Stroming: zwakke/sterke stroming en getijde worden expliciet als niet-gemodelleerde horizontale advectie gemarkeerd. De uitkomst blijft best-effort maar krijgt geen status 'scenario_converged'. Een 1D-model mag stromend water niet als stilstaand meer voorstellen.
+- De uitvoer rapporteert welke fysieke priors zijn gebruikt, een invoerdekkingspercentage en concrete waarschuwingen. Dit is invoerbeschikbaarheid, geen empirische betrouwbaarheidskans.
+
+### Wetenschappelijke begrenzing
+De fetch-/blootstellingsfactoren zijn expliciete voorlopige engineering-priors, geen gekalibreerde TKE- of fetch-energieformulering. Ze zijn een verbetering ten opzichte van één identieke windaanname voor elke stek, maar worden niet als definitief gepresenteerd. Delft3D-onderzoek laat zien dat lokale winddrag en beschutting met waterlichaam en omliggende bomen samenhangen en dat Secchi/optische parameters tegen temperatuurprofielen moeten worden gekalibreerd: https://doi.org/10.5194/ESD-12-439-2021.
+
+### Nog bewust niet toegevoegd
+Bodemtype alleen is onvoldoende om een betrouwbare sedimentwarmteflux te berekenen. Daarvoor ontbreken sedimenttemperatuur en thermische eigenschappen; een willekeurige bodemcorrectie zou ongefundeerd zijn. Dit blijft een afzonderlijke volgende modelstap, net als een volwaardige windenergie/TKE-benadering en geautomatiseerde geometrische fetchbepaling.
+
+**Status:** fysieke locatie-invoer, formulier, modelkoppeling en regressietests toegevoegd op de bestaande PR-branch. De wijziging blijft shadow-only; score, soortcurves, bestaande temperatuuruitvoer en productiegedrag zijn niet aangepast.
