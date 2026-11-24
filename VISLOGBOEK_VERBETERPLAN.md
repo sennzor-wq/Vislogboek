@@ -2996,3 +2996,14 @@ De historische ERA5-Seamless- en recente Open-Meteo-forcing halen nu naast winds
 Dit is de noodzakelijke invoerbasis voor de volgende stap: richtingafhankelijke fetch uit waterlichaamgeometrie. De richting wordt op dit moment nog niet als zelfstandige fysieke correctie op de menging toegepast. De huidige fetchfactor blijft dus de eerder beschreven voorlopige scalar-prior. Een kaart-/polygonbron moet eerst aantoonbaar het juiste waterlichaam rond de GPS-positie vinden; bij ontbrekende of ambigue geometrie blijft handmatige invoer leidend. Geen automatische fetchwaarde wordt op basis van alleen een steknaam of grove watercategorie verzonnen.
 
 **Wijzigingen:** `src/types/index.ts`, `src/services/waterColumnModel.ts` en `src/services/waterColumnWeatherService.ts`.
+
+
+### Automatische richtingafhankelijke fetch — 24 november 2026
+
+De waterkolomprognose kan nu optioneel zelf de watergeometrie van een stek gebruiken. De lookup gebruikt OpenStreetMap/Overpass en accepteert uitsluitend een gesloten, getagde water-way die de opgeslagen GPS-positie daadwerkelijk bevat. Uit de polygonrand worden 16 upwind-fetchafstanden berekend (22,5° sectoren, vanaf noord met de klok mee). Per uur wordt de meteorologische windrichting gebruikt om tussen aangrenzende sectoren te interpoleren. De bestaande handmatige scalar-fetch blijft terugval wanneer geen bruikbare polygon beschikbaar is.
+
+De geometrie wordt maximaal 30 dagen lokaal gecachet in de bestaande IndexedDB-weatherCache; er is geen schema-/indexmigratie. Overpass-, netwerk-, CORS-, ontbrekende of niet-ondersteunde geometrie resulteert in `null`, nooit in een verzonnen fetchafstand. De eerste implementatie verwerkt gesloten OSM-ways; complexe multipolygon-relaties, waterpolygonen met gaten en rivierpolygonen die niet als gesloten way zijn gemapt vallen terug op de handmatige prior. De gebruikte polygonoppervlakte wordt bewaard voor diagnose, maar nog niet als afzonderlijke betrouwbaarheidsmaat gebruikt.
+
+De richtingafhankelijke fetch stuurt uitsluitend de bestaande shadow-only winduitwisseling in het waterkolommodel. De handmatige windbeschuttingskeuze blijft aanvullend actief; automatische categorieclassificatie (beschut/deels open/open) wordt bewust niet afgeleid uit arbitraire afstandsdrempels. Vangstscore, soortcurves en bestaande productie-uitvoer zijn ongewijzigd.
+
+**Validatiegrens:** de geometrische algoritmetests controleren ray-intersecties, sectorinterpolatie, windrichtingswrap en cachegedrag met synthetische polygonen. Dit bewijst de berekening, niet de volledigheid of nauwkeurigheid van OSM-kaartdekking op iedere Nederlandse stek. De live Overpass-lookup moet daarom altijd als optionele bron behandeld blijven.
