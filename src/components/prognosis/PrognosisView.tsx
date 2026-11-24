@@ -940,6 +940,16 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     Indicatieve schatting — hoge, niet-gekwantificeerde onzekerheid
                   </span>
                 )}
+                {activeDayProg.thermalAnalysis.waterColumnPrediction && (
+                  <div className="w-full flex flex-wrap gap-3 pt-2 border-t border-slate-700/60 text-[11px]">
+                    <span className="text-slate-300">Oppervlak: <strong className="text-cyan-300">{activeDayProg.thermalAnalysis.waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C</strong></span>
+                    <span className="text-slate-300">Bodem: <strong className="text-emerald-300">{activeDayProg.thermalAnalysis.waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C</strong></span>
+                    <span className="text-slate-300">Watergemiddelde: <strong className="text-slate-100">{activeDayProg.thermalAnalysis.waterColumnPrediction.volumeMeanTemperatureC.toFixed(1)} °C</strong></span>
+                    {activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM > 0 && (
+                      <span className="text-sky-200">Berekend ijs: {Math.round(activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM * 100)} cm</span>
+                    )}
+                  </div>
+                )}
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
                 {showAdvancedDetails && (
                   <span
@@ -1037,6 +1047,33 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <p className="text-slate-400">
                     <strong>Oppervlaktelaag vs. Bulk:</strong> {activeDayProg.thermalAnalysis.surfaceVsBulkNote}
                   </p>
+                  {activeDayProg.thermalAnalysis.waterColumnPrediction && (
+                    <div className="pt-2 border-t border-slate-700/40 space-y-2">
+                      <p className="font-semibold text-slate-200">Fysisch temperatuurprofiel — {activeDayProg.thermalAnalysis.waterColumnPrediction.totalDepthM.toFixed(2)} m stekdiepte</p>
+                      <div className="grid grid-cols-5 gap-1">
+                        {activeDayProg.thermalAnalysis.waterColumnPrediction.layerTemperaturesC.map((temperature, index, layers) => (
+                          <div key={index} className="rounded-lg bg-slate-900/70 p-2 text-center">
+                            <span className="block text-[9px] text-slate-500">Laag {index + 1}</span>
+                            <strong className="block text-xs text-cyan-200">{temperature.toFixed(1)}°</strong>
+                            <span className="block text-[8px] text-slate-500">
+                              {((index * activeDayProg.thermalAnalysis!.waterColumnPrediction!.totalDepthM) / layers.length).toFixed(1)}–{(((index + 1) * activeDayProg.thermalAnalysis!.waterColumnPrediction!.totalDepthM) / layers.length).toFixed(1)} m
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-400">
+                        <span>Scenario-spreiding: {activeDayProg.thermalAnalysis.waterColumnPrediction.scenarioSpreadC.toFixed(2)} °C</span>
+                        <span>Forcingdekking: {(activeDayProg.thermalAnalysis.waterColumnPrediction.forcingCoverageRatio * 100).toFixed(0)}%</span>
+                        <span>Fysieke invoerdekking: {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputCoveragePercent}%</span>
+                        {activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM > 0 && <span>IJslaag: {(activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM * 100).toFixed(1)} cm</span>}
+                      </div>
+                      {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputWarnings.length > 0 && (
+                        <ul className="list-disc pl-4 text-[10px] text-amber-300/90">
+                          {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputWarnings.map((warning, index) => <li key={index}>{warning}</li>)}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                   <p className="text-cyan-300/90 pt-1 border-t border-slate-700/40 text-[11px]">
                     <strong>Invloed op de prognose:</strong> {activeDayProg.thermalAnalysis.prognosisImpactNote}
                   </p>
