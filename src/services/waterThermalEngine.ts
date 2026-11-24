@@ -167,16 +167,17 @@ export function analyzeWaterThermalDevelopment(
   // Een handmatige meting is alleen "actueel" op/voor het meetmoment.
   // Voor een toekomstig tijdstip wordt dezelfde meting een historisch anker
   // en wordt de ontwikkeling vanaf dat moment chronologisch doorgerekend.
-  const hasTargetDepthMeasurement = options?.targetDepthM == null || (
-    typeof options?.measurementDepthM === 'number' &&
-    Math.abs(options.measurementDepthM - options.targetDepthM) <= 0.2
-  );
   const isActualSituation = Boolean(
     anchor && anchor.source === 'current' &&
     (!currentDateRef || targetIsCurrentDate) &&
     estimationTargetMs <= refMs
   );
   const hasMeasured = isActualSituation;
+  const hasTargetDepthMeasurement = Boolean(hasMeasured && (
+    options?.targetDepthM == null ||
+    (typeof options?.measurementDepthM === 'number' &&
+      Math.abs(options.measurementDepthM - options.targetDepthM) <= 0.2)
+  ));
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren.
