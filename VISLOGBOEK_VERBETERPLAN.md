@@ -3208,3 +3208,62 @@ ThermalSuitability en feedingSuitability liggen tussen 0 en 1 wanneer de paramet
 
 #### Scopebesluit
 De eerstvolgende codewijziging blijft klein: voeg pas een afzonderlijke, zuivere habitatverdelingsfunctie en tests toe wanneer evidence-status en parameters voor de eerste twee referentiesoorten (karper en snoek) expliciet zijn gemapt. Geen algemene herbouw van prognosisEngine, geen nieuwe activiteitsgewichten en geen brede UI-aanpassing in deze stap. De bestaande volume-gemiddelde fallback voor andere soorten blijft ongewijzigd totdat hun habitatmodel afzonderlijk onderbouwd en getest is.
+
+
+### Evidence-mapping referentiesoorten v1 — karper en snoek (24 november 2026)
+
+**Status:** gerichte literatuurbeoordeling; kwalitatieve biologische onderbouwing vastgelegd, nog geen nieuwe numerieke parameters vrijgegeven voor de prognose. De onderstaande studies ondersteunen hypotheses en modelstructuur, maar leveren niet zonder meer overdraagbare gewichten voor Nederlandse kleine stilstaande viswateren.
+
+#### Karper (Cyprinus carpio) — bodemgebonden foerageerder, geen exclusieve bodem-bewoner
+
+| Onderwerp | Bewijs en bron | Modelbesluit |
+|---|---|---|
+| Dag-/nacht- en verticale verplaatsing | Telemetrie in een klein Ebro-reservoir over 19 maanden vond vooral in het warme seizoen verticale verplaatsing: overdag ondieper, 's nachts vaker diep bij de bodem; activiteit en dieptegebruik verschilden tussen individuen en hingen mede samen met stroming. Radinger et al. (2015), *Diel Cycle and Effects of Water Flow on Activity and Use of Depth by Common Carp*, DOI: 10.1080/00028487.2015.1017656. | Karper mag niet als permanent in de onderste waterlaag aanwezig worden gemodelleerd. Dagdeel, seizoen, stroming en individuele variatie zijn relevante context. De exacte richting uit dit stromende reservoirsysteem wordt niet als vaste Nederlandse regel overgenomen. |
+| Ondiepe oeverzones en dagdeel | Akoestische telemetrie tijdens het voortplantingsseizoen in de Pearl River vond meer nachtelijke detecties en vaker gebruik van ondiepe oeverhabitats in de nacht; temperatuur, waterstand en afvoer hingen samen met habitatgebruik. *Site Fidelity, Habitat Use, and Movement Patterns of the Common Carp during Its Breeding Season in the Pearl River as Determined by Acoustic Telemetry* (2020), DOI: 10.3390/w12082233. | Ondersteunt dat ondiepe lagen en oeverhabitat onderdeel van de mogelijke habitatverdeling moeten blijven. Overdracht naar niet-paaiend gedrag in Nederlandse vijvers is beperkt. |
+| Temperatuur en foerageerrespons | Laboratoriumexperiment met juveniele karper (90–105 mm) bij 16, 20, 24 en 28 °C vond temperatuurafhankelijke foerageer- en groeirespons; hoogste foerageersnelheid in die proef bij 24 °C. Oyugi et al. (2012), *Effects of temperature on the foraging and growth rate of juvenile common carp*, DOI: 10.1016/j.jtherbio.2011.11.005. | Bewijst dat temperatuur foerageren kan beïnvloeden, maar de proef met juvenielen en gecontroleerde voedselcondities is geen volwassen Nederlandse karpervangstcurve. Niet als operationele T-optimumcurve vrijgeven. |
+| Zuurstof in winter | Telemetrie in een met ijs/sneeuw bedekte kweekvijver liet zien dat karpers bij zuurstoftekort naar ondiepere zones met betere zuurstoftoevoer trokken; activiteit correleerde met zuurstof, niet significant met temperatuur in die crisisperiode. *Reaction of common carp to oxygen deficiency in winter* (2006), DOI: 10.1111/j.1365-2109.2005.01426.x. | Zuurstof kan habitatbeperking veroorzaken en mag niet uit temperatuur worden afgeleid. Kweekvijver/crisissituatie is geen normale winterresponsparameter. |
+
+**Werkbare conclusie karper**
+- De bestaande PR #225-regel blijft voor de thermische invoer van de karperprognose: gebruik de gemodelleerde bodemtemperatuur op de geregistreerde diepte van de eigen stek wanneer het profiel geldig is.
+- Dit is geen bewijs dat karpers altijd op de bodem verblijven. De toekomstige habitatverdeling moet ook ondiepe/litorale lagen kunnen ondersteunen en rekening houden met dagdeel, seizoen, habitat en waterbeweging als die gegevens beschikbaar zijn.
+- Benthisch foerageren, verticale aanwezigheid, algemene activiteit en vangbaarheid blijven afzonderlijke uitkomsten.
+- Er wordt op basis van deze bronnen nog geen numerieke dagdeel-, diepte- of temperatuurcurve voor volwassen karpers vrijgegeven.
+
+#### Snoek (Esox lucius) — dynamisch, habitat- en zuurstofafhankelijk
+
+| Onderwerp | Bewijs en bron | Modelbesluit |
+|---|---|---|
+| Temperatuur- en dieptekeuze, grootte en vegetatie | Telemetrie/archief-tags in drie Minnesota-meren toonden sterke flexibiliteit binnen seizoenen en jaren. Lage zuurstof beperkte dieptegebruik in zomer en winter. Grote snoeken volgden in juli/augustus soms de thermocline; in augustus werden bij beschikbaarheid van warmer water selectiepatronen rond 16–21 °C gevonden. Kleine snoeken gebruikten in twee meren met waterleliebedekking warmer, ondieper water; zonder die dekking vaker dieper en koeler water. Pierce et al. (2013), *Depths and Thermal Habitat Used by Large versus Small Northern Pike in Three Minnesota Lakes*, DOI: 10.1080/00028487.2013.822422. | Sterke onderbouwing voor een dynamisch model. Grootte/levensfase, vegetatie, temperatuurprofiel en zuurstof zijn relevante factoren. De gemeten 16–21 °C is een contextgebonden selectie-uitkomst voor grote snoek in augustus, geen universeel optimum of harde grens. |
+| Beperking door warm water en zuurstof | Telemetrie in twee zuidelijke Ohio-reservoirs vond dat zomers habitat beperkt werd door warme bovenlagen en zuurstofarme bodemlagen; snoeken gebruikten bij hoge oppervlaktetemperaturen de koelste beschikbare waterlaag met voldoende zuurstof. *Restricted Summer Habitat and Growth of Northern Pike in Two Southern Ohio Impoundments* (1993), DOI/bronverwijzing in Transactions of the American Fisheries Society. | Temperatuur alleen is onvoldoende om de bruikbare laag te bepalen. Zonder gemeten of gevalideerde zuurstofinvoer mag VisCoach diepe lagen niet automatisch uitsluiten en moet de beperking als onbekend worden getoond. |
+| Dag-/nachtactiviteit en seizoen | Hoogfrequente positietelemetrie van volwassen snoek in een gematigd meer vond in onderzochte perioden een duidelijk dagpatroon met meer activiteit overdag dan 's nachts; activiteit bleef ook in koudere perioden aanwezig. Baktoft et al. (2012), *Seasonal and diel effects on the activity of northern pike studied by high-resolution positional telemetry*, DOI: 10.1111/j.1600-0633.2012.00558.x. | Daglicht/dagdeel is relevante context, maar deze studie meet activiteit en niet rechtstreeks de kans op aanwezigheid in elk van de vijf dieptelagen. Niet als dieptegewicht gebruiken. |
+| Habitatflexibiliteit en weer | Radio-/ultrasone telemetrie liet zien dat snoek vaak ondiepe vegetatierijke zones gebruikt, maar ook tussen habitats kan wisselen; bij wind werden in de onderzochte situatie vaker verder uit de oever gelegen habitats gebruikt, niet noodzakelijk dieper. Chapman & Mackay (1984), *Versatility in habitat use by a top aquatic predator, Esox lucius L.*, Journal of Fish Biology 25:109–115. | Vegetatie/oever/open-water en weerscontext kunnen de horizontale habitatkeuze beïnvloeden. Geen vaste diepte- of windregel afleiden. |
+
+**Werkbare conclusie snoek**
+- Geen bodemregel en geen universele vaste diepte.
+- Gebruik de vijflaagse temperatuurverdeling als fysische context, maar laat temperatuurvoorkeur alleen meewegen met vrijgegeven, toepasselijke parameters.
+- Vegetatie/structuur, grootte/levensfase, daglicht en seizoen zijn relevante habitatcontext; prooiaanbod blijft een ontbrekende driver tenzij betrouwbaar beschikbaar.
+- Zuurstof is een mogelijke beperkende factor, maar blijft onbekend zonder meting of afzonderlijk gevalideerde schatting.
+- De activiteitspiek overdag mag niet worden vertaald naar een dieptevoorkeur of vangstscore.
+
+#### Bewijsstatus en implementatiebesluit
+
+| Parameter/factor | Karper | Snoek | Status voor numerieke habitatverdeling |
+|---|---|---|---|
+| Temperatuur per fysieke laag | Relevant; thermische stekinput gebruikt bodemtemperatuur volgens PR #225 | Relevant voor thermische habitatkeuze | Fysisch profiel beschikbaar; soortresponsparameters nog niet vrijgegeven |
+| Verticale habitat/diepte | Variabel; bodemgebruik is niet exclusief | Sterk dynamisch | Kwalitatief onderbouwd; geen overdraagbare laaggewichten |
+| Dagdeel/licht | Relevant, context- en systeemafhankelijk | Relevant voor activiteit; diepte-effect niet gelijkgesteld | Context invoeren waar beschikbaar; geen numerieke dieptefactor vrijgeven |
+| Vegetatie/structuur | Oever/litorale habitat kan relevant zijn | Sterk relevant, verschilt met grootte | Alleen gebruiken als lokale invoer aanwezig is; geen default |
+| Zuurstof | Kan in winter habitat/activiteit beperken | Kan diepe lagen beperken | Alleen gemeten of gevalideerd; onbekend blijft onbekend |
+| Stroming/waterbeweging | In telemetrystudie samenhang met activiteit en dieptegebruik | Weer/habitat kan horizontale keuze beïnvloeden | Alleen als invoer beschikbaar; overdraagbaarheid naar stilstaand water begrensd |
+| Voedsel/prooiaanbod | Essentieel voor foerageren | Essentieel voor jacht/voedingsactiviteit | Niet numeriek inzetbaar zolang contextgematchte invoer/evidence ontbreekt |
+
+**Besluit:** de literatuur ondersteunt de biologische structuur van beide referentiemodellen, maar niet de directe vrijgave van numerieke vijflaagse habitatgewichten voor Nederlandse stekken. De volgende code-stap is daarom nog niet het invullen van willekeurige gewichten. Eerst moet per soort worden bepaald welke invoer de app werkelijk heeft en kan de pure berekeningsfunctie uitsluitend ondersteunde bijdragen combineren; bij onvoldoende evidence blijft de relatieve verdeling onbekend. De karper-bodemtemperatuurkoppeling uit PR #225 blijft een aparte, reeds uitgevoerde thermische invoerbeslissing en wordt niet verward met exclusieve bodemaanwezigheid.
+
+**Bronnen (primaire onderzoeksartikelen):**
+- Radinger et al. (2015), DOI: https://doi.org/10.1080/00028487.2015.1017656
+- Common carp breeding-season telemetry (2020), DOI: https://doi.org/10.3390/w12082233
+- Oyugi et al. (2012), DOI: https://doi.org/10.1016/j.jtherbio.2011.11.005
+- Common carp winter oxygen telemetry (2006), DOI: https://doi.org/10.1111/j.1365-2109.2005.01426.x
+- Pierce et al. (2013), DOI: https://doi.org/10.1080/00028487.2013.822422
+- Baktoft et al. (2012), DOI: https://doi.org/10.1111/j.1600-0633.2012.00558.x
+- Chapman & Mackay (1984), *Journal of Fish Biology* 25:109–115.
