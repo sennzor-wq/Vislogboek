@@ -308,7 +308,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     opticalExtinctionPerM: Math.round(opticalExtinctionPerM * 1000) / 1000,
     secchiPriorUsed: !validSecchiDepth,
     windExposurePriorUsed: input.windExposure === undefined,
-    fetchPriorUsed: !(validFetch || validDirectionalFetch),
+    fetchPriorUsed: !(validFetch || (validDirectionalFetch && accepted.some((sample) =>
+      getDirectionalFetchM(input.windFetchByDirectionM, sample.windDirectionDegrees) !== undefined))),
   };
 }
 
@@ -430,6 +431,7 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
   if (simulations[0].secchiPriorUsed) physicalInputWarnings.push('Waterhelderheid ontbreekt; lichtuitdoving gebruikt een algemene prior.');
   if (simulations[0].windExposurePriorUsed) physicalInputWarnings.push('Windbeschutting is onbekend; lokale windreductie is niet vastgesteld.');
   if (simulations[0].fetchPriorUsed) physicalInputWarnings.push('Effectieve open-waterlengte (fetch) ontbreekt; een neutrale fetchprior is gebruikt.');
+  else if (Array.isArray(input.windFetchByDirectionM) && input.windFetchByDirectionM.length === 16) physicalInputWarnings.push('Richtingafhankelijke fetch afgeleid uit OpenStreetMap (© OpenStreetMap contributors); kaartdekking en polygonkeuze blijven afhankelijk van OSM-data.');
   if (waterMovement === 'unknown') physicalInputWarnings.push('Stroming is onbekend; horizontale advectie is niet gemodelleerd.');
   else if (advectionNotModeled) physicalInputWarnings.push('Stroming/getijde is aanwezig; dit 1D-model berekent geen horizontale advectie en heeft daarom lage toepasbaarheid.');
   const measurementAnchorsUsed = Math.min(...simulations.map((simulation) => simulation.measurementAnchorsUsed));
