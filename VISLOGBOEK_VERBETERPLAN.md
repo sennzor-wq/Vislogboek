@@ -2093,3 +2093,87 @@ Een kandidaatmodel mag pas als eerste versie worden voorgesteld wanneer het ten 
 Het protocol moet eerst vaststellen of de startconditie voldoende uitdempt en welke forcingbron het best aansluit op de KNMI-heat-balance-basis. Pas daarna wordt een concreet technisch implementatieontwerp aan de eigenaar voorgelegd.
 
 **Besluitpoort blijft gesloten:** geen productiecode, types, database, UI, formule, parameters, extra databronnen, scoreberekening of deployment wijzigen zonder expliciete goedkeuring. Dit documenteert alleen de onderzoeksrichting. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Validatieonderzoek — beschikbare Nederlandse en internationale temperatuurprofielen (24 november 2026)
+
+**Doel:** nagaan welke echte watertemperatuurprofielen beschikbaar zijn om het voorgestelde model te toetsen. Dit onderzoek is read-only; er zijn geen meetbestanden gedownload/geïmporteerd, geen gebruikersrecords geraadpleegd en geen modelberekeningen uitgevoerd.
+
+#### 1. Nederlandse referentie: Klinkenbergerplas
+
+Het rapport *Haalbaarheid TEO Klinkenbergerplas* (Syntraal, 16 december 2021), opgesteld voor gemeenten Oegstgeest/Teylingen en Hoogheemraadschap Rijnland, bevat een concrete Nederlandse diepe-plas-casus:
+
+- De plas wordt beschreven als geïsoleerd en nagenoeg stilstaand, met een oppervlak van circa 288.000 m² en een maximale diepte van circa 34 m.
+- Hoogheemraadschap Rijnland leverde temperatuurmetingen aan over de periode 1985–2021.
+- Het rapport toont een gemiddeld seizoensprofiel: de bovenste circa 6 m warmt in de zomer sterk op tot ongeveer 20 °C, terwijl op 15 m en dieper de temperatuur vrijwel jaarrond rond 4–5 °C blijft.
+- Dit is precies het soort Nederlandse praktijkprofiel dat de noodzaak van een verticale temperatuurtoestand illustreert.
+
+**Beperking:** het rapport publiceert grafieken en samenvattende profielen, niet de ruwe tijdgestempelde meetreeksen. De datahouder is Hoogheemraadschap Rijnland. Deze bron kan daarom nu als kwalitatieve/seizoensmatige referentie worden gebruikt; voor kwantitatieve kalibratie of onafhankelijke validatie moeten ruwe meetgegevens, meetdieptes, tijdstippen en meetmethoden worden opgevraagd en de gebruiksvoorwaarden worden vastgesteld.
+
+Bron: Syntraal (2021), *Haalbaarheid TEO Klinkenbergerplas*, hoofdstuk 3.3–3.4, rapport R001-1322285JVN-V01-ygl-NL: https://doemee.oegstgeest.nl/uploads/4bf7ccfa-a9a1-4d3b-ad26-27ba03d63471/event_file/file/50fa9a0a-59ac-4328-a10f-cc1361cdf7ed/Eindrapport_Klinkenbergerplas.pdf
+
+#### 2. Nederlandse ondiepe wateren: IJsselmeer, Tjeukemeer, Zwemlust
+
+Mooij, de Senerpont Domis & Hülsmann (2008) onderzochten Nederlandse ondiepe eutrofe wateren met uiteenlopende omvang en diepte: IJsselmeer, Tjeukemeer en Zwemlust. Zij pasten een lucht-water-temperatuurmodel toe voor ondiepe, windblootgestelde en holomictische (doorgaans volledig gemengde) wateren.
+
+De gerapporteerde residuele standaardafwijking was:
+- IJsselmeer: 0,86 °C;
+- Tjeukemeer: 0,94 °C;
+- Zwemlust: 1,47 °C.
+
+**Wat dit wel aantoont:** een relatief eenvoudige lucht-waterbenadering kan voor bepaalde Nederlandse ondiepe, windblootgestelde en goed gemengde wateren bruikbare resultaten geven.
+
+**Wat dit niet aantoont:** dat zo'n model een verticale thermocline, diepe waterlaag, winterse inverse stratificatie of lokale temperatuur op willekeurige visdiepte kan voorspellen. Het is daarom een relevante ondiepwater-baseline, niet de volledige architectuur voor Vislogboek.
+
+Bron: Mooij, W.M., de Senerpont Domis, L.N. & Hülsmann, S. (2008), *The impact of climate warming on water temperature, timing of hatching and young-of-the-year growth of fish in shallow lakes in the Netherlands*, Journal of Sea Research 60(1–2), 32–43, DOI: 10.1016/j.seares.2008.03.002. https://www.sciencedirect.com/science/article/abs/pii/S1385110108000166
+
+#### 3. Internationale profieldata: 153 meren
+
+Pilla et al. (2021) publiceerden een open dataset met zomerse verticale temperatuurprofielen uit 153 meren in 26 landen. De bestanden bevatten ruwe en geïnterpoleerde profielen plus metadata over locatie, morfometrie en waterkwaliteit.
+
+**Geschiktheid:**
+- nuttig om vorm en diepte van zomerprofielen, thermoclines en diepe temperaturen te toetsen;
+- nuttig voor een onafhankelijke structurele vergelijking van een verticale modelkern;
+- niet geschikt als enige validatiebron, omdat het om zomerse profielen gaat en de dataset geen Nederlandse winter-/ijsvalidatie vervangt.
+
+Datarepository: Environmental Data Initiative, dataset 705: https://portal.edirepository.org/nis/mapbrowse?scope=edi&identifier=705  
+Publicatie: Pilla et al. (2021), *Global data set of long-term summertime vertical temperature profiles in 153 lakes*, Scientific Data 8, 200, DOI: 10.1038/s41597-021-00983-y. https://www.nature.com/articles/s41597-021-00983-y
+
+#### 4. Europese meerprofielen en lichtuitdoving
+
+De European Multi Lake Survey-dataset beschrijft metingen van temperatuurprofielen en Secchi-diepte/doorzicht in Europese meren. De studie beschrijft hoe profielen met CTD-/profilingapparatuur of metingen op intervallen van 0,5 m zijn verzameld; bij ondiepe meren zonder thermocline werd tot nabij de bodem gemeten.
+
+Deze dataset kan aanvullend helpen om de relatie tussen temperatuurprofiel en waterhelderheid/lichtpenetratie te onderzoeken. De precieze dekking, ruwe data, seizoensmomenten en hergebruikvoorwaarden moeten worden gecontroleerd voordat deze als validatieset wordt geselecteerd.
+
+Bron: *A European Multi Lake Survey dataset of environmental variables, phytoplankton pigments and cyanotoxins* (Scientific Data, 2018): https://www.nature.com/articles/sdata2018226
+
+#### 5. Voorgestelde rol per dataset
+
+| Dataset/casus | Waterregime | Beschikbaarheid in geraadpleegde bron | Voorgestelde rol |
+|---|---|---|---|
+| Klinkenbergerplas | Diep, stilstaand, Nederlandse zoetwaterplas | Rapport met seizoensprofielen; ruwe meetdata niet gepubliceerd | Nederlandse kwalitatieve referentie; ruwe data bij Rijnland opvragen |
+| IJsselmeer/Tjeukemeer/Zwemlust-studie | Ondiep, windblootgesteld, holomictisch | Peer-reviewed modelresultaten en gerapporteerde foutmaten | Baseline voor goed gemengd ondiep water |
+| 153 meren dataset | Diverse meren, zomerse profielen | Open ruwe en geïnterpoleerde profielbestanden | Externe zomerprofielvalidatie |
+| European Multi Lake Survey | Europese meren, profielen plus doorzicht | Open datasetpublicatie; inhoud/ruwe data nader verifiëren | Aanvullende profiel- en lichtpenetratieanalyse |
+
+#### 6. Gevolg voor het validatieprotocol
+
+Het validatieprotocol kan nu concreter worden opgebouwd in drie niveaus:
+
+1. **Niveau 1 — proces- en profielvorm:** gebruik de open 153-meren dataset en Europese profieldata om te testen of de verticale kern realistische zomerse profielvormen kan representeren. Dit bewijst nog geen nauwkeurigheid voor Nederlandse stekken.
+2. **Niveau 2 — Nederlandse watertypen:** gebruik de ondiepe Nederlandse modelstudie als baseline en Klinkenbergerplas als diepe gestratificeerde casus. Voor Klinkenbergerplas zijn ruwe data nodig voor een echte kwantitatieve toets.
+3. **Niveau 3 — onafhankelijke lokale Vislogboek-validatie:** verzamel eigen metingen op bekende dieptes en tijdstippen. Deze data mogen niet tegelijk worden gebruikt om te kalibreren en om de nauwkeurigheid te claimen; houd een onafhankelijke validatieset apart.
+
+Voor winterstratificatie, dooi, ijsvorming en het dichtheidsmaximum rond 4 °C is nog een afzonderlijke meet-/referentiebron nodig. De genoemde zomerdatasets kunnen deze tests niet afdekken.
+
+#### 7. Uitkomst en eerstvolgende actie
+
+**Uitkomst:** er zijn voldoende aanknopingspunten om een eerste profielgerichte validatie op te zetten zonder direct nieuwe sensoren te kopen. De internationale zomerdataset biedt open profielen; de Nederlandse Klinkenbergerplas biedt een relevante diepe-plas-referentie maar de ruwe data zijn niet openbaar in het rapport; de Nederlandse ondiepe merenstudie biedt een bruikbare baseline voor goed gemengd water.
+
+**Volgende actie:** bepaal de precieze data-toegang en reproduceerbaarheid:
+- controleer de download-/licentie-/metadata-informatie van de 153-meren dataset;
+- controleer de bestanden en variabelen van de European Multi Lake Survey;
+- identificeer de juiste contactroute bij Hoogheemraadschap Rijnland voor de Klinkenbergerplas-profielen en eventuele gebruiksvoorwaarden;
+- zoek een Nederlandse winterprofiel-/ijsreferentie om de 4 °C- en faseovergangstests niet uitsluitend theoretisch te baseren.
+
+**Besluitpoort blijft gesloten:** geen productiecode, database, UI, formules, parameters, nieuwe databronnen of scoreberekening wijzigen. Alleen onderzoeks- en documentatiewerk is uitgevoerd. De scoreberekeningsaudit blijft uitgesteld.
