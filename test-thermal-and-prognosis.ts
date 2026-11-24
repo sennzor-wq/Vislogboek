@@ -313,11 +313,36 @@ async function run14Scenarios() {
 
   // 6. Verschillende seizoenen en tijdstippen
   console.log('\n--- SCENARIO 6: Verschillende seizoenen en tijdstippen ---');
-  const progWinter = calculateDayPrognosis('2026-01-15', makeHourlySeries('2026-01-15', 1, () => 3), 'Snoek', []);
-  const progSummer = calculateDayPrognosis('2026-07-15', makeHourlySeries('2026-07-15', 1, () => 22), 'Karper', []);
+  const progWinter = calculateDayPrognosis(
+    '2026-01-15',
+    makeHourlySeries('2026-01-15', 1, () => 3),
+    'Snoek',
+    [],
+    undefined,
+    4
+  );
+  const progSummer = calculateDayPrognosis(
+    '2026-07-15',
+    makeHourlySeries('2026-07-15', 1, () => 22),
+    'Karper',
+    [],
+    undefined,
+    22
+  );
   assert(
-    progWinter.activityScore > 0 && progSummer.activityScore > 0,
-    `6.1 Zowel winter (${progWinter.activityScore}/10) als zomer (${progSummer.activityScore}/10) functioneren foutloos`
+    progWinter.activityScoreAvailable === true && progWinter.activityScore > 0 &&
+      progSummer.activityScoreAvailable === true && progSummer.activityScore > 0,
+    `6.1 Bekende winter- en zomertemperatuur leveren een beschikbare score op (winter: ${progWinter.activityScore}/10; zomer: ${progSummer.activityScore}/10)`
+  );
+  const unknownTemperature = calculateDayPrognosis(
+    '2026-07-15',
+    makeHourlySeries('2026-07-15', 1, () => 22),
+    'Karper',
+    []
+  );
+  assert(
+    unknownTemperature.activityScoreAvailable === false && unknownTemperature.activityScore === 0,
+    '6.2 Ontbrekende watertemperatuur blijft onbekend en wordt niet vervangen door een fictieve gemiddelde score'
   );
 
   // 7. Ondiep versus dieper water
