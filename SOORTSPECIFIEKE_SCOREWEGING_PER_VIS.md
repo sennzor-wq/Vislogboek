@@ -329,7 +329,7 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 **Huidige opdracht — lopend**
 - De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de 94 bestaande registerrecords.
 - De voorlopige prioriteiten zijn aangescherpt: fysiologische curvebeoordeling start bij baars en snoekbaars; voedingsbewijsbeoordeling start bij karper, brasem en blankvoorn.
-- De primaire broncontrole van zes studies is vastgelegd in sectie 11. Dit heeft onder meer bevestigd dat de baarsrespons lichaamsgrootte-afhankelijk is, het snoekbaarsbereik breed is en cypriniden-voedingsritmes contextafhankelijk zijn.
+- De primaire broncontrole van tien studies is vastgelegd in sectie 11. Dit heeft onder meer bevestigd dat de baarsrespons lichaamsgrootte-afhankelijk is, het snoekbaarsbereik breed is en cypriniden-voedingsritmes contextafhankelijk zijn.
 - Nog uit te voeren: primaire broncontrole van overige kandidaatstudies, daarna responsvormen en toepassingsgrenzen vergelijken. Alleen bij voldoende vergelijkbare responsgegevens volgt een numeriek gewicht.
 
 **Volgende stap na afronding van de huidige wegingstaak**
@@ -421,7 +421,7 @@ De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteit
 
 # 11. Primaire broncontrole — eerste kandidaten (24-11-2026)
 
-De eerste broncontrole is uitgevoerd op publicatie-/abstractniveau voor de volgende primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
+De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor tien primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
 
 | Bronrecord | Gecontroleerde bevinding | Gevolg voor de weging |
 |---|---|---|
@@ -442,7 +442,7 @@ De eerste broncontrole is uitgevoerd op publicatie-/abstractniveau voor de volge
 
 ## 11.2 Status na deze broncontrole
 
-**Afgerond:** eerste broncontrole van zes relevante studies en aanscherping van de interpretatie van de bijbehorende evidence records.
+**Afgerond:** eerste broncontrole van tien relevante studies en aanscherping van de interpretatie van de bijbehorende evidence records.
 
 **Nog open binnen de huidige wegingstaak:** primaire broncontrole van overige kandidaatstudies, vooral directe voedselopname bij snoek, baars, zeelt, snoekbaars en meerval; vervolgens responsvormen en toepassingsgrenzen naast elkaar zetten. Pas wanneer responsen voldoende vergelijkbaar zijn, volgt een numeriek gewicht.
 
