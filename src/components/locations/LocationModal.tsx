@@ -36,6 +36,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [notes, setNotes] = useState(location?.notes || '');
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const handleGetCurrentGps = () => {
     if (!navigator.geolocation) {
@@ -65,8 +66,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({
     const depthNum = waterDepth.trim() !== '' ? parseFloat(waterDepth.replace(',', '.')) : undefined;
     const fetchNum = effectiveFetchM.trim() !== '' ? parseFloat(effectiveFetchM.replace(',', '.')) : undefined;
     const secchiNum = secchiDepthM.trim() !== '' ? parseFloat(secchiDepthM.replace(',', '.')) : undefined;
-    if (fetchNum !== undefined && (!Number.isFinite(fetchNum) || fetchNum < 10 || fetchNum > 10000)) { setGpsError('Fetch moet tussen 10 en 10.000 meter liggen.'); return; }
-    if (secchiNum !== undefined && (!Number.isFinite(secchiNum) || secchiNum < 0.1 || secchiNum > 20)) { setGpsError('Secchi-diepte moet tussen 0,1 en 20 meter liggen.'); return; }
+    if (fetchNum !== undefined && (!Number.isFinite(fetchNum) || fetchNum < 10 || fetchNum > 10000)) { setFormError('Fetch moet tussen 10 en 10.000 meter liggen.'); return; }
+    if (secchiNum !== undefined && (!Number.isFinite(secchiNum) || secchiNum < 0.1 || secchiNum > 20)) { setFormError('Secchi-diepte moet tussen 0,1 en 20 meter liggen.'); return; }
     const hasAnyGps = latitude.trim() !== '' || longitude.trim() !== '';
     const validGps = Number.isFinite(latNum) && latNum >= -90 && latNum <= 90 && Number.isFinite(lonNum) && lonNum >= -180 && lonNum <= 180;
     if (hasAnyGps && !validGps) { setGpsError('Vul beide geldige GPS-coördinaten in, of laat beide velden leeg.'); return; }
@@ -110,6 +111,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4 text-xs sm:text-sm">
+          {formError && <p className="rounded-xl border border-rose-700 bg-rose-950/60 px-3 py-2 text-xs text-rose-300">{formError}</p>}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
               Naam van de visstek *
@@ -195,6 +197,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                 <input type="text" inputMode="decimal" placeholder="bijv. 250" value={effectiveFetchM}
                   onChange={(e) => setEffectiveFetchM(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white" />
+                <span className="block mt-1 text-[10px] text-slate-500">Schatting van de vrije waterlengte in de meest voorkomende windrichting.</span>
               </div>
               <div>
                 <label className="block text-[11px] text-slate-300 mb-1">Secchi-diepte / zichtdiepte (m)</label>
