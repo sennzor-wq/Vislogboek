@@ -48,7 +48,7 @@ const prediction = estimateWaterColumnTemperature({
   targetTime,
   asOf,
 });
-if (!prediction || prediction.depthPriorUsed || prediction.layerTemperaturesC.length !== 5 ||
+if (!prediction || prediction.depthPriorUsed || !Number.isFinite(prediction.iceThicknessM) || prediction.iceThicknessM < 0 || prediction.layerTemperaturesC.length !== 5 ||
     prediction.measurementAnchorsUsed !== 1 || prediction.estimatedRangeC[0] > prediction.estimatedRangeC[1]) {
   throw new Error('De multi-profiel best-effort voorspelling moet een diepteprofiel, range en meetanker teruggeven.');
 }

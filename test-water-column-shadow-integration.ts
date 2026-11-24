@@ -38,41 +38,45 @@ const commonOptions = {
 const baseline = calculateDayPrognosis(
   '2026-01-01', [], 'Karper', [], asOf, 10, currentDateRef, commonOptions
 );
-const shadow = calculateDayPrognosis(
+const physical = calculateDayPrognosis(
   '2026-01-01', [], 'Karper', [], asOf, 10, currentDateRef,
   { ...commonOptions, waterColumnForcing: forcing, waterColumnAsOf: asOf }
 );
 
+const prediction = physical.thermalAnalysis?.waterColumnPrediction;
 if (baseline.thermalAnalysis?.estimatedWaterTemp !== 10 ||
-    shadow.thermalAnalysis?.estimatedWaterTemp !== baseline.thermalAnalysis?.estimatedWaterTemp) {
-  throw new Error('Shadow water-column output must not replace the existing scalar temperature.');
-}
-if (baseline.activityScore !== shadow.activityScore ||
-    baseline.personalCatchChance !== shadow.personalCatchChance) {
-  throw new Error('Shadow water-column output must not change the existing score or catch chance.');
-}
-const prediction = shadow.thermalAnalysis?.waterColumnPrediction;
-if (baseline.thermalAnalysis?.waterColumnPrediction ||
     !prediction ||
-    prediction.measurementAnchorsUsed !== 1 ||
-    prediction.totalDepthM !== 0.9) {
-  throw new Error('The physical prediction must run alongside the legacy model and use spot depth plus the depth-specific measurement.');
+    physical.thermalAnalysis?.estimatedWaterTemp !== prediction.bottomTemperatureC ||
+    physical.thermalAnalysis?.estimatedRange?.[0] !== prediction.estimatedRangeC[0]) {
+  throw new Error('The registered spot-bottom temperature and physical scenario range must feed the existing thermal scalar.');
 }
+if (!Number.isFinite(physical.activityScore)) {
+  throw new Error('The existing prognosis score must remain available after replacing only its temperature input.');
+}
+if (baseline.thermalAnalysis?.waterColumnPrediction ||
+    prediction?.measurementAnchorsUsed !== 1 ||
+    prediction?.totalDepthM !== 0.9 ||
+    prediction?.targetDepthM !== 0.9) {
+  throw new Error('The physical prediction must use the registered full spot depth as both water-column depth and carp target depth.');
+}
+const predictedBottomTemperatureC = prediction!.bottomTemperatureC;
 async function verifySnapshotPersistence() {
   await db.delete();
   await db.open();
   try {
-    const snapshot = await savePrognosisSnapshot(shadow, 3, location.id, location.name);
+    const snapshot = await savePrognosisSnapshot(physical, 3, location.id, location.name);
     const stored = await db.prognosisSnapshots.get(snapshot.id);
-    if (!stored?.prognosisData?.thermalAnalysis?.waterColumnPrediction) {
-      throw new Error('The existing immutable prognosisData snapshot must retain the shadow prediction without a schema migration.');
+    if (!stored?.prognosisData?.thermalAnalysis?.waterColumnPrediction ||
+        stored.predictedWaterColumnProfile?.bottomTemperatureC !== predictedBottomTemperatureC ||
+        stored.predictedWaterTemperature !== predictedBottomTemperatureC) {
+      throw new Error('The immutable snapshot must retain the full physical profile and its bottom-temperature validation scalar.');
     }
   } finally {
     await db.delete();
   }
 }
 verifySnapshotPersistence().then(() => {
-  console.log('Water-column shadow integration tests passed; legacy score/scalar unchanged and snapshot retained.');
+  console.log('Water-column bottom-temperature integration tests passed; bottom scalar and full immutable profile retained.');
 }).catch((error) => {
   console.error(error);
   process.exitCode = 1;

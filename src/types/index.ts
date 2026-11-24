@@ -1,4 +1,4 @@
-import type { WaterColumnPrediction } from '../services/waterColumnModel';
+import type { WaterColumnForcingSample, WaterColumnPrediction } from '../services/waterColumnModel';
 
 /**
  * Vislogboek Data Types & Schema
@@ -497,11 +497,13 @@ export type ThermalTrend =
   | 'Onvoldoende gegevens';
 
 export interface WaterThermalAnalysis {
-  /** Shadow-only physical model output; it does not affect the current score/temperature scalar. */
+  /** Physical water-column profile; bottom temperature feeds carp thermal prognosis when available. */
   waterColumnPrediction?: WaterColumnPrediction | null;
   trend: ThermalTrend;
   trendConfidence: 'Onvoldoende gegevens' | 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   hasMeasuredWaterTemp: boolean;
+  /** True only when the explicit measurement was taken within 0.2 m of the species target depth. */
+  measuredWaterTempAtTargetDepth?: boolean;
   measuredWaterTemp: number | null;      // Daadwerkelijk gemeten en ingevoerd (NOOIT gefingeerd)
   estimatedWaterTemp: number | null;     // Expliciet als modelschatting aangeduid
   estimatedRange?: [number, number] | null; // bijv. [11.0, 13.5] °C
@@ -688,6 +690,9 @@ export interface PrognosisInputContext {
     historicalWaterTemperatureSampleCount: number;
   };
   weatherFetchedAt?: string;
+  /** Exacte historische + forecast forcing voor reproduceerbare waterkolomreplay. */
+  waterColumnForcing?: WaterColumnForcingSample[];
+  waterColumnAsOf?: string;
 }
 
 export interface PrognosisSnapshot {
@@ -720,6 +725,8 @@ export interface PrognosisSnapshot {
   predictedConfidence?: string;
   predictedConditions?: WeatherSnapshot;
   // Onafhankelijke, soortneutrale temperatuurvalidatie. Alleen een vooraf voorspelde schatting telt mee.
+  /** Volledig fysisch profiel dat bij deze onveranderlijke prognose is berekend. */
+  predictedWaterColumnProfile?: WaterColumnPrediction | null;
   predictedWaterTemperature?: number | null;
   predictedWaterTemperatureRange?: [number, number] | null;
   predictedWaterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';

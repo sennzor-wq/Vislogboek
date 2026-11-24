@@ -370,6 +370,7 @@ export interface WaterColumnPrediction {
   estimatedRangeC: [number, number];
   surfaceTemperatureC: number;
   bottomTemperatureC: number;
+  iceThicknessM: number;
   volumeMeanTemperatureC: number;
   layerTemperaturesC: number[];
   totalDepthM: number;
@@ -478,6 +479,7 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     estimatedRangeC: [Math.round(minTemperature * 100) / 100, Math.round(maxTemperature * 100) / 100],
     surfaceTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.surfaceTemperatureC)) * 100) / 100,
     bottomTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.bottomTemperatureC)) * 100) / 100,
+    iceThicknessM: Math.round(mean(simulations.map((simulation) => simulation.iceThicknessM)) * 10000) / 10000,
     volumeMeanTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.volumeMeanTemperatureC)) * 100) / 100,
     layerTemperaturesC: layerTemperaturesC.map((value) => Math.round(value * 100) / 100),
     totalDepthM,

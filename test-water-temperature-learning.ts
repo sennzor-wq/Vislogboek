@@ -39,6 +39,31 @@ function makeSnapshot(index: number, overrides: Partial<PrognosisSnapshot> = {})
   };
 }
 
+const physicalBottomPairs = Array.from({ length: 8 }, (_, index) =>
+  makeSnapshot(index, {
+    id: `bottom-${index}`,
+    predictedWaterColumnProfile: {
+      totalDepthM: 1.2,
+      targetDepthM: 1.2,
+    } as any,
+    actualWaterTemperatureMeasurementDepthM: 1.2,
+  })
+);
+assert(evaluateWaterTemperaturePerformance(physicalBottomPairs).evaluatedCount === 8,
+  'Een fysische bodemprognose wordt gevalideerd met een meting op dezelfde bodemdiepte');
+const mismatchedBottomPairs = physicalBottomPairs.map((snapshot) => ({
+  ...snapshot,
+  actualWaterTemperatureMeasurementDepthM: 0.2,
+}));
+assert(evaluateWaterTemperaturePerformance(mismatchedBottomPairs).evaluatedCount === 0,
+  'Een meting op een andere diepte wordt niet ten onrechte tegen de bodemprognose gevalideerd');
+const unknownDepthBottomPairs = physicalBottomPairs.map((snapshot) => ({
+  ...snapshot,
+  actualWaterTemperatureMeasurementDepthM: undefined,
+}));
+assert(evaluateWaterTemperaturePerformance(unknownDepthBottomPairs).evaluatedCount === 0,
+  'Een bodemprognose zonder bekende meetdiepte levert geen ongeldige validatie op');
+
 const eight = Array.from({ length: 8 }, (_, index) => makeSnapshot(index));
 const metrics = evaluateWaterTemperaturePerformance(eight);
 assert(metrics.evaluatedCount === 8, 'Alleen vooraf voorspelde en later gemeten temperaturen worden gekoppeld');

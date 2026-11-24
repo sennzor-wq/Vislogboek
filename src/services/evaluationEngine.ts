@@ -369,6 +369,12 @@ function validTemperaturePairs(snapshots: PrognosisSnapshot[]): PrognosisSnapsho
     if (!snapshot.locationId || !snapshot.linkedSessionId || !snapshot.actualWaterTemperatureTimestamp) return false;
     if (snapshot.actualWaterTemperatureMeasurementSource !== 'manual' && snapshot.actualWaterTemperatureMeasurementSource !== 'imported') return false;
     if (snapshot.actualWaterTemperatureMeasurementMethod !== 'thermometer' && snapshot.actualWaterTemperatureMeasurementMethod !== 'probe' && snapshot.actualWaterTemperatureMeasurementMethod !== 'other') return false;
+    // A physical target-depth prediction is validated only against a measurement taken at that same depth.
+    const predictedTargetDepth = snapshot.predictedWaterColumnProfile?.targetDepthM;
+    if (snapshot.predictedWaterColumnProfile && typeof predictedTargetDepth !== 'number') return false;
+    if (typeof predictedTargetDepth === 'number' &&
+        (typeof snapshot.actualWaterTemperatureMeasurementDepthM !== 'number' ||
+         Math.abs(snapshot.actualWaterTemperatureMeasurementDepthM - predictedTargetDepth) > 0.2)) return false;
     const forecastMs = new Date(snapshot.forecastTimestamp).getTime();
     const measuredMs = new Date(snapshot.actualWaterTemperatureTimestamp).getTime();
     if (!Number.isFinite(forecastMs) || !Number.isFinite(measuredMs) || forecastMs >= measuredMs || measuredMs > Date.now()) return false;

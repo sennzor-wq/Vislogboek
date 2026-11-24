@@ -21,11 +21,13 @@ export interface ThermalAnalysisOptions {
   forecastAsOf?: string | null;
   /** Known vertical depth of the target water-temperature measurement, in metres. */
   measurementDepthM?: number | null;
+  /** Species target depth; carp uses the registered spot bottom. */
+  targetDepthM?: number | null;
   /** @deprecated Use targetTime; hour-only targets cannot represent dates or DST safely. */
   targetHour?: number;
   currentDateRef?: Date;
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
-  /** Historical + recent forcing for the shadow-only physical water-column model. */
+  /** Historical + recent hourly forcing for the depth-specific physical water-column model. */
   waterColumnForcing?: WaterColumnForcingSample[];
   waterColumnAsOf?: string;
 }
@@ -96,9 +98,12 @@ export function analyzeWaterThermalDevelopment(
       depthM: options.measurementDepthM,
     });
   }
-  const waterColumnPrediction = options?.waterColumnForcing?.length
+  const hasRegisteredWaterDepth = typeof location?.waterDepth === 'number' &&
+    Number.isFinite(location.waterDepth) && location.waterDepth >= 0.2 && location.waterDepth <= 100;
+  const waterColumnPrediction = options?.waterColumnForcing?.length && hasRegisteredWaterDepth
     ? estimateWaterColumnTemperature({
-        totalDepthM: location?.waterDepth,
+        totalDepthM: location.waterDepth,
+        targetDepthM: options?.targetDepthM,
         forcing: options.waterColumnForcing,
         observations: waterColumnObservations,
         windExposure: location?.windExposure,
@@ -168,6 +173,11 @@ export function analyzeWaterThermalDevelopment(
     estimationTargetMs <= refMs
   );
   const hasMeasured = isActualSituation;
+  const hasTargetDepthMeasurement = Boolean(hasMeasured && (
+    options?.targetDepthM == null ||
+    (typeof options?.measurementDepthM === 'number' &&
+      Math.abs(options.measurementDepthM - options.targetDepthM) <= 0.2)
+  ));
   const measuredTemp = hasMeasured && anchor ? Math.round(anchor.temperature * 10) / 10 : null;
 
   // 2. Weergegevens voor de doeldag en omliggende dagen inspecteren.
@@ -223,12 +233,17 @@ export function analyzeWaterThermalDevelopment(
         targetTimestamp,
         forecastAsOf,
         hasMeasuredWaterTemp: hasMeasured,
+        measuredWaterTempAtTargetDepth: hasMeasured && hasTargetDepthMeasurement,
         measuredWaterTemp: measuredTemp,
-        estimatedWaterTemp: recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
-        estimatedRange: recentAnchorEstimate !== null
-          ? [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10]
-          : historicalProfile ? [historicalProfile.lowerC, historicalProfile.upperC] : null,
-        waterTemperatureStatus: hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : historicalProfile ? 'estimated_from_history' : 'unknown',
+        estimatedWaterTemp: waterColumnPrediction && !hasTargetDepthMeasurement
+          ? waterColumnPrediction.estimatedTemperatureC
+          : recentAnchorEstimate ?? historicalProfile?.baselineC ?? null,
+        estimatedRange: waterColumnPrediction && !hasTargetDepthMeasurement
+          ? waterColumnPrediction.estimatedRangeC
+          : recentAnchorEstimate !== null
+            ? [Math.round((recentAnchorEstimate - 1.0) * 10) / 10, Math.round((recentAnchorEstimate + 1.0) * 10) / 10]
+            : historicalProfile ? [historicalProfile.lowerC, historicalProfile.upperC] : null,
+        waterTemperatureStatus: hasTargetDepthMeasurement ? 'measured' : waterColumnPrediction ? 'estimated_from_weather' : hasMeasured ? 'measured' : recentAnchorEstimate !== null ? 'estimated_from_measurement' : historicalProfile ? 'estimated_from_history' : 'unknown',
         anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
         anchorAgeHours,
         weatherCoverageRatio,
@@ -585,6 +600,20 @@ export function analyzeWaterThermalDevelopment(
     prognosisImpactNote = trend === 'Ongeveer stabiel' ? 'Stabiele thermische omstandigheden bieden constante foerageerpatronen zonder plotselinge omslag.' : 'Onvoldoende gegevens voor een betrouwbare thermische duiding.';
   }
 
+  // De bodemlaag op de geregistreerde stekdiepte is leidend voor karperprognoses.
+  // Een andere meetdiepte overschrijft deze bodemtemperatuur niet.
+  if (waterColumnPrediction && !hasTargetDepthMeasurement) {
+    estimatedWaterTemp = waterColumnPrediction.estimatedTemperatureC;
+    estimatedRange = waterColumnPrediction.estimatedRangeC;
+    usedMeasuredAnchor = false;
+    surfaceVsBulkNote = waterColumnPrediction.targetDepthM !== null
+      ? `Fysisch waterkolommodel: oppervlak ${waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C; doeltemperatuur ${waterColumnPrediction.estimatedTemperatureC.toFixed(1)} °C op ${waterColumnPrediction.targetDepthM.toFixed(2)} m; bodem ${waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C.`
+      : `Fysisch waterkolommodel: oppervlak ${waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C; volumegemiddelde ${waterColumnPrediction.volumeMeanTemperatureC.toFixed(1)} °C; bodem ${waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C.`;
+    prognosisImpactNote = waterColumnPrediction.targetDepthM !== null
+      ? 'De karperprognose gebruikt de berekende bodemtemperatuur van deze stek; oppervlaktetemperatuur en eventuele ijsvorming blijven afzonderlijke profielinformatie.'
+      : 'De thermische prognose gebruikt het volumegemiddelde van het berekende waterkolomprofiel; oppervlak en bodem blijven afzonderlijk beschikbaar.';
+  }
+
   return {
     waterColumnPrediction,
     trend,
@@ -592,10 +621,11 @@ export function analyzeWaterThermalDevelopment(
     targetTimestamp,
     forecastAsOf,
     hasMeasuredWaterTemp: hasMeasured,
+    measuredWaterTempAtTargetDepth: hasMeasured && hasTargetDepthMeasurement,
     measuredWaterTemp: measuredTemp,
     estimatedWaterTemp,
     estimatedRange,
-    waterTemperatureStatus: hasMeasured ? 'measured' : anchor && usedMeasuredAnchor ? 'estimated_from_measurement' : estimatedWaterTemp !== null && historicalProfile ? 'estimated_from_history' : estimatedWaterTemp !== null ? 'estimated_from_weather' : 'unknown',
+    waterTemperatureStatus: hasTargetDepthMeasurement ? 'measured' : waterColumnPrediction ? 'estimated_from_weather' : hasMeasured ? 'measured' : anchor && usedMeasuredAnchor ? 'estimated_from_measurement' : estimatedWaterTemp !== null && historicalProfile ? 'estimated_from_history' : estimatedWaterTemp !== null ? 'estimated_from_weather' : 'unknown',
     anchorMeasurementTimestamp: anchor ? new Date(anchor.timestampMs).toISOString() : null,
     anchorAgeHours,
     weatherCoverageRatio,
