@@ -179,7 +179,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     // Site exposure and effective fetch adjust the 10 m reference wind to a
     // provisional over-water forcing. Unknown site properties retain the
     // documented neutral prior rather than inventing a local correction.
-    const waterWindMs = windMs * exposureFactor * fetchFactor;
+    const waterWindMs = clamp(windMs * exposureFactor * fetchFactor, 0, 30);
     const cloud = clamp(sample.cloudCoverPercent ?? 50, 0, 100) / 100;
     const shortwave = clamp(sample.shortwaveRadiationWm2 ?? 0, 0, 1600);
     const dewPoint = Number.isFinite(sample.dewPointC)
