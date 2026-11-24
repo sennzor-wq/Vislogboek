@@ -398,7 +398,7 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
   const scenarioConverged = !depthPriorUsed && spinupDays >= 300 &&
     forcingCoverageRatio >= 0.9 && scenarioSpreadC <= 1;
   const waterMovement = input.waterMovement ?? 'unknown';
-  const advectionNotModeled = waterMovement === 'flowing' || waterMovement === 'tidal';
+  const advectionNotModeled = waterMovement === 'weak_flow' || waterMovement === 'flowing' || waterMovement === 'tidal';
   const physicalInputCoveragePercent = Math.round((
     Number(!depthPriorUsed) + Number(!simulations[0].secchiPriorUsed) +
     Number(!simulations[0].windExposurePriorUsed) + Number(!simulations[0].fetchPriorUsed) +
