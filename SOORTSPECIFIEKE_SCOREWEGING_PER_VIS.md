@@ -327,18 +327,19 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 - Niet-gevalideerde Excel-aannames en parameters zijn expliciet uitgesloten van directe score-invoer.
 
 **Huidige opdracht — lopend**
-- De eerste evidence matrix per soort en uitkomst staat in sectie 10. Deze is gestart vanuit de oorspronkelijke 94 registerrecords; daarna is één afzonderlijk meerval-voedingsrecord toegevoegd, dus het register bevat nu 95 records.
-- De primaire broncontrole van elf studies staat in sectie 11. De meervalstudie van Boujard (1995) is als afzonderlijk record toegevoegd met `approvedForPrediction: false`; deze activeert dus nog geen scorefactor.
-- De eerste V0.1-factorselectie voor alle negen soorten staat in sectie 13. Daarin zijn factoren verdeeld in direct kandidaatbewijs, beperkt/provisioneel, context en niet opnemen.
-- De iteratieve implementatieafspraak staat in sectie 12: na afronding van de eerste factorselectie bouwen we V0.1; volledige Excel-validatie is geen voorwaarde om te beginnen met implementeren.
-- Nog uit te voeren: V0.1-modelcontract, voorlopige parameters en beslisregels vastleggen. Belangrijk open punt: hoe de voedingsuitkomst voor soorten met beperkte directe data eerlijk wordt weergegeven zonder onbekend als gemiddeld te behandelen.
+- De eerste evidence matrix per soort en uitkomst staat in sectie 10. Deze is gestart vanuit de oorspronkelijke 94 registerrecords; daarna is één afzonderlijk meerval-voedingsrecord toegevoegd (95 totaal).
+- Elf primaire studies zijn gecontroleerd en vastgelegd in sectie 11. De meervalstudie van Boujard (1995) is als afzonderlijk record toegevoegd met `approvedForPrediction: false`; deze activeert nog geen scorefactor.
+- De eerste V0.1-factorselectie voor alle negen soorten staat in sectie 13. Factoren zijn ingedeeld als direct kandidaatbewijs, beperkt/provisioneel, context of niet opnemen.
+- Het V0.1-uitvoercontract staat in sectie 14: bestaande fysiologische `activityScore` blijft 1–10 en compatibel; voedingsactiviteit wordt een afzonderlijke optionele score die bij onvoldoende bewijs/invoer `null` blijft; empirische vangkans blijft apart.
+- De iteratieve implementatieafspraak staat in sectie 12: na het modelcontract en de eerste parameterkeuzes bouwen we V0.1; volledige Excel-validatie is geen voorwaarde.
+- Nog uit te voeren: concrete V0.1-responscurves/parameterkeuzes en dekking-/onzekerheidsregels vastleggen. Belangrijk open punt: hoe een soort met beperkte directe voedingsdata een eerlijke uitkomst krijgt zonder onbekend als gemiddeld te behandelen.
 
 **Volgende stap**
-- V0.1-modelcontract en eerste parameterkeuzes afronden: scorebereik, responsvormen, factorstatus, dekking/onzekerheid en koppeling aan bestaande 1–10-uitvoer.
-- Runtime-integratieplan maken op basis van de bestaande prognose-engine, bestaande soortprofielen en intervalcontracten.
-- Daarna V0.1 implementeren en testen. Resterende Excel-bronnen en -parameters kunnen parallel/na de eerste werkende versie gevalideerd worden.
+- V0.1-parameterconfiguratie en berekeningsregels per geselecteerde factor afronden, inclusief voorlopige status en bronverwijzing.
+- Bestaande engine en intervalcontracten verder nalopen voor de integratie; daarna runtime-integratieplan, implementatie en tests.
+- Resterende Excel-bronnen en -parameters parallel/na de eerste werkende versie valideren.
 
-**Hervatten vanaf:** V0.1-modelcontract en eerste parameterkeuzes op basis van de factorselectie in sectie 13. De Excel-koppeling, evidence matrix, elf broncontroles en iteratieve implementatiestrategie zijn vastgelegd.
+**Hervatten vanaf:** parameterkeuzes en berekeningsregels voor het V0.1-modelcontract in sectie 14, op basis van factorselectie in sectie 13. De Excel-koppeling, evidence matrix, elf broncontroles en iteratieve implementatiestrategie zijn vastgelegd.
 
 # 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
 
