@@ -1792,3 +1792,92 @@ Per klasse moet het ontwerp vastleggen:
 - welke validatiegegevens nodig zijn om de klasse vrij te geven.
 
 **Status en goedkeuringspoort:** dit is een read-only inventaris van de huidige broncode en een ontwerpvoorstel. Er is geen implementatie, typewijziging, extra databron, parameter, formule, database- of scorewijziging uitgevoerd. Implementatie blijft geblokkeerd totdat de eigenaar een concreet ontwerp goedkeurt. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Ontwerpuitwerking — toepassingsklassen en initialisatie van de waterkolom (24 november 2026)
+
+**Doel:** de vorige actie concreet uitwerken: bepalen wanneer een verticale 1D-kolom bruikbaar is en hoe de thermische begintoestand verantwoord kan worden vastgesteld. Dit is een wetenschappelijke ontwerpuitwerking op basis van de review van Piccolroaz et al. (2024), GLM- en Simstrat-documentatie en de actuele Vislogboek-invoerinventaris. Geen implementatie of databronkeuze is goedgekeurd.
+
+#### 1. Eerst een belangrijke correctie op de simpele driedeling
+
+De indeling "ondiep = eenvoudig, diep = multilaags, stromend = apart" is nuttig als eerste oriëntatie, maar niet voldoende als fysische geldigheidscontrole.
+
+Een 1D-waterkolommodel veronderstelt dat horizontale variatie en horizontale dichtheidsgradiënten voldoende klein zijn om één verticale kolom representatief te laten zijn. De review van Piccolroaz et al. (2024) beschrijft hiervoor onder andere de Lake Number/Wedderburn-benadering als maat voor de verhouding tussen stabiliserende stratificatie en door wind veroorzaakte verstoring. Ook de geometrie van het waterlichaam is relevant; complexe, vertakte of horizontaal sterk variërende wateren zijn niet vanzelfsprekend geschikt voor één 1D-kolom.
+
+**Gevolg:** alleen `waterType`, totale diepte en lokale wind zijn niet genoeg om formeel vast te stellen dat een 1D-model geldig is. De huidige app heeft niet alle invoer om een Lake Number betrouwbaar te bepalen. We mogen de 1D-aanname daarom voorlopig alleen als toepassingshypothese gebruiken, niet als automatisch bewezen eigenschap van een stek.
+
+#### 2. Toepassingsklassen voor het ontwerp
+
+| Klasse | Fysische kenmerken | Modelgedrag dat onderzocht moet worden | Geldigheidsgrens |
+|---|---|---|---|
+| A. Ondiep en meestal goed gemengd | Kleine diepte; wind of dagelijkse convectie kan de waterkolom vaak mengen; bodeminvloed relatief belangrijk | Eén thermische toestand kan volstaan wanneer verticale verschillen aantoonbaar klein zijn; dezelfde engine moet kunnen opschalen naar meerdere lagen als een profiel ontstaat | Zonder profielmetingen mag "goed gemengd" niet alleen uit de diepte worden afgeleid |
+| B. Stilstaand water met verticale stratificatie | Voldoende diepte/rust en zoninstraling voor een warme bovenlaag, thermocline en koelere diepe laag; in winter inverse stratificatie mogelijk | Multilaags verticale toestand; temperatuur op meet-/visdiepte; zomer-, winter- en overgangsregimes | Vereist voldoende begininformatie en lokale morfometrie; 1D blijft afhankelijk van beperkte horizontale variatie |
+| C. Hydrologisch beïnvloed of stromend water | Rivier/kanaal, relevante in-/uitstroom, temperatuurpluim of advectie | Warmteadvectie en instroomtemperatuur kunnen de lokale temperatuur bepalen; een geïsoleerde stilstaande kolom is onvoldoende | Zonder debiet, stroomsnelheid en watertemperatuur van instroom mag geen hoge betrouwbaarheid worden geclaimd |
+
+Klasse A en B hoeven geen afzonderlijke engines te worden. Ze kunnen conceptueel verschillende verticale resolutie van dezelfde toestand gebruiken: één goed-gemengde laag is een limietgeval van een model dat ook een profiel kan representeren. Dit moet later numeriek worden aangetoond en getest; het is nog geen keuze voor een algoritme.
+
+Klasse C is geen simpele extra correctie op luchttemperatuur. Wanneer advectie bepalend is, moet die fysisch worden beschreven of de uitkomst expliciet als beperkt/onvoldoende onderbouwd worden gemarkeerd.
+
+#### 3. Initialisatie: de absolute temperatuurtoestand is het kernprobleem
+
+Een waterkolommodel rekent de verandering van een bestaande toestand door. Het kan de absolute temperatuur niet betrouwbaar uit alleen het weer van de komende dagen afleiden. De huidige app haalt drie dagen historische weersgegevens op en heeft geen aangetoond persistent meerlaags thermisch toestandsobject. Een scalar prognosesnapshot is niet hetzelfde als een volledig verticaal profiel.
+
+De volgende initialisatievolgorde is daarom de meest verdedigbare ontwerpoptie:
+
+1. **Actueel gemeten verticaal profiel:** meerdere betrouwbare metingen op bekende dieptes, met bijbehorende meettijd. Dit geeft de sterkste lokale beginconditie.
+2. **Actuele meting op één diepte:** legt alleen de temperatuur rond die meetdiepte vast. Het volledige profiel is daarmee niet bekend; andere lagen moeten als onzeker worden behandeld of vanuit een eerder geldige modeltoestand worden doorberekend.
+3. **Eerder geldige modeltoestand:** wanneer een toekomstige implementatie een gevalideerd profiel bewaart, kan de toestand chronologisch met nieuwe weerforcing worden voortgezet. De state moet versie, tijdstip, invoerherkomst en onzekerheid bewaren.
+4. **Historische lokale profielmetingen:** kunnen een seizoensgebonden prior/verwachting leveren, maar zijn geen actuele meting en mogen niet als actuele toestand worden gepresenteerd.
+5. **Geen lokaal meetanker of bruikbaar profiel:** een fysische spin-up zou een voldoende lange historische meteorologische forcing en locatiekenmerken nodig hebben om de invloed van een gekozen startprofiel te laten afnemen. De huidige drie dagen terugkijkende weerreeks is daarvoor geen aangetoonde basis. Zonder voldoende historische forcing en initiële informatie moet de absolute temperatuur als zwak bepaald worden gemarkeerd.
+
+**Belangrijke grens:** "start op 4 °C" of "start op de gemiddelde luchttemperatuur" is geen wetenschappelijk neutrale oplossing. Zo'n aanname kan een numerieke berekening laten lopen, maar bewijst niet dat de werkelijke waterkolom die toestand had. Een eventuele spin-up-/initialisatiemethode moet worden getest op gevoeligheid voor de gekozen beginconditie en mag niet met een vaste startwaarde worden gelegitimeerd.
+
+#### 4. Meetdiepte en profielregistratie
+
+De huidige types ondersteunen `measurementDepthM` op echte temperatuurmetingen en meerdere metingsevents per sessie. De actuele prognoseaanroep geeft de doelmeetdiepte echter niet door aan de thermische engine. De volgende ontwerpcriteria volgen hieruit:
+
+- Meetdiepte moet bij elke meting worden behouden; ontbrekende meetdiepte blijft expliciet onbekend en mag niet als oppervlaktemeting worden geïnterpreteerd.
+- Metingen die een verticaal profiel vormen moeten voldoende dicht bij hetzelfde tijdstip en dezelfde locatie zijn genomen; verspreide seizoensmetingen zijn geen gelijktijdig profiel.
+- Een meting op 0,3 m mag niet zonder onderbouwing als representatief voor 1,5 m worden gebruikt.
+- Uitvoer moet expliciet aangeven of de waarde een oppervlaktemeting, bulk-/gemiddelde kolomtemperatuur of schatting op een specifieke diepte is.
+- Validatie moet de gemeten diepte en de voorspelde diepte exact matchen of een expliciete interpolatiemethode toetsen.
+
+#### 5. Onzekerheids- en uitvoerstatussen die het ontwerp nodig heeft
+
+De volgende conceptuele statussen zijn voorgesteld om schijnprecisie te voorkomen; dit zijn geen goedgekeurde UI- of typeschemawijzigingen:
+
+- **Gemeten op doelmoment en doel-/meetdiepte:** lokale meting leidend.
+- **Profiel geïnitialiseerd uit meerdere metingen:** verticale toestand lokaal verankerd.
+- **Eén diepte gemeten, overige lagen geschat:** alleen de gemeten laag sterk verankerd; profiel onzeker.
+- **Doorgerekend vanuit eerdere modeltoestand:** modelcontinuïteit aanwezig; onzekerheid neemt toe met tijd en ontbrekende forcing.
+- **Historisch seizoensprofiel als prior:** bruikbaar als achtergrond, niet als actuele meting.
+- **Onvoldoende initiële informatie:** geen betrouwbare absolute temperatuurclaim; toon een expliciete onzekerheids-/onbekendstatus.
+
+Een numeriek getal mag niet de indruk geven dat het profiel bekend is wanneer alleen de weersontwikkeling bekend is.
+
+#### 6. Ontwerpconclusie
+
+De kern van het temperatuurprobleem is niet alleen het kiezen van een betere formule voor warmteverlies. Het model moet drie zaken tegelijk beheersen:
+- **toestand:** wat is de huidige temperatuurverdeling door de diepte?
+- **ontwikkeling:** hoe veranderen warmte-invoer, warmteverlies, menging en faseovergang die toestand?
+- **geldigheid:** is de gekozen waterkolomrepresentatie passend voor dit watertype en zijn de invoergegevens voldoende?
+
+Daarom blijft de voorkeursrichting een GLM-geïnformeerde verticale toestand met KNMI-gebaseerde oppervlaktewarmtebalans, maar de implementatie moet pas worden ontworpen nadat initialisatie en geldigheid per watertype expliciet zijn geregeld. De eerste concrete technische ontwerpkeuze is niet het aantal lagen; het is de toestand-/initialisatie- en geldigheidsarchitectuur.
+
+#### 7. Bronnen
+
+- Piccolroaz, S. et al. (2024), *Lake Water Temperature Modeling in an Era of Climate Change: Data Sources, Models, and Future Prospects*, Reviews of Geophysics 62, e2023RG000816, DOI: 10.1029/2023RG000816. Zie de bespreking van 1D-modelaannames, horizontale homogeniteit, Lake Number/Wedderburn en bathymetrie: https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2023RG000816
+- Hipsey et al., actuele GLM-documentatie. GLM beschrijft expliciet de 1D-aanname van geen horizontale variatie en de flexibele Lagrangiaanse lagen: https://aquaticecodynamics.github.io/glm-aed/
+- Gaudard et al. (2019), *Toward an open access to high-frequency lake modeling and statistics data for scientists and practitioners – the case of Swiss lakes using Simstrat v2.1*, Geoscientific Model Development 12, 3955–3974. Laat zien dat modelprestaties ook samenhangen met meteorologische forcing, morfologie, hydrologische/throughflow-warmte en lichtpenetratie: https://gmd.copernicus.org/articles/12/3955/2019/
+
+#### 8. Volgende actie
+
+De volgende ontwerpstap is een **toestands- en gegevenscontract** voor de bestaande thermische engine uitwerken, zonder code te wijzigen. Dit contract moet vastleggen:
+- wat de modeltoestand minimaal bevat (temperatuur per laag, laagdiepte/-grenzen, tijdstip, water-/ijsfase en onzekerheid);
+- welke invoer verplicht, optioneel of onbekend mag zijn;
+- hoe één dieptemeting, een verticaal profiel, een historische prior en een ontbrekend beginprofiel van elkaar verschillen;
+- hoe de toestand chronologisch wordt voortgezet zonder toekomstige data te gebruiken;
+- wanneer het model een getal mag tonen en wanneer alleen een onbekend-/lage-betrouwbaarheidsstatus verantwoord is;
+- welke tests de 4 °C-dichtheidsanomalie, zomerthermocline, menging, ijsfase en energie-/temperatuurbehoud moeten bewijzen.
+
+**Besluitpoort:** alleen het uitwerken en documenteren van dit contract is nu toegestaan. Geen type-, database-, UI-, formule-, parameter-, bron- of scorewijzigingen uitvoeren voordat het concrete ontwerp aan de eigenaar is voorgelegd en expliciet goedgekeurd.
