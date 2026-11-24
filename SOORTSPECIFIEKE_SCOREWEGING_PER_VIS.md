@@ -539,3 +539,71 @@ De overgang naar runtime-implementatie vereist niet dat alle 94 bronnen of alle 
 - Nieuwe data en praktijkresultaten gebruiken om modelversies gecontroleerd te tunen.
 
 **Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De implementatie is het beoogde vervolg van deze huidige taak, niet iets dat pas na perfecte validatie mag beginnen.
+
+# 13. Eerste V0.1-factorselectie per soort en uitkomst
+
+**Status:** voorstel voor V0.1-factorselectie; nog geen numerieke gewichten of runtime-activering. De matrix maakt de implementatiescope concreet en voorkomt dat we op alle denkbare factoren wachten.
+
+## 13.1 Statuslabels
+
+- **Kandidaat — direct:** er bestaat soortspecifiek bewijs voor de betreffende respons. De respons blijft begrensd tot de gemeten soort, levensfase en context.
+- **Kandidaat — beperkt/provisioneel:** er is direct bewijs, maar de overdraagbaarheid of meetdekking is beperkt. Alleen met zichtbare onzekerheid en begrensde invloed in V0.1.
+- **Context:** relevante informatie, maar geen directe numerieke factor voor de betreffende uitkomst.
+- **Niet opnemen in V0.1:** onvoldoende passende meetrespons of geen betrouwbare invoer. Later opnieuw beoordelen.
+
+## 13.2 Fysiologische activiteit — eerste factorselectie
+
+| Soort | Watertemperatuur / thermische respons | Lichaamsgrootte / acclimatisatie | Zuurstof | V0.1-besluit |
+|---|---|---|---|---|
+| Karper | Kandidaat — beperkt: acute metabolismeproef; geen volledige curve | Context; niet beschikbaar als vaste invoer | Niet opnemen: hypoxiegegevens leveren geen veldgrens | Bestaande thermische profielcurve behouden als voorlopige prior; niet als gevalideerde fysiologische curve presenteren |
+| Brasem | Kandidaat — direct: standaard/routinezuurstofverbruik 5–23 °C | Kandidaat-context: massaschaling is onderzocht, maar profiel heeft geen betrouwbare lengte-invoer | Niet opnemen: geen gevalideerde limiterdrempel | Thermische respons kan als eerste soortspecifieke fysiologische kandidaat worden uitgewerkt; curvevorm en parameterfit nog controleren |
+| Snoek | Kandidaat — beperkt: slechts beperkt temperatuurgebied in metabolismeonderzoek | Context | Niet opnemen: geen bruikbare soortspecifieke drempel voor deze modelcontext | Bestaande profielcurve voorlopig behouden; numerieke herfit nog niet claimen |
+| Baars | Kandidaat — direct: aerobe scope en zuurstofverbruik 15–28 °C | Belangrijke modifier: aerobe-scope-optimum verschuift met massa | Niet opnemen als aparte limiter; fysiologische zuurstofmetingen zijn al onderdeel van aerobe scope | Eerste prioriteit voor soortspecifieke thermische curve; zonder lengte-invoer onzekerheid verhogen en geen groottecorrectie verzinnen |
+| Blankvoorn | Kandidaat — direct: metabolisme over 5–23 °C | Massaschaling en levensfase relevant | Niet opnemen: geen gevalideerde soortspecifieke veldlimiet | Thermische respons als soortspecifieke kandidaat; geen brasemcurve kopiëren |
+| Zeelt | Geen passende directe fysiologische curve in register | Onbekend | Niet opnemen | Bestaande thermische profielcurve alleen als expliciet voorlopige modelprior behouden; fysiologische output lage bewijsstatus geven |
+| Snoekbaars | Kandidaat — direct: aerobe scope bij volwassen kweekvis; brede responszone | Levensfase is essentieel; volwassen en juveniele thermische respons verschillen | Geen aparte limiter in V0.1 | Soortspecifieke curve als brede/plateauachtige respons beoordelen; geen scherpe piek op 18,8 °C modelleren |
+| Meerval | Geen passende directe soortspecifieke fysiologische curve | Onbekend | Niet opnemen | Bestaande thermische profielcurve alleen als voorlopige prior behouden; lage bewijsstatus |
+| Roofblei | Geen passende directe soortspecifieke fysiologische curve | Onbekend | Niet opnemen | Bestaande thermische profielcurve alleen als voorlopige prior behouden; lage bewijsstatus |
+
+**Besluit fysiologie:** temperatuur blijft de enige factor die in V0.1 voor alle soorten een bestaande numerieke basis heeft. De status verschilt echter per soort: directer onderbouwde kandidaat voor brasem, baars, blankvoorn en volwassen snoekbaars; beperkte of voorlopige prior voor karper en snoek; voorlopige prior zonder passende directe soortspecifieke fysiologische curve voor zeelt, meerval en roofblei. Geen zuurstofscore toevoegen zolang passende meetwaarden en limitercurves ontbreken.
+
+## 13.3 Voedings-/foerageeractiviteit — eerste factorselectie
+
+| Soort | Directe voedingsrespons in register | Dagritme/seizoen | V0.1-besluit |
+|---|---|---|---|
+| Karper | Voedselopname, voedingsritme en juveniele foerageersnelheid zijn gemeten in veld- en proefcontexten | Sterk contextafhankelijk; ochtend/avond, nacht of geen uitgesproken piek komen voor | Kandidaat — beperkt/provisioneel. Gebruik soortspecifieke temperatuur-/tijdrespons alleen binnen bewijsgrenzen; geen vaste nachtbonus |
+| Brasem | Directe maagvulling/zoöplanktonconsumptie bij bepaalde voedselgilden en lengteklassen | Overdag bij de onderzochte subadult/adult zoöplanktoneters; juveniele pelagische vissen kunnen nachtelijk eten | Kandidaat — beperkt/provisioneel. Geen generieke tijdvakbonus zonder voedselgilde/levensfase; voedingsuitkomst moet als contextgevoelig worden getoond |
+| Snoek | Directe veldvoedingscontext via hartslagtelemetrie; directe functionele respons bij juvenielen | Geen voldoende overdraagbare vaste tijdvakcurve | Kandidaat — beperkt/provisioneel. Temperatuur en bruining niet als sterke universele voedingsfactor; tijdvakrespons voorlopig niet activeren |
+| Baars | Directe veldmetingen van voedingsintensiteit, maaginhoud en ritme | Dagritme verschuift per seizoen, lengte en voedselbeschikbaarheid | Kandidaat — direct maar contextgebonden. Tijdvakrespons alleen als brede seizoens-/grootteafhankelijke prior; geen vaste schemerpiek |
+| Blankvoorn | Directe voedingsintensiteit en ritme uit veld-/maaginhoudstudies | Dagvoeding kan in herfst naar schemer/nacht verschuiven; voedselgilde en habitat bepalend | Kandidaat — direct maar contextgebonden. Tijdvakrespons is een relevante V0.1-kandidaat met duidelijke seizoens- en habitatbeperking |
+| Zeelt | Directe veldmaaginhoud en gecontroleerde voedselopname/ritme | Avond-/nachtpieken in specifieke wateren en voeropstellingen | Kandidaat — beperkt/provisioneel. Behoud soortspecifieke avond/nacht-hypothese, maar niet als harde universele bonus |
+| Snoekbaars | Directe maagvulling/voedingsintensiteit en seizoensverschillen | Duskbeweging is gemeten, maar geen bewijs van een algemene dusk-voedingspiek | Kandidaat — direct maar contextgebonden voor seizoensvoeding; tijdvakfactor voorlopig niet opnemen |
+| Meerval | Directe voedingsintensiteit als maagvullingsproxy; nachtelijk zelfvoeronderzoek bij volwassen soort; juveniele nachtvoeding | Nachtelijk voedingsritme in gecontroleerde omstandigheden; volwassen veldbeweging vertoont seizoens- en individuele variatie | Kandidaat — beperkt/provisioneel. Nachtelijke voedingshypothese mag in V0.1 als lage-confidence prior worden getest, niet als universele volwassen veldregel |
+| Roofblei | Vooral voedingsincidentie en dieet bij voornamelijk subadulten; geen directe dagelijkse opnamecurve | Telemetrie toont dag-/schemerbeweging, geen direct voedingsritme | Geen numerieke voedingsfactor in V0.1 op basis van huidige bronnen. Toon bewijs-/databeperking; beweging niet als voeding gebruiken |
+
+## 13.4 Omgevingsfactoren die voorlopig buiten de numerieke V0.1-score blijven
+
+| Factor | V0.1-status | Reden |
+|---|---|---|
+| Zuurstof | Niet opnemen als numerieke factor | Geen volledige soort- en levensfasepassende limitercurves plus betrouwbare lokale zuurstofinvoer |
+| Troebelheid/zicht | Niet als generieke factor opnemen | Snoekstudie toont zwakke effecten in onderzochte proeven; voor andere soorten contextafhankelijk en geen uniforme richting |
+| Wind | Alleen context | Geen onafhankelijke, soortspecifieke directe respons voor de twee eerste uitkomsten vastgesteld |
+| Luchtdruk | Niet opnemen | Geen robuuste onafhankelijke respons aangetoond; risico op schijnverband |
+| Neerslag/bewolking | Alleen via bestaande invloed op waterthermiek/licht | Niet nogmaals als aparte bonus tellen |
+| Stroming/waterbeweging | Voorlopig context; later per soort en watertype toetsen | Directe gedrags-/habitatrespons is locatiespecifiek; geen algemene voedingsfactor |
+| Prooiaanbod | Alleen context tenzij lokaal gemeten | Aanbod is niet hetzelfde als voedselopname |
+| Seizoen | Alleen wanneer directe respons beschikbaar is; geen vaste maandscore | Seizoen kan temperatuur, fotoperiode, voortplanting en prooiaanbod dubbel coderen |
+| Habitat/aanwezigheid | Afzonderlijke laag, niet in fysiologie/voeding optellen | Aanwezigheid is een eigen uitkomst en vereist lokale detectie/habitatcontext |
+| Vangkans | Buiten V0.1 biologische deelscores | Vereist vangsten per inspanning en latere empirische kalibratie |
+
+## 13.5 Implementatieconsequentie
+
+Deze matrix is voldoende om het V0.1-modelcontract concreet te maken, maar nog niet voldoende om zonder verdere keuzes de runtime te wijzigen. De volgende ontwerpstap moet vastleggen:
+
+1. Welke numerieke uitkomsten worden altijd berekend (thermische baseline) en welke alleen bij voldoende bewijs.
+2. Hoe een soort met beperkte directe voedingsdata een bruikbare maar eerlijk gelabelde V0.1-uitkomst krijgt; onbekend mag niet stilzwijgend als gemiddeld worden behandeld.
+3. Welke responsvormen als eerste worden geïmplementeerd (thermische curves en tijd-/seizoensresponsen) en welke als context blijven.
+4. Hoe scoredekking, bewijsstatus en onzekerheid afzonderlijk worden geretourneerd.
+5. Hoe de bestaande score 1–10 en nieuwe 0–100-achtige deeluitkomsten zich tot elkaar verhouden; geen stilzwijgende schaalwijziging in bestaande UI.
+
+**Hervatpunt:** werk nu het V0.1-modelcontract en de eerste parameterkeuzes uit op basis van deze factorselectie. Daarna kan de runtime-implementatie starten; resterende Excel-validatie loopt parallel als verbetertraject.
