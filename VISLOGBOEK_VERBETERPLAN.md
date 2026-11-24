@@ -2987,3 +2987,12 @@ Bodemtype alleen is onvoldoende om een betrouwbare sedimentwarmteflux te bereken
 
 
 **Quality Gate:** run `45444651337` op commit `fea0aeb6815f8a5b74ead84642e67dd70010a478` is volledig geslaagd. TypeScript, waterkolomfysica, voorspelling/spin-up, shadow-integratie, empirische evaluator, backup/import-regressies en productiebuild zijn succesvol afgerond.
+
+
+### Vervolg fysieke invoer — windrichting beschikbaar gemaakt (24 november 2026)
+
+De historische ERA5-Seamless- en recente Open-Meteo-forcing halen nu naast windsnelheid ook de uurlijkse windrichting op (`wind_direction_10m`). De richting wordt als optioneel veld opgeslagen in de bestaande lokale waterkolomcache en doorgegeven aan de waterkolom-forcingtypen. Bestaande caches zonder richting blijven compatibel; ontbrekende waarden worden niet gefingeerd.
+
+Dit is de noodzakelijke invoerbasis voor de volgende stap: richtingafhankelijke fetch uit waterlichaamgeometrie. De richting wordt op dit moment nog niet als zelfstandige fysieke correctie op de menging toegepast. De huidige fetchfactor blijft dus de eerder beschreven voorlopige scalar-prior. Een kaart-/polygonbron moet eerst aantoonbaar het juiste waterlichaam rond de GPS-positie vinden; bij ontbrekende of ambigue geometrie blijft handmatige invoer leidend. Geen automatische fetchwaarde wordt op basis van alleen een steknaam of grove watercategorie verzonnen.
+
+**Wijzigingen:** `src/types/index.ts`, `src/services/waterColumnModel.ts` en `src/services/waterColumnWeatherService.ts`.
