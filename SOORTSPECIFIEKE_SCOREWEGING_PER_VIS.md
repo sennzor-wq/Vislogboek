@@ -1,16 +1,16 @@
 # Soortspecifieke scoreweging per vissoort
 
-**Status:** uitgewerkte soortinventarisatie en voorlopige weegvolgorde; geen nieuwe numerieke gewichten geactiveerd.  
+**Status:** operationele soortspecifieke score v1 geactiveerd in de bestaande Prognose-engine; voorlopige startparameters worden iteratief verfijnd.  
 **Bronnen:** operationele soortprofielen in `src/services/fishProfiles.ts` en bewijsregistraties in `src/services/researchRegistry.ts`.  
 **Reikwijdte:** de negen concrete vissoorten in Vislogboek. `Overig` krijgt geen biologisch soortprofiel of eigen soortscore zolang niet duidelijk is welke soort bedoeld wordt.
 
 ## Belangrijke rekenregel voor alle soorten
 
-De vier prognose-uitkomsten blijven gescheiden: (1) fysiologische activiteit, (2) voedings-/foerageeractiviteit, (3) lokale aanwezigheid/habitat en (4) uiteindelijke vangkans. Een factor mag alleen meetellen in de uitkomst die de bron daadwerkelijk heeft onderzocht.
+De fysiologische respons en voedings-/foerageerrespons blijven intern afzonderlijk berekend en verklaard, maar worden samengevoegd tot één gebruikersscore van 1–10. Lokale aanwezigheid/habitat en persoonlijke empirische vangkans blijven afzonderlijk. Een factor mag alleen meetellen in de respons die de bron of expliciet gemarkeerde modelprior ondersteunt.
 
-Per soort wordt de volgorde hieronder gebruikt om later gewichten vast te stellen. Dit is een **relatieve prioriteit**, geen percentageverdeling. In het research register staat momenteel geen enkele registratie op `approvedForPrediction: true`. De geregistreerde studies mogen daarom nog niet als numerieke bonus of correctiefactor in de runtime-score worden geactiveerd.
+De soorttabellen blijven de inhoudelijke basis voor verdere verfijning. De huidige operationele v1 gebruikt voorlopige parameters uit het bestaande werkboek en profielbestand; dit is geen claim dat de 95 registry-records individueel zijn vrijgegeven. De status approvedForPrediction blijft ongewijzigd: bronregistratie en operationele modelprior zijn twee verschillende statussen.
 
-Waar de bestaande engine al een thermische activiteitsscore berekent, blijft watertemperatuur de huidige primaire numerieke basis. De profielcurve en parameters zijn echter voorlopige modelprioren en niet gevalideerd als lokale vangst- of voedingscurve. Andere factoren worden niet stilzwijgend bij de score opgeteld.
+De huidige v1 berekent per tijdvak een fysiologische thermische respons en een aparte voedings-/foerageerrespons uit soortspecifiek dagritme en seizoensfase. De twee beschikbare responsen worden voorlopig gelijk gewogen tot één geïntegreerde index. Onbekende voedsel-/prooiaanvoer, wateractiviteit, zuurstof en troebelheid worden niet als nul of neutraal ingevuld; hun ontbrekende gewicht verlaagt de zichtbare driverdekking.
 
 ## Per vissoort
 
@@ -823,7 +823,7 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 
 ## 17. Geaccepteerd modeluitgangspunt — twee responsen, één prognosescore
 
-**Status:** leidend ontwerpbesluit van 24 november 2026; vervangt de temperatuur-als-enige-scoreformulering uit §16 en de eerdere afwijzing van een geïntegreerde gebruikersscore in §8.1. Nog geen numerieke gewichten of runtimeformule goedgekeurd.
+**Status:** leidend modelbesluit van 24 november 2026; de eerste operationele implementatie is nu actief in de bestaande Prognose-engine. De numerieke startwaarden zijn voorlopig en nog niet biologisch/empirisch gevalideerd.
 
 1. De bestaande Prognose blijft de enige bron voor de biologische berekening. Er komt geen tweede prognose-engine.
 2. Fysiologische respons en voedings-/foerageerrespons blijven intern afzonderlijk berekenbaar en uitlegbaar. Locomotorische activiteit, habitat/aanwezigheid en empirische vangkans blijven herkenbare afzonderlijke gegevens/responsen.
@@ -833,7 +833,7 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 6. De Prognose-uitvoer bevat de volledige modeluitleg: responsen, verwachte gedragsvorm (bijvoorbeeld weinig verplaatsing maar gericht foerageren), bepalende factoren, bronherkomst, bewijsstatus, ontbrekende invoer, dekking en onzekerheid.
 7. Lokale aanwezigheid/habitat blijft een afzonderlijke laag. Zij beïnvloedt de geïntegreerde score alleen wanneer een expliciete, passende en gevalideerde koppeling is vastgesteld. Persoonlijke vangkans blijft apart.
 8. VisCoach consumeert de bestaande Prognose-uitvoer en vertaalt die naar tactiek en praktisch advies. VisCoach voert geen eigen biologische factorweging, responsberekening of prognosescore uit en wijzigt de score niet.
-9. De numerieke samenvoegfunctie en factorbijdragen worden pas geactiveerd nadat de volledige factor-/responsmatrix per soort is beoordeeld. Onbekende effecten worden niet als nul-effect gepresenteerd en leveren ook geen verzonnen bonus op.
+9. De operationele v1 gebruikt een transparante 50/50-combinatie van de beschikbare fysiologische en voedings-/foerageerrespons. Dit is een expliciete startregel, geen uit literatuur afgeleide effectgrootte. Ontbrekende responsen worden niet als nul ingevuld; ontbrekende drivers blijven zichtbaar en worden in volgende iteraties vervangen zodra invoer en responsbewijs beschikbaar zijn.
 
 **Acceptatie:** één score van 1–10 in de bestaande dag-/tijdvakweergave; twee afzonderlijke onderliggende biologische responsen; tactiek verklaart hoe op het verwachte gedrag gevist kan worden; Prognose blijft eigenaar van alle biologische inhoud; VisCoach is uitsluitend de advies-/tactiekconsument; persoonlijke vangkans blijft empirisch en apart.
 
@@ -965,3 +965,49 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 De bronnen uit het Excel-tabblad `Bronnen` worden niet als tweede bronregister toegevoegd. Ze worden waar relevant gekoppeld aan bestaande registry-ID's of als kandidaat voor latere broncontrole gemarkeerd. Secundaire bronnen, factsheets, abstracts en niet volledig gelezen publicaties zijn geen gelijkwaardige vervanging voor primaire responsmetingen. De primaire registry-respons bepaalt of een bron fysiologie, voedselopname, voedingsritme, foerageergedrag, habitat of vangbaarheid ondersteunt.
 
 **Resultaat:** het Excel-bestand levert een bruikbare modelstructuur en aanvullende factorchecklist, maar geen vrijgegeven numerieke gewichten of drempels. De bestaande factorinventaris wordt hiermee aangevuld; de uiteindelijke geïntegreerde score blijft soortspecifiek en bewijs-/responsgebonden.
+
+
+## 21. Operationele geïntegreerde score v1 — 24 november 2026
+
+**Status:** runtime geactiveerd in PR #223; Quality Gate voor de nieuwste codecommit wordt afzonderlijk gecontroleerd. Model v1 is operationeel maar voorlopig, niet empirisch gevalideerd.
+
+### 21.1 Responsen en samenvoeging
+
+Per bestaand tijdvak berekent Prognose:
+- **Fysiologische thermische respons:** bestaande thermische scoretransformatie 1 + 9 × E_temp^0.85, waarbij de negen soortprofielen nu de T0–T3-startcurve uit het werkboek gebruiken. De curve is trapeziumvormig: stijging van T0 naar T1, plateau T1–T2, daling naar T3.
+- **Voedings-/foerageerrespons:** soortspecifieke dagritme-/lichtrespons en seizoensfase. Dagritme wordt waar mogelijk gewogen over civiele dageraad, zonsopkomst, dag, zonsondergang en civiele schemering binnen het bestaande zesuurs tijdvak.
+- **Geïntegreerde gebruikersscore:** voorlopig het rekenkundig gemiddelde van de beschikbare fysiologische en voedings-/foerageerrespons. Als één respons ontbreekt, wordt alleen de beschikbare respons gebruikt; onbekend wordt niet als nul ingevuld.
+
+De score blijft 1–10 voor de bestaande vier tijdvakken en de daguitkomst. De daguitkomst wordt duurgewogen uit de vier tijdvakuitkomsten berekend. De rangschikking van tijdvakken gebruikt nu de geïntegreerde score.
+
+### 21.2 Operationele startgewichten voedingsrespons
+
+De huidige werkboek-archetypen zijn per soortprofiel overgenomen als startgewichten:
+- bodemeters: voedsel/prooiaanbod 45%, dagritme/licht 20%, seizoensfase 15%, wateractiviteit 20%;
+- dagpredatoren: 40%, 20%, 15%, 25%;
+- schemer-/nachtpredatoren: 35%, 25%, 15%, 25%;
+- stromingsgebonden roofvis: 15%, 20%, 25%, 40%.
+
+Op dit moment zijn alleen dagritme en seizoensfase numeriek beschikbaar. De bekende gewichten worden daarom onderling genormaliseerd; de oorspronkelijke bekende driverdekking blijft apart zichtbaar (35–45%). Voedsel-/prooiaanbod en wateractiviteit zijn niet als actuele invoer beschikbaar en worden niet als neutraal behandeld. De archetypegewichten zijn werkboek-startwaarden, geen gemeten effectgroottes.
+
+### 21.3 Wat nu actief is en wat nog niet
+
+**Actief in de numerieke v1:** soortspecifieke T0–T3-temperatuurcurve, soortspecifiek dagritme, seizoens-/voedingsfase, geïntegreerde 50/50-responscombinatie, bestaande dag- en tijdvakaggregatie.
+
+**Nog niet numeriek actief:** opgeloste zuurstof (geen actuele lokale input), troebelheid/zicht (geen actuele input), lokaal voedsel-/prooiaanbod, stroming/wateractiviteit, wind, luchtdruk, neerslag/bewolking als zelfstandige biologische correcties en habitat-/aanwezigheidsgates. Deze blijven zichtbaar als context of ontbrekende driver; geen stilzwijgende nul-effectclaim.
+
+De research registry blijft ongewijzigd en approvedForPrediction wordt niet geforceerd op true gezet. De operationele v1 gebruikt expliciet voorlopige profiel-/werkboekprioren; de bronrecords blijven traceerbaar maar niet individueel vrijgegeven.
+
+### 21.4 Uitvoer en verantwoordelijkheidsgrens
+
+TimeSlotAnalysis levert de geïntegreerde score plus afzonderlijke fysiologische en voedingsresponswaarden en modelondersteuning. DayPrognosis levert de dagbrede responsen en voedingsdriverdekking. Prognose blijft eigenaar van alle biologische factoren, berekeningen, bronnen en onzekerheid.
+
+VisCoach leest deze velden en vertaalt een relatief gunstige voedingsrespons naar een rustige, nauwkeurige presentatie; een relatief sterkere fysiologische respons naar gecontroleerd zoeken/testen; en proxy-only responsen naar voorzichtiger taal. VisCoach berekent geen biologische score en wijzigt de Prognose-uitvoer niet.
+
+### 21.5 Bewuste beperkingen en verfijningspad
+
+- De 50/50-combinatie is een transparante operationele startregel, geen bewezen biologische verhouding.
+- De T0–T3-curves en maand-/dagritmewaarden komen uit het bestaande werkboek en blijven voorlopige priors.
+- Driverdekking is geen statistisch betrouwbaarheidsinterval.
+- Lokale aanwezigheid/habitat en persoonlijke vangstkans blijven aparte uitkomsten.
+- De volgende iteraties verfijnen de actieve functies met bronpassende responsranges, zuurstof-/zicht-/prooigegevens zodra invoer bestaat en echte gebruikerssessies zodra beschikbaar. De huidige v1 wordt niet opnieuw ontworpen of stilgezet om eerst alle literatuur volledig te herzien.

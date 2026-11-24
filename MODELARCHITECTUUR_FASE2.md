@@ -1,7 +1,7 @@
 # Modelarchitectuur Vislogboek — Fase 2
 
 **Besluitdatum:** 16 november 2026  
-**Status:** gekozen architectuur; numerieke herkalibratie nog niet uitgevoerd. Laatste architectuursynchronisatie: 19 november 2026. Fase 2 is nog niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
+**Status:** gekozen architectuur; operationele score v1 is geactiveerd op 24 november 2026. Numerieke/biologische verfijning en empirische validatie blijven open. Laatste architectuursynchronisatie: 24 november 2026. Fase 2 is nog niet formeel geaccepteerd; Fase 3 blijft geblokkeerd.
 
 ## 1. Besluit in één zin
 
@@ -1562,12 +1562,39 @@ Prognose bevat waar beschikbaar de fysiologische en voedings-/foerageerrespons a
 ### 171.4 VisCoach vertaalt; VisCoach voorspelt niet opnieuw
 VisCoach consumeert de Prognose-uitvoer en maakt daar samen met gekozen stek, sessietijd, sessieduur, techniek en tactische positioneringsinformatie één praktisch plan van: waar, wanneer en hoe vissen. VisCoach voert geen eigen biologische factorweging of responsberekening uit, maakt geen tweede score, verandert de Prognose-score niet en verzint geen biologische verklaring die niet in de Prognose-uitvoer staat. Het vertaalt de verwachte gedragsvorm naar een passende tactiek.
 
-### 171.5 Implementatievolgorde
-1. Herclassificeer alle kandidaatfactoren naar de respons die zij werkelijk beïnvloeden; geen factor verdwijnt omdat hij nog niet numeriek inzetbaar is.
-2. Stel per soort responsvorm, richting, levensfase, watertype, tijdschaal, invoervereisten, bronsterkte en onzekerheid vast.
-3. Ontwerp de soortspecifieke samenvoegfunctie; toets limitering, interactie en dubbeltelling.
-4. Sluit de output aan op de bestaande dag-/tijdvakscore en volledige Prognose-uitleg.
-5. Laat VisCoach uitsluitend die output vertalen naar tactiek en advies.
-6. Test alle soorten, ontbrekende invoer, dag-/tijdvakconsistentie, snapshots, outputcompatibiliteit en targetTime-as-of.
+### 171.5 Uitvoering en iteratieve verfijning
+1. De eerste operationele T0–T3-, dagritme- en seizoensprofielen zijn nu in de bestaande soortprofielen geactiveerd.
+2. De afzonderlijke fysiologische en voedings-/foerageerrespons worden voorlopig 50/50 gecombineerd tot de bestaande dag-/tijdvakscore.
+3. Ontbrekende voedsel-, wateractiviteits-, zuurstof- en zichtdrivers blijven expliciet onbekend; beschikbare gewichten worden alleen binnen de vastgelegde bekende drivergroep genormaliseerd en de oorspronkelijke dekking blijft zichtbaar.
+4. Prognose levert responsen, factorbijdragen, bronstatus en onzekerheid; VisCoach vertaalt uitsluitend naar tactiek.
+5. Volgende iteraties verfijnen de actieve curves en gewichten per soort op basis van betere bronextractie en invoerbeschikbaarheid; de runtime blijft operationeel tijdens die verfijning.
+6. Regressie bewaakt alle soorten, ontbrekende invoer, dag-/tijdvakpariteit, snapshots, outputcompatibiliteit en targetTime-as-of.
 
 **Acceptatie:** één bestaande 1–10-score in Prognose, twee herkenbare biologische responsen eronder, complete modeluitleg in Prognose, tactiek/advies in VisCoach zonder tweede biologische berekening, en persoonlijke vangkans apart.
+
+
+## 172. Operationele geïntegreerde Prognose-score v1 (24 november 2026)
+
+De eerste operationele implementatie is aangesloten op de bestaande calculateDayPrognosis-keten; er is geen tweede prognose-engine toegevoegd.
+
+### 172.1 Berekening per tijdvak
+
+- De fysiologische respons gebruikt de bestaande thermische scoretransformatie met de voorlopige soortspecifieke T0–T3-trapeziumcurve uit het werkboek.
+- De voedings-/foerageerrespons gebruikt de soortspecifieke diel-profielen, verdeeld over astronomische/civiele dageraad, zonsopkomst, dag, zonsondergang en schemering waar de lokale zongegevens beschikbaar zijn, plus de maandelijkse seizoensfase.
+- De vier archetypegewichten staan per soortprofiel vast. Op dit moment zijn alleen dagritme en seizoensfase beschikbaar; voedsel-/prooiaanbod en wateractiviteit zijn onbekend. Bekende drivers worden genormaliseerd, terwijl oorspronkelijke driverdekking wordt gerapporteerd.
+- De geïntegreerde gebruikersscore is voorlopig het gemiddelde van de beschikbare fysiologische en voedingsrespons. Ontbrekende responsen worden niet als nul behandeld.
+- De bestaande vier zesuursvakken, de dagaggregatie, Europe/Amsterdam-kalender, DST-gedrag en targetTime-as-of-regels blijven behouden.
+
+### 172.2 Uitvoer en tactiekgrens
+
+TimeSlotAnalysis bevat de geïntegreerde score en de afzonderlijke fysiologische/voedingsresponsen. DayPrognosis bevat de dagbrede responsen en driverdekking. De bestaande Prognosepagina toont de geïntegreerde score en de voorlopige voedingsrespons. De modelondersteuning/driverdekking is geen statistisch betrouwbaarheidsinterval.
+
+De bestaande sessionCoachService leest de responsen en vertaalt hun relatieve verhouding naar een tactische insteek. Bij een relatief gunstige voedingsrespons wordt bijvoorbeeld een rustige, nauwkeurige presentatie geadviseerd; bij een relatief sterkere fysiologische respons een gecontroleerde zoekende aanpak. Proxy-only bewijs wordt als proxy benoemd. VisCoach berekent geen biologische score en wijzigt de Prognose niet.
+
+### 172.3 Status en grenzen
+
+- Modelversie: v2.6-integrated-species-responses.
+- researchRegistry blijft ongewijzigd; approvedForPrediction wordt niet automatisch op true gezet.
+- Zuurstof, troebelheid, lokaal prooiaanbod, stroming/wateractiviteit, wind en luchtdruk zijn nog niet als zelfstandige numerieke respons geactiveerd omdat de huidige invoer-/responsdekking dit niet draagt.
+- De 50/50-combinatie en werkboekprofielen zijn operationele startwaarden, geen empirisch gefitte parameters.
+- De persoonlijke Poisson-vangkans, lokale aanwezigheid/habitat en tactische locatiekeuze blijven aparte uitkomsten.

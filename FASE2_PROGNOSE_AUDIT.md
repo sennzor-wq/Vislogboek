@@ -1,6 +1,6 @@
 # Fase 2 — audit bestaande biologische prognose
 
-**Status:** doorlopende Fase 2-audit; factorinventaris, responsmatrix en productdoel zijn vastgelegd; normalisatie, coverage en onafhankelijke validatie staan nog open  
+**Status:** doorlopende Fase 2-audit; operationele geïntegreerde score v1 is geactiveerd; factorverfijning, coverage en onafhankelijke biologische validatie staan nog open  
 **Peildatum:** 19 november 2026  
 **Branch:** `main`  
 **Commit bij start:** `dd1238e3139fa048fe808c399282a5b1fe1fda12`  
@@ -6643,3 +6643,32 @@ De eigenaar heeft expliciet besloten F2-WP19 (empirische kandidaatvalidatie en m
 De eerdere read-only schema- en replayhaalbaarheidscontrole in §209 blijft behouden als historische documentatie; dit betekent niet dat empirische validatie is uitgevoerd of geslaagd. Synthetische simulaties blijven uitsluitend technische contract-/regressietests en worden niet gebruikt als vervanging voor echte uitkomstdata. Er worden geen sessies, vangsten, labels, nauwkeurigheidsresultaten of biologische parameters verzonnen.
 
 WP19 kan alleen opnieuw worden overwogen als echte data later beschikbaar komen én de eigenaar besluit dat empirische validatie alsnog gewenst is. Tot die tijd gaan de overige reeds geplande en geautoriseerde werkzaamheden verder zonder deze afhankelijkheid.
+
+
+## 206. Operationele geïntegreerde soortspecifieke score v1 (24 november 2026)
+
+**Doel:** de bestaande Prognose-score operationeel uitbreiden met de beschikbare soortspecifieke informatie uit de huidige profielen, research registry en vismodel_voorstel_v2.xlsx, zonder een tweede engine te bouwen of de scoreberekening opnieuw uit te stellen.
+
+### 206.1 Runtimewijzigingen
+
+- src/services/fishProfiles.ts: voor alle negen doelsoorten zijn T0–T3-temperatuurcurves, dagritmeprofielen, maandelijkse seizoensprofielen en archetypegewichten opgenomen. De waarden blijven expliciet voorlopige modelprioren.
+- src/services/feedingResponseEngine.ts: berekent nu per soort, maand en bestaand tijdvak een voedings-/foerageerrespons uit de beschikbare dagritme- en seizoensdrivers. Waar lokale zongegevens bestaan, worden civiele dageraad, zonsopkomst, dag, zonsondergang en civiele schemering over het tijdvak gewogen.
+- src/services/prognosisEngine.ts: combineert de afzonderlijke fysiologische en voedingsrespons voorlopig 50/50 tot de bestaande 1–10 tijdvakscore. De dagscore blijft uit de vier tijdvakken duurgewogen. Wanneer één respons ontbreekt, wordt alleen de beschikbare respons gebruikt; onbekend wordt niet als nul ingevuld.
+- src/types/index.ts: tijdvakuitvoer bevat nu beide responswaarden en modelondersteuning; daguitvoer bevat de fysiologische dagrespons, voedingsrespons en driverdekking.
+- src/services/modelVersions.ts: modelversie verhoogd naar v2.6-integrated-species-responses.
+- src/components/prognosis/PrognosisView.tsx: de gebruikersscore wordt als geïntegreerde prognose-index gepresenteerd; de voedings-/foerageerrespons en ontbrekende driverdekking worden apart getoond.
+- src/services/sessionCoachService.ts: VisCoach leest de Prognose-responsen en vertaalt ze naar tactiek. Een relatief gunstige voedingsrespons kan leiden tot een rustige, nauwkeurige presentatie; een relatief sterkere fysiologische respons tot gecontroleerd zoeken. Proxy-only bewijs blijft als proxy benoemd. De coach berekent of wijzigt geen score.
+
+### 206.2 Actieve en ontbrekende factoren
+
+**Actief in v1:** soortspecifieke T0–T3-thermische respons, soortspecifiek dagritme, maandelijkse seizoens-/voedingsfase en de geïntegreerde 50/50-samenvoeging.
+
+De vier werkboek-archetypen bepalen de startgewichten per soortprofiel. Alleen de bekende dagritme- en seizoensgewichten zijn momenteel beschikbaar en worden onderling genormaliseerd. De oorspronkelijke bekende driverdekking is 35–45% en blijft zichtbaar. Voedsel-/prooiaanbod en wateractiviteit ontbreken als actuele invoer. Opgeloste zuurstof en troebelheid/zicht zijn eveneens niet beschikbaar als betrouwbare actuele Prognose-invoer. Deze factoren blijven onbekend/contextueel; zij worden niet als nul-effect of neutrale omstandigheden geïnterpreteerd.
+
+Wind, luchtdruk, neerslag en bewolking blijven context en krijgen geen zelfstandige biologische bonus. Habitat/aanwezigheid blijft een aparte laag. Persoonlijke vangkans blijft de bestaande empirische Poisson-uitkomst en wordt niet uit de geïntegreerde biologische index afgeleid.
+
+### 206.3 Bewijs- en validatiestatus
+
+De 95 registry-records blijven ongewijzigd; geen record is stilzwijgend op approvedForPrediction: true gezet. De operationele modelparameters zijn expliciete startprioren uit het bestaande werkboek en de soortprofielen, niet rechtstreeks gefitte effectgroottes. Driverdekking is geen statistisch betrouwbaarheidsinterval. De huidige score is dus operationeel, maar de biologische juistheid en voorspellende nauwkeurigheid zijn niet empirisch bewezen.
+
+De bestaande dag-/vier tijdvakweergave, onbekend-semantiek, snapshotcontracten, Europe/Amsterdam-intervalgrenzen, DST en targetTime-as-of-invariant blijven leidend. De vervolgstap is iteratieve verfijning van de actieve parameters en het toevoegen van betrouwbare inputdrivers zodra die beschikbaar zijn; niet opnieuw wachten met activeren tot alle literatuur volledig is gevalideerd.
