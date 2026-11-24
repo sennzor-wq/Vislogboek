@@ -14,7 +14,7 @@ import {
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
 import { getWaterColumnForcing } from '../../services/waterColumnWeatherService';
-import { getAutomaticWaterFetch } from '../../services/waterFetchGeometry';
+import { getAutomaticWaterFetchForLocation } from '../../services/waterFetchGeometry';
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
@@ -109,15 +109,18 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
         setHourlyForecast([]); setDayPrognoses([]); setWeatherUpdatedAt(''); setIsCachedWeather(false); return;
       }
       const waterColumnTargetTime = new Date(Date.now() + 7 * 24 * 3600000).toISOString();
-      const [weather, waterColumnWeather] = await Promise.all([
+      const [weather, waterColumnWeather, automaticWaterFetch] = await Promise.all([
         getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh),
         getWaterColumnForcing(selectedLoc.latitude, selectedLoc.longitude, waterColumnTargetTime)
           .catch((error) => {
             console.warn('Water-column shadow forcing niet beschikbaar; bestaande prognose blijft actief.', error);
             return null;
           }),
+        getAutomaticWaterFetchForLocation(selectedLoc).catch((error) => {
+          console.warn('Automatische waterkaartanalyse niet beschikbaar; handmatige fetch of neutrale prior blijft actief.', error);
+          return null;
+        }),
       ]);
-      const automaticWaterFetch = await getAutomaticWaterFetch(selectedLoc.latitude, selectedLoc.longitude);
       const predictionLocation = automaticWaterFetch
         ? { ...selectedLoc, windFetchByDirectionM: automaticWaterFetch.sectorFetchM }
         : selectedLoc;
