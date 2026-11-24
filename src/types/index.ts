@@ -502,8 +502,8 @@ export interface WaterThermalAnalysis {
   trend: ThermalTrend;
   trendConfidence: 'Onvoldoende gegevens' | 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   hasMeasuredWaterTemp: boolean;
-  /** True only when the explicit measurement was taken within 0.2 m of the registered bottom. */
-  measuredWaterTempAtBottom?: boolean;
+  /** True only when the explicit measurement was taken within 0.2 m of the species target depth. */
+  measuredWaterTempAtTargetDepth?: boolean;
   measuredWaterTemp: number | null;      // Daadwerkelijk gemeten en ingevoerd (NOOIT gefingeerd)
   estimatedWaterTemp: number | null;     // Expliciet als modelschatting aangeduid
   estimatedRange?: [number, number] | null; // bijv. [11.0, 13.5] °C
