@@ -2332,3 +2332,83 @@ Bronnen:
 Aanvullende bron: Pilla et al. (2021), *Global data set of long-term summertime vertical temperature profiles in 153 lakes*: https://www.nature.com/articles/s41597-021-00983-y
 
 **Vervolg:** EMLS wordt voorlopig hoger geprioriteerd dan EDI 705 voor de eerste reproduceerbare profielvorm-test, omdat de datasetkoppeling en CC0-vermelding nu via KNAW zijn vastgesteld. EDI 705 blijft kandidaat totdat de repositorymetadata/licentie rechtstreeks zijn geverifieerd. Dit verandert niets aan de scope of besluitpoort van het model.
+
+
+### Besluit onderzoeksfase — voldoende wetenschappelijke basis; door naar modelontwerp (24 november 2026)
+
+**Besluit en werkwijze:** de brede literatuurverkenning voor het watertemperatuurmodel wordt hiermee afgesloten. Er is voldoende wetenschappelijke basis om een concreet ontwerp voor de eerste verbeterde modelversie uit te werken. Verder breed zoeken naar nog meer modellen of algemene literatuur heeft op dit moment minder waarde dan het vertalen van de bestaande kennis naar één samenhangend, toetsbaar ontwerp. Vervolgonderzoek wordt beperkt tot gerichte verificatie van gegevens die voor implementatie of validatie echt nodig blijken.
+
+#### 1. Wetenschappelijke basis die we als voldoende beschouwen
+
+1. **Oppervlaktewarmtebalans — KNMI/De Bruin & Wessels.** Watertemperatuur verandert door netto warmte-uitwisseling aan het oppervlak: inkomende kortgolvige zonnestraling, uitgaande langgolvige straling, voelbare warmte-uitwisseling met de lucht en verdampings-/latente warmteflux. Luchttemperatuur alleen is onvoldoende. Wind, luchtvochtigheid/dauwpunt en bewolking beïnvloeden de warmte-uitwisseling. Neerslag en sneeuw kunnen relevant zijn.
+2. **Verticale warmteverdeling — GLM als architectuurreferentie.** Een meer of vijver kan niet altijd met één watertemperatuur worden beschreven. Een verticale 1D-toestand met een gemengde bovenlaag, thermocline en diepere laag kan zomerstratificatie en de vertraagde reactie van dieper water representeren. GLM is een wetenschappelijke architectuurreferentie; Vislogboek hoeft niet het volledige GLM-model te kopiëren.
+3. **Zoetwaterdichtheid — winter én zomer.** In de zomer kan opwarming een lichtere bovenlaag boven koeler dieper water vormen. In de winter is de dichtheidsanomalie rond 4 °C essentieel: zoet water heeft rond 4 °C zijn grootste dichtheid; water kouder dan 4 °C kan boven warmer water blijven. Beide regimes en hun overgangen moeten uit dezelfde verticale fysica volgen.
+4. **Menging en overgang.** Windgedreven turbulentie, convectie door oppervlakte-afkoeling en seizoensgebonden warmte-uitwisseling bepalen of lagen gemengd blijven of stratificeren. Lente- en herfstomslag mogen niet simpelweg op vaste kalenderdatums worden gezet.
+5. **Bevriezing en faseovergang.** Vloeibaar zoet water mag niet als normale vloeistof onder 0 °C worden gerapporteerd. Bij ijsvorming moet energie naar de faseovergang; ijs en sneeuw beïnvloeden vervolgens de isolatie en verdere warmte-uitwisseling. Het KNMI-ijsgroeimodel is hiervoor een relevante Nederlandse referentie.
+6. **Traagheid en diepte.** Dieper water heeft meer warmtecapaciteit en reageert doorgaans trager. De bestaande discrete tijdconstanten zijn een grove benadering; het nieuwe ontwerp moet warmteopslag en laagdiepte fysisch consistenter behandelen.
+7. **Beginconditie en historische forcing.** Zonder lokale watertemperatuur is een actuele luchttemperatuurreeks van enkele dagen geen betrouwbare absolute beginconditie. Historische weersreeksen (KNMI-waarnemingen of ERA5-Land als kandidaat) kunnen spin-up mogelijk maken, maar alleen als verschillende plausibele startprofielen aantoonbaar naar vergelijkbare toestanden convergeren.
+8. **Lokale meting en onzekerheid.** Een betrouwbare lokale watertemperatuurmeting op bekende diepte en tijd blijft de sterkste ankerinformatie. Een meting op één diepte bepaalt niet automatisch het hele verticale profiel. Onvoldoende informatie moet resulteren in grotere onzekerheid of de melding dat een betrouwbare absolute schatting niet mogelijk is.
+
+**Belangrijke modelnuance:** het operationele KNMI-ijsgroeimodel is een effectieve referentie voor oppervlaktewarmtebalans en ijs, maar de beschreven operationele variant is een éénlaags/bulkmodel. Voor de verticale structuur gebruiken we GLM-achtige principes. We combineren dus relevante fysica uit beide bronnen; we doen niet alsof het KNMI-model zelf al een volledig verticaal meerlagenmodel is.
+
+#### 2. Voorgestelde samenhangende modelrichting
+
+Werk één bestaande thermische engine door tot één fysisch consistente, verticale 1D-watertoestand voor stilstaand zoet buitenwater:
+
+- **Meteorologische forcing:** uurlijkse invoer op of nabij de steklocatie, met tijdstempel en bronkwaliteit. Relevante variabelen zijn luchttemperatuur, zonnestraling, langgolvige straling of een onderbouwde schatting daarvan, luchtvochtigheid/dauwpunt, wind, bewolking en neerslag; sneeuw waar relevant.
+- **Oppervlaktefluxlaag:** netto warmte-uitwisseling aan het wateroppervlak volgens een KNMI/De Bruin-Wessels-geïnspireerde energiebalans. Leg fluxcomponenten afzonderlijk vast zodat de uitkomst controleerbaar is.
+- **Verticale waterkolom:** representeer water in fysisch onderbouwde lagen, met laagdiepte, temperatuur, warmtecapaciteit en dichtheid. Laat zonlicht dieper doordringen afhankelijk van waterhelderheid wanneer gegevens dat toelaten; gebruik geen verzonnen helderheidswaarde als zekere meting.
+- **Dichtheid en menging:** bepaal dichtheid uit temperatuur voor zoet water met het maximum rond 4 °C. Gebruik dichtheidsstabiliteit, windmenging en convectie om verticale menging en stratificatie te bepalen. Zomerstratificatie en winterse inverse stratificatie zijn uitkomsten van dezelfde fysica.
+- **Bodem en randen:** neem bodemwarmte-uitwisseling en instroom/uitstroom alleen mee wanneer benodigde invoer en waterregime dit ondersteunen. Onbekende hydrologische invloeden worden als beperking/onzekerheid behandeld.
+- **IJs/faseovergang:** behandel bevriezing, latente warmte en isolerende ijs-/sneeuwlaag expliciet genoeg om fysisch onmogelijke negatieve vloeibare watertemperaturen te voorkomen.
+- **Uitvoer:** rapporteer temperatuur op de gevraagde meet-/visdiepte, plus waar mogelijk oppervlakte- en bodemtemperatuur, verticaal profiel, bron/herkomst, onzekerheid en modelstatus. Een bulktemperatuur mag niet stilzwijgend als temperatuur op iedere diepte worden gepresenteerd.
+
+De eerste scope blijft **stilstaand, zoet, buitenwater**. Stromende wateren met onbekende advectie/discharge, brak/zout water zonder saliniteitscorrectie en sterke thermische lozingen vallen buiten de eerste nauwkeurigheidsclaim. Ondiep gemengde en diep gestratificeerde wateren moeten beide in ontwerp en validatie vertegenwoordigd zijn.
+
+#### 3. Beginconditie zonder lokale watertemperatuur
+
+Gebruik geen willekeurige vaste starttemperatuur en presenteer geen schijnnauwkeurige absolute waarde op basis van alleen de laatste 72 uur.
+
+- Lokale meting met diepte en tijd: anker op die laag/diepte; overige lagen blijven onzeker totdat aanvullende gegevens of een onderbouwde reconstructie beschikbaar zijn.
+- Lokaal verticaal profiel: initialiseert meerdere lagen rechtstreeks, met meetmethode en ouderdom als kwaliteitsinformatie.
+- Geen lokale meting: gebruik historische meteorologische forcing en meerdere plausibele initiële verticale profielen.
+- Gebruik experimentele spin-upvensters 30/90/180/365 dagen uitsluitend als gevoeligheidstest, niet vooraf als productieparameter.
+- Beoordeel convergentie op voorspelde temperatuur op relevante dieptes en op de profieltoestand; als startprofielen niet voldoende convergeren, presenteer de absolute temperatuur niet als betrouwbaar.
+
+KNMI-stationdata en ERA5-Land blijven kandidaatbronnen; er is nog geen bron geselecteerd of aangesloten. Heranalyse is geen lokale waarneming. De keuze volgt uit een gerichte vergelijking van dekking, variabelen, resolutie, tijdstempels, beschikbaarheid en validatieresultaten.
+
+#### 4. Validatie: voldoende referenties om te beginnen, met één bekende leemte
+
+De huidige referentiebasis is voldoende om het validatieontwerp te maken:
+- KNMI/De Bruin-Wessels: Nederlandse oppervlakwarmtebalans en ijsreferentie voor stilstaand zoet water;
+- Mooij et al. (2008): Nederlandse ondiepe, windblootgestelde, goed gemengde wateren als bulktemperatuur-baseline;
+- Klinkenbergerplas (1985–2021 in rapport): Nederlandse diepe, nagenoeg stilstaande plas als seizoensprofielreferentie; ruwe diepte-/tijdreeksen moeten nog bij Rijnland worden geverifieerd;
+- European Multi Lake Survey: zomerse verticale profielvormen en thermocline; momentopnamen, geen winterreeks;
+- Pilla et al. (2021), 153 meren: aanvullende zomerse verticale profielvalidatie; repositorylicentie en downloadbestanden nog verifiëren;
+- RWS/Deltares LSM3 en Marker Wadden meetpaal: nuttige Nederlandse praktijkreeksen en twee meetniveaus, maar hydrodynamisch niet zonder meer representatief voor stilstaande vijvers; actuele data-toegang en metadata moeten nog worden geverifieerd.
+
+**Expliciete validatieleemte:** er is nog geen bevestigde open Nederlandse tijdreeks gevonden met gelijktijdige winterse verticale temperatuurprofielen op meerdere bekende dieptes in stilstaand zoet water, inclusief ijswaarnemingen. KNMI-fysica kan het ontwerp onderbouwen, maar vervangt deze onafhankelijke profielvalidatie niet. Dit is een gerichte open validatievraag, geen reden om de ontwerpstap uit te stellen.
+
+#### 5. Ontwerp- en implementatievolgorde
+
+De volgende stap is niet verder breed zoeken, maar een concreet technisch ontwerp maken dat aansluit op de bestaande thermische engine en de huidige data-/prognoseketen:
+
+1. Leg het toestandsmodel vast: lagen, temperatuur, warmte-inhoud, dichtheid, menging, ijsstatus en onzekerheid.
+2. Leg de benodigde meteorologische fluxen en bronvereisten vast; onderscheid gemeten, heranalyse, voorspeld en afgeleid.
+3. Definieer initialisatiepaden met lokale meting/profiel en zonder lokale meting, inclusief convergentiecontrole.
+4. Definieer dieptegerichte uitvoer en aansluiting op bestaande prognosecalls, zonder de soortrespons of totaalscore te wijzigen.
+5. Maak een offline validatieprotocol met beschikbare datasets en synthetische fysische randgevallen; synthetische tests gelden niet als praktijkvalidatie.
+6. Werk daarna een afgebakend implementatievoorstel uit met gewijzigde bestanden, opslagimpact, testmatrix, onzekerheden en terugvalgedrag.
+
+#### 6. Onderzoeksstop en besluitpoort
+
+**Onderzoeksstop:** de brede wetenschappelijke verkenning is voor de eerste ontwerpversie voldoende. Geen nieuwe algemene modelvergelijkingen of literatuurzoektochten tenzij het ontwerp een concrete onbeantwoorde fysische vraag blootlegt.
+
+**Gericht vervolgonderzoek blijft nodig** voor uitsluitend:
+- bevestigen van exacte meetreeksen, meetdieptes, kwaliteitscodes en licentie/datarechten;
+- bepalen welke historische meteorologische bron technisch en inhoudelijk geschikt is;
+- oplossen of expliciet documenteren van de Nederlandse winterprofiel-validatieleemte.
+
+**Nog niet uitgevoerd:** geen modelontwerp tot implementatie vertaald, geen code/types/database/UI/formules/parameters gewijzigd, geen externe databron aangesloten, geen meetbestanden geïmporteerd, geen tests of productiebuild uitgevoerd, geen scoreberekening aangepast en geen deployment uitgevoerd. De scoreberekeningsaudit blijft uitgesteld.
+
+**Besluit:** ga nu door naar de concrete technische ontwerpfase voor het verbeterde watertemperatuurmodel. De implementatiebesluitpoort blijft gesloten totdat het ontwerp en de wijzigingsscope aan de producteigenaar zijn voorgelegd en expliciet zijn goedgekeurd.
