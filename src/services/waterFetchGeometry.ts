@@ -1,5 +1,5 @@
 import { db } from '../db/db';
-import type { WeatherCacheEntry } from '../types';
+import type { FishingLocation, WeatherCacheEntry } from '../types';
 
 const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
@@ -140,4 +140,18 @@ export async function getAutomaticWaterFetch(
     // Network/CORS/Overpass failures are an explicit absence of geometry, not zero fetch.
     return null;
   }
+}
+
+
+/**
+ * Consent-gated entry point for the prognosis flow. Exact stek coordinates
+ * are sent to the OSM Overpass service only after an explicit per-location opt-in.
+ */
+export async function getAutomaticWaterFetchForLocation(
+  location: Pick<FishingLocation, 'latitude' | 'longitude' | 'automaticWaterFetchEnabled'>
+): Promise<DirectionalWaterFetch | null> {
+  if (location.automaticWaterFetchEnabled !== true ||
+      typeof location.latitude !== 'number' || !Number.isFinite(location.latitude) ||
+      typeof location.longitude !== 'number' || !Number.isFinite(location.longitude)) return null;
+  return getAutomaticWaterFetch(location.latitude, location.longitude);
 }
