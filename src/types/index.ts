@@ -136,6 +136,11 @@ export interface FishingLocation {
   longitude?: number;
   waterDepth?: number;            // meters
   waterType?: 'Kanaal' | 'Rivier' | 'Polder' | 'Plas/Zandafgraving' | 'Stadswater' | 'Haven' | 'Overig' | 'Onbekend';
+  /** Optional site physics; absent values remain explicit model priors. */
+  windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
+  effectiveFetchM?: number;
+  secchiDepthM?: number;
+  waterMovement?: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
   notes?: string;
   isBenchmark?: boolean;          // Beschermde benchmarkstek
   createdAt: string;
