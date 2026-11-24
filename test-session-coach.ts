@@ -197,6 +197,16 @@ async function run() {
   const baselinePrognosis = {
     ...snapshot.prognosisData!,
     activityScore: 6,
+    physiologicalResponseScore: 4.2,
+    feedingActivity: {
+      score: 8.4,
+      status: 'provisional',
+      evidenceLevel: 'direct_candidate',
+      driverCoveragePercent: 35,
+      coverageLevel: 'Laag',
+      missingDrivers: ['Voedsel-/prooiaanbod', 'Wateractiviteit'],
+      responses: {},
+    },
     summaryRationale: 'Eerste toelichting',
     positioningAdvice: { recommendedZone: 'Diepere overgangszone' },
   } as any;
@@ -252,6 +262,31 @@ async function run() {
       'Exacte oeverlijnoriëntatie en omtrek van het water zijn niet bekend in het systeem (GPS is een enkel punt).',
     ],
   } as any, { windSpeed: 24, windDirection: 225, windDirectionText: 'Zuidwest' } as any, 'Method feeder');
+  const feedingLedAdvice = buildVisCoachAdviceText({
+    ...baselinePrognosis,
+    timeSlots: {
+      Avond: {
+        physiologicalResponseScore: 4.2,
+        feedingResponseScore: 8.4,
+        conclusion: 'Voedingsrespons gunstig, fysiologische respons gematigd.',
+      },
+    },
+  } as any, null, 'Method feeder', 'Avond', 3);
+  assert(
+    feedingLedAdvice.tactics.includes('Voedingsgerichte tactiek') &&
+      feedingLedAdvice.tactics.includes('rustige, nauwkeurige presentatie') &&
+      feedingLedAdvice.advice.includes('Fysiologische respons: 4.2/10') &&
+      feedingLedAdvice.advice.includes('voedings-/foerageerrespons: 8.4/10'),
+    'VisCoach vertaalt een relatief gunstige voedingsrespons naar een rustige, nauwkeurige tactiek zonder de Prognose-score te herberekenen'
+  );
+  const changedFeedingScore = {
+    ...baselinePrognosis,
+    feedingActivity: { ...baselinePrognosis.feedingActivity, score: 8.4 },
+  } as any;
+  assert(
+    changedSignatureFactors(prognosisSignature(baselinePrognosis), prognosisSignature(changedFeedingScore)).includes('feedingResponseBand'),
+    'Een betekenisvolle wijziging in de voedingsrespons activeert een nieuwe tactische beoordeling'
+  );
   const translatedText = [
     translatedAdvice.summary,
     translatedAdvice.advice,
@@ -578,7 +613,7 @@ async function run() {
     },
   } as any, null, null, 'Avond', 3);
   const unavailableScoreAdvice = buildVisCoachAdviceText({ ...baselinePrognosis, activityScoreAvailable: false, advice: 'Gemiddeld', thermalAnalysis: { hasMeasuredWaterTemp: false, measuredWaterTemp: null, estimatedWaterTemp: null } } as any, null, null, 'Avond', 3);
-  assert(!unavailableScoreAdvice.summary.toLowerCase().includes('gemiddeld') && unavailableScoreAdvice.summary.includes('Geen betrouwbare activiteitsscore beschikbaar'), 'VisCoach presenteert de interne gemiddelde placeholder niet als prognose wanneer thermische schatting ontbreekt');
+  assert(!unavailableScoreAdvice.summary.toLowerCase().includes('gemiddeld') && unavailableScoreAdvice.summary.includes('Geen geïntegreerde biologische score beschikbaar'), 'VisCoach presenteert de interne gemiddelde placeholder niet als prognose wanneer beide biologische responsen ontbreken');
   assert(
     !unknownTemperatureCarp.tactics.includes('klein PVA-zakje') &&
     !unknownTemperatureCarp.tactics.includes('method feeder een minimaal'),
