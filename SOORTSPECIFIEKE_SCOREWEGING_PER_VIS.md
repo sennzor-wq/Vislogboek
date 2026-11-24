@@ -337,3 +337,83 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 - Daarna pas beoordelen welke runtime-scoreberekeningen aangepast moeten worden.
 
 **Hervatten vanaf:** de evidence matrix en soortspecifieke rangorde; de Excel-koppeling hierboven is vastgelegd en hoeft niet opnieuw vanaf nul te worden gedaan.
+
+# 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
+
+**Status:** eerste classificatie van de 94 bestaande registerrecords op basis van hun vastgelegde \`measuredOutcomes\`, samenvatting en beperkingen. Dit is een onderbouwde prioritering, nog geen numerieke weging.
+
+## 10.1 Bewijsclassificatie
+
+- **Direct:** het register noemt een meetuitkomst die inhoudelijk overeenkomt met de bedoelde prognose-uitkomst. Direct betekent niet automatisch sterk, overdraagbaar of klaar voor runtime.
+- **Beperkt direct:** de bedoelde respons is gemeten, maar in een beperkte levensfase, laboratorium-/voeropstelling, één locatie, kleine steekproef of met beperkte bewijssterkte.
+- **Indirect/context:** de bron meet een verwante respons, zoals groei, dieet, prooikeuze, beweging of habitatgebruik. Deze mag de bedoelde uitkomst niet vervangen.
+- **Geen soortspecifiek bewijs in het register:** er is op dit moment geen passende soortspecifieke meetrespons geregistreerd.
+
+De classificatie volgt de geregistreerde meetuitkomst, niet alleen de titel of het onderwerp van een bron. Een bron met meerdere meetuitkomsten kan in meer dan één kolom voorkomen, maar alleen voor de afzonderlijk geregistreerde responsen.
+
+## 10.2 Matrix op hoofdlijnen
+
+| Soort | Fysiologische prestatie | Voedingsintensiteit/-ritme | Foerageergedrag | Habitat/aanwezigheid | Vangkans |
+|---|---|---|---|---|---|
+| **Karper** | Beperkt direct: metabolisme (\`common-carp-acute-temperature-metabolism-1983\`). Voedingsfysiologie/hypoxie is een andere respons. | Direct, meerdere veld- en laboratoriumrecords; bewijs varieert beperkt–matig. Sterke contextverschillen tussen wild, rivier, bijgevoerd punt en proefopstelling. | Direct, onder meer juveniele temperatuurproef en veldstudies; niet gelijkstellen aan opgenomen voedsel. | Direct habitat-/bewegingsonderzoek, maar vooral beperkt en locatiegebonden; geen lokale stekkans. | Beperkt: vangstverdeling (\`common-carp-angling-competition-night-landings-2021\`) en kwetsbaarheid (\`common-carp-bait-encounter-angling-vulnerability-2017\`); geen lokale vangstkans. |
+| **Brasem** | Direct voor metabolisme (\`roach-bream-metabolic-rate-temperature-2006\`); groei is alleen indirect. | Direct, matig bewijs voor in-situ consumptie/maagvulling en dagritme, maar gebonden aan voedselgilde, lengteklasse en meer. | Direct voor filtervoedgedrag en prooigrootte; niet automatisch aasopname. | Direct telemetrie-/habitatgebruik in meerdere contexten; geen gevalideerde lokale aanwezigheidsscore. | Geen soortspecifieke vangst-rate- of vangbaarheidsregistratie in het register. |
+| **Snoek** | Beperkt direct: metabolisme (\`northern-pike-metabolic-rate-temperature-1982\`); spontane zwemactiviteit/groei is een andere respons. | Beperkt direct: voedsel-/maaginhoud- en functionele-responsmetingen; levensfase en onderzoekscontext beperken overdracht. | Indirect tot beperkt: jacht-/functionele respons is niet hetzelfde als dagelijkse voedselopname; habitatwisselingen zonder prooi zijn geen jachtpiek. | Direct telemetrie-/habitatonderzoek met matige bewijssterkte, maar locatiespecifiek. | Direct voor hengelvangbaarheid (\`northern-pike-wild-lure-shyness-protected-areas-2025\`, \`northern-pike-capture-probability-bait-learning-unexploited-2026\`); geen overdraagbare persoonlijke lokale vangstkans. |
+| **Baars** | Direct: metabolisme en aerobe scope, met matige bewijssterkte en duidelijke grootte-/levensfaseafhankelijkheid (\`european-perch-aerobic-scope-size-temperature-2020\`). | Direct, meerdere veldmetingen van rantsoen/maaginhoud en dagritme; veel records beperkt, enkele matig; seizoen, lengte en voedseltype verschillen. | Beperkt/indirect via dieet- en prooikeuze; geen universele jachtfrequentie. | Direct telemetrie-/habitatgebruik met matige bewijssterkte; populatie- en meerverschillen. | Directe vangst-rate-studie (\`perch-recreational-angling-catch-rates-21-lakes-2013\`), maar vangsttempo wordt ook sterk door visser, techniek en aas beïnvloed. |
+| **Blankvoorn** | Direct voor metabolisme (\`roach-bream-metabolic-rate-temperature-2006\`); groeistudies zijn geen fysiologische activiteit. | Direct, meerdere maaginhoud-/consumptie- en ritmestudies; matige en beperkte bewijssterkte. Sterk afhankelijk van voedselgilde, leeftijd, seizoen en habitat. | Direct voor sommige voedselgilden/prooikeuze, maar niet één generieke foerageerscore. | Direct telemetrie-/migratie- en habitatgebruik in specifieke meren en verbonden watersystemen; geen lokale aanwezigheidsscore. | Geen soortspecifieke vangst-rate- of vangbaarheidsregistratie in het register. |
+| **Zeelt** | Geen passende directe meting van algemene fysiologische prestatie. Voedingsfysiologie bij temperatuur (\`tench-temperature-feeding-efficiency-2026\`) mag niet als metabolisme/aerobe scope worden gebruikt. | Direct veldbewijs voor voedselopname en ritme (\`tench-field-diel-seasonal-feeding-2018\`), met beperkt aanvullend gecontroleerd bewijs; locatie- en seizoensgebonden. | Beperkt; voedings-/bewegingsritme is geregistreerd, maar er is weinig afzonderlijk foerageergedrag gemeten. | Beperkt habitat-/aanwezigheidsbewijs. Het karper-zeelt aasontmoetingsonderzoek is geen lokale habitatkans. | Geen betrouwbare soortspecifieke vangst-rate-registratie; het gedeelde aasontmoetingsonderzoek verklaarde vangbaarheid niet significant. |
+| **Snoekbaars** | Direct: metabolisme/aerobe scope bij volwassen kweekvis (\`adult-pikeperch-aerobic-scope-temperature-2012\`), matige bewijssterkte met belangrijke laboratorium- en levensfasebeperkingen. | Direct: maaginhoud-/voedingsintensiteit en voedingsritme; bewijs beperkt–matig, afhankelijk van seizoen, lengteklasse en water. | Indirect via dieet/prooikeuze; locomotorische schemeractiviteit is geen directe jacht- of voedselopnamepiek. | Direct telemetrie-/habitatgebruik in rivier-/kanaalcontexten; geen lokale stekkans. | Geen soortspecifieke vangst-rate- of vangbaarheidsregistratie in het register. |
+| **Meerval** | Geen passende soortspecifieke registratie van metabolisme/aerobe scope. Groei en seizoensbeweging vervangen die meting niet. | Direct maar contextbeperkt: voedingsintensiteit/-ritme in gecontroleerde opstellingen en bij vroege juvenielen; volwassen veldgegevens zijn vooral dieet of beweging. | Direct bij vroege juvenielen (\`juvenile-catfish-night-foraging-reservoirs-2025\`); niet generaliseren naar volwassen wilde meerval. | Direct telemetrie-/habitatonderzoek met matige bewijssterkte; seizoen, diepte en populatie bepalen de patronen. | Geen soortspecifieke vangst-rate- of vangbaarheidsregistratie in het register. |
+| **Roofblei** | Geen passende directe registratie van metabolisme/aerobe scope of fysiologische prestatie. | Beperkt direct voor voedingsincidentie (\`asp-seasonal-feeding-incidence-danube-2010\`), vooral subadulten; geen directe dagelijkse voedselopnamecurve. | Geen voldoende directe soortspecifieke foerageerfrequentie in het register; dieet/prooikeuze is context. | Direct telemetrie-/habitatonderzoek met matige bewijssterkte, maar rivier-/meer- en seizoensspecifiek. | Geen soortspecifieke vangst-rate- of vangbaarheidsregistratie in het register. |
+
+## 10.3 Wat kan nu al de voorlopige prioriteit bepalen?
+
+### Fysiologische prestatie
+
+- **Eerste kandidaten voor verdere numerieke curvebeoordeling:** baars en snoekbaars (aerobe scope plus metabolisme), daarna brasem en blankvoorn (metabolisme).
+- **Beperkte kandidaat:** karper en snoek (metabolisme gemeten, maar beperkt in temperatuurdekking/context).
+- **Nog geen passende directe basis:** zeelt, meerval en roofblei. Voedselopname, groei of telemetrische beweging mag dit gat niet opvullen.
+
+Dit betekent niet dat temperatuur biologisch irrelevant is voor de laatste drie soorten. Het betekent dat het huidige register nog geen passende soortspecifieke fysiologische curve ondersteunt. De bestaande runtimecurve blijft een voorlopige operationele prior, niet een gevalideerd bewijsresultaat.
+
+### Voedingsintensiteit en voedingsritme
+
+- **Meeste directe bewijsdekking:** karper, brasem en blankvoorn; voor elk gelden belangrijke verschillen naar voedseltype, levensfase, seizoen en onderzoeksopzet.
+- **Direct bewijs aanwezig, maar context-/levensfasebeperkt:** baars, zeelt, snoekbaars en meerval.
+- **Beperkte dekking:** snoek; de beschikbare responsen zijn schaars en deels indirect.
+- **Geen basis voor een voedingsintensiteitsscore:** roofblei heeft vooral voedingsincidentie en dieet/prooikeuze; incidentie is niet hetzelfde als hoeveelheid voedsel per tijdseenheid.
+
+Deze rangorde gaat over bewijsdekking, niet over de biologische grootte van het effect. Een soort met meer studies krijgt niet automatisch een hogere voedingsscore of groter modelgewicht.
+
+### Foerageergedrag
+
+Foerageergedrag blijft een afzonderlijke respons binnen de voedingslaag. De sterkste bruikbare registratiebasis zit bij karper; daarnaast zijn er soort-/voedselgildegebonden gegevens voor brasem en blankvoorn en juveniele gegevens voor meerval. Waar alleen dieet, prooikeuze, telemetrische beweging of voedselopname is gemeten, wordt geen aparte foerageerfrequentie afgeleid.
+
+### Habitat en lokale aanwezigheid
+
+Voor alle negen soorten bestaat enige habitat-/bewegingsinformatie, maar die gegevens beschrijven meestal habitatgebruik of verplaatsing in een specifiek watersysteem. Ze bewijzen niet dat een soort op het gekozen prognosepunt aanwezig is. Daarom:
+
+- lokale waarnemingen/detecties zijn de primaire toekomstige invoer voor aanwezigheid;
+- algemene habitatgeschiktheid kan voorlopig als kwalitatieve geschiktheidscontext dienen;
+- de Excel-gate \`Ja/Beperkt/Nee = 1/0,5/0\` wordt niet als gevalideerde aanwezigheidskans overgenomen.
+
+### Uiteindelijke vangkans
+
+- **Baars:** er is een directe multi-lake vangst-rate-studie, maar die laat ook grote effecten van visserervaring, aas en techniek zien.
+- **Snoek:** er is direct bewijs over hengelvangbaarheid en aangeleerde kunstaasschuwheid; dit is geen universele dagelijkse vangkans.
+- **Karper:** er is vangstverdelings- en aasontmoetings-/kwetsbaarheidsbewijs, maar geen lokale sessiekans.
+- **Overige soorten:** het register bevat geen passende soortspecifieke vangst-rate-registratie.
+
+Voor geen enkele soort is er op basis van dit register al een gekalibreerde lokale vangkans. De vier biologische uitkomsten mogen dus niet worden omgezet naar een vangstpercentage.
+
+## 10.4 Voorlopig wegingsbesluit
+
+De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteitsvolgorde**, maar nog geen betrouwbaar numeriek percentagebudget. Voor de eerstvolgende stap gelden deze beslissingen:
+
+1. Alleen records met een passende \`measuredOutcomes\` mogen als direct bewijs voor de betreffende uitkomst in de matrix blijven staan.
+2. Groei, dieet/prooikeuze, locomotorische activiteit en habitatgebruik blijven context wanneer de doeluitkomst voedselopname of fysiologische prestatie is.
+3. De bewijssterkte (\`moderate\`, \`limited\`) bepaalt niet rechtstreeks het gewicht. Een effectgrootte of responsvorm is nodig om relatieve numerieke invloed te kunnen vergelijken.
+4. Voor fysiologische activiteit kan de curvebeoordeling starten bij baars en snoekbaars; voor voeding bij karper, brasem en blankvoorn. Dit is de volgorde van bewijsbeoordeling, niet de rangorde van verwachte activiteit.
+5. Voor aanwezigheid/habitat is eerst lokale detectie-/habitatinformatie nodig; voor vangkans zijn echte vangsten, sessieduur en inspanning nodig.
+6. Geen numerieke Excel-archetypegewichten, zuurstofdrempels, troebelheidsfactoren of maand-/dagritmegetallen worden in deze matrix geactiveerd.
+
+**Volgende werkslag:** controleer per eerste kandidaat de exacte primaire bronrespons, bereik, steekproef, levensfase en context. Maak daarna alleen waar effectgroottes vergelijkbaar zijn een numeriek voorstel. Waar dit niet kan, blijft de factor kwalitatief of krijgt hij geen actief gewicht.
