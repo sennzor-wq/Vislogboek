@@ -3037,3 +3037,38 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 **Quality Gate na privacywijziging:** run [45450553451](https://github.com/sennzor-wq/Vislogboek/actions/runs/45450553451) op commit `58f0b783f14ad050ef1a057b5fe21df6054abcd7` is volledig geslaagd. TypeScript, alle regressietests inclusief opt-in/geen-OSM-verzoek bij opt-out, waterkolom/fetch, shadow-integratie, productiebuild en private-artifactcontrole zijn groen.
 
 **Resterende releasegrens:** de code is technisch build- en testklaar voor shadow-release. Voor merge/uitrol is nog finale diffcontrole en expliciete toestemming van de eigenaar vereist. Er is nog niet gemerged of gedeployed.
+
+
+## 2026-11-24 — Bodemtemperatuur per stek en onveranderlijke sessiestart-snapshot
+
+### Productbesluit
+- Iedere visstek gebruikt uitsluitend de eigen geregistreerde `FishingLocation.waterDepth` als totale waterkolomdiepte. Er wordt geen algemene diepte als vervanging gebruikt wanneer de stekdiepte ontbreekt.
+- Voor karperprognoses is de temperatuur op de bodem van die specifieke stek de primaire thermische invoer. Dit geldt onafhankelijk van methode: method feeder, PVA of andere bodemaanbieding.
+- De waterkolom blijft een profiel: oppervlakte-, midden- en bodemtemperatuur zijn afzonderlijke grootheden. Oppervlakte-ijs of een koude bovenlaag mag niet worden vertaald naar een fictieve negatieve bodemtemperatuur.
+- Een handmatige meting op een andere diepte wordt als observatie op die meetdiepte verwerkt en mag niet als bodemmeting worden gepresenteerd. Alleen een meting binnen 0,2 m van de geregistreerde bodemdiepte telt als actuele bodemmeting.
+- Bestaande vangstscore, soortcurves en biologische parameters blijven ongewijzigd. Alleen de thermische invoer wordt vervangen wanneer het fysieke model een geldige uitkomst heeft.
+
+### Prognose- en snapshotcontract
+1. Bij een live sessiestart wordt de actuele waterkolomforcing opgehaald via `getWaterColumnForcing`, met een expliciet as-of-moment.
+2. De forcing wordt samen met de overige whitelisted modelinvoer opgeslagen in `PrognosisInputContext`, zodat een historische run reproduceerbaar kan worden onderzocht zonder toekomstige informatie te gebruiken.
+3. De fysieke waterkolom wordt berekend op de geregistreerde stekdiepte en de bodemtemperatuur wordt de scalar voor de bestaande thermische visrespons.
+4. De volledige `WaterColumnPrediction` (oppervlak, bodem, volume-gemiddelde, lagen, scenario-spreiding, forcingdekking en fysieke waarschuwingen) wordt afzonderlijk vastgelegd in `PrognosisSnapshot.predictedWaterColumnProfile`.
+5. De bestaande `predictedWaterTemperature` blijft de onafhankelijke scalar-validatiekolom en bevat voortaan de voorspelde bodemtemperatuur wanneer het fysieke model geldig is.
+6. Sessie en snapshot blijven atomair opgeslagen. De snapshot is onveranderlijk: latere weerupdates of modelverbeteringen wijzigen de oorspronkelijke voorspelling niet.
+7. Een latere herberekening is uitsluitend een afzonderlijke replay/vergelijking en overschrijft nooit de oorspronkelijke sessiestart-snapshot.
+
+### Fallback en beperkingen
+- Zonder geregistreerde stekdiepte wordt de fysieke bodemprognose niet berekend; er wordt geen fictieve standaarddiepte gebruikt.
+- Zonder voldoende forcing of wanneer de forcing het doelmoment niet bereikt, levert het waterkolommodel geen temperatuur. De bestaande thermische fallback kan dan blijven bestaan, maar mag niet worden aangeduid als een fysiek berekende bodemtemperatuur.
+- De scenario-spreiding is modelgevoeligheid tussen initiële profielen en geen empirisch gekalibreerd betrouwbaarheidsinterval.
+- De huidige fysische kern modelleert geen horizontale advectie. Bij stromend/tidale water blijft de toepassingsbeperking expliciet zichtbaar.
+- De bestaande lokale temperatuurkalibratie wordt niet toegepast op de nieuwe bodemtemperatuur, omdat nog niet is aangetoond dat de kalibratiebias ook voor bodemmetingen geldt.
+
+### Implementatiestatus
+- [x] Besluit over eigen stekdiepte en bodemtemperatuur vastgelegd.
+- [x] Waterkolomforcing gekoppeld aan live sessiestart (met fallback wanneer ophalen mislukt).
+- [x] Waterkolomforcing en as-of-moment opgenomen in de inputcontext.
+- [x] Bodemtemperatuur gekoppeld aan de bestaande thermische analyse wanneer het fysieke model een geldige uitkomst levert.
+- [x] Volledig fysisch profiel opgenomen in de prognosesnapshot.
+- [ ] TypeScript, regressietests, productiebuild en snapshot-replaycontrole uitvoeren.
+- [ ] PR laten controleren; niet mergen zonder expliciete toestemming.
