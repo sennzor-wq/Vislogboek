@@ -61,6 +61,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     const latNum = parseFloat(latitude.replace(',', '.'));
     const lonNum = parseFloat(longitude.replace(',', '.'));
     const depthNum = waterDepth.trim() !== '' ? parseFloat(waterDepth.replace(',', '.')) : undefined;
@@ -96,7 +97,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg rounded-3xl bg-slate-850 border border-slate-700 p-6 shadow-2xl text-slate-100">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-slate-850 border border-slate-700 p-6 shadow-2xl text-slate-100">
         <div className="flex items-center justify-between pb-4 border-b border-slate-700">
           <h3 className="text-xl font-black text-white flex items-center gap-2">
             <MapPin className="w-5 h-5 text-emerald-400" />
