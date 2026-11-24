@@ -158,7 +158,7 @@ export async function getWaterColumnForcing(
   }
 
   const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${historyStartDate}&end_date=${archiveEndDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&models=era5_seamless&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
-  const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=${RECENT_BRIDGE_DAYS}&forecast_days=8&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
+  const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=${RECENT_BRIDGE_DAYS}&forecast_days=8&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
 
   const responses = await Promise.allSettled([
     fetch(archiveUrl, { signal: AbortSignal.timeout(8000) }),
