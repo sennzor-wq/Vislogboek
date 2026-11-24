@@ -26,7 +26,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [windExposure, setWindExposure] = useState<FishingLocation['windExposure'] | ''>(location?.windExposure ?? '');
   const [effectiveFetchM, setEffectiveFetchM] = useState(location?.effectiveFetchM !== undefined ? String(location.effectiveFetchM) : '');
   const [secchiDepthM, setSecchiDepthM] = useState(location?.secchiDepthM !== undefined ? String(location.secchiDepthM) : '');
-  const [waterMovement, setWaterMovement] = useState<FishingLocation['waterMovement']>(location?.waterMovement ?? 'unknown');
+  const [waterMovement, setWaterMovement] = useState<FishingLocation['waterMovement']>(location?.waterMovement ?? (location?.waterType === 'Rivier' ? 'flowing' : location?.waterType === 'Kanaal' ? 'weak_flow' : 'unknown'));
   const [latitude, setLatitude] = useState<string>(
     location?.latitude !== undefined ? String(location.latitude) : ''
   );
