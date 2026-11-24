@@ -329,15 +329,17 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 **Huidige opdracht — lopend**
 - De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de 94 bestaande registerrecords.
 - De voorlopige prioriteiten zijn aangescherpt: fysiologische curvebeoordeling start bij baars en snoekbaars; voedingsbewijsbeoordeling start bij karper, brasem en blankvoorn.
-- De primaire broncontrole van tien studies is vastgelegd in sectie 11. Dit heeft onder meer bevestigd dat de baarsrespons lichaamsgrootte-afhankelijk is, het snoekbaarsbereik breed is en cypriniden-voedingsritmes contextafhankelijk zijn.
-- Nog uit te voeren: primaire broncontrole van overige kandidaatstudies, daarna responsvormen en toepassingsgrenzen vergelijken. Alleen bij voldoende vergelijkbare responsgegevens volgt een numeriek gewicht.
+- De primaire broncontrole van tien studies is vastgelegd in sectie 11. Belangrijke beperkingen zijn onder meer lichaamsgrootte bij baars, de brede aerobe-scope-respons bij snoekbaars en context-/levensfaseafhankelijk voedingsritme.
+- De iteratieve implementatieafspraak is vastgelegd in sectie 12: na afronding van de eerste factorselectie bouwen we V0.1; volledige Excel-validatie is geen voorwaarde om te beginnen met implementeren.
+- Nog uit te voeren: resterende primaire bronresponsen controleren en de eerste factorselectie per soort/uitkomst afronden. Per factor volgt de status: numeriek inzetbaar, voorlopig begrensd, contextueel of nog niet inzetbaar.
 
-**Volgende stap na afronding van de huidige wegingstaak**
-- De resterende inhoud van `vismodel_voorstel_v2.xlsx` systematisch valideren: eerst nog niet gekoppelde bronnen, daarna per tabblad de getallen en aannames.
-- Nieuwe, voldoende gecontroleerde bronnen toevoegen aan het bestaande `researchRegistry.ts`; gevalideerde parameters pas na expliciete beoordeling in de bestaande soortprofielen/modelarchitectuur verwerken.
-- Daarna pas beoordelen welke runtime-scoreberekeningen aangepast moeten worden.
+**Volgende stap na afronding van de huidige factorselectie**
+- V0.1-modelcontract en parameterconfiguratie afronden, inclusief onzekerheid, ontbrekende data en tijdvak/dag-consistentie.
+- Runtime-integratieplan maken op basis van de bestaande prognose-engine, soortprofielen en intervalcontracten; daarna V0.1 implementeren en testen.
+- De resterende Excel-bronnen en -parameters parallel/na de eerste werkende versie valideren en gevalideerde informatie aan het bestaande onderzoeksregister toevoegen.
+- Nieuwe bronnen, lokale meetgegevens en vangstdata gebruiken om volgende modelversies gecontroleerd te tunen.
 
-**Hervatten vanaf:** primaire broncontrole van de resterende kandidaatstudies voor directe voedselopname en foerageergedrag bij de overige soorten. De Excel-koppeling, eerste evidence matrix en eerste zes broncontroles zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
+**Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De Excel-koppeling, evidence matrix, tien broncontroles en iteratieve implementatiestrategie zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
 
 # 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
 
