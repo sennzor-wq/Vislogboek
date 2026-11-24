@@ -2177,3 +2177,71 @@ Voor winterstratificatie, dooi, ijsvorming en het dichtheidsmaximum rond 4 °C i
 - zoek een Nederlandse winterprofiel-/ijsreferentie om de 4 °C- en faseovergangstests niet uitsluitend theoretisch te baseren.
 
 **Besluitpoort blijft gesloten:** geen productiecode, database, UI, formules, parameters, nieuwe databronnen of scoreberekening wijzigen. Alleen onderzoeks- en documentatiewerk is uitgevoerd. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Aanvullende validatiebevinding — Rijkswaterstaat/Deltares meetreeksen en wintertoets (24 november 2026)
+
+**Aanleiding:** vervolg op de zoektocht naar Nederlandse winterprofielen en praktijkvalidatie. Er is een relevante Deltares-verificatierapportage gevonden met watertemperatuurmetingen en modelvergelijkingen op Nederlandse wateren.
+
+#### 1. Deltares/LSM3-verificatie 2022
+
+Het rapport *KPP 2022 - verificatie van LSM3 voor temperatuur* (Loos & Boderie, Deltares, 6 december 2022) beschrijft een verificatie van de watertemperatuurmodule in het Landelijk SOBEK Model (LSM3) over kalenderjaar 2018.
+
+Belangrijke bevindingen:
+- Er zijn zes validatielocaties gebruikt: IJsselmeer (Vrouwezand), Lekkanaal (Nieuwegein), Amsterdam-Rijnkanaal (Maarssen), Lek (Kinderdijk), Bergse Maas (Keizersveer) en Maas (Belfeld).
+- Voor IJsselmeer (Vrouwezand) waren de metingen minder frequent: maandelijks in de winter en tweewekelijks in de zomer. Voor de overige locaties waren grotendeels continue metingen beschikbaar.
+- De meetdiepte van de continue sensoren was volgens het rapport onbekend. Deze gegevens zijn dus niet zonder meer geschikt voor validatie van temperatuur op een exact bekende diepte.
+- Het model volgde de jaarlijkse amplitude en timing over het algemeen goed, maar er waren duidelijke locatiespecifieke afwijkingen: winteronderschatting van circa 0,5–3,5 °C op twee Maaslocaties en zomeroverschatting tot circa 2,5 °C op ARK.
+- De studie gebruikte meerdere KNMI-stations voor ruimtelijke meteorologische forcing en Waterinfo/Rijkswaterstaat-metingen voor water- en randtemperaturen.
+- Het rapport documenteert ook dat gemeten watertemperatuurreeksen uitbijters en sensorproblemen kunnen bevatten; een Lobith-reeks werd na een periode waarin de sensor kennelijk lucht registreerde uitgesloten.
+
+**Gevolg voor Vislogboek:** Nederlandse RWS/Deltares-data zijn een waardevolle externe referentie voor seizoensverloop en voor hydrologisch beïnvloede wateren. De gerapporteerde afwijkingen tonen tegelijk dat één landelijk model niet op elke locatie even goed presteert. Meetdiepte, sensorstatus, locatie-invloeden en kwaliteitscontrole moeten dus onderdeel zijn van iedere validatieset.
+
+Bron: Loos, S. & Boderie, P. (2022), *KPP 2022 - verificatie van LSM3 voor temperatuur*, Deltares rapport 11208053-010-ZWS-0005, 6 december 2022: https://publicwiki.deltares.nl/download/attachments/119051127/11208053-010-ZWS-0005_v0.1-KPP%202022%20-%20verificatie%20van%20LSM3%20voor%20temperatuur%20-%20ter%20publicatie.pdf
+
+#### 2. Wat dit toevoegt aan de wintervalidatie
+
+De gevonden Nederlandse bronnen vullen elkaar aan, maar geen enkele bron dekt op zichzelf alle benodigde fysica:
+
+- **KNMI-ijsgroeimodel:** primaire Nederlandse referentie voor stilstaand zoet buitenwater, oppervlaktemassa-/warmtebalans en ijsdikte. KNMI vermeldt circa 1 °C watertemperatuurnauwkeurigheid voor de beschreven toepassing en circa 10% voor ijsdikte; die claims zijn niet automatisch overdraagbaar naar alle Vislogboek-wateren.
+- **Deltares LSM3:** praktijkverificatie met Nederlandse meetreeksen, ook in het winterhalfjaar, maar vooral voor grotere/netwerk- en stromingswateren en niet met overal bekende meetdiepte.
+- **Klinkenbergerplas:** meerjarige seizoensprofielen van een diepe, nagenoeg stilstaande plas; bruikbaar voor verticale seizoensstructuur, maar ruwe data zijn niet opgenomen in het geraadpleegde rapport.
+- **Open internationale profieldata:** nuttig voor zomerse verticale profielen; onvoldoende voor winterse inversie/ijsvalidatie.
+
+Er is in deze zoekstap nog geen open Nederlandse ruwe winterdataset gevonden met gelijktijdige verticale temperatuurprofielen, bekende dieptes, tijdstippen en ijswaarnemingen in een stilstaande zoetwaterplas. Dit blijft een expliciete validatieleemte.
+
+#### 3. Praktische data-toegangsroute
+
+Voor RWS-data bestaat een officiële ontsluiting via Waterinfo en de Waterwebservices. Rijkswaterstaat beschrijft dat historische meetgegevens opgevraagd kunnen worden en dat onder meer watertemperatuur, stroming, afvoer en zoutgehalte beschikbaar zijn, afhankelijk van locatie en meetprogramma.
+
+Voor de volgende onderzoeksstap moeten we per kandidaatlocatie eerst de meetcatalogus controleren op:
+- meetgrootheid en compartiment;
+- station/locatie en coördinaten;
+- meetdiepte of sensorhoogte;
+- meetfrequentie en tijdzone;
+- kwaliteitsstatus en eventuele uitbijters;
+- periode waarin de sensor daadwerkelijk in het water hing;
+- beschikbaarheid van debiet/stroming en zoutgehalte waar relevant.
+
+Bronnen:
+- Rijkswaterstaat, Waterdata: https://www.rijkswaterstaat.nl/water/waterdata
+- Waterinfo Extra, Waterinfo monitoring en downloadmogelijkheden: https://waterinfo-extra.rws.nl/data-sites/waterinfo/
+- Deltares, *KPP 2022 - verificatie van LSM3 voor temperatuur* (hierboven).
+
+#### 4. Aangescherpte validatiematrix
+
+| Doel | Voorkeursreferentie | Wat kan hiermee worden getoetst? | Wat blijft onbewezen? |
+|---|---|---|---|
+| Oppervlakte-/bulk seizoensverloop stilstaand zoet water | KNMI-modelreferentie + lokale watertemperatuur | Opwarming/afkoeling, respons op weer, ijsvorming waar waarnemingen beschikbaar zijn | Volledig verticaal profiel zonder dieptemetingen |
+| Diepe zomerstratificatie | Klinkenbergerplas ruwe profielen (indien verkregen) + open 153-meren dataset | Thermocline, bovenlaag, diepe laag | Nederlandse winterinversie als ruwe winterprofielen ontbreken |
+| Ondiep goed gemengd water | Mooij et al. 2008 / geschikte lokale meetreeksen | Lucht-waterkoppeling en bulktemperatuur | Gedetailleerde verticale structuur |
+| Stromende wateren | Deltares LSM3/RWS meetreeksen | Effect van meteorologische forcing, stroming en randtemperaturen | Vissteklokale temperatuur zonder passende hydrodynamische representatie |
+| Winterstratificatie en ijs | KNMI ijsmodel + toekomstige lokale diepteprofielen/ijsmetingen | Faseovergang, ijsdikte, winterse warmtebalans | Multilaags inverse profiel als alleen ijsdikte/bulktemperatuur bekend is |
+
+#### 5. Uitkomst en volgende actie
+
+**Uitkomst:** we hebben nu een geloofwaardige externe Nederlandse validatieroute voor drie regimes: ondiep goed gemengd (Mooij et al.), diep gestratificeerd (Klinkenbergerplas) en hydrologisch/stromend (Deltares/RWS). De belangrijkste ontbrekende validatie blijft een open, tijdgestempelde winterreeks met meerdere bekende meetdieptes in stilstaand zoet water.
+
+**Volgende actie:** inventariseer de RWS Waterinfo-catalogus op geschikte meetlocaties en meetdieptes en bepaal of er een stilstaand-waterreferentie met winterprofielen bestaat. Tegelijk moet voor Klinkenbergerplas de contact-/data-aanvraag bij Hoogheemraadschap Rijnland worden voorbereid, maar nog niet verzonden. Een aanvraag of externe benadering wordt pas gedaan na expliciete toestemming van de eigenaar.
+
+**Besluitpoort blijft gesloten:** geen externe aanvraag, API-aansluiting, productiecode, database, UI, formule, parameter, scoreberekening of deployment uitvoeren zonder expliciete goedkeuring. De scoreberekeningsaudit blijft uitgesteld.
