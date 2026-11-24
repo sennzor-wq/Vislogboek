@@ -192,7 +192,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     input.windFetchByDirectionM.every((value) => Number.isFinite(value) && value >= 0 && value <= 10000);
   const scalarFetchFactor = validFetch ? clamp(Math.sqrt((input.effectiveFetchM as number) / 100), 0.5, 2.5) : 1;
   let temperatures = mixConvectivelyUnstableLayers(input.initialLayerTemperaturesC);
-  let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, 2);
+  // Ice cannot occupy more vertical space than the entire water column.
+  let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, input.totalDepthM);
   const { accepted, rejected } = validForcing(input.forcing, input.targetTime, input.asOf);
   const observations = input.observations ?? [];
   const targetMs = input.targetTime ? Date.parse(input.targetTime) : Number.POSITIVE_INFINITY;
@@ -271,7 +272,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
         iceThicknessM += (-next * heatCapacityPerArea) / (ICE_DENSITY_KG_M3 * ICE_LATENT_HEAT_J_KG);
         temperatures[i] = 0;
       } else {
-        temperatures[i] = Math.max(0, next);
+        temperatures[i] = clamp(next, 0, 40);
       }
       if (i === 0) surfaceEnergyInputJm2 += nonSolarSurfaceFlux * 3600;
       surfaceEnergyInputJm2 += solarEnergyByLayer[i];
@@ -314,7 +315,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
       temperatures[nearestLayer] = observation.temperatureC;
       usedObservationIndices.add(index);
     });
-    iceThicknessM = clamp(iceThicknessM, 0, 2);
+    iceThicknessM = clamp(iceThicknessM, 0, input.totalDepthM);
   }
 
   const layers = temperatures.map((temperatureC, index) => ({

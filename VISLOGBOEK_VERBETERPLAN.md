@@ -3327,3 +3327,16 @@ Deze audit is gebaseerd op de actuele branchcode van `feat/bottom-water-temp-pro
 - Geen willekeurige parameters, extra modelcomplexiteit of wijzigingen aan vangst-/activiteitsscores.
 
 **Status:** soortspecifieke habitatmodellering afgesloten / geparkeerd. Actieve scope: fysieke watertemperatuurprognose en de bestaande koppeling naar de ongewijzigde biologische beoordeling.
+
+
+## Uitvoeringsupdate — fysieke uitvoergrenzen waterkolom (24 november 2026)
+
+De eigenaar heeft de implementatie- en testwerkzaamheden voor de fysieke watertemperatuurprognose opgedragen. Eerste afgebakende codewijziging op branch `fix/incremental-water-column-state`:
+
+- IJslaagdikte wordt begrensd op de geregistreerde totale stekdiepte, niet op een vaste generieke 2 meter.
+- Vloeibare modeltemperaturen worden na elke warmtefluxstap begrensd op het gevalideerde invoerbereik 0–40 °C.
+- Gerichte regressietests toegevoegd voor een ondiepe stek van 0,9 m onder langdurige strenge vorst en extreme verwarming.
+
+**Nog niet afgerond:** de herhaalde 365-daagse historische data-opvraag en het opnieuw uitvoeren van vijf volledige spin-ups. Deze worden niet opgelost door alleen de fetchperiode te verkorten: zonder een valide persistent meerlaags toestandsprofiel zou dat de absolute temperatuurtoestand willekeurig initialiseren. De vervolgstap is een afzonderlijk initialisatie-/toestandscontract, waarbij bestaande stekken vanaf een opgeslagen toestand verder rekenen en nieuwe stekken een expliciet onzeker initialisatiepad krijgen. Totdat die stap is geïmplementeerd en getest, is de prestatieverbetering niet afgerond.
+
+**Teststatus:** regressietests zijn toegevoegd maar nog niet uitgevoerd. Geen lokale test- of buildresultaten geclaimd; GitHub Actions moet na publicatie van de branchwijziging de volledige Quality Gate uitvoeren.
