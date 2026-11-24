@@ -1399,3 +1399,81 @@ Na de audit wordt een concreet verbeterontwerp opgesteld dat de bestaande engine
 
 **Actuele status:** prioriteit door eigenaar vastgesteld; documentatie vastgelegd; technische audit nog niet uitgevoerd. De bestaande scoreberekeningsaudit is uitgesteld en blijft behouden als eerstvolgende taak ná dit watertemperatuurwerk.
 
+
+
+### Read-only audit van de actuele watertemperatuurketen — 24 november 2026
+
+**Auditbasis:** actuele bronbestanden op `main`, na documentatiecommit `aa819195a2b6b070e07bf1a6e2dca795a177f4c7`. De runtimebestanden hieronder zijn in deze audit alleen gelezen; er zijn geen code-, test-, parameter-, database- of UI-wijzigingen uitgevoerd.
+
+#### 1. Werkelijke invoerketen
+
+- `src/services/weatherService.ts` — `getForecast` haalt de Open-Meteo-uurlijkse reeks op voor de coördinaten van de stek. De aanvraag omvat `past_days=3` en `forecast_days=8`, met luchttemperatuur op 2 m, relatieve luchtvochtigheid, dauwpunt, kortgolvige straling, neerslag, bewolking en wind. De cache wordt maximaal 30 minuten hergebruikt. De weer-API levert in deze keten geen watertemperatuur.
+- De verplichte uurlijkse recordvelden worden alleen opgenomen wanneer tijd, luchttemperatuur, druk, wind, windrichting, neerslag, neerslagkans, bewolking en weercode eindig zijn. Luchtvochtigheid, dauwpunt en kortgolvige straling zijn optioneel en worden alleen toegevoegd wanneer hun waarden binnen de codevalidatie vallen.
+- `src/services/waterThermalEngine.ts` ontvangt de weersreeks, stekdiepte/-watertype, een eventuele actuele handmatige watertemperatuur, historische sessies, historische meetevents, optioneel een doelmoment en forecastAsOf.
+- Echte meetankers worden uit een expliciete handmatige meting of uit geldige historische sessiemetingen op dezelfde stek geselecteerd. De gebruikte historische sessiewaarde vereist een expliciet meettijdstip, bekende meetbron en meetmethode. Metingen na het doelmoment worden uitgesloten.
+- `src/services/waterTemperatureHistory.ts` bouwt daarnaast een seizoensprofiel uit fysieke meetevents: minimaal drie metingen op dezelfde stek, of minimaal vijf metingen op ten minste twee vergelijkbare stekken van hetzelfde watertype binnen 50 km. De selectie beperkt zich tot dezelfde/naastliggende Amsterdamse kalendermaand en mengt bekende verschillende meetdieptes niet.
+- `src/services/prognosisEngine.ts` roept de thermische engine aan en past daarna eventueel een lokale seizoensbiascorrectie toe uit `src/services/evaluationEngine.ts`. De thermische temperatuur is vervolgens invoer voor de bestaande soortspecifieke thermische respons; deze audit wijzigt die respons of de geïntegreerde score niet.
+
+#### 2. Wat de huidige thermische engine aantoonbaar doet
+
+**Route met een recente lokale meting als anker**
+- Bij een actuele meting wordt de gemeten waarde rechtstreeks teruggegeven als gemeten temperatuur.
+- Bij een eerdere meting wordt alleen bij bekende totale stekdiepte, maximaal 96 uur ouderdom en voldoende uurlijkse weersdekking (minimaal 65%, plus de bestaande minimale samplevoorwaarde) chronologisch geëxtrapoleerd.
+- De huidige discrete tijdconstanten zijn 54 uur bij diepte tot en met 1,4 m, 96 uur in het middensegment en 150 uur boven 3,5 m. Watertype kan die waarden met vaste multipliers wijzigen.
+- Per weersstap gebruikt de engine een evenwichtstemperatuur die bestaat uit 65% van het rollende 24-uursgemiddelde en 35% van het rollende 72-uursgemiddelde van de **luchttemperatuur**, plus een kleine vaste zoncorrectie. Kortgolvige straling heeft voorrang; anders wordt bewolking als proxy gebruikt.
+- Wind verandert de effectieve tijdconstante met vaste categorie-multipliers. Dit is een benadering van menging, geen berekende stromings- of turbulentieprocessen.
+- Bij een recente meting maar onvoldoende weerdekking wordt tot 24 uur een stabiliteitsaanname met een marge van ±1,0 °C gebruikt.
+
+**Route zonder bruikbaar lokaal meetanker**
+- Er is minimaal 72 uur geldige voorafgaande uurtemperatuurdata nodig.
+- De puntwaarde wordt berekend uit een gewogen combinatie van het 72-uursgemiddelde en de doeldaggemiddelde **luchttemperatuur**, met een discrete responsweging op basis van diepte/watertype en eventueel een beperkte zonbonus.
+- Als een historisch watertemperatuurprofiel bestaat, wordt dat als startreferentie gebruikt en wordt de weersafwijking ten opzichte van het 72-uursluchtgemiddelde toegevoegd.
+- Zonder lokale meting of historisch profiel wordt de weerafgeleide puntwaarde wel getoond, maar zonder numerieke onzekerheidsband; de bronstatus en hoge, niet-gekwantificeerde onzekerheid worden expliciet vermeld.
+- Bij onvoldoende weershistorie kan het historische profiel als enige referentie worden teruggegeven; zonder bruikbaar profiel blijft de temperatuur onbekend.
+
+**Lokale kalibratie**
+- `getWaterTemperatureCalibration` gebruikt alleen geldige voorspelling/meetparen op dezelfde stek en in hetzelfde seizoen, met minimaal acht paren. De bias wordt met shrinkage afgezwakt en de correctie begrensd op ±1,5 °C.
+- De correctie wordt van de geschatte temperatuur afgetrokken. Na deze correctie bestaat geen fysieke ondergrenscontrole voor de temperatuur of onzekerheidsband.
+
+#### 3. Bevestigde beperkingen en relevante hiaten
+
+1. **Geen volledige fysische warmtebalans.** De engine gebruikt luchtgemiddelden, vaste diepte-/watertypeklassen, een eerste-orde relaxatie en kleine vaste stralingscorrecties. Zij berekent geen expliciete netto-energieflux in W/m² met afzonderlijke voelbare, latente en langgolvige stralingscomponenten.
+2. **Verdamping wordt niet in de temperatuurupdate doorgerekend.** Relatieve luchtvochtigheid en dauwpunt bepalen samen met wind een beschrijvend verdampingspotentieel, maar die waarden veranderen de berekende watertemperatuur niet rechtstreeks.
+3. **Neerslag en luchtdruk zijn geen directe thermische updatefactoren.** Ze zijn beschikbaar in de weerdata, maar worden niet in de temperatuurschatting verwerkt.
+4. **Geen expliciete dichtheidsanomalie of faseovergang.** De engine modelleert niet dat zoet water rond 4 °C zijn grootste dichtheid heeft, rekent geen convectieve omslag rond 4 °C door en heeft geen ijs-/latente-warmtecomponent. Er is ook geen fysieke ondergrens voor een geschatte vloeibare watertemperatuur.
+5. **Geen verticaal temperatuurprofiel.** De uitkomst is één scalaire temperatuur. `surfaceVsBulkNote` beschrijft kwalitatief mogelijke verschillen tussen oppervlak en bulk, maar er worden geen afzonderlijke oppervlakte-, midden- of bodemtemperaturen berekend.
+6. **Diepte is grof geparametriseerd.** Totale stekdiepte stuurt enkele discrete klassen/tijdconstanten; het is geen continue warmtecapaciteits-/waterkolomberekening. Stroming, doorstroming, beschaduwing, bodemwarmte, oeverinvloed en lokale menggeometrie worden niet gemodelleerd.
+7. **Meetdiepte is niet volledig aangesloten op de prognoseaanroep.** `ThermalAnalysisOptions` kent `measurementDepthM`, en historische profielselectie kan meetlagen scheiden. De huidige aanroepen vanuit `prognosisEngine.ts` geven dit doelmeetdiepteveld echter niet door. Totale stekdiepte en fysieke meetdiepte zijn dus niet hetzelfde contract.
+8. **Weer-only absolute starttoestand is zwak onderbouwd.** Zonder meetanker of historisch profiel gebruikt de engine slechts de beschikbare 72 uur luchttemperatuur als basis voor een absolute watertemperatuur. Dat is onvoldoende om de voorafgaande thermische toestand van een watermassa na weken/maanden weerverloop te kennen, vooral bij diepere wateren.
+9. **Beperkte ankerhorizon.** De meetankergestuurde extrapolatie stopt bij 96 uur. Daarna kan de route overschakelen op de weer-only schatting of historisch profiel; de actuele watertemperatuurtoestand wordt niet als doorlopende toestand over langere perioden bijgehouden.
+10. **Doelmoment en opgeslagen temperatuur zijn niet overal gelijkwaardig.** Tijdvakberekeningen roepen de engine voor een representatief uurmoment aan, maar de algemene daganalyse wordt zonder expliciet `targetTime` uitgevoerd. De snapshots bewaren de algemene thermische analyse/temperatuur, niet vier afzonderlijke thermische doelmomenten. De algemene analyse heeft daardoor `targetTimestamp = null`; de opgeslagen puntwaarde is niet aan één exact fysiek meetdoelmoment gekoppeld.
+11. **As-of-valid-time is getest, data-as-of vraagt nog een controle.** De engine beperkt weerssamples voor expliciete doelmomenten tot geldige tijdstempels op of vóór dat doelmoment; bestaande tests wijzigen latere weersuren en controleren dat de uitkomst gelijk blijft. `forecastAsOf` wordt in de thermische engine echter alleen genormaliseerd en teruggegeven, niet gebruikt om te eisen dat de weersdata al vóór het doelmoment beschikbaar was. De bovenliggende prognosecode weigert een forecast die ná het berekeningstijdstip is opgehaald, maar dat is niet hetzelfde als een garantie voor retrospectieve berekeningen dat `forecastAsOf <= targetTime`.
+12. **De precieze waarde -0,1 °C is niet gereconstrueerd.** De actuele code laat wel meerdere routes toe die een negatieve modelschatting kunnen opleveren: de weer-only formule heeft geen ondergrens en volgt negatieve luchtgemiddelden; de meetankerroute heeft evenmin een fase-/vriespuntgrens; bovendien kan een positieve lokale biascorrectie tot maximaal 1,5 °C van de schatting aftrekken. Geldige fysieke meetwaarden en historische profielmetingen worden zelf op 0–35 °C begrensd. Zonder de oorspronkelijke forecastreeks, stekdiepte, meetankers, doeltijd en eventuele kalibratie kan niet worden vastgesteld welke route de getoonde -0,1 °C veroorzaakte.
+
+#### 4. Bestaande testdekking en wat nog niet bewezen is
+
+- `test-thermal-and-prognosis.ts` dekt onder meer geleidelijke opwarming/afkoeling, zon/bewolking, trendduiding, weer-only onzekerheidscommunicatie, een forecast die ná het berekeningstijdstip is opgehaald, en invarianten voor weersuren ná een expliciet `targetTime` (inclusief DST-randgevallen).
+- `test-water-temperature-synthetic-validation.ts` gebruikt een expliciet synthetische eerste-orde referentie met een vaste responsduur van 65 uur en toetst opwarming, afkoeling en historisch profiel. De testdocumentatie noemt dit zelf een gecontroleerde synthetische waarheid, geen claim over alle echte wateren.
+- `test-water-history-profile.ts` dekt onder meer historische meetdieptes, scheiding van lagen, nabije vergelijkbare stekken en onbekende totale diepte.
+- `test-water-temperature-learning.ts` dekt uitsluiting van toekomstige meetresultaten bij lokale kalibratie.
+- `test-water-thermal-coupling.ts` controleert dat de gemeten/geschatte temperatuur de bestaande soortrespons beïnvloedt.
+- In de geïnspecteerde testgevallen is geen gerichte regressiematrix aangetroffen voor langdurige vorst, subnulschattingen, faseovergang/ijs, de dichtheidsanomalie rond 4 °C of een verticaal temperatuurprofiel. Een test met een gemeten watertemperatuur van 4 °C controleert de soortscore, niet de fysica van de waterthermische engine.
+- De synthetische 65-uursreferentie valideert gedrag tegen een gekozen relaxatiecurve; zij is geen onafhankelijke praktijkmeting. Er is in deze audit geen lokale dataset uit de gebruikersdatabase gelezen en er zijn geen tests of Quality Gates uitgevoerd.
+
+#### 5. Voorlopige conclusie en voorkeursrichting voor het eerste verbeterwerk
+
+**Conclusie:** de bestaande engine heeft bruikbare bouwstenen — fysieke meetankers met provenance, historische meetprofielen, uurweerdata, dieptecontext, een chronologische ankerroute, onzekerheidsmetadata en lokale evaluatie/kalibratie. Het probleem is dus niet dat er helemaal geen model bestaat. De zwakke plek zit vooral in de absolute weer-only startschatting, de sterk vereenvoudigde warmte-uitwisseling en het ontbreken van een expliciet winter-/verticaal temperatuurmodel.
+
+**Voorkeursrichting om ter goedkeuring uit te werken:**
+- Behoud `waterThermalEngine` als de canonieke engine en hergebruik de bestaande meet-, historie-, provenance- en evaluatieketen. Start geen tweede concurrerende engine.
+- Vervang de weer-only gewogen luchttemperatuur als absolute watertemperatuur door een fysisch onderbouwde toestandsbenadering die een geloofwaardige initiële waterstaat nodig heeft. Bepaal expliciet hoe die toestand wordt geïnitialiseerd wanneer geen lokale meting of historisch profiel bestaat; drie dagen luchtweer alleen mogen niet als voldoende kennis van de voorafgaande waterstaat worden voorgesteld.
+- Ontwerp een KNMI-geïnspireerde, tijdsafhankelijke warmte-uitwisseling die de werkelijk beschikbare weerinvoer gebruikt en ontbrekende processen/velden zichtbaar laat. Neem vochtigheid/verdamping alleen numeriek op wanneer de relatie en eenheden fysisch zijn onderbouwd; een beschrijvend label is geen warmteflux.
+- Behandel diepte en menging op een onderbouwde manier. Modelleer alleen afzonderlijke verticale lagen wanneer de invoer en validatie dat kunnen dragen; anders rapporteer één duidelijk gedefinieerde representatieve temperatuur met passende onzekerheid.
+- Modelleer het winterse gedrag rond 4 °C en de overgang naar ijsvorming als een fysisch toestand-/faseprobleem. Los dit niet op met een willekeurige `Math.max(0, temp)`-correctie.
+- Behoud de bestaande lokale biaskalibratie alleen als aanvullende empirische correctie binnen een fysisch plausibele modeluitkomst; kalibratie mag geen onmogelijke vloeibare watertemperatuur creëren.
+- Maak het exacte thermische doelmoment en de bron-/data-as-of-tijd onderdeel van de reproduceerbare prognose-uitvoer.
+- Houd de bestaande soortspecifieke temperatuurrespons en geïntegreerde scoreformule buiten deze eerste wijziging. Eerst de watertemperatuur zelf verbeteren; pas daarna kan de impact op de score afzonderlijk worden beoordeeld.
+
+**Besluitpoort:** deze audit is read-only. De voorkeursrichting is een technisch voorstel en nog geen goedgekeurde formule, parameterisatie of datacontract. Voor implementatie moeten de initiële toestand, beschikbare meteorologische velden, winter-/ijsbehandeling, doeltemperatuurrepresentatie en validatiecriteria als één concreet ontwerp worden vastgesteld en door de eigenaar worden goedgekeurd.
+
+**Auditstatus:** read-only code-/testinspectie uitgevoerd; geen runtimecode of tests gewijzigd en geen Quality Gate uitgevoerd. De volgende stap binnen dit eerste verbeteronderwerp is het concrete ontwerp opstellen en voorleggen. De scoreberekeningsaudit blijft uitgesteld.
