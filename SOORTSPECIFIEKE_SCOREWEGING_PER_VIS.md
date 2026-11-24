@@ -329,15 +329,15 @@ De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig i
 **Huidige opdracht — lopend**
 - De eerste evidence matrix per soort en uitkomst is vastgelegd in sectie 10 (v0.1), op basis van de 94 bestaande registerrecords.
 - De voorlopige prioriteiten zijn aangescherpt: fysiologische curvebeoordeling start bij baars en snoekbaars; voedingsbewijsbeoordeling start bij karper, brasem en blankvoorn.
-- De volgende inhoudelijke stap is voor deze eerste kandidaten de primaire bronrespons, het meetbereik, de steekproef, levensfase en onderzoekscontext controleren. Daarna kan alleen bij vergelijkbare responsgegevens een numeriek gewicht worden voorgesteld.
-- De overige soorten en uitkomsten blijven in de matrix staan, maar krijgen geen geforceerd percentage wanneer de onderbouwing of vergelijkbaarheid ontbreekt.
+- De primaire broncontrole van zes studies is vastgelegd in sectie 11. Dit heeft onder meer bevestigd dat de baarsrespons lichaamsgrootte-afhankelijk is, het snoekbaarsbereik breed is en cypriniden-voedingsritmes contextafhankelijk zijn.
+- Nog uit te voeren: primaire broncontrole van overige kandidaatstudies, daarna responsvormen en toepassingsgrenzen vergelijken. Alleen bij voldoende vergelijkbare responsgegevens volgt een numeriek gewicht.
 
 **Volgende stap na afronding van de huidige wegingstaak**
 - De resterende inhoud van `vismodel_voorstel_v2.xlsx` systematisch valideren: eerst nog niet gekoppelde bronnen, daarna per tabblad de getallen en aannames.
 - Nieuwe, voldoende gecontroleerde bronnen toevoegen aan het bestaande `researchRegistry.ts`; gevalideerde parameters pas na expliciete beoordeling in de bestaande soortprofielen/modelarchitectuur verwerken.
 - Daarna pas beoordelen welke runtime-scoreberekeningen aangepast moeten worden.
 
-**Hervatten vanaf:** primaire broncontrole voor fysiologische temperatuurrespons bij baars en snoekbaars en directe voedingsrespons bij karper, brasem en blankvoorn. De Excel-koppeling en eerste evidence matrix zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
+**Hervatten vanaf:** primaire broncontrole van de resterende kandidaatstudies voor directe voedselopname en foerageergedrag bij de overige soorten. De Excel-koppeling, eerste evidence matrix en eerste zes broncontroles zijn vastgelegd en hoeven niet opnieuw vanaf nul te worden gedaan.
 
 # 10. Eerste evidence matrix per soort en prognose-uitkomst (v0.1)
 
