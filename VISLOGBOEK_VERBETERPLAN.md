@@ -3149,3 +3149,62 @@ Geen van de gecontroleerde records is gemarkeerd als approvedForPrediction=true.
 **Implementatievolgorde aanbevolen:** (1) definieer outputcontract voor habitatkans per laag + onzekerheid; (2) implementeer en test eerst snoek als referentie voor dynamisch verticaal habitatgebruik, en karper als bodemgebonden referentie; (3) voeg de overige soorten alleen toe wanneer de bijbehorende evidence-mapping is uitgewerkt; (4) valideer afzonderlijk tegen temperatuurmetingen op diepte, viswaarnemingen en vangst-/nulvangstgegevens. Vangstdata alleen zijn geen zuivere aanwezigheidmeting, omdat hengeltechniek en vangbaarheid de uitkomst beïnvloeden.
 
 Deze inventarisatie is afgerond als ontwerp-/code-audit. De soortspecifieke laagverdeling zelf is nog niet geïmplementeerd en er zijn geen nieuwe biologische parameters vrijgegeven voor de live prognose.
+
+
+### Rekencontract v1 — soortspecifieke habitatverdeling (24 november 2026)
+
+**Status:** ontwerp vastgelegd; nog niet geïmplementeerd en niet actief in de prognose. Dit contract is bewust beperkt tot de verticale habitatverdeling. Het vervangt geen bestaande activiteits-, voedings- of vangstscore.
+
+#### Doel en scheiding van uitkomsten
+Voor één doelsoort, stek en prognosetijdstip levert de berekening: (1) thermische geschiktheid per werkelijk beschikbare waterlaag; (2) relatieve aanwezigheid-/habitatverdeling over die lagen; (3) een afzonderlijke voedingsrespons, alleen wanneer de bestaande evidence daarvoor is vrijgegeven; en (4) dekking, ontbrekende invoer, beperkingen en herkomst.
+
+Aanwezigheid, algemene activiteit, voedselactiviteit en vangbaarheid zijn verschillende grootheden. Ze mogen niet als synoniemen worden gebruikt of zonder afzonderlijke onderbouwing tot één score worden samengevoegd.
+
+#### Minimale invoer
+- Soort-ID uit de bestaande FishSpecies-catalogus; Overig krijgt geen soortspecifieke verdeling.
+- Vijflaagse WaterColumnModelResult.layers en de geregistreerde FishingLocation.waterDepth.
+- Doeltijdstip en lokale seizoens-/daglichtcontext.
+- Beschikbaar watertype, waterbeweging, vegetatie-/structuurkenmerken en zichtgegevens.
+- Relevante, tijdgestempelde lokale waarnemingen.
+- Zuurstof uitsluitend als meting of als afzonderlijk gevalideerde modelinvoer.
+
+Gebruik alleen werkelijk beschikbare lagen binnen de geregistreerde stekdiepte. Ontbrekende stekdiepte of ongeldig waterkolomprofiel betekent: geen numerieke diepteverdeling; geen standaarddiepte of volume-gemiddelde als vervanging voor een laagprofiel.
+
+#### Berekeningsstappen
+1. **Laagbeschikbaarheid:** valideer laaggrenzen, diepte, temperatuur en tijdsherkomst. Sluit alleen lagen uit wanneer een onderbouwde fysieke beperking beschikbaar is; onbekende zuurstof is geen bewijs van uitsluiting.
+2. **Thermische geschiktheid:** bereken per soort en laag een relatieve respons uit een expliciet vrijgegeven soortparameterisatie. Bestaande fishProfiles-curven mogen alleen als voorlopige prior worden gebruikt zolang de evidence-status niet predictionEligible/goedgekeurd is; presenteer ze dan niet als gevalideerde biologische score.
+3. **Habitatrespons:** bepaal per soort de relatieve voorkeur voor de beschikbare dieptelaag en habitatcontext. Parameters moeten een bron, toepassingsgebied (soort/populatie, levensfase, watertype en seizoen), onzekerheid en evidence-status hebben. Niet-verticale zones zoals oevervegetatie, open water of stromingsluwte blijven contextkenmerken en worden geen fictieve temperatuurlaag.
+4. **Combinatie en normalisatie:** combineer uitsluitend onderbouwde thermische en habitatresponsen. Normaliseer niet-negatieve laaggewichten zodat de relatieve aanwezigheid over beschikbare lagen optelt tot 1 (100%). Als geen enkele laag een onderbouwde positieve respons heeft, of essentiële invoer ontbreekt, geef null/onbekend met reden in plaats van een uniforme verdeling te verzinnen.
+5. **Voedingsrespons:** bereken apart met de bestaande feeding-response-component. Zolang de evidence assessment predictionEligible: false aangeeft, blijft deze respons beschrijvend/niet beschikbaar voor numerieke prognose en verandert zij de laagverdeling niet.
+6. **Lokale waarnemingen:** toon ze als afzonderlijk lokaal bewijs met tijdstip en waarnemingstype. Meng ze niet ongemerkt in de algemene soortprior en extrapoleer één waarneming niet naar een absolute populatieverdeling.
+7. **Rapportage:** geef belangrijkste gebruikte factoren, ontbrekende invoer, beperkingen, evidence-status en modelversie terug. Noem genormaliseerde waarden relatieve modelschattingen, geen empirisch gekalibreerde kansen op aanwezigheid.
+
+#### Uitvoercontract (conceptuele TypeScript-vorm)
+- species: FishSpecies
+- targetTime: string
+- locationDepthM: number | null
+- layerResults: Array<{ topDepthM; bottomDepthM; centerDepthM; temperatureC; thermalSuitability: number | null; habitatWeight: number | null; relativeOccupancy: number | null }>
+- feedingSuitability: number | null
+- preferredDepthRangeM: { min: number; max: number } | null
+- dominantFactors: string[]
+- limitingFactors: string[]
+- missingInputs: string[]
+- evidenceStatus: 'approved' | 'prior_only' | 'insufficient'
+- interpretation: 'relative_model_estimate' | 'unknown'
+- modelVersion: string
+
+ThermalSuitability en feedingSuitability liggen tussen 0 en 1 wanneer de parameterisatie is vrijgegeven; null betekent niet beschikbaar. RelativeOccupancy ligt tussen 0 en 1 en telt over beschikbare lagen op tot 1, maar wordt alleen gevuld als de habitatberekening voldoende onderbouwd is.
+
+#### Harde invarianten en tests
+- Laaggrenzen sluiten aan op de totale geregistreerde stekdiepte; geen diepte buiten de waterkolom.
+- Alle geldige relatieve laaggewichten zijn eindig, niet-negatief en sommeren binnen numerieke tolerantie tot 1.
+- Ontbrekende diepte, ontbrekend profiel of onvoldoende evidence levert onbekend op, nooit een verzonnen uniforme verdeling.
+- Een wijziging van soort kan de habitatverdeling wijzigen; een wijziging van stekdiepte verandert de beschikbare lagen en dieptebereiken.
+- Karper blijft bodemgericht en gebruikt de bodemtemperatuur op de eigen stekdiepte; deze regel wordt niet gekopieerd naar andere soorten.
+- Snoek wordt als eerste dynamische referentiecase getest; overige soorten worden pas numeriek geactiveerd na hun eigen evidence-mapping.
+- Onbekende zuurstof wordt nooit afgeleid uit temperatuur en leidt niet automatisch tot uitsluiting van diepe lagen.
+- De habitatverdeling wijzigt bestaande activiteits-/vangstscores niet totdat daarvoor een apart, getoetst integratiebesluit is genomen.
+- Test waargenomen aanwezigheid, onbekende invoer, ondiep water met minder bruikbare dieptes, ontbrekende stekdiepte, winter-/zomerprofielen en stromend versus stilstaand water.
+
+#### Scopebesluit
+De eerstvolgende codewijziging blijft klein: voeg pas een afzonderlijke, zuivere habitatverdelingsfunctie en tests toe wanneer evidence-status en parameters voor de eerste twee referentiesoorten (karper en snoek) expliciet zijn gemapt. Geen algemene herbouw van prognosisEngine, geen nieuwe activiteitsgewichten en geen brede UI-aanpassing in deze stap. De bestaande volume-gemiddelde fallback voor andere soorten blijft ongewijzigd totdat hun habitatmodel afzonderlijk onderbouwd en getest is.
