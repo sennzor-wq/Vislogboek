@@ -1713,3 +1713,82 @@ Een ondiep water zonder meetbare thermocline mag niet worden beoordeeld op therm
 **Volgende actie:** maak een concrete gegevens-/invoermatrix voor de bestaande Vislogboek-app: per vereist modelveld vaststellen (a) aanwezig in database/type, (b) beschikbaar via bestaande weer- of locatiebron, (c) afleidbaar met betrouwbare methode, (d) alleen lokaal meetbaar, of (e) ontbrekend. Koppel dit aan de al uitgevoerde read-only code-audit en bepaal daarna welke modelvariant werkelijk uitvoerbaar is zonder niet-bestaande gegevens te veronderstellen.
 
 **Status:** documentatie- en onderzoekswerk toegestaan; productiecode, formule, numerieke laagindeling, parameterwaarden, databronnen, database en score blijven ongewijzigd. De scoreberekeningsaudit blijft uitgesteld totdat het watertemperatuurwerk deze prioriteit heeft afgerond of de eigenaar de volgorde wijzigt.
+
+
+### Read-only invoerinventaris — wat de huidige app werkelijk kan leveren (24 november 2026)
+
+**Doel:** de vorige actie uitvoeren: modelinvoer per veld toetsen aan de actuele TypeScript-datatypen en service-aanroepen op `main`. Dit is een broncode-inspectie; er zijn geen lokale gebruikersrecords uitgelezen en geen code, database, instellingen of berekeningen gewijzigd.
+
+#### 1. Gecontroleerde bronbestanden
+
+- `src/types/index.ts` — `FishingLocation`, `WeatherSnapshot`, `WaterTemperatureWeatherContext`, `WaterTemperatureMeasurement` en `FishingSession`.
+- `src/services/weatherService.ts` — Open-Meteo-aanvraag, validatie en omzetting van uurlijkse weersvelden.
+- `src/services/waterThermalEngine.ts` — huidige thermische invoer, meetankers, historische profielselectie en tijdsvensters.
+- `src/services/waterTemperatureHistory.ts` — verzamelen en selecteren van echte historische metingen.
+- `src/services/prognosisEngine.ts` — daadwerkelijke aanroep van de thermische engine.
+
+#### 2. Invoermatrix op basis van de actuele code
+
+| Modelinvoer | Status in huidige app | Bewijs / beperking |
+|---|---|---|
+| Luchttemperatuur | **Aanwezig** | Uurlijkse Open-Meteo `temperature_2m`; opgeslagen als `WeatherHourlyForecast.temperature` |
+| Windsnelheid en -richting | **Aanwezig** | Uurlijkse `wind_speed_10m` en `wind_direction_10m` |
+| Relatieve luchtvochtigheid | **Aanwezig, optioneel per uur** | `relative_humidity_2m`; ontbrekende waarden worden niet kunstmatig ingevuld |
+| Dauwpunt | **Aanwezig, optioneel per uur** | `dew_point_2m` |
+| Kortgolvige zonnestraling | **Aanwezig, optioneel per uur** | `shortwave_radiation` |
+| Bewolking | **Aanwezig** | `cloud_cover` |
+| Neerslag | **Aanwezig** | `precipitation` en `precipitation_probability` |
+| Luchtdruk | **Aanwezig** | `surface_pressure`; eerdere engine-audit stelde vast dat druk niet rechtstreeks de thermische update aandrijft |
+| Langgolvige neerwaartse straling | **Niet rechtstreeks aanwezig** | Kan alleen via een expliciet onderbouwde afleiding of extra bron worden verkregen; geen afgeleide formule goedgekeurd |
+| Historische weersdekking | **Beperkt** | De huidige Open-Meteo-aanvraag vraagt `past_days=3` en `forecast_days=8`; dit is geen volledige thermische voorgeschiedenis van weken/maanden |
+| GPS-coördinaten | **Aanwezig, optioneel** | `FishingLocation.latitude/longitude`; vereist voor de bestaande weeropvraag |
+| Totale/representatieve waterdiepte | **Aanwezig, optioneel** | `FishingLocation.waterDepth` in meter; dit is geen diepte-oppervlakteprofiel of bathymetrie |
+| Watertype | **Aanwezig, grof geclassificeerd** | Kanaal, rivier, polder, plas/zandafgraving, stadswater, haven, overig/onbekend; geen kwantitatieve stromingsklasse |
+| Actuele/historische watertemperatuur | **Aanwezig** | Sessievelden en `waterTemperatureMeasurements`; met tijdstip, bron, methode en optionele meetdiepte |
+| Meerdere metingen op verschillende dieptes | **Opslag aanwezig; prognosekoppeling onvolledig** | `measurementDepthM` bestaat en historie kan dieptes scheiden; de actuele aanroep vanuit `prognosisEngine.ts` geeft geen `measurementDepthM` door aan `analyzeWaterThermalDevelopment` |
+| Initieel verticaal temperatuurprofiel | **Niet als expliciet profielobject aanwezig** | Er kunnen afzonderlijke meetevents met meetdiepte zijn, maar geen aangetoond volledig, tijdgesynchroniseerd profiel met vereiste dekking |
+| Waterhelderheid / Secchi-diepte / lichtuitdoving | **Niet aangetoond in locatie- of meettypen** | Geen structureel veld in `FishingLocation` of `WaterTemperatureMeasurement` |
+| Hypsografie / oppervlakte als functie van diepte | **Niet aangetoond** | Alleen één `waterDepth`-waarde; geen diepte-oppervlaktecurve |
+| Bodem-/sedimentwarmte-eigenschappen | **Niet aangetoond** | Geen bodemtype, sedimentparameters of gemeten bodemwarmteflux in de onderzochte invoertypen |
+| Windfetch / kwantitatieve beschutting | **Niet aangetoond als fysische invoer** | `waterFacingDirection` en vrije `habitatFeatures` zijn geen gevalideerde fetch- of windreductieparameter |
+| Instroom/uitstroom, debiet en watertemperatuur | **Niet aangetoond** | Geen structurele hydrologische forcing in de onderzochte locaties-/sessietypen |
+| Stromingssnelheid / advectie | **Niet aangetoond** | Het onderscheid rivier/kanaal/polder is te grof om warmteadvectie te berekenen |
+
+#### 3. Belangrijkste technische bevindingen
+
+1. **Weerforcing is relatief rijk.** De app beschikt over een bruikbare basis van uurlijkse luchttemperatuur, wind, bewolking, kortgolvige straling, luchtvochtigheid, dauwpunt en neerslag. Dit sluit aan bij een belangrijk deel van de atmosferische invoer van fysische watermodellen.
+2. **De volledige oppervlakte-energiebalans kan niet rechtstreeks uit de huidige velden worden berekend zonder aanvullende fysische afleiding.** Langgolvige straling ontbreekt als direct veld. Een eventuele afleiding moet later uit een controleerbare wetenschappelijke bron komen en afzonderlijk worden gevalideerd.
+3. **De grootste beperking is de toestand van het water vóór de weersreeks.** Drie dagen terugkijkende weersdata en een actuele luchttemperatuurreeks leggen de thermische voorgeschiedenis van een watermassa niet vast. Zonder een bruikbaar lokaal meetanker of voldoende historische watertemperatuurdata blijft de absolute initiële toestand onzeker.
+4. **De app heeft meer meetstructuur dan een enkel temperatuurgetal.** Metingen kunnen een tijdstip, methode, bron en diepte hebben. Dat is een bruikbare basis voor toekomstige profielvalidatie. De huidige prognoseaanroep geeft de doelmeetdiepte echter niet door, zodat deze mogelijkheid niet automatisch in de huidige berekening benut wordt.
+5. **Een GLM-configuratie per stek is met de huidige locatiegegevens niet volledig te parametriseren.** Vooral hypsografie, lichtuitdoving, instroom/uitstroom en een betrouwbaar verticaal beginprofiel ontbreken als structurele gegevens.
+6. **Een 1D-stilstaand-watermodel kan niet zonder meer voor alle geregistreerde watertypen gelden.** Rivieren en kanalen zijn wel als categorieën aanwezig, maar stromingssnelheid, debiet en advectie zijn niet beschikbaar. Een stilstaand-waterberekening voor die locaties moet daarom als beperkt toepassingsgebied of hogere onzekerheid worden behandeld, niet als bewezen representatie.
+
+#### 4. Gevolg voor de architectuurkeuze
+
+De volledige GLM-configuratie is geen directe drop-in voor de huidige Vislogboek-dataset. Dat verandert niet dat GLM de belangrijkste wetenschappelijke referentie voor verticale processen blijft.
+
+De meest haalbare onderzoeksrichting is nu een **GLM-geïnformeerde, beperkte verticale modelkern** binnen de bestaande thermische engine, maar alleen als de volgende ontwerpstudie kan aantonen dat:
+- de benodigde vereenvoudigingen fysisch verantwoord zijn;
+- ontbrekende hypsografie, lichtuitdoving, bodem- en stromingsgegevens expliciet als onzekerheid of geldigheidsgrens worden behandeld;
+- een gemeten beginwaarde of een onderbouwde initialisatiemethode de absolute temperatuurtoestand kan vastleggen;
+- meerdere dieptemetingen werkelijk kunnen worden gebruikt om profielen te initialiseren en onafhankelijk te valideren;
+- een eenvoudige goed-gemengde modus en een gestratificeerde modus dezelfde thermische toestand en energieboekhouding delen, in plaats van concurrerende engines te vormen.
+
+**Nog niet besloten:** of een beperkt multilaags raster voldoende is, of adaptieve lagen noodzakelijk zijn; welke extra velden eventueel in de app thuishoren; hoe lang historische weersdata nodig zijn; hoe de langgolvige straling wordt afgeleid; en hoe stromend water wordt afgehandeld.
+
+#### 5. Eerstvolgende concrete actie
+
+Werk nu een **toepassings- en initialisatieontwerp** uit voor drie klassen:
+1. stilstaand/klein en ondiep water;
+2. stilstaand dieper of aantoonbaar gestratificeerd water;
+3. stromend of hydrologisch beïnvloed water.
+
+Per klasse moet het ontwerp vastleggen:
+- wanneer een 1D-kolom geldig genoeg is;
+- welke minimale metingen en locatiekenmerken nodig zijn;
+- hoe de initiële toestand wordt bepaald wanneer geen actuele meting bestaat;
+- wanneer alleen een oppervlaktetemperatuur, een verticaal profiel of helemaal geen betrouwbare schatting kan worden gegeven;
+- welke onzekerheidsstatus zichtbaar moet zijn;
+- welke validatiegegevens nodig zijn om de klasse vrij te geven.
+
+**Status en goedkeuringspoort:** dit is een read-only inventaris van de huidige broncode en een ontwerpvoorstel. Er is geen implementatie, typewijziging, extra databron, parameter, formule, database- of scorewijziging uitgevoerd. Implementatie blijft geblokkeerd totdat de eigenaar een concreet ontwerp goedkeurt. De scoreberekeningsaudit blijft uitgesteld.
