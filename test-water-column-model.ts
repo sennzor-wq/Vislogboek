@@ -93,5 +93,61 @@ for (const profile of profileCases) {
     'Convectieve overturning behoudt warmte en eindigt stabiel voor profiel ' + profile.join('/'));
 }
 
+
+// Site-specific physical inputs: Secchi depth controls the optical extinction
+// coefficient; exposed fetch increases wind-driven exchange relative to shelter.
+const opticalForcing: WaterColumnForcingSample[] = Array.from({ length: 8 }, (_, index) => ({
+  time: new Date(Date.parse('2026-06-01T08:00:00Z') + index * 3600000).toISOString(),
+  airTemperatureC: 22,
+  windSpeedKmh: 0,
+  shortwaveRadiationWm2: 800,
+  cloudCoverPercent: 0,
+  dewPointC: 14,
+}));
+const turbidWater = simulateWaterColumn({
+  totalDepthM: 2, initialLayerTemperaturesC: [12, 12, 12, 12, 12],
+  forcing: opticalForcing, secchiDepthM: 0.5,
+});
+const clearWater = simulateWaterColumn({
+  totalDepthM: 2, initialLayerTemperaturesC: [12, 12, 12, 12, 12],
+  forcing: opticalForcing, secchiDepthM: 5,
+});
+assert(Math.abs(turbidWater.opticalExtinctionPerM - 3.4) < 0.001 &&
+  Math.abs(clearWater.opticalExtinctionPerM - 0.34) < 0.001,
+  'Secchi-diepte wordt via Kd = 1,7 / ZSecchi vertaald naar lichtuitdoving');
+assert(clearWater.bottomTemperatureC > turbidWater.bottomTemperatureC,
+  'Helder water laat meer kortgolvige energie naar diepere lagen doordringen');
+assert(!clearWater.secchiPriorUsed && turbidWater.secchiPriorUsed === false,
+  'Een geldige Secchi-invoer vervangt de standaardprior');
+
+const windForcing: WaterColumnForcingSample[] = Array.from({ length: 24 }, (_, index) => ({
+  time: new Date(Date.parse('2026-06-01T00:00:00Z') + index * 3600000).toISOString(),
+  airTemperatureC: 18,
+  windSpeedKmh: 30,
+  shortwaveRadiationWm2: 0,
+  cloudCoverPercent: 80,
+  dewPointC: 14,
+}));
+const shelteredWind = simulateWaterColumn({
+  totalDepthM: 3, initialLayerTemperaturesC: [20, 16, 12, 8, 6],
+  forcing: windForcing, windExposure: 'sheltered', effectiveFetchM: 100,
+});
+const exposedWind = simulateWaterColumn({
+  totalDepthM: 3, initialLayerTemperaturesC: [20, 16, 12, 8, 6],
+  forcing: windForcing, windExposure: 'exposed', effectiveFetchM: 1000,
+});
+const shelteredGradient = shelteredWind.surfaceTemperatureC - shelteredWind.bottomTemperatureC;
+const exposedGradient = exposedWind.surfaceTemperatureC - exposedWind.bottomTemperatureC;
+assert(exposedGradient < shelteredGradient,
+  'Open water met lange fetch geeft sterkere winduitwisseling dan een beschutte stek');
+assert(!exposedWind.windExposurePriorUsed && !exposedWind.fetchPriorUsed,
+  'Bekende windblootstelling en fetch vervangen de neutrale windpriors');
+
+const defaultPhysics = simulateWaterColumn({
+  totalDepthM: 2, initialLayerTemperaturesC: [12, 12, 12, 12, 12], forcing: [],
+});
+assert(defaultPhysics.secchiPriorUsed && defaultPhysics.windExposurePriorUsed && defaultPhysics.fetchPriorUsed,
+  'Ontbrekende fysieke invoer blijft expliciet herkenbaar als prior, niet als gemeten eigenschap');
+
 console.log(`Water-column MVP tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
