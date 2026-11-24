@@ -3034,4 +3034,6 @@ Bij de productiecontrole is één privacygrens aangescherpt: automatische waterf
 
 De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt en dat opt-in de bestaande geometrie-/cacheberekening uitvoert.
 
-**Openstaande productiegate:** de volledige Quality Gate moet opnieuw slagen op de commit met deze privacywijziging. Daarna volgt de finale diff-/mergecontrole en pas na expliciete toestemming een merge en uitrol. Er is nog niet gemerged of gedeployed.
+**Quality Gate na privacywijziging:** run [45450553451](https://github.com/sennzor-wq/Vislogboek/actions/runs/45450553451) op commit `58f0b783f14ad050ef1a057b5fe21df6054abcd7` is volledig geslaagd. TypeScript, alle regressietests inclusief opt-in/geen-OSM-verzoek bij opt-out, waterkolom/fetch, shadow-integratie, productiebuild en private-artifactcontrole zijn groen.
+
+**Resterende releasegrens:** de code is technisch build- en testklaar voor shadow-release. Voor merge/uitrol is nog finale diffcontrole en expliciete toestemming van de eigenaar vereist. Er is nog niet gemerged of gedeployed.
