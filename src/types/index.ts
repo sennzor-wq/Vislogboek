@@ -139,6 +139,8 @@ export interface FishingLocation {
   /** Optional site physics; absent values remain explicit model priors. */
   windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
   effectiveFetchM?: number;
+  /** 16 directional upwind fetch distances, clockwise from north, derived from mapped water geometry. */
+  windFetchByDirectionM?: number[];
   secchiDepthM?: number;
   waterMovement?: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
   notes?: string;
@@ -784,6 +786,8 @@ export interface WeatherCacheEntry {
   fetchedAt: string;
   /** Long-range hourly forcing for the water-column model; optional, no DB index/migration. */
   waterColumnHistory?: CachedWaterColumnWeatherHistory;
+  /** Cached OSM-derived directional water fetch; optional and independent of weather history. */
+  directionalWaterFetch?: { fetchedAt: string; source: 'openstreetmap'; sectorFetchM: number[]; polygonAreaM2: number };
   hourly: WeatherHourlyForecast[];
   dailySummary?: {
     date: string;
