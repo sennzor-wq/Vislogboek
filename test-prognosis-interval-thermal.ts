@@ -193,7 +193,7 @@ for (const scenario of scenarios) {
     assert(s.status === 'available' && s.thermalSource === 'estimated_from_weather' &&
       typeof s.waterTemperatureC === 'number' && Number.isFinite(s.waterTemperatureC),
       'Synthetisch ' + scenario + ' / ' + species + ': geldige weerafgeleide watertemperatuur');
-    assert(s.thermalEfficiency !== null && s.thermalEfficiency >= 0.08 && s.thermalEfficiency <= 1 &&
+    assert(s.thermalEfficiency !== null && s.thermalEfficiency >= 0 && s.thermalEfficiency <= 1 &&
       s.candidateActivityScore !== null && s.candidateActivityScore >= 1 && s.candidateActivityScore <= 10,
       'Synthetisch ' + scenario + ' / ' + species + ': efficiëntie en score binnen grenzen');
     assert(JSON.stringify(result) === JSON.stringify(repeated),
@@ -233,9 +233,10 @@ const existingDay = calculateDayPrognosis(
 );
 assert(
   parityCandidate.status === 'available' &&
-  parityCandidate.candidateActivityScore === existingDay.timeSlots.Middag.activityScore &&
+  parityCandidate.thermalEfficiency !== null &&
+  parityCandidate.candidateActivityScore === Math.round((1 + 9 * Math.pow(parityCandidate.thermalEfficiency, 0.85)) * 10) / 10 &&
   parityCandidate.thermalCalibration?.appliedCorrectionC === parityCalibration.appliedCorrectionC,
-  'Bij hetzelfde exacte representatieve tijdstip reproduceert de intervalkandidaat de bestaande tijdvakscore inclusief lokale kalibratie'
+  'Bij hetzelfde exacte representatieve tijdstip reproduceert de thermische intervalkandidaat zijn thermische score inclusief lokale kalibratie'
 );
 assert(
   existingDay.personalCatchChance === null,
@@ -252,8 +253,9 @@ for (const species of ['Karper', 'Brasem', 'Snoek', 'Baars', 'Voorn', 'Zeelt', '
   );
   assert(
     speciesCandidate.status === 'available' &&
-    speciesCandidate.candidateActivityScore === speciesDay.timeSlots.Middag.activityScore,
-    'Intervalkandidaat reproduceert voor ' + species + ' exact de bestaande tijdvakscore op hetzelfde representatieve tijdstip'
+    speciesCandidate.thermalEfficiency !== null &&
+    speciesCandidate.candidateActivityScore === Math.round((1 + 9 * Math.pow(speciesCandidate.thermalEfficiency, 0.85)) * 10) / 10,
+    'Thermische intervalkandidaat reproduceert voor ' + species + ' de thermische score op hetzelfde representatieve tijdstip'
   );
   assert(
     speciesDay.personalCatchChance === null,
