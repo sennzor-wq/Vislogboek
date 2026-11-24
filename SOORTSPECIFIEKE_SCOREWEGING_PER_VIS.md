@@ -417,6 +417,8 @@ De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteit
 5. Voor aanwezigheid/habitat is eerst lokale detectie-/habitatinformatie nodig; voor vangkans zijn echte vangsten, sessieduur en inspanning nodig.
 6. Geen numerieke Excel-archetypegewichten, zuurstofdrempels, troebelheidsfactoren of maand-/dagritmegetallen worden in deze matrix geactiveerd.
 
+**Open rekenbesluit vóór implementatie:** `SOORTSPECIFIEKE_SCORE_WEGING.md` beschrijft een generieke gewogen gemiddelde-score, terwijl het Excel-voorstel habitat, temperatuur en omgevingsfilters vermenigvuldigt en PR #223 limiterende factoren apart behandelt. Geen van deze formules is op dit moment als definitieve formule voor alle vier uitkomsten goedgekeurd. Eerst moet per uitkomst worden vastgelegd welke factoren limiterend, additief of uitsluitend contextueel zijn; pas daarna kunnen numerieke gewichten en een scoreformule worden vastgesteld.
+
 **Volgende werkslag:** controleer per eerste kandidaat de exacte primaire bronrespons, bereik, steekproef, levensfase en context. Maak daarna alleen waar effectgroottes vergelijkbaar zijn een numeriek voorstel. Waar dit niet kan, blijft de factor kwalitatief of krijgt hij geen actief gewicht.
 
 # 11. Primaire broncontrole — eerste kandidaten (24-11-2026)
