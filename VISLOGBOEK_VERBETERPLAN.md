@@ -2871,3 +2871,47 @@ Documentatie:
 Dit implementatieplan is een concreet voorstel voor de kleinste bruikbare eerste versie. De scope is bewust beperkt en de technische keuzes zijn voldoende om te starten. Er is bij het vastleggen van dit plan nog geen runtimecode, testcode, parameter, formule, database, UI, API-integratie of deployment gewijzigd.
 
 **Volgende uitvoeringsstap na opdracht:** start werkpakket 1 en 2 in de bestaande codebasis, voer de minimale harde tests uit, en ga alleen door naar aansluiting op prognose/score wanneer de fysische kern de invarianten haalt. De eigenaar heeft gevraagd om advies en een effectief plan; deze vraag is geen expliciete opdracht om nu al runtimecode te wijzigen.
+
+
+---
+
+## Eigenaarcorrectie en herstelbesluit — 24 november 2026
+
+### GitHub-herstel naar de laatst gepullde stabiele versie
+
+Op verzoek van de producteigenaar is `main` teruggezet naar exact de codeboom van de stabiele versie die op 24 november 2026 om 18:02 CET in Google AI Builder was gepulld.
+
+- Herstelpunt: commit `29e969d199e67979c662348ae444e227f6fc2aba` (laatste main-commit vóór 18:02 CET).
+- Herstelcommit op `main`: `26218646f93b329020e94930cff7af951c4d2d52`.
+- De herstelcommit heeft dezelfde Git tree als het herstelpunt; de codeboom is daarmee exact gelijk.
+- Dit is gedaan met een nieuwe herstelcommit, niet met force-push. De eerdere commits blijven in de Git-geschiedenis bestaan.
+- De wijzigingen die na het herstelpunt in de actieve codeboom waren gekomen, waaronder de experimentele waterkolom-/meerlagenaanpak, zijn daarmee uit `main` teruggedraaid.
+- De producteigenaar synchroniseert GitHub zelf via Pull in Google AI Builder en verzorgt zelf de eventuele live deployment. De herstelactie heeft op zichzelf geen deployment uitgevoerd.
+
+### Wat ging er mis met de experimentele aanpak?
+
+De oorspronkelijke productvraag was beperkt: verbeter de schatting van de watertemperatuur met behulp van betrouwbare meteorologische gegevens en een wetenschappelijk onderbouwde berekening. Tijdens het ontwerp is dit uitgebreid tot een veel zwaardere verticale waterkolomsimulatie met vijf vaste lagen, historische spin-up, warmteoverdracht tussen lagen, menging, dichtheidsprofielen en uitgebreide historische weerforcing.
+
+Die uitbreiding leidde tot onnodige complexiteit en een te zware gegevensbehoefte voor de beoogde appfunctie. In de experimentele route werd een lange historische weersreeks opgevraagd (tot 180 dagen in het ontwerp; in de praktijk ontstond ook de zorg over aanvragen van honderden historische dagen). Dat is niet vanzelfsprekend nodig of efficiënt voor een bruikbare watertemperatuurschatting. De complexiteit en de performance-/datakosten zijn niet voldoende aangetoond als gerechtvaardigd door een meetbare verbetering in nauwkeurigheid.
+
+De vijflaagse waterkolomsimulatie was een door de assistent voorgestelde technische uitwerking. De wens om zomer- en winterstratificatie mee te nemen is géén automatische eis om vijf afzonderlijke lagen numeriek te simuleren. Het eerdere vijflagenontwerp en het bijbehorende compacte implementatieplan hieronder blijven bewaard als historische ontwerpgeschiedenis, maar zijn door dit eigenaarbesluit **vervallen als uitvoeringsrichting**.
+
+### Bevestigde productrichting: één efficiënt rekenmodel
+
+De watertemperatuurverbetering mag worden voortgezet, maar uitsluitend binnen de volgende afbakening:
+
+1. **Eén rekenmodel binnen de bestaande watertemperatuurketen.** Geen aparte parallelle prognose-engine en geen volledige verticale waterkolomsimulatie.
+2. **Lokale betrouwbare meting gaat voor.** Een geldige lokale watertemperatuurmeting is leidend en mag niet door een modelschatting worden overschreven.
+3. **Zonder lokale meting:** bereken de best onderbouwde schatting met KNMI-gebaseerde wetenschappelijke formules/methoden en geschikte meteorologische invoer. KNMI is de primaire wetenschappelijke referentie; een rechtstreekse live-KNMI-integratie is niet automatisch vereist.
+4. **Stratificatie meenemen in de berekening.** Zowel zomer- als winterstratificatie, inclusief het dichtheidsmaximum van zoet water rond 4 °C, moeten inhoudelijk worden meegenomen. Dit mag met een compacte correctie/parameterisatie in het rekenmodel; het verplicht niet tot expliciete vijf lagen of een numerieke profielsolver.
+5. **Geen standaard lange historische download.** Vraag uitsluitend de weersvariabelen en historische periode op die de gekozen formule aantoonbaar nodig heeft. Begin met de kortste wetenschappelijk verdedigbare terugkijkperiode. Verleng die alleen als validatie laat zien dat dit de schatting wezenlijk verbetert. Hergebruik/cache gegevens en voorkom herhaalde downloads.
+6. **Geen schijnnauwkeurigheid.** Als invoer of initiële toestand onvoldoende is, moet de onzekerheid dat weerspiegelen. Luchttemperatuur mag niet rechtstreeks als watertemperatuur worden gepresenteerd.
+7. **Bestaande prognose- en scoreketen beschermen.** Wijzig geen soortcurves, scoregewichten, gebruikersdata, UI, database of andere prognosefunctionaliteit als onderdeel van deze modelverbetering zonder afzonderlijke expliciete goedkeuring.
+
+### Besluit over doorgaan
+
+**Advies: doorgaan met het doel, stoppen met de vijflagenaanpak.** De watertemperatuur blijft een zinvolle eerste verbeterprioriteit, maar de volgende stap is een kleine, gerichte technische heranalyse van het bestaande rekenmodel en de KNMI-methode. Vergelijk de benodigde invoer, terugkijkperiode, rekentijd en verwachte nauwkeurigheid. Kies daarna één compacte formule-/rekenaanpak en toets die aan beschikbare lokale metingen en onafhankelijke meetreeksen.
+
+Er is met dit besluit **geen toestemming gegeven om direct runtimecode te wijzigen of te mergen**. Eerst moet het herziene rekenmodel met concrete formule, invoervelden, minimale historische horizon, onzekerheidsbehandeling en test-/validatiecriteria ter beoordeling worden voorgelegd. Pas na expliciete goedkeuring volgt implementatie. De experimentele vijflagenimplementatie wordt niet opnieuw geïntroduceerd.
+
+**Hervattingspunt:** inspecteer de actuele code op de herstelde `main`, beperk de analyse tot de bestaande watertemperatuurberekening en de KNMI-referentiemethode, en werk een compact rekenmodelvoorstel uit. Geen brede nieuwe literatuurverkenning, geen meerlagenengine en geen grootschalige historische data-aanvraag.
