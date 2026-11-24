@@ -3017,7 +3017,7 @@ De richtingafhankelijke fetch stuurt uitsluitend de bestaande shadow-only windui
 De eerdere windmenging gebruikte een empirische mengdiepte en een uitwisselingsfractie die rechtstreeks met windsnelheid opliepen. Dit is vervangen door een compacte energiebegrensde benadering:
 
 - Windschuifspanning wordt benaderd als `τ = ρlucht · Cd · U²`.
-- Het beschikbare windwerk per uur wordt benaderd als `η · τ · U · Δt` en gelijkmatig verdeeld over de vier interfaces van de vijf lagen.
+- Het beschikbare windwerk per uur wordt benaderd als `η · τ · u* · Δt`, waarbij `u* = √(τ/ρwater)` de waterside wrijvingssnelheid is en gelijkmatig verdeeld over de vier interfaces van de vijf lagen.
 - Per interface wordt dit vergeleken met de zwaartekrachtspotentiële-energiedrempel voor homogenisatie van twee gelijke lagen: `g · |Δρ| · h² / 2`.
 - Alleen een begrensde fractie van het temperatuurverschil wordt uitgewisseld; de gelijke en tegengestelde temperatuurverandering behoudt de warmte-inhoud van de twee gelijke lagen. Convectieve instabiliteit rond de zoetwaterdichtheidsanomalie blijft daarna apart gecorrigeerd.
 
