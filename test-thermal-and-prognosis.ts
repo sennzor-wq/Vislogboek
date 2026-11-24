@@ -257,6 +257,45 @@ async function run14Scenarios() {
     if (d < 3) return 7; // koud
     return h >= 12 && h <= 17 ? 19 : 10; // warmere middag
   });
+  const dailyProfileOverride = {
+    targetTime: '2026-10-23T12:00:00.000Z',
+    asOf: null,
+    forcingStartTime: '2025-10-23T00:00:00.000Z',
+    forcingEndTime: '2026-10-23T12:00:00.000Z',
+    status: 'low_confidence' as const,
+    scenarioConverged: false,
+    estimatedTemperatureC: 13.25,
+    estimatedRangeC: [12.5, 14] as [number, number],
+    surfaceTemperatureC: 14,
+    bottomTemperatureC: 12.5,
+    iceThicknessM: 0,
+    volumeMeanTemperatureC: 13.25,
+    layerTemperaturesC: [14, 13.8, 13.5, 13, 12.5],
+    totalDepthM: 1.5,
+    depthPriorUsed: false,
+    targetDepthM: 1.5,
+    spinupDays: 365,
+    forcingCoverageRatio: 1,
+    scenarioSpreadC: 1.5,
+    measurementAnchorsUsed: 0,
+    measurementAnchorsRejected: 0,
+    opticalExtinctionPerM: 1,
+    secchiPriorUsed: true,
+    windExposurePriorUsed: true,
+    fetchPriorUsed: true,
+    waterMovement: 'unknown' as const,
+    advectionNotModeled: false,
+    physicalInputCoveragePercent: 20,
+    physicalInputWarnings: [],
+  };
+  const reusedDailyProfile = analyzeWaterThermalDevelopment('2026-10-23', s1Forecasts, {
+    location: locLokkershoek,
+    waterColumnForcing: [{ time: '2026-10-23T12:00:00Z', airTemperatureC: 10 }],
+    waterColumnPredictionOverride: dailyProfileOverride,
+  });
+  assert(reusedDailyProfile.waterColumnPrediction === dailyProfileOverride,
+    'Een vooraf berekend dagprofiel wordt hergebruikt zonder opnieuw de historische waterkolomspin-up te starten');
+
   const s1 = analyzeWaterThermalDevelopment('2026-10-23', s1Forecasts, { location: locLokkershoek });
   assert(
     s1.estimatedWaterTemp !== null && s1.estimatedWaterTemp < 13.5 && s1.estimatedWaterTemp > 7.0,

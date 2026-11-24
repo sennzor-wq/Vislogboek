@@ -25,7 +25,7 @@ import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
-import type { WaterColumnForcingSample } from './waterColumnModel';
+import type { WaterColumnForcingSample, WaterColumnPrediction } from './waterColumnModel';
 import { getWaterColumnForcing } from './waterColumnWeatherService';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
@@ -718,6 +718,8 @@ export interface PrognosisOptions {
   /** Historical + recent forcing for the per-location water-column model. */
   waterColumnForcing?: WaterColumnForcingSample[];
   waterColumnAsOf?: string;
+  /** Precomputed daily physical profile reused by the four intra-day slots. */
+  waterColumnPredictionOverride?: WaterColumnPrediction | null;
   /** Actual depth of a manually supplied water-temperature reading, not total spot depth. */
   measurementDepthM?: number | null;
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
@@ -794,6 +796,7 @@ export function calculateDayPrognosis(
     forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
     waterColumnForcing: options?.waterColumnForcing,
     waterColumnAsOf: options?.waterColumnAsOf,
+    waterColumnPredictionOverride: options?.waterColumnPredictionOverride,
     measurementDepthM: options?.measurementDepthM,
     targetDepthM,
   });
@@ -868,6 +871,9 @@ export function calculateDayPrognosis(
         measurementDepthM: options?.measurementDepthM,
         waterColumnForcing: options?.waterColumnForcing,
         waterColumnAsOf: options?.waterColumnAsOf,
+        // The water column has substantial thermal inertia; reuse the daily physical
+        // profile rather than re-running the full historical spin-up four more times.
+        waterColumnPredictionOverride: thermalAnalysis.waterColumnPrediction,
         targetDepthM,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,

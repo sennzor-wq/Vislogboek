@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { deriveHistoricalWaterTemperatureProfile, HistoricalWaterTemperatureObservation } from './waterTemperatureHistory';
 import { estimateWaterColumnTemperature } from './waterColumnModel';
-import type { WaterColumnForcingSample, WaterColumnObservation } from './waterColumnModel';
+import type { WaterColumnForcingSample, WaterColumnObservation, WaterColumnPrediction } from './waterColumnModel';
 import { getAmsterdamDateKey, getAmsterdamHour, parseAppTimestamp } from '../utils/dateTime';
 
 export interface ThermalAnalysisOptions {
@@ -30,6 +30,8 @@ export interface ThermalAnalysisOptions {
   /** Historical + recent hourly forcing for the depth-specific physical water-column model. */
   waterColumnForcing?: WaterColumnForcingSample[];
   waterColumnAsOf?: string;
+  /** Optional precomputed daily profile; prevents repeated historical spin-ups for each time slot. */
+  waterColumnPredictionOverride?: WaterColumnPrediction | null;
 }
 
 /**
@@ -100,7 +102,9 @@ export function analyzeWaterThermalDevelopment(
   }
   const hasRegisteredWaterDepth = typeof location?.waterDepth === 'number' &&
     Number.isFinite(location.waterDepth) && location.waterDepth >= 0.2 && location.waterDepth <= 100;
-  const waterColumnPrediction = options?.waterColumnForcing?.length && hasRegisteredWaterDepth
+  const waterColumnPrediction = options?.waterColumnPredictionOverride !== undefined
+    ? options.waterColumnPredictionOverride
+    : options?.waterColumnForcing?.length && hasRegisteredWaterDepth
     ? estimateWaterColumnTemperature({
         totalDepthM: location.waterDepth,
         targetDepthM: options?.targetDepthM,

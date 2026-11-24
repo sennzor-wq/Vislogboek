@@ -3327,3 +3327,34 @@ Deze audit is gebaseerd op de actuele branchcode van `feat/bottom-water-temp-pro
 - Geen willekeurige parameters, extra modelcomplexiteit of wijzigingen aan vangst-/activiteitsscores.
 
 **Status:** soortspecifieke habitatmodellering afgesloten / geparkeerd. Actieve scope: fysieke watertemperatuurprognose en de bestaande koppeling naar de ongewijzigde biologische beoordeling.
+
+
+## Uitvoeringsupdate — fysieke uitvoergrenzen waterkolom (24 november 2026)
+
+De eigenaar heeft de implementatie- en testwerkzaamheden voor de fysieke watertemperatuurprognose opgedragen. Eerste afgebakende codewijziging op branch `fix/incremental-water-column-state`:
+
+- IJslaagdikte wordt begrensd op de geregistreerde totale stekdiepte, niet op een vaste generieke 2 meter.
+- Vloeibare modeltemperaturen worden na elke warmtefluxstap begrensd op het gevalideerde invoerbereik 0–40 °C.
+- Gerichte regressietests toegevoegd voor een ondiepe stek van 0,9 m onder langdurige strenge vorst en extreme verwarming.
+
+**Nog niet afgerond:** de herhaalde 365-daagse historische data-opvraag en het opnieuw uitvoeren van vijf volledige spin-ups. Deze worden niet opgelost door alleen de fetchperiode te verkorten: zonder een valide persistent meerlaags toestandsprofiel zou dat de absolute temperatuurtoestand willekeurig initialiseren. De vervolgstap is een afzonderlijk initialisatie-/toestandscontract, waarbij bestaande stekken vanaf een opgeslagen toestand verder rekenen en nieuwe stekken een expliciet onzeker initialisatiepad krijgen. Totdat die stap is geïmplementeerd en getest, is de prestatieverbetering niet afgerond.
+
+**Teststatus:** regressietests zijn toegevoegd maar nog niet uitgevoerd. Geen lokale test- of buildresultaten geclaimd; GitHub Actions moet na publicatie van de branchwijziging de volledige Quality Gate uitvoeren.
+
+
+## Uitvoeringsupdate — voorkomen van herhaalde jaarhistorie-downloads (24 november 2026)
+
+- De historische ERA5-cache wordt behouden en incrementeel aangevuld vanaf de dag na de laatst gecachte archiefdatum.
+- Bij een normale verversing wordt alleen de recente Open-Meteo forecast opgevraagd zolang de bestaande 365-daagse archiefdekking geldig is.
+- De cachegeldigheid voor gecombineerde forcing is verruimd van 2 naar 3 uur; een expliciete `forceRefresh` ververst de recente forecast maar haalt geen reeds aanwezige jaarhistorie opnieuw op.
+- Een regressietest simuleert een 24 uur oude cache en controleert dat alleen de recente forecast wordt opgehaald en de ERA5-historie behouden blijft.
+
+Dit vermindert herhaald netwerkverkeer substantieel, maar is nog niet de volledige persistente waterkolomtoestand. De vijf scenario-spin-ups bij herberekening blijven een afzonderlijke vervolgstap en zijn nog niet opgelost.
+
+
+Testcorrectie 24 november 2026: de historische replay-regressietest vergelijkt netwerkverzoeken nu met de teller direct vóór de replay. De test voert eerst bewust een nieuwe forecast-refresh uit; de eerdere vergelijking met de teller van vóór die refresh was onjuist en testte niet uitsluitend de replay.
+
+
+## Uitvoeringsupdate — voorkomen van dubbele waterkolom-spin-ups per tijdvak (24 november 2026)
+
+De prognosepagina berekent acht dagen. Per dag werd de volledige historische waterkolomspin-up eerst voor de daganalyse en daarna opnieuw voor ieder toekomstig tijdvak uitgevoerd. De vier tijdvakken hergebruiken nu het reeds berekende dagprofiel. De overige tijdvakfactoren blijven afzonderlijk berekend op hun eigen weersmoment; de bestaande biologische responsprofielen en scores zijn niet gewijzigd. Dit vermijdt maximaal vier identieke 365-daagse waterkolom-spin-ups per dagweergave.

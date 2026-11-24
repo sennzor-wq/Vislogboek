@@ -164,5 +164,42 @@ const defaultPhysics = simulateWaterColumn({
 assert(defaultPhysics.secchiPriorUsed && defaultPhysics.windExposurePriorUsed && defaultPhysics.fetchPriorUsed,
   'Ontbrekende fysieke invoer blijft expliciet herkenbaar als prior, niet als gemeten eigenschap');
 
+
+// Shallow-water physical bounds: ice must never exceed the actual water depth,
+// and liquid-water temperatures must remain inside the model's validated range.
+const shallowFreezeForcing: WaterColumnForcingSample[] = Array.from({ length: 240 }, (_, index) => ({
+  time: new Date(Date.parse('2026-01-01T00:00:00Z') + index * 3600000).toISOString(),
+  airTemperatureC: -35,
+  windSpeedKmh: 80,
+  shortwaveRadiationWm2: 0,
+  cloudCoverPercent: 0,
+  dewPointC: -40,
+}));
+const shallowFrozen = simulateWaterColumn({
+  totalDepthM: 0.9,
+  initialLayerTemperaturesC: [0, 0, 0, 0, 0],
+  forcing: shallowFreezeForcing,
+});
+assert(shallowFrozen.iceThicknessM <= 0.9,
+  'IJslaagdikte kan nooit groter worden dan de volledige waterdiepte van een ondiepe stek',
+  'ijs=' + shallowFrozen.iceThicknessM + 'm bij 0,9m waterdiepte');
+assert(shallowFrozen.layers.every((layer) => layer.temperatureC >= 0 && layer.temperatureC <= 40),
+  'Vloeibare watertemperaturen blijven binnen het fysieke modelbereik 0–40 °C');
+
+const extremeHeating = simulateWaterColumn({
+  totalDepthM: 0.9,
+  initialLayerTemperaturesC: [39.9, 39.9, 39.9, 39.9, 39.9],
+  forcing: Array.from({ length: 48 }, (_, index) => ({
+    time: new Date(Date.parse('2026-07-01T08:00:00Z') + index * 3600000).toISOString(),
+    airTemperatureC: 45,
+    windSpeedKmh: 0,
+    shortwaveRadiationWm2: 1600,
+    cloudCoverPercent: 0,
+    dewPointC: 40,
+  })),
+});
+assert(extremeHeating.layers.every((layer) => layer.temperatureC <= 40),
+  'Extreme forcing kan geen watertemperatuur boven de gevalideerde bovengrens produceren');
+
 console.log(`Water-column MVP tests: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
