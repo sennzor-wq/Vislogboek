@@ -1,35 +1,35 @@
 # READ FIRST — Vislogboek
 
-Dit bestand is het korte hervattingspunt. Het is geen tweede projectplan.
+Dit is uitsluitend het korte hervattingspunt. Het bevat geen eigen planning of takenlijst.
 
-## Eerst lezen en leidende volgorde
+## Begin hier
 
-1. `PROJECT_CONTEXT.md` — leidende product-, architectuur- en werkafspraken.
-2. `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md` — goedgekeurd plan voor de 32 verbeterpunten en acceptatiecriteria.
-3. `VISLOGBOEK_VERBETERPLAN.md` — leidend overkoepelend uitvoeringsplan; de sectie **Actuele uitvoeringsstatus en eerstvolgende opdracht** bepaalt de eerstvolgende actie.
-4. `FASE2_PROGNOSE_AUDIT.md` — technisch/biologisch auditbewijs en bevindingen.
-5. `MODELARCHITECTUUR_FASE2.md` — bindende architectuurgrenzen voor Fase 2.
-6. `FASE2_UITVOERINGSRESULTATEN.md` — registratie van uitgevoerd werk en historische statuscorrecties.
-7. `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` en `SOORTSPECIFIEKE_SCORE_WEGING.md` — inhoudelijke soortprofielen en rekenregels.
-8. `VISCOACH_PRODUCT_ROADMAP.md` en `PROJECT_ZELFLERENDE_PROGNOSE.md` — afzonderlijke product-/leersporen.
-9. `FASE0_OPTIMIZATION_AUDIT.md` en `FASE0_DATA_DICTIONARY_AND_BASELINE.md` — afzonderlijke fase-0-audits.
+1. Lees `AGENTS.md` voor de vaste repository- en veiligheidsregels.
+2. Lees `VISLOGBOEK_VERBETERPLAN.md`. Dit is het **enige actieve uitvoeringsplan** en bepaalt de volgorde, actuele status en eerstvolgende opdracht.
+3. Controleer de actuele `main`-status en voer uitsluitend die eerstvolgende opdracht uit.
+4. Open onderliggende documenten alleen wanneer de actuele opdracht ze nodig heeft. Een verwijzing vanuit zo'n document maakt geen nieuwe opdracht.
 
-## Huidige status — 24 november 2026
+## Documenthiërarchie
 
-- De operationele geïntegreerde Prognose-score v1 is geïmplementeerd in de bestaande engine via PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223).
-- PR #223 is op 24 november 2026 gemerged naar `main`; mergecommit: `bf108f56cf9c937ae1fb915b310fd8bf4899ab8c`.
-- Quality Gate run [45379544577](https://github.com/sennzor-wq/Vislogboek/actions/runs/45379544577) op de PR-head is geslaagd.
-- De score blijft voorlopig en niet biologisch/empirisch gevalideerd. De 1–10-dagscore en vier tijdvakken blijven behouden; fysiologische en voedings-/foerageerrespons blijven afzonderlijk uitlegbaar.
-- Fase 2 is niet formeel geaccepteerd. Fase 3 blijft geblokkeerd.
-- Issue [#49](https://github.com/sennzor-wq/Vislogboek/issues/49) blijft het overkoepelende optimalisatietraject. Issue [#50](https://github.com/sennzor-wq/Vislogboek/issues/50) blijft een apart zelflerend-prognosespoor; niet tussendoor in de huidige opdracht trekken.
+| Documentsoort | Functie | Mag de eerstvolgende taak bepalen? |
+|---|---|---:|
+| `VISLOGBOEK_VERBETERPLAN.md` | Enige actieve uitvoeringsplan en statusregister | **Ja — uitsluitend dit document** |
+| `PROJECT_CONTEXT.md` | Productvisie, uitgangspunten en vaste projectkaders | Nee |
+| `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md` | Goedgekeurd langetermijnplan en acceptatie-eisen | Nee; scope/kaders, geen dagelijkse werkvolgorde |
+| `AGENTS.md` | Werkwijze, veiligheidsregels en startprocedure | Nee |
+| Fase-2-audit, architectuur, uitvoeringsresultaten en soortspecifieke documenten | Technische onderbouwing, besluiten, bewijs en historische registratie | Nee |
+| Roadmaps voor VisCoach en zelflerende Prognose | Afzonderlijke, niet automatisch actieve projectsporen | Nee |
+| Fase-0-audits | Afgeronde/historische nulmetingen en auditbewijs | Nee |
+| `PROJECT_WORK_QUEUE.md` | Gesloten historisch werkregister; niet meer gebruiken als queue | **Nee** |
 
-## Werkafspraken
+## Regels bij tegenstrijdigheden
 
-- `main` is de enige bron van waarheid voor geïmplementeerde code en officiële uitvoeringsstatus.
-- Verwijder of overschrijf geen historische auditinformatie; corrigeer status met een gedateerde aanvulling en verwijzing.
-- Het uitvoeringsplan in `VISLOGBOEK_VERBETERPLAN.md` is leidend. Start geen volgende taak voordat de huidige acceptatiecriteria zijn gehaald.
-- Geen nieuwe actieplannen, parallelle engines, concurrerende scores of scope-uitbreidingen.
-- Geen wijzigingen aan scoreformule, gewichten, biologische parameters of productgedrag zonder expliciete goedkeuring van de eigenaar.
-- Geen nieuwe branch zonder voorafgaande toestemming. Geen deployment zonder expliciete opdracht.
+- Alleen `VISLOGBOEK_VERBETERPLAN.md` bepaalt wat de volgende uitvoeringsactie is.
+- Onderliggende documenten mogen technische eisen, bewijs of historische besluiten bevatten, maar starten of heropenen geen werk.
+- Een oude status of "volgende stap" in een audit, roadmap of historisch register is geen actieve opdracht.
+- Bij een inhoudelijk conflict: stop, leg het conflict voor en wijzig het leidende plan alleen na expliciete toestemming van de eigenaar.
+- Behoud historische informatie. Sluit een document alleen als zelfstandige werkstroom; verwijder geen inhoud om de structuur eenvoudiger te laten lijken.
 
-**Hervatten:** open `VISLOGBOEK_VERBETERPLAN.md` en voer uitsluitend de daar genoemde eerstvolgende opdracht uit. Als status of code niet overeenkomt met documentatie, stop en werk eerst de statusregistratie bij.
+## Hervatten
+
+Open `VISLOGBOEK_VERBETERPLAN.md`, zoek de sectie **Actuele uitvoeringsstatus en eerstvolgende opdracht** en volg exact die opdracht. Wijzig geen scope, scoreformule, gewichten, parameters of productgedrag zonder expliciete toestemming. Respecteer iedere expliciete stop-/goedkeuringspoort.

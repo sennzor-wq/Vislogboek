@@ -1,5 +1,9 @@
 # Project work queue — Vislogboek
 
+> **STATUS: GESLOTEN ALS ACTIEVE WERKVOORRAAD — 24 november 2026**
+>
+> Dit bestand is uitsluitend behouden als historisch uitvoeringsregister. De hierin genoemde actieve opdracht, PR-statussen en eerstvolgende stappen zijn verouderd en mogen niet worden uitgevoerd of als actuele status worden gebruikt. Er wordt geen nieuwe taak meer aan deze queue toegevoegd. De enige actuele uitvoeringsvolgorde staat in [VISLOGBOEK_VERBETERPLAN.md](VISLOGBOEK_VERBETERPLAN.md), onder **Actuele uitvoeringsstatus en eerstvolgende opdracht**. Historische resultaten en context hieronder blijven ongewijzigd bewaard.
+
 **Doel:** operationele eerstvolgende taken vastleggen. Dit bestand vervangt geen productvisie, roadmap of audit; het verwijst naar de bestaande canonieke documenten.
 **Leidende repositorystatus:** actuele `main` en GitHub Actions.
 **Laatste bijgewerkte context:** 23 november 2026.

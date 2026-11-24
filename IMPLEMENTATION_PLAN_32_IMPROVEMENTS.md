@@ -249,3 +249,12 @@ Audit §29 bevestigt dat de numerieke activiteitsscore thermisch gedreven is. Wi
 ## Fase-0-vervolg — PDF watertemperatuurmodel (16 november 2026)
 
 Audit §30: kandidaatverbetering is een continue diepte-/windafhankelijke thermische tijdconstante. Niet rechtstreeks overnemen: PDF gebruikt m/s versus app km/u, dagconstante versus uurlijkse stappen en bevat interne inconsistentie tussen vuistregel en dynamische formule bij windstilte. Huidige tests zijn synthetisch (vaste 65-uursreferentie), geen praktijkvalidatie. Eerst varianten vergelijken met chronologische onafhankelijke lokale meetdata en MAE/RMSE/bias per horizon en conditie. Geen code gewijzigd.
+
+
+---
+
+## Statuscorrectie en documentrol — 24 november 2026
+
+De statuspassage in de eerdere fase-0-aanvullingen die de uitgebreide audit nog als "in uitvoering" beschrijft, is achterhaald. `FASE0_OPTIMIZATION_AUDIT.md` §32 registreert de formele acceptatie en afronding van Fase 0 op 16 november 2026. De audit en nulmeting blijven als historisch bewijs behouden; hun openstaande bevindingen zijn niet automatisch nieuwe opdrachten.
+
+Dit document blijft het goedgekeurde langetermijnkader voor de 32 verbeterpunten en de bijbehorende acceptatie-eisen. Het bepaalt niet zelfstandig de actuele uitvoeringsvolgorde. De enige actieve taak, fasering en status worden beheerd in `VISLOGBOEK_VERBETERPLAN.md`. Oudere statusregels of vervolgstappen in dit document zijn historisch en mogen de actuele opdracht niet vervangen.

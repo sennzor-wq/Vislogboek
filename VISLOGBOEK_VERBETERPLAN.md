@@ -1295,3 +1295,34 @@ Controleer de actuele code op `main` en leg in `FASE2_PROGNOSE_AUDIT.md` vast:
 **Stop-/goedkeuringspoort:** na deze audit stopt het werk. Rapporteer de bevindingen en eventuele wijzigingsvoorstellen aan de eigenaar. Pas scoreformule, gewichten, parameters of UI pas aan na expliciete goedkeuring. Geen andere Fase-2-taak tussendoor starten.
 
 Fase 2 blijft open en Fase 3 geblokkeerd totdat de formele acceptatiecriteria aantoonbaar zijn gehaald.
+
+
+---
+
+## Documenthiërarchie en afsluiten van parallelle werkvoorraden — 24 november 2026
+
+Deze sectie legt de documentrollen vast en introduceert **geen nieuwe uitvoeringsopdracht**. De hierboven vastgelegde actuele Fase-2-opdracht blijft ongewijzigd en is de enige eerstvolgende taak.
+
+### Enige uitvoeringsautoriteit
+
+`VISLOGBOEK_VERBETERPLAN.md` is het enige actieve uitvoeringsplan en statusregister. Alleen de actuele sectie **Actuele uitvoeringsstatus en eerstvolgende opdracht** bepaalt wat wordt uitgevoerd, in welke volgorde en wanneer het werk stopt of om eigenaarstoestemming vraagt.
+
+Geen ander document, issue, roadmap, audit of historische notitie mag zelfstandig een taak activeren, de volgorde veranderen of een expliciete stop-/goedkeuringspoort omzeilen. Een verwijzing naar een ander document is uitsluitend een verwijzing naar inhoudelijke informatie, bewijs of kaders — nooit een impliciete opdracht.
+
+### Rollen van de overige documenten
+
+- `READ-FIRST.md`: uitsluitend startwijzer naar dit plan en de vaste repositoryregels; bevat geen eigen planning.
+- `AGENTS.md`: beschrijft werkwijze en veiligheidsgrenzen; bepaalt geen projectspecifieke uitvoeringsvolgorde.
+- `PROJECT_CONTEXT.md`: productvisie en vaste projectkaders; geen zelfstandige werkvoorraad.
+- `IMPLEMENTATION_PLAN_32_IMPROVEMENTS.md`: goedgekeurd langetermijnkader en acceptatie-eisen; de dagelijkse/actuele uitvoering wordt uitsluitend vanuit dit verbeterplan aangestuurd.
+- `FASE2_PROGNOSE_AUDIT.md`, `MODELARCHITECTUUR_FASE2.md` en `FASE2_UITVOERINGSRESULTATEN.md`: technische/biologische onderbouwing, architectuurgrenzen, bewijs en historische status. Oude vervolgstappen daarin zijn geen actieve opdrachten.
+- `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` en `SOORTSPECIFIEKE_SCORE_WEGING.md`: inhoudelijke model- en soortreferenties; geen zelfstandige uitvoeringsplannen.
+- `VISCOACH_PRODUCT_ROADMAP.md` en `PROJECT_ZELFLERENDE_PROGNOSE.md`: afzonderlijke projectsporen. Ze worden alleen actief wanneer dit verbeterplan ze expliciet in scope brengt en de vereiste eigenaarbesluiten aanwezig zijn.
+- `FASE0_OPTIMIZATION_AUDIT.md` en `FASE0_DATA_DICTIONARY_AND_BASELINE.md`: historische fase-0-audits/baselines; raadpleeg ze alleen wanneer de actuele opdracht dat vereist.
+- `PROJECT_WORK_QUEUE.md`: op 24 november 2026 gesloten als zelfstandige operationele queue. Het bestand blijft uitsluitend als historisch register bewaard; de oude actieve opdracht en PR-statussen mogen niet worden gevolgd.
+
+### Conflict- en wijzigingsregel
+
+Als een onderliggend document strijdige of verouderde informatie bevat, wordt die niet automatisch leidend. Stop bij een materieel conflict, controleer de actuele code/status en leg de benodigde correctie voor. Wijzig het leidende plan, scope of een eigenaarbesluit niet stilzwijgend. Historische inhoud blijft behouden; actuele status wordt waar nodig met een gedateerde correctie aangevuld.
+
+Er bestaat vanaf deze vastlegging één actieve uitvoeringsvolgorde, geen tweede queue en geen impliciete heropening van afgesloten of afzonderlijke werksporen.
