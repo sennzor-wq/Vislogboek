@@ -3353,3 +3353,8 @@ Dit vermindert herhaald netwerkverkeer substantieel, maar is nog niet de volledi
 
 
 Testcorrectie 24 november 2026: de historische replay-regressietest vergelijkt netwerkverzoeken nu met de teller direct vóór de replay. De test voert eerst bewust een nieuwe forecast-refresh uit; de eerdere vergelijking met de teller van vóór die refresh was onjuist en testte niet uitsluitend de replay.
+
+
+## Uitvoeringsupdate — voorkomen van dubbele waterkolom-spin-ups per tijdvak (24 november 2026)
+
+De prognosepagina berekent acht dagen. Per dag werd de volledige historische waterkolomspin-up eerst voor de daganalyse en daarna opnieuw voor ieder toekomstig tijdvak uitgevoerd. De vier tijdvakken hergebruiken nu het reeds berekende dagprofiel. De overige tijdvakfactoren blijven afzonderlijk berekend op hun eigen weersmoment; de bestaande biologische responsprofielen en scores zijn niet gewijzigd. Dit vermijdt maximaal vier identieke 365-daagse waterkolom-spin-ups per dagweergave.
