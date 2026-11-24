@@ -645,9 +645,6 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {showAdvancedDetails && activeDayProg.integratedScoreConfidencePercent !== undefined && (
                     <div className="text-[11px] text-slate-400 mt-1">Indicatieve modelonderbouwing: {activeDayProg.integratedScoreConfidencePercent}% (geen statistisch betrouwbaarheidsinterval).</div>
                   )}
-                  {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth === false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null && (
-                  <span className="text-slate-400">Losse meting: {activeDayProg.thermalAnalysis.measuredWaterTemp.toFixed(1)} °C — niet gebruikt als soortdoeltemperatuur</span>
-                )}
                 {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                     <span
                       className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30"
@@ -935,6 +932,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <span className="font-semibold text-white">Watertemperatuur</span>
                   <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth !== false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
+                {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth === false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null && (
+                  <span className="text-slate-400">Losse meting: {activeDayProg.thermalAnalysis.measuredWaterTemp.toFixed(1)} °C — niet gebruikt als soortdoeltemperatuur</span>
+                )}
                 {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                   <span
                     className="text-amber-300 font-medium"
