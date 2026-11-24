@@ -737,3 +737,82 @@ Elke respons bevat de bron-ID's, het aantal bronnen, de bewijsrol en een explici
 Daarom is `feedingActivity.score` in deze eerste integratiestap bewust `null` en de status `insufficient_evidence` (of `not_applicable` voor `Overig`). Dit is geen mislukte berekening en geen gemiddelde score; het is een expliciet modelresultaat dat voorkomt dat voedingsintensiteit wordt verzonnen uit maagvulling, dieet, beweging of een fysiologische temperatuurcurve.
 
 **Vervolg:** per soort de eerste afzonderlijke voedingsresponsfuncties kwantificeren waar primaire bronnen dat werkelijk toelaten; daarna tests voor richting, bereik, levensfase, context en ontbrekende invoer toevoegen. Tot die validatie blijft de fysiologische score ongewijzigd en wordt geen voedingsbonus opgeteld.
+
+# 16. Soortspecifiek wegingsvoorstel — uitgangspunt voor V0.1 (24-11-2026)
+
+**Status:** inhoudelijk voorstel; nog niet als runtime-gewicht goedgekeurd. Dit voorstel concretiseert de bestaande evidence matrix. Het vervangt geen primaire broncontrole en activeert geen nieuwe factor.
+
+## 16.1 Eerst het meetdoel vastzetten
+
+De bestaande activityScore (1–10) is de **fysiologische/thermische potentie-index**. Deze score mag niet ongemerkt veranderen in een samengestelde score voor visbeweging, voedselopname, aanwezigheid of vangstkans.
+
+- **Fysiologische prestatie:** aerobe scope en thermische fysiologie zijn directe fysiologische metingen; ze meten niet automatisch de feitelijke dagelijkse beweging of voedselopname.
+- **Voedingsintensiteit:** voedselopname per tijdseenheid, dagelijkse consumptie of een expliciet gedefinieerde voedingsfrequentie.
+- **Voedingsincidentie:** maagvulling/vacuïteit; een proxy en geen uitwisselbare maat voor voedselopname per tijdseenheid.
+- **Foerageergedrag/beweging:** zoeken, grazen, jagen of telemetrisch geregistreerde verplaatsing; alleen de werkelijk gemeten gedragsrespons.
+- **Aanwezigheid/habitat:** lokale detectie en habitatgebruik; een aparte uitkomst.
+- **Vangkans:** echte vangsten per bekende sessieduur/inspanning; empirisch en apart.
+
+Een bronrecord, het aantal records of het label moderate/limited levert op zichzelf geen numeriek gewicht op. Geen van de 95 huidige registry-records is goedgekeurd voor numeriek voorspellingsgebruik. Ook mag metabolic_rate niet als directe meting van activiteit worden aangeduid.
+
+## 16.2 Wegingsvoorstel voor de bestaande fysiologische 1–10-score
+
+**Voorstel:** watertemperatuur blijft voorlopig de enige actieve factor met een aandeel van **1,00 (100% van de huidige fysiologische index)**. Dit is uitsluitend een normalisatie omdat er nu één actieve factor is; het is nadrukkelijk geen bewijs dat temperatuur in de natuur 100% van alle visactiviteit verklaart.
+
+| Soort | Thermisch/fysiologisch bewijs | Voorstel voor huidige score | Bewijsstatus en begrenzing |
+|---|---|---|---|
+| Karper | Acute temperatuur-metabolismeproef; geen volledige prestatiecurve | Temperatuur 1,00; overige factoren 0,00 | Beperkt/indirect voor fysiologische prestatie; bestaande curve blijft voorlopige prior |
+| Brasem | Standaard-/routinezuurstofverbruik over 5–23 °C; geen aerobe-scope- of veldbewegingscurve | Temperatuur 1,00; overige factoren 0,00 | Metabolisme is indirecte fysiologische context, geen directe activiteitsscore |
+| Snoek | Beperkte metabolismegegevens bij enkele temperaturen | Temperatuur 1,00; overige factoren 0,00 | Beperkt/indirect; bestaande curve blijft voorlopige prior |
+| Baars | Aerobe scope en temperatuurrespons gemeten; optimum verschilt met lichaamsmassa | Temperatuur 1,00; overige factoren 0,00 | Beste directe fysiologische kandidaat in het register; zonder betrouwbare lengte-/massa-invoer geen groottecorrectie verzinnen |
+| Blankvoorn | Standaard-/routinezuurstofverbruik over 5–23 °C | Temperatuur 1,00; overige factoren 0,00 | Metabolisme is indirecte context; geen directe veldactiviteitscurve |
+| Zeelt | Geen passende directe fysiologische respons in de huidige registry | Temperatuur 1,00; overige factoren 0,00 | Zeer lage bewijsstatus; huidige profielcurve is alleen een modelprior |
+| Snoekbaars | Aerobe scope bij volwassen kweekvis; brede responszone en geen significant verschil tussen 13 en 25 °C | Temperatuur 1,00; overige factoren 0,00 | Directe fysiologische kandidaat, maar curve moet breed/plateauachtig blijven; geen scherpe piek op 18,8 °C |
+| Meerval | Geen passende directe fysiologische curve in de huidige registry | Temperatuur 1,00; overige factoren 0,00 | Zeer lage bewijsstatus; bestaande profielcurve is alleen een modelprior |
+| Roofblei | Geen passende directe fysiologische curve in de huidige registry | Temperatuur 1,00; overige factoren 0,00 | Zeer lage bewijsstatus; bestaande profielcurve is alleen een modelprior |
+
+**Belangrijke consequentie:** de 1,00-normalisatie maakt de bestaande score niet wetenschappelijk gevalideerd. De soortstatus moet in de factoruitleg/onzekerheid zichtbaar blijven. De eerstvolgende echte fysiologische parameterverbetering moet beginnen bij bronpassende responsvormen voor baars en snoekbaars; de bestaande waarden voor de overige soorten mogen niet door verwante soorten of voedingsstudies worden ingevuld.
+
+## 16.3 Wegingsprioriteit voor voedings-/foerageerrespons per soort
+
+Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** vast te stellen. De bronnen meten verschillende zaken (dagrantsoen, maagvulling, vrijwillige voeropname, functionele respons, foerageersnelheid) en verschillen sterk in levensfase, voedselgilde, seizoen en onderzoeksopzet. Daarom gebruiken we nu een rangorde voor parameteronderzoek, niet een fictief percentage.
+
+| Soort | Eerste kandidaat voor kwantificering | Modulatoren/voorwaarden die apart moeten blijven | Niet als voedingsgewicht gebruiken |
+|---|---|---|---|
+| Karper | Directe voedselopname en voedingsritme; daarnaast juveniele foerageersnelheid als aparte respons | Temperatuur, levensfase, natuurlijk versus bijgevoerd/bait-station-water, voedseltype en lokale voercontext | Universele nachtbonus; telemetrische beweging als voedselopname |
+| Brasem | In-situ consumptie/voedingsritme | Voedselgilde (o.a. zoöplankton), lengteklasse, seizoen en habitat | Generieke dagbonus; troebelheid uit één meer als universele voedingsfactor |
+| Snoek | Directe voedingsrespons via hartslag-/voedingsmetingen; juveniele functionele respons apart | Levensfase, prooitype, zicht/bruining en temperatuur binnen de onderzochte proefcondities | Dusk-habitatverplaatsing als voedingspiek; sterke generieke temperatuur- of troebelheidsbonus |
+| Baars | Directe voedingsintensiteit en veldritme | Lichaamsgrootte, seizoen, prooikeuze en voedselbeschikbaarheid | Vaste ochtend-/schemerpiek voor alle seizoenen en wateren |
+| Blankvoorn | Directe voedingsintensiteit en dagritme | Seizoen, voedselgilde, lengteklasse, vegetatie/habitat | Eén vaste dag-/nachtverdeling voor alle populaties |
+| Zeelt | Directe veldvoeding en temperatuur-/ritmeproeven, afzonderlijk modelleren | Onderzoekswater, voerregime, temperatuur en levensfase | Universele nachtbonus of één gecombineerde curve uit veld- en tankstudies |
+| Snoekbaars | Directe voedingsintensiteit en seizoensrespons | Lengte, gonadale/voortplantingsfase, seizoen en watercontext | Schemerbeweging als voedingsrespons |
+| Meerval | Vrijwillige voedselopname/ritme uit zelfvoeronderzoek; juveniele veldvoeding als aparte levensfase | Juveniel versus volwassen, individuele/groepshuisvesting, seizoen en diepte/habitat | Universele nachtbonus voor volwassen wilde meerval |
+| Roofblei | Nog geen passende kwantitatieve dagelijkse voedselopnamecurve | Voedingsincidentie, dieet en prooikeuze alleen als context/proxy | Maagvulling, dieet of telemetrische dagbeweging omzetten naar voedingsintensiteit |
+
+**Onderzoeksprioriteit:** eerst de directe responsen bij karper, brasem, baars, blankvoorn en snoekbaars op meeteenheden, bereik en levensfase naast elkaar leggen. Snoek en zeelt volgen met expliciete beperking van proef-/levensfasecontext. Meerval blijft gescheiden naar juveniel/volwassen. Roofblei krijgt geen numerieke voedingsscore totdat directe intensiteitsdata beschikbaar zijn.
+
+## 16.4 Behandeling van de overige factoren
+
+| Factor | Voorgestelde rol | Numerieke invloed nu |
+|---|---|---:|
+| Opgeloste zuurstof | Mogelijke limiter/modulator; alleen met betrouwbare lokale meting en soort-/levensfasepassende responsgrens | 0,00; niet beschikbaar/onderbouwd genoeg |
+| Licht/fotoperiode | Tijdmodulator voor voedingsritme wanneer een passende soortrespons bestaat | 0,00 in fysiologische score; kandidaat binnen voedingsrespons |
+| Seizoen/biologische fase | Langzame modulator; alleen op basis van aangetoonde respons, niet als kalenderbonus | 0,00 in fysiologische score; conditionele voedingsmodulator |
+| Lichaamsgrootte/levensfase | Effectmodifier en toepassingsvoorwaarde | Geen zelfstandige score; niet verplicht als nieuwe dagelijkse invoer |
+| Troebelheid/zicht | Conditionele zicht-/predator-prooirelatie, soort- en contextgebonden | 0,00 generiek; alleen later als passende respons beschikbaar is |
+| Wind, luchtdruk, neerslag en bewolking | Indirecte context via menging, instroom, licht of thermiek | 0,00 zelfstandige scorebijdrage; niet dubbel tellen |
+| Stroming/waterbeweging | Lokale habitat-/foerageercontext | 0,00 generiek; locatiegebonden respons vereist |
+| Prooiaanbod | Voedselbeschikbaarheid, niet hetzelfde als voedselopname | 0,00 zonder lokale prooigegevens |
+| Bodem, diepte, vegetatie en beschutting | Habitatgeschiktheid/lokale aanwezigheid | Buiten fysiologische en voedingsindex; aparte laag |
+| Telemetrische visbeweging | Gemeten gedragsrespons | Niet als generieke factor optellen bij fysiologie of voeding |
+| Eigen vangsten/sessiehistorie | Empirische vangkans en latere kalibratie | Buiten biologische indexen |
+
+## 16.5 Samenvattend voorstel en implementatiepoort
+
+1. Behoud de huidige fysiologische 1–10-berekening voorlopig als temperatuurindex; gebruik geen extra numerieke factor zonder responsbewijs en betrouwbare invoer.
+2. Behandel baars en snoekbaars als eerste kandidaten voor verbetering van de fysiologische curve; houd massa-/levensfasebeperkingen expliciet. De andere soorten blijven voorlopig met lagere bewijsstatus.
+3. Bouw voedingsresponsen als afzonderlijke uitkomst op basis van de soortspecifieke prioriteiten uit §16.3. Geen optelling bij de fysiologische score en geen vaste dagdeelbonus.
+4. Houd aanwezigheid/habitat en persoonlijke vangkans gescheiden.
+5. Ken pas numerieke voedingsgewichten toe nadat brondata op dezelfde meeteenheid en vergelijkbare context zijn geëxtraheerd. De prioriteitsrangorde in deze sectie is geen effectgrootte en mag niet als percentage worden geïnterpreteerd.
+
+**Beslispunt vóór runtimewijziging:** eigenaar beoordeelt dit soortspecifieke wegingsvoorstel als inhoudelijk uitgangspunt. Na akkoord volgt één samenhangende implementatie van de toegelaten responsfuncties in de bestaande engine, met behoud van de dag-/tijdvakcontracten, onbekend-semantiek en targetTime-as-of-grens.

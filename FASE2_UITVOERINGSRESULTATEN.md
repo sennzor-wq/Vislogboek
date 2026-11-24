@@ -624,6 +624,21 @@ De bestaande tests controleren een stabiele ankergestuurde reeks en forecast-as-
 
 ### Eerstvolgende hoofdtaak
 
-Werk nu één samenhangend soortspecifiek wegingsvoorstel uit op basis van de bestaande bronnenmatrix en de criteria in `SOORTSPECIFIEKE_SCORE_WEGING.md`: directe meetrespons, effectgrootte/-richting, bewijskwaliteit, overdraagbaarheid naar soort/levensfase/watertype en onafhankelijkheid van andere factoren. Scheid drivers, modulatoren, limiters en context; voorkom dubbeltelling. Geef alleen factoren een numerieke kandidaatweging wanneer het bewijs dezelfde prognose-uitkomst daadwerkelijk meet. Leg per soort vast wat wel, voorlopig of niet numeriek inzetbaar is en waarom. Wijzig de bestaande scoreberekening pas nadat deze wegingen inhoudelijk zijn vastgesteld; geen percentages invullen om de tabel compleet te maken.
+Het soortspecifieke wegingsvoorstel is uitgewerkt in SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md §16. Het is een inhoudelijk uitgangspunt, geen goedgekeurde runtime-configuratie. De numerieke fysiologische index behoudt voorlopig temperatuur als enige actieve factor; voedingsresponsen krijgen per soort een onderzoekprioriteit maar nog geen arbitrair percentage. Aanwezigheid/habitat en empirische vangkans blijven gescheiden.
 
-**Acceptatie:** één controleerbare soortspecifieke wegingsmatrix met bron-ID's en beperkingen; geen niet-onderbouwde waarden; geen verandering aan runtime-score of UI tijdens de inhoudelijke weging; expliciete lijst van ontbrekende gegevens en onzekerheden. Daarna pas de bestaande prognoseberekening aanpassen en de dag-/tijdvakpariteit en onbekend-semantiek testen.
+**Volgende stap:** eigenaarreview van §16. Na inhoudelijk akkoord volgt één samenhangende runtime-implementatie van de toegelaten responsfuncties in de bestaande engine. Tot die tijd blijven bestaande scoreberekening en UI ongewijzigd.
+
+## Werkonderdeel 10 — soortspecifiek wegingsvoorstel V0.1 (24 november 2026)
+
+**Status:** voorstel uitgewerkt; wacht op inhoudelijke eigenaarreview. Geen runtimecode, scores, gewichten of UI gewijzigd in dit werkonderdeel.
+
+- De huidige fysiologische 1–10-score is expliciet afgebakend als thermische/fysiologische potentie. Temperatuur blijft voorlopig de enige actieve factor (1,00 normalisatie); de bewijsstatus verschilt per soort.
+- Aerobe-scopegegevens bij baars en snoekbaars zijn onderscheiden van metabolismegegevens bij karper, brasem, snoek en blankvoorn. Metabolisme is niet als directe meting van activiteit aangemerkt.
+- Voor voedingsrespons is per soort een eerste parameterprioriteit vastgelegd. Voedselopname, maagvulling, voedingsritme, foerageergedrag, dieet en prooikeuze blijven gescheiden.
+- Zuurstof is alleen een mogelijke limiter bij passende lokale invoer en drempelrespons; licht/seizoen zijn conditionele voedingsmodulatoren; wind, druk, neerslag, bewolking, stroming en prooiaanbod krijgen geen zelfstandige numerieke bonus zonder passende responsdata.
+- De matrix kent bewust nog geen numerieke voedingspercentages toe: de huidige bronnen meten niet dezelfde responsvariabele of context en leveren geen vergelijkbare effectgroottes. Een percentage zou schijnprecisie zijn.
+- De inhoudelijke onderbouwing en soorttabellen staan in SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md §16; de algemene toelatingscriteria blijven in SOORTSPECIFIEKE_SCORE_WEGING.md.
+
+**Acceptatie:** soort-/uitkomstrollen en grenzen vastgelegd; geen willekeurige getallen toegevoegd; geen runtimewijziging gedaan voordat de eigenaar het voorstel heeft beoordeeld.
+
+**Hervatpunt:** eigenaarreview van §16. Na akkoord: de toegelaten responsfuncties implementeren in de bestaande prognose-engine, met tests voor alle soorten, dag-/tijdvakpariteit, ontbrekende invoer en de bestaande targetTime-as-of-invariant.
