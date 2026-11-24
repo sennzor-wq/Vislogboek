@@ -6586,7 +6586,7 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 1. Het bestaan van een evidence-service betekent niet dat de informatie al in het gebruikersadvies zit.
 2. Het huidige habitatmodel is een generieke lokale zoek-/zonehypothese, geen soortspecifiek gevalideerd verspreidingsmodel.
 3. De tijdgebonden evidence-service is wel geïntegreerd, maar toont context en neutraliteit; zij activeert geen niet-goedgekeurde numerieke tijdvakbonus.
-4. De voedingsservice kan kwalitatieve context leveren, maar is nog niet aangesloten. Het toevoegen van tekst aan VisCoach vraagt een bewuste productkeuze over waar, wanneer en hoe bronbeperkingen worden getoond.
+4. Op het moment van deze WP24-audit was de voedingsservice nog niet aangesloten. De latere branchstatus is apart vastgelegd in §214.4; deze historische bevinding blijft ongewijzigd.
 5. Een soortspecifieke habitatlaag vereist eerst een passende bronset per soort, responsmaat en watertype. Geen aannames uit verwante soorten of generieke profielen toevoegen.
 
 ### 214.3 Besluit / volgende eigenaargrens
@@ -6595,7 +6595,14 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 - Eventuele kwalitatieve voedingscontext in de prognose/VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke keuzes; zij worden niet stilzwijgend in deze technische audit doorgevoerd.
 - Fase 2 blijft open. WP19 is op besluit van de eigenaar uit de actieve werkvoorraad gehaald (zie §216); WP24 legt de huidige integratiegrenzen vast.
 
-**Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.
+**Resultaat WP24 op 23 november:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; op dat moment geen runtimewijziging.
+
+### 214.4 Latere branchstatus — draft PR #223 (24 november 2026)
+
+Na afronding van WP24 is in draft PR #223 de voedingsservice vanuit de bestaande `prognosisEngine` gekoppeld als afzonderlijke `feedingActivity`-assessment. De assessment bevat bron-/responsclassificaties, maar de numerieke score blijft `null` en alle responsen blijven `predictionEligible: false`. De PR toont deze informatie ook in een nieuwe kaart in `PrognosisView`; dit is uitsluitend branchcode en staat niet op `main`.
+
+Deze latere wijziging verandert de historische bevinding van WP24 niet, maar actualiseert de huidige branchstatus. De koppeling wijzigt de bestaande fysiologische dag-/tijdvakscore niet en berekent nog geen weersafhankelijke voedingsrespons. De nieuwe UI-kaart is niet als product-/scopebesluit geaccepteerd en mag niet worden behandeld als gevalideerde prognosefunctionaliteit. PR #223 blijft open; zie het actuele uitvoeringsverslag voor de inhoudelijke review en vervolgstap.
+
 
 
 ## 215. WP25 — synthetische robuustheidsmatrix habitatbewegingsengine (23 november 2026)

@@ -601,3 +601,29 @@ Dagbrede temperatuur-, wind-, cloud- en stralingsstatistieken worden uit de voll
 De bestaande tests controleren een stabiele ankergestuurde reeks en forecast-as-of, maar veranderen geen latere uren terwijl de eerdere uren gelijk blijven. De benodigde metamorfische testmatrix staat in audit §194.4 en omvat meetanker, historisch profiel, weather-only, onbekende diepte, onvoldoende dekking, verschillende doeluren, ontbrekende uren en DST.
 
 **Status:** alleen audit/testontwerp. Geen code of tests gewijzigd of uitgevoerd. Volgende technische stap is test-first implementatie binnen de bestaande waterThermalEngine; daarvoor is een normale codewijzigingsworkflow nodig. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## Hervattingspunt 24 november 2026 — inhoudelijke beoordeling PR #223
+
+**Leidende opdracht:** volg `READ-FIRST.md`: verbeter de bestaande prognose in de bestaande weergave op basis van `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` en `SOORTSPECIFIEKE_SCORE_WEGING.md`. Geen parallelle prognose-engine, geen nieuwe product-/UI-functie als vervanging van modelwerk en geen ongefundeerde gewichten.
+
+### Actuele repository- en PR-status
+
+- `main` staat op `13d1f87d67c18f29ac8a94ea6ecbdd8cedfabe37`.
+- PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) staat open, is niet gemerged en heeft head `5cb00c30c761e4bfe1ed229cf70aab875dc7b726` op `feat/fase2-prognosis-evidence-flow`.
+- De PR bevat 9 gewijzigde bestanden en 25 commits. De actuele GitHub Quality Gate is geslaagd: run [#1245](https://github.com/sennzor-wq/Vislogboek/actions/runs/45369232513) op de genoemde head. Dit bewijst technische regressiecontrole, geen biologische juistheid of voorspellende nauwkeurigheid.
+- Er is geen toestemming om PR #223 te mergen.
+
+### Inhoudelijke beoordeling PR #223
+
+1. **Evidence en modelgrenzen:** de PR trekt de eerdere niet-onderbouwde percentages terecht in. Fysiologische activiteit, voedings-/foerageerrespons, lokale aanwezigheid/habitat en empirische vangkans blijven verschillende uitkomsten. De nieuwe meervalbron is als niet-goedgekeurd voor voorspelling geregistreerd.
+2. **Bestaande dagscore:** de dagaggregatie gebruikt nu een expliciete helper en toont bij ontbrekende tijdvakken geen fictieve 5,0 meer; de beschikbaarheidsvlag blijft leidend en de verborgen compatibiliteitswaarde is 0. De vier huidige tijdvakken zijn echter ieder vast 360 minuten, waardoor de productie-aanroep bij volledige dekking nog steeds rekenkundig gelijk is aan het gemiddelde van vier tijdvakscores. De test met ongelijke segmentduren test de helper, niet een echte variabele interval-/dagsegmentatie.
+3. **Voedingsrespons:** `feedingActivity` is een afzonderlijke evidence-assessment met `score: null` en `predictionEligible: false`. De broninventaris wordt dus niet als numerieke voedingsrespons gebruikt en verandert de bestaande fysiologische score niet. De assessment is op dit moment bron-/soortgebonden, niet een berekende dag- of tijdvakrespons op de weersomstandigheden.
+4. **Scopepunt:** de PR voegt een nieuwe voedingskaart toe aan `PrognosisView` voordat een kwantitatieve responsfunctie is gevalideerd. Dit is geen verbetering van de bestaande 1–10-score en botst met de werkvoorraadregel dat geen nieuwe UI-/productfunctie wordt toegevoegd voordat de kandidaatlogica inhoudelijk en technisch is gevalideerd. Behandel deze kaart daarom als niet-geaccepteerd onderdeel; niet als afgeronde prognosefunctionaliteit.
+5. **Conclusie:** de evidence-documentatie en het expliciet onbekend houden van niet-gevalideerde voedingsrespons zijn inhoudelijk nuttig. PR #223 levert nog geen soortspecifieke factorweging of extra gevalideerde bijdrage aan de bestaande numerieke prognose. De PR is technisch groen, maar de nieuwe UI-kaart is een open scopepunt en de PR mag niet als voltooiing van de hoofdopdracht worden beschouwd.
+
+### Eerstvolgende hoofdtaak
+
+Werk nu één samenhangend soortspecifiek wegingsvoorstel uit op basis van de bestaande bronnenmatrix en de criteria in `SOORTSPECIFIEKE_SCORE_WEGING.md`: directe meetrespons, effectgrootte/-richting, bewijskwaliteit, overdraagbaarheid naar soort/levensfase/watertype en onafhankelijkheid van andere factoren. Scheid drivers, modulatoren, limiters en context; voorkom dubbeltelling. Geef alleen factoren een numerieke kandidaatweging wanneer het bewijs dezelfde prognose-uitkomst daadwerkelijk meet. Leg per soort vast wat wel, voorlopig of niet numeriek inzetbaar is en waarom. Wijzig de bestaande scoreberekening pas nadat deze wegingen inhoudelijk zijn vastgesteld; geen percentages invullen om de tabel compleet te maken.
+
+**Acceptatie:** één controleerbare soortspecifieke wegingsmatrix met bron-ID's en beperkingen; geen niet-onderbouwde waarden; geen verandering aan runtime-score of UI tijdens de inhoudelijke weging; expliciete lijst van ontbrekende gegevens en onzekerheden. Daarna pas de bestaande prognoseberekening aanpassen en de dag-/tijdvakpariteit en onbekend-semantiek testen.
