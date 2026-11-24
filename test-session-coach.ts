@@ -199,7 +199,7 @@ async function run() {
     activityScore: 6,
     physiologicalResponseScore: 4.2,
     feedingActivity: {
-      score: 8.4,
+      score: 6.4,
       status: 'provisional',
       evidenceLevel: 'direct_candidate',
       driverCoveragePercent: 35,
