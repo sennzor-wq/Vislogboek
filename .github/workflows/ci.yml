@@ -104,6 +104,9 @@ jobs:
       - name: Water column weather forcing tests
         run: bun run tsx test-water-column-weather-forcing.ts
 
+      - name: Directional water fetch geometry tests
+        run: bun run tsx test-water-fetch-geometry.ts
+
       - name: Water column prediction and spin-up tests
         run: bun run tsx test-water-column-prediction.ts
 
