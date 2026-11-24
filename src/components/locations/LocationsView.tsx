@@ -156,6 +156,15 @@ export const LocationsView: React.FC<LocationsViewProps> = ({
                   )}
                 </div>
 
+                {(loc.windExposure || loc.effectiveFetchM !== undefined || loc.secchiDepthM !== undefined || loc.waterMovement) && (
+                  <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] text-slate-400">
+                    {loc.windExposure && <span className="rounded-lg bg-slate-900/70 border border-slate-700 px-2 py-1">Wind: {loc.windExposure === 'sheltered' ? 'beschut' : loc.windExposure === 'partly_exposed' ? 'deels open' : 'open'}</span>}
+                    {loc.effectiveFetchM !== undefined && <span className="rounded-lg bg-slate-900/70 border border-slate-700 px-2 py-1">Fetch: {loc.effectiveFetchM} m</span>}
+                    {loc.secchiDepthM !== undefined && <span className="rounded-lg bg-slate-900/70 border border-slate-700 px-2 py-1">Zichtdiepte: {loc.secchiDepthM} m</span>}
+                    {loc.waterMovement && loc.waterMovement !== 'unknown' && <span className="rounded-lg bg-slate-900/70 border border-slate-700 px-2 py-1">Waterbeweging: {loc.waterMovement === 'still' ? 'stil' : loc.waterMovement === 'weak_flow' ? 'zwak stromend' : loc.waterMovement === 'flowing' ? 'stromend' : 'getijde'}</span>}
+                  </div>
+                )}
+
                 {loc.notes && (
                   <p className="text-xs text-slate-400 mt-3 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800">
                     {loc.notes}
