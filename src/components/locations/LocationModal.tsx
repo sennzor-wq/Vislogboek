@@ -27,6 +27,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   const [effectiveFetchM, setEffectiveFetchM] = useState(location?.effectiveFetchM !== undefined ? String(location.effectiveFetchM) : '');
   const [secchiDepthM, setSecchiDepthM] = useState(location?.secchiDepthM !== undefined ? String(location.secchiDepthM) : '');
   const [waterMovement, setWaterMovement] = useState<FishingLocation['waterMovement']>(location?.waterMovement ?? (location?.waterType === 'Rivier' ? 'flowing' : location?.waterType === 'Kanaal' ? 'weak_flow' : 'unknown'));
+  const [automaticWaterFetchEnabled, setAutomaticWaterFetchEnabled] = useState(location?.automaticWaterFetchEnabled ?? false);
   const [latitude, setLatitude] = useState<string>(
     location?.latitude !== undefined ? String(location.latitude) : ''
   );
@@ -83,6 +84,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
       effectiveFetchM: fetchNum,
       secchiDepthM: secchiNum,
       waterMovement: waterMovement || 'unknown',
+      automaticWaterFetchEnabled,
       latitude: validGps ? latNum : undefined,
       longitude: validGps ? lonNum : undefined,
       notes: notes.trim() || undefined,
@@ -262,6 +264,21 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                 />
               </div>
             </div>
+
+            <label className="mt-3 flex items-start gap-2.5 rounded-xl border border-slate-700 bg-slate-900/60 p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={automaticWaterFetchEnabled}
+                onChange={(e) => setAutomaticWaterFetchEnabled(e.target.checked)}
+                className="mt-0.5 accent-emerald-500"
+              />
+              <span>
+                <span className="block text-xs font-semibold text-slate-200">Automatische waterkaartanalyse toestaan</span>
+                <span className="mt-1 block text-[10px] leading-relaxed text-slate-400">
+                  Als je dit inschakelt, worden de exacte GPS-coördinaten van deze stek naar OpenStreetMap (Overpass) gestuurd om de watergrens en windafhankelijke fetch te bepalen. Optioneel; zonder toestemming gebruikt het model alleen handmatige invoer of zijn neutrale aanname.
+                </span>
+              </span>
+            </label>
           </div>
 
           <div>
