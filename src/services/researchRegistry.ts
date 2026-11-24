@@ -584,6 +584,27 @@ export const RESEARCH_REGISTRY: ResearchRegistryEntry[] = [
     approvedForPrediction: false,
   },
   {
+    id: 'european-catfish-nocturnal-feeding-rhythm-lab-1995',
+    topic: 'dagritme-voedingsactiviteit',
+    measuredOutcomes: ['feeding_intensity', 'feeding_rhythm'],
+    species: ['Meerval'],
+    application: 'biology',
+    evidenceStrength: 'limited',
+    summary: 'Boujard (1995) onderzocht de dagelijkse voedingsactiviteit van Europese meerval in gecontroleerde omstandigheden met zelfvoederautomaten, bij individuele en groepshuisvesting en vrije of tijdsgebonden toegang. Bij vrije toegang vertoonde de soort een sterk nachtelijk voedingsritme. Dieren konden op dagvoeding worden getraind, maar hun vrijwillige voedselopname nam dan af; na herstel van vrije toegang keerde het nachtelijke patroon snel terug. Sociale huisvesting beïnvloedde de ritmiek.',
+    limitations: [
+      'Dit is gecontroleerd laboratorium-/voeronderzoek en geen veldmeting van wilde volwassen meerval in Nederlandse wateren.',
+      'De studie toont een voedingsritme onder de onderzochte voer- en huisvestingscondities, maar levert geen universele kwantitatieve nachtbonus of tijdvakcurve voor de prognose.',
+      'Individuele versus groepshuisvesting beïnvloedde het patroon; sociale context en voerregime beperken overdraagbaarheid.',
+      'De studie meet vrijwillige voeropname en tijdstip van voeren, niet jachtsucces, aasopname aan hengel of vangstkans.'
+    ],
+    sourceReferences: [
+      'Boujard, T. (1995). Diel rhythms of feeding activity in the European catfish, Silurus glanis. Physiology & Behavior, 58(4), 641–645. https://doi.org/10.1016/0031-9384(95)00109-V'
+    ],
+    reviewedAt: '2026-11-24',
+    approvedForPrediction: false,
+  },
+
+  {
     id: 'adult-catfish-diel-activity-reservoir-2025',
     topic: 'seizoensafhankelijke-dagritme-beweging-en-dieptegebruik',
     measuredOutcomes: ['locomotor_activity', 'habitat_use'],
