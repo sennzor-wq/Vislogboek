@@ -2885,6 +2885,15 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 - Historische forcing wordt als optioneel veld in de bestaande IndexedDB-weercache bewaard. Er is geen nieuwe tabel, databaseversie of migratie toegevoegd. De gewone forecast-cache blijft bruikbaar wanneer de historische cache-entry nog geen forecasturen bevat.
 - Deterministische tests controleren bronselectie, bronoverlap, tijdsortering, as-of-beschikbaarheid en cachehergebruik. De nieuwe test staat in de bestaande Quality Gate.
 
-**Status:** de geïsoleerde fysische kern en historische forcingadapter zijn toegevoegd aan PR #224, maar de adapter is nog niet aangesloten op de bestaande prognose-engine. De cache-/forcingimplementatie is nog in CI-validatie; er is geen empirische nauwkeurigheidsclaim en de bestaande productieprognose en score zijn nog ongewijzigd.
+**Validatie uitvoering 1 en 2:** PR #224 commit `bc809353` heeft Quality Gate run `45417670611` succesvol doorlopen (typecheck, bestaande regressietests, fysieke invarianttests, forcing/cachetests en productiebuild). De code is nog niet gemerged en er is geen empirische nauwkeurigheidsclaim.
 
-**Eerstvolgende taak:** verbind de historische forcingadapter en vijflaagse kern met de bestaande `analyzeWaterThermalDevelopment`-ingang. Gebruik `FishingLocation.waterDepth` als totale kolomdiepte; bouw een best-effort startprofiel met meerdere plausibele beginsituaties en laat lokale metingen alleen op hun echte meetdiepte en meettijd nudgen. Als de spin-up niet convergeert of forcing ontbreekt, blijft een schatting beschikbaar met expliciet bredere onzekerheid. Houd de bestaande scalarvelden compatibel en laat de nieuwe temperatuur nog niet doorwerken in de score totdat de fysische/regressieacceptatiepoort is gehaald.
+**Uitvoering 3 — multi-profiel spin-up en lokale meetankers (gestart):**
+- De pure modelkern simuleert vijf plausibele initiële waterkolomprofielen (isotherm 4/12/20 °C, zomerstratificatie en winterinversie) over de beschikbare forcing.
+- Bij een expliciet target depth wordt de temperatuur tussen de relevante laagcentra geïnterpoleerd; zonder target depth wordt het volumegewogen kolomgemiddelde gebruikt.
+- Echte metingen worden alleen op de dichtstbijzijnde modellaag bij hun geregistreerde meetdiepte en meettijd toegepast. Een meting wordt niet over de volledige waterkolom uitgesmeerd. De registratie-/beschikbaarheidstijd wordt aan de as-of-grens getoetst.
+- De uitvoer bevat een scenario-spreiding en forcingdekking. Dit is een modelgevoeligheidsrange, geen empirisch gekalibreerd betrouwbaarheidsinterval. Bij onvoldoende spin-up, ontbrekende diepte of onvoldoende forcing blijft de status laag.
+- Als forcing het doelmoment niet bereikt, wordt geen temperatuur voor dat doelmoment gefingeerd; de bestaande prognoseketen blijft dan de fallback.
+
+**Status:** de multi-profiel voorspelfunctie en meetankers zijn toegevoegd aan de geïsoleerde kern. Ze worden nog niet door de bestaande prognose-engine of score gebruikt. Eerst moet de Quality Gate slagen; daarna volgt shadow-integratie naast de bestaande temperatuur, zonder score-impact.
+
+**Eerstvolgende taak:** voeg de nieuwe schatting als afzonderlijke shadow-uitvoer toe aan de bestaande `WaterThermalAnalysis`, zonder `estimatedWaterTemp`, soortcurves of score te wijzigen. Voer beide modellen parallel uit via de bestaande prognose-ingang en vergelijk de uitkomsten met historische echte metingen. Pas na die vergelijking wordt besloten of de nieuwe temperatuur de bestaande scalar mag vervangen.

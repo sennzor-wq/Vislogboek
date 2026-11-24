@@ -31,10 +31,17 @@ export interface WaterColumnForcingSample {
   relativeHumidityPercent?: number;
   source?: 'era5-seamless' | 'open-meteo-forecast';
 }
+export interface WaterColumnObservation {
+  time: string;
+  availableAt?: string;
+  temperatureC: number;
+  depthM: number;
+}
 export interface WaterColumnModelInput {
   totalDepthM: number;
   initialLayerTemperaturesC: number[];
   forcing: WaterColumnForcingSample[];
+  observations?: WaterColumnObservation[];
   targetTime?: string;
   asOf?: string;
   initialIceThicknessM?: number;
@@ -55,6 +62,8 @@ export interface WaterColumnModelResult {
   forcingHoursUsed: number;
   forcingHoursRejected: number;
   surfaceEnergyInputJm2: number;
+  measurementAnchorsUsed: number;
+  measurementAnchorsRejected: number;
 }
 
 /** Freshwater density (kg/m³), polynomial fit; maximum is close to 3.986 °C. */
@@ -134,6 +143,19 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
   let temperatures = mixConvectivelyUnstableLayers(input.initialLayerTemperaturesC);
   let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, 2);
   const { accepted, rejected } = validForcing(input.forcing, input.targetTime, input.asOf);
+  const observations = input.observations ?? [];
+  const targetMs = input.targetTime ? Date.parse(input.targetTime) : Number.POSITIVE_INFINITY;
+  const asOfMs = input.asOf ? Date.parse(input.asOf) : Number.POSITIVE_INFINITY;
+  const validObservations = observations.filter((observation) => {
+    const timeMs = Date.parse(observation.time);
+    const availableMs = observation.availableAt ? Date.parse(observation.availableAt) : Number.NEGATIVE_INFINITY;
+    return Number.isFinite(timeMs) && Number.isFinite(observation.temperatureC) &&
+      observation.temperatureC >= 0 && observation.temperatureC <= 40 &&
+      Number.isFinite(observation.depthM) && observation.depthM >= 0 && observation.depthM <= input.totalDepthM &&
+      timeMs <= targetMs && (input.asOf === undefined ||
+        (observation.availableAt !== undefined && Number.isFinite(availableMs) && availableMs <= asOfMs));
+  });
+  const usedObservationIndices = new Set<number>();
   let surfaceEnergyInputJm2 = 0;
 
   for (const sample of accepted) {
@@ -206,6 +228,23 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
       temperatures[i + 1] += exchange;
     }
     temperatures = mixConvectivelyUnstableLayers(temperatures);
+    const sampleTimeMs = Date.parse(sample.time);
+    validObservations.forEach((observation, index) => {
+      if (usedObservationIndices.has(index) || Math.abs(Date.parse(observation.time) - sampleTimeMs) > 30 * 60 * 1000) return;
+      let nearestLayer = 0;
+      let nearestDistance = Number.POSITIVE_INFINITY;
+      for (let layer = 0; layer < WATER_COLUMN_LAYER_COUNT; layer++) {
+        const centerDepth = (layer + 0.5) * layerThickness;
+        const distance = Math.abs(centerDepth - observation.depthM);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestLayer = layer;
+        }
+      }
+      // A measurement anchors only its actual vertical layer, never the full column.
+      temperatures[nearestLayer] = observation.temperatureC;
+      usedObservationIndices.add(index);
+    });
     iceThicknessM = clamp(iceThicknessM, 0, 2);
   }
 
@@ -226,5 +265,113 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     forcingHoursUsed: accepted.length,
     forcingHoursRejected: rejected,
     surfaceEnergyInputJm2: Math.round(surfaceEnergyInputJm2),
+    measurementAnchorsUsed: usedObservationIndices.size,
+    measurementAnchorsRejected: observations.length - usedObservationIndices.size,
+  };
+}
+
+
+export interface WaterColumnPredictionInput {
+  totalDepthM?: number | null;
+  targetDepthM?: number | null;
+  forcing: WaterColumnForcingSample[];
+  observations?: WaterColumnObservation[];
+  targetTime: string;
+  asOf?: string;
+}
+export interface WaterColumnPrediction {
+  status: 'low_confidence' | 'scenario_converged';
+  scenarioConverged: boolean;
+  estimatedTemperatureC: number;
+  estimatedRangeC: [number, number];
+  surfaceTemperatureC: number;
+  bottomTemperatureC: number;
+  volumeMeanTemperatureC: number;
+  layerTemperaturesC: number[];
+  totalDepthM: number;
+  depthPriorUsed: boolean;
+  targetDepthM: number | null;
+  spinupDays: number;
+  forcingCoverageRatio: number;
+  scenarioSpreadC: number;
+  measurementAnchorsUsed: number;
+  measurementAnchorsRejected: number;
+}
+
+/**
+ * Best-effort multi-initial-condition spin-up. The range is the spread between
+ * physically plausible starting profiles, not a statistically calibrated interval.
+ */
+export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput): WaterColumnPrediction | null {
+  const targetMs = Date.parse(input.targetTime);
+  if (!Number.isFinite(targetMs)) throw new Error('targetTime must be a valid timestamp');
+  const depthPriorUsed = !(typeof input.totalDepthM === 'number' &&
+    Number.isFinite(input.totalDepthM) && input.totalDepthM >= 0.2 && input.totalDepthM <= 100);
+  const totalDepthM = depthPriorUsed ? 1.5 : input.totalDepthM as number;
+  const targetDepthM = typeof input.targetDepthM === 'number' && Number.isFinite(input.targetDepthM) &&
+    input.targetDepthM >= 0 && input.targetDepthM <= totalDepthM ? input.targetDepthM : null;
+  const { accepted } = validForcing(input.forcing, input.targetTime, input.asOf);
+  if (accepted.length === 0) return null;
+  const firstTimeMs = Date.parse(accepted[0].time);
+  const lastTimeMs = Date.parse(accepted[accepted.length - 1].time);
+  const targetTimeCovered = targetMs - lastTimeMs <= 90 * 60 * 1000;
+  if (!targetTimeCovered) return null;
+  const spinupDays = Math.max(0, (targetMs - firstTimeMs) / 86400000);
+  const expectedHours = Math.max(1, (targetMs - firstTimeMs) / 3600000 + 1);
+  const forcingCoverageRatio = Math.min(1, accepted.length / expectedHours);
+  const profiles = [
+    [4, 4, 4, 4, 4],
+    [12, 12, 12, 12, 12],
+    [20, 20, 20, 20, 20],
+    [20, 16, 12, 8, 5],
+    [0.5, 1, 2, 3, 4],
+  ];
+  const simulations = profiles.map((initialLayerTemperaturesC) => simulateWaterColumn({
+    totalDepthM,
+    initialLayerTemperaturesC,
+    forcing: accepted,
+    observations: input.observations,
+    targetTime: input.targetTime,
+    asOf: input.asOf,
+  }));
+  const sampleAtDepth = (layers: WaterColumnLayer[]): number => {
+    if (targetDepthM === null) return layers.reduce((sum, layer) => sum + layer.temperatureC, 0) / layers.length;
+    if (targetDepthM <= layers[0].centerDepthM) return layers[0].temperatureC;
+    if (targetDepthM >= layers[layers.length - 1].centerDepthM) return layers[layers.length - 1].temperatureC;
+    const upperIndex = layers.findIndex((layer) => layer.centerDepthM >= targetDepthM);
+    const lower = layers[upperIndex - 1];
+    const upper = layers[upperIndex];
+    const fraction = (targetDepthM - lower.centerDepthM) / (upper.centerDepthM - lower.centerDepthM);
+    return lower.temperatureC + (upper.temperatureC - lower.temperatureC) * fraction;
+  };
+  const targetValues = simulations.map((simulation) => sampleAtDepth(simulation.layers));
+  const minTemperature = Math.min(...targetValues);
+  const maxTemperature = Math.max(...targetValues);
+  const estimatedTemperatureC = targetValues.reduce((sum, value) => sum + value, 0) / targetValues.length;
+  const layerTemperaturesC = simulations[0].layers.map((_, index) =>
+    simulations.reduce((sum, simulation) => sum + simulation.layers[index].temperatureC, 0) / simulations.length);
+  const scenarioSpreadC = maxTemperature - minTemperature;
+  const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
+  const scenarioConverged = !depthPriorUsed && spinupDays >= 300 &&
+    forcingCoverageRatio >= 0.9 && scenarioSpreadC <= 1;
+  const measurementAnchorsUsed = Math.min(...simulations.map((simulation) => simulation.measurementAnchorsUsed));
+  const measurementAnchorsRejected = Math.max(...simulations.map((simulation) => simulation.measurementAnchorsRejected));
+  return {
+    status: scenarioConverged ? 'scenario_converged' : 'low_confidence',
+    scenarioConverged,
+    estimatedTemperatureC: Math.round(estimatedTemperatureC * 100) / 100,
+    estimatedRangeC: [Math.round(minTemperature * 100) / 100, Math.round(maxTemperature * 100) / 100],
+    surfaceTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.surfaceTemperatureC)) * 100) / 100,
+    bottomTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.bottomTemperatureC)) * 100) / 100,
+    volumeMeanTemperatureC: Math.round(mean(simulations.map((simulation) => simulation.volumeMeanTemperatureC)) * 100) / 100,
+    layerTemperaturesC: layerTemperaturesC.map((value) => Math.round(value * 100) / 100),
+    totalDepthM,
+    depthPriorUsed,
+    targetDepthM,
+    spinupDays: Math.round(spinupDays * 10) / 10,
+    forcingCoverageRatio: Math.round(forcingCoverageRatio * 1000) / 1000,
+    scenarioSpreadC: Math.round(scenarioSpreadC * 100) / 100,
+    measurementAnchorsUsed,
+    measurementAnchorsRejected,
   };
 }
