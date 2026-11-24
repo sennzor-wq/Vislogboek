@@ -431,6 +431,22 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     targetTime: input.targetTime,
     asOf: input.asOf,
   }));
+  // The hourly energy-balance kernel is intentionally a compact MVP. Do not
+  // publish a numerically finite but physically impossible result when a long
+  // forcing sequence drives a layer outside liquid freshwater temperatures or
+  // accumulates an ice sheet beyond the model's useful shallow-water range.
+  // Returning null lets the caller use its established lower-confidence
+  // fallback instead of presenting runaway values as a forecast.
+  const maximumPlausibleIceThicknessM = Math.min(0.5, totalDepthM * 0.5);
+  const simulationsPhysicallyPlausible = simulations.every((simulation) =>
+    simulation.layers.every((layer) =>
+      Number.isFinite(layer.temperatureC) && layer.temperatureC >= 0 && layer.temperatureC <= 40
+    ) &&
+    Number.isFinite(simulation.iceThicknessM) &&
+    simulation.iceThicknessM >= 0 &&
+    simulation.iceThicknessM <= maximumPlausibleIceThicknessM
+  );
+  if (!simulationsPhysicallyPlausible) return null;
   const sampleAtDepth = (layers: WaterColumnLayer[]): number => {
     if (targetDepthM === null) return layers.reduce((sum, layer) => sum + layer.temperatureC, 0) / layers.length;
     if (targetDepthM <= layers[0].centerDepthM) return layers[0].temperatureC;
