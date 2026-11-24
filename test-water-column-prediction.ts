@@ -68,4 +68,22 @@ const noForcing = estimateWaterColumnTemperature({
   asOf,
 });
 if (noForcing !== null) throw new Error('Zonder enige forcing mag geen schijnvoorspelling uit alleen de startprior ontstaan.');
+
+const physicalInputs = estimateWaterColumnTemperature({
+  totalDepthM: 0.9,
+  forcing,
+  targetTime,
+  asOf,
+  windExposure: 'partly_exposed',
+  effectiveFetchM: 180,
+  secchiDepthM: 0.7,
+  waterMovement: 'flowing',
+});
+if (!physicalInputs || physicalInputs.physicalInputCoveragePercent !== 100 ||
+    physicalInputs.secchiPriorUsed || physicalInputs.windExposurePriorUsed ||
+    physicalInputs.fetchPriorUsed || !physicalInputs.advectionNotModeled ||
+    physicalInputs.status !== 'low_confidence' ||
+    !physicalInputs.physicalInputWarnings.some((warning) => warning.includes('horizontale advectie'))) {
+  throw new Error('Site physics must be reflected in the prediction and flowing water must be flagged as low-confidence.');
+}
 console.log('Water-column prediction/spin-up tests passed.');
