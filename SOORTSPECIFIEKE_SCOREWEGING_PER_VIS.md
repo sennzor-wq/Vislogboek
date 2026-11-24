@@ -605,3 +605,76 @@ Deze matrix is voldoende om het V0.1-modelcontract concreet te maken, maar nog n
 5. Hoe de bestaande score 1–10 en nieuwe 0–100-achtige deeluitkomsten zich tot elkaar verhouden; geen stilzwijgende schaalwijziging in bestaande UI.
 
 **Hervatpunt:** werk nu het V0.1-modelcontract en de eerste parameterkeuzes uit op basis van deze factorselectie. Daarna kan de runtime-implementatie starten; resterende Excel-validatie loopt parallel als verbetertraject.
+
+# 14. V0.1-uitvoercontract voor de bestaande prognose-engine
+
+**Doel:** de eerste implementatie uitbreidbaar maken zonder de bestaande prognose-view of opgeslagen snapshots onnodig te breken.
+
+## 14.1 Uitkomsten en betekenis
+
+| Veld / uitkomst | Schaal / type | Betekenis | V0.1-regel |
+|---|---|---|---|
+| Fysiologische activiteitspotentie | Bestaande schaal 1–10 | Relatieve thermische/fysiologische potentie; geen gemeten visbeweging, voedselopname of vangstkans | Bestaand \`activityScore\` blijft voorlopig compatibel. De uitleg wordt aangescherpt; de numerieke basis wordt per soortstatus gelabeld |
+| Voedings-/foerageeractiviteit | Zelfde relatieve schaal 1–10, nullable | Relatieve voedselopname-/foerageerrespons voor soort en tijdvak | Alleen numeriek wanneer een toegelaten soortspecifieke respons beschikbaar is; anders \`null\` met reden/status, nooit automatisch 5 |
+| Lokale aanwezigheid/habitat | Status/geschiktheid, later eventueel index | Lokale waarneming en/of geschiktheid van de locatie voor de soort | Gescheiden van activiteit; onbekend blijft onbekend. Geen afgeleide aanwezigheid uit een hoge activiteitsscore |
+| Empirische vangkans | Bestaande kans in %, nullable | Kans op minimaal één vangst binnen sessieduur en inspanning op basis van eigen/historische sessiegegevens | Bestaande empirische berekening blijft apart; nooit afleiden uit fysiologische of voedingsscore |
+
+## 14.2 Compatibiliteit met bestaande typen
+
+- \`DayPrognosis.activityScore\` en \`TimeSlotAnalysis.activityScore\` blijven in V0.1 de compatibele fysiologische/thermische index op schaal 1–10.
+- De betekenis van \`activityScore\` mag niet stilzwijgend veranderen in "kans dat de vis aast" of "vangstkans".
+- Nieuwe velden voor voedingsactiviteit worden optioneel toegevoegd aan dag- en tijdvakuitvoer, zodat oude opgeslagen snapshots zonder deze velden blijven lezen.
+- Een nieuw voedingsveld bevat minimaal: \`score: number | null\`, \`status\`, \`evidenceStatus\`, \`coverage\`, \`uncertainty\` en een factor-/redenlijst.
+- De bestaande \`personalCatchChance\` blijft uitsluitend empirisch. Bestaande persoonlijke vangstdata en hun onzekerheidsinterval worden niet samengevoegd met biologische indexen.
+- De bestaande 1–10-schaal blijft in de eerste implementatie behouden. Een eventuele migratie naar 0–100 vereist een aparte versie-/UI-beslissing en mag niet impliciet gebeuren.
+
+## 14.3 Statuswaarden
+
+Voor iedere nieuwe uitkomst:
+
+- \`available\`: de noodzakelijke invoer en minimaal één toegelaten factor zijn beschikbaar.
+- \`provisional\`: er is een berekenbare uitkomst, maar één of meer belangrijke parameters zijn voorlopige modelkeuzes of contextueel overdraagbaar bewijs.
+- \`insufficient_evidence\`: voor deze soort/uitkomst bestaat nog geen passende numerieke responsbasis; score blijft \`null\`.
+- \`insufficient_input\`: passende respons bestaat, maar benodigde invoer ontbreekt of is onbetrouwbaar.
+- \`not_applicable\`: de uitkomst is voor deze prognoserun niet gevraagd of niet van toepassing.
+
+Bewijsstatus en databeschikbaarheid zijn afzonderlijk: een nauwkeurig gemeten watertemperatuur maakt een voorlopige biologische curve niet automatisch sterk onderbouwd.
+
+## 14.4 Dekking en onzekerheid
+
+- \`coverage\` beschrijft welk deel van de voor deze soort/uitkomst geselecteerde factoren met bruikbare invoer is berekend; het is geen bewijssterkte.
+- \`evidenceStatus\` beschrijft de kwaliteit/overdraagbaarheid van de biologische responsbasis.
+- \`uncertainty\` beschrijft onzekerheid in invoer en modelrespons; dit mag niet worden vervangen door alleen een dekkingspercentage.
+- Ontbrekende factoren worden niet als neutraal ingevuld.
+- Actieve gewichten mogen alleen worden herschaald binnen een vooraf vastgelegde dekkingsregel. Bij ontbrekende kerninvoer of te lage dekking wordt geen numerieke score getoond.
+- Een score van 5 betekent een middenpositie binnen de expliciet gedefinieerde responsindex, niet "gemiddelde vangstkans" en niet "gemiddeld veel vis".
+
+## 14.5 Factoruitleg en herleidbaarheid
+
+Elke berekende uitkomst moet de gebruikte factoren kunnen teruggeven met minimaal:
+
+- stabiele factor-ID;
+- rol (driver, modulator, limiter, gemeten respons of context);
+- invoerwaarde en eenheid;
+- berekende deelscore of toegepaste respons;
+- gewicht of limiterbehandeling;
+- parameterstatus (evidence-backed, provisional, default of unavailable);
+- relevante bronrecord-ID's;
+- reden wanneer factor niet meetelt (missing, unsupported, out-of-range of excluded).
+
+Hiermee kan de UI de score verklaren en kan latere tuning per factor worden vergeleken.
+
+## 14.6 Dag- en tijdvakcontract
+
+- Dag- en tijdvakuitvoer gebruiken exact dezelfde uitkomstdefinitie, soortparameters en factorresponsen.
+- Een daguitkomst wordt afgeleid uit de chronologische segmenten met duurweging, niet met een afzonderlijke alternatieve formule.
+- Segmenten zonder vereiste invoer blijven onbekend; de dekking wordt opgeteld op basis van segmentduur.
+- Absolute tijdstempels en de bestaande Europe/Amsterdam-intervalregels blijven leidend, inclusief middernacht en DST.
+- Geen invoer na het doelmoment mag een eerdere segmentuitkomst beïnvloeden.
+- Een onbekende sessie-eindtijd blijft onbekend; de engine verzint geen duur om de dagscore te vullen.
+
+## 14.7 Presentatie in V0.1
+
+De eerste versie presenteert geen ongedifferentieerde totaalscore die fysiologie, voeding, aanwezigheid en vangkans optelt. De prognose kan één begrijpelijke samenvatting geven, maar toont de twee biologische indexen afzonderlijk en maakt duidelijk wanneer één ervan voorlopig of niet berekenbaar is. De bestaande empirische persoonlijke vangkans blijft als aparte statistiek zichtbaar wanneer voldoende data aanwezig zijn.
+
+**Besluit:** dit contract is de basis voor de eerste runtime-integratie. De volgende stap is het ontwerpen van de parameterconfiguratie en de concrete berekeningsregels per geselecteerde factor; daarna volgt implementatie in de bestaande engine.
