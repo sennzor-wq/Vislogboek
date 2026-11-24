@@ -101,6 +101,9 @@ jobs:
       - name: Water column physical invariants
         run: bun run tsx test-water-column-model.ts
 
+      - name: Water column weather forcing tests
+        run: bun run tsx test-water-column-weather-forcing.ts
+
       - name: Safe deletion tests
         run: bun run tsx test-safe-deletion.ts
 

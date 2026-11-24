@@ -748,11 +748,32 @@ export interface WeatherHourlyForecast {
   weatherCode: number;
 }
 
+export interface CachedWaterColumnWeatherSample {
+  time: string;
+  availableAt: string;
+  airTemperatureC: number;
+  windSpeedKmh?: number;
+  shortwaveRadiationWm2?: number;
+  cloudCoverPercent?: number;
+  dewPointC?: number;
+  relativeHumidityPercent?: number;
+  source: 'era5-seamless' | 'open-meteo-forecast';
+}
+
+export interface CachedWaterColumnWeatherHistory {
+  startDate: string;
+  archiveEndDate: string;
+  retrievedAt: string;
+  hourly: CachedWaterColumnWeatherSample[];
+}
+
 export interface WeatherCacheEntry {
   id: string;                     // `lat_lon`
   latitude: number;
   longitude: number;
   fetchedAt: string;
+  /** Long-range hourly forcing for the water-column model; optional, no DB index/migration. */
+  waterColumnHistory?: CachedWaterColumnWeatherHistory;
   hourly: WeatherHourlyForecast[];
   dailySummary?: {
     date: string;

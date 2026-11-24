@@ -29,6 +29,7 @@ export interface WaterColumnForcingSample {
   cloudCoverPercent?: number;
   dewPointC?: number;
   relativeHumidityPercent?: number;
+  source?: 'era5-seamless' | 'open-meteo-forecast';
 }
 export interface WaterColumnModelInput {
   totalDepthM: number;
