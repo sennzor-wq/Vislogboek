@@ -66,20 +66,30 @@ export function freshwaterDensityKgM3(temperatureC: number): number {
 
 /** Conservative overturning of adjacent unstable freshwater layers. */
 export function mixConvectivelyUnstableLayers(temperaturesC: number[]): number[] {
-  const mixed = temperaturesC.map((value) => Math.max(0, value));
-  for (let pass = 0; pass < mixed.length * 2; pass++) {
-    let changed = false;
-    for (let i = 0; i < mixed.length - 1; i++) {
-      if (freshwaterDensityKgM3(mixed[i]) > freshwaterDensityKgM3(mixed[i + 1]) + 1e-7) {
-        const average = (mixed[i] + mixed[i + 1]) / 2;
-        mixed[i] = average;
-        mixed[i + 1] = average;
-        changed = true;
-      }
+  // Pool-adjacent-violators: merge complete unstable blocks, not just one pair
+  // per pass. Each merge conserves the equal-thickness heat-content proxy.
+  const blocks = temperaturesC.map((temperatureC) => ({
+    temperatureC: Math.max(0, temperatureC),
+    layerCount: 1,
+  }));
+  let index = 0;
+  while (index < blocks.length - 1) {
+    if (freshwaterDensityKgM3(blocks[index].temperatureC) >
+        freshwaterDensityKgM3(blocks[index + 1].temperatureC) + 1e-7) {
+      const upper = blocks[index];
+      const lower = blocks[index + 1];
+      const layerCount = upper.layerCount + lower.layerCount;
+      blocks.splice(index, 2, {
+        temperatureC: (upper.temperatureC * upper.layerCount +
+          lower.temperatureC * lower.layerCount) / layerCount,
+        layerCount,
+      });
+      index = Math.max(0, index - 1);
+    } else {
+      index++;
     }
-    if (!changed) break;
   }
-  return mixed;
+  return blocks.flatMap((block) => Array(block.layerCount).fill(block.temperatureC) as number[]);
 }
 function saturationVapourPressureHpa(temperatureC: number): number {
   return 6.112 * Math.exp((17.67 * temperatureC) / (temperatureC + 243.5));

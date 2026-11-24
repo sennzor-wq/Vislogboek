@@ -25,6 +25,9 @@ const afterMix = mixConvectivelyUnstableLayers(unstable);
 const afterMean = afterMix.reduce((a, b) => a + b, 0) / afterMix.length;
 assert(Math.abs(beforeMean - afterMean) < 1e-9, 'Convectieve menging behoudt de gemiddelde warmte');
 assert(afterMix.every((v) => v >= 0), 'Convectieve menging produceert geen negatieve vloeibare temperatuur');
+assert(afterMix.slice(0, -1).every((value, index) =>
+  freshwaterDensityKgM3(value) <= freshwaterDensityKgM3(afterMix[index + 1]) + 1e-7),
+  'Convectieve menging herstelt een stabiele dichtheidsvolgorde over de hele kolom');
 const noForcing = simulateWaterColumn({ totalDepthM: 2, initialLayerTemperaturesC: stableSummer, forcing: [] });
 const expectedMean = stableSummer.reduce((sum, value) => sum + value, 0) / stableSummer.length;
 assert(noForcing.layers.length === 5 && noForcing.layers[0].topDepthM === 0 && noForcing.layers[4].bottomDepthM === 2,
