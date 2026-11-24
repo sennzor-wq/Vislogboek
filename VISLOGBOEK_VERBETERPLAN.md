@@ -1508,3 +1508,25 @@ Het ontwerp moet twee wetenschappelijk gescheiden maar gekoppelde onderdelen beo
 - **Verticale waterkolom-/stratificatiebehandeling:** een expliciete diepteverdeling die de dichtheidsanomalie rond 4 °C en de relevante meng-/convectieprocessen kan representeren. Onderzoek of dit met een minimale meerlagenuitbreiding van de bestaande engine kan, en welke invoer/validatie dit vereist.
 
 Dit besluit geeft toestemming om deze twee onderdelen inhoudelijk te onderzoeken en als voorkeursrichting uit te werken. Het keurt nog geen specifieke implementatie, numerieke discretisatie, extra databron, parameterwaarde of formule goed. De audit en het ontwerp blijven read-only totdat een concreet voorstel is voorgelegd en de eigenaar de implementatie expliciet heeft goedgekeurd.
+
+
+### Aanvullend modelvereiste — zomerstratificatie expliciet meenemen (24 november 2026)
+
+**Nadere richting van de eigenaar:** naast de al verplichte winterstratificatie moet ook zomerstratificatie onderdeel zijn van het ontwerp van de verticale waterkolom. Het model mag dus niet alleen het winterse gedrag rond 4 °C beschrijven; het moet de seizoensafhankelijke verticale temperatuurverdeling door het jaar heen kunnen representeren.
+
+#### Fysisch onderscheid dat het ontwerp moet behouden
+
+- **Zomerstratificatie:** opwarming door zoninstraling verwarmt vooral de bovenste waterlaag. Bovenin kan een warme, lichtere laag ontstaan boven koeler, dichter dieper water. De gelaagdheid wordt mede bepaald door instraling, windgedreven menging, diepte, vorm en beschutting van het water.
+- **Winterstratificatie:** door het dichtheidsmaximum van zoet water rond 4 °C kan water kouder dan 4 °C juist lichter zijn. Bij voldoende rustige omstandigheden kan koud water boven warmer, dieper water liggen.
+- **Overgangsperioden en menging:** tijdens voorjaars- en najaarsomslag kan de verticale gradiënt afnemen en kan de waterkolom door wind en convectie (grotendeels) mengen. Het model moet deze overgangen niet reduceren tot een vaste zomer-/winterregel.
+
+#### Ontwerpconsequenties
+
+1. Beoordeel de verticale waterkolom als een seizoensafhankelijk thermisch systeem, met zowel zomer- als winterstratificatie en de overgangsperioden daartussen.
+2. Houd de fysische mechanismen gescheiden: zomerse stratificatie door opwarming en stabiliteit van warm, licht oppervlaktewater; winterse omgekeerde stratificatie door de dichtheidsanomalie rond 4 °C.
+3. Onderzoek welke laagresolutie en welke processen minimaal nodig zijn om relevante dieptetemperaturen voor visserij te schatten. Kies geen aantal lagen of mengcoëfficiënten zonder wetenschappelijke onderbouwing en validatie.
+4. Neem windgedreven menging, warmte-uitwisseling aan het oppervlak, diepte en waar mogelijk lokale stroming/beschutting mee voor zover de invoer dit betrouwbaar ondersteunt. Maak ontbrekende invoer en daardoor ontstane onzekerheid expliciet.
+5. Valideer zomer- en winterprofielen afzonderlijk tegen onafhankelijke metingen op bekende dieptes; toets daarnaast voorjaars-/najaarsmenging en snelle weersomslagen.
+6. Behandel dit als uitbreiding van hetzelfde canonieke thermische model, niet als een tweede concurrerende engine.
+
+**Besluitstatus:** zomerstratificatie is hiermee een expliciete ontwerpeis, naast winterstratificatie. Dit is toestemming om het wetenschappelijke en technische ontwerp uit te werken; het is geen goedkeuring voor implementatie, een specifieke laagindeling, formule, parameterwaarde of extra databron. De bestaande read-only ontwerp-/goedkeuringspoort blijft ongewijzigd.
