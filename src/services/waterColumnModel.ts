@@ -17,6 +17,10 @@ const AIR_DENSITY_KG_M3 = 1.2;
 const AIR_HEAT_CAPACITY_J_KG_K = 1005;
 const LATENT_HEAT_VAPORIZATION_J_KG = 2_450_000;
 const BULK_TRANSFER_COEFFICIENT = 0.0013;
+const WIND_DRAG_COEFFICIENT = 0.0013;
+// Fraction of bulk wind work available for irreversible water-column mixing.
+// Explicit provisional prior; must be calibrated against independent profiles.
+const WIND_MIXING_EFFICIENCY = 0.02;
 const SHORTWAVE_EXTINCTION_PER_M = 1.0;
 
 function getDirectionalFetchM(sectors: number[] | undefined, windFromDegrees: number | undefined): number | undefined {
@@ -83,6 +87,21 @@ export interface WaterColumnModelResult {
   secchiPriorUsed: boolean;
   windExposurePriorUsed: boolean;
   fetchPriorUsed: boolean;
+}
+
+/**
+ * Conservative inter-layer exchange fraction from wind work and the
+ * gravitational potential-energy barrier. The 0.001 calm-water exchange
+ * floor and 0.12 cap are numerical priors, not universal physical constants.
+ */
+export function calculateWindMixingExchangeFraction(
+  windWorkJm2: number,
+  buoyancyBarrierJm2: number,
+): number {
+  const availableWork = Number.isFinite(windWorkJm2) ? Math.max(0, windWorkJm2) : 0;
+  const barrier = Number.isFinite(buoyancyBarrierJm2) ? Math.max(0, buoyancyBarrierJm2) : 0;
+  const energyLimitedFraction = barrier <= 1e-9 ? 0.12 : 0.5 * availableWork / barrier;
+  return clamp(0.001 + energyLimitedFraction, 0.001, 0.12);
 }
 
 /** Freshwater density (kg/m³), polynomial fit; maximum is close to 3.986 °C. */
@@ -253,15 +272,21 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
       surfaceEnergyInputJm2 += solarEnergyByLayer[i];
     }
 
-    const mixedDepth = Math.min(input.totalDepthM, 0.25 + 0.12 * waterWindMs ** 1.5);
-    const exchangeFraction = clamp(0.004 + 0.018 * waterWindMs, 0.004, 0.12);
+    // Wind energy is converted to a conservative, energy-limited exchange
+    // budget. This is a bulk potential-energy gate, not a resolved TKE model.
+    const windStressPa = AIR_DENSITY_KG_M3 * WIND_DRAG_COEFFICIENT * waterWindMs ** 2;
+    const windWorkJm2 = WIND_MIXING_EFFICIENCY * windStressPa * waterWindMs * 3600 /
+      (temperatures.length - 1);
     for (let i = 0; i < temperatures.length - 1; i++) {
-      const interfaceDepth = (i + 1) * layerThickness;
       const densityDifference = Math.abs(freshwaterDensityKgM3(temperatures[i]) -
         freshwaterDensityKgM3(temperatures[i + 1]));
-      const exchangeRate = interfaceDepth <= mixedDepth ? exchangeFraction : 0.004;
-      const exchange = (temperatures[i] - temperatures[i + 1]) * exchangeRate /
-        (1 + densityDifference * 20);
+      // Potential-energy barrier to homogenising two equal-thickness layers.
+      // The efficiency and drag coefficient remain explicit provisional priors.
+      const buoyancyBarrierJm2 = 9.81 * densityDifference * layerThickness ** 2 / 4;
+      const exchangeRate = calculateWindMixingExchangeFraction(
+        windWorkJm2, buoyancyBarrierJm2,
+      );
+      const exchange = (temperatures[i] - temperatures[i + 1]) * exchangeRate;
       temperatures[i] -= exchange;
       temperatures[i + 1] += exchange;
     }
