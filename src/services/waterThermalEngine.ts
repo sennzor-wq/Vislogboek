@@ -229,6 +229,7 @@ export function analyzeWaterThermalDevelopment(
         targetTimestamp,
         forecastAsOf,
         hasMeasuredWaterTemp: hasMeasured,
+        measuredWaterTempAtBottom: hasMeasured && hasBottomDepthMeasurement,
         measuredWaterTemp: measuredTemp,
         estimatedWaterTemp: waterColumnPrediction && !hasBottomDepthMeasurement
           ? waterColumnPrediction.bottomTemperatureC
