@@ -14,6 +14,7 @@ import {
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
 import { getWaterColumnForcing } from '../../services/waterColumnWeatherService';
+import { getAutomaticWaterFetch } from '../../services/waterFetchGeometry';
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
@@ -116,6 +117,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             return null;
           }),
       ]);
+      const automaticWaterFetch = await getAutomaticWaterFetch(selectedLoc.latitude, selectedLoc.longitude);
+      const predictionLocation = automaticWaterFetch
+        ? { ...selectedLoc, windFetchByDirectionM: automaticWaterFetch.sectorFetchM }
+        : selectedLoc;
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
@@ -151,7 +156,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           {
             sessionDurationHours: selectedDurationHours,
             locationId: selectedLocationId,
-            location: selectedLoc,
+            location: predictionLocation,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             historicalWaterTemperatures,
             waterColumnForcing: waterColumnWeather?.hourly,
