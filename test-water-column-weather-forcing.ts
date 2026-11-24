@@ -12,10 +12,12 @@ async function run() {
   const recentTime = Math.floor((now - 86400000) / 1000);
   const futureTime = Math.floor((now + 86400000) / 1000);
   let fetchCalls = 0;
+  let archiveCalls = 0;
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     fetchCalls++;
     const url = String(input);
     const isArchive = url.includes('archive-api.open-meteo.com');
+    if (isArchive) archiveCalls++;
     const isRegularForecast = url.includes('past_days=3');
     if (isArchive && !url.includes('models=era5_seamless')) throw new Error('ERA5-Seamless must be selected explicitly');
     if (!isArchive && !isRegularForecast && !url.includes('past_days=7')) throw new Error('Recent bridge must cover seven past days');
@@ -84,6 +86,26 @@ async function run() {
     const cached = await getWaterColumnForcing(52, 5, targetTime);
     if (!cached.fromCache || fetchCalls !== callsAfterFetch || cached.hourly.length !== 4) {
       throw new Error('Fresh forcing should be reused from the existing IndexedDB weather cache.');
+    }
+
+    // A stale annual cache must fetch only the recent forecast and any genuinely
+    // missing ERA5 tail, never repeat the full 365-day archive download.
+    const storedBeforeRefresh = await db.weatherCache.get('52.00_5.00');
+    if (!storedBeforeRefresh?.waterColumnHistory) throw new Error('Expected persisted water-column history before stale refresh.');
+    await db.weatherCache.update('52.00_5.00', {
+      waterColumnHistory: {
+        ...storedBeforeRefresh.waterColumnHistory,
+        retrievedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      },
+    });
+    const archiveCallsBeforeRefresh = archiveCalls;
+    const callsBeforeRefresh = fetchCalls;
+    const refreshed = await getWaterColumnForcing(52, 5, targetTime, { forceRefresh: true });
+    if (refreshed.fromCache || fetchCalls !== callsBeforeRefresh + 1 || archiveCalls !== archiveCallsBeforeRefresh) {
+      throw new Error('Stale history refresh must request only the recent forecast when the ERA5 archive is already complete.');
+    }
+    if (!refreshed.hourly.some((sample) => sample.source === 'era5-seamless')) {
+      throw new Error('Incremental refresh must preserve the cached annual ERA5 history.');
     }
 
     const beforeAvailability = new Date(Date.parse(result.asOf) - 1000).toISOString();

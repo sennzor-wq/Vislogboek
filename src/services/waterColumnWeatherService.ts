@@ -5,7 +5,7 @@ import type { WaterColumnForcingSample } from './waterColumnModel';
 const HISTORY_DAYS = 365;
 const ARCHIVE_DELAY_DAYS = 5;
 const RECENT_BRIDGE_DAYS = 7;
-const CACHE_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const CACHE_MAX_AGE_MS = 3 * 60 * 60 * 1000;
 
 export interface WaterColumnForcingResult {
   hourly: WaterColumnForcingSample[];
@@ -157,15 +157,28 @@ export async function getWaterColumnForcing(
       'Geen lokaal gecachte forcing die aantoonbaar beschikbaar was op dit historische as-of-moment; netwerkdata wordt niet achteraf als toen beschikbaar behandeld.');
   }
 
-  const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${historyStartDate}&end_date=${archiveEndDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&models=era5_seamless&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
-  const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=${RECENT_BRIDGE_DAYS}&forecast_days=8&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe%2FAmsterdam&timeformat=unixtime`;
+  // ERA5 is immutable after its publication delay. Keep the cached annual
+  // history and request only newly available archive dates. Normal refreshes
+  // download the recent forecast, not another 365 days.
+  const cachedArchiveIsUsable = Boolean(cachedHistory &&
+    cachedHistory.startDate <= historyStartDate &&
+    cachedHistory.hourly.length > 0 &&
+    Date.parse(cachedHistory.hourly[0].time) <= Date.parse(`${historyStartDate}T00:00:00Z`));
+  const archiveStartDate = cachedArchiveIsUsable && cachedHistory
+    ? shiftDate(cachedHistory.archiveEndDate, 1)
+    : historyStartDate;
+  const shouldFetchArchive = archiveStartDate <= archiveEndDate;
+  const archiveUrl = shouldFetchArchive
+    ? `https://archive-api.open-meteo.com/v1/archive?latitude=${latitude}&longitude=${longitude}&start_date=${archiveStartDate}&end_date=${archiveEndDate}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&models=era5_seamless&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe/Amsterdam&timeformat=unixtime`
+    : null;
+  const recentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&past_days=${RECENT_BRIDGE_DAYS}&forecast_days=8&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,shortwave_radiation,cloud_cover,wind_speed_10m,wind_direction_10m&temperature_unit=celsius&wind_speed_unit=kmh&timezone=Europe/Amsterdam&timeformat=unixtime`;
 
   const responses = await Promise.allSettled([
-    fetch(archiveUrl, { signal: AbortSignal.timeout(8000) }),
+    archiveUrl ? fetch(archiveUrl, { signal: AbortSignal.timeout(8000) }) : Promise.resolve(null),
     fetch(recentUrl, { signal: AbortSignal.timeout(6000) }),
   ]);
-  const parseResponse = async (responseResult: PromiseSettledResult<Response>): Promise<any | null> => {
-    if (responseResult.status !== 'fulfilled' || !responseResult.value.ok) return null;
+  const parseResponse = async (responseResult: PromiseSettledResult<Response | null>): Promise<any | null> => {
+    if (responseResult.status !== 'fulfilled' || !responseResult.value?.ok) return null;
     try {
       return await responseResult.value.json();
     } catch {
@@ -195,8 +208,10 @@ export async function getWaterColumnForcing(
   recentSamples.forEach((sample) => { merged.set(sample.time, sample); });
   const hourly = [...merged.values()].sort((a, b) => Date.parse(a.time) - Date.parse(b.time));
   const history: CachedWaterColumnWeatherHistory | undefined = hourly.length > 0 ? {
-    startDate: historyStartDate,
-    archiveEndDate,
+    // Retain the oldest valid cached boundary; extend it only when a fresh
+    // archive response actually fills a missing historical interval.
+    startDate: cachedArchiveIsUsable && cachedHistory ? cachedHistory.startDate : historyStartDate,
+    archiveEndDate: archiveSamples.length > 0 ? archiveEndDate : cachedHistory?.archiveEndDate ?? archiveEndDate,
     retrievedAt,
     hourly,
   } : undefined;
