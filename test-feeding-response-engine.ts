@@ -27,7 +27,7 @@ for (const species of ALL_SPECIES) {
 }
 
 const provisional = calculateSpeciesFeedingResponse('Baars', 7, 'Middag');
-if (!provisional || provisional.score < 1 || provisional.score > 10 || provisional.confidencePercent >= 100 || provisional.missingDrivers.length !== 2) {
+if (!provisional || provisional.score < 1 || provisional.score > 10 || provisional.driverCoveragePercent >= 100 || provisional.missingDrivers.length !== 2) {
   throw new Error('Operational feeding response must expose a provisional score and missing-driver coverage.');
 }
 const perchNight = calculateSpeciesFeedingResponse('Baars', 7, 'Nacht');
@@ -39,7 +39,7 @@ const asp = assessSpeciesFeedingActivity('Roofblei', [
   calculateSpeciesFeedingResponse('Roofblei', 7, 'Ochtend'),
   calculateSpeciesFeedingResponse('Roofblei', 7, 'Avond'),
 ]);
-if (asp.score === null || asp.status !== 'provisional' || asp.confidencePercent >= 100) throw new Error('Roofblei must receive a low-confidence proxy response.');
+if (asp.score === null || asp.status !== 'provisional' || asp.driverCoveragePercent >= 100) throw new Error('Roofblei must receive a low-confidence proxy response.');
 if (asp.responses.intensity.sourceCount !== 0 ||
     asp.responses.rhythm.sourceCount !== 0 ||
     asp.responses.incidence.sourceCount === 0 ||

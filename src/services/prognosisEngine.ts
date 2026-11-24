@@ -617,7 +617,7 @@ function analyzeTimeSlot(
   const scoreConfidencePercent = availableResponses.length
     ? Math.round([
         ...(physiologicalResponseScore !== null ? [physiologicalConfidencePercent] : []),
-        ...(feedingResponse ? [feedingResponse.confidencePercent] : []),
+        ...(feedingResponse ? [feedingResponse.driverCoveragePercent] : []),
       ].reduce((sum, value, _, values) => sum + value / values.length, 0))
     : 0;
 
@@ -660,7 +660,7 @@ function analyzeTimeSlot(
     else neutralFactors.push(`${f.title}: ${f.detail}`);
   }
 
-  const responseExplanation = `Fysiologische respons: ${physiologicalResponseScore === null ? 'onbekend' : physiologicalResponseScore.toFixed(1) + '/10'}; voedings-/foerageerrespons: ${feedingResponseScore === null ? 'onbekend' : feedingResponseScore.toFixed(1) + '/10'}; driverdekking voedingsrespons: ${feedingResponse?.confidencePercent ?? 0}%.`;
+  const responseExplanation = `Fysiologische respons: ${physiologicalResponseScore === null ? 'onbekend' : physiologicalResponseScore.toFixed(1) + '/10'}; voedings-/foerageerrespons: ${feedingResponseScore === null ? 'onbekend' : feedingResponseScore.toFixed(1) + '/10'}; driverdekking voedingsrespons: ${feedingResponse?.driverCoveragePercent ?? 0}%.`;
   let conclusion = !activityScoreAvailable
     ? `Geen geïntegreerde score beschikbaar voor ${species}: beide biologische responsen ontbreken. ${responseExplanation}`
     : activityScore >= 8
@@ -1320,9 +1320,9 @@ export function calculateDayPrognosis(
       ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
       ...(!location?.waterType ? ['Watertype onbekend; stromend of stilstaand water wordt niet aangenomen.'] : []),
     ];
-    positioningAdvice.confidenceLevel = 'Laag';
+    positioningAdvice.coverageLevel = 'Laag';
     positioningAdvice.missingInformation.push(...limitations);
-    habitatAnalysis.confidenceLevel = 'Laag';
+    habitatAnalysis.coverageLevel = 'Laag';
     habitatAnalysis.missingInformation.push(...limitations);
   }
 

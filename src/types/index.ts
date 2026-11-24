@@ -299,8 +299,8 @@ export interface FeedingActivityAssessment {
   /** Dagbrede voorlopige voedings-/foerageerrespons (1–10); geen vangstkans. */
   score: number | null;
   status: 'provisional' | 'insufficient_evidence' | 'not_applicable';
-  confidencePercent: number;
-  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
+  driverCoveragePercent: number;
+  coverageLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   missingDrivers: string[];
   evidenceLevel: FeedingEvidenceLevel;
   responses: {
@@ -411,7 +411,7 @@ export interface RodPositioningAdvice {
   recommendedZone: string;          // bijv. "Aanlandige oeverzone (windkant)", "Luwe oeverzone (beschut)", "Diepere rustzone / overgangszone"
   rationale: string;               // Fysische / biologische toelichting gebaseerd op wind, temperatuur, diepte en seizoen
   alternativeOption: string;       // Alternatief tactisch plan (bijv. luwte, dieper gat)
-  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk'; // Betrouwbaarheid van het advies (rekening houdend met ontbrekende oevergeometrie)
+  coverageLevel: 'Laag' | 'Matig' | 'Redelijk'; // Betrouwbaarheid van het advies (rekening houdend met ontbrekende oevergeometrie)
   windContext: {
     directionText: string;
     speedKmH: number | null;
@@ -850,7 +850,7 @@ export interface HabitatMovementAnalysis {
     pressureTrendImpact: string;
     lightAndSolarImpact: string;
   };
-  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
+  coverageLevel: 'Laag' | 'Matig' | 'Redelijk';
   dataProvenance: {
     measuredDataPoints: string[];
     userObservations: string[];
@@ -906,7 +906,7 @@ export interface PrebaitProgramPlan {
     digestibilityNote: string;
     particleSizeNote: string;
   };
-  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
+  coverageLevel: 'Laag' | 'Matig' | 'Redelijk';
   missingInformation: string[];
   methodFeederGuidance?: string;
   personalEvidence?: {

@@ -321,8 +321,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
               {showAdvancedDetails
-                ? 'Drie gescheiden uitkomsten: geïntegreerde biologische prognose-index, persoonlijke vangstkans en biologisch gunstigste toekomstige tijdvak.'
-                : 'Bekijk geïntegreerde biologische prognose-index, je persoonlijke vangstkans en het biologisch gunstigste tijdvak.'}
+                ? 'De Prognose combineert twee afzonderlijke biologische responsen tot één score; daarnaast zie je de persoonlijke vangkans en het biologisch gunstigste tijdvak.'
+                : 'Bekijk de geïntegreerde biologische prognosescore, de onderliggende voedingsrespons, je persoonlijke vangkans en het biologisch gunstigste tijdvak.'}
             </p>
           </div>
 
@@ -602,7 +602,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
                     <Gauge className="w-4 h-4" />
-                    Activiteitspotentie
+                    Geïntegreerde prognosescore
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl sm:text-4xl font-black text-white">
@@ -1054,14 +1054,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       >Onderbouwing stekadvies:</span>
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
+                          activeDayProg.positioningAdvice.coverageLevel === 'Redelijk'
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                            : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
+                            : activeDayProg.positioningAdvice.coverageLevel === 'Matig'
                             ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                             : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                         }`}
                       >
-                        {activeDayProg.positioningAdvice.confidenceLevel}
+                        {activeDayProg.positioningAdvice.coverageLevel}
                       </span>
                     </div>
                   )}
@@ -1518,14 +1518,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                     <span
                       className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold self-start sm:self-auto ${
-                        ha.confidenceLevel === 'Redelijk'
+                        ha.coverageLevel === 'Redelijk'
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : ha.confidenceLevel === 'Matig'
+                          : ha.coverageLevel === 'Matig'
                           ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                       }`}
                     >
-                      Onderbouwing habitatinschatting: {ha.confidenceLevel}
+                      Onderbouwing habitatinschatting: {ha.coverageLevel}
                     </span>
                   </div>
 
@@ -1645,7 +1645,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             {activeDayProg.prebaitPlan && (() => {
               const pp = activeDayProg.prebaitPlan;
               // Keep the engine's numeric outputs intact; only expose gram values when input completeness is Redelijk.
-              const canShowExactAmounts = pp.confidenceLevel === 'Redelijk';
+              const canShowExactAmounts = pp.coverageLevel === 'Redelijk';
               return (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-800/40 space-y-3.5 shadow-lg">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
@@ -1661,7 +1661,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           Voorzichtige startindicatie voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
                         </span>
                         <span className="text-[10px] text-amber-200/80 block mt-1">Temperatuurbanden en grammen zijn praktische indicaties, geen gevalideerde biologische normen.</span>
-                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.confidenceLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
+                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.coverageLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
                       </div>
                     </div>
                     <span

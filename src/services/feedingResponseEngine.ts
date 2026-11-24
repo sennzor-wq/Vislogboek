@@ -8,8 +8,8 @@ export interface FeedingResponseScore {
   score: number;
   dielScore: number;
   seasonalScore: number;
-  confidencePercent: number;
-  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
+  driverCoveragePercent: number;
+  coverageLevel: 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
   usedDrivers: string[];
   missingDrivers: string[];
   explanation: string;
@@ -58,7 +58,7 @@ export function calculateSpeciesFeedingResponse(species: FishSpecies, month: num
   const activeWeight = weights.diel + weights.seasonalPhase;
   if (activeWeight <= 0) return null;
   const normalized = (dielScore * weights.diel + seasonalScore * weights.seasonalPhase) / activeWeight;
-  const confidencePercent = Math.round(activeWeight * 100);
+  const driverCoveragePercent = Math.round(activeWeight * 100);
   const score = Math.round((1 + 9 * Math.max(0, Math.min(1, normalized))) * 10) / 10;
   const missingDrivers = [
     ...(weights.foodAvailability > 0 ? ['Voedsel-/prooiaanbod (geen actuele invoer)'] : []),
@@ -69,10 +69,10 @@ export function calculateSpeciesFeedingResponse(species: FishSpecies, month: num
     `Seizoensfase (${Math.round(seasonalScore * 100)}/100; gewicht ${Math.round(weights.seasonalPhase * 100)}%)`,
   ];
   return {
-    score, dielScore, seasonalScore, confidencePercent,
-    confidenceLevel: confidencePercent >= 75 ? 'Redelijk' : confidencePercent >= 50 ? 'Matig' : 'Laag',
+    score, dielScore, seasonalScore, driverCoveragePercent,
+    coverageLevel: driverCoveragePercent >= 75 ? 'Redelijk' : driverCoveragePercent >= 50 ? 'Matig' : 'Laag',
     usedDrivers, missingDrivers,
-    explanation: `Voorlopige voedings-/foerageerrespons ${score.toFixed(1)}/10 uit soortspecifiek dagritme en seizoensfase. Bekend gewicht: ${confidencePercent}%; voedsel-/prooiaanbod en wateractiviteit ontbreken en zijn niet als neutraal ingevuld. Resterende bekende gewichten zijn genormaliseerd. Dit is geen directe lokale meting van voedselopname.`,
+    explanation: `Voorlopige voedings-/foerageerrespons ${score.toFixed(1)}/10 uit soortspecifiek dagritme en seizoensfase. Bekend gewicht: ${driverCoveragePercent}%; voedsel-/prooiaanbod en wateractiviteit ontbreken en zijn niet als neutraal ingevuld. Resterende bekende gewichten zijn genormaliseerd. Dit is geen directe lokale meting van voedselopname.`,
   };
 }
 
@@ -105,8 +105,8 @@ export function assessSpeciesFeedingActivity(species: FishSpecies, slotResponses
     return {
       score: null,
       status: 'not_applicable',
-      confidencePercent: 0,
-      confidenceLevel: 'Laag',
+      driverCoveragePercent: 0,
+      coverageLevel: 'Laag',
       missingDrivers: [],
       evidenceLevel: 'none',
       responses: {
@@ -182,18 +182,18 @@ export function assessSpeciesFeedingActivity(species: FishSpecies, slotResponses
 
   const validScores = slotResponses.filter((item): item is FeedingResponseScore => item !== null && Number.isFinite(item.score));
   const score = validScores.length ? Math.round(validScores.reduce((sum, item) => sum + item.score, 0) / validScores.length * 10) / 10 : null;
-  const confidencePercent = validScores.length ? Math.round(validScores.reduce((sum, item) => sum + item.confidencePercent, 0) / validScores.length) : 0;
+  const driverCoveragePercent = validScores.length ? Math.round(validScores.reduce((sum, item) => sum + item.driverCoveragePercent, 0) / validScores.length) : 0;
   const missingDrivers = Array.from(new Set(validScores.flatMap((item) => item.missingDrivers)));
   return {
     score,
     status: score === null ? 'insufficient_evidence' : 'provisional',
     evidenceLevel,
-    confidencePercent,
-    confidenceLevel: confidencePercent >= 75 ? 'Redelijk' : confidencePercent >= 50 ? 'Matig' : 'Laag',
+    driverCoveragePercent,
+    coverageLevel: driverCoveragePercent >= 75 ? 'Redelijk' : driverCoveragePercent >= 50 ? 'Matig' : 'Laag',
     missingDrivers,
     responses: { intensity, incidence, rhythm, foraging, diet, preySelection },
     explanation: score === null
       ? `Voor ${species} kon de voorlopige dagritme-/seizoensrespons niet worden berekend.`
-      : `Operationele voorlopige voedings-/foerageerrespons voor ${species}: ${score.toFixed(1)}/10 (driverdekking ${confidencePercent}%). ${missingDrivers.join('; ')}. De score gebruikt bestaande werkboek-startwaarden; directe voedselopname, maagvulling, foerageergedrag, dieet en prooikeuze blijven afzonderlijk zichtbaar. Dit is geen vangstkans en wordt iteratief verfijnd.`,
+      : `Operationele voorlopige voedings-/foerageerrespons voor ${species}: ${score.toFixed(1)}/10 (driverdekking ${driverCoveragePercent}%). ${missingDrivers.join('; ')}. De score gebruikt bestaande werkboek-startwaarden; directe voedselopname, maagvulling, foerageergedrag, dieet en prooikeuze blijven afzonderlijk zichtbaar. Dit is geen vangstkans en wordt iteratief verfijnd.`,
   };
 }
