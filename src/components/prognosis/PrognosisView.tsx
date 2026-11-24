@@ -13,8 +13,6 @@ import {
   PrognosisInputContext,
 } from '../../types';
 import { getForecast, WEATHER_UPDATED_EVENT, formatAmsterdamDate } from '../../services/weatherService';
-import { getWaterColumnForcing } from '../../services/waterColumnWeatherService';
-import { getAutomaticWaterFetchForLocation } from '../../services/waterFetchGeometry';
 import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, PendingPrognosisSnapshot } from '../../services/prognosisEngine';
 import { getWaterTemperatureCalibration } from '../../services/evaluationEngine';
 import { SPECIES_PROFILES } from '../../services/fishProfiles';
@@ -108,22 +106,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
       if (typeof selectedLoc?.latitude !== 'number' || !Number.isFinite(selectedLoc.latitude) || selectedLoc.latitude < -90 || selectedLoc.latitude > 90 || typeof selectedLoc?.longitude !== 'number' || !Number.isFinite(selectedLoc.longitude) || selectedLoc.longitude < -180 || selectedLoc.longitude > 180) {
         setHourlyForecast([]); setDayPrognoses([]); setWeatherUpdatedAt(''); setIsCachedWeather(false); return;
       }
-      const waterColumnTargetTime = new Date(Date.now() + 7 * 24 * 3600000).toISOString();
-      const [weather, waterColumnWeather, automaticWaterFetch] = await Promise.all([
-        getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh),
-        getWaterColumnForcing(selectedLoc.latitude, selectedLoc.longitude, waterColumnTargetTime)
-          .catch((error) => {
-            console.warn('Water-column shadow forcing niet beschikbaar; bestaande prognose blijft actief.', error);
-            return null;
-          }),
-        getAutomaticWaterFetchForLocation(selectedLoc).catch((error) => {
-          console.warn('Automatische waterkaartanalyse niet beschikbaar; handmatige fetch of neutrale prior blijft actief.', error);
-          return null;
-        }),
-      ]);
-      const predictionLocation = automaticWaterFetch
-        ? { ...selectedLoc, windFetchByDirectionM: automaticWaterFetch.sectorFetchM }
-        : selectedLoc;
+      const weather = await getForecast(selectedLoc.latitude, selectedLoc.longitude, forceRefresh);
       setHourlyForecast(weather.hourly);
       // Eén IndexedDB-read per prognoseverversing; de lichte kalibratie draait lokaal in geheugen.
       const storedSnapshots = await db.prognosisSnapshots.toArray();
@@ -159,11 +142,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
           {
             sessionDurationHours: selectedDurationHours,
             locationId: selectedLocationId,
-            location: predictionLocation,
+            location: selectedLoc,
             waterTemperatureCalibration: getWaterTemperatureCalibration(storedSnapshots, selectedLocationId, dateStr),
             historicalWaterTemperatures,
-            waterColumnForcing: waterColumnWeather?.hourly,
-            waterColumnAsOf: waterColumnWeather?.asOf,
             dailySolarTimes: weather.dailySummaries,
             presenceObservation: selectedPresenceObs,
             catches,
@@ -645,7 +626,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {showAdvancedDetails && activeDayProg.integratedScoreConfidencePercent !== undefined && (
                     <div className="text-[11px] text-slate-400 mt-1">Indicatieve modelonderbouwing: {activeDayProg.integratedScoreConfidencePercent}% (geen statistisch betrouwbaarheidsinterval).</div>
                   )}
-                {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
+                  {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                     <span
                       className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30"
                       title="Indicatieve weerafgeleide watertemperatuur zonder lokale waterreferentie; hoge, niet-gekwantificeerde onzekerheid."
@@ -930,11 +911,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div className="flex items-center gap-2">
                   <Thermometer className="w-4 h-4 text-cyan-400" />
                   <span className="font-semibold text-white">Watertemperatuur</span>
-                  <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth !== false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
+                  <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
-                {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth === false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null && (
-                  <span className="text-slate-400">Losse meting: {activeDayProg.thermalAnalysis.measuredWaterTemp.toFixed(1)} °C — niet gebruikt als soortdoeltemperatuur</span>
-                )}
                 {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                   <span
                     className="text-amber-300 font-medium"
@@ -942,16 +920,6 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   >
                     Indicatieve schatting — hoge, niet-gekwantificeerde onzekerheid
                   </span>
-                )}
-                {activeDayProg.thermalAnalysis.waterColumnPrediction && (
-                  <div className="w-full flex flex-wrap gap-3 pt-2 border-t border-slate-700/60 text-[11px]">
-                    <span className="text-slate-300">Oppervlak: <strong className="text-cyan-300">{activeDayProg.thermalAnalysis.waterColumnPrediction.surfaceTemperatureC.toFixed(1)} °C</strong></span>
-                    <span className="text-slate-300">Bodem: <strong className="text-emerald-300">{activeDayProg.thermalAnalysis.waterColumnPrediction.bottomTemperatureC.toFixed(1)} °C</strong></span>
-                    <span className="text-slate-300">Watergemiddelde: <strong className="text-slate-100">{activeDayProg.thermalAnalysis.waterColumnPrediction.volumeMeanTemperatureC.toFixed(1)} °C</strong></span>
-                    {activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM > 0 && (
-                      <span className="text-sky-200">Berekend ijs: {Math.round(activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM * 100)} cm</span>
-                    )}
-                  </div>
                 )}
                 <span className="text-slate-300">Watertrend: {activeDayProg.thermalAnalysis.trend.toLowerCase()}</span>
                 {showAdvancedDetails && (
@@ -1050,33 +1018,6 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <p className="text-slate-400">
                     <strong>Oppervlaktelaag vs. Bulk:</strong> {activeDayProg.thermalAnalysis.surfaceVsBulkNote}
                   </p>
-                  {activeDayProg.thermalAnalysis.waterColumnPrediction && (
-                    <div className="pt-2 border-t border-slate-700/40 space-y-2">
-                      <p className="font-semibold text-slate-200">Fysisch temperatuurprofiel — {activeDayProg.thermalAnalysis.waterColumnPrediction.totalDepthM.toFixed(2)} m stekdiepte</p>
-                      <div className="grid grid-cols-5 gap-1">
-                        {activeDayProg.thermalAnalysis.waterColumnPrediction.layerTemperaturesC.map((temperature, index, layers) => (
-                          <div key={index} className="rounded-lg bg-slate-900/70 p-2 text-center">
-                            <span className="block text-[9px] text-slate-500">Laag {index + 1}</span>
-                            <strong className="block text-xs text-cyan-200">{temperature.toFixed(1)}°</strong>
-                            <span className="block text-[8px] text-slate-500">
-                              {((index * activeDayProg.thermalAnalysis!.waterColumnPrediction!.totalDepthM) / layers.length).toFixed(1)}–{(((index + 1) * activeDayProg.thermalAnalysis!.waterColumnPrediction!.totalDepthM) / layers.length).toFixed(1)} m
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-slate-400">
-                        <span>Scenario-spreiding: {activeDayProg.thermalAnalysis.waterColumnPrediction.scenarioSpreadC.toFixed(2)} °C</span>
-                        <span>Forcingdekking: {(activeDayProg.thermalAnalysis.waterColumnPrediction.forcingCoverageRatio * 100).toFixed(0)}%</span>
-                        <span>Fysieke invoerdekking: {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputCoveragePercent}%</span>
-                        {activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM > 0 && <span>IJslaag: {(activeDayProg.thermalAnalysis.waterColumnPrediction.iceThicknessM * 100).toFixed(1)} cm</span>}
-                      </div>
-                      {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputWarnings.length > 0 && (
-                        <ul className="list-disc pl-4 text-[10px] text-amber-300/90">
-                          {activeDayProg.thermalAnalysis.waterColumnPrediction.physicalInputWarnings.map((warning, index) => <li key={index}>{warning}</li>)}
-                        </ul>
-                      )}
-                    </div>
-                  )}
                   <p className="text-cyan-300/90 pt-1 border-t border-slate-700/40 text-[11px]">
                     <strong>Invloed op de prognose:</strong> {activeDayProg.thermalAnalysis.prognosisImpactNote}
                   </p>

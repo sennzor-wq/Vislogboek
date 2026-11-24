@@ -25,8 +25,6 @@ import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
-import type { WaterColumnForcingSample, WaterColumnPrediction } from './waterColumnModel';
-import { getWaterColumnForcing } from './waterColumnWeatherService';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
@@ -469,7 +467,6 @@ function analyzeTimeSlot(
   // Onderscheid geverifieerde gemeten watertemperatuur vs. modelschatting vs. 2m-luchttemperatuur
   const hasMeasured = Boolean(
     thermalAnalysis?.hasMeasuredWaterTemp &&
-    thermalAnalysis.measuredWaterTempAtTargetDepth !== false &&
     typeof thermalAnalysis.measuredWaterTemp === 'number' &&
     !isNaN(thermalAnalysis.measuredWaterTemp)
   );
@@ -715,13 +712,6 @@ export interface PrognosisOptions {
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
   /** Exact physical timestamp of the supplied water-temperature reading, when known. */
   userWaterTempMeasuredAt?: string | null;
-  /** Historical + recent forcing for the per-location water-column model. */
-  waterColumnForcing?: WaterColumnForcingSample[];
-  waterColumnAsOf?: string;
-  /** Precomputed daily physical profile reused by the four intra-day slots. */
-  waterColumnPredictionOverride?: WaterColumnPrediction | null;
-  /** Actual depth of a manually supplied water-temperature reading, not total spot depth. */
-  measurementDepthM?: number | null;
   /** Lokale zonsopkomst/-ondergang uit dezelfde Open-Meteo-dagprognose; alleen kwalitatieve context. */
   dailySolarTimes?: Array<{ date: string; sunrise: string; sunset: string }>;
   /** Laat duur onbekend in coachcontext; de bestaande algemene prognose behoudt zijn historische fallback. */
@@ -775,7 +765,6 @@ export function calculateDayPrognosis(
       : options?.allowUnknownSessionDuration ? null : 3;
   const locationId = options?.locationId;
   const location = options?.location;
-  const targetDepthM = species === 'Karper' ? location?.waterDepth : undefined;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
 
   const slotReferenceDate = currentDateRef ?? parseAppTimestamp(`${dateStr}T12:00:00`) ?? new Date(`${dateStr}T12:00:00.000Z`);
@@ -794,11 +783,6 @@ export function calculateDayPrognosis(
     currentDateRef,
     historicalWaterTemperatures: options?.historicalWaterTemperatures,
     forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
-    waterColumnForcing: options?.waterColumnForcing,
-    waterColumnAsOf: options?.waterColumnAsOf,
-    waterColumnPredictionOverride: options?.waterColumnPredictionOverride,
-    measurementDepthM: options?.measurementDepthM,
-    targetDepthM,
   });
 
   // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
@@ -808,7 +792,6 @@ export function calculateDayPrognosis(
   const temperatureCalibration = options?.waterTemperatureCalibration;
   if (
     temperatureCalibration &&
-    !thermalAnalysis.waterColumnPrediction &&
     !thermalAnalysis.hasMeasuredWaterTemp &&
     thermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
     typeof thermalAnalysis.estimatedWaterTemp === 'number'
@@ -868,13 +851,6 @@ export function calculateDayPrognosis(
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
-        measurementDepthM: options?.measurementDepthM,
-        waterColumnForcing: options?.waterColumnForcing,
-        waterColumnAsOf: options?.waterColumnAsOf,
-        // The water column has substantial thermal inertia; reuse the daily physical
-        // profile rather than re-running the full historical spin-up four more times.
-        waterColumnPredictionOverride: thermalAnalysis.waterColumnPrediction,
-        targetDepthM,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
@@ -882,7 +858,6 @@ export function calculateDayPrognosis(
       // Houd de bestaande gevalideerde lokale biascorrectie identiek voor elk tijdstip.
       if (
         temperatureCalibration &&
-        !slotThermalAnalysis.waterColumnPrediction &&
         !slotThermalAnalysis.hasMeasuredWaterTemp &&
         slotThermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
         typeof slotThermalAnalysis.estimatedWaterTemp === 'number'
@@ -1540,16 +1515,14 @@ export async function savePrognosisSnapshot(
     predictedUncertaintyInterval: prognosis.catchUncertaintyInterval,
     predictedConfidence: prognosis.personalCatchConfidence,
     predictedConditions: conditions,
-    // Bewaar het volledige fysieke profiel naast de scalar die voor de visrespons is gebruikt.
-    predictedWaterColumnProfile: prognosis.thermalAnalysis?.waterColumnPrediction ?? null,
     // Alleen een voorafgaande modelschatting kan achteraf onafhankelijk worden gevalideerd.
     predictedWaterTemperature:
-      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtTargetDepth === false) &&
+      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp &&
       typeof prognosis.thermalAnalysis.estimatedWaterTemp === 'number'
         ? prognosis.thermalAnalysis.estimatedWaterTemp
         : null,
     predictedWaterTemperatureRange:
-      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtTargetDepth === false)
+      prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp
         ? prognosis.thermalAnalysis.estimatedRange ?? null
         : null,
     predictedWaterTemperatureStatus: prognosis.thermalAnalysis?.waterTemperatureStatus,
@@ -1644,9 +1617,6 @@ export async function createLiveSnapshotForSessionStart(
       db.locations.toArray(),
     ]);
     const now = new Date();
-    const waterColumnForcingResult = await getWaterColumnForcing(location.latitude, location.longitude, now.toISOString())
-      .catch(() => ({ hourly: [], asOf: now.toISOString(), quality: 'unavailable' as const }));
-    const waterColumnForcing = waterColumnForcingResult.quality === 'unavailable' ? [] : waterColumnForcingResult.hourly;
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
     const targetTimeSlot = getTimeSlotAtAmsterdamDate(now);
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
@@ -1690,8 +1660,6 @@ export async function createLiveSnapshotForSessionStart(
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
       weatherFetchedAt: weather.fetchedAt,
-      waterColumnForcing,
-      waterColumnAsOf: waterColumnForcingResult.asOf,
     };
     const prog = calculateDayPrognosis(
       todayStr,
@@ -1710,10 +1678,7 @@ export async function createLiveSnapshotForSessionStart(
         catches: allCatches,
         historicalWaterTemperatures,
         userWaterTempMeasuredAt: manualWaterTemperatureMeasurement?.measuredAt ?? null,
-        measurementDepthM: manualWaterTemperatureMeasurement?.measurementDepthM ?? null,
         waterTemperatureCalibration,
-        waterColumnForcing,
-        waterColumnAsOf: waterColumnForcingResult.asOf,
       }
     );
 
