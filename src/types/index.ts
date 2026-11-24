@@ -1,4 +1,4 @@
-import type { WaterColumnPrediction } from '../services/waterColumnModel';
+import type { WaterColumnForcingSample, WaterColumnPrediction } from '../services/waterColumnModel';
 
 /**
  * Vislogboek Data Types & Schema
@@ -497,7 +497,7 @@ export type ThermalTrend =
   | 'Onvoldoende gegevens';
 
 export interface WaterThermalAnalysis {
-  /** Shadow-only physical model output; it does not affect the current score/temperature scalar. */
+  /** Physical water-column profile; bottom temperature feeds carp thermal prognosis when available. */
   waterColumnPrediction?: WaterColumnPrediction | null;
   trend: ThermalTrend;
   trendConfidence: 'Onvoldoende gegevens' | 'Laag' | 'Matig' | 'Redelijk' | 'Hoog';
@@ -688,6 +688,9 @@ export interface PrognosisInputContext {
     historicalWaterTemperatureSampleCount: number;
   };
   weatherFetchedAt?: string;
+  /** Exacte historische + forecast forcing voor reproduceerbare waterkolomreplay. */
+  waterColumnForcing?: WaterColumnForcingSample[];
+  waterColumnAsOf?: string;
 }
 
 export interface PrognosisSnapshot {
@@ -720,6 +723,8 @@ export interface PrognosisSnapshot {
   predictedConfidence?: string;
   predictedConditions?: WeatherSnapshot;
   // Onafhankelijke, soortneutrale temperatuurvalidatie. Alleen een vooraf voorspelde schatting telt mee.
+  /** Volledig fysisch profiel dat bij deze onveranderlijke prognose is berekend. */
+  predictedWaterColumnProfile?: WaterColumnPrediction | null;
   predictedWaterTemperature?: number | null;
   predictedWaterTemperatureRange?: [number, number] | null;
   predictedWaterTemperatureStatus?: 'measured' | 'estimated_from_measurement' | 'estimated_from_history' | 'estimated_from_weather' | 'unknown';
