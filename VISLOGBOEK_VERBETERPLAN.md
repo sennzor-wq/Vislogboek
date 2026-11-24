@@ -1881,3 +1881,75 @@ De volgende ontwerpstap is een **toestands- en gegevenscontract** voor de bestaa
 - welke tests de 4 °C-dichtheidsanomalie, zomerthermocline, menging, ijsfase en energie-/temperatuurbehoud moeten bewijzen.
 
 **Besluitpoort:** alleen het uitwerken en documenteren van dit contract is nu toegestaan. Geen type-, database-, UI-, formule-, parameter-, bron- of scorewijzigingen uitvoeren voordat het concrete ontwerp aan de eigenaar is voorgelegd en expliciet goedgekeurd.
+
+
+### Aanvullend ontwerpbesluit in voorbereiding — initiële toestand, spin-up en zoet-/brakwater (24 november 2026)
+
+**Aanleiding:** verdieping van het initialisatieonderzoek. Twee aanvullende wetenschappelijke punten zijn gevonden die de ontwerpvoorwaarden aanscherpen: (1) procesmodellen gebruiken een expliciete initiële watertemperatuurtoestand en vaak een lange spin-up; (2) het dichtheidsmaximum rond 4 °C geldt voor zuiver/zoet water en verschuift bij toenemende saliniteit.
+
+#### 1. Wat laten echte modelstudies zien over initialisatie?
+
+Mesman et al. (2025) beschrijven in hun vergelijking van 73 meren dat de initiële temperatuurprofielen werden geschat uit waargenomen watertemperaturen; beschikbare metingen rondom de startdatum werden gemiddeld om het initiële profiel te bepalen. De simulaties gebruikten vervolgens een spin-upperiode van één jaar. Dit is de werkwijze van die specifieke studie en geen universele voorgeschreven duur, maar het bewijst wel dat een volwaardige meerlagenmodelvergelijking niet simpelweg start vanuit alleen een paar uur of dagen weersverwachting.
+
+Een studie naar operationele lake-modelinitialisatie beschrijft eveneens dat onnauwkeurige starttemperaturen fouten van meerdere graden kunnen veroorzaken en dat modelgebaseerde cycling/data-assimilatie een betere starttoestand kan opleveren dan een eenvoudige interpolatie van satelliettemperatuur. <https://gmd.copernicus.org/articles/15/6659/2022/>
+
+Een globale lake-modelvergelijking laat zien dat verschillende onderzoeksgroepen verschillende initialisatiekeuzes gebruiken, waaronder gemeten profielen, een isotherm profiel van 4 °C of profielen op basis van gemiddelde luchttemperatuur. Dit zijn modelconfiguraties voor uiteenlopende onderzoeksdoelen; ze bewijzen niet dat 4 °C of gemiddelde luchttemperatuur een betrouwbare lokale startwaarde is voor een kortetermijn-visprognose. <https://gmd.copernicus.org/articles/15/4597/2022/>
+
+**Ontwerpconclusie:** een vaste startwaarde van 4 °C of de actuele luchttemperatuur mag niet als standaardwaarheid worden gebruikt. Een spin-up kan alleen helpen wanneer de historische meteorologische forcing, locatiekenmerken en duur voldoende zijn om de gekozen beginconditie minder bepalend te maken. De benodigde duur moet per model/watertype met gevoeligheidstests worden vastgesteld. De huidige drie dagen historische weerdekking is hiervoor geen bewezen basis.
+
+#### 2. Dichtheidsanomalie: expliciet onderscheid tussen zoet en brak/zout water
+
+De dichtheidsmaximumtemperatuur rond 4 °C geldt voor zuiver water bij atmosferische druk. De TEOS-10-handleiding beschrijft dat de temperatuur van maximale dichtheid afhangt van absolute saliniteit en druk. Bij toenemende saliniteit verschuift het maximum naar lagere temperaturen; bij hoge saliniteit kan het zelfs onder het vriespunt liggen. Ook in brak water is de interactie tussen temperatuur en zoutgehalte relevant voor stratificatiestabiliteit.
+
+**Gevolg voor Vislogboek:** de bestaande ontwerpeis "dichtheidsanomalie rond 4 °C" moet worden gelezen als de zoetwaterreferentie. Voor locaties waarvan zoetwaterkarakter niet betrouwbaar bekend is, mag het model niet zonder meer dezelfde zoetwater-dichtheidsrelatie als universele waarheid toepassen. De huidige `FishingLocation` heeft geen saliniteit-/geleidbaarheidsveld en de huidige meettypen registreren dit niet.
+
+Er is nog geen besluit genomen om saliniteit als nieuw invoerveld toe te voegen. Eerst moet worden bepaald welke Nederlandse watertypen/locaties realistisch brak of zout kunnen zijn en of een eenvoudige classificatie (zoet / brak / onbekend) voldoende is of dat een meetbare geleidbaarheid/saliniteit nodig is.
+
+#### 3. Conceptueel toestandscontract voor de toekomstige thermische engine
+
+Dit is een ontwerpcontract op begripsniveau, geen TypeScript-interface of goedgekeurd databaseschema.
+
+| Toestandsonderdeel | Minimale betekenis | Waarom noodzakelijk |
+|---|---|---|
+| Referentie-identiteit | Stek/waterlichaam en toepassingsklasse | Voorkomt dat een toestand onbedoeld tussen verschillende wateren wordt hergebruikt |
+| Modeltijd en modelversie | Exact tijdstip, versie van fysica en invoercontract | Chronologische reproduceerbaarheid en geen future leakage |
+| Verticale laagstructuur | Diepte-interval en temperatuur van iedere laag | Maakt temperatuur op visdiepte mogelijk |
+| Waterkolomgeometrie | Totale diepte en waar beschikbaar oppervlakte/volume per diepte | Bepaalt warmtecapaciteit en laagvolume; vereenvoudigingen moeten expliciet zijn |
+| Dichtheidsregime | Zoet/brak/zout/onbekend en gebruikte toestandsvergelijking | De 4 °C-anomalie mag alleen onder passende waterchemische aannames gelden |
+| Fase | Vloeibaar water, ijs en waar relevant sneeuw als afzonderlijke toestand | Voorkomt negatieve vloeibare watertemperaturen en onjuiste isolatie/latente warmte |
+| Bodem-/grensuitwisseling | Status en bron van bodemwarmte en oppervlaktefluxen | Maakt energie-uitwisseling controleerbaar |
+| Hydrologische forcing | Instroom/uitstroom, debiet en temperatuur indien aanwezig | Nodig waar advectie de lokale warmtebalans beïnvloedt |
+| Forcingdekking | Tijdreeks, bron, ophaaltijdstip, ontbrekende uren en variabelen | Voorkomt dat onvolledige of achteraf opgehaalde gegevens als volledige forcing gelden |
+| Beginconditie en herkomst | Meting/profiel, eerdere modeltoestand, historisch prior of onbekend | Maakt duidelijk waarop de absolute temperatuurtoestand is gebaseerd |
+| Onzekerheid en geldigheid | Onzekerheid per diepte plus geldigheidsstatus van het model | Voorkomt schijnprecisie en onterechte 1D-/zoetwaterclaims |
+
+Afgeleide grootheden zoals dichtheid, stabiliteit, thermoclinediepte en temperatuur op een opgegeven visdiepte kunnen uit deze toestand worden berekend. Ze mogen niet worden opgeslagen of gepresenteerd alsof ze direct gemeten zijn.
+
+#### 4. Initialisatiecontract — voorgestelde prioriteitsvolgorde
+
+1. Gelijktijdig lokaal temperatuurprofiel op bekende dieptes en gevalideerde meetmethode.
+2. Vorige gevalideerde modeltoestand voor dezelfde stek, met chronologische forcing en bekende modelversie.
+3. Eén lokale temperatuurmeting op bekende diepte, met expliciete onzekerheid voor niet-gemeten lagen.
+4. Historisch lokaal profiel uit vergelijkbare seizoens-/diepteomstandigheden, uitsluitend als prior en niet als actuele meting.
+5. Geen bruikbare meting of toestand: alleen een modeluitkomst als een onderbouwde historische forcing/spin-up en locatie-invoer beschikbaar zijn; anders status "onvoldoende initiële informatie".
+
+Deze volgorde is een ontwerpvoorstel. Het is nog niet besloten welke bronnen de app technisch gaat ondersteunen of hoe de toestand wordt opgeslagen.
+
+#### 5. Bronvermelding
+
+- Mesman et al. (2025), *Learning from a large-scale calibration effort of multiple lake temperature models*, HESS 29, 1183–1209. Initiële profielen gebaseerd op waargenomen watertemperatuur en één jaar spin-up in deze specifieke modelvergelijking: https://hess.copernicus.org/articles/29/1183/2025/
+- Golub et al. (2022), *A framework for ensemble modelling of climate change impacts on lakes worldwide: the ISIMIP Lake Sector*, GMD 15, 4597–4623. Beschrijft uiteenlopende initialisatie- en spin-upkeuzes voor lokale en globale toepassingen: https://gmd.copernicus.org/articles/15/4597/2022/
+- Mann et al. (2022), *Inland lake temperature initialization via coupled cycling with atmospheric data assimilation*, GMD 15, 6659–6681. Bespreekt het belang van nauwkeurige initiële watertemperatuur voor voorspellingen van dagen tot weken: https://gmd.copernicus.org/articles/15/6659/2022/
+- IOC, SCOR & IAPSO (2010), *The International Thermodynamic Equation of Seawater — 2010*, UNESCO Manuals and Guides No. 56, §3.42. Temperatuur van maximale dichtheid als functie van saliniteit en druk: https://www.jodc.go.jp/info/ioc_doc/Manual/188170e.pdf
+
+#### 6. Uitkomst en eerstvolgende actie
+
+**Nieuwe vastgestelde randvoorwaarden:**
+- Een goede meerlagenvoorspelling heeft een expliciete initiële temperatuurtoestand nodig; een korte weerreeks is geen vervanging.
+- Een spin-up is geen magische reset: de duur moet aantoonbaar lang genoeg zijn voor de relevante diepe lagen en seizoensregimes.
+- De 4 °C-dichtheidsanomalie is een zoetwaterreferentie; saliniteit kan de temperatuur van maximale dichtheid verschuiven.
+- De huidige Vislogboek-typen bevatten geen saliniteit/geleidbaarheid, geen volledig verticaal profielobject en geen persistente meerlaagse modeltoestand.
+
+**Volgende actie:** werk het toestandscontract om naar een formele ontwerpbeslissing met expliciete minimale, optionele en ontbrekende gegevens. Daarbij moet worden beslist welke watertypen binnen de eerste modelversie vallen (voorlopig bij voorkeur stilstaand zoet water), en welke wateren alleen een beperkte schatting of "onvoldoende invoer" mogen krijgen. Daarna pas kan een concrete implementatievoorstel worden opgesteld.
+
+**Besluitpoort blijft gesloten:** geen code, types, database, UI, formules, parameters, nieuwe databronnen of scoreberekening wijzigen zonder expliciete goedkeuring. De scoreberekeningsaudit blijft uitgesteld.
