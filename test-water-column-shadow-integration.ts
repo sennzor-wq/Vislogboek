@@ -54,21 +54,21 @@ if (!Number.isFinite(physical.activityScore)) {
   throw new Error('The existing prognosis score must remain available after replacing only its temperature input.');
 }
 if (baseline.thermalAnalysis?.waterColumnPrediction ||
-    !prediction ||
-    prediction.measurementAnchorsUsed !== 1 ||
-    prediction.totalDepthM !== 0.9 ||
-    prediction.targetDepthM !== 0.9) {
+    prediction?.measurementAnchorsUsed !== 1 ||
+    prediction?.totalDepthM !== 0.9 ||
+    prediction?.targetDepthM !== 0.9) {
   throw new Error('The physical prediction must use the registered full spot depth as both water-column depth and carp target depth.');
 }
+const predictedBottomTemperatureC = prediction!.bottomTemperatureC;
 async function verifySnapshotPersistence() {
   await db.delete();
   await db.open();
   try {
-    const snapshot = await savePrognosisSnapshot(shadow, 3, location.id, location.name);
+    const snapshot = await savePrognosisSnapshot(physical, 3, location.id, location.name);
     const stored = await db.prognosisSnapshots.get(snapshot.id);
     if (!stored?.prognosisData?.thermalAnalysis?.waterColumnPrediction ||
-        stored.predictedWaterColumnProfile?.bottomTemperatureC !== prediction.bottomTemperatureC ||
-        stored.predictedWaterTemperature !== prediction.bottomTemperatureC) {
+        stored.predictedWaterColumnProfile?.bottomTemperatureC !== predictedBottomTemperatureC ||
+        stored.predictedWaterTemperature !== predictedBottomTemperatureC) {
       throw new Error('The immutable snapshot must retain the full physical profile and its bottom-temperature validation scalar.');
     }
   } finally {
