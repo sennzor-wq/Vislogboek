@@ -308,8 +308,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     opticalExtinctionPerM: Math.round(opticalExtinctionPerM * 1000) / 1000,
     secchiPriorUsed: !validSecchiDepth,
     windExposurePriorUsed: input.windExposure === undefined,
-    fetchPriorUsed: !(validFetch || (validDirectionalFetch && accepted.some((sample) =>
-      getDirectionalFetchM(input.windFetchByDirectionM, sample.windDirectionDegrees) !== undefined))),
+    fetchPriorUsed: !(validFetch || (validDirectionalFetch && accepted.filter((sample) =>
+      getDirectionalFetchM(input.windFetchByDirectionM, sample.windDirectionDegrees) !== undefined).length / Math.max(1, accepted.length) >= 0.8)),
   };
 }
 
