@@ -341,8 +341,11 @@ async function run14Scenarios() {
     []
   );
   assert(
-    unknownTemperature.activityScoreAvailable === false && unknownTemperature.activityScore === 0,
-    '6.2 Ontbrekende watertemperatuur blijft onbekend en wordt niet vervangen door een fictieve gemiddelde score'
+    unknownTemperature.activityScoreAvailable === true &&
+      unknownTemperature.physiologicalResponseScore === null &&
+      unknownTemperature.feedingActivity?.score !== null &&
+      unknownTemperature.feedingActivity?.score !== undefined,
+    '6.2 Zonder watertemperatuur blijft de fysiologische respons onbekend, maar de geïntegreerde score gebruikt de beschikbare voedingsrespons'
   );
 
   // 7. Ondiep versus dieper water
@@ -801,15 +804,19 @@ async function run14Scenarios() {
     '12.2b In winter, civil dusk may fall in the afternoon clock slot rather than the evening slot'
   );
   assert(
-    Object.values(solarContextPrognosis.timeSlots).every((slot) => slot.timeOfDayFactor.score === 0),
-    '12.2b Solar context must not create an unvalidated numerical time-of-day bonus'
+    Object.values(solarContextPrognosis.timeSlots).some((slot) => slot.timeOfDayFactor.score > 0) &&
+      new Set(Object.values(solarContextPrognosis.timeSlots).map((slot) => slot.timeOfDayFactor.score)).size > 1,
+    '12.2b Solar-relative dagritme voedt de afzonderlijke voedingsrespons en verschilt per tijdvak'
   );
-  assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
-    '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
   assert(
-    equalSlotPrognosis.summaryRationale.toLowerCase().includes('niet betekenisvol') &&
+    equalSlotPrognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid' &&
+      equalSlotPrognosis.alternativeTimeSlots.length > 0,
+    '12.2b Soortspecifiek dagritme kan bij gelijke temperatuur een betekenisvol tijdvakverschil geven'
+  );
+  assert(
+    equalSlotPrognosis.summaryRationale.includes(equalSlotPrognosis.bestTimeSlot) &&
       !equalSlotPrognosis.summaryRationale.toLowerCase().includes('verstreken'),
-    '12.2c Gelijkwaardige tijdvakken worden niet ten onrechte als verstreken gepresenteerd'
+    '12.2c De geïntegreerde dagdeelrangschikking wordt in de samenvatting verklaard'
   );
   const allPastPrognosis = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
@@ -864,7 +871,7 @@ async function run14Scenarios() {
         crossSlotExperience.timeSlots[slot as keyof typeof crossSlotExperience.timeSlots].activityScore ===
         noCrossSlotHistory.timeSlots[slot as keyof typeof noCrossSlotHistory.timeSlots].activityScore
       ),
-    '12.2f Historische persoonlijke tijdvakervaring verandert de thermische tijdvakscore of rangschikking niet'
+    '12.2f Historische persoonlijke tijdvakervaring verandert de geïntegreerde biologische tijdvakscore of rangschikking niet'
   );
 
   assert(

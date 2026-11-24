@@ -585,19 +585,19 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <strong>Weergegevens: {activeDayProg.weatherDataQuality.status}</strong>
                 <span className="ml-2">Minimale velddekking: {activeDayProg.weatherDataQuality.coveragePercent}% ({activeDayProg.weatherDataQuality.validHours}/24 uur).</span>
                 {activeDayProg.weatherDataQuality.missingFields.length > 0 && <span className="block mt-1">Onvoldoende of ontbrekend: {activeDayProg.weatherDataQuality.missingFields.join(', ')}.</span>}
-                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">Thermische activiteitspotentie en het biologisch gunstigste tijdvak zijn niet betrouwbaar te bepalen, omdat de watertemperatuur niet gemeten of verantwoord geschat kon worden.</span>}
+                {activeDayProg.activityScoreAvailable === false && <span className="block mt-1 font-semibold">De geïntegreerde score gebruikt alleen de beschikbare biologische respons(en). De thermische respons ontbreekt; de voedingsrespons heeft een beperkte driverdekking.</span>}
               </div>
             )}
 
             {!showAdvancedDetails && activeDayProg.activityScoreAvailable === false && (
               <div className="rounded-xl border border-amber-800/50 bg-amber-950/30 p-3 text-xs text-amber-200">
-                Onvoldoende watertemperatuurgegevens om geïntegreerde biologische prognose-index en het biologisch gunstigste tijdvak betrouwbaar te bepalen.
+                Geen geïntegreerde biologische prognose beschikbaar: zowel de thermische als de soortspecifieke voedings-/foerageerrespons ontbreekt.
               </div>
             )}
 
             {/* De vier gescheiden prognose-uitkomsten */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-              {/* VOORSPELLING A: Thermische activiteitspotentie */}
+              {/* VOORSPELLING A: Geïntegreerde biologische prognosescore */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">
@@ -623,6 +623,9 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   >
                     {activeDayProg.activityScoreAvailable === false ? 'Onvoldoende gegevens' : `${activeDayProg.advice} biologisch perspectief`}
                   </span>
+                  {showAdvancedDetails && activeDayProg.integratedScoreConfidencePercent !== undefined && (
+                    <div className="text-[11px] text-slate-400 mt-1">Indicatieve modelonderbouwing: {activeDayProg.integratedScoreConfidencePercent}% (geen statistisch betrouwbaarheidsinterval).</div>
+                  )}
                   {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                     <span
                       className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30"
@@ -642,7 +645,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 
                 {showAdvancedDetails && (
 <div className="pt-3 mt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-                  <strong>Modelmatige indicatie:</strong> Deze score weerspiegelt uitsluitend de voorlopige soortspecifieke temperatuurrespons op gemeten of geschatte watertemperatuur. Wind, druk, seizoen, tijdstip, bewolking en neerslag zijn context en veranderen deze score niet. Dit is geen gemeten visactiviteit, voedingsactiviteit of vangstkans.
+                  <strong>Modelmatige indicatie:</strong> Deze score combineert de afzonderlijke voorlopige fysiologische thermische respons en voedings-/foerageerrespons. De voedingsrespons gebruikt soortspecifiek dagritme en seizoensfase; ontbrekend voedsel-/prooiaanbod en wateractiviteit verlagen de driverdekking. Wind, luchtdruk, bewolking en neerslag blijven context. Dit is geen gemeten activiteit of persoonlijke vangstkans.
                 </div>
 )}
               </div>
@@ -728,12 +731,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
 )}
               </div>
 
-              {/* VOORSPELLING C: Thermisch gunstigste toekomstige tijdvak */}
+              {/* VOORSPELLING C: Biologisch gunstigste toekomstige tijdvak */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
                     <Clock className="w-4 h-4" />
-                    Thermisch gunstigste tijdvak
+                    Biologisch gunstigste tijdvak
                   </div>
 
                   {activeDayProg.activityScoreAvailable === false ? (
@@ -758,7 +761,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       <div className="text-sm font-bold text-slate-300">Geen betekenisvol onderscheid</div>
                       {showAdvancedDetails && (
                         <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de huidige geïntegreerde biologische prognose-index. Er wordt daarom geen thermisch gunstigst tijdvak aangewezen.
+                          De beschikbare tijdvakken hebben geen aantoonbaar verschil in de geïntegreerde biologische prognose-index. Er wordt daarom geen biologisch gunstigst tijdvak aangewezen.
                         </p>
                       )}
                     </div>
@@ -782,12 +785,12 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 </div>
 )}
               </div>
-              {/* VOORSPELLING D: Afzonderlijke voedingsrespons */}
+              {/* VOORSPELLING D: Afzonderlijke voedings-/foerageerrespons */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-amber-800/40 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">
                     <Utensils className="w-4 h-4" />
-                    Voedingsactiviteit
+                    Voedings-/foerageerrespons
                   </div>
                   <div className="text-lg font-black text-white">
                     {activeDayProg.feedingActivity?.status === 'not_applicable' ? 'Niet van toepassing' : activeDayProg.feedingActivity?.score !== null && activeDayProg.feedingActivity?.score !== undefined ? `${activeDayProg.feedingActivity.score.toFixed(1)}/10 · voorlopig` : 'Geen score beschikbaar'}
@@ -820,7 +823,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                         {response.sourceIds.length > 0 && <span className="block text-slate-500">Bron-ID's: {response.sourceIds.join(', ')}</span>}
                       </div>
                     ))}
-                    <p className="text-amber-300/90">De voorlopige responsberekening is operationeel. De geregistreerde studies zijn nog niet individueel vrijgegeven als numerieke bronparameters; de startwaarden en ontbrekende drivers blijven zichtbaar.</p>
+                    <p className="text-amber-300/90">Operationele modelv1: dagritme- en seizoensprofielen zijn voorlopig. Bekende driverdekking: {activeDayProg.feedingActivity.driverCoveragePercent}%. Ontbrekend: {activeDayProg.feedingActivity.missingDrivers.join(', ') || 'geen geregistreerde ontbrekende drivers'}. Onderliggende studies blijven traceerbaar; de numerieke startwaarden worden iteratief verfijnd.</p>
                   </div>
                 )}
               </div>
@@ -2158,7 +2161,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 </div>
               </div>
               <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-800/30 text-xs text-amber-200">
-                <strong>Modelbeperking:</strong> De modelpiek en curvebreedtes zijn voorlopige modelinstellingen, geen empirisch gevalideerde optimale of fysiologische tolerantiegrenzen. De curve geeft alleen een relatieve geïntegreerde biologische prognose-index; geen voedselopname, aanwezigheid of vangstkans. Luchtdruk-, wind-, regen-, bewolkings- en seizoensvoorkeuren worden niet als numerieke profielcorrecties gebruikt.
+                <strong>Modelbeperking:</strong> De T0–T3-temperatuurcurve en de dagritme-/seizoensprofielen zijn operationele startwaarden uit het werkboek, geen empirisch gevalideerde universele grenzen. De fysiologische en voedings-/foerageerrespons worden afzonderlijk berekend en daarna voorlopig 50/50 gecombineerd. Voedsel-/prooiaanbod, wateractiviteit, zuurstof en troebelheid ontbreken als actuele invoer en worden niet als neutraal verondersteld. De score is geen persoonlijke vangstkans.
               </div>
             </div>
 

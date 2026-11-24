@@ -237,8 +237,8 @@ function getSolarTransitionContext(
   if (dawnOverlap > 0) periods.push('civiele dageraad (' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ')');
   if (duskOverlap > 0) periods.push('civiele schemering (' + solarTimes.sunset + '–' + solarTimes.civilDusk + ')');
   return periods.length > 0
-    ? 'Dit tijdvak omvat ' + periods.join(' en ') + '. Dit is zonne-relatieve context, geen gevalideerde activiteitsscore.'
-    : 'Civiele dageraad is ' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ' en civiele schemering ' + solarTimes.sunset + '–' + solarTimes.civilDusk + '; beide vallen buiten dit tijdvak. Dit verandert de score niet.';
+    ? 'Dit tijdvak omvat ' + periods.join(' en ') + '. Dit is zonne-relatieve context die samen met het soortspecifieke dagritme de voorlopige voedingsrespons bepaalt.'
+    : 'Civiele dageraad is ' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ' en civiele schemering ' + solarTimes.sunset + '–' + solarTimes.civilDusk + '; beide vallen buiten dit tijdvak. Dit voedt de voorlopige soortspecifieke dagritme-respons.';
 }
 
 
@@ -544,9 +544,8 @@ function analyzeTimeSlot(
     dataAvailable: hasPressure,
   };
 
-  // 3. Wind, seizoen, tijdstip, bewolking en neerslag blijven context.
-  // De bestaande profielvoorkeuren en vaste modulatoren zijn niet voldoende
-  // soortspecifiek en empirisch gevalideerd om de thermische activiteitspotentie te wijzigen.
+  // 3. Wind, bewolking en neerslag blijven context; seizoen en dagritme voeden nu
+  // de afzonderlijke voedings-/foerageerrespons via de voorlopige soortprofielen.
   let windDetail = '';
   if (!hasWind || avgWindSpeed === null || dominantWindDir === null) {
     windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.';
