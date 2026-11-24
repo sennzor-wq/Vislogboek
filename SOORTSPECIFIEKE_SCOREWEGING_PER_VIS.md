@@ -460,3 +460,77 @@ De eerste broncontroles zijn uitgevoerd op publicatie-/abstractniveau voor tien 
 | \`juvenile-catfish-night-foraging-reservoirs-2025\` | Sajdlová et al. vonden vroege juveniele Europese meerval 's nachts pelagisch in drie Tsjechische reservoirs, meestal op 2–4 m diepte; maaginhoud bevestigde consumptie van Chaoborus-larven. | Direct bewijs voor nachtelijke voedselopname/foerageren en pelagisch voorkomen bij vroege juvenielen. Het is geen kwantitatieve voedselopnamesnelheid en mag niet naar volwassen meerval worden geëxtrapoleerd. |
 
 **Tussenconclusie:** de eerste extra primaire controles versterken vooral de noodzaak om voedingsresponsen naar soort, lengteklasse, seizoen, prooitype en onderzoeksopzet te scheiden. De uitkomsten geven nog geen onderling vergelijkbare effectgroottes waarmee percentages kunnen worden berekend.
+
+# 12. Iteratieve implementatiestrategie — eerste werkend model, daarna verfijnen
+
+**Werkafspraak bevestigd op 24-11-2026:** het doel is niet om alle biologische onzekerheid op te lossen vóór de eerste implementatie. Het doel is een degelijk opgebouwde, transparante en testbare eerste modelversie te implementeren en deze daarna gecontroleerd te verbeteren.
+
+## 12.1 Beoogde ontwikkelvolgorde
+
+1. **Modelcontract vastleggen:** inputs, tijdvakken, vier gescheiden uitkomsten, scorebereik, ontbrekende gegevens, onzekerheid en uitlegbaarheid.
+2. **Eerste factorselectie:** per soort en uitkomst alleen factoren opnemen die inhoudelijk verdedigbaar zijn. Direct bewijs krijgt voorrang; indirecte of geschatte factoren blijven expliciet voorlopig of contextueel.
+3. **V0.1-parameters bepalen:** een eerste conservatieve parameter- en weegset vastleggen. Elk getal krijgt een status (evidence-backed, provisional, default/neutral of unavailable), bron en reden. Geen schijnprecisie.
+4. **Runtime implementeren:** aansluiten op bestaande prognose-engine, bestaande soortprofielen en bestaande intervalcontracten. Geen tweede soortcatalogus of parallelle score-engine introduceren.
+5. **Technische en biologische plausibiliteit testen:** unit tests, randgevallen, tijdvak/dag-consistentie, ontbrekende data, monotoniciteit waar verwacht en expliciete niet-monotone responsen waar bewijs dat vraagt.
+6. **Eerste werkende prognose opleveren:** gebruikersuitkomst en factoruitleg tonen, inclusief dekking/onzekerheid. Een voorlopige score mag niet als gekalibreerde vangstkans worden gepresenteerd.
+7. **Iteratief tunen:** parameters en factorrollen aanpassen op basis van betere bronnen, lokale water-/temperatuurmetingen, waarnemingen en later echte vangstdata. Wijzigingen blijven versieerbaar en toetsbaar.
+
+## 12.2 Wat V0.1 minimaal moet kunnen
+
+- Per soort een fysiologische activiteitspotentie en een voedings-/foerageeruitkomst afzonderlijk berekenen.
+- Lokale aanwezigheid/habitat als afzonderlijke geschiktheids-/beschikbaarheidslaag behandelen; onbekende aanwezigheid niet gelijkstellen aan aanwezig.
+- Vangkans afzonderlijk houden en pas empirisch kalibreren wanneer voldoende vangst- en inspanningsgegevens bestaan.
+- Dagscore en tijdvakscore op dezelfde onderliggende uitkomst en rekenregels baseren; dagscore volgt uit de chronologische tijdvakwaarden met duurweging.
+- Ontbrekende invoer expliciet tonen via dekking/onzekerheid; ontbrekende factoren niet stilzwijgend als neutraal of gemiddeld invullen.
+- Per factor kunnen uitleggen welke invoer, respons, parameterstatus en bron de score beïnvloedden.
+- Bestaande thermische berekening als huidige baseline behouden totdat de nieuwe versie aantoonbaar dezelfde of betere technische eigenschappen heeft.
+
+## 12.3 Voorlopig versus gevalideerd
+
+De eerste implementatie mag voorlopige factoren of parameters bevatten wanneer die noodzakelijk zijn om een bruikbaar model te bouwen, mits:
+
+- de voorlopige status zichtbaar en machineleesbaar is;
+- de parameter niet wordt voorgesteld als rechtstreeks gemeten feit;
+- de invloed begrensd en uitlegbaar is;
+- er een test bestaat voor de bedoelde werking;
+- een latere parameterwijziging kan worden vergeleken met de vorige modelversie.
+
+Een factor zonder voldoende basis kan in V0.1 worden weggelaten of alleen als context worden weergegeven. Het model hoeft niet elke denkbare factor direct te bevatten om als eerste versie te werken.
+
+## 12.4 Scopegrens voor de eerste implementatie
+
+V0.1 richt zich op de eerste twee biologische uitkomsten en de bestaande omgevings-/tijdvakinputs. Habitat/aanwezigheid blijft een aparte laag en vangkans blijft empirisch en buiten de biologische deelscores. Dit voorkomt dat ontbrekende lokale aanwezigheid of vangstdata met fictieve gewichten worden ingevuld.
+
+Er worden geen willekeurige universele percentages opgelegd. Waar een numerieke weging nog niet uit effectgroottes kan worden afgeleid, kan een eenvoudige, conservatieve voorlopige parameterisatie worden gekozen en expliciet als modelkeuze worden geregistreerd. Deze keuze is een startpunt voor kalibratie, geen wetenschappelijke conclusie.
+
+## 12.5 Implementatiepoort
+
+De overgang naar runtime-implementatie vereist niet dat alle 94 bronnen of alle Excel-tabbladen volledig gevalideerd zijn. Wel moeten minimaal gereed zijn:
+
+- het modelcontract en de betekenis van iedere uitkomst;
+- een eerste factorselectie per soort voor V0.1;
+- voorlopige parameters met status en bron-/redengeving;
+- regels voor ontbrekende gegevens en onzekerheid;
+- tests voor scoreberekening, tijdvak/dag-consistentie en regressie;
+- een expliciete scheiding tussen biologische potentie en empirische vangkans.
+
+**Besluit:** na afronding van de eerste factor- en parameterselectie wordt V0.1 gebouwd. De resterende Excel-validatie en uitbreiding van het bewijsregister lopen daarna door als verbetertraject; ze zijn geen blokkade voor een eerste werkende versie.
+
+## 12.6 Hervatpunt en volgende acties
+
+**Nu lopend**
+- Evidence matrix uit sectie 10 aanscherpen en resterende primaire bronresponsen controleren.
+- De voorlopige factorselectie per soort en uitkomst afronden.
+- Per factor onderscheid maken tussen numeriek inzetbaar, voorlopig begrensd, contextueel en nog niet inzetbaar.
+
+**Daarna, zonder volledige Excel-validatie af te wachten**
+- V0.1-modelcontract en parameterconfiguratie afronden.
+- Runtime-integratieplan maken op basis van de bestaande engine en intervalcontracten.
+- V0.1 implementeren en testen; pas na review de bestaande prognose-view op de nieuwe uitkomsten aansluiten.
+
+**Parallel/na eerste werkende versie**
+- Resterende Excel-bronnen en parameters valideren.
+- Ontbrekende soort-/uitkomstbronnen toevoegen aan het bestaande register.
+- Nieuwe data en praktijkresultaten gebruiken om modelversies gecontroleerd te tunen.
+
+**Hervatten vanaf:** resterende primaire broncontrole en afronding van de V0.1-factorselectie. De implementatie is het beoogde vervolg van deze huidige taak, niet iets dat pas na perfecte validatie mag beginnen.
