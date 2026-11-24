@@ -418,3 +418,32 @@ De huidige gegevens rechtvaardigen een **soort- en uitkomstspecifieke prioriteit
 6. Geen numerieke Excel-archetypegewichten, zuurstofdrempels, troebelheidsfactoren of maand-/dagritmegetallen worden in deze matrix geactiveerd.
 
 **Volgende werkslag:** controleer per eerste kandidaat de exacte primaire bronrespons, bereik, steekproef, levensfase en context. Maak daarna alleen waar effectgroottes vergelijkbaar zijn een numeriek voorstel. Waar dit niet kan, blijft de factor kwalitatief of krijgt hij geen actief gewicht.
+
+# 11. Primaire broncontrole — eerste kandidaten (24-11-2026)
+
+De eerste broncontrole is uitgevoerd op publicatie-/abstractniveau voor de volgende primaire studies. Dit verfijnt de evidence matrix; het is nog geen volledige systematische review van alle 94 records.
+
+| Bronrecord | Gecontroleerde bevinding | Gevolg voor de weging |
+|---|---|---|
+| \`common-carp-juvenile-foraging-temperature-2012\` | Oyugi et al. onderzochten juveniele karpers van 90–105 mm bij 16, 20, 24 en 28 °C. De studie mat onder meer feeding rate (items/s) en functionele respons; de hoogste feeding rates traden op bij 24 °C. Groei was het hoogst rond 20–24 °C en lager bij 16 en 28 °C. | Directe temperatuurrespons voor foerageersnelheid bij juvenielen. De uitkomst is geen volwassen-karpercurve, geen algemene metabolismecurve en geen dagelijkse voedselopname in het veld. |
+| \`common-carp-temperature-feeding-rhythm-2012\` | Chen et al. onderzochten een Aziatische ondersoort (\`C. carpio haematopterus\)) bij 4–34 °C, met volwassen dieren van 630–850 g en jonge dieren van 61–91 g. De abstract rapporteert twee voedingspieken en een temperatuurafhankelijke dagelijkse opname; de hoogste dagelijkse opname lag in deze proef bij 28 °C en daalde bij 34 °C. | Directe proefinformatie voor voedingsintensiteit en voedingsritme, maar beperkte overdraagbaarheid naar Nederlandse wilde karper. Geen universele kloktijden of volledige veldcurve overnemen. |
+| \`european-perch-aerobic-scope-size-temperature-2020\` | Christensen et al. maten zuurstofverbruik en aerobe scope bij Europese baars over 15–28 °C en onderzochten daarnaast temperatuurvoorkeur. Het temperatuurpunt van de hoogste aerobe scope daalde met toenemende lichaamsmassa; vissen onder 40 g lieten binnen het onderzochte bereik geen daling van aerobe scope bij stijgende temperatuur zien. | Directe fysiologische basis, maar één universele baarscurve is onvoldoende. Lichaamsgrootte/levensfase is een relevante effectmodifier. De studie meet geen dagelijkse voedingsactiviteit of vangbaarheid. |
+| \`adult-pikeperch-aerobic-scope-temperature-2012\` | Frisk et al. maten volwassen kweek-snoekbaars bij zes temperaturen tussen 13 en 28 °C. De berekende maximale metabole scope lag bij 18,8 °C, maar metabole scope verschilde niet significant tussen 13 en 25 °C. Het afgeleide 80%-bereik was 10,4–26,9 °C; de auteurs benadrukken een ontogenetische verschuiving ten opzichte van juvenielen. | Directe fysiologische respons, maar de 18,8 °C is geen smal bewezen activiteitsoptimum. De brede responszone, kweekcontext en levensfase moeten in de curvebeoordeling blijven staan. |
+| \`roach-autumnal-diel-feeding-shift-2008\` | Hautala onderzocht blankvoorn in de littorale zone van één boreaal meer. De gemeten voedingsactiviteit verschoof in de herfst van overdag naar schemering toen de watertemperatuur van circa 20 naar 10 °C daalde; rond 5 °C bleef een laag maar stabiel niveau van nachtactiviteit bestaan. | Direct bewijs voor seizoens-/temperatuurafhankelijk voedingsritme in die habitat. Geen universele Nederlandse tijdvakfactor: predatierisico, licht, seizoen en voedselbeschikbaarheid zijn mede verklaringen. |
+| \`bream-roach-in-situ-diel-zooplankton-feeding-2004\` | Vašek & Kubečka onderzochten in-situ zoöplanktonconsumptie bij subadulte/adulte brasem en blankvoorn in het Římov-stuwmeer. Bij de onderzochte microcrustaceeën-etende groepen was de voedingsperiodiciteit overwegend overdag, met een duidelijke daling van maagvulling in de nacht. | Direct bewijs voor de specifieke voedselgilde en onderzochte lengteklassen. Niet generaliseren naar bodemvoeding, ander aas of alle seizoenen. Dit is niet dezelfde publicatie als Říha et al. 2015 die in de Excel staat. |
+
+## 11.1 Correcties en expliciete grenzen
+
+- De waarde 24 °C uit Oyugi et al. is een maximum van gemeten **feeding rate bij juveniele karper** in een experiment; het is geen bewezen algemeen temperatuurmaximum voor alle karperactiviteit.
+- Bij baars is lichaamsmassa een belangrijke modifier van de aerobe-scope- en temperatuurvoorkeurrelatie. Een profiel zonder lengte-/grootte-invoer moet deze onzekerheid zichtbaar houden.
+- Bij snoekbaars is 18,8 °C het berekende maximum van metabole scope in de onderzochte volwassen kweekvis. De studie vond geen significant verschil in metabole scope tussen 13 en 25 °C; de 80%-band is breed. Het getal 18,8 °C mag dus niet als scherpe piek in de prognose worden vertaald.
+- De twee cyprinidenstudies over dagritme laten zien waarom een generieke soortbonus niet verantwoord is: de respons verschilt per soort, voedselgilde, seizoen en habitat.
+- De Excel-bron voor brasemdagritme (Říha et al. 2015) mag niet worden verward met de al geregistreerde Vašek & Kubečka-studie uit 2004. Beide kunnen relevant zijn, maar vereisen afzonderlijke registratie en broncontrole.
+
+## 11.2 Status na deze broncontrole
+
+**Afgerond:** eerste broncontrole van zes relevante studies en aanscherping van de interpretatie van de bijbehorende evidence records.
+
+**Nog open binnen de huidige wegingstaak:** primaire broncontrole van overige kandidaatstudies, vooral directe voedselopname bij snoek, baars, zeelt, snoekbaars en meerval; vervolgens responsvormen en toepassingsgrenzen naast elkaar zetten. Pas wanneer responsen voldoende vergelijkbaar zijn, volgt een numeriek gewicht.
+
+**Daarna:** de resterende Excel-tabbladen en bronverwijzingen volledig valideren en gevalideerde nieuwe informatie toevoegen aan het bestaande onderzoeksregister.
