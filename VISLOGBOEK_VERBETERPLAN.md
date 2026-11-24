@@ -1326,3 +1326,76 @@ Geen ander document, issue, roadmap, audit of historische notitie mag zelfstandi
 Als een onderliggend document strijdige of verouderde informatie bevat, wordt die niet automatisch leidend. Stop bij een materieel conflict, controleer de actuele code/status en leg de benodigde correctie voor. Wijzig het leidende plan, scope of een eigenaarbesluit niet stilzwijgend. Historische inhoud blijft behouden; actuele status wordt waar nodig met een gedateerde correctie aangevuld.
 
 Er bestaat vanaf deze vastlegging één actieve uitvoeringsvolgorde, geen tweede queue en geen impliciete heropening van afgesloten of afzonderlijke werksporen.
+
+
+---
+
+## Prioriteitsbesluit — watertemperatuurmodel eerst verbeteren (24 november 2026)
+
+**Besluit producteigenaar:** de betrouwbaarheid van de watertemperatuur is op dit moment de hoogste productprioriteit, omdat deze temperatuur een belangrijke invoer vormt voor de Vislogboek-prognose en de daarop gebaseerde visadviezen. De watertemperatuur wordt daarom het **eerste verbeteronderwerp**. Dit besluit wijzigt expliciet de eerder hieronder vastgelegde eerstvolgende opdracht over de scoreberekening: die audit wordt niet geschrapt, maar uitgesteld totdat het watertemperatuurwerk is afgerond of de eigenaar anders besluit.
+
+Dit is een prioriteitsbesluit, geen bewering dat de huidige implementatie al volledig is onderzocht en ook geen goedkeuring voor een vooraf gekozen formule of nieuwe engine.
+
+### Probleemstelling en doel
+
+De huidige uitvoer kan zonder lokale watertemperatuurmeting een waarde tonen die fysisch verdacht of onvoldoende verklaard is, zoals **-0,1 °C**. Een schatting zonder lokale meting is op zichzelf niet verkeerd: een fysisch onderbouwd model kan uit weersverloop, waterdiepte en warmte-uitwisseling een bruikbare schatting maken. De uitvoer moet echter herleidbaar zijn tot de werkelijk beschikbare invoer, de toestand van het water en de onzekerheid.
+
+Het doel is niet om simpelweg een negatieve waarde af te kappen of één vaste correctie toe te passen. Het doel is een realistische, tijdsafhankelijke en waar mogelijk dieptebewuste watertemperatuurschatting te leveren, met expliciete bronstatus en onzekerheid. De temperatuur die relevant is voor de visprognose moet duidelijk worden onderscheiden van een oppervlaktetemperatuur of een gemiddelde over de waterkolom.
+
+### Wetenschappelijke uitgangspunten en referentiekader
+
+De volgende fysische uitgangspunten vormen het toetsingskader voor de audit en het ontwerp:
+
+- Zoet water heeft zijn grootste dichtheid rond **4 °C**. Bij afkoeling boven circa 4 °C kan kouder water mengen en dalen; onder circa 4 °C is het gedrag andersom en kan kouder water boven warmer water blijven. Dit beïnvloedt verticale temperatuurprofielen en winterse afkoeling.
+- De temperatuur van een waterlichaam reageert door zijn warmtecapaciteit doorgaans trager dan de luchttemperatuur. Waterdiepte en volume zijn daarom relevante randvoorwaarden; een luchttemperatuur mag niet rechtstreeks als watertemperatuur worden geïnterpreteerd.
+- Warmte-uitwisseling aan het oppervlak is dynamisch. Relevante processen zijn onder meer voelbare warmte-uitwisseling door het temperatuurverschil tussen lucht en water, verdamping (mede afhankelijk van luchtvochtigheid en wind), inkomende zonnestraling en langgolvige uitstraling. Wind beïnvloedt de uitwisseling en menging.
+- Ook waterbeweging/stroming, lokale beschutting, sneeuw/ijs en bijzondere lokale omstandigheden kunnen de representativiteit van een generieke schatting beïnvloeden.
+- Een vereenvoudigde berekening met één vast warmteverlies in W/m² en alleen Q = m·c·ΔT is hoogstens een illustratie. Zij is geen voldoende model voor dagelijkse temperatuurontwikkeling wanneer de warmteflux, menging, straling en weersgeschiedenis niet dynamisch worden meegenomen.
+- Een waarde onder 0 °C is niet automatisch wiskundig onmogelijk: opgeloste stoffen kunnen het vriespunt iets verlagen en onderkoeling kan onder bijzondere omstandigheden voorkomen. Dat is echter geen rechtvaardiging om zonder bewijs een volledige gewone zoetwaterkolom op een negatieve temperatuur te presenteren. De implementatie moet zulke uitzonderingen onderscheiden van een reken- of invoerfout; niet blind clampen en ook niet blind accepteren.
+
+**Belangrijke externe referentie:** het KNMI beschrijft een operationeel model voor watertemperatuur en ijsvorming in stilstaand buitenwater. De modelbeschrijving noemt onder andere luchttemperatuur, relatieve vochtigheid, bewolking, wind, straling en verdamping, en geeft aan dat een waterlaag van circa 2 meter op een tijdschaal van meerdere dagen reageert. Het KNMI vermeldt voor de gesimuleerde watertemperatuur een nauwkeurigheid in de orde van ongeveer 1 °C onder de beschreven omstandigheden. Dit is een relevant referentiepunt, geen bewijs dat Vislogboek dezelfde methode al gebruikt en ook geen reden om het KNMI-model zonder aanpassing over te nemen.
+
+Bronnen:
+- KNMI, *Watertemperatuur- en ijsgroeimodel*: https://www.knmi.nl/kennis-en-datacentrum/achtergrond/watertemperatuur-en-ijsgroeimodel-van-het-knmi
+- KNMI, *IJsdikte en watertemperatuur*: https://www.knmi.nl/nederland-nu/weer/waarschuwingen-en-verwachtingen/extra/ijsdikte-watertemperatuur
+- NEMO Kennislink, *Weer wat geleerd: natuurijs*: https://www.nemokennislink.nl/publicaties/weer-wat-geleerd-natuurijs/
+- Natuurijswijzer, *IJsvorming*: https://www.natuurijswijzer.nl/ijsontwikkeling/ijsvorming/
+
+### Wat de eerste verbeteropdracht moet vaststellen
+
+De eerste opdracht is een gerichte, read-only technische audit van de **daadwerkelijke huidige implementatie op main**. Beschrijf alleen wat in actuele code, tests en datastromen aantoonbaar aanwezig is. Eerdere chatbeschrijvingen of architectuurnamen gelden niet als bewijs.
+
+1. Traceer de volledige keten van weerbron en tijdreeks naar de watertemperatuurschatting en vervolgens naar de soortrespons/prognose. Leg per invoerveld vast: bron, tijdstempel, eenheid, geldigheidscontrole, ontbrekendewaardegedrag en of het gemeten, voorspeld, afgeleid of geschat is.
+2. Stel vast welke fysische processen de huidige engine werkelijk berekent en welke ontbreken of slechts met vaste correcties/tijdconstanten worden benaderd. Controleer in het bijzonder warmteopslag, diepte/volume, weersgeschiedenis, wind/menging, vochtigheid/verdamping, bewolking en kort-/langgolvige straling voor zover de benodigde invoer bestaat.
+3. Stel vast wat de huidige uitkomst semantisch voorstelt: oppervlak, specifieke diepte, bodem, representatieve laag of gemiddelde. Controleer of verticale stratificatie en het zoetwater-dichtheidsmaximum rond 4 °C expliciet of impliciet worden behandeld.
+4. Reconstrueer de herkomst van de negatieve voorbeeldwaarde (zoals -0,1 °C): exacte invoer, tussenstappen, eenheden, tijdsvenster, afronding, fallback en eventuele grenswaarden. Als die concrete casus niet reproduceerbaar is, noteer dat expliciet en verzin geen verklaring.
+5. Beoordeel hoe lokale waterdiepte, stilstaand/stromend water, meetankers, eerdere temperatuurmetingen en onzekerheid werkelijk worden gebruikt. Controleer ook of de schatting strikt as-of het prognosemoment blijft en geen toekomstige informatie gebruikt.
+6. Vergelijk de gevonden implementatie met de relevante KNMI-processen en leg per proces vast: aanwezig en aantoonbaar, gedeeltelijk/vereenvoudigd, ontbreekt, of niet te beoordelen door ontbrekende invoer.
+7. Bepaal welke temperatuuruitvoer de visprognose nodig heeft en hoe die moet worden geïnterpreteerd. Houd gemeten watertemperatuur, gemodelleerde schatting, oppervlaktetemperatuur en diepte-/waterkolomrepresentatie uit elkaar. Maak onzekerheid en datakwaliteit zichtbaar zonder een schijnnauwkeurige waarde te suggereren.
+8. Inventariseer bestaande tests en maak een voorstel voor fysische regressiegevallen, waaronder geleidelijke afkoeling, langdurige vorst, korte koude-inval, dooi, verschillende waterdieptes, windstil versus windrijk, ontbrekende invoer, meting versus schatting, 4 °C-overgang en vriespuntgedrag.
+
+### Beoogde acceptatie van de verbetering
+
+Na de audit wordt een concreet verbeterontwerp opgesteld dat de bestaande engine zoveel mogelijk hergebruikt en ten minste aan deze eisen voldoet:
+
+- Geen directe gelijkstelling van luchttemperatuur aan watertemperatuur en geen ongefundeerde negatieve watertemperatuur.
+- De berekening gebruikt relevante weersgeschiedenis en tijdsafhankelijke warmte-uitwisseling; de precieze processen en benodigde databronnen worden pas gekozen nadat de huidige implementatie en databeschikbaarheid zijn vastgesteld.
+- Waterdiepte en het onderscheid tussen oppervlaktelaag en diepere waterlaag worden passend behandeld. Als de beschikbare invoer geen verticaal profiel kan dragen, wordt de beperking expliciet gemaakt in plaats van een profiel te verzinnen.
+- De betekenis, bronstatus, ouderdom en onzekerheid van iedere temperatuuruitkomst zijn uitlegbaar.
+- Gemeten waarden krijgen een expliciete, controleerbare rol als anker; ontbrekende metingen worden niet als gemeten of als zekerheid gepresenteerd.
+- Historische berekeningen respecteren het prognosemoment (as-of) en gebruiken geen toekomstige weer- of meetgegevens.
+- De temperatuurrespons blijft soortspecifiek waar de bestaande biologische profielen dat vereisen; de thermische schatting zelf wordt niet vermengd met willekeurige soortgewichten.
+- Regressietests controleren fysisch plausibel gedrag over tijd en omstandigheden. Technische tests alleen gelden niet als bewijs van biologische nauwkeurigheid; waar mogelijk is vergelijking met onafhankelijke metingen nodig.
+
+### Uitvoeringsvolgorde en grenzen
+
+1. **Eerst:** de read-only audit uit bovenstaande opdracht op actuele main, inclusief reconstructie van de negatieve voorbeeldwaarde indien reproduceerbaar.
+2. **Daarna:** leg de bevindingen en een concreet, toetsbaar verbeterontwerp voor, met expliciet onderscheid tussen bewezen tekortkomingen, aannames, ontbrekende invoer en resterende onzekerheid.
+3. **Vervolgens:** werk de watertemperatuurverbetering als eerste implementatiewerkpakket uit en voer die gefaseerd uit binnen de bestaande architectuur. Geen parallelle watertemperatuur-engine starten zonder aantoonbare noodzaak.
+4. **Validatie:** voeg gerichte fysische regressietests toe en voer de toepasselijke Quality Gate uit. Rapporteer technische correctheid, vergelijking met meetgegevens en biologische validatie afzonderlijk.
+5. **Daarna pas:** hervat de eerder vastgelegde read-only audit van de geïntegreerde scoreberekening en driverdekking, tenzij de eigenaar de volgorde opnieuw wijzigt.
+
+**Scopebescherming:** deze prioriteitswijziging geeft toestemming om watertemperatuur als eerste verbeteronderwerp te onderzoeken, te ontwerpen en als eerstvolgende implementatie voor te bereiden. Zij is geen toestemming om nu al een specifieke fysische formule, parameter, grenswaarde, nieuwe engine, scoreweging of UI-aanpassing te kiezen. Productiecode, tests, parameters, database, prognoseformule en UI blijven ongewijzigd totdat het ontwerp op basis van de audit concreet is en de eigenaar de betreffende implementatierichting expliciet heeft goedgekeurd.
+
+**Actuele status:** prioriteit door eigenaar vastgesteld; documentatie vastgelegd; technische audit nog niet uitgevoerd. De bestaande scoreberekeningsaudit is uitgesteld en blijft behouden als eerstvolgende taak ná dit watertemperatuurwerk.
+
