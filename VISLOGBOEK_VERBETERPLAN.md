@@ -2868,6 +2868,14 @@ Documentatie:
 
 ### F. Uitvoeringsgrens en status
 
-Dit implementatieplan is een concreet voorstel voor de kleinste bruikbare eerste versie. De scope is bewust beperkt en de technische keuzes zijn voldoende om te starten. Er is bij het vastleggen van dit plan nog geen runtimecode, testcode, parameter, formule, database, UI, API-integratie of deployment gewijzigd.
+Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 november 2026 expliciet opdracht gegeven om het plan uit te voeren en te implementeren. De uitvoeringsgrens is daarmee opgeheven voor deze watertemperatuurscope. Dit geeft geen toestemming voor wijziging van de bestaande scoreformule/soortcurves, KNMI-live-integratie, externe accounts/API-sleutels, destructieve database-/snapshotmigraties of deployment.
 
-**Volgende uitvoeringsstap na opdracht:** start werkpakket 1 en 2 in de bestaande codebasis, voer de minimale harde tests uit, en ga alleen door naar aansluiting op prognose/score wanneer de fysische kern de invarianten haalt. De eigenaar heeft gevraagd om advies en een effectief plan; deze vraag is geen expliciete opdracht om nu al runtimecode te wijzigen.
+**Uitvoering 1 — geïsoleerde fysische kern (gestart):**
+- Nieuwe pure module `src/services/waterColumnModel.ts`: vijf vaste lagen, zoetwaterdichtheid met maximum rond 4 °C, convectieve overturning met behoud van gemiddelde warmte, eenvoudige windgedreven uitwisseling, kortgolvige stralingspenetratie, bulk-lucht/waterwarmtefluxen en een elementaire ijsfase met latente warmte.
+- Nieuwe deterministische test `test-water-column-model.ts`, opgenomen in de bestaande Quality Gate.
+- De kern accepteert alleen forcing tot het doelmoment; wanneer een as-of-grens wordt opgegeven, is `availableAt` verplicht. Data zonder beschikbaarheidstijd wordt dan afgewezen.
+- De startcoëfficiënten voor optische extinctie en turbulente uitwisseling zijn expliciete voorlopige priors. Ze zijn niet empirisch gekalibreerd en rechtvaardigen nog geen nauwkeurigheidsclaim.
+
+**Status:** dit is uitsluitend de eerste geïsoleerde fysische rekenkern. Zij is nog niet aangesloten op `analyzeWaterThermalDevelopment`, historische spin-up, de app of de bestaande score. De huidige productieprognose en score blijven daardoor ongewijzigd. De module is pas technisch geaccepteerd na een groene Quality Gate en diff-review.
+
+**Eerstvolgende taak:** werkpakket 1: voeg een historische forcingadapter toe via de bestaande Open-Meteo-infrastructuur, kies de complete historische dataset op basis van feitelijke variabelebeschikbaarheid, en voorkom overlap/lekkage bij de overgang naar de bestaande forecast. Hergebruik bestaande cachepatronen; geen nieuwe database of schemawijziging tenzij de code-audit aantoont dat dit onvermijdelijk is. Daarna wordt de kern met een expliciete best-effort startprior en lokale meetnudging verbonden. De scorekoppeling blijft geblokkeerd tot de fysische en regressieacceptatiecriteria slagen.
