@@ -166,6 +166,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
   const exposureFactor = input.windExposure === 'sheltered' ? 0.55
     : input.windExposure === 'partly_exposed' ? 0.8 : 1;
   const validFetch = typeof input.effectiveFetchM === 'number' && Number.isFinite(input.effectiveFetchM) && input.effectiveFetchM >= 10 && input.effectiveFetchM <= 10000;
+  const validDirectionalFetch = Array.isArray(input.windFetchByDirectionM) && input.windFetchByDirectionM.length === 16 &&
+    input.windFetchByDirectionM.every((value) => Number.isFinite(value) && value >= 0 && value <= 10000);
   const scalarFetchFactor = validFetch ? clamp(Math.sqrt((input.effectiveFetchM as number) / 100), 0.5, 2.5) : 1;
   let temperatures = mixConvectivelyUnstableLayers(input.initialLayerTemperaturesC);
   let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, 2);
@@ -306,7 +308,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     opticalExtinctionPerM: Math.round(opticalExtinctionPerM * 1000) / 1000,
     secchiPriorUsed: !validSecchiDepth,
     windExposurePriorUsed: input.windExposure === undefined,
-    fetchPriorUsed: !validFetch,
+    fetchPriorUsed: !(validFetch || validDirectionalFetch),
   };
 }
 
@@ -320,6 +322,7 @@ export interface WaterColumnPredictionInput {
   asOf?: string;
   windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
   effectiveFetchM?: number;
+  windFetchByDirectionM?: number[];
   secchiDepthM?: number;
   waterMovement?: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
 }
@@ -390,6 +393,7 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     observations: input.observations,
     windExposure: input.windExposure,
     effectiveFetchM: input.effectiveFetchM,
+    windFetchByDirectionM: input.windFetchByDirectionM,
     secchiDepthM: input.secchiDepthM,
     targetTime: input.targetTime,
     asOf: input.asOf,
