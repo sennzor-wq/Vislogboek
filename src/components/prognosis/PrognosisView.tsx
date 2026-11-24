@@ -645,7 +645,10 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   {showAdvancedDetails && activeDayProg.integratedScoreConfidencePercent !== undefined && (
                     <div className="text-[11px] text-slate-400 mt-1">Indicatieve modelonderbouwing: {activeDayProg.integratedScoreConfidencePercent}% (geen statistisch betrouwbaarheidsinterval).</div>
                   )}
-                  {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
+                  {activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth === false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null && (
+                  <span className="text-slate-400">Losse meting: {activeDayProg.thermalAnalysis.measuredWaterTemp.toFixed(1)} °C — niet gebruikt als soortdoeltemperatuur</span>
+                )}
+                {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                     <span
                       className="inline-block mt-2 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30"
                       title="Indicatieve weerafgeleide watertemperatuur zonder lokale waterreferentie; hoge, niet-gekwantificeerde onzekerheid."
@@ -930,7 +933,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                 <div className="flex items-center gap-2">
                   <Thermometer className="w-4 h-4 text-cyan-400" />
                   <span className="font-semibold text-white">Watertemperatuur</span>
-                  <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
+                  <span className="text-cyan-300">{activeDayProg.thermalAnalysis.hasMeasuredWaterTemp && activeDayProg.thermalAnalysis.measuredWaterTempAtTargetDepth !== false && activeDayProg.thermalAnalysis.measuredWaterTemp !== null ? `${activeDayProg.thermalAnalysis.measuredWaterTemp} °C gemeten` : activeDayProg.thermalAnalysis.estimatedWaterTemp !== null ? `circa ${activeDayProg.thermalAnalysis.estimatedWaterTemp} °C geschat` : "onvoldoende gegevens"}</span>
                 </div>
                 {hasUnanchoredWeatherOnlyEstimate(activeDayProg) && (
                   <span
