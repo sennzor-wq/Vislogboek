@@ -2314,3 +2314,21 @@ Bron: *A European Multi Lake Survey dataset of environmental variables, phytopla
 - houd Klinkenbergerplas-ruwe data als afzonderlijke data-aanvraag in voorbereiding; nog niet verzenden.
 
 **Besluitpoort blijft gesloten:** geen API-integratie, data-import, modelberekening, productiecode, database, UI, formule, parameter, scoreberekening of deployment. Externe aanvragen blijven wachten op expliciete toestemming. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Aanvulling dataherkomst en licentie — European Multi Lake Survey (24 november 2026)
+
+De publicatie- en repositorymetadata van de European Multi Lake Survey zijn verder gecontroleerd. De EMLS-dataset betreft een gestandaardiseerde Europese meerinventarisatie uit de zomer van 2015, waaraan onderzoekers uit 27 landen deelnamen. De KNAW-repository vermeldt de dataset als afzonderlijk datasetrecord en geeft expliciet **CC0** als licentie voor de gekoppelde publicatie-/datasetregistratie. De publicatie beschrijft de verticale temperatuurprofielen en meetmethoden: CTD/profiling of, waar nodig, handmetingen op 0,5 m intervallen; ondiepe meren zonder thermocline zijn tot nabij de bodem bemeten.
+
+**Gevolg:** EMLS is een haalbare kandidaat voor een reproduceerbare profielvorm-/thermocline-test, met bronvermelding volgens wetenschappelijke conventie. Het blijft een survey uit één zomer (2015), geen uurlijkse tijdreeks en geen wintervalidatie. De feitelijke downloadbestanden moeten bij de voorbereiding van het offline protocol nog worden gecontroleerd op volledigheid en kolomdefinities.
+
+Bronnen:
+- Mantzouki et al. (2018), *A European Multi Lake Survey dataset...*, Scientific Data 5, 180226: https://www.nature.com/articles/sdata2018226
+- KNAW Pure datasetrecord, *The European Multi Lake Survey (EMLS) dataset ... 2015* (vermeldt CC0): https://pure.knaw.nl/portal/nl/datasets/the-european-multi-lake-survey-emls-dataset-of-physical-chemical-/
+- KNAW publicatierecord en datasetkoppeling: https://pure.knaw.nl/portal/en/publications/a-european-multi-lake-survey-dataset-of-environmental-variables-p/datasets/
+
+**EDI 705-status:** de publicatie bevestigt dat de Pilla et al. (2021)-bestanden (SiteInformation.csv, TempProfiles_Raw.csv, TempProfiles_Interpolated.csv) via EDI dataset 705 worden verspreid. De repositorypagina kon in deze controle niet worden geopend (HTTP 403); de specifieke licentie en de actuele downloadbaarheid zijn daarom nog niet bevestigd. Niet aannemen dat CC0 geldt zonder de datasetmetadata zelf te controleren.
+
+Aanvullende bron: Pilla et al. (2021), *Global data set of long-term summertime vertical temperature profiles in 153 lakes*: https://www.nature.com/articles/s41597-021-00983-y
+
+**Vervolg:** EMLS wordt voorlopig hoger geprioriteerd dan EDI 705 voor de eerste reproduceerbare profielvorm-test, omdat de datasetkoppeling en CC0-vermelding nu via KNAW zijn vastgesteld. EDI 705 blijft kandidaat totdat de repositorymetadata/licentie rechtstreeks zijn geverifieerd. Dit verandert niets aan de scope of besluitpoort van het model.
