@@ -16,6 +16,7 @@ async function run() {
   await db.open();
   const originalFetch = globalThis.fetch;
   let calls = 0;
+  const fetchCallCount = () => calls;
   globalThis.fetch = (async () => {
     calls++;
     return new Response(JSON.stringify({
@@ -36,7 +37,7 @@ async function run() {
     const optedOut = await getAutomaticWaterFetchForLocation({
       latitude: 52, longitude: 5, automaticWaterFetchEnabled: false,
     });
-    if (optedOut !== null || calls !== 0) {
+    if (optedOut !== null || fetchCallCount() !== 0) {
       throw new Error('Without explicit opt-in, exact coordinates must not be sent to OpenStreetMap.');
     }
     const result = await getAutomaticWaterFetchForLocation({
@@ -54,7 +55,7 @@ async function run() {
     const cached = await getAutomaticWaterFetchForLocation({
       latitude: 52, longitude: 5, automaticWaterFetchEnabled: true,
     });
-    if (!cached || calls !== 1) throw new Error('Fresh directional fetch must be reused from IndexedDB cache.');
+    if (!cached || fetchCallCount() !== 1) throw new Error('Fresh directional fetch must be reused from IndexedDB cache.');
     console.log('Water fetch geometry tests passed.');
   } finally {
     globalThis.fetch = originalFetch;
