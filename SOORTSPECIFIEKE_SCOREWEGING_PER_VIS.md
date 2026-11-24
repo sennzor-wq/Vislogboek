@@ -740,6 +740,9 @@ Daarom is `feedingActivity.score` in deze eerste integratiestap bewust `null` en
 
 # 16. Soortspecifiek wegingsvoorstel — uitgangspunt voor V0.1 (24-11-2026)
 
+> **INGETROKKEN OP 24-11-2026:** de temperatuur-als-enige-numerieke-factorbenadering en de 0,00-toekenningen hieronder zijn niet het geaccepteerde eindmodel. Ze documenteren een eerdere, te beperkte tussenstap. Gebruik voor het actuele modelbesluit uitsluitend §17. De soortspecifieke bron-/responsprioriteiten blijven onderzoeksmateriaal, geen numerieke gewichten.
+
+
 **Status:** inhoudelijk voorstel; nog niet als runtime-gewicht goedgekeurd. Dit voorstel concretiseert de bestaande evidence matrix. Het vervangt geen primaire broncontrole en activeert geen nieuwe factor.
 
 ## 16.1 Eerst het meetdoel vastzetten
@@ -816,3 +819,20 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 5. Ken pas numerieke voedingsgewichten toe nadat brondata op dezelfde meeteenheid en vergelijkbare context zijn geëxtraheerd. De prioriteitsrangorde in deze sectie is geen effectgrootte en mag niet als percentage worden geïnterpreteerd.
 
 **Beslispunt vóór runtimewijziging:** eigenaar beoordeelt dit soortspecifieke wegingsvoorstel als inhoudelijk uitgangspunt. Na akkoord volgt één samenhangende implementatie van de toegelaten responsfuncties in de bestaande engine, met behoud van de dag-/tijdvakcontracten, onbekend-semantiek en targetTime-as-of-grens.
+
+
+## 17. Geaccepteerd modeluitgangspunt — twee responsen, één prognosescore
+
+**Status:** leidend ontwerpbesluit van 24 november 2026; vervangt de temperatuur-als-enige-scoreformulering uit §16 en de eerdere afwijzing van een geïntegreerde gebruikersscore in §8.1. Nog geen numerieke gewichten of runtimeformule goedgekeurd.
+
+1. De bestaande Prognose blijft de enige bron voor de biologische berekening. Er komt geen tweede prognose-engine.
+2. Fysiologische respons en voedings-/foerageerrespons blijven intern afzonderlijk berekenbaar en uitlegbaar. Locomotorische activiteit, habitat/aanwezigheid en empirische vangkans blijven herkenbare afzonderlijke gegevens/responsen.
+3. De bestaande gebruikersweergave behoudt één numerieke prognosescore van 1–10 voor de dag en elk van de vier tijdvakken. De score wordt inhoudelijk de **geïntegreerde vangstgerichte prognose-index**: een indicatie hoe gunstig de biologische omstandigheden zijn voor een vangstmogelijkheid, geen gemeten of persoonlijke vangstkans.
+4. De twee biologische responsen worden niet automatisch gemiddeld. De samenvoegfunctie moet soortspecifiek zijn en rekening houden met effectrichting, responsschaal, interacties, limiterende omstandigheden, onzekerheid en dubbeltelling. Een lage bewegingsactiviteit mag niet op zichzelf als negatieve voedingsrespons worden behandeld.
+5. De score blijft 1–10; de daguitkomst wordt uit dezelfde chronologische tijdvak-/segmentuitkomsten afgeleid. De vier bestaande tijdvakken, Europe/Amsterdam-intervalgrenzen, DST-regels en targetTime-as-of-invariant blijven behouden.
+6. De Prognose-uitvoer bevat de volledige modeluitleg: responsen, verwachte gedragsvorm (bijvoorbeeld weinig verplaatsing maar gericht foerageren), bepalende factoren, bronherkomst, bewijsstatus, ontbrekende invoer, dekking en onzekerheid.
+7. Lokale aanwezigheid/habitat blijft een afzonderlijke laag. Zij beïnvloedt de geïntegreerde score alleen wanneer een expliciete, passende en gevalideerde koppeling is vastgesteld. Persoonlijke vangkans blijft apart.
+8. VisCoach consumeert de bestaande Prognose-uitvoer en vertaalt die naar tactiek en praktisch advies. VisCoach voert geen eigen biologische factorweging, responsberekening of prognosescore uit en wijzigt de score niet.
+9. De numerieke samenvoegfunctie en factorbijdragen worden pas geactiveerd nadat de volledige factor-/responsmatrix per soort is beoordeeld. Onbekende effecten worden niet als nul-effect gepresenteerd en leveren ook geen verzonnen bonus op.
+
+**Acceptatie:** één score van 1–10 in de bestaande dag-/tijdvakweergave; twee afzonderlijke onderliggende biologische responsen; tactiek verklaart hoe op het verwachte gedrag gevist kan worden; Prognose blijft eigenaar van alle biologische inhoud; VisCoach is uitsluitend de advies-/tactiekconsument; persoonlijke vangkans blijft empirisch en apart.

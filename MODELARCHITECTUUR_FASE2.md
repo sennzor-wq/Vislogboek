@@ -1540,3 +1540,34 @@ VisCoach moet de opeenvolgende segmenten tot één chronologisch advies vertalen
 De bestaande `buildVisCoachPlan` roept nog steeds één keer `calculateDayPrognosis` aan en bouwt daarna de intervalpresentatie met de al opgehaalde uurforecast. De resulterende `intervalOutput` wordt als onderdeel van hetzelfde plan aan de bestaande VisCoach-tekstfunctie doorgegeven.
 
 VisCoach groepeert alleen aangrenzende segmenten met gelijke beschrijvende weercontext en beschrijft de rest chronologisch. Ontbrekende waarden blijven buiten de tekst of worden als ontbrekende dekking benoemd; er worden geen schattingen of scores gegenereerd. De dagprognose blijft expliciet dagcontext, de starttactiek blijft aan het gekozen starttijdvak gekoppeld en de persoonlijke vangkans blijft één sessiebrede uitkomst. De extra parameter is optioneel, zodat bestaande sessie-start- en reassessment-adviezen hun bestaande gedrag behouden. Zie audit §205.
+
+
+## 171. Eén geïntegreerde prognosescore; Prognose als biologische bron en VisCoach als tactiekconsument
+
+**Besluit eigenaar / ontwerpuitgangspunt — 24 november 2026.** De biologische responsen blijven intern gescheiden; de gebruiker krijgt één geïntegreerde vangstgerichte prognosescore.
+
+### 171.1 Prognose is eigenaar van het volledige biologische model
+De bestaande Prognose-keten is de enige eigenaar van de soortspecifieke fysiologische respons, voedings-/foerageerrespons, eventuele locomotorische respons, lokale aanwezigheid/habitatcontext, geïntegreerde 1–10 vangstgerichte prognose-index, dag-/tijdvakaggregatie en volledige bron-/bewijs-/onzekerheidsuitleg. Er komt geen tweede biologische modelberekening in VisCoach of een parallelle prognose-engine.
+
+### 171.2 Eén score, afzonderlijke verklaarbare responsen
+De bestaande 1–10-schaal en dag-/vier tijdvakweergave blijven behouden. De score duidt hoe gunstig de biologische omstandigheden zijn voor een vangstmogelijkheid; zij is geen percentage, persoonlijke vangstkans of garantie.
+
+Fysiologische respons en voedings-/foerageerrespons worden afzonderlijk berekend en blijven uitlegbaar. De soortspecifieke samenvoegfunctie hoeft geen rekenkundig gemiddelde te zijn. Zij onderscheidt gemeten respons van fysiologische capaciteit, beweging, dieet en prooikeuze; voorkomt dat weinig verplaatsing automatisch als weinig voedselopname wordt geïnterpreteerd; houdt rekening met interacties en limiterende omstandigheden; toont onzekerheid en ontbrekende invoer; en voorkomt overlap/dubbeltelling.
+
+Lokale aanwezigheid/habitat blijft een afzonderlijke laag totdat een expliciete gevalideerde koppeling bestaat. Persoonlijke vangkans blijft een aparte empirische sessie-uitkomst.
+
+### 171.3 Prognose-uitvoer is volledig en herleidbaar
+Prognose bevat waar beschikbaar de fysiologische en voedings-/foerageerrespons afzonderlijk, het verwachte gedrag (ook beperkte verplaatsing met gericht foerageren), bepalende factoren, bron-ID's, meetrespons, bewijsstatus, overdraagbaarheidsgrenzen, ontbrekende invoer, dekking en onzekerheid. Dezelfde scorebetekenis geldt voor dag en vier tijdvakken. Bestaande Europe/Amsterdam-intervalgrenzen, DST, duurweging, unknown-semantiek en targetTime-as-of blijven behouden.
+
+### 171.4 VisCoach vertaalt; VisCoach voorspelt niet opnieuw
+VisCoach consumeert de Prognose-uitvoer en maakt daar samen met gekozen stek, sessietijd, sessieduur, techniek en tactische positioneringsinformatie één praktisch plan van: waar, wanneer en hoe vissen. VisCoach voert geen eigen biologische factorweging of responsberekening uit, maakt geen tweede score, verandert de Prognose-score niet en verzint geen biologische verklaring die niet in de Prognose-uitvoer staat. Het vertaalt de verwachte gedragsvorm naar een passende tactiek.
+
+### 171.5 Implementatievolgorde
+1. Herclassificeer alle kandidaatfactoren naar de respons die zij werkelijk beïnvloeden; geen factor verdwijnt omdat hij nog niet numeriek inzetbaar is.
+2. Stel per soort responsvorm, richting, levensfase, watertype, tijdschaal, invoervereisten, bronsterkte en onzekerheid vast.
+3. Ontwerp de soortspecifieke samenvoegfunctie; toets limitering, interactie en dubbeltelling.
+4. Sluit de output aan op de bestaande dag-/tijdvakscore en volledige Prognose-uitleg.
+5. Laat VisCoach uitsluitend die output vertalen naar tactiek en advies.
+6. Test alle soorten, ontbrekende invoer, dag-/tijdvakconsistentie, snapshots, outputcompatibiliteit en targetTime-as-of.
+
+**Acceptatie:** één bestaande 1–10-score in Prognose, twee herkenbare biologische responsen eronder, complete modeluitleg in Prognose, tactiek/advies in VisCoach zonder tweede biologische berekening, en persoonlijke vangkans apart.

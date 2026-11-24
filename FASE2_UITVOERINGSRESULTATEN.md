@@ -603,42 +603,49 @@ De bestaande tests controleren een stabiele ankergestuurde reeks en forecast-as-
 **Status:** alleen audit/testontwerp. Geen code of tests gewijzigd of uitgevoerd. Volgende technische stap is test-first implementatie binnen de bestaande waterThermalEngine; daarvoor is een normale codewijzigingsworkflow nodig. Fase 2 blijft open; Fase 3 geblokkeerd.
 
 
-## Hervattingspunt 24 november 2026 — inhoudelijke beoordeling PR #223
-
-**Leidende opdracht:** volg `READ-FIRST.md`: verbeter de bestaande prognose in de bestaande weergave op basis van `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` en `SOORTSPECIFIEKE_SCORE_WEGING.md`. Geen parallelle prognose-engine, geen nieuwe product-/UI-functie als vervanging van modelwerk en geen ongefundeerde gewichten.
+## Hervattingspunt 24 november 2026 — inhoudelijke beoordeling PR #223 en bijgesteld modelbesluit
 
 ### Actuele repository- en PR-status
+- Repository: `sennzor-wq/Vislogboek`; branch: `feat/fase2-prognosis-evidence-flow`.
+- PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) staat open en is niet gemerged. Bij hervatting was de head `daaa6a0b905dff9cd903eac526eb3f9ce7358f3c`.
+- Er is geen toestemming om PR #223 te mergen. Na nieuwe commits moet de Quality Gate op de nieuwe exacte head worden gecontroleerd.
 
-- `main` staat op `13d1f87d67c18f29ac8a94ea6ecbdd8cedfabe37`.
-- PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) staat open, is niet gemerged en heeft head `5cb00c30c761e4bfe1ed229cf70aab875dc7b726` op `feat/fase2-prognosis-evidence-flow`.
-- De PR bevat 9 gewijzigde bestanden en 25 commits. De actuele GitHub Quality Gate is geslaagd: run [#1245](https://github.com/sennzor-wq/Vislogboek/actions/runs/45369232513) op de genoemde head. Dit bewijst technische regressiecontrole, geen biologische juistheid of voorspellende nauwkeurigheid.
-- Er is geen toestemming om PR #223 te mergen.
+### Inhoudelijke beoordeling en bijgesteld besluit
+De evidence-inventarisatie en afzonderlijke voedingsresponsassessment blijven bruikbaar, maar de huidige runtime-score is nog thermisch gedreven. Dat is een technische beperking, geen beoogd eindmodel. De eerdere §16-conclusie dat temperatuur 1,00 van de uiteindelijke gebruikersscore vormt, is ingetrokken.
 
-### Inhoudelijke beoordeling PR #223
+**Leidend uitgangspunt: twee biologische responsen, één gebruikersscore.**
+- Fysiologische respons en voedings-/foerageerrespons blijven afzonderlijk berekenbaar en verklaarbaar.
+- De bestaande dagscore en vier tijdvakscores blijven op schaal 1–10. De centrale score wordt een geïntegreerde vangstgerichte prognose-index, geen vangstpercentage of persoonlijke vangkans.
+- De samenvoeging is niet automatisch een gemiddelde. Weinig locomotorische activiteit mag niet automatisch een gunstige voedingsrespons of vangstgerichte situatie naar beneden trekken.
+- De Prognose bevat de volledige biologische modelinformatie, verwachte gedragsinterpretatie, factoren, bronnen, bewijsstatus, dekking en onzekerheid.
+- VisCoach gebruikt deze informatie om een passende tactiek en praktisch advies te maken. Het herberekent de biologie niet en wijzigt de score niet.
+- Lokale aanwezigheid/habitat blijft een afzonderlijke laag totdat een expliciete gevalideerde koppeling bestaat. Persoonlijke vangkans blijft empirisch en apart.
 
-1. **Evidence en modelgrenzen:** de PR trekt de eerdere niet-onderbouwde percentages terecht in. Fysiologische activiteit, voedings-/foerageerrespons, lokale aanwezigheid/habitat en empirische vangkans blijven verschillende uitkomsten. De nieuwe meervalbron is als niet-goedgekeurd voor voorspelling geregistreerd.
-2. **Bestaande dagscore:** de dagaggregatie gebruikt nu een expliciete helper en toont bij ontbrekende tijdvakken geen fictieve 5,0 meer; de beschikbaarheidsvlag blijft leidend en de verborgen compatibiliteitswaarde is 0. De vier huidige tijdvakken zijn echter ieder vast 360 minuten, waardoor de productie-aanroep bij volledige dekking nog steeds rekenkundig gelijk is aan het gemiddelde van vier tijdvakscores. De test met ongelijke segmentduren test de helper, niet een echte variabele interval-/dagsegmentatie.
-3. **Voedingsrespons:** `feedingActivity` is een afzonderlijke evidence-assessment met `score: null` en `predictionEligible: false`. De broninventaris wordt dus niet als numerieke voedingsrespons gebruikt en verandert de bestaande fysiologische score niet. De assessment is op dit moment bron-/soortgebonden, niet een berekende dag- of tijdvakrespons op de weersomstandigheden.
-4. **Scopepunt:** de PR voegt een nieuwe voedingskaart toe aan `PrognosisView` voordat een kwantitatieve responsfunctie is gevalideerd. Dit is geen verbetering van de bestaande 1–10-score en botst met de werkvoorraadregel dat geen nieuwe UI-/productfunctie wordt toegevoegd voordat de kandidaatlogica inhoudelijk en technisch is gevalideerd. Behandel deze kaart daarom als niet-geaccepteerd onderdeel; niet als afgeronde prognosefunctionaliteit.
-5. **Conclusie:** de evidence-documentatie en het expliciet onbekend houden van niet-gevalideerde voedingsrespons zijn inhoudelijk nuttig. PR #223 levert nog geen soortspecifieke factorweging of extra gevalideerde bijdrage aan de bestaande numerieke prognose. De PR is technisch groen, maar de nieuwe UI-kaart is een open scopepunt en de PR mag niet als voltooiing van de hoofdopdracht worden beschouwd.
+Leidende uitwerking:
+- `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §17;
+- `SOORTSPECIFIEKE_SCORE_WEGING.md` §8;
+- `MODELARCHITECTUUR_FASE2.md` §171.
+
+## Werkonderdeel 11 — modelcontract en verantwoordelijkheidsgrens
+
+**Status:** ontwerpbesluit vastgelegd; nog geen runtime-score, numerieke gewichten of tactiekcode gewijzigd.
 
 ### Eerstvolgende hoofdtaak
+Werk de bestaande factorinventaris en evidence matrix in één samenhangende modeluitwerking bij. Neem alle eerder geïdentificeerde factorfamilies mee: temperatuur en thermisch verloop, zuurstof, licht/fotoperiode, dagritme, seizoen/biologische fase, voedselopname, voedingsincidentie en -ritme, foerageergedrag, prooiaanbod, troebelheid/zicht, wind/waterbeweging/stroming, habitat/diepte/dekking en relevante weerscontext.
 
-Het soortspecifieke wegingsvoorstel is uitgewerkt in SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md §16. Het is een inhoudelijk uitgangspunt, geen goedgekeurde runtime-configuratie. De numerieke fysiologische index behoudt voorlopig temperatuur als enige actieve factor; voedingsresponsen krijgen per soort een onderzoekprioriteit maar nog geen arbitrair percentage. Aanwezigheid/habitat en empirische vangkans blijven gescheiden.
+Classificeer per soort en per biologische respons de feitelijke meetrespons en effectrichting/-vorm; direct driver-, modulator-, limiter- of contextkarakter; levensfase, watertype, tijdschaal en overdraagbaarheid; bron-ID en bewijsstatus; benodigde invoer en actuele databeschikbaarheid; mogelijke overlap/dubbeltelling; en of kwalitatieve uitleg of numerieke respons verdedigbaar is.
 
-**Volgende stap:** eigenaarreview van §16. Na inhoudelijk akkoord volgt één samenhangende runtime-implementatie van de toegelaten responsfuncties in de bestaande engine. Tot die tijd blijven bestaande scoreberekening en UI ongewijzigd.
+Gebruik bestaande bronregistraties en de bestaande profielcatalogus; maak geen tweede register of soortcatalogus. Onvoldoende bewijs betekent zichtbaar onzeker/kwalitatief, niet biologisch nul. Volledige Excel-validatie is geen blokkade voor direct bruikbare, goed onderbouwde factoren.
 
-## Werkonderdeel 10 — soortspecifiek wegingsvoorstel V0.1 (24 november 2026)
+Daarna wordt de soortspecifieke samenvoegfunctie van fysiologische en voedings-/foerageerrespons naar de bestaande 1–10 dag- en tijdvakscore gespecificeerd. Controleer dat beperkte locomotie niet automatisch als lage voedingsrespons wordt behandeld. Pas daarna volgt runtime-implementatie in de bestaande Prognose-engine en regressietests.
 
-**Status:** voorstel uitgewerkt; wacht op inhoudelijke eigenaarreview. Geen runtimecode, scores, gewichten of UI gewijzigd in dit werkonderdeel.
+### Acceptatiecriteria
+- Alle relevante factorfamilies zijn verantwoord: actief, kwalitatief/contextueel, limiter, niet beschikbaar of uitgesloten met reden.
+- Fysiologie, voeding/foerageren en locomotie blijven als verschillende responsen herkenbaar.
+- Eén geïntegreerde 1–10-score blijft beschikbaar voor dag en vier tijdvakken.
+- Score, dagaggregatie, onbekend-semantiek, snapshots en targetTime-as-of blijven consistent.
+- Prognose bevat modeluitleg en verwachte gedragsvorm; VisCoach vertaalt alleen naar tactiek/advies.
+- Persoonlijke vangkans blijft empirisch en gescheiden.
+- Geen willekeurige gewichten, nul-effecten uit ontbrekende data, ononderbouwde bonussen of dubbeltelling.
 
-- De huidige fysiologische 1–10-score is expliciet afgebakend als thermische/fysiologische potentie. Temperatuur blijft voorlopig de enige actieve factor (1,00 normalisatie); de bewijsstatus verschilt per soort.
-- Aerobe-scopegegevens bij baars en snoekbaars zijn onderscheiden van metabolismegegevens bij karper, brasem, snoek en blankvoorn. Metabolisme is niet als directe meting van activiteit aangemerkt.
-- Voor voedingsrespons is per soort een eerste parameterprioriteit vastgelegd. Voedselopname, maagvulling, voedingsritme, foerageergedrag, dieet en prooikeuze blijven gescheiden.
-- Zuurstof is alleen een mogelijke limiter bij passende lokale invoer en drempelrespons; licht/seizoen zijn conditionele voedingsmodulatoren; wind, druk, neerslag, bewolking, stroming en prooiaanbod krijgen geen zelfstandige numerieke bonus zonder passende responsdata.
-- De matrix kent bewust nog geen numerieke voedingspercentages toe: de huidige bronnen meten niet dezelfde responsvariabele of context en leveren geen vergelijkbare effectgroottes. Een percentage zou schijnprecisie zijn.
-- De inhoudelijke onderbouwing en soorttabellen staan in SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md §16; de algemene toelatingscriteria blijven in SOORTSPECIFIEKE_SCORE_WEGING.md.
-
-**Acceptatie:** soort-/uitkomstrollen en grenzen vastgelegd; geen willekeurige getallen toegevoegd; geen runtimewijziging gedaan voordat de eigenaar het voorstel heeft beoordeeld.
-
-**Hervatpunt:** eigenaarreview van §16. Na akkoord: de toegelaten responsfuncties implementeren in de bestaande prognose-engine, met tests voor alle soorten, dag-/tijdvakpariteit, ontbrekende invoer en de bestaande targetTime-as-of-invariant.
+**Niet gewijzigd in werkonderdeel 11:** runtimecode, numerieke scores/gewichten, bestaande gebruikersdata, database, Prognose-UI en VisCoach-tactiekcode. PR #223 blijft open en ongemerged.
