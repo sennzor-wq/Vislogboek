@@ -1953,3 +1953,143 @@ Deze volgorde is een ontwerpvoorstel. Het is nog niet besloten welke bronnen de 
 **Volgende actie:** werk het toestandscontract om naar een formele ontwerpbeslissing met expliciete minimale, optionele en ontbrekende gegevens. Daarbij moet worden beslist welke watertypen binnen de eerste modelversie vallen (voorlopig bij voorkeur stilstaand zoet water), en welke wateren alleen een beperkte schatting of "onvoldoende invoer" mogen krijgen. Daarna pas kan een concrete implementatievoorstel worden opgesteld.
 
 **Besluitpoort blijft gesloten:** geen code, types, database, UI, formules, parameters, nieuwe databronnen of scoreberekening wijzigen zonder expliciete goedkeuring. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Formele ontwerpbeslissing in voorbereiding — eerste toepassingsscope en historische initialisatie (24 november 2026)
+
+**Doel:** het toestandscontract vertalen naar een toetsbare eerste modelscope. Dit is een ontwerpbeslissing voor review, geen toestemming om code, databronnen, formules of parameters te wijzigen.
+
+#### 1. Nieuwe bevinding: voldoende historische meteorologische forcing is in principe beschikbaar
+
+De eerdere audit stelde vast dat de huidige `weatherService.ts` slechts `past_days=3` en `forecast_days=8` opvraagt. Dat is onvoldoende om zonder lokale watertemperatuurmeting de seizoensgebonden thermische begintoestand van een waterkolom te reconstrueren.
+
+Er bestaan wel twee relevante historische bronnen:
+
+**KNMI-waarnemingen**
+- Het KNMI Data Platform heeft uurlijkse gevalideerde waarnemingen vanaf 1951.
+- De dataset bevat stationwaarnemingen; de beschikbare variabelen omvatten onder meer luchttemperatuur, wind, waterdamp/dauwpunt en relatieve vochtigheid. KNMI-datasets beschrijven ook straling/bewolking en andere meteorologische waarnemingen, maar de exacte variabelen en volledigheid moeten per dataset/station en periode worden gecontroleerd.
+- Gevalideerde data kunnen vertraagd beschikbaar komen en stationreeksen kunnen inhomogeniteiten bevatten door verplaatsingen en veranderde meetmethoden. Ze zijn dus geen perfecte lokale forcing voor iedere visstek.
+
+**Open-Meteo Historical Weather API**
+- Biedt uurlijkse heranalyse vanaf 1940 (ERA5) of 1950 (ERA5-Land), met onder meer luchttemperatuur, relatieve vochtigheid, dauwpunt, wind, bewolking, neerslag en zonnestraling.
+- ERA5-Land heeft circa 0,1° (~11 km) ruimtelijke resolutie; ERA5 circa 0,25° (~25 km). De API documenteert dat heranalyse waarnemingen combineert met modelmatige schattingen en ruimtelijke gaten vult.
+- Dit is een kandidaat voor continue coördinaatgebonden historische forcing, niet een lokale waarneming. De representativiteit voor kleine wateren, beschutting en lokale wind moet worden gevalideerd.
+
+**Ontwerpgevolg:** een lange spin-up is niet bij voorbaat onmogelijk. De benodigde forcing kan mogelijk uit KNMI-stationdata en/of ERA5-Land worden opgebouwd. Er is nog geen keuze gemaakt tussen deze bronnen. De KNMI-fysica blijft de primaire wetenschappelijke referentie; de bron van meteorologische forcing is een afzonderlijke ontwerpkeuze.
+
+#### 2. Voorgestelde eerste toepassingsscope
+
+Voor de eerste versie van de nieuwe thermische berekening wordt voorgesteld:
+
+**Binnen primaire scope**
+- Stilstaand, zoet buitenwater.
+- Kleine vijvers/plassen en grotere stilstaande plassen, maar met afzonderlijke validatie op ondiepe en diepere wateren.
+- Een verticale waterkolom die zowel goed gemengde omstandigheden als zomerstratificatie, winterse inverse stratificatie en overgang/menging kan representeren.
+- Temperatuur op een opgegeven diepte, mits de doel-/meetdiepte bekend is en de begininformatie voldoende is.
+
+**Buiten primaire nauwkeurigheidsclaim**
+- Stromende rivieren en kanalen wanneer advectie/debiet niet bekend is.
+- Wateren met relevante instroom, lozing of temperatuurpluimen zonder die gegevens.
+- Brak/zout water zonder betrouwbare saliniteit/geleidbaarheid of passende toestandsvergelijking.
+- Wateren waarvan de horizontale verschillen zo groot zijn dat één verticale kolom niet representatief is.
+
+Deze locaties hoeven niet per se uit Vislogboek te verdwijnen. Wel moet de uitkomst als beperkt toepasbaar of onvoldoende onderbouwd worden geclassificeerd. Een categorieveld zoals "rivier" of "kanaal" is op zichzelf geen kwantitatieve stromingsmeting.
+
+#### 3. Voorgesteld initialisatiepad voor de eerste modelversie
+
+De eerste modelversie moet twee paden expliciet ondersteunen:
+
+**Pad A — lokaal gemeten**
+1. Gebruik een betrouwbare lokale temperatuurmeting met tijdstip, locatie, methode en meetdiepte.
+2. Gebruik een gelijktijdig profiel als dit beschikbaar is; anders wordt alleen de gemeten diepte direct verankerd.
+3. Start de verticale toestand met expliciete onzekerheid in de niet-gemeten lagen.
+4. Zet die toestand chronologisch voort met historische/actuele weerforcing.
+
+**Pad B — geen lokale watertemperatuurmeting**
+1. Haal historische meteorologische forcing op voor de locatie of het best representatieve KNMI-station.
+2. Initialiseer met meerdere plausibele startprofielen, niet één verborgen vaste temperatuur.
+3. Voer een gevoeligheids-/spin-uptest uit over meerdere startprofielen en perioden.
+4. Beoordeel of de uitkomst op de gevraagde diepte voldoende naar dezelfde toestand convergeert.
+5. Alleen als de uitkomst voldoende stabiel is en de forcing compleet genoeg is, mag een numerieke schatting met expliciet lagere betrouwbaarheid worden getoond.
+6. Als startprofielen niet convergeren, forcing te kort/onvolledig is of de watertype-aannames niet passen, toon dan "onvoldoende informatie voor een betrouwbare absolute schatting" in plaats van een schijnprecies getal.
+
+**Belangrijke nuance:** de éénjarige spin-up in Mesman et al. (2025) is een studieconfiguratie, geen standaardduur die Vislogboek moet kopiëren. De eerste onderzoeksbenchmark moet meerdere startprofielen en meerdere spin-upvensters vergelijken (bijvoorbeeld 30, 90, 180 en 365 dagen als experimentele vensters). Geen van deze perioden is al als productieparameter gekozen. De acceptatie moet worden gebaseerd op convergentie van de temperatuur per diepte, niet op de kalenderduur alleen.
+
+#### 4. Minimale invoercontracten — ontwerpvoorstel
+
+| Invoer | Primaire status | Gedrag als ontbrekend |
+|---|---|---|
+| Locatiecoördinaten | Verplicht | Geen locatiegebonden meteorologische forcing; geen lokale modelclaim |
+| Doeltijd en tijdzone | Verplicht | Geen reproduceerbare tijdsgerichte voorspelling |
+| Waterklasse (stilstaand/stromend/onbekend) | Verplicht voor geldigheidsbeoordeling | Onbekende klasse geeft beperkte toepasbaarheid |
+| Zoet/brak/zout/onbekend | Verplicht als classificatie, exacte saliniteit optioneel | Onbekend mag de zoetwater-dichtheidsrelatie niet automatisch rechtvaardigen |
+| Totale diepte | Verplicht voor waterkolom/KNMI-diepte-effect | Zonder diepte geen onderbouwde absolute thermische opslag |
+| Historische meteorologische reeks | Verplicht voor pad B; voor pad A afhankelijk van verstreken tijd | Onvoldoende dekking leidt tot hogere onzekerheid of geen betrouwbare schatting |
+| Temperatuur, wind, vochtigheid, bewolking, kortgolvige straling | Kernforcing; bron en dekking per variabele registreren | Ontbrekende kernforcing niet stilzwijgend invullen; alleen een onderbouwde afleiding na aparte validatie |
+| Neerslag/sneeuw | Relevant voor neerslag- en ijsregime | Bij winter-/ijscondities ontbrekende sneeuwinformatie verhoogt onzekerheid |
+| Actuele watertemperatuurmeting | Optioneel maar sterk gewenst | Zonder meting uitsluitend pad B |
+| Meetdiepte en meetmethode | Verplicht bij een meetwaarde | Onbekende diepte/methode verlaagt bruikbaarheid als profielanker |
+| Hypsografie/bodemvorm | Optioneel in eerste benadering | Vereenvoudigde geometrie moet als aanname en onzekerheidsbron worden geregistreerd |
+| Waterhelderheid/lichtuitdoving | Optioneel in eerste benadering | Minder zekerheid over verdeling van zonnewarmte door de waterkolom |
+| Stroming, debiet, instroomtemperatuur | Buiten primaire scope | Geen hoge betrouwbaarheid voor hydrologisch beïnvloede wateren |
+
+"Verplicht" betekent hier: vereist voor de genoemde modelclaim, niet dat het veld al in de huidige app aanwezig is. De huidige code-inventaris toont dat meerdere van deze velden nog ontbreken.
+
+#### 5. Modelstructuur: wat is nu wel en niet besloten?
+
+**Wel als ontwerpuitgangspunt**
+- Eén canonieke thermische toestand binnen de bestaande waterthermische engine.
+- Een verticale temperatuurverdeling als wetenschappelijke referentie, GLM-geïnformeerd.
+- KNMI/De Bruin-Wessels als primaire referentie voor oppervlaktewarmtebalans en ijs-/faseprocessen.
+- De zoetwater-dichtheidsanomalie rond 4 °C en temperatuurafhankelijke dichtheidsstabiliteit moeten worden meegenomen.
+- Dezelfde toestand moet een goed-gemengde kolom én een gestratificeerde kolom kunnen representeren.
+- Lokale metingen zijn de sterkste initialisatie en validatiebron; heranalyse is meteorologische forcing, geen watermeting.
+
+**Nog niet besloten**
+- Vast raster of adaptieve Lagrangiaanse lagen.
+- Aantal lagen of laagresolutie.
+- Exacte warmtefluxformules en parameterwaarden.
+- Keuze KNMI-stationdata versus ERA5-Land versus combinatie.
+- Exacte spin-upduur of convergentiedrempel.
+- Welke nieuwe locatie-/meetvelden in de app moeten worden toegevoegd.
+- Of en hoe een persistente modeltoestand wordt opgeslagen.
+- Exacte gebruikersinterface voor onzekerheid.
+
+#### 6. Validatiepoorten vóór implementatie
+
+Een kandidaatmodel mag pas als eerste versie worden voorgesteld wanneer het ten minste de volgende bewijzen kan leveren:
+
+1. **Startconditie-onafhankelijkheid:** verschillende plausibele startprofielen convergeren voldoende op relevante doel-/visdieptes na de gekozen historische forcing.
+2. **Warmtebalans:** geen onverklaarde energiecreatie/-verdwijning; fluxen en warmteopslag zijn controleerbaar.
+3. **Zomerprofiel:** opwarming bovenlaag, thermocline en koelere onderlaag waar waarnemingen die tonen.
+4. **Winterprofiel:** gedrag rond 4 °C, inverse stratificatie en geen normale vloeibare watertemperatuur onder 0 °C.
+5. **Overgang en menging:** wind, afkoeling en convectie veroorzaken fysisch plausibele menging; geen kalendergestuurde kunstmatige omslag.
+6. **Dieptevalidatie:** MAE, RMSE en bias per meetdiepte, met onafhankelijke meetperioden.
+7. **Onzekerheid:** gerapporteerde onzekerheidsbanden worden getoetst op dekking; een lage betrouwbaarheid wordt niet als hoge precisie gepresenteerd.
+8. **Watertypevaliditeit:** resultaten voor stilstaand zoet water worden niet zonder aparte tests doorgetrokken naar stromend of brak/zout water.
+9. **Forecast-as-of discipline:** historische forcing, modelrun en meetdata worden op tijdstip/versie vastgelegd; toekomstige informatie mag geen historische voorspelling beïnvloeden.
+
+#### 7. Bronnen voor deze ontwerpstap
+
+- KNMI, *Watertemperatuur- en ijsgroeimodel van het KNMI*. Beschrijft gevalideerde prestaties voor stilstaand zoet buitenwater, oppervlaktewarmteoverdracht, diepteafhankelijkheid en wintergedrag: https://www.knmi.nl/kennis-en-datacentrum/achtergrond/watertemperatuur-en-ijsgroeimodel-van-het-knmi
+- KNMI Data Platform, *Hourly, validated and automated in-situ ground-based meteorological observations*. Uurlijkse waarnemingen vanaf 1951, variabelen, validatievertraging en datasetbeperkingen: https://dataplatform.knmi.nl/dataset/hourly-in-situ-meteorological-observations-validated-1-0
+- KNMI Data Platform, *Hourly observations technical documentation*. Beschrijving van variabelen zoals temperatuur, relatieve vochtigheid, dauwpunt, wind en overige velden: https://dataplatform.knmi.nl/dataset/docs/hourly-in-situ-meteorological-observations-1-0
+- Open-Meteo, *Historical Weather API*. ERA5/ERA5-Land/IFS dekking, uurlijkse variabelen, resoluties en uitleg dat heranalyse waarnemingen combineert met modelmatige schattingen: https://open-meteo.com/en/docs/historical-weather-api
+- Open-Meteo, *Historical Forecast API*. Historische voorspellingen vanaf circa 2022; nuttig voor aparte forecast-verificatie, niet als lange klimaatreeks: https://open-meteo.com/en/docs/historical-forecast-api
+- GLM official documentation. 1D verticale temperatuur-, saliniteits- en dichtheidsprofielen, menging, oppervlakte/bodemprocessen en expliciete aanname van geen horizontale variatie: https://aquaticecodynamics.github.io/glm-aed/
+- Mesman et al. (2025), *Learning from a large-scale calibration effort of multiple lake temperature models*, HESS 29, 1183–1209. Initialisatie op basis van gemeten profielen en één jaar spin-up binnen die studie; resultaten verschillen per meer en prestatiemaat: https://hess.copernicus.org/articles/29/1183/2025/
+
+#### 8. Uitkomst en eerstvolgende actie
+
+**Uitkomst:** de eerste modelversie kan zich het best richten op stilstaand zoet water. Een meting-onafhankelijk pad is wetenschappelijk onderzoekbaar doordat historische weerreeksen beschikbaar zijn, maar alleen als de modeltoestand vanuit verschillende startprofielen aantoonbaar convergeert. De huidige drie dagen weerhistorie is daarvoor onvoldoende. KNMI-stationwaarnemingen en ERA5-Land zijn kandidaatbronnen; nog geen van beide is geselecteerd of aangesloten.
+
+**Volgende actie:** maak een reproduceerbaar offline onderzoeksprotocol (zonder productiecode te wijzigen) waarin één of meer representatieve wateren worden doorgerekend met:
+- historische meteorologische forcing uit een kandidaatbron;
+- meerdere plausibele beginprofielen;
+- experimentele spin-upvensters van 30/90/180/365 dagen;
+- ondiep en dieper stilstaand zoet water;
+- vergelijking van modeltemperatuur met beschikbare onafhankelijke watertemperatuurprofielen.
+
+Het protocol moet eerst vaststellen of de startconditie voldoende uitdempt en welke forcingbron het best aansluit op de KNMI-heat-balance-basis. Pas daarna wordt een concreet technisch implementatieontwerp aan de eigenaar voorgelegd.
+
+**Besluitpoort blijft gesloten:** geen productiecode, types, database, UI, formule, parameters, extra databronnen, scoreberekening of deployment wijzigen zonder expliciete goedkeuring. Dit documenteert alleen de onderzoeksrichting. De scoreberekeningsaudit blijft uitgesteld.
