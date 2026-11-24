@@ -1320,9 +1320,9 @@ export function calculateDayPrognosis(
       ...(!presTrend.known ? ['Luchtdruktrend onbekend; er wordt geen trend verondersteld.'] : []),
       ...(!location?.waterType ? ['Watertype onbekend; stromend of stilstaand water wordt niet aangenomen.'] : []),
     ];
-    positioningAdvice.coverageLevel = 'Laag';
+    positioningAdvice.confidenceLevel = 'Laag';
     positioningAdvice.missingInformation.push(...limitations);
-    habitatAnalysis.coverageLevel = 'Laag';
+    habitatAnalysis.confidenceLevel = 'Laag';
     habitatAnalysis.missingInformation.push(...limitations);
   }
 

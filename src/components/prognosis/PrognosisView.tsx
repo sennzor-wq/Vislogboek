@@ -1054,14 +1054,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                       >Onderbouwing stekadvies:</span>
                       <span
                         className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                          activeDayProg.positioningAdvice.coverageLevel === 'Redelijk'
+                          activeDayProg.positioningAdvice.confidenceLevel === 'Redelijk'
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                            : activeDayProg.positioningAdvice.coverageLevel === 'Matig'
+                            : activeDayProg.positioningAdvice.confidenceLevel === 'Matig'
                             ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                             : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                         }`}
                       >
-                        {activeDayProg.positioningAdvice.coverageLevel}
+                        {activeDayProg.positioningAdvice.confidenceLevel}
                       </span>
                     </div>
                   )}
@@ -1518,14 +1518,14 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                     </div>
                     <span
                       className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold self-start sm:self-auto ${
-                        ha.coverageLevel === 'Redelijk'
+                        ha.confidenceLevel === 'Redelijk'
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : ha.coverageLevel === 'Matig'
+                          : ha.confidenceLevel === 'Matig'
                           ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
                       }`}
                     >
-                      Onderbouwing habitatinschatting: {ha.coverageLevel}
+                      Onderbouwing habitatinschatting: {ha.confidenceLevel}
                     </span>
                   </div>
 
@@ -1645,7 +1645,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
             {activeDayProg.prebaitPlan && (() => {
               const pp = activeDayProg.prebaitPlan;
               // Keep the engine's numeric outputs intact; only expose gram values when input completeness is Redelijk.
-              const canShowExactAmounts = pp.coverageLevel === 'Redelijk';
+              const canShowExactAmounts = pp.confidenceLevel === 'Redelijk';
               return (
                 <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-emerald-800/40 space-y-3.5 shadow-lg">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
@@ -1661,7 +1661,7 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                           Voorzichtige startindicatie voor de geplande sessie op {activeDayProg.dayName.toLowerCase()}
                         </span>
                         <span className="text-[10px] text-amber-200/80 block mt-1">Temperatuurbanden en grammen zijn praktische indicaties, geen gevalideerde biologische normen.</span>
-                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.coverageLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
+                        <span className="text-[10px] text-slate-500 block">Invoerkwaliteit: {pp.confidenceLevel} — dit beschrijft de volledigheid van stek- en temperatuurgegevens, niet de wetenschappelijke validatie van de hoeveelheid.</span>
                       </div>
                     </div>
                     <span
