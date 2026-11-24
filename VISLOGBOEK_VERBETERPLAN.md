@@ -1530,3 +1530,73 @@ Dit besluit geeft toestemming om deze twee onderdelen inhoudelijk te onderzoeken
 6. Behandel dit als uitbreiding van hetzelfde canonieke thermische model, niet als een tweede concurrerende engine.
 
 **Besluitstatus:** zomerstratificatie is hiermee een expliciete ontwerpeis, naast winterstratificatie. Dit is toestemming om het wetenschappelijke en technische ontwerp uit te werken; het is geen goedkeuring voor implementatie, een specifieke laagindeling, formule, parameterwaarde of extra databron. De bestaande read-only ontwerp-/goedkeuringspoort blijft ongewijzigd.
+
+
+### Wetenschappelijke onderzoeksnotitie — verticale stratificatie (24 november 2026)
+
+**Doel van deze notitie:** de zomer- en winterstratificatie vertalen naar toetsbare ontwerpvereisten voor één doorlopend thermisch model. Dit is een read-only onderzoeksuitwerking. Er is geen implementatie of parameterkeuze goedgekeurd.
+
+#### 1. Wetenschappelijk onderscheid: één waterkolom, meerdere stabiliteitsregimes
+
+Het model moet de temperatuurverdeling over de diepte als toestand behandelen. Zomer en winter zijn geen twee losstaande modellen en ook geen simpele omkering van één regel. De dichtheid als functie van temperatuur bepaalt of een temperatuurprofiel stabiel of instabiel is; de energiebalans, zonnestraling, wind en convectie bepalen vervolgens hoe dat profiel verandert.
+
+- **Zomer:** kortgolvige zonnestraling wordt deels aan het oppervlak en deels in de waterkolom geabsorbeerd. De bovenlaag warmt daardoor op en kan lichter worden dan het diepere water. Een stabiele thermocline kan ontstaan. Wind levert turbulente menging en kan de gemengde bovenlaag verdiepen. Op rustige, zonnige dagen kan ook een sterke dagelijkse oppervlaktelaag ontstaan; dit hoeft niet gelijk te zijn aan de seizoensmatige stratificatie.
+- **Winter vóór ijsvorming:** bij afkoeling wordt zoet water dichter totdat het circa 4 °C bereikt. Verdere afkoeling maakt het water juist lichter. Bij voldoende rustige omstandigheden kan daardoor een koude bovenlaag boven dieper water rond 4 °C blijven liggen. Wind en convectieve processen kunnen het profiel veranderen; een kalenderregel alleen is onvoldoende.
+- **Onder ijs:** de water-/ijsgrens ligt rond het vriespunt, terwijl dieper water warmer kan blijven. Sneeuw en ijs beïnvloeden de warmteoverdracht. De faseovergang en latente warmte moeten als aparte toestand worden behandeld; een negatieve temperatuur mag niet als gewone vloeibare watertemperatuur worden gepresenteerd.
+- **Voorjaars- en najaarsovergang:** de verticale gradiënten kunnen afnemen en de waterkolom kan (bijna) mengen. In het voorjaar kan zonnestraling dieper doordringen en bij water onder de temperatuur van maximale dichtheid convectie opwekken. In het najaar kan afkoeling van bovenaf de stratificatie afbreken. De overgang moet uit de fysica volgen, niet uit vaste maandgrenzen.
+
+#### 2. Onderzochte modelreferentie: FLake
+
+De openbare SURFEX-wetenschappelijke documentatie beschrijft FLake als een efficiënt één-dimensionaal (verticaal) bulkmodel met een tweelaagse parametrisatie: een bovenste gemengde laag en een onderliggende thermocline tot aan de bodem. Het model gebruikt een integraal warmtebudget, een entrainmentbenadering voor convectief verdiepen van de gemengde laag en een relaxatiebenadering voor windgedreven menging. De volumetrische absorptie van zonnestraling, bodemsediment, ijs en sneeuw zijn expliciete onderdelen van de modelbeschrijving.
+
+De documentatie beschrijft ook een zoetwater-toestandsvergelijking met een dichtheidsmaximum bij 277,13 K (circa 4 °C). De genoemde kwadratische benadering gebruikt een empirische coëfficiënt van 1,6509 × 10⁻⁵ K⁻². Dit is een bronvermelde formulering uit de FLake/SURFEX-documentatie, niet een door Vislogboek gekozen of geïmplementeerde parameterisatie.
+
+**Belangrijke toepassingswaarschuwing:** Sun et al. (2020) vergelijken vier 1D-modellen voor het ondiepe Lake Taihu (gemiddelde diepte 1,9 m). In de onderzochte configuraties had FLake duidelijke beperkingen bij de verticale temperatuurverdeling, waaronder koude afwijkingen onder 50 cm; de auteurs raden toepassing van FLake in zeer ondiepe meren (<5 m) tijdens warme perioden af. De studie laat bovendien zien dat oppervlakteruwheid, lichtuitdoving/penetratie en verticale menging voor ondiep water sterk bepalend zijn. Ook het beter presterende multilevel UOM-model had een tekortkoming bij de bodemtemperatuur door ontbrekende sedimentinvloed.
+
+**Conclusie:** FLake is een waardevolle wetenschappelijke referentie voor de processen en de modelstructuur, maar mag niet zonder validatie als kant-en-klare engine voor alle Vislogboek-wateren worden overgenomen. Vooral ondiepe vijvers, sloten en ondiepe plassen vragen een afzonderlijke geschiktheids- en validatietoets.
+
+#### 3. Consequenties voor de Vislogboek-architectuur
+
+1. Behoud één canonieke thermische toestand in de bestaande `waterThermalEngine`; geen aparte zomer- en winterengine.
+2. Behandel de verticale temperatuurverdeling als modeltoestand. De uitvoer moet een temperatuur op een opgegeven meet-/visdiepte kunnen afleiden; een gemiddelde watertemperatuur mag niet stilzwijgend als temperatuur op iedere diepte worden gebruikt.
+3. Laat de zoetwater-dichtheidsrelatie de stabiliteit en het teken van de thermische expansie bepalen, zodat gedrag rond 4 °C fysisch kan veranderen. Leg nog geen formule of coëfficiënt vast voordat de toepassingsvoorwaarden en bronkeuze zijn gecontroleerd.
+4. Neem de verdeling van kortgolvige straling over de diepte mee. De benodigde lichtuitdoving hangt samen met helderheid/troebelheid en is niet betrouwbaar uit luchttemperatuur alleen af te leiden. Ontbrekende waterhelderheid moet dus onzekerheid geven, geen verzonnen standaardwaarde.
+5. Behandel wind als bron van turbulente menging, niet uitsluitend als een vaste correctiefactor op een afkoeltijd. De effectieve menging hangt ook af van waterdiepte, fetch/blootstelling, bestaande stratificatie en lokale beschutting.
+6. Onderzoek warmte-uitwisseling met bodem/sediment. Dit kan met name in ondiepe wateren en tijdens koude perioden de bodemlaag beïnvloeden; laat dit niet verdwijnen in een generieke luchttemperatuurcorrectie.
+7. Behandel ijs en sneeuw als een fase-/isolatietoestand die de randvoorwaarden aan het wateroppervlak verandert. De ijsmodule moet thermisch aansluiten op de waterkolom.
+8. Maak de modeltoepasbaarheid afhankelijk van watertype. Een verticaal 1D-model kan horizontale advectie, doorstroming, sluizen, inlaat/uitlaat of lokale temperatuurpluimen niet vanzelf representeren. Voor stromend water moet een passende stromingsbehandeling of expliciet hogere onzekerheid worden onderzocht.
+9. Houd totale waterdiepte, meetdiepte en doel-/visdiepte als afzonderlijke gegevens. De verticale profieluitvoer moet exact aangeven op welke diepte zij betrekking heeft.
+10. Laat de seizoensregimes uit de fysica ontstaan. Gebruik kalenderseizoen hoogstens als context of initialisatie-informatie, niet als vervanging van de dichtheids-, warmte- en mengberekening.
+
+#### 4. Validatie die vóór implementatie moet worden voorbereid
+
+De ontwerpvalidatie moet ten minste afzonderlijke gevallen bevatten voor:
+- zonnige, windstille zomerdagen met sterke dagelijkse opwarming van de bovenlaag;
+- zomerse perioden met meerdere dagen stratificatie en een koelere bodemlaag;
+- windtoename of bewolking die de gemengde laag verdiept/verandert;
+- ondiep water waarin dagelijkse menging de verticale gradiënt grotendeels opheft;
+- najaarsafkoeling en afbraak van zomerstratificatie;
+- winterafkoeling door en onder 4 °C, inclusief inverse stratificatie;
+- ijsvorming, sneeuwisolatie en warmte-uitwisseling onder ijs;
+- voorjaarsopwarming onder/na ijs en hernieuwde menging;
+- snelle weersomslagen en ontbrekende invoervelden;
+- verschillende diepten, waterhelderheid, beschutting en stromingsklassen.
+
+Vergelijk modeluitvoer waar mogelijk met onafhankelijke temperatuurmetingen op meerdere bekende dieptes en tijdstippen. Rapporteer per diepte en seizoen bias, MAE/RMSE, profielafwijking en onzekerheid. Splits kalibratie- en validatieperioden chronologisch; dezelfde meetreeks mag niet tegelijk parameters afstellen en de nauwkeurigheid bewijzen. Synthetische tests blijven nuttig voor fysische invarianten, maar gelden niet als praktijkvalidatie.
+
+#### 5. Bronnen en reikwijdte
+
+- Mironov, D. et al. / SURFEX Scientific Documentation v7.2 (2012), hoofdstuk 2.4, *Inland Water: Lake Model FLake*. Bevat de tweelaagse profielrepresentatie, integraal warmtebudget, menglaag-/convectiebehandeling, zoetwater-toestandsvergelijking en ijs-/sneeuwbeschrijving: https://gmd.copernicus.org/articles/6/929/2013/gmd-6-929-2013-supplement.pdf
+- Sun, L. et al. (2020), *Improving a Multilevel Turbulence Closure Model for a Shallow Lake in Comparison With Other 1-D Models*, Journal of Advances in Modeling Earth Systems, DOI: 10.1029/2019MS001971. Modelvergelijking en beperkingen voor ondiepe meren: https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019MS001971
+- De Bruin, H.A.R. & Wessels, H.R.A. (1988), *A model for the formation and the melting of ice on surface waters*, Journal of Applied Meteorology 27, 164–173, DOI: 10.1175/1520-0450(1988)027<0164:AMFTFA>2.0.CO;2. Peer-reviewed KNMI-gerelateerde basis voor warmte-uitwisseling en ijsvorming op stilstaand water; de publicatiebeschrijving is bevestigd via Wageningen University & Research: https://research.wur.nl/en/publications/a-model-for-the-formation-and-the-melting-of-ice-on-surface-water/
+- KNMI, *Watertemperatuur- en ijsgroeimodel van het KNMI* en de eerder in dit plan genoemde KNMI-pagina's blijven de primaire Nederlandse referentie voor de operationele warmtebalans en faseovergang.
+
+#### 6. Ontwerpstatus en resterende onderzoeksvragen
+
+**Vastgesteld:** zomer- én winterstratificatie horen in één verticaal thermisch model; de dichtheidsanomalie rond 4 °C is onderdeel van de stabiliteitsfysica; zonnestraling, windmenging, bodemwarmte en ijs/sneeuw zijn relevante processen; ondiepe wateren mogen niet zonder meer als diepe meren worden behandeld.
+
+**Nog niet vastgesteld:** de uiteindelijke modelarchitectuur (tweelaags parametrisch, multilaags verticaal of een onderbouwde hybride), de laagindeling/resolutie, mengcoëfficiënten, stralingsdoordringing, bodemparameters, benodigde extra invoer en de numerieke tijdstap. De genoemde FLake-constanten zijn onderzoeksbronwaarden en geen goedgekeurde Vislogboek-instellingen.
+
+**Volgende ontwerpstap:** maak een beargumenteerde vergelijking van (a) een FLake-achtige tweelaags parametrisatie, (b) een multilaags 1D-energie-/mengmodel en (c) een hybride die past bij ondiepe en diepe stilstaande wateren. Beoordeel per optie benodigde invoer, rekenlast, reproduceerbaarheid, ondersteuning van de 4 °C-dichtheidsanomalie, zomerthermocline, bodem/ijs, geschiktheid voor stromend water en haalbare validatie met de bestaande meetregistraties. Leg daarna één voorkeursontwerp met expliciete beperkingen en tests voor aan de eigenaar.
+
+**Besluitpoort blijft gesloten voor implementatie:** deze onderzoeksnotitie autoriseert documentatie en ontwerpvergelijking. Zij autoriseert geen codewijziging, formulekeuze, parameterisatie, extra databron, databasewijziging of aanpassing van de bestaande score. De scoreberekeningsaudit blijft uitgesteld totdat het watertemperatuurwerk deze prioriteit heeft afgerond of de eigenaar de volgorde wijzigt.
