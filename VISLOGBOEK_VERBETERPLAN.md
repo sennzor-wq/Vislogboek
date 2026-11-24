@@ -2245,3 +2245,72 @@ Bronnen:
 **Volgende actie:** inventariseer de RWS Waterinfo-catalogus op geschikte meetlocaties en meetdieptes en bepaal of er een stilstaand-waterreferentie met winterprofielen bestaat. Tegelijk moet voor Klinkenbergerplas de contact-/data-aanvraag bij Hoogheemraadschap Rijnland worden voorbereid, maar nog niet verzonden. Een aanvraag of externe benadering wordt pas gedaan na expliciete toestemming van de eigenaar.
 
 **Besluitpoort blijft gesloten:** geen externe aanvraag, API-aansluiting, productiecode, database, UI, formule, parameter, scoreberekening of deployment uitvoeren zonder expliciete goedkeuring. De scoreberekeningsaudit blijft uitgesteld.
+
+
+### Aanvullend dataonderzoek — RWS-meetpalen en Europese profieldata (24 november 2026)
+
+**Doel:** de eerder gevonden RWS-meetreeksen verder beoordelen op verticale resolutie, winterdekking en daadwerkelijke toegankelijkheid. Dit is documentatieonderzoek; er zijn geen RWS-API-requests, downloads, externe aanvragen of modelberekeningen uitgevoerd.
+
+#### 1. Sterke kandidaat voor verticale tijdreeksen: meetpaal Marker Wadden
+
+De RWS/KIMA-datarapportage *Overzicht van meetdata op en rondom de Marker Wadden* (Daggenvoorde & Vermeulen, HKV, mei 2021) beschrijft een vaste meetpaal die op 25 april 2019 is geplaatst. Deze heeft twee YSI-multiparametersondes met watertemperatuur, geleidbaarheid en waterdiepte, op vaste hoogtes -1,2 m NAP en -3,4 m NAP. Dezelfde meetpaal meet onder meer waterstand, windrichting/-snelheid en luchtdruk; een ADCP levert stromingsrichting en -snelheid. De continue YSI-, waterstands- en meteorologische gegevens zijn door RWS verwerkt en opgeslagen in DONAR. De rapportage zegt dat aanvullende maandelijkse LICOR- en ADCP-data via de RWS-Servicedesk opvraagbaar zijn.
+
+**Waarom dit belangrijk is:** twee gelijktijdige temperatuurhoogtes kunnen verticale temperatuurverschillen en hun tijdsontwikkeling laten zien. In combinatie met waterstand kunnen de vaste NAP-hoogtes worden omgerekend naar diepte onder het actuele wateroppervlak. Geleidbaarheid, stroming, wind en waterstand helpen bovendien om te beoordelen of een periode representatief is voor een stilstaand zoetwatermodel.
+
+**Beperkingen:** Marker Wadden/Markermeer is geen geïsoleerde kleine visvijver. De locatie kan windgedreven menging, stroming en ruimtelijke/hydrodynamische invloeden hebben. Twee meetniveaus leveren geen volledig verticaal profiel en kunnen een thermocline niet altijd voldoende lokaliseren. De rapportage bewijst dat de meetopstelling en dataregistratie bestaan, maar niet dat de volledige ruwe tijdreeks nu zonder aanvraag publiek downloadbaar is. De meetdieptes ten opzichte van het wateroppervlak variëren bovendien met de waterstand.
+
+Bron: Daggenvoorde, R. & Vermeulen, C.-J. (2021), *Datarapportage KIMA — Overzicht van meetdata op en rondom de Marker Wadden*, PR4443.10, §2.1.1, pp. 3–4: https://waterinfo-extra.rws.nl/publish/pages/187929/pr4443-10_eindrapport_datarapportage_kima.pdf
+
+#### 2. RWS Waterdata: catalogusroute en belangrijke technische voorwaarden
+
+De actuele RWS-documentatie beschrijft de WaterWebservices als een catalogusgestuurde route:
+1. vraag de meetcatalogus op via MetadataService;
+2. koppel Aquo-metadata, locaties en de koppeltabel via MessageID;
+3. selecteer locatie, compartiment en grootheid;
+4. controleer of waarnemingen voor de gewenste periode bestaan;
+5. haal de tijdreeks op via OnlineWaarnemingenService.
+
+Voor onderzoek moeten de kwaliteitswaardecodes behouden blijven en zelf worden beoordeeld; RWS adviseert niet vooraf uitsluitend de publieksfilter toe te passen. De documentatie noemt maxima per request en maakt duidelijk dat de exacte combinatie van locatie, meetgrootheid en metadata eerst uit de catalogus moet blijken.
+
+**Belangrijke beperking van dit onderzoek:** de catalogus is een POST-webservice. In deze stap is de documentatie gecontroleerd, maar is de catalogus zelf niet opgevraagd. We hebben dus nog geen concrete RWS-locatie, meetreeks, sensorperiode of meetdiepte uit de actuele catalogus geverifieerd. De oudere Waterinfo-Extra-pagina beschrijft daarnaast verschillende historische downloadlimieten; voor een nieuwe dataworkflow moet de actuele WaterWebservices/WADAR-documentatie leidend zijn.
+
+Bronnen:
+- Rijkswaterstaat, *Waterdata — WaterWebservices*: https://rijkswaterstaatdata.nl/waterdata/
+- Rijkswaterstaat, *Over waterdata*: https://rijkswaterstaatdata.nl/onze-data/waterdata/
+- Waterinfo Extra, *Waterinfo*: https://waterinfo-extra.rws.nl/data-sites/waterinfo/
+
+#### 3. RWS-CTD-profielen: technisch verticaal, maar ander waterregime
+
+RWS beschrijft CTD-metingen (conductivity, temperature, depth) met verticale temperatuur- en geleidbaarheidsprofielen. De gepubliceerde meetstrategie betreft onder meer kust-/mariene transecten bij Terschelling, Rottumerplaat, Noordwijk, Walcheren en Goeree, en is niet op een vaste kalenderfrequentie gepland. Dit is bruikbaar als aanvullende kennis over verticale meetmethoden en stratificatie, maar niet als primaire validatieset voor stilstaand zoet binnenwater: de locaties zijn kust-/zoutwater en de bemonstering is varend/campagnegebonden.
+
+Bron: RWS Waterinfo Extra, *CTD metingen*: https://waterinfo-extra.rws.nl/monitoring/chemie/oppervlakte-water/ctd-metingen/
+
+#### 4. European Multi Lake Survey: wat de profieldata precies vertegenwoordigen
+
+De publicatie beschrijft temperatuurprofielen die zijn gemeten met CTD-/profilingapparatuur of, waar die niet beschikbaar was, met handmetingen op intervallen van 0,5 m. In stratified lakes werd doorgaans gemeten tot de onderkant van de thermocline; in meren zonder thermocline, meestal ondiepe meren, tot circa 0,5 m boven de bodem. De dataset bevat onder meer sampling date, sampling depth, thermocline depth en een oppervlaktewatertemperatuur op 0,5 m.
+
+**Beperking:** de profielopzet ondersteunt analyse van zomerstratificatie en ondiep gemengde meren, maar is geen doorlopende uurlijkse temperatuurreeks en levert op zichzelf geen Nederlandse winter-/ijsvalidatie. De exacte downloadbestanden en licentie moeten nog worden gecontroleerd voordat deze dataset in het offline validatieprotocol wordt opgenomen.
+
+Bron: *A European Multi Lake Survey dataset of environmental variables, phytoplankton pigments and cyanotoxins* (Scientific Data, 2018): https://www.nature.com/articles/sdata2018226
+
+#### 5. Aangescherpte kandidaatselectie
+
+| Kandidaat | Verticaal detail | Tijddekking | Waterregime | Voorlopige rol |
+|---|---|---|---|---|
+| Marker Wadden meetpaal | Twee vaste NAP-hoogtes; waterstand nodig voor diepteconversie | Continue data vanaf plaatsing in 2019; actuele ruwe beschikbaarheid nog te verifiëren | Groot, wind-/stromingsgevoelig Markermeergebied | Sterke kandidaat voor verticale tijdsdynamiek, niet rechtstreeks representatief voor geïsoleerde vijvers |
+| Markermeer Midden | Eén YSI-sonde volgens rapportage | Meetpaal bestond al vóór 2000; reeks en frequentie nog te verifiëren | Groot meer | Langere bulk-/oppervlaktereferentie, geen profielvalidatie |
+| RWS CTD-transecten | Verticale profielen | Campagne-/vaarmomenten, geen vaste periode | Kust-/zoutwater | Alleen aanvullende fysische vergelijking |
+| European Multi Lake Survey | Profielen tot thermocline of nabij bodem | Momentopnamen/surveydata | Diverse Europese meren | Profielvorm, thermocline en ondiep gemengd water |
+| Klinkenbergerplas | Historische meerlaagse seizoensprofielen volgens rapport | 1985–2021 gerapporteerd; ruwe data nog op te vragen | Diepe, nagenoeg stilstaande zoetwaterplas | Beste inhoudelijke Nederlandse casus voor diepe stratificatie, mits ruwe data beschikbaar komen |
+
+#### 6. Uitkomst en eerstvolgende actie
+
+**Uitkomst:** er is nu een concretere Nederlandse bron voor gelijktijdige metingen op meerdere hoogtes: de Marker Wadden-meetpaal. De data lijken potentieel zeer waardevol voor het testen van verticale temperatuurverandering door de tijd, maar de locatie is hydrodynamisch niet gelijk aan een stilstaande visvijver en twee sensorniveaus zijn geen volledig profiel. De actuele RWS-catalogus is nog niet bevraagd; concrete beschikbaarheid en kwaliteitsstatus zijn dus niet bevestigd.
+
+**Volgende actie:**
+- bereid een gerichte, read-only cataloguscontrole voor van watertemperatuur (oppervlaktewater) bij Marker Wadden en Markermeer Midden, inclusief locatiecodes, meetmetadata, kwaliteitscodes, tijdsdekking en sensorhoogte;
+- controleer of de continue meetpaaldata via WaterWebservices publiek opvraagbaar zijn of dat de RWS-Servicedesk nodig is;
+- controleer de feitelijke downloadbestanden en licentie van de European Multi Lake Survey en EDI 705;
+- houd Klinkenbergerplas-ruwe data als afzonderlijke data-aanvraag in voorbereiding; nog niet verzenden.
+
+**Besluitpoort blijft gesloten:** geen API-integratie, data-import, modelberekening, productiecode, database, UI, formule, parameter, scoreberekening of deployment. Externe aanvragen blijven wachten op expliciete toestemming. De scoreberekeningsaudit blijft uitgesteld.
