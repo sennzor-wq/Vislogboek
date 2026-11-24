@@ -2984,3 +2984,6 @@ De fetch-/blootstellingsfactoren zijn expliciete voorlopige engineering-priors, 
 Bodemtype alleen is onvoldoende om een betrouwbare sedimentwarmteflux te berekenen. Daarvoor ontbreken sedimenttemperatuur en thermische eigenschappen; een willekeurige bodemcorrectie zou ongefundeerd zijn. Dit blijft een afzonderlijke volgende modelstap, net als een volwaardige windenergie/TKE-benadering en geautomatiseerde geometrische fetchbepaling.
 
 **Status:** fysieke locatie-invoer, formulier, modelkoppeling en regressietests toegevoegd op de bestaande PR-branch. De wijziging blijft shadow-only; score, soortcurves, bestaande temperatuuruitvoer en productiegedrag zijn niet aangepast.
+
+
+**Quality Gate:** run `45444651337` op commit `fea0aeb6815f8a5b74ead84642e67dd70010a478` is volledig geslaagd. TypeScript, waterkolomfysica, voorspelling/spin-up, shadow-integratie, empirische evaluator, backup/import-regressies en productiebuild zijn succesvol afgerond.
