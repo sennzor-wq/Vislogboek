@@ -45,6 +45,9 @@ export interface WaterColumnModelInput {
   targetTime?: string;
   asOf?: string;
   initialIceThicknessM?: number;
+  windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
+  effectiveFetchM?: number;
+  secchiDepthM?: number;
 }
 export interface WaterColumnLayer {
   topDepthM: number;
@@ -64,6 +67,10 @@ export interface WaterColumnModelResult {
   surfaceEnergyInputJm2: number;
   measurementAnchorsUsed: number;
   measurementAnchorsRejected: number;
+  opticalExtinctionPerM: number;
+  secchiPriorUsed: boolean;
+  windExposurePriorUsed: boolean;
+  fetchPriorUsed: boolean;
 }
 
 /** Freshwater density (kg/m³), polynomial fit; maximum is close to 3.986 °C. */
@@ -140,6 +147,14 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     throw new Error('initialLayerTemperaturesC must contain five liquid-water temperatures from 0 to 40 °C');
   }
   const layerThickness = input.totalDepthM / WATER_COLUMN_LAYER_COUNT;
+  const validSecchiDepth = typeof input.secchiDepthM === 'number' && Number.isFinite(input.secchiDepthM) && input.secchiDepthM >= 0.1 && input.secchiDepthM <= 20;
+  const opticalExtinctionPerM = validSecchiDepth
+    ? clamp(1.7 / (input.secchiDepthM as number), 0.15, 5)
+    : SHORTWAVE_EXTINCTION_PER_M;
+  const exposureFactor = input.windExposure === 'sheltered' ? 0.55
+    : input.windExposure === 'partly_exposed' ? 0.8 : 1;
+  const validFetch = typeof input.effectiveFetchM === 'number' && Number.isFinite(input.effectiveFetchM) && input.effectiveFetchM >= 10 && input.effectiveFetchM <= 10000;
+  const fetchFactor = validFetch ? clamp(Math.sqrt((input.effectiveFetchM as number) / 100), 0.5, 2.5) : 1;
   let temperatures = mixConvectivelyUnstableLayers(input.initialLayerTemperaturesC);
   let iceThicknessM = clamp(input.initialIceThicknessM ?? 0, 0, 2);
   const { accepted, rejected } = validForcing(input.forcing, input.targetTime, input.asOf);
@@ -161,6 +176,10 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
   for (const sample of accepted) {
     const airC = sample.airTemperatureC;
     const windMs = clamp(sample.windSpeedKmh ?? 0, 0, 200) / 3.6;
+    // Site exposure and effective fetch adjust the 10 m reference wind to a
+    // provisional over-water forcing. Unknown site properties retain the
+    // documented neutral prior rather than inventing a local correction.
+    const waterWindMs = windMs * exposureFactor * fetchFactor;
     const cloud = clamp(sample.cloudCoverPercent ?? 50, 0, 100) / 100;
     const shortwave = clamp(sample.shortwaveRadiationWm2 ?? 0, 0, 1600);
     const dewPoint = Number.isFinite(sample.dewPointC)
@@ -175,9 +194,9 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     const incomingLongwave = skyEmissivity * STEFAN_BOLTZMANN * airK ** 4;
     const outgoingLongwave = WATER_EMISSIVITY * STEFAN_BOLTZMANN * waterK ** 4;
     const sensible = AIR_DENSITY_KG_M3 * AIR_HEAT_CAPACITY_J_KG_K *
-      BULK_TRANSFER_COEFFICIENT * windMs * (airC - topC);
+      BULK_TRANSFER_COEFFICIENT * waterWindMs * (airC - topC);
     const latent = AIR_DENSITY_KG_M3 * LATENT_HEAT_VAPORIZATION_J_KG *
-      BULK_TRANSFER_COEFFICIENT * windMs *
+      BULK_TRANSFER_COEFFICIENT * waterWindMs *
       (specificHumidity(dewPoint) - specificHumidity(topC));
     const iceInsulation = 1 / (1 + 8 * iceThicknessM);
     const nonSolarSurfaceFlux = (incomingLongwave - outgoingLongwave + sensible + latent) * iceInsulation;
@@ -186,8 +205,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     const solarEnergyByLayer = temperatures.map((_, index) => {
       const top = index * layerThickness;
       const bottom = (index + 1) * layerThickness;
-      const fraction = Math.exp(-SHORTWAVE_EXTINCTION_PER_M * top) -
-        Math.exp(-SHORTWAVE_EXTINCTION_PER_M * bottom);
+      const fraction = Math.exp(-opticalExtinctionPerM * top) -
+        Math.exp(-opticalExtinctionPerM * bottom);
       return absorbedSolar * fraction * 3600;
     });
     for (let i = 0; i < temperatures.length; i++) {
@@ -215,8 +234,8 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
       surfaceEnergyInputJm2 += solarEnergyByLayer[i];
     }
 
-    const mixedDepth = Math.min(input.totalDepthM, 0.25 + 0.12 * windMs ** 1.5);
-    const exchangeFraction = clamp(0.004 + 0.018 * windMs, 0.004, 0.12);
+    const mixedDepth = Math.min(input.totalDepthM, 0.25 + 0.12 * waterWindMs ** 1.5);
+    const exchangeFraction = clamp(0.004 + 0.018 * waterWindMs, 0.004, 0.12);
     for (let i = 0; i < temperatures.length - 1; i++) {
       const interfaceDepth = (i + 1) * layerThickness;
       const densityDifference = Math.abs(freshwaterDensityKgM3(temperatures[i]) -
@@ -267,6 +286,10 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     surfaceEnergyInputJm2: Math.round(surfaceEnergyInputJm2),
     measurementAnchorsUsed: usedObservationIndices.size,
     measurementAnchorsRejected: observations.length - usedObservationIndices.size,
+    opticalExtinctionPerM: Math.round(opticalExtinctionPerM * 1000) / 1000,
+    secchiPriorUsed: !validSecchiDepth,
+    windExposurePriorUsed: input.windExposure === undefined,
+    fetchPriorUsed: !validFetch,
   };
 }
 
@@ -278,6 +301,10 @@ export interface WaterColumnPredictionInput {
   observations?: WaterColumnObservation[];
   targetTime: string;
   asOf?: string;
+  windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
+  effectiveFetchM?: number;
+  secchiDepthM?: number;
+  waterMovement?: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
 }
 export interface WaterColumnPrediction {
   /** Exact target and data-availability timestamps used by the forecast. */
@@ -301,6 +328,14 @@ export interface WaterColumnPrediction {
   scenarioSpreadC: number;
   measurementAnchorsUsed: number;
   measurementAnchorsRejected: number;
+  opticalExtinctionPerM: number;
+  secchiPriorUsed: boolean;
+  windExposurePriorUsed: boolean;
+  fetchPriorUsed: boolean;
+  waterMovement: 'still' | 'weak_flow' | 'flowing' | 'tidal' | 'unknown';
+  advectionNotModeled: boolean;
+  physicalInputCoveragePercent: number;
+  physicalInputWarnings: string[];
 }
 
 /**
@@ -336,6 +371,9 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     initialLayerTemperaturesC,
     forcing: accepted,
     observations: input.observations,
+    windExposure: input.windExposure,
+    effectiveFetchM: input.effectiveFetchM,
+    secchiDepthM: input.secchiDepthM,
     targetTime: input.targetTime,
     asOf: input.asOf,
   }));
@@ -359,6 +397,20 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
   const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
   const scenarioConverged = !depthPriorUsed && spinupDays >= 300 &&
     forcingCoverageRatio >= 0.9 && scenarioSpreadC <= 1;
+  const waterMovement = input.waterMovement ?? 'unknown';
+  const advectionNotModeled = waterMovement === 'flowing' || waterMovement === 'tidal';
+  const physicalInputCoveragePercent = Math.round((
+    Number(!depthPriorUsed) + Number(!simulations[0].secchiPriorUsed) +
+    Number(!simulations[0].windExposurePriorUsed) + Number(!simulations[0].fetchPriorUsed) +
+    Number(waterMovement !== 'unknown')
+  ) / 5 * 100);
+  const physicalInputWarnings: string[] = [];
+  if (depthPriorUsed) physicalInputWarnings.push('Waterdiepte ontbreekt; een algemene diepteprior is gebruikt.');
+  if (simulations[0].secchiPriorUsed) physicalInputWarnings.push('Waterhelderheid ontbreekt; lichtuitdoving gebruikt een algemene prior.');
+  if (simulations[0].windExposurePriorUsed) physicalInputWarnings.push('Windbeschutting is onbekend; lokale windreductie is niet vastgesteld.');
+  if (simulations[0].fetchPriorUsed) physicalInputWarnings.push('Effectieve open-waterlengte (fetch) ontbreekt; een neutrale fetchprior is gebruikt.');
+  if (waterMovement === 'unknown') physicalInputWarnings.push('Stroming is onbekend; horizontale advectie is niet gemodelleerd.');
+  else if (advectionNotModeled) physicalInputWarnings.push('Stroming/getijde is aanwezig; dit 1D-model berekent geen horizontale advectie en heeft daarom lage toepasbaarheid.');
   const measurementAnchorsUsed = Math.min(...simulations.map((simulation) => simulation.measurementAnchorsUsed));
   const measurementAnchorsRejected = Math.max(...simulations.map((simulation) => simulation.measurementAnchorsRejected));
   return {
@@ -382,5 +434,13 @@ export function estimateWaterColumnTemperature(input: WaterColumnPredictionInput
     scenarioSpreadC: Math.round(scenarioSpreadC * 100) / 100,
     measurementAnchorsUsed,
     measurementAnchorsRejected,
+    opticalExtinctionPerM: simulations[0].opticalExtinctionPerM,
+    secchiPriorUsed: simulations[0].secchiPriorUsed,
+    windExposurePriorUsed: simulations[0].windExposurePriorUsed,
+    fetchPriorUsed: simulations[0].fetchPriorUsed,
+    waterMovement,
+    advectionNotModeled,
+    physicalInputCoveragePercent,
+    physicalInputWarnings,
   };
 }
