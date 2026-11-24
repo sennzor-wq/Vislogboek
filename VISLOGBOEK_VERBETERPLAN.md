@@ -2899,7 +2899,7 @@ Dit implementatieplan is de gekozen compacte MVP-scope. De eigenaar heeft op 24 
 **Uitvoering 4 — shadow-integratie in de prognose (gestart):**
 - De bestaande `PrognosisView` vraagt de historische/recentere waterforcing parallel met de gewone weersverwachting op. De eerste fetch is begrensd (8 seconden voor de archivebron, 6 seconden voor de recente forecast); bij ontbrekende forcing blijft de bestaande prognose actief.
 - De bestaande `analyzeWaterThermalDevelopment` voert de nieuwe waterkolomschatting aanvullend uit en plaatst die in `WaterThermalAnalysis.waterColumnPrediction`.
-- De nieuwe schatting blijft bewust shadow-only: `estimatedWaterTemp`, soortcurves, scoreformule en catch-chance worden niet gewijzigd. Er is geen UI- of databaseschemawijziging voor deze diagnostische output.
+- De nieuwe schatting blijft bewust shadow-only: `estimatedWaterTemp`, soortcurves, scoreformule en catch-chance worden niet gewijzigd. De bestaande `PrognosisSnapshot.prognosisData` bewaart de volledige `DayPrognosis`, inclusief de nieuwe diagnostische analyse; er is geen nieuwe tabel, index of databaseschemamigratie nodig.
 - Voor de huidige dag gebruikt de shadowberekening het actuele referentiemoment; voor toekomstige dagen wordt het lokale middagmoment gebruikt. De volumegewogen kolomtemperatuur blijft de standaard scalar zolang geen aparte visdiepte is opgegeven.
 
 **Status:** de shadow-integratie en een regressietest zijn toegevoegd aan PR #224. De test controleert dat de fysieke schatting met stekdiepte en dieptegebonden meetanker beschikbaar komt, terwijl de bestaande temperatuur en score exact gelijk blijven. De nieuwe integratiestap wacht nog op de Quality Gate.

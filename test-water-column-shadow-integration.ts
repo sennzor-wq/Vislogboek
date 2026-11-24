@@ -1,4 +1,6 @@
-import { calculateDayPrognosis } from './src/services/prognosisEngine';
+import 'fake-indexeddb/auto';
+import { db } from './src/db/db';
+import { calculateDayPrognosis, savePrognosisSnapshot } from './src/services/prognosisEngine';
 import type { FishingLocation } from './src/types';
 import type { WaterColumnForcingSample } from './src/services/waterColumnModel';
 
@@ -56,4 +58,22 @@ if (baseline.thermalAnalysis?.waterColumnPrediction ||
     prediction.totalDepthM !== 0.9) {
   throw new Error('The physical prediction must run alongside the legacy model and use spot depth plus the depth-specific measurement.');
 }
-console.log('Water-column shadow integration tests passed; legacy score/scalar unchanged.');
+async function verifySnapshotPersistence() {
+  await db.delete();
+  await db.open();
+  try {
+    const snapshot = await savePrognosisSnapshot(shadow, 3, location.id, location.name);
+    const stored = await db.prognosisSnapshots.get(snapshot.id);
+    if (!stored?.prognosisData?.thermalAnalysis?.waterColumnPrediction) {
+      throw new Error('The existing immutable prognosisData snapshot must retain the shadow prediction without a schema migration.');
+    }
+  } finally {
+    await db.delete();
+  }
+}
+verifySnapshotPersistence().then(() => {
+  console.log('Water-column shadow integration tests passed; legacy score/scalar unchanged and snapshot retained.');
+}).catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
