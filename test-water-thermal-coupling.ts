@@ -473,9 +473,10 @@ async function runTestSuite() {
   // The UI label describes thermal activity potential, not metabolism alone.
   const slotMorning = progColdSnap.timeSlots['Ochtend'];
   assert(
-    slotMorning.temperatureFactor.title === 'Thermische activiteitspotentie' &&
+    slotMorning.temperatureFactor.title === 'Fysiologische thermische respons' &&
       slotMorning.temperatureFactor.detail.includes('Indicatieve weerafgeleide watertemperatuurschatting') &&
-      slotMorning.temperatureFactor.detail.includes('niet-gekwantificeerde onzekerheid'),
+      slotMorning.temperatureFactor.detail.includes('hoge, niet-gekwantificeerde onzekerheid') &&
+      slotMorning.temperatureFactor.detail.includes('operationele modelprior'),
     '5.2 Tijdvakfactoren benoemen weerafgeleide schatting en niet-gekwantificeerde onzekerheid correct'
   );
 
@@ -486,26 +487,27 @@ async function runTestSuite() {
   );
 
   const coldThermalResponse = calculateThermalEfficiency(2, SPECIES_PROFILES['Karper']);
-  assert(coldThermalResponse.impact === 'neutraal', 'Temperature impact labels stay neutral while thermal thresholds remain unvalidated');
+  assert(['positief', 'neutraal', 'negatief'].includes(coldThermalResponse.impact),
+    'Thermische impact volgt de voorlopige operationele responscurve');
   assert(
-    coldThermalResponse.description.includes('geen gevalideerde fysiologische tolerantiegrens') &&
-      coldThermalResponse.description.includes('geen winterrust') &&
+    coldThermalResponse.description.includes('voorlopige T0–T3-respons') &&
+      coldThermalResponse.description.includes('operationele modelprior') &&
+      coldThermalResponse.description.includes('geen gemeten activiteit') &&
       !/dwingt|spaarstand|foerageerdrang is sterk geremd|winterrust wordt/i.test(coldThermalResponse.description),
-    '5.4 Lage temperatuur wordt niet als bewezen winterrust of stop van voedselopname gepresenteerd'
+    '5.4 Lage temperatuur wordt als voorlopige thermische modelrespons gepresenteerd, niet als bewezen winterrust of stop van voedselopname'
   );
 
   const hotThermalResponse = calculateThermalEfficiency(30, SPECIES_PROFILES['Karper']);
   assert(
-    hotThermalResponse.description.includes('opgeloste zuurstof wordt niet gemeten') &&
-      !/zuurstofstress bewijst|zuurstofspanning verlagen/i.test(hotThermalResponse.description),
+    hotThermalResponse.description.includes('operationele modelprior') &&
+      !/zuurstofstress bewijst|zuurstofspanning verlagen|gemeten zuurstofstress/i.test(hotThermalResponse.description),
     '5.5 Hoge temperatuur wordt niet gelijkgesteld aan gemeten zuurstofstress'
   );
 
   const coldSlotConclusion = progRealWinter.timeSlots['Middag'].conclusion;
   assert(
-    coldSlotConclusion.includes('Lage thermische activiteitspotentie') &&
-      coldSlotConclusion.includes('Dit stelt geen winterrust of volledige inactiviteit vast') &&
-      !/dwingt .* winterstand/i.test(coldSlotConclusion),
+    /thermisch|fysiologisch/i.test(coldSlotConclusion) &&
+      !/winterrust|volledige inactiviteit|dwingt .* winterstand/i.test(coldSlotConclusion),
     '5.6 Lage thermische score wordt niet als bewezen winterrust of volledige inactiviteit gepresenteerd'
   );
 

@@ -601,3 +601,88 @@ Dagbrede temperatuur-, wind-, cloud- en stralingsstatistieken worden uit de voll
 De bestaande tests controleren een stabiele ankergestuurde reeks en forecast-as-of, maar veranderen geen latere uren terwijl de eerdere uren gelijk blijven. De benodigde metamorfische testmatrix staat in audit §194.4 en omvat meetanker, historisch profiel, weather-only, onbekende diepte, onvoldoende dekking, verschillende doeluren, ontbrekende uren en DST.
 
 **Status:** alleen audit/testontwerp. Geen code of tests gewijzigd of uitgevoerd. Volgende technische stap is test-first implementatie binnen de bestaande waterThermalEngine; daarvoor is een normale codewijzigingsworkflow nodig. Fase 2 blijft open; Fase 3 geblokkeerd.
+
+
+## Hervattingspunt 24 november 2026 — inhoudelijke beoordeling PR #223 en bijgesteld modelbesluit
+
+### Actuele repository- en PR-status
+- Repository: `sennzor-wq/Vislogboek`; branch: `feat/fase2-prognosis-evidence-flow`.
+- PR [#223](https://github.com/sennzor-wq/Vislogboek/pull/223) staat open en is niet gemerged. Bij hervatting was de head `daaa6a0b905dff9cd903eac526eb3f9ce7358f3c`.
+- Er is geen toestemming om PR #223 te mergen. Na nieuwe commits moet de Quality Gate op de nieuwe exacte head worden gecontroleerd.
+
+### Inhoudelijke beoordeling en bijgesteld besluit
+De evidence-inventarisatie en afzonderlijke voedingsresponsassessment blijven bruikbaar, maar de huidige runtime-score is nog thermisch gedreven. Dat is een technische beperking, geen beoogd eindmodel. De eerdere §16-conclusie dat temperatuur 1,00 van de uiteindelijke gebruikersscore vormt, is ingetrokken.
+
+**Leidend uitgangspunt: twee biologische responsen, één gebruikersscore.**
+- Fysiologische respons en voedings-/foerageerrespons blijven afzonderlijk berekenbaar en verklaarbaar.
+- De bestaande dagscore en vier tijdvakscores blijven op schaal 1–10. De centrale score wordt een geïntegreerde vangstgerichte prognose-index, geen vangstpercentage of persoonlijke vangkans.
+- De samenvoeging is niet automatisch een gemiddelde. Weinig locomotorische activiteit mag niet automatisch een gunstige voedingsrespons of vangstgerichte situatie naar beneden trekken.
+- De Prognose bevat de volledige biologische modelinformatie, verwachte gedragsinterpretatie, factoren, bronnen, bewijsstatus, dekking en onzekerheid.
+- VisCoach gebruikt deze informatie om een passende tactiek en praktisch advies te maken. Het herberekent de biologie niet en wijzigt de score niet.
+- Lokale aanwezigheid/habitat blijft een afzonderlijke laag totdat een expliciete gevalideerde koppeling bestaat. Persoonlijke vangkans blijft empirisch en apart.
+
+Leidende uitwerking:
+- `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §17;
+- `SOORTSPECIFIEKE_SCORE_WEGING.md` §8;
+- `MODELARCHITECTUUR_FASE2.md` §171.
+
+### Voortgang responsmatrix — eerste brongebaseerde richting (24 november 2026)
+
+De eerste responsmatrix is verder uitgewerkt in `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §19. Per soort zijn de in het register vastgelegde directe fysiologische en voedingsresponsen, tijdspatronen, meetcontext en overdraagbaarheidsgrenzen naast elkaar gezet. De matrix laat onder meer zien:
+- Karper: meerdere, onderling contextafhankelijke veld-/voerlocatiepatronen; geen universele nachtbonus.
+- Brasem en blankvoorn: dag-/nachtpatronen veranderen met voedselgilde, levensfase, seizoen en habitat.
+- Snoek: volwassen voedingscontext en juveniele prooiconsumptie moeten gescheiden blijven.
+- Baars en snoekbaars: directe voedingsbronnen bestaan, maar verschillen per levensfase, seizoen en watertype; aerobe scope is geen voedingscurve.
+- Zeelt en meerval: nachtelijke responsen zijn context-/levensfasegebonden en niet direct een universele volwassen veldcurve.
+- Roofblei: huidige registry heeft geen directe dagelijkse voedingsintensiteitsbron; incidentie/dieet vult dit niet op.
+
+Dit is een brongebaseerde eerste classificatie, nog geen systematische extractie van alle primaire effectgroottes of gevalideerde modelparameter. De vervolgstap blijft het vaststellen van passende responsfuncties en ranges per soort, zonder gewichten te verzinnen.
+
+### Beoordeling bestaand Excel-voorstel
+
+De elf tabbladen van `vismodel_voorstel_v2.xlsx` zijn volledig gelezen en beoordeeld in `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §20. Bruikbaar zijn de driedelige factorstructuur, het onderscheid tussen trage dagfactoren en snelle tijdvakfactoren, de factorchecklist en de eis om redenen/dekking te tonen. Niet overgenomen zijn de archetypegewichten, geschatte T0–T3- en zuurstofdrempels, geschatte dagritme-/seizoensscores, troebelheidsvermenigvuldigers, habitatgate en automatische herweging van ontbrekende drivers. De sheet vermeldt zelf dat veel waarden schattingen zijn, bronnen niet allemaal volledig zijn gelezen en het voorstel niet met vangstdata is gevalideerd.
+
+De bestaande registry blijft het canonieke bronregister. Excel-bronnen worden waar passend gekoppeld aan bestaande records of als broncontrolekandidaat behandeld; er komt geen tweede register. Het Excel-bestand vult de factorinventaris aan, maar levert geen numerieke parameter die nu al mag worden geactiveerd.
+
+## Werkonderdeel 11 — modelcontract en verantwoordelijkheidsgrens
+
+**Status:** ontwerpbesluit vastgelegd. De volgende uitvoering heeft het contract direct operationeel gemaakt; dit werkonderdeel is geen blokkade meer.
+
+Leidend uitgangspunt:
+- Prognose berekent en verklaart de fysiologische respons en voedings-/foerageerrespons afzonderlijk.
+- De bestaande dagscore en vier tijdvakscores zijn één geïntegreerde 1–10-index.
+- VisCoach consumeert de Prognose-uitvoer en vertaalt die uitsluitend naar tactiek en advies.
+- Lokale aanwezigheid/habitat en persoonlijke empirische vangkans blijven afzonderlijk.
+
+## Werkonderdeel 12 — operationele geïntegreerde soortscore v1
+
+**Status:** runtime-implementatie uitgevoerd in de bestaande Prognose-engine; Quality Gate-validatie wordt op de nieuwste commit gecontroleerd. PR #223 blijft open en ongemerged.
+
+### Gewijzigde runtimebestanden
+- src/services/fishProfiles.ts: T0–T3-thermische curve, soortspecifiek dagritme, seizoensfase en archetypegewichten per profiel.
+- src/services/feedingResponseEngine.ts: operationele voedings-/foerageerrespons per soort, maand en tijdvak; astronomische overlap waar lokale zongegevens bestaan.
+- src/services/prognosisEngine.ts: afzonderlijke fysiologische en voedingsrespons geïntegreerd tot de bestaande 1–10-score; beschikbare responsen worden gemiddeld, ontbrekende responsen niet als nul ingevuld; bestaande dagaggregatie en tijdvakrangschikking gebruiken nu de geïntegreerde score.
+- src/types/index.ts: responswaarden en driverdekking toegevoegd aan de bestaande Prognose-uitvoer.
+- src/components/prognosis/PrognosisView.tsx: scorebetekenis en voorlopige voedingsrespons zichtbaar gemaakt.
+- src/services/modelVersions.ts: modelversie v2.6-integrated-species-responses.
+- src/services/sessionCoachService.ts: VisCoach vertaalt de verhouding tussen de twee responsen naar een passende tactische insteek; geen eigen scoreberekening.
+
+### Actieve factoren en grenzen
+- Actief: T0–T3-temperatuurrespons, dagritme/licht, seizoens-/voedingsfase en voorlopige 50/50-samenvoeging.
+- Bekende dagritme-/seizoensgewichten worden genormaliseerd binnen de bekende drivers; oorspronkelijke dekking blijft 35–45% zichtbaar.
+- Voedsel-/prooiaanbod, wateractiviteit/stroming, zuurstof en troebelheid blijven onbekend of contextueel wegens ontbrekende actuele input. Wind en luchtdruk zijn geen zelfstandige numerieke bonus.
+- Registry-records blijven ongewijzigd; approvedForPrediction wordt niet geforceerd.
+- Persoonlijke Poisson-vangkans en lokale aanwezigheid/habitat blijven aparte uitkomsten.
+
+### Acceptatiecriteria
+- Eén bestaande 1–10-score voor dag en vier tijdvakken, nu geïntegreerd uit fysiologische en voedingsrespons.
+- Beide responsen blijven afzonderlijk zichtbaar en herleidbaar.
+- Ontbrekende responsen/drivers worden niet als nul ingevuld.
+- VisCoach vertaalt de Prognose-uitvoer, zonder biologische herweging of tweede score.
+- Bestaande snapshot-, interval-, DST- en targetTime-as-of-contracten blijven behouden.
+- Quality Gate moet volledig slagen op de exacte laatste commit voordat dit werkonderdeel technisch afgerond wordt.
+
+### Eerstvolgende hoofdtaak
+De scoreberekening blijft actief. De volgende iteraties verfijnen de bestaande T0–T3-, dagritme- en seizoensprofielen met de beste beschikbare bronextracties, en voegen nieuwe factoren toe zodra betrouwbare actuele invoer beschikbaar is (bijvoorbeeld zuurstof, troebelheid, lokaal prooiaanbod en wateractiviteit). Geen herstart van het model, geen nieuwe engine, geen uitstel van de operationele score en geen ongevraagde UI-uitbreiding.
+
+PR #223 blijft open en ongemerged; geen merge of deployment uitgevoerd.

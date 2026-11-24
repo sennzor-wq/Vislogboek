@@ -1,6 +1,6 @@
 # Soortspecifieke prognosescore — gewichten en berekening
 
-**Status:** ontwerpafspraak; numerieke gewichten zijn nog niet geactiveerd  
+**Status:** operationele v1 actief; voorlopige parameters en gewichten worden iteratief verfijnd  
 **Doel:** iedere vissoort krijgt een eigen scoreopbouw op basis van de beschikbare biologische informatie over die soort.
 
 ## 1. Basisregel
@@ -45,14 +45,15 @@ De volgorde van beoordeling is:
 
 De uiteindelijke gewichten worden per soort en uitkomst vastgelegd met bronverwijzing, bewijsstatus en onzekerheid. Als het bewijs geen betrouwbare numerieke rangorde toelaat, blijft de factor kwalitatief in plaats van dat we een percentage verzinnen.
 
-## 5. Vier scores blijven gescheiden
+## 5. Afzonderlijke responsen, één gebruikersscore
 
-De vier uitkomsten worden niet samengevoegd tot één ongedifferentieerde totaalscore:
+Fysiologische respons en voedings-/foerageerrespons blijven intern apart berekend en verklaarbaar, maar vormen samen één geïntegreerde 1–10-gebruikersscore. Dit maakt ze niet onderling uitwisselbaar:
 
-- fysiologische activiteit is niet hetzelfde als azen;
-- azen betekent niet dat de vis op de gekozen stek aanwezig is;
+- fysiologische capaciteit is niet hetzelfde als locomotorische activiteit;
+- locomotie is niet hetzelfde als voedselzoeken of voedselopname;
+- een voedingsrespons betekent niet dat de vis op de gekozen stek aanwezig is;
 - aanwezigheid betekent niet dat de vis vangbaar is;
-- de vangkans is een aparte, empirische uitkomst en wordt niet rechtstreeks afgeleid door een activiteitsscore als percentage te gebruiken.
+- persoonlijke vangkans blijft een aparte, empirische uitkomst en wordt niet rechtstreeks afgeleid van de biologische index.
 
 ## 6. Rekenvoorbeeld — alleen ter illustratie
 
@@ -68,4 +69,32 @@ Dit voorbeeld laat alleen de rekenwijze zien. Het zijn geen vastgestelde Vislogb
 
 ## 7. Huidige status
 
-Er zijn nog geen definitieve numerieke gewichten vastgesteld. De beschikbare soortprofielen en het onderzoeksregister vormen de basis om die per soort en per uitkomst te bepalen. Waar directe gegevens, overdraagbaarheid of lokale validatie ontbreken, blijft de factor kwalitatief of krijgt deze voorlopig geen numerieke invloed. Synthetische tests controleren de softwareberekening, niet de biologische juistheid van de gewichten.
+De operationele v1 is geactiveerd in de bestaande Prognose-engine. De eerste startparameters komen uit de bestaande soortprofielen en vismodel_voorstel_v2.xlsx: T0–T3-temperatuurcurves, soortspecifiek dagritme, seizoensfase en archetypegewichten voor de voedingsrespons. Deze waarden zijn expliciet voorlopig. Synthetische tests controleren de softwareberekening, niet de biologische juistheid of voorspellende nauwkeurigheid.
+
+## 8. Geïntegreerde gebruikersscore met afzonderlijke biologische responsen
+
+**Leidend besluit 24 november 2026:** de biologische responsen blijven afzonderlijk berekenbaar, maar worden vertaald naar één geïntegreerde vangstgerichte prognosescore van 1–10 in de bestaande dag- en vier tijdvakweergave. Dit vervangt de eerdere formulering in §5 dat alle vier uitkomsten ook voor de gebruikersscore volledig gescheiden moeten blijven.
+
+Fysiologische capaciteit/respons, voedings-/foerageerrespons, locomotorische activiteit, lokale aanwezigheid/habitat en empirische persoonlijke vangkans blijven intern herkenbaar. Een fysiologische maat is niet automatisch beweging; beweging is niet automatisch foerageren; foerageren is niet automatisch voedselopname; aanwezigheid is niet automatisch vangbaarheid.
+
+De fysiologische en voedings-/foerageerrespons vormen samen de onderliggende biologische basis van één vangstgerichte prognose-index. Dit is geen vangstpercentage of persoonlijke kans. De combinatie is geen verplicht rekenkundig gemiddelde. De soortspecifieke functie moet voorkomen dat lage locomotorische activiteit automatisch een gunstige voedingsrespons wegdrukt, en moet responsrichting, interacties, limiterende omstandigheden, bewijsstatus, onzekerheid en dubbeltelling meenemen. Aanwezigheid/habitat wordt alleen betrokken bij een expliciete gevalideerde koppeling.
+
+Behoud de schaal 1–10 en de bestaande dagscore plus vier tijdvakscores. Prognose toont de volledige onderbouwing en afzonderlijke responsen.
+
+**Verantwoordelijkheidsgrens:** Prognose berekent en verklaart de biologische responsen en geïntegreerde score en bewaart factoren, bron-ID's, bewijsstatus, invoer en onzekerheid. VisCoach consumeert deze output en vertaalt die, samen met sessie-, locatie- en techniekcontext, naar tactiek en praktisch advies. VisCoach maakt geen eigen biologische prognose, herweegt geen biologische factoren en verandert de score niet. Bij weinig verplaatsing maar gunstige gerichte voedselopname kan de prognosescore gunstig blijven; VisCoach adviseert dan een passende nauwkeurige presentatie en relevante voedsel-/habitatzone.
+
+**Operationele status:** de bestaande dag-/tijdvakscore gebruikt nu de voorlopige responsfuncties en een transparante 50/50-samenvoeging van de beschikbare fysiologische en voedings-/foerageerrespons. De verfijning gebeurt iteratief binnen deze actieve berekening; geen nieuwe engine en geen herstart van het modelontwerp. Onbekende invoer wordt niet als nul ingevuld. De bestaande interval-, onbekend-, snapshot-, Europe/Amsterdam-, DST- en targetTime-as-of-contracten blijven leidend.
+
+
+## 9. Actieve scoreberekening v1
+
+De huidige runtime gebruikt per soort:
+1. Een voorlopige T0–T3-trapeziumcurve voor de fysiologische thermische respons.
+2. Een voedings-/foerageerrespons uit de soortspecifieke diel-profielen en maandelijkse seizoensfase.
+3. De werkboek-archetypegewichten per soortprofiel. Alleen beschikbare dagritme- en seizoensgewichten worden genormaliseerd; voedsel-/prooiaanbod en wateractiviteit blijven onbekend en verlagen de zichtbare driverdekking.
+4. Een voorlopige 50/50-combinatie van de beschikbare fysiologische en voedingsrespons tot de bestaande 1–10-index. Dit is een technische startregel, geen literatuur-afgeleide verhouding.
+5. De bestaande vier tijdvakken en duurgewogen dagaggregatie.
+
+De score is nu operationeel. De numerieke waarden blijven modelprioren en worden in volgende iteraties verfijnd. De research registry wordt niet automatisch goedgekeurd; bronstatus en operationele modelstatus blijven gescheiden.
+
+**Prognose/VisCoach:** Prognose berekent en verklaart beide responsen, de geïntegreerde score, de factorbijdragen en onzekerheid. VisCoach gebruikt die uitkomsten uitsluitend om een praktische tactiek te vertalen en herberekent of herweegt geen biologie.

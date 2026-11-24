@@ -731,13 +731,18 @@ const staleMeasuredTempProg = calculateDayPrognosis(
   { sessionDurationHours: 4, location: baseLocation, locationId: baseLocation.id }
 );
 assert(
-  staleMeasuredTempProg.activityScoreAvailable === false,
-  '5.0 Een actuele watertemperatuurmeting wordt niet als meting hergebruikt voor een toekomstige dag buiten het geldige tijdvenster'
+  staleMeasuredTempProg.timeSlots.Ochtend.temperatureFactor.dataAvailable === false &&
+  staleMeasuredTempProg.timeSlots.Ochtend.physiologicalResponseScore === null &&
+  staleMeasuredTempProg.activityScoreAvailable === true,
+  '5.0 Een verouderde watertemperatuur voedt de fysiologische respons niet; de geïntegreerde score mag wel op de afzonderlijke voedingsrespons steunen'
 );
 
 assert(
-  noWeatherProg.activityScoreAvailable === false,
-  '5.1 Zonder gemeten of verantwoord geschatte watertemperatuur wordt de activiteitsindex niet als beschikbaar gemarkeerd'
+  noWeatherProg.timeSlots.Ochtend.temperatureFactor.dataAvailable === false &&
+  noWeatherProg.timeSlots.Ochtend.physiologicalResponseScore === null &&
+  noWeatherProg.timeSlots.Ochtend.feedingResponseScore !== null &&
+  noWeatherProg.activityScoreAvailable === true,
+  '5.1 Zonder thermische invoer blijft de fysiologische respons onbekend, terwijl de beschikbare soortspecifieke voedingsrespons de geïntegreerde index kan dragen'
 );
 assert(
   noWeatherProg.personalCatchChance === null,

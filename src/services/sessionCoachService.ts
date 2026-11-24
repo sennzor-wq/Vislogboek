@@ -60,6 +60,8 @@ export function prognosisSignature(prognosis: DayPrognosis): Record<string, stri
   return {
     advice: prognosis.advice,
     bestTimeSlot: prognosis.bestTimeSlot,
+    integratedScoreBand: Number.isFinite(prognosis.activityScore) ? Math.round(prognosis.activityScore) : null,
+    feedingResponseBand: typeof prognosis.feedingActivity?.score === 'number' ? Math.round(prognosis.feedingActivity.score) : null,
     recommendedZone: prognosis.positioningAdvice?.recommendedZone ?? null,
     bankWindRelation: prognosis.bankWindAnalysis?.relation ?? null,
     bankWindPosition: prognosis.bankWindAnalysis?.rodPlacementAdvice?.primaryPosition ?? null,
@@ -362,16 +364,34 @@ export function buildVisCoachAdviceText(
   const when = selectedTimeSlot
     ? selectedSlotAnalysis?.conclusion
       ? `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak geldt: ${selectedSlotAnalysis.conclusion}`
-      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het thermisch gunstigste tijdvak van de hele dag.`
+      : `Je gekozen sessie valt in het tijdvak ${selectedTimeSlot.toLowerCase()}. Voor dit tijdvak is geen afzonderlijke analyse beschikbaar; ik leid daarom geen voorkeur af uit het biologisch gunstigste tijdvak van de hele dag.`
     : selectedTimeSlot === null
-      ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het thermisch gunstigste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
+      ? 'Je gekozen sessie bestrijkt meerdere tijdvakken. Daarom wijs ik niet automatisch het biologisch gunstigste tijdvak van de hele dag aan; de omstandigheden kunnen binnen je sessie verschillen.'
       : prognosis.bestTimeSlot &&
         prognosis.bestTimeSlot !== 'Geen toekomstig tijdvak meer vandaag' &&
         prognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid'
-          ? `Volgens de thermische prognose heeft ${prognosis.bestTimeSlot.toLowerCase()} de hoogste relatieve temperatuurrespons. Dit is geen bewezen voedingspiek of vangstvoorkeur; andere tijdvakken kunnen eveneens geschikt zijn.`
+          ? `Volgens de geïntegreerde prognose heeft ${prognosis.bestTimeSlot.toLowerCase()} de gunstigste combinatie van fysiologische en voedings-/foerageerrespons. Dit is geen persoonlijke vangstkans; de gekozen sessie en lokale omstandigheden blijven leidend.`
           : 'Er is geen duidelijk beter tijdvak gevonden. Kies je vistijd vooral op basis van je planning en let ter plaatse op activiteit.';
 
   adviceSections.push(`Wanneer\n${when}`);
+
+  // VisCoach vertaalt uitsluitend de reeds berekende Prognose-responsen naar tactiek.
+  const selectedPhysiology = selectedSlotAnalysis?.physiologicalResponseScore ?? prognosis.physiologicalResponseScore ?? null;
+  const selectedFeeding = selectedSlotAnalysis?.feedingResponseScore ?? prognosis.feedingActivity?.score ?? null;
+  const feedingEvidenceLevel = prognosis.feedingActivity?.evidenceLevel ?? 'none';
+  if (selectedPhysiology !== null || selectedFeeding !== null) {
+    const responseSummary = `Fysiologische respons: ${selectedPhysiology === null ? 'onbekend' : selectedPhysiology.toFixed(1) + '/10'}; voedings-/foerageerrespons: ${selectedFeeding === null ? 'onbekend' : selectedFeeding.toFixed(1) + '/10'}.`;
+    adviceSections.push(`Biologische verwachting\n${responseSummary} De twee responsen zijn afzonderlijk berekend in Prognose; deze uitleg maakt geen nieuwe score of vangstkans.`);
+    if (feedingEvidenceLevel === 'proxy_only' || feedingEvidenceLevel === 'context_only') {
+      tacticSections.push('Voedingsrespons toepassen\nDe voedingsrespons is vooral een tijd-/seizoensproxy en geen directe meting van voedselopname. Gebruik hem daarom als aanwijzing om het tijdvak en de presentatie te kiezen, niet als bewijs dat de vis actief aast.');
+    } else if (selectedPhysiology !== null && selectedFeeding !== null && selectedFeeding >= selectedPhysiology + 1) {
+      tacticSections.push('Voedingsgerichte tactiek\nDe voedings-/foerageerrespons is gunstiger dan de fysiologische respons. Ga er niet automatisch van uit dat de vis veel rondtrekt: kies een rustige, nauwkeurige presentatie op een logische voedsel- of structuurzone, beperk onnodige verstoring en begin met een beheerste hoeveelheid voer.');
+    } else if (selectedPhysiology !== null && selectedFeeding !== null && selectedPhysiology >= selectedFeeding + 1) {
+      tacticSections.push('Zoekende tactiek\nDe fysiologische respons is gunstiger dan de voedings-/foerageerrespons. Dat bewijst geen actieve voedselopname. Zoek gecontroleerd naar vis of geschikte zones, test de presentatie en bouw het voer pas op wanneer lokale activiteit of aanbeten dat ondersteunen.');
+    } else if (selectedFeeding !== null) {
+      tacticSections.push('Presentatie afstemmen\nDe fysiologische en voedings-/foerageerrespons liggen relatief dicht bij elkaar. Stem de aasaanbieding af op de gekozen techniek en begin zonder grote voerbelasting; laat lokale activiteit en aanbeten de vervolgstap bepalen.');
+    }
+  }
   const intervalTimeline = formatIntervalTimeline(intervalOutput);
   if (intervalTimeline) adviceSections.push(`Verloop tijdens je sessie\n${intervalTimeline}`);
   else if (intervalOutput?.status === 'unknown_end') {
@@ -512,7 +532,7 @@ export function buildVisCoachAdviceText(
   tacticSections.push(`Als het niet werkt\n${fallback}`);
 
   const activityScoreAvailable = prognosis.activityScoreAvailable !== false;
-  const unavailableThermalSummary = 'Geen betrouwbare activiteitsscore beschikbaar: er is geen bruikbare watertemperatuurmeting of modelschatting.';
+  const unavailableThermalSummary = 'Geen geïntegreerde biologische score beschikbaar: zowel de fysiologische als de soortspecifieke voedings-/foerageerrespons ontbreekt.';
   const summary = intervalOutput
     ? `${activityScoreAvailable ? `De dagprognose voor ${prognosis.species.toLowerCase()} is ${prognosis.advice.toLowerCase()}.` : unavailableThermalSummary} De omstandigheden binnen je geplande sessie worden hieronder in tijdsvolgorde beschreven; de dagscore is geen sessiescore.`
     : activityScoreAvailable

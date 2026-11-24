@@ -19,6 +19,7 @@ import {
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
+import { assessSpeciesFeedingActivity, calculateSpeciesFeedingResponse } from './feedingResponseEngine';
 import { getSpeciesThermalEvidenceContextText } from './thermalEvidenceService';
 import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
@@ -183,6 +184,39 @@ function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
+/**
+ * Aggregates complete chronological segments into a duration-weighted daily score.
+ * Missing segments are never silently replaced by a neutral/average score.
+ * The numeric zero is only a compatibility sentinel when available=false;
+ * callers must use the availability flag before displaying the score.
+ */
+export function calculateDurationWeightedActivityScore(
+  segments: Array<{ score: number; durationMinutes: number; available: boolean }>
+): { score: number; available: boolean; coverageRatio: number } {
+  const totalDuration = segments.reduce(
+    (sum, segment) => sum + (Number.isFinite(segment.durationMinutes) && segment.durationMinutes > 0 ? segment.durationMinutes : 0),
+    0
+  );
+  if (totalDuration <= 0) return { score: 0, available: false, coverageRatio: 0 };
+
+  const validDuration = segments.reduce((sum, segment) => {
+    if (!segment.available || !Number.isFinite(segment.score) || !Number.isFinite(segment.durationMinutes) || segment.durationMinutes <= 0) return sum;
+    return sum + segment.durationMinutes;
+  }, 0);
+  const coverageRatio = validDuration / totalDuration;
+  if (coverageRatio < 1) return { score: 0, available: false, coverageRatio };
+
+  const weightedTotal = segments.reduce(
+    (sum, segment) => sum + segment.score * segment.durationMinutes,
+    0
+  );
+  return {
+    score: Math.round((weightedTotal / totalDuration) * 10) / 10,
+    available: true,
+    coverageRatio: 1,
+  };
+}
+
 function getSolarTransitionContext(
   slot: TimeSlot,
   solarTimes?: CivilTwilightTimes | null
@@ -203,8 +237,8 @@ function getSolarTransitionContext(
   if (dawnOverlap > 0) periods.push('civiele dageraad (' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ')');
   if (duskOverlap > 0) periods.push('civiele schemering (' + solarTimes.sunset + '–' + solarTimes.civilDusk + ')');
   return periods.length > 0
-    ? 'Dit tijdvak omvat ' + periods.join(' en ') + '. Dit is zonne-relatieve context, geen gevalideerde activiteitsscore.'
-    : 'Civiele dageraad is ' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ' en civiele schemering ' + solarTimes.sunset + '–' + solarTimes.civilDusk + '; beide vallen buiten dit tijdvak. Dit verandert de score niet.';
+    ? 'Dit tijdvak omvat ' + periods.join(' en ') + '. Dit is zonne-relatieve context die samen met het soortspecifieke dagritme de voorlopige voedingsrespons bepaalt.'
+    : 'Civiele dageraad is ' + solarTimes.civilDawn + '–' + solarTimes.sunrise + ' en civiele schemering ' + solarTimes.sunset + '–' + solarTimes.civilDusk + '; beide vallen buiten dit tijdvak. Dit voedt de voorlopige soortspecifieke dagritme-respons.';
 }
 
 
@@ -446,7 +480,7 @@ function analyzeTimeSlot(
   else if (hasEstimated) { effectiveTemp = thermalAnalysis!.estimatedWaterTemp!; tempSource = 'geschat'; }
   const hasKnownWaterTemp = effectiveTemp !== null;
   const thermalResult = hasKnownWaterTemp ? calculateThermalEfficiency(effectiveTemp!, profile) : null;
-  const thermalEff = thermalResult?.efficiency ?? 0.5; // interne placeholder; nooit als score tonen wanneer onbekend
+  const thermalEff = thermalResult?.efficiency ?? 0; // onbekend blijft null in de respons; geen neutrale thermische invulling
   const thermalEvidenceDetail = getSpeciesThermalEvidenceContextText(species);
   let thermalScoreBandDetail = '';
   if (tempSource === 'geschat' && thermalAnalysis?.estimatedRange) {
@@ -476,12 +510,25 @@ function analyzeTimeSlot(
         : thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather'
           ? 'Indicatieve weerafgeleide watertemperatuurschatting zonder lokale waterreferentie; de absolute temperatuur heeft hoge, niet-gekwantificeerde onzekerheid.'
           : 'Gebaseerd op een modelschatting waarvan de bronstatus niet nader is vastgelegd.';
+  const physiologicalResponseScore = hasKnownWaterTemp ? Math.round((1 + 9 * Math.pow(thermalEff, 0.85)) * 10) / 10 : null;
+  const physiologicalConfidencePercent = !hasKnownWaterTemp ? 0 : tempSource === 'gemeten' ? 90 :
+    thermalAnalysis?.waterTemperatureStatus === 'estimated_from_measurement' ? 75 :
+    thermalAnalysis?.waterTemperatureStatus === 'estimated_from_history' ? 65 :
+    thermalAnalysis?.waterTemperatureStatus === 'estimated_from_weather' ? 35 : 25;
+  const feedingResponse = calculateSpeciesFeedingResponse(species, month, slot, solarTimes);
+  const feedingResponseScore = feedingResponse?.score ?? null;
   const tempDetailText = (!hasKnownWaterTemp
-    ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'
+    ? 'Onbekend: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt; de geïntegreerde score kan op de voedingsrespons blijven steunen.'
     : tempSource === 'gemeten'
       ? thermalResult!.description + ' (Gebaseerd op gemeten watertemperatuur).'
       : thermalResult!.description + ` (${estimatedTemperatureBasis})`) + ` ${thermalScoreBandDetail} ${thermalEvidenceDetail}`;
-  const temperatureFactor: FactorBreakdown = { score: hasKnownWaterTemp ? Math.round((thermalEff*4-2)*10)/10 : 0, impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal', title: 'Thermische activiteitspotentie', detail: tempDetailText, dataAvailable: hasKnownWaterTemp };
+  const temperatureFactor: FactorBreakdown = {
+    score: physiologicalResponseScore ?? 0,
+    impact: hasKnownWaterTemp ? thermalResult!.impact : 'neutraal',
+    title: 'Fysiologische thermische respons',
+    detail: tempDetailText,
+    dataAvailable: hasKnownWaterTemp,
+  };
   // 2. Luchtdrukfactor & Trend: alleen context, geen automatische biologische bonus/malus.
   // Een betrouwbare soortspecifieke relatie tussen absolute luchtdruk/korte druktrend
   // en vangstactiviteit is onvoldoende vastgesteld.
@@ -497,9 +544,8 @@ function analyzeTimeSlot(
     dataAvailable: hasPressure,
   };
 
-  // 3. Wind, seizoen, tijdstip, bewolking en neerslag blijven context.
-  // De bestaande profielvoorkeuren en vaste modulatoren zijn niet voldoende
-  // soortspecifiek en empirisch gevalideerd om de thermische activiteitspotentie te wijzigen.
+  // 3. Wind, bewolking en neerslag blijven context; seizoen en dagritme voeden nu
+  // de afzonderlijke voedings-/foerageerrespons via de voorlopige soortprofielen.
   let windDetail = '';
   if (!hasWind || avgWindSpeed === null || dominantWindDir === null) {
     windDetail = 'Onbekend: onvoldoende geldige windsnelheid en windrichting; geen windaanname toegepast.';
@@ -514,26 +560,26 @@ function analyzeTimeSlot(
   }
   const windFactor: FactorBreakdown = { score: 0, impact: 'neutraal', title: 'Wind & Oppervlakte', detail: windDetail, dataAvailable: hasWind };
 
-  // Seizoen blijft context; geen gevalideerde zelfstandige seizoenscorrectie.
+  const seasonalScore = profile.seasonalFeedingScores?.[month - 1] ?? null;
+  const seasonImpact: 'positief' | 'neutraal' | 'negatief' = seasonalScore === null ? 'neutraal' : seasonalScore >= 80 ? 'positief' : seasonalScore <= 55 ? 'negatief' : 'neutraal';
   const seasonFactor: FactorBreakdown = {
-    score: 0,
-    impact: 'neutraal',
-    title: 'Seizoensritme',
-    detail: `Seizoen ${season} wordt als context getoond. Er wordt geen zelfstandige seizoensbonus of -aftrek toegepast.`,
-    dataAvailable: true,
+    score: seasonalScore === null ? 0 : seasonalScore / 10,
+    impact: seasonImpact,
+    title: 'Seizoensfase / voedingsfase',
+    detail: seasonalScore === null
+      ? `Seizoen ${season} is alleen context; geen soortspecifieke seizoensrespons beschikbaar.`
+      : `Maand ${month}: voorlopige soortspecifieke seizoens-/voedingsfase ${seasonalScore}/100 uit het werkboekprofiel. Dit is een startprior, niet een gemeten dagelijkse voedselopname. Temperatuurwerking wordt via de thermische respons verwerkt en hier niet opnieuw als winterbonus/-malus gerekend.`,
+    dataAvailable: seasonalScore !== null,
   };
-
-  // Tijdvakcontext komt uit de expliciet geclassificeerde literatuur, niet uit
-  // oude profielvoorkeuren. Alleen direct voedingsritmebewijs mag een mogelijke
-  // voedingsvoorkeur onderbouwen; beweging/habitat wordt niet als voeding vertaald.
-  // Alle huidige bronnen zijn niet-goedgekeurd en blijven daarom beschrijvend.
-  const timeDetail = `${getSpeciesDielTimeContextText(species)} ${getSolarTransitionContext(slot, solarTimes)}`;
+  const dielScore = feedingResponse?.dielScore ?? null;
+  const dielImpact: 'positief' | 'neutraal' | 'negatief' = dielScore === null ? 'neutraal' : dielScore >= 0.85 ? 'positief' : dielScore <= 0.45 ? 'negatief' : 'neutraal';
+  const timeDetail = `${getSpeciesDielTimeContextText(species)} ${getSolarTransitionContext(slot, solarTimes)} ${dielScore === null ? 'Geen numerieke soortspecifieke dagritmeprior beschikbaar.' : `Operationele dagritmeprior: ${Math.round(dielScore * 100)}/100; gebruikt in de voedings-/foerageerrespons.`}`;
   const timeOfDayFactor: FactorBreakdown = {
-    score: 0,
-    impact: 'neutraal',
-    title: 'Tijdstip & Licht',
+    score: dielScore === null ? 0 : Math.round(dielScore * 100) / 10,
+    impact: dielImpact,
+    title: 'Dagritme & lichtrespons',
     detail: timeDetail,
-    dataAvailable: true,
+    dataAvailable: dielScore !== null,
   };
 
   // Bewolking en neerslag zijn lokale context. De huidige profielvoorkeuren
@@ -560,13 +606,20 @@ function analyzeTimeSlot(
     dataAvailable: hasPrecip || hasCloud,
   };
 
-  // --- THERMISCHE ACTIVITEITSPOTENTIE ---
-  // Alleen de soortspecifieke thermische respons beïnvloedt de huidige score.
-  // Andere factoren blijven uitlegbare context totdat hun effect afzonderlijk
-  // met passende soort-, levensstadium- en watertypegegevens is gevalideerd.
-  const metabolicCeiling = Math.pow(thermalEff, 0.85);
-  const rawActivityScore = 1.0 + 9.0 * metabolicCeiling;
-  const activityScore = Math.round(clamp(rawActivityScore, 1.0, 10.0) * 10) / 10;
+  // --- GEÏNTEGREERDE BIOLOGISCHE PROGNOSESCORE ---
+  // Twee afzonderlijke responsen, één gebruikersscore. Beschikbare responsen
+  // krijgen voorlopig gelijk gewicht; onbekende responsen worden niet als nul ingevuld.
+  const availableResponses = [physiologicalResponseScore, feedingResponseScore].filter((value): value is number => value !== null && Number.isFinite(value));
+  const activityScore = availableResponses.length
+    ? Math.round(availableResponses.reduce((sum, value) => sum + value, 0) / availableResponses.length * 10) / 10
+    : 0;
+  const activityScoreAvailable = availableResponses.length > 0;
+  const scoreConfidencePercent = availableResponses.length
+    ? Math.round([
+        ...(physiologicalResponseScore !== null ? [physiologicalConfidencePercent] : []),
+        ...(feedingResponse ? [feedingResponse.driverCoveragePercent] : []),
+      ].reduce((sum, value, _, values) => sum + value / values.length, 0))
+    : 0;
 
   // 7. Persoonlijke sessies analyseren
   const similarSessions = getSimilarSessions(historicalSessions, historicalCatches, species, slot);
@@ -607,30 +660,23 @@ function analyzeTimeSlot(
     else neutralFactors.push(`${f.title}: ${f.detail}`);
   }
 
-  // Conclusie
-  let conclusion = '';
-  if (!hasKnownWaterTemp) { conclusion = 'Thermische activiteitspotentie niet betrouwbaar te bepalen: gemeten of voldoende onderbouwde geschatte watertemperatuur ontbreekt. Luchttemperatuur wordt niet als vervanging gebruikt.'; }
-  else if (activityScore >= 8.5) {
-    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel. Licht en overige weersomstandigheden zijn afzonderlijke context en verhogen deze score niet.`;
-  } else if (activityScore >= 6.8) {
-    conclusion = `Hoge thermische activiteitspotentie (${activityScore}/10) voor ${species} volgens het voorlopige temperatuurresponsmodel.`;
-  } else if (activityScore >= 4.8) {
-    conclusion = `Gemiddelde thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
-      thermalEff < 0.5 ? 'De curve schat een lagere relatieve respons dan rond het profieloptimum.' : 'De curve schat een gematigde respons; overige omstandigheden worden afzonderlijk als context getoond.'
-    }`;
-  } else {
-    conclusion = `Lage thermische activiteitspotentie (${activityScore}/10) volgens de voorlopige soortspecifieke temperatuurcurve. ${
-      thermalEff < 0.4
-        ? `Watertemperatuur (${effectiveTemp!.toFixed(1)} °C) ligt onder de voorlopige profielgrens; de curve schat een lage relatieve thermische respons. Dit stelt geen winterrust of volledige inactiviteit vast.`
-        : 'De curve schat een relatief lage respons ten opzichte van het voorlopige profieloptimum.'
-    }`;
-  }
+  const responseExplanation = `Fysiologische respons: ${physiologicalResponseScore === null ? 'onbekend' : physiologicalResponseScore.toFixed(1) + '/10'}; voedings-/foerageerrespons: ${feedingResponseScore === null ? 'onbekend' : feedingResponseScore.toFixed(1) + '/10'}; driverdekking voedingsrespons: ${feedingResponse?.driverCoveragePercent ?? 0}%.`;
+  let conclusion = !activityScoreAvailable
+    ? `Geen geïntegreerde score beschikbaar voor ${species}: beide biologische responsen ontbreken. ${responseExplanation}`
+    : activityScore >= 8
+      ? `Gunstige geïntegreerde biologische prognose (${activityScore.toFixed(1)}/10) voor ${species}. ${responseExplanation}`
+      : activityScore >= 5
+        ? `Gemiddelde geïntegreerde biologische prognose (${activityScore.toFixed(1)}/10) voor ${species}. ${responseExplanation}`
+        : `Minder gunstige geïntegreerde biologische prognose (${activityScore.toFixed(1)}/10) voor ${species}. Dit betekent niet automatisch weinig voedselzoekgedrag; bekijk beide responsen afzonderlijk. ${responseExplanation}`;
 
   return {
     slot,
     timeRange: hoursConfig.rangeLabel,
     activityScore,
-    activityScoreAvailable: hasKnownWaterTemp,
+    activityScoreAvailable,
+    physiologicalResponseScore,
+    feedingResponseScore,
+    scoreConfidencePercent,
     isPast,
     remainingHours,
     temperatureFactor,
@@ -877,9 +923,15 @@ export function calculateDayPrognosis(
     }
   }
 
-  const allSlotScores = slots.map((s) => timeSlotAnalyses[s].activityScore);
-  const dayScoreAvailable = slots.every(slot => timeSlotAnalyses[slot].activityScoreAvailable !== false);
-  const dayScore = dayScoreAvailable ? Math.round((allSlotScores.reduce((sum,v)=>sum+v,0)/allSlotScores.length)*10)/10 : 5.0;
+  const dailyActivity = calculateDurationWeightedActivityScore(
+    slots.map((slot) => ({
+      score: timeSlotAnalyses[slot].activityScore,
+      durationMinutes: 6 * 60,
+      available: timeSlotAnalyses[slot].activityScoreAvailable !== false,
+    }))
+  );
+  const dayScoreAvailable = dailyActivity.available;
+  const dayScore = dailyActivity.score;
 
   let advice: 'Gunstig' | 'Gemiddeld' | 'Ongunstig' = 'Gemiddeld';
   if (dayScoreAvailable && dayScore >= 7.0) advice = 'Gunstig';
@@ -1082,7 +1134,7 @@ export function calculateDayPrognosis(
     summaryRationale = 'Alle tijdvakken voor vandaag zijn inmiddels verstreken. Bekijk de prognose voor morgen.';
   } else {
     const bestSlotAnalysis = timeSlotAnalyses[bestSlot];
-    summaryRationale = `Het thermisch gunstigste toekomstige tijdvak is ${bestSlot} (${bestSlotAnalysis.activityScore}/10). Dit is gebaseerd op thermische activiteitspotentie, niet op een bewezen voedingspiek of vangstkans. ${bestSlotAnalysis.conclusion}`;
+    summaryRationale = `Het biologisch gunstigste toekomstige tijdvak is ${bestSlot} (${bestSlotAnalysis.activityScore}/10), op basis van de geïntegreerde fysiologische en voedings-/foerageerrespons. Dit is geen persoonlijke vangstkans. ${bestSlotAnalysis.conclusion}`;
   }
 
   // De coach kan een expliciet starttijdvak meegeven. De algemene dagprognose
@@ -1300,8 +1352,23 @@ export function calculateDayPrognosis(
     date: dateStr,
     dayName,
     species,
+    feedingActivity: assessSpeciesFeedingActivity(
+      species === 'Algemeen' ? 'Overig' : species,
+      slots.map((slot) => {
+        const dailySolar = options?.dailySolarTimes?.find((item) => item.date === dateStr);
+        const solar = dailySolar && typeof location?.latitude === 'number'
+          ? calculateCivilTwilightTimes(dateStr, location.latitude, dailySolar.sunrise, dailySolar.sunset)
+          : null;
+        return calculateSpeciesFeedingResponse(species === 'Algemeen' ? 'Overig' : species, getAmsterdamMonth(date) ?? 1, slot, solar);
+      })
+    ),
     activityScore: dayScore,
     activityScoreAvailable: dayScoreAvailable,
+    physiologicalResponseScore: (() => {
+      const values = slots.map((slot) => timeSlotAnalyses[slot].physiologicalResponseScore).filter((value): value is number => value !== null);
+      return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length * 10) / 10 : null;
+    })(),
+    integratedScoreConfidencePercent: Math.round(slots.reduce((sum, slot) => sum + timeSlotAnalyses[slot].scoreConfidencePercent, 0) / slots.length),
     weatherDataQuality,
     dataQualityReport,
     advice,

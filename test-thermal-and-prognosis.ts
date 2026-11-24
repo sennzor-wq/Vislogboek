@@ -6,7 +6,7 @@
 
 import { PROGNOSIS_MODEL_VERSION } from './src/services/modelVersions';
 import { analyzeWaterThermalDevelopment } from './src/services/waterThermalEngine';
-import { calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
+import { calculateDurationWeightedActivityScore, calculateDayPrognosis, createManualWaterTemperatureInput, createPrognosisHistoryFeatureSnapshot, createPrognosisHistoryFingerprint, createPrognosisInputFingerprint, getSessionDurationHours } from './src/services/prognosisEngine';
 import { evaluatePrognosisPerformance } from './src/services/evaluationEngine';
 import { normalizeRawBackup } from './src/services/backupService';
 import { resolveTimestampEntryMode } from './src/utils/timestampProvenance';
@@ -70,6 +70,18 @@ function makeHourlySeries(
 }
 
 async function run14Scenarios() {
+  const weightedDaily = calculateDurationWeightedActivityScore([
+    { score: 4, durationMinutes: 360, available: true },
+    { score: 8, durationMinutes: 180, available: true },
+  ]);
+  assert(weightedDaily.available && weightedDaily.score === 5.3 && weightedDaily.coverageRatio === 1,
+    'F2 V0.1: dagscore wordt naar werkelijke segmentduur gewogen');
+  const incompleteDaily = calculateDurationWeightedActivityScore([
+    { score: 4, durationMinutes: 360, available: true },
+    { score: 8, durationMinutes: 180, available: false },
+  ]);
+  assert(!incompleteDaily.available && incompleteDaily.score === 0 && incompleteDaily.coverageRatio === 2 / 3,
+    'F2 V0.1: ontbrekende segmenten leveren geen fictieve neutrale dagscore op');
   console.log('=== STARTING VISLOGBOEK 14-SCENARIO VERIFICATION ===\n');
 
   // Timestamp provenance: automatic by default, editable, and never retroactively inferred.
@@ -301,11 +313,39 @@ async function run14Scenarios() {
 
   // 6. Verschillende seizoenen en tijdstippen
   console.log('\n--- SCENARIO 6: Verschillende seizoenen en tijdstippen ---');
-  const progWinter = calculateDayPrognosis('2026-01-15', makeHourlySeries('2026-01-15', 1, () => 3), 'Snoek', []);
-  const progSummer = calculateDayPrognosis('2026-07-15', makeHourlySeries('2026-07-15', 1, () => 22), 'Karper', []);
+  const progWinter = calculateDayPrognosis(
+    '2026-01-15',
+    makeHourlySeries('2026-01-15', 1, () => 3),
+    'Snoek',
+    [],
+    undefined,
+    4
+  );
+  const progSummer = calculateDayPrognosis(
+    '2026-07-15',
+    makeHourlySeries('2026-07-15', 1, () => 22),
+    'Karper',
+    [],
+    undefined,
+    22
+  );
   assert(
-    progWinter.activityScore > 0 && progSummer.activityScore > 0,
-    `6.1 Zowel winter (${progWinter.activityScore}/10) als zomer (${progSummer.activityScore}/10) functioneren foutloos`
+    progWinter.activityScoreAvailable === true && progWinter.activityScore > 0 &&
+      progSummer.activityScoreAvailable === true && progSummer.activityScore > 0,
+    `6.1 Bekende winter- en zomertemperatuur leveren een beschikbare score op (winter: ${progWinter.activityScore}/10; zomer: ${progSummer.activityScore}/10)`
+  );
+  const unknownTemperature = calculateDayPrognosis(
+    '2026-07-15',
+    makeHourlySeries('2026-07-15', 1, () => 22),
+    'Karper',
+    []
+  );
+  assert(
+    unknownTemperature.activityScoreAvailable === true &&
+      unknownTemperature.physiologicalResponseScore === null &&
+      unknownTemperature.feedingActivity?.score !== null &&
+      unknownTemperature.feedingActivity?.score !== undefined,
+    '6.2 Zonder watertemperatuur blijft de fysiologische respons onbekend, maar de geïntegreerde score gebruikt de beschikbare voedingsrespons'
   );
 
   // 7. Ondiep versus dieper water
@@ -764,15 +804,19 @@ async function run14Scenarios() {
     '12.2b In winter, civil dusk may fall in the afternoon clock slot rather than the evening slot'
   );
   assert(
-    Object.values(solarContextPrognosis.timeSlots).every((slot) => slot.timeOfDayFactor.score === 0),
-    '12.2b Solar context must not create an unvalidated numerical time-of-day bonus'
+    Object.values(solarContextPrognosis.timeSlots).some((slot) => slot.timeOfDayFactor.score > 0) &&
+      new Set(Object.values(solarContextPrognosis.timeSlots).map((slot) => slot.timeOfDayFactor.score)).size > 1,
+    '12.2b Solar-relative dagritme voedt de afzonderlijke voedingsrespons en verschilt per tijdvak'
   );
-  assert(equalSlotPrognosis.bestTimeSlot === 'Geen betekenisvol onderscheid',
-    '12.2b Gelijke tijdvaksscores leveren geen willekeurig beste tijdvak op');
   assert(
-    equalSlotPrognosis.summaryRationale.toLowerCase().includes('niet betekenisvol') &&
+    equalSlotPrognosis.bestTimeSlot !== 'Geen betekenisvol onderscheid' &&
+      equalSlotPrognosis.alternativeTimeSlots.length > 0,
+    '12.2b Soortspecifiek dagritme kan bij gelijke temperatuur een betekenisvol tijdvakverschil geven'
+  );
+  assert(
+    equalSlotPrognosis.summaryRationale.includes(equalSlotPrognosis.bestTimeSlot) &&
       !equalSlotPrognosis.summaryRationale.toLowerCase().includes('verstreken'),
-    '12.2c Gelijkwaardige tijdvakken worden niet ten onrechte als verstreken gepresenteerd'
+    '12.2c De geïntegreerde dagdeelrangschikking wordt in de samenvatting verklaard'
   );
   const allPastPrognosis = calculateDayPrognosis(
     '2026-10-23', s1Forecasts, 'Karper', tenSessions, undefined, null,
@@ -827,7 +871,7 @@ async function run14Scenarios() {
         crossSlotExperience.timeSlots[slot as keyof typeof crossSlotExperience.timeSlots].activityScore ===
         noCrossSlotHistory.timeSlots[slot as keyof typeof noCrossSlotHistory.timeSlots].activityScore
       ),
-    '12.2f Historische persoonlijke tijdvakervaring verandert de thermische tijdvakscore of rangschikking niet'
+    '12.2f Historische persoonlijke tijdvakervaring verandert de geïntegreerde biologische tijdvakscore of rangschikking niet'
   );
 
   assert(

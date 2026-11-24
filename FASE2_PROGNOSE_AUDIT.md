@@ -1,6 +1,6 @@
 # Fase 2 — audit bestaande biologische prognose
 
-**Status:** doorlopende Fase 2-audit; factorinventaris, responsmatrix en productdoel zijn vastgelegd; normalisatie, coverage en onafhankelijke validatie staan nog open  
+**Status:** doorlopende Fase 2-audit; operationele geïntegreerde score v1 is geactiveerd; factorverfijning, coverage en onafhankelijke biologische validatie staan nog open  
 **Peildatum:** 19 november 2026  
 **Branch:** `main`  
 **Commit bij start:** `dd1238e3139fa048fe808c399282a5b1fe1fda12`  
@@ -6586,7 +6586,7 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 1. Het bestaan van een evidence-service betekent niet dat de informatie al in het gebruikersadvies zit.
 2. Het huidige habitatmodel is een generieke lokale zoek-/zonehypothese, geen soortspecifiek gevalideerd verspreidingsmodel.
 3. De tijdgebonden evidence-service is wel geïntegreerd, maar toont context en neutraliteit; zij activeert geen niet-goedgekeurde numerieke tijdvakbonus.
-4. De voedingsservice kan kwalitatieve context leveren, maar is nog niet aangesloten. Het toevoegen van tekst aan VisCoach vraagt een bewuste productkeuze over waar, wanneer en hoe bronbeperkingen worden getoond.
+4. Op het moment van deze WP24-audit was de voedingsservice nog niet aangesloten. De latere branchstatus is apart vastgelegd in §214.4; deze historische bevinding blijft ongewijzigd.
 5. Een soortspecifieke habitatlaag vereist eerst een passende bronset per soort, responsmaat en watertype. Geen aannames uit verwante soorten of generieke profielen toevoegen.
 
 ### 214.3 Besluit / volgende eigenaargrens
@@ -6595,7 +6595,14 @@ WP22 liet zien dat het research register voor Roofblei entries met measuredOutco
 - Eventuele kwalitatieve voedingscontext in de prognose/VisCoach en een echte soortspecifieke habitatbewegingslaag zijn afzonderlijke keuzes; zij worden niet stilzwijgend in deze technische audit doorgevoerd.
 - Fase 2 blijft open. WP19 is op besluit van de eigenaar uit de actieve werkvoorraad gehaald (zie §216); WP24 legt de huidige integratiegrenzen vast.
 
-**Resultaat WP24:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; geen runtimewijziging.
+**Resultaat WP24 op 23 november:** servicegebruik en ontbrekende koppelingen zijn controleerbaar gedocumenteerd; op dat moment geen runtimewijziging.
+
+### 214.4 Latere branchstatus — draft PR #223 (24 november 2026)
+
+Na afronding van WP24 is in draft PR #223 de voedingsservice vanuit de bestaande `prognosisEngine` gekoppeld als afzonderlijke `feedingActivity`-assessment. De assessment bevat bron-/responsclassificaties, maar de numerieke score blijft `null` en alle responsen blijven `predictionEligible: false`. De PR toont deze informatie ook in een nieuwe kaart in `PrognosisView`; dit is uitsluitend branchcode en staat niet op `main`.
+
+Deze latere wijziging verandert de historische bevinding van WP24 niet, maar actualiseert de huidige branchstatus. De koppeling wijzigt de bestaande fysiologische dag-/tijdvakscore niet en berekent nog geen weersafhankelijke voedingsrespons. De nieuwe UI-kaart is niet als product-/scopebesluit geaccepteerd en mag niet worden behandeld als gevalideerde prognosefunctionaliteit. PR #223 blijft open; zie het actuele uitvoeringsverslag voor de inhoudelijke review en vervolgstap.
+
 
 
 ## 215. WP25 — synthetische robuustheidsmatrix habitatbewegingsengine (23 november 2026)
@@ -6636,3 +6643,32 @@ De eigenaar heeft expliciet besloten F2-WP19 (empirische kandidaatvalidatie en m
 De eerdere read-only schema- en replayhaalbaarheidscontrole in §209 blijft behouden als historische documentatie; dit betekent niet dat empirische validatie is uitgevoerd of geslaagd. Synthetische simulaties blijven uitsluitend technische contract-/regressietests en worden niet gebruikt als vervanging voor echte uitkomstdata. Er worden geen sessies, vangsten, labels, nauwkeurigheidsresultaten of biologische parameters verzonnen.
 
 WP19 kan alleen opnieuw worden overwogen als echte data later beschikbaar komen én de eigenaar besluit dat empirische validatie alsnog gewenst is. Tot die tijd gaan de overige reeds geplande en geautoriseerde werkzaamheden verder zonder deze afhankelijkheid.
+
+
+## 206. Operationele geïntegreerde soortspecifieke score v1 (24 november 2026)
+
+**Doel:** de bestaande Prognose-score operationeel uitbreiden met de beschikbare soortspecifieke informatie uit de huidige profielen, research registry en vismodel_voorstel_v2.xlsx, zonder een tweede engine te bouwen of de scoreberekening opnieuw uit te stellen.
+
+### 206.1 Runtimewijzigingen
+
+- src/services/fishProfiles.ts: voor alle negen doelsoorten zijn T0–T3-temperatuurcurves, dagritmeprofielen, maandelijkse seizoensprofielen en archetypegewichten opgenomen. De waarden blijven expliciet voorlopige modelprioren.
+- src/services/feedingResponseEngine.ts: berekent nu per soort, maand en bestaand tijdvak een voedings-/foerageerrespons uit de beschikbare dagritme- en seizoensdrivers. Waar lokale zongegevens bestaan, worden civiele dageraad, zonsopkomst, dag, zonsondergang en civiele schemering over het tijdvak gewogen.
+- src/services/prognosisEngine.ts: combineert de afzonderlijke fysiologische en voedingsrespons voorlopig 50/50 tot de bestaande 1–10 tijdvakscore. De dagscore blijft uit de vier tijdvakken duurgewogen. Wanneer één respons ontbreekt, wordt alleen de beschikbare respons gebruikt; onbekend wordt niet als nul ingevuld.
+- src/types/index.ts: tijdvakuitvoer bevat nu beide responswaarden en modelondersteuning; daguitvoer bevat de fysiologische dagrespons, voedingsrespons en driverdekking.
+- src/services/modelVersions.ts: modelversie verhoogd naar v2.6-integrated-species-responses.
+- src/components/prognosis/PrognosisView.tsx: de gebruikersscore wordt als geïntegreerde prognose-index gepresenteerd; de voedings-/foerageerrespons en ontbrekende driverdekking worden apart getoond.
+- src/services/sessionCoachService.ts: VisCoach leest de Prognose-responsen en vertaalt ze naar tactiek. Een relatief gunstige voedingsrespons kan leiden tot een rustige, nauwkeurige presentatie; een relatief sterkere fysiologische respons tot gecontroleerd zoeken. Proxy-only bewijs blijft als proxy benoemd. De coach berekent of wijzigt geen score.
+
+### 206.2 Actieve en ontbrekende factoren
+
+**Actief in v1:** soortspecifieke T0–T3-thermische respons, soortspecifiek dagritme, maandelijkse seizoens-/voedingsfase en de geïntegreerde 50/50-samenvoeging.
+
+De vier werkboek-archetypen bepalen de startgewichten per soortprofiel. Alleen de bekende dagritme- en seizoensgewichten zijn momenteel beschikbaar en worden onderling genormaliseerd. De oorspronkelijke bekende driverdekking is 35–45% en blijft zichtbaar. Voedsel-/prooiaanbod en wateractiviteit ontbreken als actuele invoer. Opgeloste zuurstof en troebelheid/zicht zijn eveneens niet beschikbaar als betrouwbare actuele Prognose-invoer. Deze factoren blijven onbekend/contextueel; zij worden niet als nul-effect of neutrale omstandigheden geïnterpreteerd.
+
+Wind, luchtdruk, neerslag en bewolking blijven context en krijgen geen zelfstandige biologische bonus. Habitat/aanwezigheid blijft een aparte laag. Persoonlijke vangkans blijft de bestaande empirische Poisson-uitkomst en wordt niet uit de geïntegreerde biologische index afgeleid.
+
+### 206.3 Bewijs- en validatiestatus
+
+De 95 registry-records blijven ongewijzigd; geen record is stilzwijgend op approvedForPrediction: true gezet. De operationele modelparameters zijn expliciete startprioren uit het bestaande werkboek en de soortprofielen, niet rechtstreeks gefitte effectgroottes. Driverdekking is geen statistisch betrouwbaarheidsinterval. De huidige score is dus operationeel, maar de biologische juistheid en voorspellende nauwkeurigheid zijn niet empirisch bewezen.
+
+De bestaande dag-/vier tijdvakweergave, onbekend-semantiek, snapshotcontracten, Europe/Amsterdam-intervalgrenzen, DST en targetTime-as-of-invariant blijven leidend. De vervolgstap is iteratieve verfijning van de actieve parameters en het toevoegen van betrouwbare inputdrivers zodra die beschikbaar zijn; niet opnieuw wachten met activeren tot alle literatuur volledig is gevalideerd.

@@ -766,14 +766,16 @@ assert(
   '11.3 Bewolking blijft context en geeft geen ongevalideerde activiteitsscorebonus'
 );
 assert(
-  pikeProg.timeSlots.Middag.seasonFactor.score === 0 &&
-  pikeProg.timeSlots.Middag.seasonFactor.impact === 'neutraal',
-  '11.4 Seizoen blijft neutrale context zonder zelfstandige scorecorrectie'
+  pikeProg.timeSlots.Middag.seasonFactor.dataAvailable === true &&
+  pikeProg.timeSlots.Middag.seasonFactor.score > 0 &&
+  pikeProg.timeSlots.Middag.seasonFactor.detail.includes('voedingsfase'),
+  '11.4 Soortspecifieke seizoens-/voedingsfase is zichtbaar als driver van de afzonderlijke voedingsrespons'
 );
 assert(
-  pikeProg.timeSlots.Middag.timeOfDayFactor.score === 0 &&
-  pikeProg.timeSlots.Middag.timeOfDayFactor.impact === 'neutraal',
-  '11.5 Tijdvakcontext blijft neutraal en beïnvloedt de numerieke score niet'
+  pikeProg.timeSlots.Middag.timeOfDayFactor.dataAvailable === true &&
+  pikeProg.timeSlots.Middag.timeOfDayFactor.score > 0 &&
+  pikeProg.timeSlots.Middag.timeOfDayFactor.detail.includes('gebruikt in de voedings-/foerageerrespons'),
+  '11.5 Soortspecifiek dagritme/licht is zichtbaar als driver van de afzonderlijke voedingsrespons'
 );
 assert(
   pikeProg.timeSlots.Middag.windFactor.score === 0 &&
