@@ -3267,3 +3267,49 @@ De eerstvolgende codewijziging blijft klein: voeg pas een afzonderlijke, zuivere
 - Pierce et al. (2013), DOI: https://doi.org/10.1080/00028487.2013.822422
 - Baktoft et al. (2012), DOI: https://doi.org/10.1111/j.1600-0633.2012.00558.x
 - Chapman & Mackay (1984), *Journal of Fish Biology* 25:109–115.
+
+
+### Invoer-audit referentiemodellen karper en snoek (24 november 2026)
+
+**Doel:** vaststellen welke biologische en fysieke factoren de bestaande app per stek en prognosemoment werkelijk kan aanleveren, voordat een numerieke laagverdeling wordt geïmplementeerd.
+
+#### Beschikbare invoer in de huidige runtime
+
+| Invoer | Huidige bron/veld | Bruikbaarheid en beperking |
+|---|---|---|
+| Werkelijke stekdiepte | `FishingLocation.waterDepth` | Beschikbaar per stek; waterkolommodel wordt alleen gestart bij geldige geregistreerde diepte. |
+| Temperatuur per laag | `WaterThermalAnalysis.waterColumnPrediction.layerTemperaturesC` + `totalDepthM` | Vijf modeltemperaturen. De laaggrenzen zijn eenduidig te reconstrueren uit de vijf gelijke modeldelen en de totale diepte. Alleen geldig wanneer een fysiek profiel bestaat; geen profiel betekent geen diepteverdeling. |
+| Doeltijdstip/seizoen | `dateStr`, `targetSlot`, uurlijkse weersverwachting en zon-/schemertijden in de prognoseketen | Seizoen en dag-/lichtcontext zijn beschikbaar. De vier brede tijdvakken zijn geen exacte waarneming van vispositie. |
+| Watertype | `FishingLocation.waterType` | Beschikbaar als grof habitatcontextveld; Kanaal/Rivier is niet hetzelfde als een gemeten lokale stroomsnelheid. |
+| Waterbeweging | `FishingLocation.waterMovement` | Optioneel; bij ontbreken wordt voor Rivier/Kanaal een grove categorie afgeleid, anders blijft het onbekend. Niet gebruiken als exacte stromingssnelheid. |
+| Habitat/structuur | `FishingLocation.habitatFeatures` | Optionele vrije lijst; bruikbaar als geregistreerde context, maar waarden zijn niet gestandaardiseerd of gekwantificeerd. |
+| Waterhelderheid | `FishingLocation.secchiDepthM` | Optionele Secchi-diepte; bruikbaar als lichtdoordringingsproxy wanneer daadwerkelijk ingevuld. |
+| Windblootstelling/fetch | `windExposure`, `effectiveFetchM`, `windFetchByDirectionM` | Optionele fysieke stekcontext voor waterkolommodel; niet gelijk aan vegetatie of visdekking. |
+| Lokale waarnemingen | `PresenceObservation` en sessie-waarnemingen | Tijdgestempeld, maar huidige waarnemingstypen zijn algemeen (springen/rollen, bellen, aanbeten, recente vangst); ze bevatten geen soort-ID en geen waargenomen diepte. Eén waarneming is geen laagverdeling. |
+| Historische vangsten | `CatchItem` | Soort, tijd, lengte/gewicht indien ingevuld, aas en techniek kunnen beschikbaar zijn. Vangsten zijn selectieve hengelobservaties en geen zuivere aanwezigheidsmeting. |
+
+#### Ontbrekende of onvoldoende invoer
+
+- **Zuurstof:** geen actuele, per diepte beschikbare zuurstofmeting of gevalideerde zuurstofprognose aangetroffen. De app mag zuurstof dus niet uit temperatuur afleiden en mag geen diepe laag op basis van vermeend zuurstoftekort uitsluiten.
+- **Visgrootte/levensfase:** lengte kan bij vangsten zijn geregistreerd, maar er is geen actuele populatieverdeling of betrouwbare lengte-/leeftijdsverdeling voor de vis die op het prognosemoment aanwezig is. Dit beperkt vooral snoekmodellen waarin grootte verschil maakt.
+- **Prooiaanbod/voedselbeschikbaarheid:** geen actuele kwantitatieve invoer per stek of waterlaag. Niet numeriek meenemen.
+- **Soortspecifieke aanwezigheidwaarneming:** huidige presence-observaties zijn niet aan een soort of diepte gekoppeld. Ze mogen niet als bevestiging van karper- of snoekaanwezigheid worden gebruikt zonder expliciete soortregistratie.
+- **Verticale habitatwaarnemingen:** geen betrouwbare lokale waarnemingen die vispositie aan een gemeten diepte koppelen.
+- **Gestandaardiseerde habitatdekking:** `habitatFeatures` is vrije tekst/lijst. Vegetatie, harde structuur, open water en oeverzone zijn niet gegarandeerd consequent gecodeerd.
+- **Zuurstof, prooi en visgrootte ontbreken dus als operationele drivers; de literatuur kan hun biologische relevantie onderbouwen, maar vult de ontbrekende lokale invoer niet op.
+
+#### Snapshot-/reproduceerbaarheidsbevinding
+
+De runtime-`FishingLocation` bevat naast diepte, watertype en habitatkenmerken ook `waterMovement`, `secchiDepthM`, `windExposure`, `effectiveFetchM` en `windFetchByDirectionM`. De huidige whitelist in `PrognosisInputContext.location` bewaart die laatste fysieke velden niet. De volledige voorspelde waterkolom wordt wel als resultaat opgeslagen en de forcing/as-of-context wordt apart bewaard, maar de expliciete stekparameterwaarden zijn niet allemaal als invoer in de snapshot terug te vinden.
+
+**Gerichte vervolgstap:** breid de immutable snapshot-whitelist voor `PrognosisInputContext.location` uit met de relevante fysieke velden (waterbeweging, Secchi, windblootstelling en fetch), inclusief tests voor behoud/replay. Dit is een kleine provenance-/datacontractverbetering en geen biologische modelwijziging.
+
+#### Besluit voor de eerste pure habitatfunctie
+
+- Maak de functie-input expliciet: soort, vijflaagse temperatuurprofiel + totale diepte, doeltijdstip/daglicht, watertype, waterbeweging, habitatkenmerken, Secchi indien beschikbaar en lokale waarnemingen met hun huidige beperkingen.
+- Karper: bodemtemperatuur blijft de thermische input voor de bestaande karperactiviteitsprognose; verticale aanwezigheid blijft een aparte uitkomst en mag niet automatisch op 100% bodem worden gezet.
+- Snoek: temperatuur per laag en beschikbare habitatcontext kunnen worden aangeboden, maar zonder zuurstof, prooiaanbod en groottegegevens is een numerieke laagverdeling niet voldoende onderbouwd.
+- Totdat contextgematchte numerieke habitatparameters zijn vrijgegeven, geeft de functie geen verzonnen gewichten of uniforme verdeling terug. Ze kan wel gevalideerde laaggeometrie, beschikbare factoren, ontbrekende drivers en evidence-status structureren.
+- De eerstvolgende codewijziging is daarom de kleine snapshot-inputwhitelist-uitbreiding; pas daarna de pure functie met tests voor validatie/unknown-status. Geen wijzigingen aan bestaande activiteits- of vangstscores.
+
+Deze audit is gebaseerd op de actuele branchcode van `feat/bottom-water-temp-prognosis-snapshots`; dit is een code-inspectie, geen praktijkvalidatie.
