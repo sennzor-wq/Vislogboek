@@ -3024,3 +3024,14 @@ De eerdere windmenging gebruikte een empirische mengdiepte en een uitwisselingsf
 De lucht-water dragcoëfficiënt (0,0013), mengrendement (2%), rustige achtergronduitwisseling (0,001) en bovengrens (0,12) zijn expliciete voorlopige modelparameters. De methode is een bulkmatige potentiële-energiebeperking en nadrukkelijk geen volledig opgelost TKE-/golfmodel. De lokale blootstellingsfactor verlaagt de 10 m-wind voor de wateroppervlakte. Fetch schaalt afzonderlijk het beschikbare windwerk als voorlopige golfontwikkelingsfactor; fetch verandert dus niet kunstmatig de windsnelheid in de bulk-warmteflux. De wortelrelatie en begrenzing blijven voorlopige priors. Parameters moeten later met onafhankelijke temperatuurprofielen worden gevalideerd.
 
 **Validatie toegevoegd:** meer windwerk geeft meer menging, sterkere dichtheidsbarrières remmen menging, negatieve energie geeft geen extra menging en de fractie blijft begrensd. De bestaande paargewijze uitwisseling behoudt de warmte-inhoud; de bestaande 4 °C-dichtheids- en convectietests blijven van kracht. Shadow-only; geen vangstscore, soortcurve of productiegedrag gewijzigd.
+
+
+### Productievoorbereiding — privacygrens automatische waterfetch (24 november 2026)
+
+De eerste volledige Quality Gate na de energiebegrensde windmenging is geslaagd: run [45450048974](https://github.com/sennzor-wq/Vislogboek/actions/runs/45450048974), commit `7f2421e4bf867b465681ac148dd34b729890d21c`. TypeScript, alle regressies, waterkolomtests, shadow-integratie, productiebuild en controle op privéartefacten zijn geslaagd.
+
+Bij de productiecontrole is één privacygrens aangescherpt: automatische waterfetch gebruikt de exacte opgeslagen stekcoördinaten in een verzoek aan OpenStreetMap Overpass. Dit is een nieuwe externe ontvanger naast de bestaande weersbron. Daarom is automatische OSM-fetch nu standaard uitgeschakeld en per stek expliciet opt-in gemaakt in het locatieformulier. Zonder toestemming wordt geen Overpass-verzoek gedaan; handmatige fetch of de neutrale modelprior blijft beschikbaar. De keuze wordt als optioneel veld in het bestaande locatieobject opgeslagen; geen database-schemawijziging. De prognoseflow vangt fouten van de optionele OSM-lookup af en laat de bestaande prognose doorgaan.
+
+De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt en dat opt-in de bestaande geometrie-/cacheberekening uitvoert.
+
+**Openstaande productiegate:** de volledige Quality Gate moet opnieuw slagen op de commit met deze privacywijziging. Daarna volgt de finale diff-/mergecontrole en pas na expliciete toestemming een merge en uitrol. Er is nog niet gemerged of gedeployed.
