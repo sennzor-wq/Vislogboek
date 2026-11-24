@@ -1699,6 +1699,7 @@ export async function createLiveSnapshotForSessionStart(
         catches: allCatches,
         historicalWaterTemperatures,
         userWaterTempMeasuredAt: manualWaterTemperatureMeasurement?.measuredAt ?? null,
+        measurementDepthM: manualWaterTemperatureMeasurement?.measurementDepthM ?? null,
         waterTemperatureCalibration,
         waterColumnForcing,
         waterColumnAsOf: waterColumnForcingResult.asOf,
