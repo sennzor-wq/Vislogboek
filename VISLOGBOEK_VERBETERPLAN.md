@@ -3043,7 +3043,7 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 
 ### Productbesluit
 - Iedere visstek gebruikt uitsluitend de eigen geregistreerde `FishingLocation.waterDepth` als totale waterkolomdiepte. Er wordt geen algemene diepte als vervanging gebruikt wanneer de stekdiepte ontbreekt.
-- Voor karperprognoses is de temperatuur op de bodem van die specifieke stek de primaire thermische invoer. Voor andere soorten blijft de soortdoeldiepte configureerbaar; zolang die niet is onderbouwd, gebruikt het model het volumegemiddelde. Dit geldt onafhankelijk van methode: method feeder, PVA of andere bodemaanbieding.
+- Voor karperprognoses is de temperatuur op de bodem van die specifieke stek de primaire thermische invoer. Voor andere soorten gebruikt het model voorlopig het volumegemiddelde; een soortspecifieke doelmeetdiepte wordt pas toegevoegd wanneer die inhoudelijk is onderbouwd. Dit geldt onafhankelijk van methode: method feeder, PVA of andere bodemaanbieding.
 - De waterkolom blijft een profiel: oppervlakte-, midden- en bodemtemperatuur zijn afzonderlijke grootheden. Oppervlakte-ijs of een koude bovenlaag mag niet worden vertaald naar een fictieve negatieve bodemtemperatuur.
 - Een handmatige meting op een andere diepte wordt als observatie op die meetdiepte verwerkt en mag niet als bodemmeting worden gepresenteerd. Voor karper telt alleen een meting binnen 0,2 m van de geregistreerde bodemdiepte als actuele bodemmeting.
 - Bestaande vangstscore, soortcurves en biologische parameters blijven ongewijzigd. Alleen de thermische invoer wordt vervangen wanneer het fysieke model een geldige uitkomst heeft.
@@ -3052,8 +3052,8 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 1. Bij een live sessiestart wordt de actuele waterkolomforcing opgehaald via `getWaterColumnForcing`, met een expliciet as-of-moment.
 2. De forcing wordt samen met de overige whitelisted modelinvoer opgeslagen in `PrognosisInputContext`, zodat een historische run reproduceerbaar kan worden onderzocht zonder toekomstige informatie te gebruiken.
 3. De fysieke waterkolom wordt berekend op de geregistreerde stekdiepte en de bodemtemperatuur wordt de scalar voor de bestaande thermische visrespons.
-4. De volledige `WaterColumnPrediction` (oppervlak, bodem, volume-gemiddelde, lagen, scenario-spreiding, forcingdekking en fysieke waarschuwingen) wordt afzonderlijk vastgelegd in `PrognosisSnapshot.predictedWaterColumnProfile`.
-5. De bestaande `predictedWaterTemperature` blijft de onafhankelijke scalar-validatiekolom en bevat voortaan de voorspelde bodemtemperatuur wanneer het fysieke model geldig is.
+4. De volledige `WaterColumnPrediction` (oppervlak, bodem, volume-gemiddelde, ijsdikte, vijf lagen, scenario-spreiding, forcingdekking en fysieke waarschuwingen) wordt afzonderlijk vastgelegd in `PrognosisSnapshot.predictedWaterColumnProfile` en in de prognoseweergave getoond.
+5. De bestaande `predictedWaterTemperature` blijft de onafhankelijke scalar-validatiekolom en bevat voor karper voortaan de voorspelde bodemtemperatuur wanneer het fysieke model geldig is.
 6. Sessie en snapshot blijven atomair opgeslagen. De snapshot is onveranderlijk: latere weerupdates of modelverbeteringen wijzigen de oorspronkelijke voorspelling niet.
 7. Een latere herberekening is uitsluitend een afzonderlijke replay/vergelijking en overschrijft nooit de oorspronkelijke sessiestart-snapshot.
 
@@ -3069,6 +3069,7 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 - [x] Waterkolomforcing gekoppeld aan live sessiestart (met fallback wanneer ophalen mislukt).
 - [x] Waterkolomforcing en as-of-moment opgenomen in de inputcontext.
 - [x] Bodemtemperatuur gekoppeld aan de bestaande thermische analyse wanneer het fysieke model een geldige uitkomst levert.
-- [x] Volledig fysisch profiel opgenomen in de prognosesnapshot.
-- [ ] TypeScript, regressietests, productiebuild en snapshot-replaycontrole uitvoeren.
+- [x] Volledig fysisch profiel opgenomen in de prognosesnapshot en zichtbaar gemaakt in de prognoseweergave (oppervlak, bodem, gemiddelde, ijs en vijf lagen).
+- [x] Validatie koppelt een voorspelling met expliciete doelmeetdiepte alleen aan een meting op dezelfde diepte (tolerantie 0,2 m).
+- [x] TypeScript, volledige regressiesuite, productiebuild en private-artifactcontrole geslaagd: [Quality Gate run 45461359772](https://github.com/sennzor-wq/Vislogboek/actions/runs/45461359772), commit `a8711a5dcbf01af105b1c51367429f706bb89485`.
 - [ ] PR laten controleren; niet mergen zonder expliciete toestemming.
