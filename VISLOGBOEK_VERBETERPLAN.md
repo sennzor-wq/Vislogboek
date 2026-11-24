@@ -3320,7 +3320,7 @@ Deze audit is gebaseerd op de actuele branchcode van `feat/bottom-water-temp-pro
 **Besluit: de verdere modelverbetering blijft bewust beperkt tot de fysieke watertemperatuurprognose.** De soortspecifieke habitat- en diepteverdelingsverkenning uit de voorgaande secties is hiermee afgesloten als onderzoeksnotitie en wordt niet verder geïmplementeerd in deze ontwikkelronde.
 
 - Het bestaande biologische temperatuurprofiel en de bestaande respons-/activiteitsparameters per vissoort blijven ongewijzigd.
-- Het fysieke watertemperatuurmodel blijft verantwoordelijk voor de best mogelijke voorspelling van de temperatuur in de waterkolom en, waar betrouwbaar beschikbaar, de relevante temperatuur op stekd iepte/bodem.
+- Het fysieke watertemperatuurmodel blijft verantwoordelijk voor de best mogelijke voorspelling van de temperatuur in de waterkolom en, waar betrouwbaar beschikbaar, de relevante temperatuur op stekdiepte/bodem.
 - De bestaande biologische prognose blijft de voorspelde temperatuur beoordelen; er komt geen nieuw soortspecifiek habitat-, zuurstof-, prooi- of diepteverdelingsmodel bij.
 - De literatuur- en invoeraudits hierboven zijn uitsluitend achtergrond/documentatie. Ze vormen geen open implementatietaken en vragen geen vervolgcode.
 - Vervolgwerk wordt alleen uitgevoerd wanneer het een concrete, beperkte verbetering van de temperatuurprognose oplevert of nodig is om de bestaande temperatuuruitkomst correct door te geven en reproduceerbaar op te slaan.
