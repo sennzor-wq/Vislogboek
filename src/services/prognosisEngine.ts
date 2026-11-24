@@ -469,7 +469,7 @@ function analyzeTimeSlot(
   // Onderscheid geverifieerde gemeten watertemperatuur vs. modelschatting vs. 2m-luchttemperatuur
   const hasMeasured = Boolean(
     thermalAnalysis?.hasMeasuredWaterTemp &&
-    thermalAnalysis.measuredWaterTempAtBottom !== false &&
+    thermalAnalysis.measuredWaterTempAtTargetDepth !== false &&
     typeof thermalAnalysis.measuredWaterTemp === 'number' &&
     !isNaN(thermalAnalysis.measuredWaterTemp)
   );
@@ -773,6 +773,7 @@ export function calculateDayPrognosis(
       : options?.allowUnknownSessionDuration ? null : 3;
   const locationId = options?.locationId;
   const location = options?.location;
+  const targetDepthM = species === 'Karper' ? location?.waterDepth : undefined;
   const presenceObs = options?.presenceObservation ?? 'onbekend';
 
   const slotReferenceDate = currentDateRef ?? parseAppTimestamp(`${dateStr}T12:00:00`) ?? new Date(`${dateStr}T12:00:00.000Z`);
@@ -794,6 +795,7 @@ export function calculateDayPrognosis(
     waterColumnForcing: options?.waterColumnForcing,
     waterColumnAsOf: options?.waterColumnAsOf,
     measurementDepthM: options?.measurementDepthM,
+    targetDepthM,
   });
 
   // Pas alleen een gevalideerde, lokale seizoensbias toe op een schatting.
@@ -863,8 +865,10 @@ export function calculateDayPrognosis(
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
+        measurementDepthM: options?.measurementDepthM,
         waterColumnForcing: options?.waterColumnForcing,
         waterColumnAsOf: options?.waterColumnAsOf,
+        targetDepthM,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
@@ -1534,12 +1538,12 @@ export async function savePrognosisSnapshot(
     predictedWaterColumnProfile: prognosis.thermalAnalysis?.waterColumnPrediction ?? null,
     // Alleen een voorafgaande modelschatting kan achteraf onafhankelijk worden gevalideerd.
     predictedWaterTemperature:
-      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtBottom === false) &&
+      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtTargetDepth === false) &&
       typeof prognosis.thermalAnalysis.estimatedWaterTemp === 'number'
         ? prognosis.thermalAnalysis.estimatedWaterTemp
         : null,
     predictedWaterTemperatureRange:
-      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtBottom === false)
+      prognosis.thermalAnalysis && (!prognosis.thermalAnalysis.hasMeasuredWaterTemp || prognosis.thermalAnalysis.measuredWaterTempAtTargetDepth === false)
         ? prognosis.thermalAnalysis.estimatedRange ?? null
         : null,
     predictedWaterTemperatureStatus: prognosis.thermalAnalysis?.waterTemperatureStatus,
