@@ -26,6 +26,7 @@ import type { CivilTwilightTimes } from './solarTimeEngine';
 import { db, syncSessionPresenceObservations } from '../db/db';
 import { analyzeWaterThermalDevelopment } from './waterThermalEngine';
 import type { WaterColumnForcingSample } from './waterColumnModel';
+import { getWaterColumnForcing } from './waterColumnWeatherService';
 import { HistoricalWaterTemperatureObservation, collectHistoricalWaterTemperatureObservations } from './waterTemperatureHistory';
 import { getWaterTemperatureCalibration } from './evaluationEngine';
 import { analyzeRodPositioning } from './rodPositioningEngine';
@@ -713,7 +714,7 @@ export interface PrognosisOptions {
   historicalWaterTemperatures?: HistoricalWaterTemperatureObservation[];
   /** Exact physical timestamp of the supplied water-temperature reading, when known. */
   userWaterTempMeasuredAt?: string | null;
-  /** Historical + recent forcing for the shadow-only water-column model. */
+  /** Historical + recent forcing for the per-location water-column model. */
   waterColumnForcing?: WaterColumnForcingSample[];
   waterColumnAsOf?: string;
   /** Actual depth of a manually supplied water-temperature reading, not total spot depth. */
@@ -801,6 +802,7 @@ export function calculateDayPrognosis(
   const temperatureCalibration = options?.waterTemperatureCalibration;
   if (
     temperatureCalibration &&
+    !thermalAnalysis.waterColumnPrediction &&
     !thermalAnalysis.hasMeasuredWaterTemp &&
     thermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
     typeof thermalAnalysis.estimatedWaterTemp === 'number'
@@ -860,6 +862,8 @@ export function calculateDayPrognosis(
         historicalSessions,
         currentDateRef,
         historicalWaterTemperatures: options?.historicalWaterTemperatures,
+        waterColumnForcing: options?.waterColumnForcing,
+        waterColumnAsOf: options?.waterColumnAsOf,
         targetTime,
         forecastAsOf: parsedForecastAsOf?.toISOString() ?? null,
       });
@@ -867,6 +871,7 @@ export function calculateDayPrognosis(
       // Houd de bestaande gevalideerde lokale biascorrectie identiek voor elk tijdstip.
       if (
         temperatureCalibration &&
+        !slotThermalAnalysis.waterColumnPrediction &&
         !slotThermalAnalysis.hasMeasuredWaterTemp &&
         slotThermalAnalysis.trendConfidence !== 'Onvoldoende gegevens' &&
         typeof slotThermalAnalysis.estimatedWaterTemp === 'number'
@@ -1524,6 +1529,8 @@ export async function savePrognosisSnapshot(
     predictedUncertaintyInterval: prognosis.catchUncertaintyInterval,
     predictedConfidence: prognosis.personalCatchConfidence,
     predictedConditions: conditions,
+    // Bewaar het volledige fysieke profiel naast de scalar die voor de visrespons is gebruikt.
+    predictedWaterColumnProfile: prognosis.thermalAnalysis?.waterColumnPrediction ?? null,
     // Alleen een voorafgaande modelschatting kan achteraf onafhankelijk worden gevalideerd.
     predictedWaterTemperature:
       prognosis.thermalAnalysis && !prognosis.thermalAnalysis.hasMeasuredWaterTemp &&
@@ -1626,6 +1633,9 @@ export async function createLiveSnapshotForSessionStart(
       db.locations.toArray(),
     ]);
     const now = new Date();
+    const waterColumnForcingResult = await getWaterColumnForcing(location.latitude, location.longitude, now.toISOString())
+      .catch(() => ({ hourly: [], asOf: now.toISOString(), quality: 'unavailable' as const }));
+    const waterColumnForcing = waterColumnForcingResult.quality === 'unavailable' ? [] : waterColumnForcingResult.hourly;
     const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Amsterdam' }).format(now);
     const targetTimeSlot = getTimeSlotAtAmsterdamDate(now);
     const waterTemperatureCalibration = getWaterTemperatureCalibration(allSnapshots, location.id, todayStr);
@@ -1669,6 +1679,8 @@ export async function createLiveSnapshotForSessionStart(
         historicalWaterTemperatureSampleCount: historicalWaterTemperatures.length,
       },
       weatherFetchedAt: weather.fetchedAt,
+      waterColumnForcing,
+      waterColumnAsOf: waterColumnForcingResult.asOf,
     };
     const prog = calculateDayPrognosis(
       todayStr,
@@ -1688,6 +1700,8 @@ export async function createLiveSnapshotForSessionStart(
         historicalWaterTemperatures,
         userWaterTempMeasuredAt: manualWaterTemperatureMeasurement?.measuredAt ?? null,
         waterTemperatureCalibration,
+        waterColumnForcing,
+        waterColumnAsOf: waterColumnForcingResult.asOf,
       }
     );
 
