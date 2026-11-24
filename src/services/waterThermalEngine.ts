@@ -101,6 +101,10 @@ export function analyzeWaterThermalDevelopment(
         totalDepthM: location?.waterDepth,
         forcing: options.waterColumnForcing,
         observations: waterColumnObservations,
+        windExposure: location?.windExposure,
+        effectiveFetchM: location?.effectiveFetchM,
+        secchiDepthM: location?.secchiDepthM,
+        waterMovement: location?.waterMovement ?? (location?.waterType === 'Rivier' ? 'flowing' : location?.waterType === 'Kanaal' ? 'weak_flow' : 'unknown'),
         targetTime: waterColumnTargetTime,
         asOf: waterColumnAsOf,
       })
