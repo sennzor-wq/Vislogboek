@@ -2743,3 +2743,131 @@ Gebruik lokale metingen om het model te initialiseren en te evalueren. Een event
 7. Scoreberekenings-/driveraudit blijft uitgesteld.
 
 **Huidige status:** inhoudelijke ontwerpkeuzes zijn op basis van de aanwijzing van de eigenaar ingevuld. De eerstvolgende stap is het vertalen van dit gekozen ontwerp naar een gefaseerd technisch implementatieplan en acceptatiecriteria. Runtime-implementatie blijft gescheiden van deze ontwerpbesluiten en wordt pas gestart na expliciete opdracht.
+
+
+---
+
+## Compact implementatieplan watertemperatuur — 24 november 2026
+
+**Doel:** zo snel mogelijk één bruikbaar, fysisch geloofwaardig voorspellingsmodel operationeel maken. Geen onderzoeksproject en geen volledige GLM/FLake-kloon. Bouw de kleinste oplossing die de belangrijkste tekortkomingen van de huidige scalar-engine oplost.
+
+**Uitgangspunt:** de app voorspelt altijd best-effort. Een lokale watertemperatuurmeting verbetert/ankert de voorspelling, maar is nooit vereist. De ingestelde stekdiepte (`FishingLocation.waterDepth`) is de totale waterdiepte wanneer die waarde geldig is.
+
+### A. Scope voor de eerste werkende versie (MVP)
+
+#### A1. Eén bestaande engine behouden
+- Behoud `analyzeWaterThermalDevelopment` als publieke ingang en de bestaande aanroepketen.
+- Vervang de interne scalarberekening door één pure, deterministische waterkolomsimulatie.
+- Plaats de fysische rekenkern in één kleine helpermodule (bijvoorbeeld `waterColumnModel.ts`) zodat de bestaande service niet verder uitdijt.
+- Geen tweede prognose-engine, geen nieuwe database, geen UI-herontwerp en geen extra score-engine.
+
+#### A2. Vijf vaste verticale lagen
+Gebruik voor de eerste versie vijf vaste, gelijke diepte-intervallen van oppervlak tot bodem. Dit is bewust eenvoudiger dan adaptieve mesh-/finite-volume-infrastructuur. Vijf lagen zijn genoeg om een oppervlaktelaag, overgang en diepere laag te onderscheiden en blijven goedkoop om per uur door te rekenen.
+
+Per laag bewaren we alleen wat nodig is:
+- laagdiepte/-dikte;
+- watertemperatuur;
+- warmtecapaciteit/energie;
+- dichtheid afgeleid uit temperatuur.
+
+Voer een eenvoudige resolutiegevoeligheidstest uit met bijvoorbeeld 3, 5 en 8 lagen. Alleen als vijf lagen duidelijke numerieke artefacten geven, wordt het aantal aangepast. Geen dynamisch/adaptief mesh-systeem in de MVP.
+
+#### A3. Fysica die direct in de MVP hoort
+1. **Oppervlaktewarmte:** kortgolvige zonnestraling, langgolvige uitstraling (direct of transparant geschat), voelbare warmte en verdampingswarmte. Gebruik beschikbare dauwpunt/vochtigheid, wind en bewolking. Houd de fluxen afzonderlijk controleerbaar.
+2. **Zonlicht door de waterkolom:** verdeel een deel van de kortgolvige energie over de diepte met een eenvoudige extinctiebenadering. Onbekende waterhelderheid wordt een onzekerheidsbron; geen stek-specifieke helderheid verzinnen.
+3. **Warmteoverdracht tussen lagen:** eenvoudige conservatieve uitwisseling tussen aangrenzende lagen.
+4. **Zoetwaterdichtheid:** gebruik een gevalideerde temperatuur-dichtheidsrelatie met maximum rond 4 °C.
+5. **Convectie:** corrigeer fysisch instabiele laagvolgorde door lagen te mengen tot een stabiel profiel; behoud daarbij totale warmte.
+6. **Windmenging:** gebruik een compacte windgedreven mengparameterisatie die afhankelijk is van wind, diepte en stratificatiesterkte. Geen volledige turbulentie-/momentumsolver.
+7. **Zomer en winter:** dezelfde dichtheids- en mengregels moeten zowel warme lichte bovenlagen in de zomer als koude lichte bovenlagen boven circa 4 °C-water in de winter kunnen produceren.
+8. **IJs:** eenvoudige fase-energiebalans rond 0 °C met latente warmte en een isolerende ijslaag. Geen negatieve vloeibare watertemperatuur. Sneeuwisolatie alleen gebruiken als sneeuwforcing beschikbaar is; anders onzekerheid melden.
+
+Niet in de MVP: gedetailleerde sediment-/bodemwarmte, waterhelderheidsmodel, stromings-/advectiemodel, volledige golf-/fetchdynamiek, saliniteit, volledige GLM- of FLake-fysica. Deze onderdelen mogen niet stilzwijgend als gemodelleerd worden gepresenteerd.
+
+#### A4. Praktische beginconditie en historische spin-up
+- Gebruik de geldige totale stekdiepte als kolomhoogte.
+- Vraag historische uurlijkse weersforcing op voor maximaal 180 dagen en voer die door de waterkolom om een thermische voorgeschiedenis op te bouwen.
+- Begin met enkele eenvoudige plausibele startprofielen (bijvoorbeeld gemengd, zomerstratificatie en winterinversie). Laat de simulatie bepalen welk profiel door de historische forcing ontstaat.
+- Vergelijk de uitkomsten van die startprofielen. Als ze voldoende naar elkaar toe convergeren, gebruik de geconvergeerde toestand. Als dat niet gebeurt, lever nog steeds de beste voorspelling, maar met bredere onzekerheid en status 'beginprofiel onvoldoende geconvergeerd'.
+- Een lokale meting op bekende diepte wordt op het juiste meetmoment aan de corresponderende laag gekoppeld. Eén meting maakt niet het hele profiel bekend.
+- Bij ontbrekende stekdiepte: gebruik een expliciete generieke diepteprior op basis van beschikbare stek-/watertype-informatie, met brede onzekerheid. Geen exacte fictieve diepte.
+- Bij een fout in historische data-aanvraag: val terug op beschikbare weershistorie/verwachting en de best beschikbare startprior. De voorspelling blijft beschikbaar met lage betrouwbaarheid.
+
+De 180 dagen zijn een praktische startkeuze voor de MVP, geen universele natuurkundige garantie. Bij onvoldoende convergentie wordt dit zichtbaar gemaakt; de eerste versie wordt niet opgehouden door een geautomatiseerde spin-up tot oneindig.
+
+#### A5. Historische weersbron eenvoudig houden
+- Gebruik voor de MVP de bestaande Open-Meteo-infrastructuur en voeg één historische archive-aanvraag toe voor de benodigde periode.
+- Kies bij implementatie één consistente historische dataset/configuratie die alle voor de warmtebalans noodzakelijke variabelen levert. Voorkeur is ERA5-Seamless als de API voor de benodigde variabelen een consistente reeks levert; anders ERA5 als complete fallback.
+- Gebruik ERA5-Land niet geïsoleerd als enige forcing: de huidige Open-Meteo-documentatie vermeldt dat de ERA5-Land-variant geen wind, neerslag of zonnestraling levert. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Verifieer de feitelijke variabelebeschikbaarheid in de implementatietest vóór de bron vast wordt gezet.
+- Behoud de bestaande Open-Meteo Forecast API voor recente actuele data en de toekomst. Maak de overgang tussen historische reanalyse en forecast expliciet en voorkom dubbele uren of sprongen.
+- Gebruik KNMI in deze eerste implementatie als onafhankelijke validatiebron, niet als tweede live-integratie. Dat houdt API-keybeheer, stationselectie en bronfusie buiten de MVP.
+- Cache de historische forcing per stekcoördinaten en periode zodat niet bij elke prognose opnieuw 180 dagen worden opgehaald. Hergebruik bestaande cache-/servicepatronen waar mogelijk.
+
+#### A6. Eén helder uitvoercontract
+Behoud de bestaande scalarvelden voor compatibiliteit en voeg intern/waar nodig toe:
+- doeltemperatuur op expliciete vis-/doeldiepte indien bekend;
+- anders volumegewogen gemiddelde temperatuur als compatibele centrale scalar;
+- oppervlaktetemperatuur en bodemtemperatuur;
+- vijflaags temperatuurprofiel;
+- modelstatus en onzekerheidsklasse;
+- bron, tijdstip en gebruikte diepte.
+
+Houd drie dieptebegrippen strikt gescheiden: totale stekdiepte, meetdiepte en vis-/doeldiepte. De bestaande prognoseketen moet een bekende meetdiepte doorgeven. Sla in de MVP het profiel alleen op waar de bestaande snapshotstructuur dat zonder zware migratie toelaat; introduceer geen databasewijziging uitsluitend om een volledig profiel te bewaren.
+
+### B. Uitvoering in vier korte werkpakketten
+
+| Werkpakket | Concrete werkzaamheden | Klaar wanneer |
+|---|---|---|
+| **1. Contract + historische forcing** | Invoer normaliseren, stekdiepte gebruiken, historische weeradapter toevoegen, bron-/as-of-tijdstempels en cache regelen. | De engine krijgt één chronologische, eenheden-genormaliseerde reeks met historische forcing en forecast zonder datalek of overlap. |
+| **2. Verticale fysische kern** | Vijf lagen, oppervlaktewarmte, zonpenetratie, warmteoverdracht, dichtheid rond 4 °C, convectie, windmenging en eenvoudige ijsfase. | Pure simulatie levert stabiele, reproduceerbare diepteprofielen en bewaart warmte bij interne menging. |
+| **3. Aansluiten op bestaande prognose** | Meetanker op juiste diepte, fallback zonder meting, scalar-/profieluitvoer, bestaande kalibratie fysisch veilig maken of uitschakelen als zij de fasegrens kan schenden. | Dag- en tijdvakprognoses gebruiken dezelfde nieuwe temperatuurbron; altijd best-effort met eerlijke onzekerheid. |
+| **4. Testen en activeren** | Fysische invarianten, regressietests, baselinevergelijking, typecheck, volledige Quality Gate en productiebuild. | Alle harde tests slagen; geen onverklaarde regressies; modelstatus en bekende beperkingen zijn vastgelegd. |
+
+Werkpakketten mogen in één implementatiebranch/PR worden uitgevoerd als dat overzichtelijker is. Geen parallelle branches of extra planbestanden nodig.
+
+### C. Minimale acceptatiecriteria
+
+**Harde blokkades — moeten allemaal slagen**
+1. Geen negatieve vloeibare zoetwatertemperatuur; ijs/fase-energie wordt apart bijgehouden.
+2. Dichtheidsmaximum rond 4 °C wordt correct toegepast.
+3. Zowel zomerstratificatie als winterse inverse stratificatie zijn mogelijk.
+4. Convectieve menging en windmenging creëren/vernietigen geen warmte.
+5. Een bekende totale stekdiepte bepaalt de geometrie van de kolom; meetdiepte wordt niet als totale waterdiepte gebruikt.
+6. Een lokale meting beïnvloedt de juiste laag en wordt niet als profielmeting behandeld.
+7. Zonder lokale meting of historische archive-respons komt er nog steeds een best-effort voorspelling met lage betrouwbaarheid.
+8. Geen weerdata of metingen gebruiken die na de relevante prognose-as-of-tijd beschikbaar kwamen.
+9. De bestaande soortrespons- en scoreformules/gewichten zijn ongewijzigd.
+10. Bestaande regressie-, typecheck-, migratie-, intervalcontract- en Quality Gate-tests slagen.
+
+**Kwaliteitsdoelen — verfijnen na de eerste werkende versie**
+- Vergelijk nieuwe en huidige engine op dezelfde historische meetmomenten.
+- Rapporteer MAE, RMSE en bias per seizoen en beschikbare meetdiepte.
+- Controleer onzekerheid en profielgedrag tegen EMLS/Klinkenbergerplas/RWS-data zodra de ruwe datasets beschikbaar zijn.
+- Stel geen harde algemene nauwkeurigheidsgarantie vast zolang de empirische datasetomvang daarvoor onvoldoende is.
+
+### D. Bewust uitgesteld om het project klein te houden
+
+- Geen directe KNMI-live-integratie of API-keybeheer.
+- Geen volledige GLM/FLake-implementatie.
+- Geen adaptieve verticale mesh.
+- Geen stromings-/advectie-/saliniteitsmodel.
+- Geen gedetailleerd bodem-/sedimentmodel.
+- Geen waterhelderheids- of oever-/fetchdatamodel.
+- Geen UI-herontwerp of nieuwe gebruikersinstellingen.
+- Geen nieuwe database-/snapshotmigratie tenzij de bestaande structuur aantoonbaar tekortschiet.
+- Geen wijziging aan soortcurves, scoregewichten of geïntegreerde scoreformule.
+- De scoreberekenings-/driveraudit blijft uitgesteld.
+
+### E. Gecorrigeerde databronnuance
+
+De eerdere formulering dat ERA5-Land zelfstandig alle gewenste historische warmtebalansvariabelen bevatte was te ruim. De huidige Open-Meteo-documentatie geeft voor ERA5-Land onder meer temperatuur, vochtigheid en dauwpunt, maar niet dezelfde beschikbaarheid van wind, neerslag en zonnestraling als ERA5. ERA5-Seamless combineert bepaalde velden uit ERA5-Land en ERA5. Daarom kiest de MVP eerst op **complete, consistente variabelendekking**, niet op de fijnste rasterresolutie alleen.
+
+Documentatie:
+- Open-Meteo Historical Weather API en variabelen per dataset: https://open-meteo.com/en/docs/historical-weather-api
+- Open-Meteo Historical Forecast API en onderscheid tussen reanalyse/historische voorspellingen: https://open-meteo.com/en/docs/historical-forecast-api
+
+### F. Uitvoeringsgrens en status
+
+Dit implementatieplan is een concreet voorstel voor de kleinste bruikbare eerste versie. De scope is bewust beperkt en de technische keuzes zijn voldoende om te starten. Er is bij het vastleggen van dit plan nog geen runtimecode, testcode, parameter, formule, database, UI, API-integratie of deployment gewijzigd.
+
+**Volgende uitvoeringsstap na opdracht:** start werkpakket 1 en 2 in de bestaande codebasis, voer de minimale harde tests uit, en ga alleen door naar aansluiting op prognose/score wanneer de fysische kern de invarianten haalt. De eigenaar heeft gevraagd om advies en een effectief plan; deze vraag is geen expliciete opdracht om nu al runtimecode te wijzigen.
