@@ -3010,3 +3010,17 @@ De richtingafhankelijke fetch stuurt uitsluitend de bestaande shadow-only windui
 
 
 **Quality Gate — automatische fetch:** run `45447717359` op commit `4557a4a87a07897f6593359dea19aff0d4d0d8d3` is volledig geslaagd. Dit omvat TypeScript, bestaande regressietests, de nieuwe richtingafhankelijke fetch-geometrie/cache-test, waterkolomtests, productiebuild en controle dat private artefacten niet in de build terechtkomen. De test gebruikt synthetische OSM-polygongeometrie; hij bewijst de geometrische berekening en cache, niet de landelijke volledigheid van live OSM-data.
+
+
+### Windmenging energiebegrensd gemaakt — 24 november 2026
+
+De eerdere windmenging gebruikte een empirische mengdiepte en een uitwisselingsfractie die rechtstreeks met windsnelheid opliepen. Dit is vervangen door een compacte energiebegrensde benadering:
+
+- Windschuifspanning wordt benaderd als `τ = ρlucht · Cd · U²`.
+- Het beschikbare windwerk per uur wordt benaderd als `η · τ · U · Δt` en gelijkmatig verdeeld over de vier interfaces van de vijf lagen.
+- Per interface wordt dit vergeleken met de zwaartekrachtspotentiële-energiedrempel voor homogenisatie van twee gelijke lagen: `g · |Δρ| · h² / 4`.
+- Alleen een begrensde fractie van het temperatuurverschil wordt uitgewisseld; de gelijke en tegengestelde temperatuurverandering behoudt de warmte-inhoud van de twee gelijke lagen. Convectieve instabiliteit rond de zoetwaterdichtheidsanomalie blijft daarna apart gecorrigeerd.
+
+De lucht-water dragcoëfficiënt (0,0013), mengrendement (2%), rustige achtergronduitwisseling (0,001) en bovengrens (0,12) zijn expliciete voorlopige modelparameters. De methode is een bulkmatige potentiële-energiebeperking en nadrukkelijk geen volledig opgelost TKE-/golfmodel. De fetch- en blootstellingscorrecties blijven de invoerwindsnelheid aanpassen; hun onzekerheid is dus nog aanwezig. Parameters moeten later met onafhankelijke temperatuurprofielen worden gevalideerd.
+
+**Validatie toegevoegd:** meer windwerk geeft meer menging, sterkere dichtheidsbarrières remmen menging, negatieve energie geeft geen extra menging en de fractie blijft begrensd. De bestaande paargewijze uitwisseling behoudt de warmte-inhoud; de bestaande 4 °C-dichtheids- en convectietests blijven van kracht. Shadow-only; geen vangstscore, soortcurve of productiegedrag gewijzigd.
