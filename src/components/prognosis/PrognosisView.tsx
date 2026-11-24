@@ -595,8 +595,8 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
               </div>
             )}
 
-            {/* De 3 Gescheiden Voorspellingen Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* De vier gescheiden prognose-uitkomsten */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
               {/* VOORSPELLING A: Thermische activiteitspotentie */}
               <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-700/70 flex flex-col justify-between">
                 <div>
@@ -781,6 +781,48 @@ export const PrognosisView: React.FC<PrognosisViewProps> = ({
                   <strong>Thermische vergelijking:</strong> Uitsluitend niet-verstreken tijdvakken worden vergeleken op relatieve thermische activiteitspotentie. Dit is geen voorspelling van voedingspiek of vangstkans.
                 </div>
 )}
+              </div>
+              {/* VOORSPELLING D: Afzonderlijke voedingsrespons */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-amber-800/40 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider mb-2">
+                    <Utensils className="w-4 h-4" />
+                    Voedingsactiviteit
+                  </div>
+                  <div className="text-lg font-black text-white">
+                    {activeDayProg.feedingActivity?.status === 'not_applicable' ? 'Niet van toepassing' : 'Nog geen gevalideerde score'}
+                  </div>
+                  <p className="text-[11px] text-slate-300 mt-2 leading-relaxed">
+                    {activeDayProg.feedingActivity?.explanation ?? 'Afzonderlijke voedingsrespons is voor deze prognose nog niet beschikbaar.'}
+                  </p>
+                  {activeDayProg.feedingActivity && activeDayProg.feedingActivity.status !== 'not_applicable' && (
+                    <div className="mt-3 pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-slate-400">
+                      <span>Intensiteit: {activeDayProg.feedingActivity.responses.intensity.sourceCount} bron(nen)</span>
+                      <span>Incidentie: {activeDayProg.feedingActivity.responses.incidence.sourceCount} bron(nen)</span>
+                      <span>Voedingsritme: {activeDayProg.feedingActivity.responses.rhythm.sourceCount} bron(nen)</span>
+                      <span>Foerageergedrag: {activeDayProg.feedingActivity.responses.foraging.sourceCount} bron(nen)</span>
+                    </div>
+                  )}
+                </div>
+                {showAdvancedDetails && activeDayProg.feedingActivity && (
+                  <div className="pt-3 mt-3 border-t border-slate-800 text-[10px] text-slate-400 leading-relaxed space-y-1.5">
+                    <strong className="text-amber-200">Responsen blijven gescheiden</strong>
+                    {([
+                      ['Intensiteit', activeDayProg.feedingActivity.responses.intensity],
+                      ['Incidentie', activeDayProg.feedingActivity.responses.incidence],
+                      ['Ritme', activeDayProg.feedingActivity.responses.rhythm],
+                      ['Foerageren', activeDayProg.feedingActivity.responses.foraging],
+                      ['Dieet', activeDayProg.feedingActivity.responses.diet],
+                      ['Prooikeuze', activeDayProg.feedingActivity.responses.preySelection],
+                    ] as const).map(([label, response]) => (
+                      <div key={label}>
+                        <span className="font-semibold text-slate-300">{label}:</span> {response.note}
+                        {response.sourceIds.length > 0 && <span className="block text-slate-500">Bron-ID's: {response.sourceIds.join(', ')}</span>}
+                      </div>
+                    ))}
+                    <p className="text-amber-300/90">Geen van deze bronnen is op dit moment als numerieke voedingsfactor geactiveerd.</p>
+                  </div>
+                )}
               </div>
             </div>
 
