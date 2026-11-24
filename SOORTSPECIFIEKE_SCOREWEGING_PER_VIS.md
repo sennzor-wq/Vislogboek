@@ -137,3 +137,139 @@ Voor elke soort en elke afzonderlijke uitkomst wordt dezelfde transparante reken
 ## Vervolgstatus
 
 Deze inventarisatie legt per soort vast welke factoren voorlopig voorrang hebben en welke grenzen aan het bewijs gelden. De volgende inhoudelijke stap is per soort en uitkomst de onderliggende bewijsregistraties te beoordelen op directe meetrespons, levensfase, watertype, overdraagbaarheid en onzekerheid. Pas daarna kan een numeriek gewicht worden voorgesteld. Tot die expliciete goedkeuring blijft de bestaande runtime ongewijzigd.
+
+---
+
+# 8. Herzien modelontwerp — gescheiden biologische uitkomsten (v0.2)
+
+**Status:** inhoudelijk herzien voorstel na beoordeling van PR #223; sluit aan op de gekozen architectuur in `MODELARCHITECTUUR_FASE2.md`. Geen percentages vastgesteld, geen numerieke factoren goedgekeurd en geen runtimewijziging.
+
+## 8.1 Besluit: geen samengestelde activiteit-en-voedingsscore
+
+De eerdere tabel met percentages uit modelprior v0.1 wordt **ingetrokken**. De verdeling van één scorebudget over fysiologische activiteit, voedingsrespons, licht, beweging en seizoen vermengde verschillende biologische uitkomsten. De percentages waren niet afgeleid uit vergelijkbare effectgroottes en mogen niet als uitgangspunt voor runtime-implementatie worden gebruikt.
+
+De vier uitkomsten blijven gescheiden:
+
+1. **Fysiologische activiteitspotentie:** thermische/fysiologische prestatiecapaciteit onder de omstandigheden. Dit is geen directe meting van zwemmen, azen of vangbaarheid.
+2. **Voedings-/foerageeractiviteit:** voedselopname en foerageergedrag. Voedselopname, voedingsincidentie, voedingsritme en zoeken/prooi benaderen blijven afzonderlijke meetuitkomsten.
+3. **Lokale aanwezigheid en habitatgeschiktheid:** of de soort zich op of nabij de gekozen plek kan bevinden. Dit is geen activiteitsscore.
+4. **Uiteindelijke vangkans:** empirische kans binnen de gekozen sessieduur en inspanning, gebaseerd op echte vangst- en sessiegegevens.
+
+Deze uitkomsten mogen elkaar informeren, maar niet onderling vervangen of tot één ongedifferentieerde score worden opgeteld. Een eventueel UI-besluit over het tonen van de afzonderlijke uitkomsten staat los van deze biologische modelgrens.
+
+## 8.2 Wat wordt per uitkomst precies gemeten?
+
+| Uitkomst | Doelvariabele | Geschikte bronrespons | Geen geldige vervanging |
+|---|---|---|---|
+| Fysiologische activiteitspotentie | Thermische/fysiologische prestatiecapaciteit | Soort- en levensfasepassende temperatuurrespons, aerobe scope of andere expliciet benoemde fysiologische maat | Maagvulling, dieet, telemetrische locatieverandering, vangstpercentage |
+| Voedingsactiviteit | Daadwerkelijke voedselopname/intensiteit, met expliciete meetdefinitie | Voedselopname per tijdseenheid, maagvulling als begrensde proxy, directe voedingsfrequentie of passend voedingsritme | Dieet/prooikeuze, groei, alleen prooiaanwezigheid, alleen beweging |
+| Foerageergedrag | Zoek-, graas-, aanval- of prooibenaderingsgedrag | Direct geobserveerde foerageerfrequentie of gedragsregistratie | Automatische gelijkstelling aan opgenomen voedsel |
+| Lokale aanwezigheid/habitat | Aanwezigheid, habitatgebruik of geschiktheid | Lokale detecties, telemetrie/presence-data, habitatrespons in passend watertype | Algemene activiteit of voedselopname |
+| Vangkans | Vangst per sessie/inspanning | Echte vangsten met vooraf vastgelegde prognose, sessieduur en context | Een biologische activiteitsscore als percentage |
+
+Eén studie kan meerdere uitkomsten meten, maar alleen wanneer de meetmethoden dat afzonderlijk aantonen. Dezelfde telemetrische verplaatsing mag niet tegelijk als fysiologische activiteit, voedingsintensiteit en aanwezigheid worden geteld zonder aparte responsmetingen.
+
+## 8.3 Factorrollen en rekenbehandeling
+
+Factoren krijgen eerst een causale/meetkundige rol. Pas daarna wordt beoordeeld of ze binnen een specifieke uitkomst numeriek kunnen bijdragen.
+
+| Factor of begrip | Primaire rol | Behandeling |
+|---|---|---|
+| Watertemperatuur | Omgevingsdriver van fysiologische respons; kan voeding beïnvloeden | Afzonderlijke soortspecifieke responscurve per uitkomst. De fysiologische curve mag niet automatisch als voedingscurve worden hergebruikt. |
+| Temperatuurverloop/acclimatisatie | Modulator van thermische respons | Onderdeel van de thermische respons; geen tweede temperatuurbonus. Alleen gebruiken als meetgeschiedenis extra informatie toevoegt. |
+| Zuurstof | Mogelijke fysiologische/gedragsmatige limiter | Geen gewone optelbonus. Alleen begrenzing/modifier bij betrouwbare meting en soort-, levensfase- en contextpassend bewijs. Geen universele drempel aannemen. |
+| Licht, fotoperiode en dagritme | Tijdgebonden omgevingsdriver/modulator | Afzonderlijke soort- en uitkomstspecifieke respons. Geen algemene ochtend-, nacht- of schemerbonus. |
+| Seizoen/biologische fase | Langzame context/modulator | Gebruik waar mogelijk aantoonbare biologische fase of seizoensrespons. Geen kalenderbonus en geen dubbeltelling met temperatuur of fotoperiode. |
+| Locomotorische activiteit/visbeweging | Gemeten gedragsrespons of mogelijke uitkomst | Niet als zelfstandige oorzaak naast factoren die dezelfde beweging verklaren. Alleen gebruiken als expliciet gemeten doelvariabele of voor passende bewegings-/aanwezigheidsanalyse. |
+| Stroming/waterbeweging | Omgevingsdriver en habitatcontext | Alleen numeriek binnen een specifieke uitkomst bij een gemeten respons. Niet verwarren met beweging van de vis. |
+| Wind, luchtdruk en neerslag | Indirecte omgevingscontext | Geen zelfstandige bonus zonder onafhankelijke soortspecifieke respons. Mogelijke routes via menging, instroom, troebelheid, temperatuur of zuurstof expliciet modelleren en niet dubbel tellen. |
+| Bewolking, zoninstraling en luchttemperatuur | Indirecte invoer voor waterthermiek of licht | Alleen via de relevante tussenliggende meting/schatting; niet daarnaast als scorebonus. |
+| Troebelheid/zicht | Contextuele driver voor zicht, predator-prooi-interactie en habitatgebruik | Alleen conditioneel met passende soort-, gedrag- en watertypegegevens; effectrichting niet universeel vastleggen. |
+| Diepte, bodem, vegetatie, beschutting en watertype | Habitatgeschiktheid/aanwezigheid | In habitatlaag, niet als algemene fysiologische of voedingsbonus. |
+| Prooiaanbod | Voedselbeschikbaarheid/context | Alleen numeriek bij lokale, passende prooigegevens en aantoonbare relatie met de bedoelde voedingsrespons. Niet gelijkstellen aan voedselopname. |
+| Dieet/prooikeuze | Beschrijving van gegeten prooien | Ecologische context; op zichzelf geen maat voor voedingsintensiteit of timing. |
+| Paai, migratie en overwintering | Levenscyclus- of verplaatsingscontext | Alleen als de bron een relevante dagelijkse fysiologische of voedingsrespons meet. Migratie/aggregatie is niet automatisch meer azen. |
+| Aas, voer, voorvoeren, hengeldruk en techniek | Visserij-/vangstcontext | Buiten biologische uitkomsten; eventueel relevant voor tactiek of de afzonderlijke empirische vangkans. |
+
+## 8.4 Responscurves: gewicht alleen is niet genoeg
+
+Voor iedere numeriek toegelaten factor moet vóór weging de respons zijn gedefinieerd:
+
+- **Richting:** neemt de gemeten uitkomst toe, af, blijft deze gelijk of verandert de richting per bereik?
+- **Vorm:** optimumcurve, drempel, verzadiging, monotone relatie, tijdvenster of interactie.
+- **Bereik:** binnen welke gemeten temperatuur-, licht-, zuurstof- of andere band is de relatie waargenomen?
+- **Soort en levensfase:** welke soort, grootte/levensfase, populatie en fysiologische toestand zijn onderzocht?
+- **Context:** veld of laboratorium, stilstaand of stromend water, regio, seizoen en voedselregime.
+- **Onzekerheid:** spreiding, steekproefomvang, herhaalbaarheid en overdraagbaarheid naar de Nederlandse doelcontext.
+
+Een gewicht beschrijft pas daarna de relatieve bijdrage van een onderbouwde respons binnen één uitkomst. Het bepaalt niet de richting of vorm van die respons.
+
+Voor temperatuur geldt: een thermische performance curve heeft doorgaans een stijgende zone, een optimumgebied en een afname buiten dat gebied. "Warmer is beter" is geen geldige generieke regel. De huidige profielparameters blijven voorlopige priors zolang bronnen geen overdraagbare soort- en uitkomstspecifieke curve ondersteunen.
+
+## 8.5 Limiterende factoren zijn geen gewone opteltermen
+
+Een ernstige beperking kan niet altijd worden gecompenseerd door een gunstige licht-, seizoens- of bewegingsscore. Mogelijke limiterende factoren worden daarom afzonderlijk beoordeeld:
+
+1. Er bestaat een relevante meting of betrouwbare schatting.
+2. De bron toont een effect op precies de betreffende uitkomst.
+3. De respons past bij soort, levensfase, bereik en watertype.
+4. De vorm volgt uit bewijs: bijvoorbeeld drempel, plafonnering, vermenigvuldigende modifier of interactie.
+5. Zonder voldoende bewijs wordt geen harde cap of universele grens verzonnen; de factor blijft onbekend of kwalitatieve context.
+
+Zuurstoftekort en thermische extremen zijn kandidaat-limiterende omstandigheden. Dit document stelt geen numerieke grens vast voor karper, meerval of een andere soort. Een grens uit één juveniele, aquacultuur- of laboratoriumstudie mag niet zonder overdraagbaarheidsbeoordeling als harde veldgrens worden gebruikt.
+
+## 8.6 Soortspecifieke consequenties voor de negen profielen
+
+De eerdere soortinventarisatie en bronrecord-ID's blijven bruikbaar als bewijsindex, maar deze interpretatie geldt:
+
+- **Karper:** voedingsritmes verschillen tussen natuurlijke, bijgevoerd- en aasstationcontexten. Geen universele nachtbonus. Zuurstof alleen als mogelijke limiter bij passende meting; ernstige tankhypoxie is geen algemene veldcorrectie. Bronnen: `common-carp-temperature-feeding-rhythm-2012`, `common-carp-juvenile-foraging-temperature-2012`, `common-carp-adult-bait-site-night-feeding-2018`, `common-carp-wild-night-feeding-lake-2010`, `common-carp-wild-bait-station-feeding-2022`, `common-carp-simulated-pond-no-distinct-diel-peak-2008`, `common-carp-wild-river-diel-feeding-1992`.
+- **Brasem:** zoöplanktonconsumptie, maagvulling en telemetrische activiteit zijn verschillende uitkomsten. Troebelheid uit één ondiep meer is geen universele voedingsfactor. Bronnen: `bream-in-situ-diel-zooplankton-consumption-2004`, `bream-roach-in-situ-diel-zooplankton-feeding-2004`, `roach-bream-metabolic-rate-temperature-2006`, `bream-activity-turbidity-shallow-lake-2019`.
+- **Snoek:** hartslag-/voedingsmetingen, juveniele functionele respons en habitatwisselingen blijven afzonderlijk. Schemerige habitatverplaatsing bewijst geen schemerpiek in voedselopname. Bronnen: `northern-pike-heart-rate-feeding-day-1991`, `northern-pike-functional-response-temperature-browning-2026`, `northern-pike-field-seasonal-feeding-diet-2025`, `northern-pike-metabolic-rate-temperature-1982`.
+- **Baars:** directe voedingsmetingen, aerobe-scope/temperatuur en telemetrische beweging ondersteunen verschillende uitkomsten. Een bewegingsrelatie met licht of temperatuur is niet automatisch een voedingsrelatie. Bronnen: `european-perch-aerobic-scope-size-temperature-2020`, `adult-perch-loch-leven-daily-ration-1977`, `perch-field-diel-feeding-seasonal-diet-1986`, `perch-lake-ladoga-diel-feeding-1982`, `perch-diel-feeding-lake-constance-2021`, `perch-fine-scale-abiotic-movement-lake-2018`.
+- **Blankvoorn:** voedselopname en dagritme moeten worden gekoppeld aan voedselgilde, levensfase en watertype. Habitatmigratie en dieetverschuiving zijn geen dagelijkse voedingsintensiteit. Bronnen: `roach-diel-diet-and-habitat-shifts-2002-2004`, `roach-macrophyte-diel-feeding-and-daily-intake-prejs-1978`, `roach-autumnal-diel-feeding-shift-2008`, `roach-diel-feeding-cycle-lake-aydat-1990`, `bream-roach-in-situ-diel-zooplankton-feeding-2004`, `roach-bream-metabolic-rate-temperature-2006`, `roach-diel-movement-clear-turbid-lakes-2004`.
+- **Zeelt:** veldmaaginhoud, gecontroleerd zelfvoeren en locomotorisch ritme zijn niet onderling uitwisselbaar. Overdracht tussen onderzoeksopzetten blijft beperkt. Bronnen: `tench-field-diel-seasonal-feeding-2018`, `tench-nocturnal-feeding-locomotor-rhythm-2005`, `tench-temperature-feeding-efficiency-2026`.
+- **Snoekbaars:** voedselopname, aerobe scope en dag-/nachtverdeling blijven gescheiden. Lichtrespons mag niet alleen op basis van algemene soortbeschrijvingen een hoger gewicht krijgen. Bronnen: `pikeperch-winter-spring-feeding-temperature-2020`, `pikeperch-feeding-intensity-size-gonad-season-2012`, `pikeperch-lake-ladoga-daily-feeding-rhythm-1982`, `adult-pikeperch-aerobic-scope-temperature-2012`, `pikeperch-diel-activity-dusk-drainage-canal-2005`, `pikeperch-diel-distribution-elbe-river-2008`.
+- **Meerval:** nachtelijke voedselopname bij vroege juvenielen mag niet worden gegeneraliseerd naar volwassen dieren. Volwassen telemetrische beweging/dieptegebruik is geen directe voedingsmaat. Temperatuurbegrenzing vereist passende soort- en levensfasegegevens. Bronnen: `wels-catfish-seasonal-diet-feeding-2025`, `european-catfish-diel-feeding-self-feeder-1995`, `wels-catfish-diel-feeding-rhythm-self-feeders-1995`, `juvenile-catfish-night-foraging-reservoirs-2025`, `european-catfish-feeding-and-activity-rhythms-1995-2012`, `adult-catfish-diel-activity-reservoir-2025`.
+- **Roofblei:** volwassen telemetrie ondersteunt beweging/activiteit; voedingsincidentie en dieet bij subadulten zijn andere uitkomsten dan dagelijkse voedselopname. Prooivisactiviteit is hooguit indirecte voedingscontext bij lokale gegevens. Geschikt stromend/open habitat hoort bij aanwezigheid/habitat, niet als automatische voedingsbonus. De lage bewijsdekking blijft zichtbaar; 0% in een samengestelde voedingsweging is niet langer een geldige conclusie omdat die samengestelde weging vervalt. Bronnen: `asp-annual-diel-activity-northern-population-2022`, `asp-diel-seasonal-movement-river-lake-2016-2020`, `asp-seasonal-feeding-incidence-danube-2010`.
+
+## 8.7 Tijdschalen en dag-/tijdvakuitvoer
+
+De verschillende uitkomsten mogen hun eigen relevante tijdschaal hebben:
+
+- **Langzame context:** thermische toestand/-historie, seizoen en biologische fase. Deze veranderen doorgaans geleidelijk en worden berekend op het doelmoment.
+- **Snelle context:** licht/dagritme, kortdurende zuurstof- of stromingsverandering en tijdgebonden voedingsrespons. Deze kunnen per tijdsegment verschillen en vereisen passende tijdstempels.
+- **Daguitkomst:** wordt, zodra dezelfde uitkomst per tijdsegment betrouwbaar beschikbaar is, afgeleid uit chronologische segmenten met passende duurweging. Er komt geen tweede dagformule die andere biologische factoren mengt.
+- **Geen vermenging:** een daggemiddelde van fysiologische activiteit mag niet worden gecombineerd met een tijdvakscore voor voeding. Uitkomst en betekenis blijven gelijk binnen de aggregatie.
+- **As-of-regel:** gegevens na het doelmoment mogen een eerdere prognose niet beïnvloeden. Ontbrekende uren, onbekende eindtijd en ontbrekende meetwaarden blijven expliciet onbekend.
+
+Dit is een ontwerpregel voor toekomstige modeluitwerking; de huidige dag- en tijdvakberekening wordt hiermee niet gewijzigd.
+
+## 8.8 Hoe gewichten later wél worden vastgesteld
+
+Er komt in deze stap geen nieuwe percentageverdeling. Per soort én per afzonderlijke uitkomst wordt eerst een evidence matrix gevuld met:
+
+1. bronrecord-ID en exacte gemeten responsvariabele;
+2. directheid: directe meting, proxy of context;
+3. richting en vorm van de respons;
+4. gemeten bereik en eventuele limiterende zones;
+5. soort, levensfase/grootte en onderzoekscontext;
+6. overdraagbaarheid naar Nederlandse veldsituaties;
+7. overlap/dubbeltelling met andere factoren;
+8. bewijskwaliteit en onzekerheid;
+9. toelatingsbesluit: numerieke kandidaat, kwalitatief/context of uitgesloten.
+
+Een numeriek gewicht wordt alleen voorgesteld als er binnen dezelfde uitkomst voldoende vergelijkbare en onafhankelijke responsinformatie bestaat om een rangorde te verdedigen. Bewijskwaliteit alleen levert geen effectgrootte op. Als bronnen geen kwantitatieve rangorde ondersteunen, blijft de factor kwalitatief en wordt geen percentage ingevuld.
+
+Ontbrekende invoer blijft onbekend. De engine mag ontbrekende factoren niet stilzwijgend als nul-effect behandelen, noch de overige gewichten zo herschalen dat de score een schijnbaar volledige dekking suggereert. Scoredekking en onzekerheid moeten afzonderlijk worden vastgelegd; bij ontbrekende essentiële basisinformatie kan een numerieke uitkomst niet verantwoord zijn.
+
+## 8.9 Vervolgvolgorde
+
+1. Koppel per soort de bestaande bronrecords aan de vier afzonderlijke uitkomsten en exacte responsvariabelen.
+2. Beoordeel voor fysiologische activiteit eerst thermische respons en mogelijke limiterende omstandigheden.
+3. Houd voor voedings-/foerageeractiviteit directe voedselopname, incidentie, ritme en foerageergedrag uit elkaar.
+4. Gebruik voor aanwezigheid/habitat uitsluitend passende lokale of habitatresponsgegevens.
+5. Leg voor iedere kandidaatfactor responscurve en toepassingsgrenzen vast.
+6. Beoordeel pas daarna of een numerieke factorweging binnen die ene uitkomst verdedigbaar is.
+7. Laat runtime, UI en opgeslagen snapshots ongewijzigd totdat een afzonderlijk, inhoudelijk goedgekeurd implementatievoorstel bestaat.
+
+**Conclusie:** optie 2 is de gekozen modelrichting. Fysiologische activiteit en voedings-/foerageeractiviteit worden niet samengevoegd. De eerdere percentages uit v0.1 zijn ingetrokken; er is nog geen nieuwe numerieke weging vastgesteld. Habitat/aanwezigheid en persoonlijke vangkans blijven eveneens afzonderlijk.
