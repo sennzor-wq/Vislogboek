@@ -411,7 +411,7 @@ export interface RodPositioningAdvice {
   recommendedZone: string;          // bijv. "Aanlandige oeverzone (windkant)", "Luwe oeverzone (beschut)", "Diepere rustzone / overgangszone"
   rationale: string;               // Fysische / biologische toelichting gebaseerd op wind, temperatuur, diepte en seizoen
   alternativeOption: string;       // Alternatief tactisch plan (bijv. luwte, dieper gat)
-  coverageLevel: 'Laag' | 'Matig' | 'Redelijk'; // Betrouwbaarheid van het advies (rekening houdend met ontbrekende oevergeometrie)
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk'; // Betrouwbaarheid van het advies (rekening houdend met ontbrekende oevergeometrie)
   windContext: {
     directionText: string;
     speedKmH: number | null;
@@ -850,7 +850,7 @@ export interface HabitatMovementAnalysis {
     pressureTrendImpact: string;
     lightAndSolarImpact: string;
   };
-  coverageLevel: 'Laag' | 'Matig' | 'Redelijk';
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
   dataProvenance: {
     measuredDataPoints: string[];
     userObservations: string[];
@@ -906,7 +906,7 @@ export interface PrebaitProgramPlan {
     digestibilityNote: string;
     particleSizeNote: string;
   };
-  coverageLevel: 'Laag' | 'Matig' | 'Redelijk';
+  confidenceLevel: 'Laag' | 'Matig' | 'Redelijk';
   missingInformation: string[];
   methodFeederGuidance?: string;
   personalEvidence?: {
