@@ -718,3 +718,22 @@ De eerste versie presenteert geen ongedifferentieerde totaalscore die fysiologie
 5. **Daarna:** Excel-tabbladen resterend valideren en passende parameters opnemen; daarna tuning op lokale metingen, waarnemingen en sessie-/vangstdata.
 
 **Acceptatie voor deze eerste codewijziging:** dagaggregatie is duurgewogen, incomplete dekking levert geen schijnbaar gemiddelde 5, en bestaande 1–10-velden blijven compatibel met de availability-vlag.
+
+
+## 15.5 Eerste runtime-integratie van afzonderlijke voedingsresponsen
+
+De prognose-engine levert nu een afzonderlijk `feedingActivity`-object naast de bestaande fysiologische `activityScore`. Dit object bevat geen samengestelde biologische totaalscore en verandert de persoonlijke vangkans niet.
+
+De responsen worden afzonderlijk gerapporteerd:
+
+- **Voedingsintensiteit:** directe voedselopname-intensiteit; dit is de enige kandidaat voor een latere numerieke voedingsindex.
+- **Voedingsincidentie:** maagvulling/vacuïteit of andere incidentieproxy; nooit automatisch gelijk aan hoeveelheid voedsel per tijdseenheid.
+- **Voedingsritme:** tijdgebonden voedselopname; zonder passende kwantitatieve curve geen ochtend-, avond-, schemer- of nachtbonus.
+- **Foerageergedrag:** zoeken, benaderen of ander foerageergedrag; afzonderlijk van daadwerkelijke voedselopname.
+- **Dieetsamenstelling en prooikeuze:** ecologische context, geen intensiteitsindex.
+
+Elke respons bevat de bron-ID's, het aantal bronnen, de bewijsrol en een expliciete aanduiding of de respons voor voorspelling inzetbaar is. Alleen bronregistraties tellen niet als toestemming voor voorspelling: alle huidige responsen blijven `predictionEligible: false` totdat een kwantitatieve parameterisatie inhoudelijk is gevalideerd.
+
+Daarom is `feedingActivity.score` in deze eerste integratiestap bewust `null` en de status `insufficient_evidence` (of `not_applicable` voor `Overig`). Dit is geen mislukte berekening en geen gemiddelde score; het is een expliciet modelresultaat dat voorkomt dat voedingsintensiteit wordt verzonnen uit maagvulling, dieet, beweging of een fysiologische temperatuurcurve.
+
+**Vervolg:** per soort de eerste afzonderlijke voedingsresponsfuncties kwantificeren waar primaire bronnen dat werkelijk toelaten; daarna tests voor richting, bereik, levensfase, context en ontbrekende invoer toevoegen. Tot die validatie blijft de fysiologische score ongewijzigd en wordt geen voedingsbonus opgeteld.

@@ -19,6 +19,7 @@ import {
 } from '../types';
 import { SPECIES_PROFILES, SpeciesProfile, calculateThermalEfficiency } from './fishProfiles';
 import { getSpeciesDielTimeContextText } from './dielBehaviorEvidenceService';
+import { assessSpeciesFeedingActivity } from './feedingResponseEngine';
 import { getSpeciesThermalEvidenceContextText } from './thermalEvidenceService';
 import { calculateCivilTwilightTimes } from './solarTimeEngine';
 import type { CivilTwilightTimes } from './solarTimeEngine';
@@ -1339,6 +1340,7 @@ export function calculateDayPrognosis(
     date: dateStr,
     dayName,
     species,
+    feedingActivity: assessSpeciesFeedingActivity(species === 'Algemeen' ? 'Overig' : species),
     activityScore: dayScore,
     activityScoreAvailable: dayScoreAvailable,
     weatherDataQuality,

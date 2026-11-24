@@ -283,6 +283,34 @@ export interface TimeSlotExposureSummary {
   totalRodHours: number;
 }
 
+
+/** Separately reported literature evidence for a feeding response; not a catch probability. */
+export type FeedingEvidenceLevel = 'direct_candidate' | 'proxy_only' | 'context_only' | 'none';
+
+export interface FeedingResponseEvidenceSummary {
+  evidenceLevel: FeedingEvidenceLevel;
+  sourceCount: number;
+  sourceIds: string[];
+  predictionEligible: boolean;
+  note: string;
+}
+
+export interface FeedingActivityAssessment {
+  /** Null until a species-specific quantitative feeding response is parameterised and validated. */
+  score: number | null;
+  status: 'insufficient_evidence' | 'not_applicable';
+  evidenceLevel: FeedingEvidenceLevel;
+  responses: {
+    intensity: FeedingResponseEvidenceSummary;
+    incidence: FeedingResponseEvidenceSummary;
+    rhythm: FeedingResponseEvidenceSummary;
+    foraging: FeedingResponseEvidenceSummary;
+    diet: FeedingResponseEvidenceSummary;
+    preySelection: FeedingResponseEvidenceSummary;
+  };
+  explanation: string;
+}
+
 export interface FactorBreakdown {
   score: number;       // Relatieve invloed op de activiteitsindex
   impact: 'positief' | 'neutraal' | 'negatief';
@@ -333,6 +361,8 @@ export interface HistoricalCatchRateInfo {
 }
 
 export interface DayPrognosis {
+  /** Separate evidence/status output; never folded into physiological activity or catch chance. */
+  feedingActivity?: FeedingActivityAssessment;
   dataQualityReport?: import('../services/dataQualityEngine').DataQualityReport;
   date: string;                   // YYYY-MM-DD
   dayName: string;                // "Vandaag", "Morgen", "Woensdag 28 okt"
