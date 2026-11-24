@@ -3043,9 +3043,9 @@ De bijbehorende test controleert dat bij opt-out geen netwerkverzoek plaatsvindt
 
 ### Productbesluit
 - Iedere visstek gebruikt uitsluitend de eigen geregistreerde `FishingLocation.waterDepth` als totale waterkolomdiepte. Er wordt geen algemene diepte als vervanging gebruikt wanneer de stekdiepte ontbreekt.
-- Voor karperprognoses is de temperatuur op de bodem van die specifieke stek de primaire thermische invoer. Dit geldt onafhankelijk van methode: method feeder, PVA of andere bodemaanbieding.
+- Voor karperprognoses is de temperatuur op de bodem van die specifieke stek de primaire thermische invoer. Voor andere soorten blijft de soortdoeldiepte configureerbaar; zolang die niet is onderbouwd, gebruikt het model het volumegemiddelde. Dit geldt onafhankelijk van methode: method feeder, PVA of andere bodemaanbieding.
 - De waterkolom blijft een profiel: oppervlakte-, midden- en bodemtemperatuur zijn afzonderlijke grootheden. Oppervlakte-ijs of een koude bovenlaag mag niet worden vertaald naar een fictieve negatieve bodemtemperatuur.
-- Een handmatige meting op een andere diepte wordt als observatie op die meetdiepte verwerkt en mag niet als bodemmeting worden gepresenteerd. Alleen een meting binnen 0,2 m van de geregistreerde bodemdiepte telt als actuele bodemmeting.
+- Een handmatige meting op een andere diepte wordt als observatie op die meetdiepte verwerkt en mag niet als bodemmeting worden gepresenteerd. Voor karper telt alleen een meting binnen 0,2 m van de geregistreerde bodemdiepte als actuele bodemmeting.
 - Bestaande vangstscore, soortcurves en biologische parameters blijven ongewijzigd. Alleen de thermische invoer wordt vervangen wanneer het fysieke model een geldige uitkomst heeft.
 
 ### Prognose- en snapshotcontract
