@@ -139,6 +139,8 @@ export interface FishingLocation {
   /** Optional site physics; absent values remain explicit model priors. */
   windExposure?: 'sheltered' | 'partly_exposed' | 'exposed';
   effectiveFetchM?: number;
+  /** User opt-in: share this stek's exact GPS coordinates with OpenStreetMap Overpass for automatic water fetch. */
+  automaticWaterFetchEnabled?: boolean;
   /** 16 directional upwind fetch distances, clockwise from north, derived from mapped water geometry. */
   windFetchByDirectionM?: number[];
   secchiDepthM?: number;
