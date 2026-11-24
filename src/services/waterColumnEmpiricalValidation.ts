@@ -249,8 +249,12 @@ export function evaluateWaterColumnEmpiricalValidation(
       const snapshotCreatedMs = parseTime(snapshot.createdAt);
       const recordedMs = parseTime(measurement.recordedAt);
       if (asOfMs === null || forecastMs === null || snapshotCreatedMs === null ||
-          recordedMs === null || asOfMs > measuredAtMs || forecastMs > measuredAtMs ||
-          snapshotCreatedMs > measuredAtMs || recordedMs < measuredAtMs ||
+          recordedMs === null ||
+          // The forcing must already have been available when the forecast was made
+          // and no later than the immutable snapshot creation moment.
+          asOfMs > forecastMs || asOfMs > snapshotCreatedMs || forecastMs > snapshotCreatedMs ||
+          asOfMs > measuredAtMs || forecastMs > measuredAtMs || snapshotCreatedMs > measuredAtMs ||
+          recordedMs < measuredAtMs ||
           recordedMs <= Math.max(asOfMs, forecastMs, snapshotCreatedMs)) return false;
       return true;
     });
