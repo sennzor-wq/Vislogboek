@@ -630,6 +630,16 @@ Leidende uitwerking:
 
 **Status:** ontwerpbesluit vastgelegd; nog geen runtime-score, numerieke gewichten of tactiekcode gewijzigd.
 
+### Voortgang factor-/responsinventarisatie
+
+De eerste volledige dekkingscontrole van het bestaande research register is uitgevoerd en vastgelegd in `SOORTSPECIFIEKE_SCOREWEGING_PER_VIS.md` §18:
+- 95 geregistreerde records; 0 zijn goedgekeurd voor directe numerieke voorspelling.
+- De dekking is per soort ongelijk: Karper, Brasem, Baars, Blankvoorn en Snoekbaars hebben meerdere directe voedingsintensiteits-/ritmekandidaten; Snoek en Meerval hebben kleinere of levensfasegebonden responssets; Zeelt heeft beperkte veld-/proefgegevens; Roofblei heeft geen directe voedingsintensiteitsbron in het huidige register.
+- Temperatuur, zuurstof, licht/dagritme, seizoen, troebelheid, druk, wind, stroming, prooiaanbod, habitat en vangbaarheid zijn afzonderlijk geïnventariseerd. Bron-aantallen zijn nadrukkelijk geen gewichten.
+- Algemene bronnen, Cunner en de verwante Noord-Amerikaanse gele baars worden niet als directe soortspecifieke parameters voor de negen doelsoorten gebruikt.
+
+Dit is de eerste dekkingscontrole, geen voltooide kwantitatieve responsmatrix en geen goedkeuring van factoren. De volgende hoofdtaak blijft het beoordelen van de primaire bronresponsen en hun richting/vorm, context en invoervereisten, gevolgd door de soortspecifieke samenvoegfunctie.
+
 ### Eerstvolgende hoofdtaak
 Werk de bestaande factorinventaris en evidence matrix in één samenhangende modeluitwerking bij. Neem alle eerder geïdentificeerde factorfamilies mee: temperatuur en thermisch verloop, zuurstof, licht/fotoperiode, dagritme, seizoen/biologische fase, voedselopname, voedingsincidentie en -ritme, foerageergedrag, prooiaanbod, troebelheid/zicht, wind/waterbeweging/stroming, habitat/diepte/dekking en relevante weerscontext.
 

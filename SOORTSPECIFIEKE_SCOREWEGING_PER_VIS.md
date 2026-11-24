@@ -836,3 +836,60 @@ Voor voeding is op dit moment **geen verdedigbaar numeriek percentagebudget** va
 9. De numerieke samenvoegfunctie en factorbijdragen worden pas geactiveerd nadat de volledige factor-/responsmatrix per soort is beoordeeld. Onbekende effecten worden niet als nul-effect gepresenteerd en leveren ook geen verzonnen bonus op.
 
 **Acceptatie:** één score van 1–10 in de bestaande dag-/tijdvakweergave; twee afzonderlijke onderliggende biologische responsen; tactiek verklaart hoe op het verwachte gedrag gevist kan worden; Prognose blijft eigenaar van alle biologische inhoud; VisCoach is uitsluitend de advies-/tactiekconsument; persoonlijke vangkans blijft empirisch en apart.
+
+
+## 18. Eerste volledige dekkingscontrole van het research register (24-11-2026)
+
+**Bron van deze telling:** `src/services/researchRegistry.ts` op branch `feat/fase2-prognosis-evidence-flow`. Het register bevat 95 records. Geen van de 95 records heeft `approvedForPrediction: true`. De aantallen hieronder tellen records die de genoemde meetrespons classificeren; één record kan meerdere responsen en meerdere soorten bevatten. Het zijn dus geen onafhankelijke steekproeven, effectgroottes, gewichten of voorspelscores.
+
+| Soort | Metabolisme | Aerobe scope | Voedselopname-intensiteit | Voedingsritme | Foerageergedrag | Locomotie | Habitatgebruik | Vangbaarheid/catch |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Karper | 1 | 0 | 8 | 7 | 7 | 2 | 6 | 2 |
+| Brasem | 1 | 0 | 4 | 3 | 2 | 4 | 4 | 0 |
+| Snoek | 1 | 0 | 4 | 1 | 0 | 5 | 4 | 2 |
+| Baars | 1 | 1 | 6 | 4 | 0 | 3 | 2 | 1 |
+| Blankvoorn | 1 | 0 | 8 | 6 | 1 | 2 | 4 | 0 |
+| Zeelt | 0 | 0 | 3 | 2 | 1 | 1 | 1 | 1 |
+| Snoekbaars | 1 | 1 | 4 | 1 | 0 | 3 | 2 | 0 |
+| Meerval | 0 | 0 | 4 | 4 | 1 | 5 | 5 | 0 |
+| Roofblei | 0 | 0 | 0 | 0 | 0 | 2 | 2 | 0 |
+
+**Interpretatie per soort — wat de huidige bronset wel en niet draagt:**
+
+| Soort | Eerste bruikbare responskandidaten | Belangrijkste beperking voor een dagelijkse/tijdvakrespons |
+|---|---|---|
+| Karper | Voedselopname en voedingsritme in veld- en voerlocatiestudies; juveniele foerageersnelheid; beperkte acute thermische en hypoxiegegevens; stroming/habitat | Veel nachtelijke resultaten zijn gekoppeld aan bijgevoerd aasstations of specifieke wateren. Niet generaliseren naar een universele nachtbonus of alle voercondities. |
+| Brasem | In-situ zoöplanktonconsumptie en voedingsritme; filtervoeding/prooigrootte; locomotie en habitat, waaronder troebelheidsrelatie | Voedselgilde, lengteklasse en habitat zijn bepalend. De troebelheidsstudie meet locomotorische activiteit in één ondiep meer, geen universele voedselopname. |
+| Snoek | Directe voedings-/hartslagcontext; juveniele functionele prooiconsumptie en levensfasegebonden ritme; telemetrische beweging/habitat; hengelvangbaarheid | Voedingsproeven verschillen sterk naar levensfase en prooiconditie. Schemerbeweging is geen jachtpiek; laboratoriumprooiconsumptie is geen veldvangstkans. |
+| Baars | Aerobe scope met grootte-/temperatuurafhankelijkheid; diverse veldmetingen van voedselopname en ritme; telemetrische beweging; één recreatieve vangsttempo-studie | Voedingsritme verschilt per seizoen, grootteklasse en habitat. Aerobe scope, locomotie en voedselopname blijven aparte responsen. |
+| Blankvoorn | Meerdere veldbronnen over voedselopname, dagritme, dieet en habitat; metabole temperatuurrespons; dag-/nachtbeweging | Voedselgilde, leeftijd, helderheid en seizoen veranderen het patroon. Geen universeel vast dag-/nachtprofiel. |
+| Zeelt | Directe maar beperkte veld- en gecontroleerde voedselopname/ritmegegevens; beperkte temperatuurrespons; locomotorisch ritme | Kleine bronset en sterke context-/levensfasebeperkingen. De karper-zeelt aasontmoetingsstudie bewijst geen algemene zeeltvangbaarheid. |
+| Snoekbaars | Aerobe scope bij volwassen kweekvis; voedingsintensiteit en seizoensritme; juveniele rantsoengegevens; beweging/habitat | Brede aerobe-scopezone; voedingsritme uit Ladoga en kweekproeven is niet automatisch overdraagbaar naar Nederlandse wateren of alle seizoenen. |
+| Meerval | Volwassen locomotie/habitat en dieptegebruik; gecontroleerd voedingsritme; juveniele nachtelijke voedings-/foerageergegevens; seizoensdieet | De directe voedingsbronnen verschillen sterk in leeftijd en onderzoeksopzet. Juveniele nachtvoeding en zelfvoerbakken zijn geen universele volwassen veldrespons. |
+| Roofblei | Telemetrische dag-/seizoensbeweging en habitat; dieet/prooikeuze; één beperkte voedingsincidentiebron | Geen geregistreerde directe dagelijkse voedselopname-intensiteit of voedingsritme. Dieet, prooikeuze en incidentie vullen dit gat niet op. |
+
+### 18.1 Factorfamilies buiten de directe soorttabellen
+
+| Factorfamilie | Huidige brondekking in het register | Modelbehandeling voor nu |
+|---|---|---|
+| Watertemperatuur/thermiek | Algemene waterthermiekmodellen; soortspecifiek metabolisme/aerobe scope voor een deel van de soorten; enkele directe voedingsresponsen | Per respons onderscheiden. Metabolisme/groei niet automatisch omzetten naar beweging of voedselopname. |
+| Zuurstof | Vooral karperstudies naar hypoxie en voedselopname/activiteit | Mogelijke limiter; geen generieke soortbonus en geen zuurstof afleiden zonder betrouwbare meting/proxy. |
+| Licht/fotoperiode/dagritme | Meerdere soortspecifieke voedings- en locomotiebronnen met dag-/nacht-/schemerwaarnemingen | Respons en tijdvenster per bron behouden; geen algemene ochtend-, schemer- of nachtbonus. |
+| Seizoen/biologische fase | Voedings-, bewegings-, habitat- en migratiestudies bij meerdere soorten | Modulator/context. Kalendermaand niet gelijkstellen aan levensfase of dagelijkse voedselopname. |
+| Troebelheid/zicht | Brasemtelemetrie; juveniele snoek-prooiconsumptie onder zicht-/verbruiningcondities; algemene review | Alleen soort-, prooi-, habitat- en responsgebonden toepassen. |
+| Luchtdruk | Eén beperkte Europese-baarsbewegingstudie; daarnaast een verwante Noord-Amerikaanse baarsstudie | Geen algemene drukfactor. De verwante soort is geen directe Europese-baarsparameter. |
+| Wind/bewolking/neerslag | Indirecte relaties via troebelheid, licht, menging of habitat; geen uniforme directe voedingsrespons | Alleen via de aantoonbare tussenliggende respons; geen zelfstandige weersbonus. |
+| Stroming/waterbeweging | Karpertelemetrie plus algemene rivier-/flowreviews | Lokale habitat-/bewegingscontext; niet zonder meer totale activiteit of voedselopname. |
+| Prooiaanbod/voedselbeschikbaarheid | Dieet-, prooikeuze- en voedselgildebronnen; weinig lokale prooidichtheidsdata | Context/voorwaarde. Geen lokale voedselbeschikbaarheid afleiden uit alleen dieetliteratuur. |
+| Diepte/bodem/vegetatie/dekking | Habitat- en telemetriebronnen voor meerdere soorten | Aanwezigheids-/habitatlaag en input voor tactiek; alleen in de score bij een gevalideerde koppeling. |
+| Hengelvangbaarheid | Enkele bronnen voor baars, snoek, karper/zeelt en karperwedstrijdvangsten | Niet mengen met biologische responsindex. Eigen vangsttempo blijft apart en empirisch. |
+
+### 18.2 Registerbeperkingen die expliciet blijven
+
+- De telling is gebaseerd op `measuredOutcomes`, niet alleen op onderwerp of samenvatting. Een bron die uitsluitend dieet/prooikeuze meet, telt dus niet als directe voedingsintensiteit.
+- Alle 95 registraties zijn nog niet goedgekeurd voor directe numerieke voorspelling. De matrix is een startpunt voor responsbeoordeling, geen automatische vrijgave.
+- De registry bevat ook algemene bronnen zonder soortkoppeling, één verwante soort (gele baars, `Perca flavescens`) en een Cunner-studie. Deze worden niet als directe soortspecifieke parameters voor de negen Nederlandse doelsoorten gebruikt.
+- Het aantal bronrecords is geen bewijssterkte of gewicht. Primaire studieopzet, gemeten respons, effectrichting, effectgrootte, levensfase, watertype en overdraagbaarheid moeten per bron worden nagekeken.
+- De factorfamilies licht, zuurstof, stroming, troebelheid, druk, wind en prooiaanbod zijn niet voor alle negen soorten even goed gedekt. Ontbrekende brondekking betekent onzeker/kwalitatief, niet biologisch nul.
+
+**Uitkomst van deze eerste controle:** het register bevat al bruikbare directe voedings- en gedragskandidaten voor meerdere soorten, maar geen uniforme responsbasis voor alle negen. De eerstvolgende inhoudelijke uitwerking moet daarom per bron de daadwerkelijke responsvorm en effectrichting naast de vereiste Prognose-invoer leggen; niet opnieuw beginnen met alleen een generieke factorvolgorde of bron-aantallen.
