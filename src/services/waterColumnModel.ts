@@ -217,10 +217,12 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     // documented neutral prior rather than inventing a local correction.
     const directionalFetchM = getDirectionalFetchM(input.windFetchByDirectionM, sample.windDirectionDegrees);
     const effectiveFetchM = directionalFetchM ?? (validFetch ? input.effectiveFetchM as number : undefined);
-    const fetchFactor = effectiveFetchM !== undefined
+    const fetchEnergyFactor = effectiveFetchM !== undefined
       ? clamp(Math.sqrt(effectiveFetchM / 100), 0.5, 2.5)
       : scalarFetchFactor;
-    const waterWindMs = clamp(windMs * exposureFactor * fetchFactor, 0, 30);
+    // Fetch affects wave-development/mixing work, not the meteorological wind
+    // speed used by the air-water bulk heat-flux parameterisation.
+    const waterWindMs = clamp(windMs * exposureFactor, 0, 30);
     const cloud = clamp(sample.cloudCoverPercent ?? 50, 0, 100) / 100;
     const shortwave = clamp(sample.shortwaveRadiationWm2 ?? 0, 0, 1600);
     const dewPoint = Number.isFinite(sample.dewPointC)
@@ -278,7 +280,7 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     // Wind energy is converted to a conservative, energy-limited exchange
     // budget. This is a bulk potential-energy gate, not a resolved TKE model.
     const windStressPa = AIR_DENSITY_KG_M3 * WIND_DRAG_COEFFICIENT * waterWindMs ** 2;
-    const windWorkJm2 = WIND_MIXING_EFFICIENCY * windStressPa * waterWindMs * 3600 /
+    const windWorkJm2 = WIND_MIXING_EFFICIENCY * windStressPa * waterWindMs * fetchEnergyFactor * 3600 /
       (temperatures.length - 1);
     for (let i = 0; i < temperatures.length - 1; i++) {
       const densityDifference = Math.abs(freshwaterDensityKgM3(temperatures[i]) -
