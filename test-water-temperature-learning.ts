@@ -44,6 +44,7 @@ const physicalBottomPairs = Array.from({ length: 8 }, (_, index) =>
     id: `bottom-${index}`,
     predictedWaterColumnProfile: {
       totalDepthM: 1.2,
+      targetDepthM: 1.2,
     } as any,
     actualWaterTemperatureMeasurementDepthM: 1.2,
   })
