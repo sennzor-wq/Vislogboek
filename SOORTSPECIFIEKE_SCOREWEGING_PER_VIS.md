@@ -273,3 +273,67 @@ Ontbrekende invoer blijft onbekend. De engine mag ontbrekende factoren niet stil
 7. Laat runtime, UI en opgeslagen snapshots ongewijzigd totdat een afzonderlijk, inhoudelijk goedgekeurd implementatievoorstel bestaat.
 
 **Conclusie:** optie 2 is de gekozen modelrichting. Fysiologische activiteit en voedings-/foerageeractiviteit worden niet samengevoegd. De eerdere percentages uit v0.1 zijn ingetrokken; er is nog geen nieuwe numerieke weging vastgesteld. Habitat/aanwezigheid en persoonlijke vangkans blijven eveneens afzonderlijk.
+
+# 9. Koppeling met \`vismodel_voorstel_v2.xlsx\` — direct bruikbare informatie (24-11-2026)
+
+**Status:** eerste inhoudelijke koppeling; de overige Excel-inhoud is nog niet volledig gevalideerd.  
+**Bronbestand:** \`vismodel_voorstel_v2.xlsx\`, versie 2, 11 tabbladen.  
+**Uitgangspunt:** het bestaande \`researchRegistry.ts\` blijft de centrale bewijsregistratie. De Excel is een aanvullende bron-/parameterinventaris en wordt niet als tweede soortcatalogus of als gevalideerde modelconfiguratie overgenomen.
+
+## 9.1 Informatie die direct als bewijsinput kan worden benut
+
+Onderstaande bevindingen zijn al terug te vinden in het bestaande onderzoeksregister. Ze kunnen dus nu worden meegenomen in de evidence matrix, met behoud van de genoemde beperkingen. Dit betekent nog niet dat de Excel-parameters of een numeriek gewicht zijn goedgekeurd.
+
+| Soort | Bestaand bronrecord | Wat de bron daadwerkelijk ondersteunt | Toegestane modelrol en grens |
+|---|---|---|---|
+| Karper | \`common-carp-juvenile-foraging-temperature-2012\` | Experimentele foerageersnelheid van jonge karpers (circa 90–105 mm) bij 16, 20, 24 en 28 °C; hoogste gemeten foerageersnelheid bij 24 °C. | Direct bewijs voor temperatuurafhankelijk foerageergedrag bij juvenielen. Niet zonder meer toepassen op volwassen karper of gebruiken als fysiologische optimumcurve. |
+| Karper | \`common-carp-temperature-feeding-rhythm-2012\` | Experimentele voedselopname en voedingsritme bij een Aziatische ondersoort en verschillende temperatuurbehandelingen; zowel temperatuur als tijdstip beïnvloedden de gemeten opname. | Direct bewijs voor voedingsintensiteit/-ritme binnen de onderzochte populatie en proefopzet. Niet als universeel Nederlands dagritme of volwassen veldcurve behandelen. |
+| Snoekbaars | \`adult-pikeperch-aerobic-scope-temperature-2012\` | Aerobe scope bij volwassen kweek-snoekbaars; modelmaximum 18,8 °C en afgeleid 80%-bereik 10,4–26,9 °C. Tussen 13 en 25 °C was geen significant verschil in aerobe scope aangetoond. | Fysiologische uitkomst. Geen directe voedings-, jacht- of vangstcurve. De brede niet-significante zone en beperkte 28 °C-steekproef blijven expliciet vermeld. |
+| Snoekbaars | \`pikeperch-diel-activity-dusk-drainage-canal-2005\` | Veldonderzoek naar dagactiviteit van volwassen snoekbaars in een drainagekanaal in het voorjaar; gemeten uitkomst is locomotorische activiteit. | Ondersteunt tijdgebonden bewegingsactiviteit in de onderzochte context. Niet gelijkstellen aan voedselopname of een universele schemerbonus. |
+| Meerval | \`adult-catfish-northern-fringe-seasonal-diel-movement-2024\` | Telemetrie van volwassen Europese meerval in het Zweedse Möckelnmeer; seizoensafhankelijk verticaal gedrag en verschillen tussen dag en nacht, met individuele en seizoensvariatie. | Ondersteunt seizoens- en tijdafhankelijk bewegings-/habitatgedrag. Geen directe meting van voedselopname; de noordelijke populatiecontext beperkt overdraagbaarheid. |
+| Zeelt | \`tench-temperature-feeding-efficiency-2026\` | Experimentele vergelijking bij 18 en 25 °C; bij zeelt werd een lagere maximale voedselopname bij 25 °C dan bij 18 °C gerapporteerd. | Directe aanwijzing voor een niet-monotone temperatuurrelatie met voedselopname. Niet omzetten naar een volledige curve of optimum zonder de broncontext en meetgegevens nader te controleren. |
+| Brasem en blankvoorn | \`bream-roach-in-situ-diel-zooplankton-feeding-2004\` | In-situ maaginhoud-/consumptieonderzoek rapporteerde voor de onderzochte zoöplankton-etende vissen een overwegend daggebonden voedingsritme en een nachtelijke daling van maagvulling. | Direct bewijs voor voedingsintensiteit/-ritme binnen de onderzochte voedselgilde, lengteklassen en het stuwmeer. Dit is aanvullend bestaand registerbewijs; het is niet dezelfde publicatie als de Říha et al. 2015-verwijzing in de Excel. |
+
+## 9.2 Excel-waarden die niet rechtstreeks worden overgenomen
+
+De volgende onderdelen zijn nuttig als hypotheses of als controlelijst, maar zijn op dit moment geen gevalideerde score-invoer:
+
+- **Archetypegewichten (45/20/15/20 enz.):** afgeleid uit een oude eigen tabel en afgerond; geen gemeten effectgroottes. Bovendien mogen archetypen soortverschillen niet verbergen. Ze zijn geen numeriek gewicht voor een van de vier afzonderlijke uitkomsten.
+- **Temperatuurcurves T0–T3:** meerdere onderliggende claims komen uit verschillende responsen (groei, voedselopname, foerageren, metabolisme, voorkeur of tolerantie). Alleen een bron met de juiste gemeten uitkomst mag een curve voor die uitkomst ondersteunen. Geschatte curve-eindpunten blijven priors.
+- **Zuurstofdrempels:** het Excel-tabblad vermeldt zelf dat de drempels voor alle soorten schattingen zijn. Ze mogen niet als harde soortspecifieke limiter of vermenigvuldigingsfactor worden gebruikt.
+- **Dagritmegetallen:** de meeste waarden zijn expliciet geschat. Een gemeten bewegingsritme mag niet worden omgezet in een voedingsritme; broncontext, seizoen en levensfase moeten behouden blijven.
+- **Maandelijkse seizoensscores:** grotendeels geschat uit paai-/seizoensbeschrijvingen. Kalendermaand is geen directe maat voor voedingsdrang. Risico op dubbeltelling met temperatuur en fotoperiode.
+- **Troebelheidsfactoren:** de getallen zijn geschat en de richting hangt af van soort, jachtwijze, prooi, licht en watertype. Telemetrische activiteit is niet automatisch voedingsactiviteit.
+- **Voedsel-/prooiaanbodrubric:** klasse Laag/Gemiddeld/Hoog is geen lokale meting en prooiaanbod is niet hetzelfde als voedselopname.
+- **Wateractiviteitsrubric:** de scores voor stil/zwak/matig/sterk zijn modelaannames; eerst moet worden vastgesteld of de invoer stroming, scheepvaart, gemaal of een andere waterbeweging representeert en welke uitkomst daarop reageert.
+- **Ontbrekende drivers herschalen:** het Excel-voorstel herverdeelt het gewicht over beschikbare drivers. Dat kan een schijnbaar volledige score opleveren terwijl essentiële informatie ontbreekt. Dit wordt niet overgenomen zonder expliciete dekking- en onzekerheidsregels.
+
+De bronvermelding in de Excel waarschuwt bovendien dat niet elke bron volledig is gelezen en dat sommige samenvattingen alleen op abstracts of fragmenten zijn gebaseerd. De daarin genoemde numerieke waarden worden daarom niet als geverifieerde bronextracties behandeld.
+
+## 9.3 Gevolg voor de huidige score-uitwerking
+
+1. De hierboven genoemde bestaande bronrecords worden meegenomen in de soort-/uitkomstmatrix; er wordt geen tweede bronregister of tweede soortcatalogus aangemaakt.
+2. De bewijsrespons blijft gescheiden: fysiologie, voedselopname, foerageergedrag, locomotorische activiteit en habitatgebruik zijn niet onderling uitwisselbaar.
+3. Een record kan een factor inhoudelijk ondersteunen zonder dat daarmee al een numeriek gewicht, curveparameter of limiterdrempel is vastgesteld.
+4. De Excel-architectuur met habitatgate en mogelijke limiterende factoren is een bruikbare ontwerpgedachte, maar de concrete vermenigvuldigingsformule en parameters worden niet één-op-één overgenomen. Per biologische uitkomst moet eerst worden vastgesteld welke factorrol door bewijs wordt gedragen.
+5. Er is in deze stap geen runtimecode gewijzigd en geen Excel-parameter goedgekeurd.
+
+## 9.4 Voortgang en hervatpunt
+
+**Afgerond in deze werkslag**
+- Alle 11 Excel-tabbladen zijn geïnventariseerd.
+- De bronlijst en de modeltabellen zijn vergeleken met het bestaande onderzoeksregister.
+- De direct herbruikbare bestaande bewijsrecords en hun toegestane uitkomst zijn hierboven vastgelegd.
+- Niet-gevalideerde Excel-aannames en parameters zijn expliciet uitgesloten van directe score-invoer.
+
+**Huidige opdracht — nog niet afgerond**
+- De bestaande soortspecifieke rangordes en bronrecords verder omzetten naar een evidence matrix per soort en per afzonderlijke uitkomst.
+- Per factor vastleggen: directe meting/proxy/context, gemeten respons, richting/vorm, soort en levensfase, onderzoekscontext, overdraagbaarheid, overlap/dubbeltelling en onzekerheid.
+- Pas daarna een verdedigbaar soortspecifiek wegingsvoorstel maken. Geen percentages afleiden uit alleen bewijssterkte of uit de Excel-archetypegewichten.
+
+**Volgende stap na afronding van de huidige wegingstaak**
+- De overige inhoud van \`vismodel_voorstel_v2.xlsx\` systematisch valideren: eerst de nog niet gekoppelde bronnen, daarna per tabblad de getallen en aannames.
+- Nieuwe, voldoende gecontroleerde bronnen toevoegen aan het bestaande \`researchRegistry.ts\`; gevalideerde parameters pas na expliciete beoordeling in de bestaande soortprofielen/modelarchitectuur verwerken.
+- Daarna pas beoordelen welke runtime-scoreberekeningen aangepast moeten worden.
+
+**Hervatten vanaf:** de evidence matrix en soortspecifieke rangorde; de Excel-koppeling hierboven is vastgelegd en hoeft niet opnieuw vanaf nul te worden gedaan.
