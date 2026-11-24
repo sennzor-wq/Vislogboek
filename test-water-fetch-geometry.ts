@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { db } from './src/db/db';
-import { getAutomaticWaterFetch, getDirectionalFetchM } from './src/services/waterFetchGeometry';
+import { getAutomaticWaterFetchForLocation, getDirectionalFetchM } from './src/services/waterFetchGeometry';
 
 async function run() {
   const sectors = Array.from({ length: 16 }, (_, index) => index * 100);
@@ -33,7 +33,15 @@ async function run() {
     }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }) as typeof fetch;
   try {
-    const result = await getAutomaticWaterFetch(52, 5);
+    const optedOut = await getAutomaticWaterFetchForLocation({
+      latitude: 52, longitude: 5, automaticWaterFetchEnabled: false,
+    });
+    if (optedOut !== null || calls !== 0) {
+      throw new Error('Without explicit opt-in, exact coordinates must not be sent to OpenStreetMap.');
+    }
+    const result = await getAutomaticWaterFetchForLocation({
+      latitude: 52, longitude: 5, automaticWaterFetchEnabled: true,
+    });
     if (!result || result.source !== 'openstreetmap' || result.sectorFetchM.length !== 16 ||
         result.sectorFetchM.some((distance) => !Number.isFinite(distance) || distance <= 0)) {
       throw new Error('A containing OSM water polygon should produce 16 positive directional fetch distances.');
@@ -43,7 +51,9 @@ async function run() {
     if (north < 100 || east < 60 || Math.abs(north - east) < 20) {
       throw new Error('Directional fetch must reflect the polygon geometry rather than one scalar distance.');
     }
-    const cached = await getAutomaticWaterFetch(52, 5);
+    const cached = await getAutomaticWaterFetchForLocation({
+      latitude: 52, longitude: 5, automaticWaterFetchEnabled: true,
+    });
     if (!cached || calls !== 1) throw new Error('Fresh directional fetch must be reused from IndexedDB cache.');
     console.log('Water fetch geometry tests passed.');
   } finally {
