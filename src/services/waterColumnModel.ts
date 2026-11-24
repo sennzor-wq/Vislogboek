@@ -280,8 +280,9 @@ export function simulateWaterColumn(input: WaterColumnModelInput): WaterColumnMo
     // Wind energy is converted to a conservative, energy-limited exchange
     // budget. This is a bulk potential-energy gate, not a resolved TKE model.
     const windStressPa = AIR_DENSITY_KG_M3 * WIND_DRAG_COEFFICIENT * waterWindMs ** 2;
-    const windWorkJm2 = WIND_MIXING_EFFICIENCY * windStressPa * waterWindMs * fetchEnergyFactor * 3600 /
-      (temperatures.length - 1);
+    const waterFrictionVelocityMs = Math.sqrt(windStressPa / WATER_DENSITY_KG_M3);
+    const windWorkJm2 = WIND_MIXING_EFFICIENCY * windStressPa * waterFrictionVelocityMs *
+      fetchEnergyFactor * 3600 / (temperatures.length - 1);
     for (let i = 0; i < temperatures.length - 1; i++) {
       const densityDifference = Math.abs(freshwaterDensityKgM3(temperatures[i]) -
         freshwaterDensityKgM3(temperatures[i + 1]));
